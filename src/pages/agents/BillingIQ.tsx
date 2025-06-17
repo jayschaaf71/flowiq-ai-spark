@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
@@ -16,7 +15,7 @@ import {
   AlertTriangle,
   TrendingUp,
   Settings,
-  Refresh,
+  RefreshCw,
   Download
 } from "lucide-react";
 
@@ -148,7 +147,7 @@ const BillingIQ = () => {
                 Export
               </Button>
               <Button size="sm" className="bg-green-600 hover:bg-green-700">
-                <Refresh className="w-4 h-4 mr-2" />
+                <RefreshCw className="w-4 h-4 mr-2" />
                 Sync
               </Button>
             </div>
