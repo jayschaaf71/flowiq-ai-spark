@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -145,7 +144,7 @@ export const WorkflowOrchestration = () => {
                     <GitBranch className="w-4 h-4 text-purple-600" />
                     <CardTitle className="text-sm">{workflow.name}</CardTitle>
                   </div>
-                  <Switch checked={workflow.status === "active"} size="sm" />
+                  <Switch checked={workflow.status === "active"} />
                 </div>
                 <CardDescription className="text-xs">
                   {workflow.description}
