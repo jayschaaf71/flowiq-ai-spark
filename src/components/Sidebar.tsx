@@ -13,28 +13,92 @@ import {
   FileText,
   HelpCircle,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Brain,
+  Calendar,
+  ClipboardList,
+  Bell,
+  CreditCard,
+  Receipt,
+  MessageSquare,
+  Stethoscope,
+  UserPlus,
+  Building2
 } from "lucide-react";
 
 export const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
 
-  const navigationItems = [
+  const mainNavigationItems = [
     { icon: Home, label: "Dashboard", path: "/", badge: null },
+    { icon: Brain, label: "Manager Agent", path: "/manager", badge: "AI" },
     { icon: Workflow, label: "Workflows", path: "/workflows", badge: "12" },
     { icon: BarChart3, label: "Analytics", path: "/analytics", badge: null },
     { icon: Zap, label: "AI Insights", path: "/ai-insights", badge: "3" },
+  ];
+
+  const practiceManagement = [
+    { icon: UserPlus, label: "Patients", path: "/patients", badge: null },
     { icon: Users, label: "Team", path: "/team", badge: null },
-    { icon: FileText, label: "Templates", path: "/templates", badge: null },
+    { icon: Building2, label: "Practice Setup", path: "/practice-setup", badge: null },
+  ];
+
+  const aiAgents = [
+    { icon: Calendar, label: "Schedule iQ", path: "/agents/schedule", badge: "AI" },
+    { icon: ClipboardList, label: "Intake iQ", path: "/agents/intake", badge: "AI" },
+    { icon: Bell, label: "Remind iQ", path: "/agents/remind", badge: "AI" },
+    { icon: CreditCard, label: "Billing iQ", path: "/agents/billing", badge: "AI" },
+    { icon: Receipt, label: "Claims iQ", path: "/agents/claims", badge: "AI" },
+    { icon: MessageSquare, label: "Assist iQ", path: "/agents/assist", badge: "AI" },
+    { icon: Stethoscope, label: "Scribe iQ", path: "/agents/scribe", badge: "AI" },
   ];
 
   const bottomItems = [
+    { icon: FileText, label: "Templates", path: "/templates" },
     { icon: Settings, label: "Settings", path: "/settings" },
     { icon: HelpCircle, label: "Help", path: "/help" },
   ];
 
   const isActive = (path: string) => location.pathname === path;
+
+  const renderNavSection = (title: string, items: any[]) => (
+    <div className="space-y-2">
+      {!isCollapsed && (
+        <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+          {title}
+        </h3>
+      )}
+      {items.map((item) => (
+        <NavLink
+          key={item.path}
+          to={item.path}
+          className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+            isActive(item.path)
+              ? "bg-blue-50 text-blue-700 border border-blue-200"
+              : "text-gray-700 hover:bg-gray-100"
+          }`}
+        >
+          <item.icon className="h-5 w-5 flex-shrink-0" />
+          {!isCollapsed && (
+            <>
+              <span className="font-medium">{item.label}</span>
+              {item.badge && (
+                <Badge 
+                  variant={item.badge === "AI" ? "default" : "secondary"} 
+                  className={`ml-auto text-xs ${
+                    item.badge === "AI" ? "bg-purple-100 text-purple-700" : ""
+                  }`}
+                >
+                  {item.badge}
+                </Badge>
+              )}
+            </>
+          )}
+        </NavLink>
+      ))}
+    </div>
+  );
 
   return (
     <div className={`fixed left-0 top-0 h-full bg-white border-r border-gray-200 transition-all duration-300 z-10 ${
@@ -67,32 +131,10 @@ export const Sidebar = () => {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4">
-          <div className="space-y-2">
-            {navigationItems.map((item) => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
-                  isActive(item.path)
-                    ? "bg-blue-50 text-blue-700 border border-blue-200"
-                    : "text-gray-700 hover:bg-gray-100"
-                }`}
-              >
-                <item.icon className="h-5 w-5 flex-shrink-0" />
-                {!isCollapsed && (
-                  <>
-                    <span className="font-medium">{item.label}</span>
-                    {item.badge && (
-                      <Badge variant="secondary" className="ml-auto text-xs">
-                        {item.badge}
-                      </Badge>
-                    )}
-                  </>
-                )}
-              </NavLink>
-            ))}
-          </div>
+        <nav className="flex-1 p-4 space-y-6 overflow-y-auto">
+          {renderNavSection("Main", mainNavigationItems)}
+          {renderNavSection("Practice", practiceManagement)}
+          {renderNavSection("AI Agents", aiAgents)}
         </nav>
 
         {/* Bottom Navigation */}
