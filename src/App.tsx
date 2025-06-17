@@ -1,4 +1,5 @@
 
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -24,39 +25,53 @@ import AssistIQ from "./pages/agents/AssistIQ";
 import ScribeIQ from "./pages/agents/ScribeIQ";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+// Create a single QueryClient instance
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/workflows" element={<Workflows />} />
-          <Route path="/analytics" element={<Analytics />} />
-          <Route path="/ai-insights" element={<AIInsights />} />
-          <Route path="/team" element={<Team />} />
-          <Route path="/templates" element={<Templates />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/help" element={<Help />} />
-          <Route path="/practice-setup" element={<PracticeSetup />} />
-          <Route path="/patients" element={<PatientManagement />} />
-          <Route path="/manager" element={<ManagerAgent />} />
-          <Route path="/agents/schedule" element={<ScheduleIQ />} />
-          <Route path="/agents/intake" element={<IntakeIQ />} />
-          <Route path="/agents/remind" element={<RemindIQ />} />
-          <Route path="/agents/billing" element={<BillingIQ />} />
-          <Route path="/agents/claims" element={<ClaimsIQ />} />
-          <Route path="/agents/assist" element={<AssistIQ />} />
-          <Route path="/agents/scribe" element={<ScribeIQ />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App: React.FC = () => {
+  console.log("App component rendering");
+  
+  return (
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/workflows" element={<Workflows />} />
+              <Route path="/analytics" element={<Analytics />} />
+              <Route path="/ai-insights" element={<AIInsights />} />
+              <Route path="/team" element={<Team />} />
+              <Route path="/templates" element={<Templates />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/help" element={<Help />} />
+              <Route path="/practice-setup" element={<PracticeSetup />} />
+              <Route path="/patients" element={<PatientManagement />} />
+              <Route path="/manager" element={<ManagerAgent />} />
+              <Route path="/agents/schedule" element={<ScheduleIQ />} />
+              <Route path="/agents/intake" element={<IntakeIQ />} />
+              <Route path="/agents/remind" element={<RemindIQ />} />
+              <Route path="/agents/billing" element={<BillingIQ />} />
+              <Route path="/agents/claims" element={<ClaimsIQ />} />
+              <Route path="/agents/assist" element={<AssistIQ />} />
+              <Route path="/agents/scribe" element={<ScribeIQ />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </React.StrictMode>
+  );
+};
 
 export default App;
