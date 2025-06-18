@@ -70,7 +70,13 @@ export const AppointmentManager = ({ onAppointmentUpdate }: AppointmentManagerPr
         return;
       }
 
-      setAppointments(data || []);
+      // Type cast the appointments data to match our interface
+      const typedAppointments = (data || []).map(appointment => ({
+        ...appointment,
+        status: appointment.status as "confirmed" | "pending" | "cancelled" | "completed" | "no-show"
+      }));
+
+      setAppointments(typedAppointments);
     } catch (error) {
       console.error("Error loading appointments:", error);
       toast({
