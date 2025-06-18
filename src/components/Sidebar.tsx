@@ -23,7 +23,8 @@ import {
   MessageSquare,
   Stethoscope,
   UserPlus,
-  Building2
+  Building2,
+  Activity
 } from "lucide-react";
 
 export const Sidebar = () => {
@@ -35,13 +36,13 @@ export const Sidebar = () => {
     { icon: Brain, label: "Manager Agent", path: "/manager", badge: "AI" },
     { icon: Workflow, label: "Workflows", path: "/workflows", badge: "12" },
     { icon: BarChart3, label: "Analytics", path: "/analytics", badge: null },
-    { icon: Zap, label: "AI Insights", path: "/ai-insights", badge: "3" },
+    { icon: Zap, label: "AI Insights", path: "/insights", badge: "3" },
   ];
 
   const practiceManagement = [
     { icon: UserPlus, label: "Patients", path: "/patients", badge: null },
     { icon: Users, label: "Team", path: "/team", badge: null },
-    { icon: Building2, label: "Practice Setup", path: "/practice-setup", badge: null },
+    { icon: Building2, label: "Practice Setup", path: "/setup", badge: null },
   ];
 
   const aiAgents = [
@@ -75,7 +76,7 @@ export const Sidebar = () => {
           to={item.path}
           className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
             isActive(item.path)
-              ? "bg-blue-50 text-blue-700 border border-blue-200"
+              ? "bg-green-50 text-green-700 border border-green-200"
               : "text-gray-700 hover:bg-gray-100"
           }`}
         >
@@ -87,7 +88,7 @@ export const Sidebar = () => {
                 <Badge 
                   variant={item.badge === "AI" ? "default" : "secondary"} 
                   className={`ml-auto text-xs ${
-                    item.badge === "AI" ? "bg-purple-100 text-purple-700" : ""
+                    item.badge === "AI" ? "bg-green-100 text-green-700" : ""
                   }`}
                 >
                   {item.badge}
@@ -110,12 +111,18 @@ export const Sidebar = () => {
           <div className="flex items-center justify-between">
             {!isCollapsed && (
               <div className="flex items-center gap-2">
-                <div className="h-8 w-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
-                  <Zap className="h-4 w-4 text-white" />
+                <div className="relative">
+                  <div className="h-8 w-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
+                    <Stethoscope className="h-4 w-4 text-white" />
+                  </div>
+                  <Activity className="h-3 w-3 text-green-600 absolute -top-1 -right-1" />
                 </div>
-                <span className="font-bold text-xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  FlowIQ
-                </span>
+                <div>
+                  <span className="font-bold text-sm">
+                    <span className="text-green-600">West County</span>
+                  </span>
+                  <p className="text-xs text-gray-600">Spine & Joint</p>
+                </div>
               </div>
             )}
             
@@ -146,7 +153,7 @@ export const Sidebar = () => {
                 to={item.path}
                 className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
                   isActive(item.path)
-                    ? "bg-blue-50 text-blue-700"
+                    ? "bg-green-50 text-green-700"
                     : "text-gray-700 hover:bg-gray-100"
                 }`}
               >

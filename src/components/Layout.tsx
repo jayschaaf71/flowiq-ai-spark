@@ -14,7 +14,11 @@ export const Layout = ({ children }: LayoutProps) => {
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="bg-white shadow-sm border-b px-6 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-semibold text-gray-900">ScheduleIQ</h1>
+            <h1 className="text-2xl font-semibold">
+              <span className="text-green-600">West County</span>{" "}
+              <span className="text-blue-600">Spine & Joint</span>{" "}
+              <span className="text-gray-700 text-lg">Admin</span>
+            </h1>
             <UserMenu />
           </div>
         </header>

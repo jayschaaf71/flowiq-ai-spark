@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
@@ -12,7 +13,9 @@ import {
   Phone,
   Mail,
   MapPin,
-  Settings
+  Settings,
+  Stethoscope,
+  Activity
 } from "lucide-react";
 
 export const PatientLanding = () => {
@@ -23,32 +26,34 @@ export const PatientLanding = () => {
     {
       icon: Calendar,
       title: "Easy Scheduling",
-      description: "Book appointments 24/7 with real-time availability"
+      description: "Book chiropractic appointments 24/7 with real-time availability"
     },
     {
       icon: Clock,
-      title: "Flexible Times", 
-      description: "Choose from morning, afternoon, and evening slots"
+      title: "Flexible Hours", 
+      description: "Morning, afternoon, and evening appointments available"
     },
     {
       icon: Shield,
-      title: "Secure & Private",
-      description: "Your health information is protected and encrypted"
+      title: "HIPAA Compliant",
+      description: "Your health information is secure and protected"
     },
     {
-      icon: Star,
-      title: "Quality Care",
-      description: "Expert providers committed to your health and wellness"
+      icon: Activity,
+      title: "Expert Care",
+      description: "Experienced chiropractors dedicated to your spinal health"
     }
   ];
 
   const services = [
-    "Regular Cleanings & Checkups",
-    "Cosmetic Dentistry",
-    "Oral Surgery",
-    "Pediatric Dentistry",
-    "Emergency Care",
-    "Teeth Whitening"
+    "Chiropractic Adjustments",
+    "Spinal Decompression Therapy",
+    "Physical Rehabilitation",
+    "Sports Injury Treatment",
+    "Auto Accident Recovery",
+    "Chronic Pain Management",
+    "Wellness & Prevention Care",
+    "Custom Treatment Plans"
   ];
 
   return (
@@ -67,28 +72,36 @@ export const PatientLanding = () => {
       </div>
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-50 to-indigo-100">
+      <section className="bg-gradient-to-br from-green-50 to-blue-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center">
             <div className="flex justify-center mb-6">
-              <Calendar className="h-16 w-16 text-blue-600" />
+              <div className="relative">
+                <Stethoscope className="h-16 w-16 text-green-600" />
+                <Activity className="h-8 w-8 text-blue-600 absolute -top-2 -right-2" />
+              </div>
             </div>
             
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-              Your Health,{" "}
-              <span className="text-blue-600">Your Schedule</span>
+            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-4">
+              <span className="text-green-600">West County</span>{" "}
+              <span className="text-blue-600">Spine & Joint</span>
             </h1>
             
-            <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-              Book appointments online, manage your health records, and connect with 
-              our expert medical team—all from one convenient patient portal.
+            <p className="text-xl text-gray-600 mb-2 font-semibold">
+              Chiropractic & Wellness Center
+            </p>
+            
+            <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+              Experience relief from pain and improved mobility with our comprehensive 
+              chiropractic care. Book your appointment online and take the first step 
+              toward better spinal health and overall wellness.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               {user ? (
                 <Button 
                   size="lg" 
-                  className="text-lg px-8 py-4"
+                  className="text-lg px-8 py-4 bg-green-600 hover:bg-green-700"
                   onClick={() => navigate("/patient-dashboard")}
                 >
                   Go to Dashboard
@@ -98,7 +111,7 @@ export const PatientLanding = () => {
                 <>
                   <Button 
                     size="lg" 
-                    className="text-lg px-8 py-4"
+                    className="text-lg px-8 py-4 bg-green-600 hover:bg-green-700"
                     onClick={() => navigate("/patient-auth")}
                   >
                     Book Appointment
@@ -108,10 +121,10 @@ export const PatientLanding = () => {
                   <Button 
                     variant="outline" 
                     size="lg" 
-                    className="text-lg px-8 py-4"
+                    className="text-lg px-8 py-4 border-green-600 text-green-600 hover:bg-green-50"
                     onClick={() => navigate("/patient-auth")}
                   >
-                    Sign In
+                    Patient Portal
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </>
@@ -126,18 +139,18 @@ export const PatientLanding = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Why Choose Our Patient Portal?
+              Why Choose West County Spine & Joint?
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Experience healthcare the modern way with our easy-to-use online platform
+              Advanced chiropractic care with a patient-centered approach to healing
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => (
-              <Card key={index} className="text-center border-0 shadow-lg">
+              <Card key={index} className="text-center border-0 shadow-lg hover:shadow-xl transition-shadow">
                 <CardHeader>
-                  <feature.icon className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+                  <feature.icon className="h-12 w-12 text-green-600 mx-auto mb-4" />
                   <CardTitle className="text-xl">{feature.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -155,11 +168,12 @@ export const PatientLanding = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                Comprehensive Healthcare Services
+                Comprehensive Chiropractic Services
               </h2>
               <p className="text-lg text-gray-600 mb-8">
-                Our experienced team of healthcare professionals provides a full range 
-                of medical and dental services to keep you and your family healthy.
+                Our experienced team of chiropractors provides a full range of services 
+                to address spine and joint issues, helping you achieve optimal health 
+                and pain-free living.
               </p>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -172,25 +186,25 @@ export const PatientLanding = () => {
               </div>
             </div>
             
-            <Card className="p-8">
+            <Card className="p-8 bg-gradient-to-br from-green-50 to-blue-50 border-green-200">
               <CardHeader className="text-center pb-6">
-                <CardTitle className="text-2xl text-blue-600">Ready to Get Started?</CardTitle>
-                <CardDescription className="text-lg">
-                  Book your appointment in just a few minutes
+                <CardTitle className="text-2xl text-green-700">Ready to Feel Better?</CardTitle>
+                <CardDescription className="text-lg text-gray-700">
+                  Schedule your consultation today
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="text-center space-y-4">
-                  <div className="text-sm text-gray-600">
-                    ✓ Choose your preferred provider<br/>
-                    ✓ Select convenient date & time<br/>
-                    ✓ Get instant confirmation<br/>
-                    ✓ Receive appointment reminders
+                  <div className="text-sm text-gray-600 bg-white/70 p-4 rounded-lg">
+                    ✓ Initial consultation & examination<br/>
+                    ✓ Personalized treatment plan<br/>
+                    ✓ Insurance verification assistance<br/>
+                    ✓ Same-day appointments available
                   </div>
                   
                   {user ? (
                     <Button 
-                      className="w-full" 
+                      className="w-full bg-green-600 hover:bg-green-700" 
                       size="lg"
                       onClick={() => navigate("/book-appointment")}
                     >
@@ -199,7 +213,7 @@ export const PatientLanding = () => {
                     </Button>
                   ) : (
                     <Button 
-                      className="w-full" 
+                      className="w-full bg-green-600 hover:bg-green-700" 
                       size="lg"
                       onClick={() => navigate("/patient-auth")}
                     >
@@ -215,38 +229,38 @@ export const PatientLanding = () => {
       </section>
 
       {/* Contact Section */}
-      <section className="py-20 bg-blue-600 text-white">
+      <section className="py-20 bg-green-600 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Need Help? We're Here for You
+              Contact West County Spine & Joint
             </h2>
-            <p className="text-xl text-blue-100 max-w-2xl mx-auto">
-              Our friendly staff is ready to assist you with any questions about 
-              appointments, services, or using the patient portal.
+            <p className="text-xl text-green-100 max-w-2xl mx-auto">
+              Have questions about our chiropractic services? We're here to help 
+              you on your journey to better health and wellness.
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center">
-              <Phone className="h-12 w-12 mx-auto mb-4 text-blue-200" />
+              <Phone className="h-12 w-12 mx-auto mb-4 text-green-200" />
               <h3 className="text-xl font-semibold mb-2">Call Us</h3>
-              <p className="text-blue-100 mb-2">(555) 123-4567</p>
-              <p className="text-sm text-blue-200">Mon-Fri 8AM-6PM</p>
+              <p className="text-green-100 mb-2">(555) 400-0002</p>
+              <p className="text-sm text-green-200">Mon-Fri 8AM-6PM, Sat 9AM-2PM</p>
             </div>
             
             <div className="text-center">
-              <Mail className="h-12 w-12 mx-auto mb-4 text-blue-200" />
+              <Mail className="h-12 w-12 mx-auto mb-4 text-green-200" />
               <h3 className="text-xl font-semibold mb-2">Email Us</h3>
-              <p className="text-blue-100 mb-2">info@clinic.com</p>
-              <p className="text-sm text-blue-200">We reply within 24 hours</p>
+              <p className="text-green-100 mb-2">contact@westcountyspine.com</p>
+              <p className="text-sm text-green-200">We reply within 24 hours</p>
             </div>
             
             <div className="text-center">
-              <MapPin className="h-12 w-12 mx-auto mb-4 text-blue-200" />
+              <MapPin className="h-12 w-12 mx-auto mb-4 text-green-200" />
               <h3 className="text-xl font-semibold mb-2">Visit Us</h3>
-              <p className="text-blue-100 mb-2">123 Healthcare Ave</p>
-              <p className="text-sm text-blue-200">City, State 12345</p>
+              <p className="text-green-100 mb-2">123 Wellness Drive</p>
+              <p className="text-sm text-green-200">West County, MO 63021</p>
             </div>
           </div>
         </div>
@@ -257,12 +271,18 @@ export const PatientLanding = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center gap-3 mb-4 md:mb-0">
-              <Calendar className="h-8 w-8 text-blue-400" />
-              <span className="text-xl font-semibold">Healthcare Portal</span>
+              <div className="relative">
+                <Stethoscope className="h-8 w-8 text-green-400" />
+                <Activity className="h-4 w-4 text-blue-400 absolute -top-1 -right-1" />
+              </div>
+              <div>
+                <span className="text-xl font-semibold">West County Spine & Joint</span>
+                <p className="text-sm text-gray-400">Chiropractic & Wellness Center</p>
+              </div>
             </div>
             
             <div className="text-sm text-gray-400">
-              © 2024 Healthcare Portal. All rights reserved.
+              © 2024 West County Spine & Joint. All rights reserved.
             </div>
           </div>
         </div>
