@@ -5,6 +5,8 @@ import { WorkflowBuilder } from "@/components/workflow/WorkflowBuilder";
 import { WorkflowTemplates } from "@/components/workflow/WorkflowTemplates";
 import { WorkflowAnalytics } from "@/components/workflow/WorkflowAnalytics";
 import { WorkflowOrchestrationHeader } from "@/components/workflow/WorkflowOrchestrationHeader";
+import { IntelligentOrchestration } from "./IntelligentOrchestration";
+import { PerformanceDashboard } from "@/components/analytics/PerformanceDashboard";
 
 export const WorkflowOrchestration = () => {
   const [activeTab, setActiveTab] = useState("builder");
@@ -45,20 +47,25 @@ export const WorkflowOrchestration = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="builder">Workflow Builder</TabsTrigger>
+          <TabsTrigger value="intelligence">AI Intelligence</TabsTrigger>
+          <TabsTrigger value="analytics">Performance</TabsTrigger>
           <TabsTrigger value="templates">Templates</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
 
         <TabsContent value="builder" className="space-y-4">
           <WorkflowBuilder />
         </TabsContent>
 
-        <TabsContent value="templates" className="space-y-4">
-          <WorkflowTemplates workflows={workflows} />
+        <TabsContent value="intelligence" className="space-y-4">
+          <IntelligentOrchestration />
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-4">
-          <WorkflowAnalytics />
+          <PerformanceDashboard />
+        </TabsContent>
+
+        <TabsContent value="templates" className="space-y-4">
+          <WorkflowTemplates workflows={workflows} />
         </TabsContent>
       </Tabs>
     </div>

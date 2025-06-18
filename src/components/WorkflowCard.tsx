@@ -1,4 +1,3 @@
-
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,9 +13,11 @@ interface WorkflowCardProps {
     lastRun: string;
     description: string;
   };
+  isExecuting?: boolean;
+  onExecute?: () => void;
 }
 
-export const WorkflowCard = ({ workflow }: WorkflowCardProps) => {
+export const WorkflowCard = ({ workflow, isExecuting = false, onExecute }: WorkflowCardProps) => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "active":
@@ -40,11 +41,19 @@ export const WorkflowCard = ({ workflow }: WorkflowCardProps) => {
 
   const handleQuickAction = (e: React.MouseEvent, action: string) => {
     e.stopPropagation();
+    
+    if (action === 'execute' && onExecute) {
+      onExecute();
+      return;
+    }
+    
     console.log(`${action} workflow:`, workflow.id);
   };
 
   return (
-    <Card className="hover:shadow-lg transition-all duration-200 group cursor-pointer">
+    <Card className={`hover:shadow-lg transition-all duration-200 group cursor-pointer ${
+      isExecuting ? 'ring-2 ring-blue-500 animate-pulse' : ''
+    }`}>
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex-1">
@@ -69,7 +78,7 @@ export const WorkflowCard = ({ workflow }: WorkflowCardProps) => {
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">
           <Badge variant="outline" className={getStatusColor(workflow.status)}>
-            {workflow.status}
+            {isExecuting ? 'Executing...' : workflow.status}
           </Badge>
           <span className="text-sm text-gray-500">Last run: {workflow.lastRun}</span>
         </div>
@@ -91,6 +100,7 @@ export const WorkflowCard = ({ workflow }: WorkflowCardProps) => {
               variant="outline" 
               className="flex-1"
               onClick={(e) => handleQuickAction(e, 'pause')}
+              disabled={isExecuting}
             >
               <Pause className="h-3 w-3 mr-1" />
               Pause
@@ -99,10 +109,11 @@ export const WorkflowCard = ({ workflow }: WorkflowCardProps) => {
             <Button 
               size="sm" 
               className="flex-1"
-              onClick={(e) => handleQuickAction(e, 'run')}
+              onClick={(e) => handleQuickAction(e, 'execute')}
+              disabled={isExecuting}
             >
               <Play className="h-3 w-3 mr-1" />
-              Run
+              {isExecuting ? 'Running...' : 'Execute'}
             </Button>
           )}
           <Button 

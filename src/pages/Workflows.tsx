@@ -14,6 +14,7 @@ const Workflows = () => {
   const [activeTab, setActiveTab] = useState("workflows");
   const [selectedWorkflow, setSelectedWorkflow] = useState(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [isExecuting, setIsExecuting] = useState({});
   
   const [workflows, setWorkflows] = useState([
     {
@@ -69,7 +70,6 @@ const Workflows = () => {
       description: "Opening workflow builder...",
     });
     setDetailsOpen(false);
-    // Here you would navigate to the workflow builder with the selected workflow
   };
 
   const handleDeleteWorkflow = (workflowId) => {
@@ -95,6 +95,30 @@ const Workflows = () => {
     });
   };
 
+  const handleExecuteWorkflow = async (workflowId) => {
+    setIsExecuting(prev => ({ ...prev, [workflowId]: true }));
+    
+    toast({
+      title: "Workflow Executing",
+      description: "Real-time execution started. Check the execution tab for details.",
+    });
+
+    // Simulate execution time
+    setTimeout(() => {
+      setIsExecuting(prev => ({ ...prev, [workflowId]: false }));
+      setWorkflows(prev => prev.map(w => 
+        w.id === workflowId 
+          ? { ...w, lastRun: "Just now", efficiency: Math.min(100, w.efficiency + Math.floor(Math.random() * 3)) }
+          : w
+      ));
+      
+      toast({
+        title: "Workflow Completed",
+        description: "Execution finished successfully with improved efficiency.",
+      });
+    }, 5000);
+  };
+
   const handleUseTemplate = (template) => {
     const newWorkflow = {
       id: Date.now(),
@@ -117,7 +141,7 @@ const Workflows = () => {
     <Layout>
       <PageHeader 
         title="Workflows"
-        subtitle="Manage your automated practice workflows"
+        subtitle="Manage your automated practice workflows with AI-powered optimization"
       >
         <CreateWorkflowDialog onCreateWorkflow={handleCreateWorkflow} />
       </PageHeader>
@@ -127,13 +151,23 @@ const Workflows = () => {
           <TabsList>
             <TabsTrigger value="workflows">My Workflows</TabsTrigger>
             <TabsTrigger value="templates">Templates</TabsTrigger>
+            <TabsTrigger value="execution">Live Execution</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
           <TabsContent value="workflows">
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
               {workflows.map((workflow) => (
-                <div key={workflow.id} onClick={() => handleWorkflowClick(workflow)}>
-                  <WorkflowCard workflow={workflow} />
+                <div 
+                  key={workflow.id} 
+                  onClick={() => handleWorkflowClick(workflow)}
+                  className="relative"
+                >
+                  <WorkflowCard 
+                    workflow={workflow} 
+                    isExecuting={isExecuting[workflow.id]}
+                    onExecute={() => handleExecuteWorkflow(workflow.id)}
+                  />
                 </div>
               ))}
             </div>
@@ -141,6 +175,19 @@ const Workflows = () => {
 
           <TabsContent value="templates">
             <WorkflowTemplatesExpanded onUseTemplate={handleUseTemplate} />
+          </TabsContent>
+
+          <TabsContent value="execution">
+            <WorkflowExecutionEngine 
+              workflowId={selectedWorkflow?.id?.toString() || "1"}
+              onExecutionUpdate={(execution) => {
+                console.log("Execution update:", execution);
+              }}
+            />
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <PerformanceDashboard />
           </TabsContent>
         </Tabs>
 
