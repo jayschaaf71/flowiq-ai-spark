@@ -1,7 +1,9 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Phone, Mail, CheckCircle, AlertTriangle, User } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Phone, Mail, User } from "lucide-react";
+import { AppointmentStatusWorkflow } from "./AppointmentStatusWorkflow";
 
 interface Appointment {
   id: string;
@@ -23,9 +25,12 @@ interface AppointmentCardProps {
   appointment: Appointment;
   isToday?: boolean;
   userRole?: string;
-  onStatusUpdate: (appointmentId: string, newStatus: Appointment['status']) => void;
+  onStatusUpdate: (appointmentId: string, newStatus: Appointment['status'], notes?: string) => void;
   onSendReminder: (appointment: Appointment) => void;
   loading: boolean;
+  isSelected?: boolean;
+  onSelectionChange?: (appointmentId: string, selected: boolean) => void;
+  showSelection?: boolean;
 }
 
 export const AppointmentCard = ({ 
@@ -34,19 +39,11 @@ export const AppointmentCard = ({
   userRole, 
   onStatusUpdate, 
   onSendReminder, 
-  loading 
+  loading,
+  isSelected = false,
+  onSelectionChange,
+  showSelection = false
 }: AppointmentCardProps) => {
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "confirmed": return "bg-green-100 text-green-700 border-green-200";
-      case "pending": return "bg-yellow-100 text-yellow-700 border-yellow-200";
-      case "cancelled": return "bg-red-100 text-red-700 border-red-200";
-      case "completed": return "bg-blue-100 text-blue-700 border-blue-200";
-      case "no-show": return "bg-gray-100 text-gray-700 border-gray-200";
-      default: return "bg-gray-100 text-gray-700 border-gray-200";
-    }
-  };
-
   const getDateLabel = (dateStr: string) => {
     const date = new Date(dateStr);
     const today = new Date();
@@ -67,6 +64,13 @@ export const AppointmentCard = ({
     <div className="border rounded-lg p-4 hover:bg-gray-50">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
+          {showSelection && onSelectionChange && (
+            <Checkbox
+              checked={isSelected}
+              onCheckedChange={(checked) => onSelectionChange(appointment.id, !!checked)}
+            />
+          )}
+          
           {isToday ? (
             <div className="text-lg font-medium text-blue-600">
               {appointment.time}
@@ -81,6 +85,7 @@ export const AppointmentCard = ({
               </div>
             </div>
           )}
+          
           <div>
             <div className="font-medium">{appointment.title}</div>
             <div className="text-sm text-gray-600">
@@ -106,37 +111,42 @@ export const AppointmentCard = ({
             )}
           </div>
         </div>
+        
         <div className="flex items-center gap-2">
-          <Badge className={getStatusColor(appointment.status)}>
-            {appointment.status}
-          </Badge>
-          {appointment.status === "pending" && !isToday && (
-            <AlertTriangle className="h-4 w-4 text-yellow-500" />
+          {userRole !== 'patient' ? (
+            <AppointmentStatusWorkflow
+              appointment={appointment}
+              onStatusUpdate={onStatusUpdate}
+            />
+          ) : (
+            <Badge className={getStatusColor(appointment.status)}>
+              {appointment.status}
+            </Badge>
           )}
-          <div className="flex gap-1">
-            {appointment.status === "pending" && userRole !== 'patient' && (
-              <Button 
-                size="sm" 
-                onClick={() => onStatusUpdate(appointment.id, "confirmed")}
-                disabled={loading}
-              >
-                <CheckCircle className="h-3 w-3 mr-1" />
-                Confirm
-              </Button>
-            )}
-            {userRole !== 'patient' && (
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => onSendReminder(appointment)}
-                disabled={loading}
-              >
-                Remind
-              </Button>
-            )}
-          </div>
+          
+          {userRole !== 'patient' && (
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => onSendReminder(appointment)}
+              disabled={loading}
+            >
+              Remind
+            </Button>
+          )}
         </div>
       </div>
     </div>
   );
+};
+
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case "confirmed": return "bg-green-100 text-green-700 border-green-200";
+    case "pending": return "bg-yellow-100 text-yellow-700 border-yellow-200";
+    case "cancelled": return "bg-red-100 text-red-700 border-red-200";
+    case "completed": return "bg-blue-100 text-blue-700 border-blue-200";
+    case "no-show": return "bg-gray-100 text-gray-700 border-gray-200";
+    default: return "bg-gray-100 text-gray-700 border-gray-200";
+  }
 };
