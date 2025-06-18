@@ -4,22 +4,25 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { Calendar, Clock, User, Phone, Mail, CheckCircle, AlertTriangle } from "lucide-react";
 import { format, addDays, isToday, isTomorrow, parseISO } from "date-fns";
 
 interface Appointment {
   id: string;
-  patientName: string;
-  phone: string;
-  email: string;
+  title: string;
+  appointment_type: string;
   date: string;
   time: string;
   duration: number;
-  type: string;
   status: "confirmed" | "pending" | "cancelled" | "completed" | "no-show";
   notes?: string;
-  provider?: string;
-  createdAt: string;
+  phone?: string;
+  email?: string;
+  created_at: string;
+  patient_id: string;
+  provider_id?: string;
 }
 
 interface AppointmentManagerProps {
@@ -28,54 +31,71 @@ interface AppointmentManagerProps {
 
 export const AppointmentManager = ({ onAppointmentUpdate }: AppointmentManagerProps) => {
   const { toast } = useToast();
+  const { user, profile } = useAuth();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Simulated data - replace with real API calls
   useEffect(() => {
-    loadAppointments();
-  }, []);
+    if (user) {
+      loadAppointments();
+    }
+  }, [user]);
 
   const loadAppointments = async () => {
-    setLoading(true);
-    // Simulate API call
-    const mockAppointments: Appointment[] = [
-      {
-        id: "1",
-        patientName: "John Smith",
-        phone: "(555) 123-4567",
-        email: "john@email.com",
-        date: format(new Date(), "yyyy-MM-dd"),
-        time: "09:00",
-        duration: 60,
-        type: "Cleaning",
-        status: "confirmed",
-        provider: "Dr. Johnson",
-        createdAt: new Date().toISOString()
-      },
-      {
-        id: "2",
-        patientName: "Sarah Wilson",
-        phone: "(555) 234-5678",
-        email: "sarah@email.com",
-        date: format(addDays(new Date(), 1), "yyyy-MM-dd"),
-        time: "10:30",
-        duration: 30,
-        type: "Consultation",
-        status: "pending",
-        provider: "Dr. Smith",
-        createdAt: new Date().toISOString()
-      }
-    ];
+    if (!user) return;
     
-    setAppointments(mockAppointments);
-    setLoading(false);
+    setLoading(true);
+    try {
+      let query = supabase
+        .from('appointments')
+        .select('*')
+        .order('date', { ascending: true })
+        .order('time', { ascending: true });
+
+      // If user is a patient, only show their appointments
+      // If user is staff/admin, show all appointments
+      if (profile?.role === 'patient') {
+        query = query.eq('patient_id', user.id);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error("Error loading appointments:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load appointments",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setAppointments(data || []);
+    } catch (error) {
+      console.error("Error loading appointments:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load appointments",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const updateAppointmentStatus = async (appointmentId: string, newStatus: Appointment['status']) => {
     setLoading(true);
     try {
-      // Simulate API call
+      const { error } = await supabase
+        .from('appointments')
+        .update({ status: newStatus })
+        .eq('id', appointmentId);
+
+      if (error) {
+        throw error;
+      }
+
+      // Update local state
       setAppointments(prev => prev.map(apt => 
         apt.id === appointmentId 
           ? { ...apt, status: newStatus }
@@ -92,7 +112,8 @@ export const AppointmentManager = ({ onAppointmentUpdate }: AppointmentManagerPr
         title: "Appointment Updated",
         description: `Status changed to ${newStatus}`,
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Error updating appointment:", error);
       toast({
         title: "Error",
         description: "Failed to update appointment",
@@ -111,7 +132,7 @@ export const AppointmentManager = ({ onAppointmentUpdate }: AppointmentManagerPr
       
       toast({
         title: "Reminder Sent",
-        description: `Reminder sent to ${appointment.patientName} via SMS and email`,
+        description: `Reminder sent for appointment on ${appointment.date}`,
       });
     } catch (error) {
       toast({
@@ -145,6 +166,17 @@ export const AppointmentManager = ({ onAppointmentUpdate }: AppointmentManagerPr
   const todayAppointments = appointments.filter(apt => isToday(parseISO(apt.date)));
   const upcomingAppointments = appointments.filter(apt => !isToday(parseISO(apt.date)));
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading appointments...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Today's Appointments */}
@@ -168,16 +200,22 @@ export const AppointmentManager = ({ onAppointmentUpdate }: AppointmentManagerPr
                         {appointment.time}
                       </div>
                       <div>
-                        <div className="font-medium">{appointment.patientName}</div>
+                        <div className="font-medium">{appointment.title}</div>
                         <div className="text-sm text-gray-600">
-                          {appointment.type} • {appointment.duration} min • {appointment.provider}
+                          {appointment.appointment_type} • {appointment.duration} min
                         </div>
-                        <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                          <Phone className="h-3 w-3" />
-                          {appointment.phone}
-                          <Mail className="h-3 w-3 ml-2" />
-                          {appointment.email}
-                        </div>
+                        {appointment.phone && (
+                          <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                            <Phone className="h-3 w-3" />
+                            {appointment.phone}
+                            {appointment.email && (
+                              <>
+                                <Mail className="h-3 w-3 ml-2" />
+                                {appointment.email}
+                              </>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -185,7 +223,7 @@ export const AppointmentManager = ({ onAppointmentUpdate }: AppointmentManagerPr
                         {appointment.status}
                       </Badge>
                       <div className="flex gap-1">
-                        {appointment.status === "pending" && (
+                        {appointment.status === "pending" && profile?.role !== 'patient' && (
                           <Button 
                             size="sm" 
                             onClick={() => updateAppointmentStatus(appointment.id, "confirmed")}
@@ -195,14 +233,16 @@ export const AppointmentManager = ({ onAppointmentUpdate }: AppointmentManagerPr
                             Confirm
                           </Button>
                         )}
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => sendReminder(appointment)}
-                          disabled={loading}
-                        >
-                          Remind
-                        </Button>
+                        {profile?.role !== 'patient' && (
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => sendReminder(appointment)}
+                            disabled={loading}
+                          >
+                            Remind
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -239,9 +279,9 @@ export const AppointmentManager = ({ onAppointmentUpdate }: AppointmentManagerPr
                         </div>
                       </div>
                       <div>
-                        <div className="font-medium">{appointment.patientName}</div>
+                        <div className="font-medium">{appointment.title}</div>
                         <div className="text-sm text-gray-600">
-                          {appointment.type} • {appointment.duration} min • {appointment.provider}
+                          {appointment.appointment_type} • {appointment.duration} min
                         </div>
                       </div>
                     </div>

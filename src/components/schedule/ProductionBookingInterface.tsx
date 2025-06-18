@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { Calendar, Clock, User, CheckCircle, Loader } from "lucide-react";
 import { format, addDays, setHours, setMinutes } from "date-fns";
 
@@ -29,12 +31,15 @@ interface BookingData {
 
 export const ProductionBookingInterface = () => {
   const { toast } = useToast();
+  const { user, profile } = useAuth();
   const [selectedDate, setSelectedDate] = useState<string>(format(new Date(), "yyyy-MM-dd"));
   const [loading, setLoading] = useState(false);
   const [bookingData, setBookingData] = useState<BookingData>({
-    patientName: "",
-    phone: "",
-    email: "",
+    patientName: profile?.first_name && profile?.last_name 
+      ? `${profile.first_name} ${profile.last_name}` 
+      : "",
+    phone: profile?.phone || "",
+    email: profile?.email || "",
     appointmentType: "",
     date: "",
     time: "",
@@ -101,6 +106,15 @@ export const ProductionBookingInterface = () => {
   };
 
   const handleBookAppointment = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to book an appointment",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const validationError = validateBooking();
     if (validationError) {
       toast({
@@ -114,23 +128,39 @@ export const ProductionBookingInterface = () => {
     setLoading(true);
     
     try {
-      // Simulate API call to book appointment
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Save appointment to Supabase
+      const { data, error } = await supabase
+        .from('appointments')
+        .insert({
+          patient_id: user.id,
+          title: `${bookingData.appointmentType} with ${bookingData.provider}`,
+          appointment_type: bookingData.appointmentType,
+          date: bookingData.date,
+          time: bookingData.time,
+          duration: appointmentTypes.find(t => t.value === bookingData.appointmentType)?.duration || 60,
+          status: 'pending',
+          notes: bookingData.notes,
+          phone: bookingData.phone,
+          email: bookingData.email,
+          provider_id: null // For now, we'll just store provider name in notes
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Booking error:", error);
+        throw error;
+      }
       
-      const appointmentDetails = {
-        ...bookingData,
-        id: Date.now().toString(),
-        status: "confirmed",
-        createdAt: new Date().toISOString()
-      };
-      
-      console.log("Booking appointment:", appointmentDetails);
+      console.log("Appointment booked successfully:", data);
       
       // Reset form
       setBookingData({
-        patientName: "",
-        phone: "",
-        email: "",
+        patientName: profile?.first_name && profile?.last_name 
+          ? `${profile.first_name} ${profile.last_name}` 
+          : "",
+        phone: profile?.phone || "",
+        email: profile?.email || "",
         appointmentType: "",
         date: "",
         time: "",
@@ -140,13 +170,14 @@ export const ProductionBookingInterface = () => {
       
       toast({
         title: "Appointment Booked Successfully!",
-        description: `Confirmation sent to ${bookingData.patientName}. SMS and email reminders will be sent automatically.`,
+        description: `Your ${bookingData.appointmentType} appointment has been scheduled. You'll receive confirmation shortly.`,
       });
       
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Booking failed:", error);
       toast({
         title: "Booking Failed",
-        description: "Unable to book appointment. Please try again.",
+        description: error.message || "Unable to book appointment. Please try again.",
         variant: "destructive",
       });
     } finally {
