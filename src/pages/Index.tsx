@@ -47,12 +47,12 @@ const Index = () => {
         subtitle="Let's optimize your workflows with AI intelligence"
       />
       
-      <div className="p-6">
+      <div className="space-y-6">
         <MetricsOverview />
         <QuickActions />
         
         {/* Recent Workflows */}
-        <div className="mb-8">
+        <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Recent Workflows</h2>
             <Button variant="ghost" className="text-blue-600 hover:text-blue-700">
