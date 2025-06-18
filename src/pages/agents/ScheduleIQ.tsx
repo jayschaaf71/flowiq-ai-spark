@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
@@ -7,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
+import { BookingInterface } from "@/components/schedule/BookingInterface";
+import { CalendarView } from "@/components/schedule/CalendarView";
+import { AppointmentsList } from "@/components/schedule/AppointmentsList";
 import { 
   Calendar, 
   Clock, 
@@ -129,8 +131,9 @@ const ScheduleIQ = () => {
           <div className="flex items-center justify-between">
             <TabsList>
               <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-              <TabsTrigger value="schedule">Schedule View</TabsTrigger>
-              <TabsTrigger value="rules">Booking Rules</TabsTrigger>
+              <TabsTrigger value="book">Book Appointment</TabsTrigger>
+              <TabsTrigger value="calendar">Calendar View</TabsTrigger>
+              <TabsTrigger value="appointments">Appointments</TabsTrigger>
               <TabsTrigger value="analytics">Analytics</TabsTrigger>
             </TabsList>
             
@@ -201,34 +204,16 @@ const ScheduleIQ = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="schedule" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Calendar Management</CardTitle>
-                <CardDescription>AI-optimized scheduling interface</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12 text-muted-foreground">
-                  <Calendar className="w-12 h-12 mx-auto mb-4" />
-                  <p>Interactive calendar view coming soon...</p>
-                </div>
-              </CardContent>
-            </Card>
+          <TabsContent value="book" className="space-y-4">
+            <BookingInterface />
           </TabsContent>
 
-          <TabsContent value="rules" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Booking Rules & Preferences</CardTitle>
-                <CardDescription>Configure AI scheduling behavior</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12 text-muted-foreground">
-                  <Settings className="w-12 h-12 mx-auto mb-4" />
-                  <p>Rule configuration interface coming soon...</p>
-                </div>
-              </CardContent>
-            </Card>
+          <TabsContent value="calendar" className="space-y-4">
+            <CalendarView />
+          </TabsContent>
+
+          <TabsContent value="appointments" className="space-y-4">
+            <AppointmentsList />
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-4">
