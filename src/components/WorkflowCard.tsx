@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Play, Pause, MoreVertical, TrendingUp } from "lucide-react";
+import { Play, Pause, MoreVertical, TrendingUp, Eye } from "lucide-react";
 
 interface WorkflowCardProps {
   workflow: {
@@ -25,6 +25,8 @@ export const WorkflowCard = ({ workflow }: WorkflowCardProps) => {
         return "bg-amber-100 text-amber-700 border-amber-200";
       case "paused":
         return "bg-gray-100 text-gray-700 border-gray-200";
+      case "draft":
+        return "bg-blue-100 text-blue-700 border-blue-200";
       default:
         return "bg-blue-100 text-blue-700 border-blue-200";
     }
@@ -36,8 +38,13 @@ export const WorkflowCard = ({ workflow }: WorkflowCardProps) => {
     return "text-red-600";
   };
 
+  const handleQuickAction = (e: React.MouseEvent, action: string) => {
+    e.stopPropagation();
+    console.log(`${action} workflow:`, workflow.id);
+  };
+
   return (
-    <Card className="hover:shadow-lg transition-all duration-200 group">
+    <Card className="hover:shadow-lg transition-all duration-200 group cursor-pointer">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex-1">
@@ -48,7 +55,12 @@ export const WorkflowCard = ({ workflow }: WorkflowCardProps) => {
               {workflow.description}
             </CardDescription>
           </div>
-          <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={(e) => handleQuickAction(e, 'menu')}
+          >
             <MoreVertical className="h-4 w-4" />
           </Button>
         </div>
@@ -73,13 +85,41 @@ export const WorkflowCard = ({ workflow }: WorkflowCardProps) => {
         </div>
 
         <div className="flex items-center gap-2 pt-2">
-          <Button size="sm" className="flex-1">
-            <Play className="h-3 w-3 mr-1" />
-            Run
-          </Button>
-          <Button variant="outline" size="sm" className="flex-1">
+          {workflow.status === "active" ? (
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="flex-1"
+              onClick={(e) => handleQuickAction(e, 'pause')}
+            >
+              <Pause className="h-3 w-3 mr-1" />
+              Pause
+            </Button>
+          ) : (
+            <Button 
+              size="sm" 
+              className="flex-1"
+              onClick={(e) => handleQuickAction(e, 'run')}
+            >
+              <Play className="h-3 w-3 mr-1" />
+              Run
+            </Button>
+          )}
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex-1"
+            onClick={(e) => handleQuickAction(e, 'optimize')}
+          >
             <TrendingUp className="h-3 w-3 mr-1" />
             Optimize
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={(e) => handleQuickAction(e, 'view')}
+          >
+            <Eye className="h-3 w-3" />
           </Button>
         </div>
       </CardContent>
