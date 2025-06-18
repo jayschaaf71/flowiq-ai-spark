@@ -237,7 +237,10 @@ export const AppointmentStatusWorkflow = ({
             {/* New Status Selection */}
             <div>
               <h4 className="text-sm font-medium mb-2">New Status</h4>
-              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+              <Select 
+                value={selectedStatus} 
+                onValueChange={(value) => setSelectedStatus(value as Appointment['status'])}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
