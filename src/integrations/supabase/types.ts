@@ -9,6 +9,72 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      appointments: {
+        Row: {
+          appointment_type: string
+          created_at: string
+          date: string
+          duration: number
+          email: string | null
+          id: string
+          notes: string | null
+          patient_id: string
+          phone: string | null
+          provider_id: string | null
+          status: string
+          time: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          appointment_type: string
+          created_at?: string
+          date: string
+          duration?: number
+          email?: string | null
+          id?: string
+          notes?: string | null
+          patient_id: string
+          phone?: string | null
+          provider_id?: string | null
+          status?: string
+          time: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          appointment_type?: string
+          created_at?: string
+          date?: string
+          duration?: number
+          email?: string | null
+          id?: string
+          notes?: string | null
+          patient_id?: string
+          phone?: string | null
+          provider_id?: string | null
+          status?: string
+          time?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       demo_requests: {
         Row: {
           company: string
@@ -36,6 +102,39 @@ export type Database = {
           name?: string
           role?: string
           status?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          first_name: string | null
+          id: string
+          last_name: string | null
+          phone: string | null
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+          phone?: string | null
+          role?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          role?: string
+          updated_at?: string
         }
         Relationships: []
       }
