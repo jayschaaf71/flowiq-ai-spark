@@ -46,7 +46,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               .eq('id', session.user.id)
               .single();
             
-            setProfile(profileData);
+            if (profileData) {
+              // Type cast the role to ensure it matches our union type
+              setProfile({
+                ...profileData,
+                role: profileData.role as 'patient' | 'staff' | 'admin'
+              });
+            }
           }, 0);
         } else {
           setProfile(null);
