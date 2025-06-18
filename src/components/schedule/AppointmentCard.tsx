@@ -1,7 +1,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Phone, Mail, CheckCircle, AlertTriangle } from "lucide-react";
+import { Phone, Mail, CheckCircle, AlertTriangle, User } from "lucide-react";
 
 interface Appointment {
   id: string;
@@ -96,6 +96,12 @@ export const AppointmentCard = ({
                     {appointment.email}
                   </>
                 )}
+              </div>
+            )}
+            {userRole === 'patient' && appointment.provider_id && (
+              <div className="flex items-center gap-1 text-xs text-blue-600 mt-1">
+                <User className="h-3 w-3" />
+                Provider ID: {appointment.provider_id.slice(0, 8)}...
               </div>
             )}
           </div>

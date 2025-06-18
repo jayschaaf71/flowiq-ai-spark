@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,6 +14,7 @@ import { Settings, Zap, Users, Calendar } from "lucide-react";
 
 const ScheduleIQProduction = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const stats = {
     appointmentsToday: 24,
@@ -23,6 +24,13 @@ const ScheduleIQProduction = () => {
     avgBookingTime: "2.3 minutes",
     automatedBookings: 89
   };
+
+  const handleAppointmentBooked = useCallback(() => {
+    // Refresh the appointment manager when a new appointment is booked
+    setRefreshKey(prev => prev + 1);
+    // Switch to dashboard to show the new appointment
+    setActiveTab("dashboard");
+  }, []);
 
   return (
     <Layout>
@@ -64,6 +72,7 @@ const ScheduleIQProduction = () => {
 
           <TabsContent value="dashboard" className="space-y-4">
             <AppointmentManager 
+              key={refreshKey}
               onAppointmentUpdate={(appointment) => {
                 console.log("Appointment updated:", appointment);
               }}
@@ -71,7 +80,7 @@ const ScheduleIQProduction = () => {
           </TabsContent>
 
           <TabsContent value="book" className="space-y-4">
-            <ProductionBookingInterface />
+            <ProductionBookingInterface onAppointmentBooked={handleAppointmentBooked} />
           </TabsContent>
 
           <TabsContent value="calendar" className="space-y-4">

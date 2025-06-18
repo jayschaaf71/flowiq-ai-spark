@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,9 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { useProviders } from "@/hooks/useProviders";
+import { useAvailability } from "@/hooks/useAvailability";
 import { supabase } from "@/integrations/supabase/client";
 import { Calendar, Clock, User, CheckCircle, Loader } from "lucide-react";
-import { format, addDays, setHours, setMinutes } from "date-fns";
+import { format, addDays } from "date-fns";
 
 interface TimeSlot {
   time: string;
@@ -26,14 +28,21 @@ interface BookingData {
   date: string;
   time: string;
   notes: string;
-  provider: string;
+  providerId: string;
 }
 
-export const ProductionBookingInterface = () => {
+interface ProductionBookingInterfaceProps {
+  onAppointmentBooked?: () => void;
+}
+
+export const ProductionBookingInterface = ({ onAppointmentBooked }: ProductionBookingInterfaceProps) => {
   const { toast } = useToast();
   const { user, profile } = useAuth();
-  const [selectedDate, setSelectedDate] = useState<string>(format(new Date(), "yyyy-MM-dd"));
+  const { providers, loading: providersLoading } = useProviders();
+  const { checkAvailability, loading: availabilityLoading } = useAvailability();
   const [loading, setLoading] = useState(false);
+  const [availableSlots, setAvailableSlots] = useState<TimeSlot[]>([]);
+  
   const [bookingData, setBookingData] = useState<BookingData>({
     patientName: profile?.first_name && profile?.last_name 
       ? `${profile.first_name} ${profile.last_name}` 
@@ -44,7 +53,7 @@ export const ProductionBookingInterface = () => {
     date: "",
     time: "",
     notes: "",
-    provider: ""
+    providerId: ""
   });
 
   const appointmentTypes = [
@@ -55,32 +64,26 @@ export const ProductionBookingInterface = () => {
     { value: "whitening", label: "Teeth Whitening", duration: 45, price: "$300" }
   ];
 
-  const providers = [
-    { id: "dr-johnson", name: "Dr. Johnson", specialty: "General Dentistry" },
-    { id: "dr-smith", name: "Dr. Smith", specialty: "Oral Surgery" },
-    { id: "dr-wilson", name: "Dr. Wilson", specialty: "Pediatric Dentistry" }
-  ];
-
-  // Generate available time slots based on selected date and provider
-  const getAvailableSlots = (): TimeSlot[] => {
-    const slots: TimeSlot[] = [];
-    const startHour = 8;
-    const endHour = 17;
-    
-    for (let hour = startHour; hour < endHour; hour++) {
-      for (let minute = 0; minute < 60; minute += 30) {
-        const time = format(setMinutes(setHours(new Date(), hour), minute), "HH:mm");
-        // Simulate some slots being unavailable
-        const available = Math.random() > 0.3; // 70% chance of being available
-        slots.push({ time, available, provider: bookingData.provider });
-      }
+  // Check availability when provider or date changes
+  useEffect(() => {
+    if (bookingData.providerId && bookingData.date) {
+      const selectedType = appointmentTypes.find(t => t.value === bookingData.appointmentType);
+      const duration = selectedType?.duration || 60;
+      
+      checkAvailability(bookingData.providerId, bookingData.date, duration)
+        .then(setAvailableSlots);
+    } else {
+      setAvailableSlots([]);
     }
-    
-    return slots;
-  };
+  }, [bookingData.providerId, bookingData.date, bookingData.appointmentType]);
 
   const handleInputChange = (field: keyof BookingData, value: string) => {
     setBookingData(prev => ({ ...prev, [field]: value }));
+    
+    // Clear time selection if provider or date changes
+    if ((field === 'providerId' || field === 'date') && bookingData.time) {
+      setBookingData(prev => ({ ...prev, time: "" }));
+    }
   };
 
   const validateBooking = (): string | null => {
@@ -89,7 +92,7 @@ export const ProductionBookingInterface = () => {
     if (!bookingData.appointmentType) return "Please select an appointment type";
     if (!bookingData.date) return "Please select a date";
     if (!bookingData.time) return "Please select a time";
-    if (!bookingData.provider) return "Please select a provider";
+    if (!bookingData.providerId) return "Please select a provider";
     
     // Validate phone format
     const phoneRegex = /^\(\d{3}\) \d{3}-\d{4}$/;
@@ -128,21 +131,23 @@ export const ProductionBookingInterface = () => {
     setLoading(true);
     
     try {
-      // Save appointment to Supabase
+      const selectedProvider = providers.find(p => p.id === bookingData.providerId);
+      const selectedType = appointmentTypes.find(t => t.value === bookingData.appointmentType);
+      
       const { data, error } = await supabase
         .from('appointments')
         .insert({
           patient_id: user.id,
-          title: `${bookingData.appointmentType} with ${bookingData.provider}`,
-          appointment_type: bookingData.appointmentType,
+          provider_id: bookingData.providerId,
+          title: `${selectedType?.label} with Dr. ${selectedProvider?.last_name}`,
+          appointment_type: selectedType?.label || bookingData.appointmentType,
           date: bookingData.date,
           time: bookingData.time,
-          duration: appointmentTypes.find(t => t.value === bookingData.appointmentType)?.duration || 60,
+          duration: selectedType?.duration || 60,
           status: 'pending',
           notes: bookingData.notes,
           phone: bookingData.phone,
-          email: bookingData.email,
-          provider_id: null // For now, we'll just store provider name in notes
+          email: bookingData.email
         })
         .select()
         .single();
@@ -165,13 +170,20 @@ export const ProductionBookingInterface = () => {
         date: "",
         time: "",
         notes: "",
-        provider: ""
+        providerId: ""
       });
+      
+      setAvailableSlots([]);
       
       toast({
         title: "Appointment Booked Successfully!",
-        description: `Your ${bookingData.appointmentType} appointment has been scheduled. You'll receive confirmation shortly.`,
+        description: `Your ${selectedType?.label} appointment has been scheduled. You'll receive confirmation shortly.`,
       });
+      
+      // Notify parent component
+      if (onAppointmentBooked) {
+        onAppointmentBooked();
+      }
       
     } catch (error: any) {
       console.error("Booking failed:", error);
@@ -195,8 +207,18 @@ export const ProductionBookingInterface = () => {
   };
 
   const selectedType = appointmentTypes.find(type => type.value === bookingData.appointmentType);
-  const selectedProvider = providers.find(p => p.id === bookingData.provider);
-  const availableSlots = getAvailableSlots();
+  const selectedProvider = providers.find(p => p.id === bookingData.providerId);
+
+  if (providersLoading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="text-center">
+          <Loader className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-600" />
+          <p className="text-gray-600">Loading providers...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -267,7 +289,7 @@ export const ProductionBookingInterface = () => {
           {/* Provider Selection */}
           <div>
             <Label htmlFor="provider">Provider *</Label>
-            <Select value={bookingData.provider} onValueChange={(value) => handleInputChange('provider', value)}>
+            <Select value={bookingData.providerId} onValueChange={(value) => handleInputChange('providerId', value)}>
               <SelectTrigger className="mt-1">
                 <SelectValue placeholder="Select provider" />
               </SelectTrigger>
@@ -275,7 +297,7 @@ export const ProductionBookingInterface = () => {
                 {providers.map((provider) => (
                   <SelectItem key={provider.id} value={provider.id}>
                     <div>
-                      <div className="font-medium">{provider.name}</div>
+                      <div className="font-medium">Dr. {provider.first_name} {provider.last_name}</div>
                       <div className="text-sm text-gray-500">{provider.specialty}</div>
                     </div>
                   </SelectItem>
@@ -301,9 +323,17 @@ export const ProductionBookingInterface = () => {
             
             <div>
               <Label htmlFor="time">Available Times *</Label>
-              <Select value={bookingData.time} onValueChange={(value) => handleInputChange('time', value)}>
+              <Select 
+                value={bookingData.time} 
+                onValueChange={(value) => handleInputChange('time', value)}
+                disabled={!bookingData.providerId || !bookingData.date || availabilityLoading}
+              >
                 <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Select time" />
+                  <SelectValue placeholder={
+                    availabilityLoading ? "Checking availability..." : 
+                    !bookingData.providerId || !bookingData.date ? "Select provider and date first" :
+                    "Select time"
+                  } />
                 </SelectTrigger>
                 <SelectContent>
                   {availableSlots.map((slot) => (
@@ -319,6 +349,11 @@ export const ProductionBookingInterface = () => {
                       </div>
                     </SelectItem>
                   ))}
+                  {availableSlots.length === 0 && bookingData.providerId && bookingData.date && !availabilityLoading && (
+                    <SelectItem value="" disabled>
+                      No available slots for this date
+                    </SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -331,7 +366,7 @@ export const ProductionBookingInterface = () => {
                 <h4 className="font-medium text-blue-900 mb-2">Booking Summary</h4>
                 <div className="space-y-1 text-sm text-blue-800">
                   <p><strong>Service:</strong> {selectedType.label} ({selectedType.duration} minutes)</p>
-                  <p><strong>Provider:</strong> {selectedProvider.name}</p>
+                  <p><strong>Provider:</strong> Dr. {selectedProvider.first_name} {selectedProvider.last_name}</p>
                   <p><strong>Date & Time:</strong> {format(new Date(bookingData.date), "EEEE, MMMM d, yyyy")} at {bookingData.time}</p>
                   <p><strong>Cost:</strong> {selectedType.price}</p>
                 </div>
@@ -355,7 +390,7 @@ export const ProductionBookingInterface = () => {
           {/* Book Button */}
           <Button 
             onClick={handleBookAppointment}
-            disabled={loading}
+            disabled={loading || availabilityLoading}
             className="w-full bg-blue-600 hover:bg-blue-700"
             size="lg"
           >
