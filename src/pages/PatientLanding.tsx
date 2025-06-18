@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
@@ -12,7 +11,8 @@ import {
   ArrowRight,
   Phone,
   Mail,
-  MapPin
+  MapPin,
+  Settings
 } from "lucide-react";
 
 export const PatientLanding = () => {
@@ -27,7 +27,7 @@ export const PatientLanding = () => {
     },
     {
       icon: Clock,
-      title: "Flexible Times",
+      title: "Flexible Times", 
       description: "Choose from morning, afternoon, and evening slots"
     },
     {
@@ -53,6 +53,19 @@ export const PatientLanding = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Quick Admin Access */}
+      <div className="fixed top-4 right-4 z-50">
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={() => navigate("/admin")}
+          className="bg-white/90 backdrop-blur-sm"
+        >
+          <Settings className="h-4 w-4 mr-2" />
+          Admin Dashboard
+        </Button>
+      </div>
+
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
