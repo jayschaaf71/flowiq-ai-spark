@@ -43,7 +43,7 @@ const Index = () => {
   return (
     <Layout>
       <PageHeader 
-        title="Welcome back, Alex"
+        title="Welcome back, Lauren"
         subtitle="Let's optimize your workflows with AI intelligence"
       />
       
