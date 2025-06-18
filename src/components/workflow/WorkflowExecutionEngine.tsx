@@ -49,7 +49,7 @@ export const WorkflowExecutionEngine = ({ workflowId, onExecutionUpdate }: Workf
       workflowId,
       status: "running",
       progress: 0,
-      steps: mockWorkflowSteps.map(step => ({ ...step, status: "pending" })),
+      steps: mockWorkflowSteps.map(step => ({ ...step, status: "pending" as const })),
       startTime: new Date()
     };
     
@@ -67,7 +67,11 @@ export const WorkflowExecutionEngine = ({ workflowId, onExecutionUpdate }: Workf
           status: "running",
           startTime: new Date()
         };
-        const updated = { ...prev, steps: updatedSteps, progress: ((i + 0.5) / mockWorkflowSteps.length) * 100 };
+        const updated: WorkflowExecution = { 
+          ...prev, 
+          steps: updatedSteps, 
+          progress: ((i + 0.5) / mockWorkflowSteps.length) * 100 
+        };
         onExecutionUpdate?.(updated);
         return updated;
       });
@@ -83,7 +87,7 @@ export const WorkflowExecutionEngine = ({ workflowId, onExecutionUpdate }: Workf
           endTime: new Date()
         };
         const isComplete = i === mockWorkflowSteps.length - 1;
-        const updated = { 
+        const updated: WorkflowExecution = { 
           ...prev, 
           steps: updatedSteps, 
           progress: ((i + 1) / mockWorkflowSteps.length) * 100,

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
@@ -6,6 +5,8 @@ import { WorkflowCard } from "@/components/WorkflowCard";
 import { CreateWorkflowDialog } from "@/components/workflow/CreateWorkflowDialog";
 import { WorkflowDetailsDialog } from "@/components/workflow/WorkflowDetailsDialog";
 import { WorkflowTemplatesExpanded } from "@/components/workflow/WorkflowTemplatesExpanded";
+import { WorkflowExecutionEngine } from "@/components/workflow/WorkflowExecutionEngine";
+import { PerformanceDashboard } from "@/components/analytics/PerformanceDashboard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 
