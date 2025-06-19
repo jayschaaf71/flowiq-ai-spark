@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,15 @@ import { Progress } from '@/components/ui/progress';
 import { CheckCircle, AlertCircle } from 'lucide-react';
 import { IntakeForm, useIntakeForms } from '@/hooks/useIntakeForms';
 import { useTenantConfig } from '@/utils/tenantConfig';
+
+interface FormField {
+  id: string;
+  type: string;
+  label: string;
+  placeholder?: string;
+  required?: boolean;
+  options?: string[];
+}
 
 interface PatientFormRendererProps {
   form: IntakeForm;
@@ -29,8 +39,17 @@ export const PatientFormRenderer: React.FC<PatientFormRendererProps> = ({
   const { submitForm, trackFormEvent } = useIntakeForms();
   const tenantConfig = useTenantConfig();
 
-  // Safely cast form_fields to array with type guard
-  const fields = Array.isArray(form.form_fields) ? form.form_fields : [];
+  // Safely cast form_fields to array with type guard and proper typing
+  const fields: FormField[] = Array.isArray(form.form_fields) 
+    ? form.form_fields.filter((field): field is FormField => 
+        typeof field === 'object' && 
+        field !== null && 
+        'id' in field && 
+        'type' in field && 
+        'label' in field
+      )
+    : [];
+  
   const fieldsPerStep = 5;
   const totalSteps = Math.ceil(fields.length / fieldsPerStep);
   const currentFields = fields.slice(currentStep * fieldsPerStep, (currentStep + 1) * fieldsPerStep);
@@ -40,7 +59,7 @@ export const PatientFormRenderer: React.FC<PatientFormRendererProps> = ({
     trackFormEvent(form.id, 'form_viewed');
   }, [form.id]);
 
-  const validateField = (field: any, value: any): string | null => {
+  const validateField = (field: FormField, value: any): string | null => {
     if (field.required && (!value || value === '')) {
       return `${field.label} is required`;
     }
@@ -134,7 +153,7 @@ export const PatientFormRenderer: React.FC<PatientFormRendererProps> = ({
     }
   };
 
-  const renderField = (field: any) => {
+  const renderField = (field: FormField) => {
     const value = formData[field.id] || '';
     const error = errors[field.id];
 
