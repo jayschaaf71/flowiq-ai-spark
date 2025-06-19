@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,18 +19,7 @@ import {
   CheckCircle
 } from "lucide-react";
 import { format } from "date-fns";
-
-interface Medication {
-  id: string;
-  medication_name: string;
-  dosage?: string;
-  frequency?: string;
-  prescribed_by?: string;
-  prescribed_date?: string;
-  status: "active" | "discontinued" | "completed";
-  notes?: string;
-  created_at: string;
-}
+import { useMedications, useCreateMedication, useUpdateMedication } from "@/hooks/useMedications";
 
 interface PrescriptionManagementProps {
   patientId: string;
@@ -38,7 +27,7 @@ interface PrescriptionManagementProps {
 
 export const PrescriptionManagement = ({ patientId }: PrescriptionManagementProps) => {
   const [open, setOpen] = useState(false);
-  const [selectedMedication, setSelectedMedication] = useState<Medication | null>(null);
+  const [selectedMedication, setSelectedMedication] = useState<any>(null);
   const [formData, setFormData] = useState({
     medication_name: "",
     dosage: "",
@@ -49,42 +38,9 @@ export const PrescriptionManagement = ({ patientId }: PrescriptionManagementProp
     notes: ""
   });
 
-  // Mock data - replace with actual API calls
-  const medications: Medication[] = [
-    {
-      id: "1",
-      medication_name: "Lisinopril",
-      dosage: "10mg",
-      frequency: "Once daily",
-      prescribed_by: "Dr. Smith",
-      prescribed_date: "2023-06-15",
-      status: "active",
-      notes: "For blood pressure management. Take with food.",
-      created_at: "2023-06-15T10:00:00Z"
-    },
-    {
-      id: "2",
-      medication_name: "Metformin",
-      dosage: "500mg",
-      frequency: "Twice daily",
-      prescribed_by: "Dr. Johnson",
-      prescribed_date: "2023-03-20",
-      status: "active",
-      notes: "For diabetes management. Take with meals.",
-      created_at: "2023-03-20T14:30:00Z"
-    },
-    {
-      id: "3",
-      medication_name: "Amoxicillin",
-      dosage: "250mg",
-      frequency: "Three times daily",
-      prescribed_by: "Dr. Wilson",
-      prescribed_date: "2023-12-01",
-      status: "completed",
-      notes: "7-day course for infection. Completed successfully.",
-      created_at: "2023-12-01T09:15:00Z"
-    }
-  ];
+  const { data: medications = [], isLoading } = useMedications(patientId);
+  const createMutation = useCreateMedication();
+  const updateMutation = useUpdateMedication();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -105,8 +61,22 @@ export const PrescriptionManagement = ({ patientId }: PrescriptionManagementProp
   };
 
   const handleSubmit = () => {
-    console.log("Adding/updating medication:", formData);
-    // Add API call here
+    if (selectedMedication) {
+      updateMutation.mutate({
+        id: selectedMedication.id,
+        updates: {
+          ...formData,
+          prescribed_date: formData.prescribed_date || null
+        }
+      });
+    } else {
+      createMutation.mutate({
+        ...formData,
+        patient_id: patientId,
+        prescribed_date: formData.prescribed_date || null
+      });
+    }
+    
     setOpen(false);
     setFormData({
       medication_name: "",
@@ -120,7 +90,7 @@ export const PrescriptionManagement = ({ patientId }: PrescriptionManagementProp
     setSelectedMedication(null);
   };
 
-  const handleEdit = (medication: Medication) => {
+  const handleEdit = (medication: any) => {
     setSelectedMedication(medication);
     setFormData({
       medication_name: medication.medication_name,
@@ -133,6 +103,19 @@ export const PrescriptionManagement = ({ patientId }: PrescriptionManagementProp
     });
     setOpen(true);
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold">Prescription Management</h3>
+            <p className="text-sm text-muted-foreground">Loading medications...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -237,7 +220,10 @@ export const PrescriptionManagement = ({ patientId }: PrescriptionManagementProp
                 <Button variant="outline" onClick={() => setOpen(false)}>
                   Cancel
                 </Button>
-                <Button onClick={handleSubmit}>
+                <Button 
+                  onClick={handleSubmit}
+                  disabled={createMutation.isPending || updateMutation.isPending}
+                >
                   {selectedMedication ? "Update" : "Add"} Medication
                 </Button>
               </div>
@@ -255,8 +241,8 @@ export const PrescriptionManagement = ({ patientId }: PrescriptionManagementProp
                   <div className="flex items-center gap-3 mb-2">
                     <Pill className="h-5 w-5 text-blue-600" />
                     <h4 className="font-semibold">{medication.medication_name}</h4>
-                    <Badge className={getStatusColor(medication.status)}>
-                      {getStatusIcon(medication.status)}
+                    <Badge className={getStatusColor(medication.status || 'active')}>
+                      {getStatusIcon(medication.status || 'active')}
                       <span className="ml-1">{medication.status}</span>
                     </Badge>
                   </div>

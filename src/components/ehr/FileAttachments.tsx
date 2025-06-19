@@ -1,9 +1,8 @@
 
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { 
@@ -18,17 +17,7 @@ import {
   Eye
 } from "lucide-react";
 import { format } from "date-fns";
-
-interface FileAttachment {
-  id: string;
-  file_name: string;
-  file_type: string;
-  file_size: number;
-  description?: string;
-  uploaded_by: string;
-  created_at: string;
-  storage_path: string;
-}
+import { useFileAttachments, useUploadFile, useDeleteFile, useDownloadFile } from "@/hooks/useFileAttachments";
 
 interface FileAttachmentsProps {
   patientId: string;
@@ -40,42 +29,11 @@ export const FileAttachments = ({ patientId, soapNoteId, appointmentId }: FileAt
   const [open, setOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [description, setDescription] = useState("");
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [isUploading, setIsUploading] = useState(false);
 
-  // Mock data - replace with actual API calls
-  const attachments: FileAttachment[] = [
-    {
-      id: "1",
-      file_name: "blood_test_results.pdf",
-      file_type: "application/pdf",
-      file_size: 245760, // bytes
-      description: "Complete blood count results from lab",
-      uploaded_by: "Dr. Smith",
-      created_at: "2023-12-15T10:00:00Z",
-      storage_path: "/patient-files/blood_test_results.pdf"
-    },
-    {
-      id: "2",
-      file_name: "x_ray_chest.jpg",
-      file_type: "image/jpeg",
-      file_size: 1024000,
-      description: "Chest X-ray showing clear lungs",
-      uploaded_by: "Radiology Tech",
-      created_at: "2023-12-10T14:30:00Z",
-      storage_path: "/patient-files/x_ray_chest.jpg"
-    },
-    {
-      id: "3",
-      file_name: "insurance_card.png",
-      file_type: "image/png",
-      file_size: 512000,
-      description: "Updated insurance information",
-      uploaded_by: "Front Desk",
-      created_at: "2023-12-01T09:15:00Z",
-      storage_path: "/patient-files/insurance_card.png"
-    }
-  ];
+  const { data: attachments = [], isLoading } = useFileAttachments(patientId, soapNoteId, appointmentId);
+  const uploadMutation = useUploadFile();
+  const deleteMutation = useDeleteFile();
+  const downloadMutation = useDownloadFile();
 
   const getFileIcon = (fileType: string) => {
     if (fileType.startsWith('image/')) {
@@ -104,42 +62,41 @@ export const FileAttachments = ({ patientId, soapNoteId, appointmentId }: FileAt
   const handleUpload = async () => {
     if (!selectedFile) return;
 
-    setIsUploading(true);
-    setUploadProgress(0);
-
-    // Simulate upload progress
-    const interval = setInterval(() => {
-      setUploadProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setIsUploading(false);
-          setOpen(false);
-          setSelectedFile(null);
-          setDescription("");
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 200);
-
-    console.log("Uploading file:", {
+    uploadMutation.mutate({
       file: selectedFile,
-      description,
       patientId,
       soapNoteId,
-      appointmentId
+      appointmentId,
+      description
     });
+
+    setOpen(false);
+    setSelectedFile(null);
+    setDescription("");
   };
 
-  const handleDownload = (attachment: FileAttachment) => {
-    console.log("Downloading file:", attachment.file_name);
-    // Implement download logic
+  const handleDownload = (storagePath: string) => {
+    downloadMutation.mutate(storagePath);
   };
 
   const handleDelete = (attachmentId: string) => {
-    console.log("Deleting file:", attachmentId);
-    // Implement delete logic
+    if (window.confirm('Are you sure you want to delete this file?')) {
+      deleteMutation.mutate(attachmentId);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold">File Attachments</h3>
+            <p className="text-sm text-muted-foreground">Loading files...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -190,27 +147,15 @@ export const FileAttachments = ({ patientId, soapNoteId, appointmentId }: FileAt
                 />
               </div>
               
-              {isUploading && (
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Uploading...</span>
-                    <span>{uploadProgress}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${uploadProgress}%` }}
-                    />
-                  </div>
-                </div>
-              )}
-              
               <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setOpen(false)} disabled={isUploading}>
+                <Button variant="outline" onClick={() => setOpen(false)} disabled={uploadMutation.isPending}>
                   Cancel
                 </Button>
-                <Button onClick={handleUpload} disabled={!selectedFile || isUploading}>
-                  Upload File
+                <Button 
+                  onClick={handleUpload} 
+                  disabled={!selectedFile || uploadMutation.isPending}
+                >
+                  {uploadMutation.isPending ? "Uploading..." : "Upload File"}
                 </Button>
               </div>
             </div>
@@ -228,7 +173,7 @@ export const FileAttachments = ({ patientId, soapNoteId, appointmentId }: FileAt
                   <div className="flex-1">
                     <h4 className="font-medium">{attachment.file_name}</h4>
                     <p className="text-sm text-muted-foreground">
-                      {formatFileSize(attachment.file_size)}
+                      {attachment.file_size && formatFileSize(attachment.file_size)}
                     </p>
                     {attachment.description && (
                       <p className="text-sm text-gray-700 mt-1">{attachment.description}</p>
@@ -239,10 +184,6 @@ export const FileAttachments = ({ patientId, soapNoteId, appointmentId }: FileAt
                         <Calendar className="h-3 w-3" />
                         {format(new Date(attachment.created_at), "MMM d, yyyy")}
                       </div>
-                      <div className="flex items-center gap-1">
-                        <User className="h-3 w-3" />
-                        {attachment.uploaded_by}
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -251,20 +192,16 @@ export const FileAttachments = ({ patientId, soapNoteId, appointmentId }: FileAt
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handleDownload(attachment)}
+                    onClick={() => handleDownload(attachment.storage_path)}
+                    disabled={downloadMutation.isPending}
                   >
                     <Download className="h-4 w-4" />
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
                     onClick={() => handleDelete(attachment.id)}
+                    disabled={deleteMutation.isPending}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>

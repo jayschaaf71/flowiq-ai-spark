@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,16 +19,7 @@ import {
   Activity
 } from "lucide-react";
 import { format } from "date-fns";
-
-interface MedicalCondition {
-  id: string;
-  condition_name: string;
-  diagnosis_date: string;
-  status: "active" | "resolved" | "chronic" | "monitoring";
-  notes?: string;
-  created_by: string;
-  created_at: string;
-}
+import { useMedicalHistory, useCreateMedicalHistory, useUpdateMedicalHistory } from "@/hooks/useMedicalHistory";
 
 interface MedicalHistoryProps {
   patientId: string;
@@ -36,7 +27,7 @@ interface MedicalHistoryProps {
 
 export const MedicalHistory = ({ patientId }: MedicalHistoryProps) => {
   const [open, setOpen] = useState(false);
-  const [selectedCondition, setSelectedCondition] = useState<MedicalCondition | null>(null);
+  const [selectedCondition, setSelectedCondition] = useState<any>(null);
   const [formData, setFormData] = useState({
     condition_name: "",
     diagnosis_date: "",
@@ -44,36 +35,9 @@ export const MedicalHistory = ({ patientId }: MedicalHistoryProps) => {
     notes: ""
   });
 
-  // Mock data - replace with actual API calls
-  const conditions: MedicalCondition[] = [
-    {
-      id: "1",
-      condition_name: "Hypertension",
-      diagnosis_date: "2023-06-15",
-      status: "chronic",
-      notes: "Well controlled with medication. Regular monitoring required.",
-      created_by: "Dr. Smith",
-      created_at: "2023-06-15T10:00:00Z"
-    },
-    {
-      id: "2", 
-      condition_name: "Type 2 Diabetes",
-      diagnosis_date: "2022-03-20",
-      status: "active",
-      notes: "HbA1c levels stable. Diet and exercise modifications in place.",
-      created_by: "Dr. Johnson",
-      created_at: "2022-03-20T14:30:00Z"
-    },
-    {
-      id: "3",
-      condition_name: "Pneumonia",
-      diagnosis_date: "2023-12-01",
-      status: "resolved",
-      notes: "Treated with antibiotics. Full recovery achieved.",
-      created_by: "Dr. Wilson",
-      created_at: "2023-12-01T09:15:00Z"
-    }
-  ];
+  const { data: conditions = [], isLoading } = useMedicalHistory(patientId);
+  const createMutation = useCreateMedicalHistory();
+  const updateMutation = useUpdateMedicalHistory();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -96,8 +60,19 @@ export const MedicalHistory = ({ patientId }: MedicalHistoryProps) => {
   };
 
   const handleSubmit = () => {
-    console.log("Adding/updating medical condition:", formData);
-    // Add API call here
+    if (selectedCondition) {
+      updateMutation.mutate({
+        id: selectedCondition.id,
+        updates: formData
+      });
+    } else {
+      createMutation.mutate({
+        ...formData,
+        patient_id: patientId,
+        diagnosis_date: formData.diagnosis_date || null
+      });
+    }
+    
     setOpen(false);
     setFormData({
       condition_name: "",
@@ -108,16 +83,29 @@ export const MedicalHistory = ({ patientId }: MedicalHistoryProps) => {
     setSelectedCondition(null);
   };
 
-  const handleEdit = (condition: MedicalCondition) => {
+  const handleEdit = (condition: any) => {
     setSelectedCondition(condition);
     setFormData({
       condition_name: condition.condition_name,
-      diagnosis_date: condition.diagnosis_date,
+      diagnosis_date: condition.diagnosis_date || "",
       status: condition.status,
       notes: condition.notes || ""
     });
     setOpen(true);
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold">Medical History</h3>
+            <p className="text-sm text-muted-foreground">Loading medical conditions...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -194,7 +182,10 @@ export const MedicalHistory = ({ patientId }: MedicalHistoryProps) => {
                 <Button variant="outline" onClick={() => setOpen(false)}>
                   Cancel
                 </Button>
-                <Button onClick={handleSubmit}>
+                <Button 
+                  onClick={handleSubmit}
+                  disabled={createMutation.isPending || updateMutation.isPending}
+                >
                   {selectedCondition ? "Update" : "Add"} Condition
                 </Button>
               </div>
@@ -211,21 +202,19 @@ export const MedicalHistory = ({ patientId }: MedicalHistoryProps) => {
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
                     <h4 className="font-semibold">{condition.condition_name}</h4>
-                    <Badge className={getStatusColor(condition.status)}>
-                      {getStatusIcon(condition.status)}
+                    <Badge className={getStatusColor(condition.status || 'active')}>
+                      {getStatusIcon(condition.status || 'active')}
                       <span className="ml-1">{condition.status}</span>
                     </Badge>
                   </div>
                   
                   <div className="space-y-2 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4" />
-                      Diagnosed: {format(new Date(condition.diagnosis_date), "MMMM d, yyyy")}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <User className="h-4 w-4" />
-                      Diagnosed by: {condition.created_by}
-                    </div>
+                    {condition.diagnosis_date && (
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4" />
+                        Diagnosed: {format(new Date(condition.diagnosis_date), "MMMM d, yyyy")}
+                      </div>
+                    )}
                     {condition.notes && (
                       <p className="text-gray-700 mt-2">{condition.notes}</p>
                     )}
