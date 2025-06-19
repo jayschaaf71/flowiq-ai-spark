@@ -2,11 +2,12 @@
 import { useState } from "react";
 import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RemindDashboard } from "@/components/remind/RemindDashboard";
 import { MessageTemplates } from "@/components/remind/MessageTemplates";
-import { TrendingUp } from "lucide-react";
+import { CampaignManager } from "@/components/remind/CampaignManager";
+import { ScheduledMessages } from "@/components/remind/ScheduledMessages";
+import { RemindAnalytics } from "@/components/remind/RemindAnalytics";
 
 const RemindIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -38,48 +39,15 @@ const RemindIQ = () => {
           </TabsContent>
 
           <TabsContent value="campaigns" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Message Campaigns</CardTitle>
-                <CardDescription>Manage your messaging campaigns</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12 text-muted-foreground">
-                  <TrendingUp className="w-12 h-12 mx-auto mb-4" />
-                  <p>Campaign management coming soon...</p>
-                </div>
-              </CardContent>
-            </Card>
+            <CampaignManager />
           </TabsContent>
 
           <TabsContent value="schedule" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Scheduled Messages</CardTitle>
-                <CardDescription>View and manage scheduled reminders</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12 text-muted-foreground">
-                  <TrendingUp className="w-12 h-12 mx-auto mb-4" />
-                  <p>Schedule management coming soon...</p>
-                </div>
-              </CardContent>
-            </Card>
+            <ScheduledMessages />
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Messaging Analytics</CardTitle>
-                <CardDescription>Performance metrics and insights</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12 text-muted-foreground">
-                  <TrendingUp className="w-12 h-12 mx-auto mb-4" />
-                  <p>Analytics dashboard coming soon...</p>
-                </div>
-              </CardContent>
-            </Card>
+            <RemindAnalytics />
           </TabsContent>
         </Tabs>
       </div>
