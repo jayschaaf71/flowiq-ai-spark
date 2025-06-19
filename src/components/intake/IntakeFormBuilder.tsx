@@ -19,6 +19,7 @@ interface FormField {
   placeholder?: string;
   required?: boolean;
   options?: string[];
+  [key: string]: any; // Add index signature for Json compatibility
 }
 
 export const IntakeFormBuilder: React.FC = () => {
@@ -106,7 +107,7 @@ export const IntakeFormBuilder: React.FC = () => {
       await createForm({
         title: formTitle,
         description: formDescription || null,
-        form_fields: fields,
+        form_fields: fields as any, // Type assertion to handle Json conversion
         is_active: true
       });
 
