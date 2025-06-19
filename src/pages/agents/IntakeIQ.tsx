@@ -1,21 +1,27 @@
+
 import { useState } from "react";
 import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { IntakeDashboard } from "@/components/intake/IntakeDashboard";
-import { IntakeForms } from "@/components/intake/IntakeForms";
+import { EnhancedIntakeDashboard } from "@/components/intake/EnhancedIntakeDashboard";
+import { FormSubmissionsList } from "@/components/intake/FormSubmissionsList";
 import { FormBuilder } from "@/components/intake/FormBuilder";
 import { FormTemplates } from "@/components/intake/FormTemplates";
 import { PatientRegistration } from "@/components/intake/PatientRegistration";
 import { IntakeAnalytics } from "@/components/intake/IntakeAnalytics";
-import { TrendingUp } from "lucide-react";
 import { TenantFormBuilder } from "@/components/intake/TenantFormBuilder";
+import { useIntakeForms } from "@/hooks/useIntakeForms";
 import { useTenantConfig } from "@/utils/tenantConfig";
 
 const IntakeIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const tenantConfig = useTenantConfig();
+  const { submissions } = useIntakeForms();
+
+  const handleViewSubmission = (submission: any) => {
+    console.log('Viewing submission:', submission);
+    // TODO: Implement submission detail modal
+  };
 
   return (
     <Layout>
@@ -29,7 +35,7 @@ const IntakeIQ = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="forms">Active Forms</TabsTrigger>
+            <TabsTrigger value="submissions">Submissions</TabsTrigger>
             <TabsTrigger value="builder">Form Builder</TabsTrigger>
             <TabsTrigger value="templates">Templates</TabsTrigger>
             <TabsTrigger value="registration">Registration</TabsTrigger>
@@ -37,11 +43,14 @@ const IntakeIQ = () => {
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-4">
-            <IntakeDashboard />
+            <EnhancedIntakeDashboard />
           </TabsContent>
 
-          <TabsContent value="forms" className="space-y-4">
-            <IntakeForms />
+          <TabsContent value="submissions" className="space-y-4">
+            <FormSubmissionsList 
+              submissions={submissions} 
+              onViewSubmission={handleViewSubmission}
+            />
           </TabsContent>
 
           <TabsContent value="builder" className="space-y-4">

@@ -147,6 +147,134 @@ export type Database = {
         }
         Relationships: []
       }
+      intake_analytics: {
+        Row: {
+          created_at: string
+          event_type: string
+          form_id: string
+          id: string
+          metadata: Json | null
+          submission_id: string | null
+          tenant_type: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          form_id: string
+          id?: string
+          metadata?: Json | null
+          submission_id?: string | null
+          tenant_type: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          form_id?: string
+          id?: string
+          metadata?: Json | null
+          submission_id?: string | null
+          tenant_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "intake_analytics_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "intake_forms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "intake_analytics_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "intake_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      intake_forms: {
+        Row: {
+          created_at: string
+          description: string | null
+          form_fields: Json
+          id: string
+          is_active: boolean
+          tenant_type: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          form_fields?: Json
+          id?: string
+          is_active?: boolean
+          tenant_type?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          form_fields?: Json
+          id?: string
+          is_active?: boolean
+          tenant_type?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      intake_submissions: {
+        Row: {
+          ai_summary: string | null
+          created_at: string
+          form_data: Json
+          form_id: string
+          id: string
+          patient_email: string
+          patient_name: string
+          patient_phone: string | null
+          priority_level: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          ai_summary?: string | null
+          created_at?: string
+          form_data?: Json
+          form_id: string
+          id?: string
+          patient_email: string
+          patient_name: string
+          patient_phone?: string | null
+          priority_level?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          ai_summary?: string | null
+          created_at?: string
+          form_data?: Json
+          form_id?: string
+          id?: string
+          patient_email?: string
+          patient_name?: string
+          patient_phone?: string | null
+          priority_level?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "intake_submissions_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "intake_forms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
