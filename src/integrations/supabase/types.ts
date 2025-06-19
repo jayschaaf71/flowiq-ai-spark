@@ -1050,6 +1050,7 @@ export type Database = {
           last_name: string | null
           phone: string | null
           role: string
+          tenant_id: string | null
           updated_at: string
         }
         Insert: {
@@ -1060,6 +1061,7 @@ export type Database = {
           last_name?: string | null
           phone?: string | null
           role?: string
+          tenant_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -1070,6 +1072,7 @@ export type Database = {
           last_name?: string | null
           phone?: string | null
           role?: string
+          tenant_id?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -1490,10 +1493,21 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      compliance_summary: {
+        Row: {
+          recent_records: number | null
+          table_name: string | null
+          total_records: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_current_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      get_user_tenant: {
         Args: Record<PropertyKey, never>
         Returns: string
       }

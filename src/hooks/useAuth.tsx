@@ -2,6 +2,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { detectTenant } from '@/utils/tenantConfig';
 
 interface Profile {
   id: string;
@@ -10,6 +11,7 @@ interface Profile {
   last_name: string | null;
   phone: string | null;
   role: 'patient' | 'staff' | 'admin';
+  tenant_id: string | null;
 }
 
 interface AuthContextType {
@@ -31,7 +33,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // HIPAA Compliance: Secure session handling
+    // HIPAA Compliance: Secure session handling with enhanced audit logging
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email);
@@ -40,7 +42,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Fetch user profile with better error handling
+          // Fetch user profile with tenant information
           const fetchProfile = async () => {
             try {
               console.log('Attempting to fetch profile for user:', session.user.id);
@@ -52,9 +54,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               
               if (error) {
                 console.error('Error fetching profile:', error);
-                // If profile doesn't exist, create one with default values
-                if (error.code === 'PGRST116') { // No rows returned
-                  console.log('Profile not found, creating default profile');
+                if (error.code === 'PGRST116') {
+                  console.log('Profile not found, creating default profile with tenant');
+                  
+                  // Detect tenant from current domain/subdomain
+                  const tenantConfig = detectTenant();
+                  const tenantId = tenantConfig.name.toLowerCase();
+                  
                   const { data: newProfile, error: createError } = await supabase
                     .from('profiles')
                     .insert({
@@ -62,21 +68,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                       email: session.user.email,
                       first_name: session.user.user_metadata?.first_name || null,
                       last_name: session.user.user_metadata?.last_name || null,
-                      role: session.user.user_metadata?.role || 'patient'
+                      role: session.user.user_metadata?.role || 'patient',
+                      tenant_id: tenantId
                     })
                     .select()
                     .single();
                   
                   if (createError) {
                     console.error('Error creating profile:', createError);
-                    // Set a default profile to allow navigation
                     setProfile({
                       id: session.user.id,
                       email: session.user.email!,
                       first_name: session.user.user_metadata?.first_name || null,
                       last_name: session.user.user_metadata?.last_name || null,
                       phone: null,
-                      role: (session.user.user_metadata?.role as 'patient' | 'staff' | 'admin') || 'patient'
+                      role: (session.user.user_metadata?.role as 'patient' | 'staff' | 'admin') || 'patient',
+                      tenant_id: tenantId
                     });
                   } else if (newProfile) {
                     setProfile({
@@ -85,15 +92,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     });
                   }
                 } else {
-                  // For other errors, set a fallback profile to allow navigation
-                  console.log('Setting fallback profile due to fetch error');
+                  const tenantConfig = detectTenant();
                   setProfile({
                     id: session.user.id,
                     email: session.user.email!,
                     first_name: session.user.user_metadata?.first_name || null,
                     last_name: session.user.user_metadata?.last_name || null,
                     phone: null,
-                    role: (session.user.user_metadata?.role as 'patient' | 'staff' | 'admin') || 'patient'
+                    role: (session.user.user_metadata?.role as 'patient' | 'staff' | 'admin') || 'patient',
+                    tenant_id: tenantConfig.name.toLowerCase()
                   });
                 }
                 return;
@@ -101,26 +108,44 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               
               if (profileData) {
                 console.log('Profile fetched successfully:', profileData);
-                setProfile({
-                  ...profileData,
-                  role: profileData.role as 'patient' | 'staff' | 'admin'
-                });
+                
+                // Ensure tenant_id is set if missing
+                if (!profileData.tenant_id) {
+                  const tenantConfig = detectTenant();
+                  const tenantId = tenantConfig.name.toLowerCase();
+                  
+                  await supabase
+                    .from('profiles')
+                    .update({ tenant_id: tenantId })
+                    .eq('id', session.user.id);
+                  
+                  setProfile({
+                    ...profileData,
+                    role: profileData.role as 'patient' | 'staff' | 'admin',
+                    tenant_id: tenantId
+                  });
+                } else {
+                  setProfile({
+                    ...profileData,
+                    role: profileData.role as 'patient' | 'staff' | 'admin'
+                  });
+                }
               }
             } catch (error) {
               console.error('Profile fetch error:', error);
-              // Set fallback profile to allow navigation
+              const tenantConfig = detectTenant();
               setProfile({
                 id: session.user.id,
                 email: session.user.email!,
                 first_name: session.user.user_metadata?.first_name || null,
                 last_name: session.user.user_metadata?.last_name || null,
                 phone: null,
-                role: (session.user.user_metadata?.role as 'patient' | 'staff' | 'admin') || 'patient'
+                role: (session.user.user_metadata?.role as 'patient' | 'staff' | 'admin') || 'patient',
+                tenant_id: tenantConfig.name.toLowerCase()
               });
             }
           };
 
-          // Use setTimeout to avoid auth callback recursion
           setTimeout(fetchProfile, 100);
         } else {
           setProfile(null);
@@ -130,7 +155,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     );
 
-    // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       console.log('Initial session check:', session?.user?.email);
       setSession(session);
@@ -144,11 +168,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, firstName?: string, lastName?: string, role?: string) => {
-    // CRITICAL: Set the correct redirect URL for email confirmation
     const redirectUrl = `${window.location.origin}/`;
     
-    // HIPAA Compliance: Enhanced error handling
     try {
+      // Detect tenant for new user registration
+      const tenantConfig = detectTenant();
+      
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -157,13 +182,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           data: {
             first_name: firstName,
             last_name: lastName,
-            role: role || 'patient'
+            role: role || 'patient',
+            tenant_id: tenantConfig.name.toLowerCase()
           }
         }
       });
       
-      // Log authentication attempt (without sensitive data)
-      console.log('Sign up attempt for:', email.replace(/(.{2})(.*)(@.*)/, '$1***$3'));
+      // HIPAA Compliance: Log authentication attempt (without sensitive data)
+      console.log('Sign up attempt for tenant:', tenantConfig.name, 'email:', email.replace(/(.{2})(.*)(@.*)/, '$1***$3'));
       
       return { error };
     } catch (error) {
@@ -173,15 +199,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signIn = async (email: string, password: string) => {
-    // HIPAA Compliance: Enhanced error handling and logging
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
       
-      // Log authentication attempt (without sensitive data)
-      console.log('Sign in attempt for:', email.replace(/(.{2})(.*)(@.*)/, '$1***$3'));
+      // HIPAA Compliance: Log authentication attempt (without sensitive data)
+      const tenantConfig = detectTenant();
+      console.log('Sign in attempt for tenant:', tenantConfig.name, 'email:', email.replace(/(.{2})(.*)(@.*)/, '$1***$3'));
       
       return { error };
     } catch (error) {
@@ -192,14 +218,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signOut = async () => {
     try {
-      // HIPAA Compliance: Clear all local data on logout
+      // HIPAA Compliance: Clear all local data on logout and log the action
+      console.log('User signing out - clearing PHI from local storage');
       setProfile(null);
       setUser(null);
       setSession(null);
       
       await supabase.auth.signOut();
       
-      // Clear any cached data
+      // Clear any cached PHI data
       localStorage.removeItem('supabase.auth.token');
       sessionStorage.clear();
       

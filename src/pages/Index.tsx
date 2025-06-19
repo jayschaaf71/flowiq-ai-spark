@@ -6,18 +6,21 @@ import { ClinicMetrics } from "@/components/clinic/ClinicMetrics";
 import { ProviderSummary } from "@/components/clinic/ProviderSummary";
 import { RecentActivity } from "@/components/clinic/RecentActivity";
 import { QuickStats } from "@/components/clinic/QuickStats";
+import { ComplianceMonitor } from "@/components/compliance/ComplianceMonitor";
 import { AIAssistant } from "@/components/AIAssistant";
 import { Button } from "@/components/ui/button";
 import { MessageSquare } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 const Index = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const { profile } = useAuth();
 
   return (
     <Layout>
       <PageHeader 
         title="Clinic Dashboard"
-        subtitle="Daily operations overview and key performance indicators"
+        subtitle={`Daily operations overview and key performance indicators${profile?.tenant_id ? ` - ${profile.tenant_id.toUpperCase()} Tenant` : ''}`}
       />
       
       <div className="space-y-6">
@@ -30,11 +33,18 @@ const Index = () => {
           <ClinicMetrics />
         </div>
 
-        {/* Provider Summary and Recent Activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ProviderSummary />
-          <RecentActivity />
+        {/* Provider Summary and Compliance Monitor */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <ProviderSummary />
+          </div>
+          <div>
+            <ComplianceMonitor />
+          </div>
         </div>
+
+        {/* Recent Activity */}
+        <RecentActivity />
       </div>
 
       {/* AI Chat Assistant */}
