@@ -72,7 +72,7 @@ const PatientManagement = () => {
             </TabsContent>
             
             <TabsContent value="soap">
-              <SOAPNotes patientId={selectedPatient.id} />
+              <SOAPNotes />
             </TabsContent>
             
             <TabsContent value="files">
