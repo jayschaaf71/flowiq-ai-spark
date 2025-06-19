@@ -5,6 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { SessionManager } from "@/components/auth/SessionManager";
+import { useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
 
 // Import all pages
 import Index from "./pages/Index";
@@ -38,12 +40,27 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+// Component to handle authentication-based navigation
+const AuthNavigationHandler = () => {
+  const { user, profile, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && user && profile) {
+      console.log('User authenticated with role:', profile.role);
+      // Navigation will be handled by the route components themselves
+    }
+  }, [user, profile, loading]);
+
+  return null;
+};
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <SessionManager>
           <Router>
+            <AuthNavigationHandler />
             <Routes>
               {/* Public routes */}
               <Route path="/patient" element={<PatientLanding />} />

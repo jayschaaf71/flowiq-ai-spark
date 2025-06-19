@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { AuthPage } from './AuthPage';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Shield, AlertTriangle } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -15,6 +16,29 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requiredRole 
 }) => {
   const { user, profile, loading } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    // If user is authenticated and has a profile, check if they need to be redirected
+    if (!loading && user && profile) {
+      console.log('ProtectedRoute: User authenticated with role:', profile.role, 'at path:', location.pathname);
+      
+      // If user is a patient and trying to access staff areas, redirect to patient dashboard
+      if (profile.role === 'patient' && requiredRole === 'staff') {
+        console.log('Patient trying to access staff area, redirecting to patient dashboard');
+        navigate('/patient-dashboard', { replace: true });
+        return;
+      }
+      
+      // If user is staff and trying to access patient-only areas, redirect to main dashboard
+      if ((profile.role === 'staff' || profile.role === 'admin') && location.pathname === '/patient-dashboard') {
+        console.log('Staff trying to access patient dashboard, redirecting to main dashboard');
+        navigate('/', { replace: true });
+        return;
+      }
+    }
+  }, [user, profile, loading, navigate, location.pathname, requiredRole]);
 
   if (loading) {
     return (
