@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -43,7 +42,7 @@ export const AgentOverview = () => {
     },
     {
       id: "remind-iq",
-      name: "Remind iQ",
+      name: "Reminders iQ",
       icon: Bell,
       status: "active",
       health: 100,

@@ -15,7 +15,7 @@ const RemindIQ = () => {
   return (
     <Layout>
       <PageHeader 
-        title="Remind iQ"
+        title="Reminders iQ"
         subtitle="AI-powered patient reminders and messaging automation"
         badge="AI Agent"
       />
