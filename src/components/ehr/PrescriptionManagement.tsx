@@ -15,8 +15,7 @@ import {
   User, 
   Clock,
   Edit,
-  AlertTriangle,
-  CheckCircle
+  AlertCircle
 } from "lucide-react";
 import { format } from "date-fns";
 import { useMedications, useCreateMedication, useUpdateMedication } from "@/hooks/useMedications";
@@ -53,10 +52,10 @@ export const PrescriptionManagement = ({ patientId }: PrescriptionManagementProp
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "active": return <CheckCircle className="h-4 w-4" />;
-      case "discontinued": return <AlertTriangle className="h-4 w-4" />;
-      case "completed": return <CheckCircle className="h-4 w-4" />;
-      default: return <Clock className="h-4 w-4" />;
+      case "active": return <Clock className="h-4 w-4" />;
+      case "discontinued": return <AlertCircle className="h-4 w-4" />;
+      case "completed": return <Pill className="h-4 w-4" />;
+      default: return <Pill className="h-4 w-4" />;
     }
   };
 
@@ -64,10 +63,7 @@ export const PrescriptionManagement = ({ patientId }: PrescriptionManagementProp
     if (selectedMedication) {
       updateMutation.mutate({
         id: selectedMedication.id,
-        updates: {
-          ...formData,
-          prescribed_date: formData.prescribed_date || null
-        }
+        updates: formData
       });
     } else {
       createMutation.mutate({
@@ -109,7 +105,7 @@ export const PrescriptionManagement = ({ patientId }: PrescriptionManagementProp
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold">Prescription Management</h3>
+            <h3 className="text-lg font-semibold">Medications</h3>
             <p className="text-sm text-muted-foreground">Loading medications...</p>
           </div>
         </div>
@@ -121,9 +117,9 @@ export const PrescriptionManagement = ({ patientId }: PrescriptionManagementProp
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold">Prescription Management</h3>
+          <h3 className="text-lg font-semibold">Medications</h3>
           <p className="text-sm text-muted-foreground">
-            Track patient medications and prescriptions
+            Current and past medications for this patient
           </p>
         </div>
         
@@ -140,7 +136,7 @@ export const PrescriptionManagement = ({ patientId }: PrescriptionManagementProp
                 {selectedMedication ? "Edit Medication" : "Add Medication"}
               </DialogTitle>
               <DialogDescription>
-                Record a new prescription or update existing medication information
+                Record a new medication or update existing prescription information
               </DialogDescription>
             </DialogHeader>
             
@@ -160,15 +156,16 @@ export const PrescriptionManagement = ({ patientId }: PrescriptionManagementProp
                   <Input
                     value={formData.dosage}
                     onChange={(e) => setFormData(prev => ({ ...prev, dosage: e.target.value }))}
-                    placeholder="e.g., 10mg"
+                    placeholder="e.g., 500mg"
                   />
                 </div>
+                
                 <div>
                   <Label>Frequency</Label>
                   <Input
                     value={formData.frequency}
                     onChange={(e) => setFormData(prev => ({ ...prev, frequency: e.target.value }))}
-                    placeholder="e.g., Once daily"
+                    placeholder="e.g., Twice daily"
                   />
                 </div>
               </div>
@@ -179,9 +176,10 @@ export const PrescriptionManagement = ({ patientId }: PrescriptionManagementProp
                   <Input
                     value={formData.prescribed_by}
                     onChange={(e) => setFormData(prev => ({ ...prev, prescribed_by: e.target.value }))}
-                    placeholder="Doctor name"
+                    placeholder="Prescribing physician"
                   />
                 </div>
+                
                 <div>
                   <Label>Prescribed Date</Label>
                   <Input
@@ -211,7 +209,7 @@ export const PrescriptionManagement = ({ patientId }: PrescriptionManagementProp
                 <Textarea
                   value={formData.notes}
                   onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-                  placeholder="Instructions, side effects, or other notes..."
+                  placeholder="Additional notes about the medication..."
                   rows={3}
                 />
               </div>
@@ -239,7 +237,6 @@ export const PrescriptionManagement = ({ patientId }: PrescriptionManagementProp
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
-                    <Pill className="h-5 w-5 text-blue-600" />
                     <h4 className="font-semibold">{medication.medication_name}</h4>
                     <Badge className={getStatusColor(medication.status || 'active')}>
                       {getStatusIcon(medication.status || 'active')}
@@ -247,24 +244,27 @@ export const PrescriptionManagement = ({ patientId }: PrescriptionManagementProp
                     </Badge>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground mb-2">
-                    <div>Dosage: {medication.dosage}</div>
-                    <div>Frequency: {medication.frequency}</div>
-                  </div>
-                  
-                  <div className="space-y-1 text-sm text-muted-foreground">
-                    {medication.prescribed_date && (
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4" />
-                        Prescribed: {format(new Date(medication.prescribed_date), "MMMM d, yyyy")}
-                      </div>
+                  <div className="space-y-2 text-sm text-muted-foreground">
+                    {(medication.dosage || medication.frequency) && (
+                      <p>
+                        {medication.dosage}{medication.dosage && medication.frequency && ' - '}{medication.frequency}
+                      </p>
                     )}
+                    
                     {medication.prescribed_by && (
                       <div className="flex items-center gap-2">
                         <User className="h-4 w-4" />
                         Prescribed by: {medication.prescribed_by}
                       </div>
                     )}
+                    
+                    {medication.prescribed_date && (
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4" />
+                        Prescribed: {format(new Date(medication.prescribed_date), "MMMM d, yyyy")}
+                      </div>
+                    )}
+                    
                     {medication.notes && (
                       <p className="text-gray-700 mt-2">{medication.notes}</p>
                     )}
@@ -289,7 +289,7 @@ export const PrescriptionManagement = ({ patientId }: PrescriptionManagementProp
               <Pill className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600">No medications recorded</p>
               <p className="text-sm text-gray-500 mt-1">
-                Add prescriptions to track the patient's medications
+                Add the patient's current and past medications
               </p>
             </CardContent>
           </Card>
