@@ -2,7 +2,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { detectTenant } from '@/utils/tenantConfig';
+import { getTenantConfig } from '@/utils/tenantConfig';
 
 interface Profile {
   id: string;
@@ -57,8 +57,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 if (error.code === 'PGRST116') {
                   console.log('Profile not found, creating default profile with tenant');
                   
-                  // Detect tenant from current domain/subdomain
-                  const tenantConfig = detectTenant();
+                  // Get tenant configuration
+                  const tenantConfig = getTenantConfig();
                   const tenantId = tenantConfig.name.toLowerCase();
                   
                   const { data: newProfile, error: createError } = await supabase
@@ -76,6 +76,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                   
                   if (createError) {
                     console.error('Error creating profile:', createError);
+                    const tenantConfig = getTenantConfig();
                     setProfile({
                       id: session.user.id,
                       email: session.user.email!,
@@ -83,7 +84,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                       last_name: session.user.user_metadata?.last_name || null,
                       phone: null,
                       role: (session.user.user_metadata?.role as 'patient' | 'staff' | 'admin') || 'patient',
-                      tenant_id: tenantId
+                      tenant_id: tenantConfig.name.toLowerCase()
                     });
                   } else if (newProfile) {
                     setProfile({
@@ -92,7 +93,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     });
                   }
                 } else {
-                  const tenantConfig = detectTenant();
+                  const tenantConfig = getTenantConfig();
                   setProfile({
                     id: session.user.id,
                     email: session.user.email!,
@@ -111,7 +112,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 
                 // Ensure tenant_id is set if missing
                 if (!profileData.tenant_id) {
-                  const tenantConfig = detectTenant();
+                  const tenantConfig = getTenantConfig();
                   const tenantId = tenantConfig.name.toLowerCase();
                   
                   await supabase
@@ -133,7 +134,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               }
             } catch (error) {
               console.error('Profile fetch error:', error);
-              const tenantConfig = detectTenant();
+              const tenantConfig = getTenantConfig();
               setProfile({
                 id: session.user.id,
                 email: session.user.email!,
@@ -171,8 +172,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const redirectUrl = `${window.location.origin}/`;
     
     try {
-      // Detect tenant for new user registration
-      const tenantConfig = detectTenant();
+      // Get tenant configuration for new user registration
+      const tenantConfig = getTenantConfig();
       
       const { error } = await supabase.auth.signUp({
         email,
@@ -206,7 +207,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
       
       // HIPAA Compliance: Log authentication attempt (without sensitive data)
-      const tenantConfig = detectTenant();
+      const tenantConfig = getTenantConfig();
       console.log('Sign in attempt for tenant:', tenantConfig.name, 'email:', email.replace(/(.{2})(.*)(@.*)/, '$1***$3'));
       
       return { error };
