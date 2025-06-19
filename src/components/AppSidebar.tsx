@@ -16,11 +16,13 @@ import {
   Bell,
   CreditCard,
   Receipt,
-  MessageSquare,
   Stethoscope,
   UserPlus,
   Building2,
-  Activity
+  Activity,
+  Database,
+  UserCheck,
+  TrendingUp
 } from "lucide-react";
 import {
   Sidebar,
@@ -62,7 +64,9 @@ export const AppSidebar = () => {
     { icon: Bell, label: "Reminders iQ", path: "/agents/remind", badge: "AI" },
     { icon: CreditCard, label: "Billing iQ", path: "/agents/billing", badge: "AI" },
     { icon: Receipt, label: "Claims iQ", path: "/agents/claims", badge: "AI" },
-    { icon: MessageSquare, label: "Assist iQ", path: "/agents/assist", badge: "AI" },
+    { icon: Database, label: "EHR iQ", path: "/agents/ehr", badge: "AI" },
+    { icon: UserCheck, label: "Follow up iQ", path: "/agents/followup", badge: "AI" },
+    { icon: TrendingUp, label: "Insight iQ", path: "/agents/insight", badge: "AI" },
     { icon: Stethoscope, label: "Scribe iQ", path: "/agents/scribe", badge: "AI" },
   ];
 

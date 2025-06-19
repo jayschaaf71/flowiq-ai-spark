@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,12 +9,14 @@ import {
   Bell, 
   CreditCard, 
   Receipt, 
-  MessageSquare, 
   Stethoscope,
   Settings,
   Activity,
   Pause,
-  Play
+  Play,
+  Database,
+  UserCheck,
+  TrendingUp
 } from "lucide-react";
 
 export const AgentOverview = () => {
@@ -74,15 +77,37 @@ export const AgentOverview = () => {
       actionTime: "30 minutes ago"
     },
     {
-      id: "assist-iq",
-      name: "Assist iQ",
-      icon: MessageSquare,
+      id: "ehr-iq",
+      name: "EHR iQ",
+      icon: Database,
       status: "active",
-      health: 97,
-      tasksToday: 31,
-      description: "AI assistant for staff support and queries",
-      lastAction: "Answered policy question for Dr. Smith",
-      actionTime: "10 minutes ago"
+      health: 96,
+      tasksToday: 28,
+      description: "Electronic health record management and sync",
+      lastAction: "Updated patient records for 12 patients",
+      actionTime: "15 minutes ago"
+    },
+    {
+      id: "followup-iq",
+      name: "Follow up iQ",
+      icon: UserCheck,
+      status: "active",
+      health: 94,
+      tasksToday: 19,
+      description: "Automated patient follow-up and care coordination",
+      lastAction: "Scheduled follow-up for post-surgery patient",
+      actionTime: "25 minutes ago"
+    },
+    {
+      id: "insight-iq",
+      name: "Insight iQ",
+      icon: TrendingUp,
+      status: "active",
+      health: 91,
+      tasksToday: 8,
+      description: "Practice analytics and performance insights",
+      lastAction: "Generated weekly performance report",
+      actionTime: "2 hours ago"
     },
     {
       id: "scribe-iq",
