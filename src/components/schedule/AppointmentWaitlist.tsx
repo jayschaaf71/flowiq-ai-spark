@@ -69,7 +69,15 @@ export const AppointmentWaitlist = () => {
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      setWaitlist(data || []);
+      
+      // Type the data properly to match our interface
+      const typedData = (data || []).map(item => ({
+        ...item,
+        priority: item.priority as 'low' | 'medium' | 'high' | 'urgent',
+        status: item.status as 'active' | 'contacted' | 'scheduled' | 'cancelled'
+      }));
+      
+      setWaitlist(typedData);
     } catch (error) {
       console.error('Error loading waitlist:', error);
       toast({
