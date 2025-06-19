@@ -2,13 +2,14 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useTenantConfig } from '@/utils/tenantConfig';
+import type { Json } from '@/integrations/supabase/types';
 
 export interface IntakeForm {
   id: string;
   title: string;
   description: string | null;
   tenant_type: string;
-  form_fields: any[];
+  form_fields: Json;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -20,7 +21,7 @@ export interface FormSubmission {
   patient_name: string;
   patient_email: string;
   patient_phone: string | null;
-  form_data: any;
+  form_data: Json;
   ai_summary: string | null;
   priority_level: string | null;
   status: string;
@@ -68,12 +69,15 @@ export const useIntakeForms = () => {
     }
   };
 
-  const createForm = async (formData: Partial<IntakeForm>) => {
+  const createForm = async (formData: Omit<IntakeForm, 'id' | 'created_at' | 'updated_at' | 'tenant_type'>) => {
     try {
       const { data, error } = await supabase
         .from('intake_forms')
         .insert([{
-          ...formData,
+          title: formData.title,
+          description: formData.description,
+          form_fields: formData.form_fields,
+          is_active: formData.is_active,
           tenant_type: tenantConfig.name.toLowerCase()
         }])
         .select()
@@ -88,11 +92,16 @@ export const useIntakeForms = () => {
     }
   };
 
-  const updateForm = async (id: string, updates: Partial<IntakeForm>) => {
+  const updateForm = async (id: string, updates: Partial<Omit<IntakeForm, 'id' | 'created_at' | 'updated_at' | 'tenant_type'>>) => {
     try {
       const { data, error } = await supabase
         .from('intake_forms')
-        .update(updates)
+        .update({
+          ...(updates.title && { title: updates.title }),
+          ...(updates.description !== undefined && { description: updates.description }),
+          ...(updates.form_fields && { form_fields: updates.form_fields }),
+          ...(updates.is_active !== undefined && { is_active: updates.is_active })
+        })
         .eq('id', id)
         .select()
         .single();
@@ -110,14 +119,17 @@ export const useIntakeForms = () => {
     patient_name: string;
     patient_email: string;
     patient_phone?: string;
-    form_data: any;
+    form_data: Json;
   }) => {
     try {
       const { data, error } = await supabase
         .from('intake_submissions')
         .insert([{
           form_id: formId,
-          ...submissionData
+          patient_name: submissionData.patient_name,
+          patient_email: submissionData.patient_email,
+          patient_phone: submissionData.patient_phone || null,
+          form_data: submissionData.form_data
         }])
         .select()
         .single();
@@ -141,7 +153,7 @@ export const useIntakeForms = () => {
     }
   };
 
-  const trackFormEvent = async (formId: string, eventType: string, metadata?: any) => {
+  const trackFormEvent = async (formId: string, eventType: string, metadata?: Json) => {
     try {
       await supabase
         .from('intake_analytics')
