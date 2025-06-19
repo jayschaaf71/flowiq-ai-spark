@@ -48,7 +48,7 @@ export const PatientLanding = () => {
       title: "Update Profile",
       description: "Manage your information",
       action: () => navigate("/settings"),
-      color: "bg-orange-50 text-orange-600 hover:bg-orange-100"
+      color: "bg-purple-50 text-purple-600 hover:bg-purple-100"
     }
   ];
 
@@ -103,12 +103,12 @@ export const PatientLanding = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Application Header */}
+      {/* Header */}
       <header className="bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <div className="h-10 w-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+              <div className={`h-10 w-10 bg-gradient-to-r from-${tenantConfig.primaryColor}-500 to-${tenantConfig.secondaryColor}-500 rounded-lg flex items-center justify-center`}>
                 <Brain className="h-5 w-5 text-white" />
               </div>
               <div>
@@ -121,7 +121,7 @@ export const PatientLanding = () => {
               {user ? (
                 <Button 
                   onClick={() => navigate("/admin")}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                  className={`bg-${tenantConfig.primaryColor}-600 hover:bg-${tenantConfig.primaryColor}-700 text-white`}
                 >
                   Dashboard
                 </Button>
@@ -136,7 +136,7 @@ export const PatientLanding = () => {
                   </Button>
                   <Button 
                     onClick={() => navigate("/patient-auth")}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    className={`bg-${tenantConfig.primaryColor}-600 hover:bg-${tenantConfig.primaryColor}-700 text-white`}
                   >
                     Get Started
                   </Button>
@@ -184,8 +184,8 @@ export const PatientLanding = () => {
             <div className="space-y-6">
               {features.map((feature, index) => (
                 <div key={index} className="flex items-start space-x-4">
-                  <div className="bg-blue-50 p-3 rounded-lg">
-                    <feature.icon className="h-6 w-6 text-blue-600" />
+                  <div className={`bg-${tenantConfig.primaryColor}-50 p-3 rounded-lg`}>
+                    <feature.icon className={`h-6 w-6 text-${tenantConfig.primaryColor}-600`} />
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-1">{feature.title}</h3>
@@ -196,7 +196,7 @@ export const PatientLanding = () => {
             </div>
           </div>
 
-          <Card className="p-8 bg-gradient-to-br from-blue-50 to-indigo-50 border-0 shadow-lg">
+          <Card className={`p-8 bg-gradient-to-br from-${tenantConfig.primaryColor}-50 to-${tenantConfig.secondaryColor}-50 border-0 shadow-lg`}>
             <CardHeader className="text-center pb-6">
               <CardTitle className="text-2xl text-gray-900">Our Services</CardTitle>
               <CardDescription className="text-gray-600">
@@ -213,7 +213,7 @@ export const PatientLanding = () => {
               
               <div className="pt-6">
                 <Button 
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  className={`w-full bg-${tenantConfig.primaryColor}-600 hover:bg-${tenantConfig.primaryColor}-700 text-white`}
                   size="lg"
                   onClick={() => navigate(user ? "/book-appointment" : "/patient-auth")}
                 >
@@ -229,7 +229,7 @@ export const PatientLanding = () => {
         <div className="bg-white rounded-xl shadow-lg p-8 mb-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
             <div>
-              <div className="text-3xl font-bold text-blue-600 mb-2">500+</div>
+              <div className={`text-3xl font-bold text-${tenantConfig.primaryColor}-600 mb-2`}>500+</div>
               <div className="text-gray-600">Happy Patients</div>
             </div>
             <div>
@@ -250,7 +250,7 @@ export const PatientLanding = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
               <div className="flex items-center space-x-2 mb-4">
-                <div className="h-8 w-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                <div className={`h-8 w-8 bg-gradient-to-r from-${tenantConfig.primaryColor}-500 to-${tenantConfig.secondaryColor}-500 rounded-lg flex items-center justify-center`}>
                   <Brain className="h-4 w-4 text-white" />
                 </div>
                 <span className="font-bold text-gray-900">{tenantConfig.brandName}</span>
@@ -281,10 +281,10 @@ export const PatientLanding = () => {
             <div>
               <h3 className="font-semibold text-gray-900 mb-4">Quick Links</h3>
               <div className="space-y-2">
-                <a href="#" className="block text-gray-600 hover:text-blue-600 transition-colors">About Us</a>
-                <a href="#" className="block text-gray-600 hover:text-blue-600 transition-colors">Services</a>
-                <a href="#" className="block text-gray-600 hover:text-blue-600 transition-colors">Contact</a>
-                <a href="#" className="block text-gray-600 hover:text-blue-600 transition-colors">Privacy Policy</a>
+                <a href="#" className={`block text-gray-600 hover:text-${tenantConfig.primaryColor}-600 transition-colors`}>About Us</a>
+                <a href="#" className={`block text-gray-600 hover:text-${tenantConfig.primaryColor}-600 transition-colors`}>Services</a>
+                <a href="#" className={`block text-gray-600 hover:text-${tenantConfig.primaryColor}-600 transition-colors`}>Contact</a>
+                <a href="#" className={`block text-gray-600 hover:text-${tenantConfig.primaryColor}-600 transition-colors`}>Privacy Policy</a>
               </div>
             </div>
           </div>
