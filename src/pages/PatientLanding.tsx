@@ -16,7 +16,10 @@ import {
   Settings,
   Brain,
   Activity,
-  Play
+  Play,
+  Users,
+  BarChart3,
+  Zap
 } from "lucide-react";
 import { useTenantConfig } from "@/utils/tenantConfig";
 
@@ -25,26 +28,50 @@ export const PatientLanding = () => {
   const { user } = useAuth();
   const tenantConfig = useTenantConfig();
 
-  const features = [
+  const quickActions = [
     {
       icon: Calendar,
-      title: "Easy Scheduling",
-      description: `Book ${tenantConfig.specialty.toLowerCase()} appointments 24/7 with real-time availability`
+      title: "Schedule Appointment",
+      description: "Book your next visit",
+      action: () => navigate(user ? "/book-appointment" : "/patient-auth"),
+      color: "bg-blue-50 text-blue-600 hover:bg-blue-100"
     },
     {
       icon: Clock,
-      title: "Flexible Hours", 
-      description: "Morning, afternoon, and evening appointments available"
+      title: "View Appointments",
+      description: "Check upcoming visits",
+      action: () => navigate("/patient-dashboard"),
+      color: "bg-green-50 text-green-600 hover:bg-green-100"
+    },
+    {
+      icon: Settings,
+      title: "Update Profile",
+      description: "Manage your information",
+      action: () => navigate("/settings"),
+      color: "bg-orange-50 text-orange-600 hover:bg-orange-100"
+    }
+  ];
+
+  const features = [
+    {
+      icon: Brain,
+      title: "AI-Powered Scheduling",
+      description: `Smart appointment booking for ${tenantConfig.specialty.toLowerCase()}`
     },
     {
       icon: Shield,
-      title: "HIPAA Compliant",
-      description: "Your health information is secure and protected"
+      title: "Secure & Private",
+      description: "HIPAA compliant patient data protection"
     },
     {
       icon: Activity,
-      title: "Expert Care",
-      description: `Experienced professionals dedicated to your ${tenantConfig.specialty.toLowerCase()}`
+      title: "Real-Time Updates",
+      description: "Instant notifications and appointment confirmations"
+    },
+    {
+      icon: BarChart3,
+      title: "Progress Tracking",
+      description: "Monitor your health journey and treatment progress"
     }
   ];
 
@@ -54,22 +81,14 @@ export const PatientLanding = () => {
         "Chiropractic Adjustments",
         "Spinal Decompression Therapy", 
         "Physical Rehabilitation",
-        "Sports Injury Treatment",
-        "Auto Accident Recovery",
-        "Chronic Pain Management",
-        "Wellness & Prevention Care",
-        "Custom Treatment Plans"
+        "Sports Injury Treatment"
       ];
     } else if (tenantConfig.name === 'DentalIQ') {
       return [
         "Regular Cleanings",
         "Comprehensive Exams",
         "Fillings & Restorations",
-        "Root Canal Therapy",
-        "Crown & Bridge Work",
-        "Teeth Whitening",
-        "Oral Surgery",
-        "Preventive Care"
+        "Root Canal Therapy"
       ];
     }
     return [
@@ -83,246 +102,195 @@ export const PatientLanding = () => {
   const services = getServices();
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Navigation Header */}
-      <header className="bg-white border-b border-gray-100">
+    <div className="min-h-screen bg-gray-50">
+      {/* Application Header */}
+      <header className="bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <span className="text-2xl font-bold text-blue-600">FlowIQ</span>
-              <span className="text-sm text-gray-600 ml-2">The AI Business Operating System</span>
+            <div className="flex items-center space-x-3">
+              <div className="h-10 w-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                <Brain className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <span className="text-xl font-bold text-gray-900">{tenantConfig.brandName}</span>
+                <p className="text-sm text-gray-500">{tenantConfig.specialty}</p>
+              </div>
             </div>
-            <nav className="hidden md:flex space-x-8">
-              <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">Home</a>
-              <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">Product</a>
-              <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">How It Works</a>
-              <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">About</a>
-              <a href="#" className="text-gray-600 hover:text-blue-600 transition-colors">Contact</a>
-            </nav>
-            <div className="flex items-center gap-3">
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => navigate("/admin")}
-                className="border-orange-200 text-orange-600 hover:bg-orange-50"
-              >
-                🎯 AI Assessment
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="border-green-200 text-green-600 hover:bg-green-50"
-              >
-                <Play className="h-4 w-4 mr-1" />
-                Demo
-              </Button>
-              <Button 
-                size="sm"
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-                onClick={() => navigate("/patient-auth")}
-              >
-                Book a Demo
-              </Button>
+            
+            <div className="flex items-center space-x-3">
+              {user ? (
+                <Button 
+                  onClick={() => navigate("/admin")}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  Dashboard
+                </Button>
+              ) : (
+                <>
+                  <Button 
+                    variant="outline"
+                    onClick={() => navigate("/patient-auth")}
+                    className="text-gray-600 border-gray-300"
+                  >
+                    Sign In
+                  </Button>
+                  <Button 
+                    onClick={() => navigate("/patient-auth")}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    Get Started
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="bg-gradient-to-b from-gray-50 to-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 leading-tight">
-            The AI Operating System for{" "}
-            <span className="bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent">
-              Professional Practices
-            </span>
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Welcome Section */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            Welcome to {tenantConfig.brandName}
           </h1>
-          
-          <p className="text-xl text-gray-600 mb-12 max-w-4xl mx-auto leading-relaxed">
-            Transform your practice with FlowIQ's specialized AI agents. Automate scheduling, 
-            insurance verification, appointment reminders, patient follow-up, claims processing, and 
-            business intelligence seamlessly.
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Your intelligent {tenantConfig.specialty.toLowerCase()} management platform. 
+            Schedule appointments, manage your health records, and stay connected with your care team.
           </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-            <Button 
-              size="lg" 
-              className="text-lg px-8 py-4 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-semibold"
-              onClick={() => navigate("/patient-auth")}
-            >
-              🎯 Book Free AI Assessment
-            </Button>
-            
-            <Button 
-              size="lg" 
-              className="text-lg px-8 py-4 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold"
-              onClick={() => navigate("/patient-auth")}
-            >
-              <Play className="mr-2 h-5 w-5" />
-              Try Live Demo
-            </Button>
-            
-            <Button 
-              size="lg" 
-              className="text-lg px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold"
-              onClick={() => navigate("/patient-auth")}
-            >
-              Book a Demo
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </div>
-
-          <Button 
-            variant="outline" 
-            size="lg"
-            className="text-gray-600 border-gray-300 hover:bg-gray-50 rounded-lg"
-          >
-            Learn More
-          </Button>
         </div>
-      </section>
 
-      {/* Six AI Agents Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-            Six AI Agents, One Powerful System
-          </h2>
-          <p className="text-xl text-gray-600 mb-16 max-w-3xl mx-auto">
-            Each FlowIQ agent specializes in automating a critical aspect of your practice 
-            operations, working together to deliver exceptional patient experiences.
-          </p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              { name: "Schedule iQ", description: "Intelligent appointment scheduling", color: "blue" },
-              { name: "Intake iQ", description: "Automated patient intake forms", color: "green" },
-              { name: "Remind iQ", description: "Smart appointment reminders", color: "purple" },
-              { name: "Billing iQ", description: "Streamlined billing processes", color: "orange" },
-              { name: "Claims iQ", description: "Automated claims processing", color: "teal" },
-              { name: "Assist iQ", description: "AI-powered patient support", color: "pink" }
-            ].map((agent, index) => (
-              <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-shadow bg-white">
-                <CardHeader className="pb-4">
-                  <div className={`h-12 w-12 mx-auto mb-4 bg-${agent.color}-100 rounded-lg flex items-center justify-center`}>
-                    <Brain className={`h-6 w-6 text-${agent.color}-600`} />
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          {quickActions.map((action, index) => (
+            <Card key={index} className="cursor-pointer hover:shadow-lg transition-all duration-200 border-0 shadow-md" onClick={action.action}>
+              <CardHeader className="text-center pb-4">
+                <div className={`h-12 w-12 mx-auto mb-3 rounded-lg flex items-center justify-center ${action.color}`}>
+                  <action.icon className="h-6 w-6" />
+                </div>
+                <CardTitle className="text-lg">{action.title}</CardTitle>
+                <CardDescription>{action.description}</CardDescription>
+              </CardHeader>
+            </Card>
+          ))}
+        </div>
+
+        {/* Features Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-6">
+              Why Choose {tenantConfig.brandName}?
+            </h2>
+            <div className="space-y-6">
+              {features.map((feature, index) => (
+                <div key={index} className="flex items-start space-x-4">
+                  <div className="bg-blue-50 p-3 rounded-lg">
+                    <feature.icon className="h-6 w-6 text-blue-600" />
                   </div>
-                  <CardTitle className="text-xl font-semibold">{agent.name}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">{agent.description}</p>
-                </CardContent>
-              </Card>
-            ))}
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">{feature.title}</h3>
+                    <p className="text-gray-600">{feature.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
 
-      {/* Services Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-4xl font-bold text-gray-900 mb-6">
-                Comprehensive {tenantConfig.specialty} Services
-              </h2>
-              <p className="text-lg text-gray-600 mb-8">
-                Our AI-powered platform provides intelligent management for all aspects of 
-                {tenantConfig.specialty.toLowerCase()}, helping you achieve optimal health outcomes 
-                with streamlined, efficient care.
-              </p>
+          <Card className="p-8 bg-gradient-to-br from-blue-50 to-indigo-50 border-0 shadow-lg">
+            <CardHeader className="text-center pb-6">
+              <CardTitle className="text-2xl text-gray-900">Our Services</CardTitle>
+              <CardDescription className="text-gray-600">
+                Comprehensive {tenantConfig.specialty.toLowerCase()} care tailored to your needs
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {services.map((service, index) => (
+                <div key={index} className="flex items-center space-x-3">
+                  <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                  <span className="text-gray-700">{service}</span>
+                </div>
+              ))}
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {services.map((service, index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
-                    <span className="text-gray-700">{service}</span>
-                  </div>
-                ))}
+              <div className="pt-6">
+                <Button 
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  size="lg"
+                  onClick={() => navigate(user ? "/book-appointment" : "/patient-auth")}
+                >
+                  {user ? "Book Appointment" : "Get Started Today"}
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Stats Section */}
+        <div className="bg-white rounded-xl shadow-lg p-8 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            <div>
+              <div className="text-3xl font-bold text-blue-600 mb-2">500+</div>
+              <div className="text-gray-600">Happy Patients</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-green-600 mb-2">98%</div>
+              <div className="text-gray-600">Satisfaction Rate</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-orange-600 mb-2">24/7</div>
+              <div className="text-gray-600">Online Booking</div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-white border-t border-gray-200 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+              <div className="flex items-center space-x-2 mb-4">
+                <div className="h-8 w-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                  <Brain className="h-4 w-4 text-white" />
+                </div>
+                <span className="font-bold text-gray-900">{tenantConfig.brandName}</span>
+              </div>
+              <p className="text-gray-600">
+                Advanced {tenantConfig.specialty.toLowerCase()} management powered by AI technology.
+              </p>
+            </div>
+            
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-4">Contact Info</h3>
+              <div className="space-y-2 text-gray-600">
+                <div className="flex items-center space-x-2">
+                  <Phone className="h-4 w-4" />
+                  <span>(555) 400-0002</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Mail className="h-4 w-4" />
+                  <span>contact@flow-iq.ai</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <MapPin className="h-4 w-4" />
+                  <span>Innovation District</span>
+                </div>
               </div>
             </div>
             
-            <Card className="p-8 bg-white border-0 shadow-lg">
-              <CardHeader className="text-center pb-6">
-                <CardTitle className="text-2xl text-gray-900">Ready to Get Started?</CardTitle>
-                <CardDescription className="text-lg text-gray-600">
-                  Experience AI-powered {tenantConfig.specialty.toLowerCase()}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="text-center space-y-4">
-                  <div className="text-sm text-gray-600 bg-blue-50 p-4 rounded-lg">
-                    ✓ AI-powered scheduling recommendations<br/>
-                    ✓ Intelligent intake form processing<br/>
-                    ✓ Automated workflow management<br/>
-                    ✓ Real-time availability updates
-                  </div>
-                  
-                  <Button 
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                    size="lg"
-                    onClick={() => navigate(user ? "/book-appointment" : "/patient-auth")}
-                  >
-                    {user ? "Book Appointment Now" : "Get Started Today"}
-                    <Calendar className="ml-2 h-5 w-5" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Contact Section */}
-      <section className="py-20 bg-blue-600 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">
-              Contact FlowIQ
-            </h2>
-            <p className="text-xl text-blue-100 max-w-2xl mx-auto">
-              Have questions about our AI-powered platform? 
-              We're here to help you transform your healthcare experience.
-            </p>
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-4">Quick Links</h3>
+              <div className="space-y-2">
+                <a href="#" className="block text-gray-600 hover:text-blue-600 transition-colors">About Us</a>
+                <a href="#" className="block text-gray-600 hover:text-blue-600 transition-colors">Services</a>
+                <a href="#" className="block text-gray-600 hover:text-blue-600 transition-colors">Contact</a>
+                <a href="#" className="block text-gray-600 hover:text-blue-600 transition-colors">Privacy Policy</a>
+              </div>
+            </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <Phone className="h-12 w-12 mx-auto mb-4 text-blue-200" />
-              <h3 className="text-xl font-semibold mb-2">Call Us</h3>
-              <p className="text-blue-100 mb-2">(555) 400-0002</p>
-              <p className="text-sm text-blue-200">Mon-Fri 8AM-6PM, Sat 9AM-2PM</p>
-            </div>
-            
-            <div className="text-center">
-              <Mail className="h-12 w-12 mx-auto mb-4 text-blue-200" />
-              <h3 className="text-xl font-semibold mb-2">Email Us</h3>
-              <p className="text-blue-100 mb-2">contact@flow-iq.ai</p>
-              <p className="text-sm text-blue-200">We reply within 24 hours</p>
-            </div>
-            
-            <div className="text-center">
-              <MapPin className="h-12 w-12 mx-auto mb-4 text-blue-200" />
-              <h3 className="text-xl font-semibold mb-2">Visit Us</h3>
-              <p className="text-blue-100 mb-2">FlowIQ Headquarters</p>
-              <p className="text-sm text-blue-200">Innovation District</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center gap-3 mb-4 md:mb-0">
-              <span className="text-xl font-semibold">FlowIQ</span>
-              <p className="text-sm text-gray-400">The AI Business Operating System</p>
-            </div>
-            
-            <div className="text-sm text-gray-400">
-              © 2024 FlowIQ. All rights reserved.
-            </div>
+          <div className="border-t border-gray-200 mt-8 pt-6 text-center text-gray-500">
+            © 2024 {tenantConfig.brandName}. All rights reserved.
           </div>
         </div>
       </footer>
