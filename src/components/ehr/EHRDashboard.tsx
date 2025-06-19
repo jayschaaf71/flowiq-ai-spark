@@ -32,8 +32,8 @@ export const EHRDashboard = () => {
     {
       title: "Appointments",
       value: "18",
-      change: "0%",
-      changeType: "neutral" as const,
+      change: "-5%",
+      changeType: "negative" as const,
       icon: Calendar
     },
     {
