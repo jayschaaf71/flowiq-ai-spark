@@ -45,7 +45,7 @@ export const PrescriptionManagement = ({ patientId }: PrescriptionManagementProp
     frequency: "",
     prescribed_by: "",
     prescribed_date: "",
-    status: "active" as const,
+    status: "active" as "active" | "discontinued" | "completed",
     notes: ""
   });
 

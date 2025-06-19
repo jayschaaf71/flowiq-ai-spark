@@ -40,7 +40,7 @@ export const MedicalHistory = ({ patientId }: MedicalHistoryProps) => {
   const [formData, setFormData] = useState({
     condition_name: "",
     diagnosis_date: "",
-    status: "active" as const,
+    status: "active" as "active" | "resolved" | "chronic" | "monitoring",
     notes: ""
   });
 

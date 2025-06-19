@@ -8,7 +8,7 @@ import {
   Calendar, 
   CheckCircle, 
   AlertCircle, 
-  Sync,
+  RefreshCw,
   ExternalLink,
   Settings,
   Clock
@@ -144,10 +144,10 @@ export const CalendarIntegration = () => {
                       >
                         {syncing === service.id ? (
                           <div className="animate-spin">
-                            <Sync className="h-4 w-4" />
+                            <RefreshCw className="h-4 w-4" />
                           </div>
                         ) : (
-                          <Sync className="h-4 w-4" />
+                          <RefreshCw className="h-4 w-4" />
                         )}
                         Sync Now
                       </Button>
