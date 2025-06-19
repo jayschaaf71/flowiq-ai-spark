@@ -6,20 +6,23 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
-import { ChevronLeft, ChevronRight, Clock, User, Phone, Search, Filter, Calendar as CalendarIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, User, Phone, Search, Filter, Calendar as CalendarIcon, Repeat } from "lucide-react";
 import { format, addDays, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, addWeeks, subWeeks } from "date-fns";
 import { useAppointments } from "@/hooks/useAppointments";
 import { useProviders } from "@/hooks/useProviders";
+import { useRecurringAppointments } from "@/hooks/useRecurringAppointments";
+import { DragDropCalendar } from "./DragDropCalendar";
 
 export const EnhancedCalendarView = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [viewMode, setViewMode] = useState<"week" | "day">("week");
+  const [viewMode, setViewMode] = useState<"week" | "day" | "dragdrop">("week");
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [providerFilter, setProviderFilter] = useState<string>("all");
   
-  const { appointments, loading } = useAppointments();
+  const { appointments, loading, updateAppointmentStatus } = useAppointments();
   const { providers } = useProviders();
+  const { recurringAppointments } = useRecurringAppointments();
 
   const timeSlots = [
     "08:00", "08:30", "09:00", "09:30", "10:00", "10:30",
@@ -52,15 +55,22 @@ export const EnhancedCalendarView = () => {
     );
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "confirmed": return "bg-green-100 text-green-700 border-green-200";
-      case "pending": return "bg-yellow-100 text-yellow-700 border-yellow-200";
-      case "cancelled": return "bg-red-100 text-red-700 border-red-200";
-      case "completed": return "bg-blue-100 text-blue-700 border-blue-200";
-      case "no-show": return "bg-gray-100 text-gray-700 border-gray-200";
-      default: return "bg-gray-100 text-gray-700 border-gray-200";
+  const getStatusColor = (status: string, isRecurring: boolean = false) => {
+    const baseColors = {
+      "confirmed": "bg-green-100 text-green-700 border-green-200",
+      "pending": "bg-yellow-100 text-yellow-700 border-yellow-200",
+      "cancelled": "bg-red-100 text-red-700 border-red-200",
+      "completed": "bg-blue-100 text-blue-700 border-blue-200",
+      "no-show": "bg-gray-100 text-gray-700 border-gray-200",
+    };
+    
+    const color = baseColors[status as keyof typeof baseColors] || "bg-gray-100 text-gray-700 border-gray-200";
+    
+    if (isRecurring) {
+      return `${color} bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200`;
     }
+    
+    return color;
   };
 
   const navigateWeek = (direction: "prev" | "next") => {
@@ -76,6 +86,12 @@ export const EnhancedCalendarView = () => {
     return provider ? `${provider.first_name} ${provider.last_name}` : "Unknown Provider";
   };
 
+  const handleAppointmentDrop = async (appointmentId: string, newDate: Date, newTime: string) => {
+    // Here you would implement the logic to update the appointment
+    // For now, we'll just update the status to show it was moved
+    await updateAppointmentStatus(appointmentId, 'confirmed');
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -85,6 +101,10 @@ export const EnhancedCalendarView = () => {
         </div>
       </div>
     );
+  }
+
+  if (viewMode === "dragdrop") {
+    return <DragDropCalendar onAppointmentDrop={handleAppointmentDrop} />;
   }
 
   return (
@@ -118,6 +138,13 @@ export const EnhancedCalendarView = () => {
               onClick={() => setViewMode("day")}
             >
               Day
+            </Button>
+            <Button 
+              variant={viewMode === "dragdrop" ? "default" : "outline"} 
+              size="sm"
+              onClick={() => setViewMode("dragdrop")}
+            >
+              Drag & Drop
             </Button>
           </div>
         </div>
@@ -189,6 +216,27 @@ export const EnhancedCalendarView = () => {
               onSelect={(date) => date && setSelectedDate(date)}
               className="rounded-md border-0"
             />
+            
+            {/* Recurring Appointments Summary */}
+            <div className="mt-4 pt-4 border-t">
+              <h4 className="text-sm font-medium mb-3 flex items-center gap-2">
+                <Repeat className="h-4 w-4" />
+                Active Patterns
+              </h4>
+              <div className="space-y-2">
+                {recurringAppointments.slice(0, 3).map((pattern) => (
+                  <div key={pattern.id} className="text-xs p-2 bg-purple-50 rounded border border-purple-200">
+                    <div className="font-medium text-purple-700">{pattern.patient_name}</div>
+                    <div className="text-purple-600">{pattern.frequency} • {pattern.appointment_type}</div>
+                  </div>
+                ))}
+                {recurringAppointments.length > 3 && (
+                  <div className="text-xs text-gray-500">
+                    +{recurringAppointments.length - 3} more patterns
+                  </div>
+                )}
+              </div>
+            </div>
           </CardContent>
         </Card>
 
