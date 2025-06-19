@@ -14,6 +14,7 @@ import { SmartFormBuilder } from "@/components/intake/SmartFormBuilder";
 import { PregnancyQuestionnaire } from "@/components/intake/PregnancyQuestionnaire";
 import { NewPatientIntakeForm } from "@/components/intake/NewPatientIntakeForm";
 import { MenstrualHistoryForm } from "@/components/intake/MenstrualHistoryForm";
+import { CreditCardAgreementForm } from "@/components/intake/CreditCardAgreementForm";
 import { useIntakeForms } from "@/hooks/useIntakeForms";
 import { useTenantConfig } from "@/utils/tenantConfig";
 
@@ -37,7 +38,7 @@ const IntakeIQ = () => {
       
       <div className="p-6 space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-11">
+          <TabsList className="grid w-full grid-cols-12">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
             <TabsTrigger value="ai-processing">AI Processing</TabsTrigger>
             <TabsTrigger value="submissions">Submissions</TabsTrigger>
@@ -47,6 +48,7 @@ const IntakeIQ = () => {
             <TabsTrigger value="pregnancy">Pregnancy Form</TabsTrigger>
             <TabsTrigger value="menstrual">Menstrual History</TabsTrigger>
             <TabsTrigger value="new-patient">New Patient</TabsTrigger>
+            <TabsTrigger value="credit-card">Credit Card</TabsTrigger>
             <TabsTrigger value="registration">Patient Portal</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
@@ -88,6 +90,10 @@ const IntakeIQ = () => {
 
           <TabsContent value="new-patient" className="space-y-4">
             <NewPatientIntakeForm />
+          </TabsContent>
+
+          <TabsContent value="credit-card" className="space-y-4">
+            <CreditCardAgreementForm />
           </TabsContent>
 
           <TabsContent value="registration" className="space-y-4">
