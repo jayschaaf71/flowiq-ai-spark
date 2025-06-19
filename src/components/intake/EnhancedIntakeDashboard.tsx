@@ -236,12 +236,14 @@ export const EnhancedIntakeDashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {forms.map((form) => {
               const formSubmissions = submissions.filter(s => s.form_id === form.id);
+              // Safely get form fields count with type guard
+              const formFieldsCount = Array.isArray(form.form_fields) ? form.form_fields.length : 0;
               return (
                 <div key={form.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
                   <h3 className="font-medium mb-2">{form.title}</h3>
                   <p className="text-sm text-gray-600 mb-3">{form.description}</p>
                   <div className="flex justify-between items-center text-xs text-gray-500">
-                    <span>{form.form_fields?.length || 0} fields</span>
+                    <span>{formFieldsCount} fields</span>
                     <span>{formSubmissions.length} submissions</span>
                   </div>
                 </div>

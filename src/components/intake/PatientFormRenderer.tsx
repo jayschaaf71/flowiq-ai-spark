@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,7 +29,8 @@ export const PatientFormRenderer: React.FC<PatientFormRendererProps> = ({
   const { submitForm, trackFormEvent } = useIntakeForms();
   const tenantConfig = useTenantConfig();
 
-  const fields = form.form_fields || [];
+  // Safely cast form_fields to array with type guard
+  const fields = Array.isArray(form.form_fields) ? form.form_fields : [];
   const fieldsPerStep = 5;
   const totalSteps = Math.ceil(fields.length / fieldsPerStep);
   const currentFields = fields.slice(currentStep * fieldsPerStep, (currentStep + 1) * fieldsPerStep);
