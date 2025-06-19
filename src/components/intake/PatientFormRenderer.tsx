@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,6 +13,7 @@ import { Progress } from '@/components/ui/progress';
 import { CheckCircle, AlertCircle } from 'lucide-react';
 import { IntakeForm, useIntakeForms } from '@/hooks/useIntakeForms';
 import { useTenantConfig } from '@/utils/tenantConfig';
+import type { Json } from '@/integrations/supabase/types';
 
 interface FormField {
   id: string;
@@ -39,15 +41,18 @@ export const PatientFormRenderer: React.FC<PatientFormRendererProps> = ({
   const { submitForm, trackFormEvent } = useIntakeForms();
   const tenantConfig = useTenantConfig();
 
-  // Safely cast form_fields to array with type guard and proper typing
+  // Safely cast form_fields to array with proper type handling
   const fields: FormField[] = Array.isArray(form.form_fields) 
-    ? form.form_fields.filter((field): field is FormField => 
-        typeof field === 'object' && 
-        field !== null && 
-        'id' in field && 
-        'type' in field && 
-        'label' in field
-      )
+    ? (form.form_fields as Json[]).filter((field: Json): field is FormField => {
+        return (
+          typeof field === 'object' && 
+          field !== null && 
+          !Array.isArray(field) &&
+          typeof (field as any).id === 'string' &&
+          typeof (field as any).type === 'string' &&
+          typeof (field as any).label === 'string'
+        );
+      }) as FormField[]
     : [];
   
   const fieldsPerStep = 5;
@@ -354,3 +359,4 @@ export const PatientFormRenderer: React.FC<PatientFormRendererProps> = ({
     </div>
   );
 };
+
