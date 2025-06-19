@@ -120,6 +120,62 @@ export type Database = {
           },
         ]
       }
+      appointment_waitlist: {
+        Row: {
+          appointment_type: string
+          created_at: string
+          email: string | null
+          id: string
+          notes: string | null
+          patient_name: string
+          phone: string
+          preferred_date: string | null
+          preferred_time: string | null
+          priority: string
+          provider_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          appointment_type: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          notes?: string | null
+          patient_name: string
+          phone: string
+          preferred_date?: string | null
+          preferred_time?: string | null
+          priority?: string
+          provider_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          appointment_type?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          notes?: string | null
+          patient_name?: string
+          phone?: string
+          preferred_date?: string | null
+          preferred_time?: string | null
+          priority?: string
+          provider_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointment_waitlist_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       appointments: {
         Row: {
           appointment_type: string
