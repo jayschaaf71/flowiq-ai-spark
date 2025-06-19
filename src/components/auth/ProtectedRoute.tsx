@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useAuth } from './AuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import { AuthPage } from './AuthPage';
 
 interface ProtectedRouteProps {
