@@ -35,10 +35,12 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { useTenantConfig } from "@/utils/tenantConfig";
 
 export const AppSidebar = () => {
   const location = useLocation();
   const { state } = useSidebar();
+  const tenantConfig = useTenantConfig();
   
   const mainNavigationItems = [
     { icon: Home, label: "Dashboard", path: "/", badge: null },
@@ -87,7 +89,7 @@ export const AppSidebar = () => {
                     <Badge 
                       variant={item.badge === "AI" ? "default" : "secondary"} 
                       className={`ml-auto text-xs ${
-                        item.badge === "AI" ? "bg-green-100 text-green-700" : ""
+                        item.badge === "AI" ? `bg-${tenantConfig.primaryColor}-100 text-${tenantConfig.primaryColor}-700` : ""
                       }`}
                     >
                       {item.badge}
@@ -107,17 +109,17 @@ export const AppSidebar = () => {
       <SidebarHeader>
         <div className="flex items-center gap-2 px-4 py-2">
           <div className="relative">
-            <div className="h-8 w-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
-              <Stethoscope className="h-4 w-4 text-white" />
+            <div className={`h-8 w-8 bg-gradient-to-r from-${tenantConfig.primaryColor}-500 to-${tenantConfig.secondaryColor}-500 rounded-lg flex items-center justify-center`}>
+              <Brain className="h-4 w-4 text-white" />
             </div>
-            <Activity className="h-3 w-3 text-green-600 absolute -top-1 -right-1" />
+            <Activity className={`h-3 w-3 text-${tenantConfig.primaryColor}-600 absolute -top-1 -right-1`} />
           </div>
           {state === "expanded" && (
             <div>
               <span className="font-bold text-sm">
-                <span className="text-green-600">West County</span>
+                <span className={`text-${tenantConfig.primaryColor}-600`}>{tenantConfig.brandName}</span>
               </span>
-              <p className="text-xs text-gray-600">Spine & Joint</p>
+              <p className="text-xs text-gray-600">{tenantConfig.specialty}</p>
             </div>
           )}
         </div>
