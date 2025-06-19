@@ -28,7 +28,7 @@ export const useRealtime = () => {
           table: 'medical_history'
         },
         (payload) => {
-          const patientId = payload.new?.patient_id || payload.old?.patient_id;
+          const patientId = (payload.new as any)?.patient_id || (payload.old as any)?.patient_id;
           if (patientId) {
             queryClient.invalidateQueries({ queryKey: ['medical_history', patientId] });
           }
@@ -42,7 +42,7 @@ export const useRealtime = () => {
           table: 'medications'
         },
         (payload) => {
-          const patientId = payload.new?.patient_id || payload.old?.patient_id;
+          const patientId = (payload.new as any)?.patient_id || (payload.old as any)?.patient_id;
           if (patientId) {
             queryClient.invalidateQueries({ queryKey: ['medications', patientId] });
           }
@@ -67,7 +67,7 @@ export const useRealtime = () => {
           table: 'soap_notes'
         },
         (payload) => {
-          const patientId = payload.new?.patient_id || payload.old?.patient_id;
+          const patientId = (payload.new as any)?.patient_id || (payload.old as any)?.patient_id;
           if (patientId) {
             queryClient.invalidateQueries({ queryKey: ['soap_notes', patientId] });
           }

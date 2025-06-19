@@ -99,7 +99,7 @@ export const AuditTrail = ({ tableName, recordId }: AuditTrailProps) => {
                       {log.user_id && (
                         <div className="flex items-center gap-1">
                           <User className="h-3 w-3" />
-                          User ID: {log.user_id.substring(0, 8)}...
+                          User ID: {String(log.user_id).substring(0, 8)}...
                         </div>
                       )}
                       {log.ip_address && (
