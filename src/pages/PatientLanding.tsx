@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
@@ -52,7 +53,7 @@ export const PatientLanding = () => {
 
   const features = [
     {
-      icon: Brain,
+      icon: Zap,
       title: "AI-Powered Scheduling",
       description: `Smart appointment booking for ${tenantConfig.specialty.toLowerCase()}`
     },

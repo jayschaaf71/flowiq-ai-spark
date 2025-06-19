@@ -44,7 +44,7 @@ export const AppSidebar = () => {
   
   const mainNavigationItems = [
     { icon: Home, label: "Dashboard", path: "/", badge: null },
-    { icon: Brain, label: "Manager Agent", path: "/manager", badge: "AI" },
+    { icon: Users, label: "Manager Agent", path: "/manager", badge: "AI" },
     { icon: Workflow, label: "Workflows", path: "/workflows", badge: "12" },
     { icon: BarChart3, label: "Analytics", path: "/analytics", badge: null },
     { icon: Zap, label: "AI Insights", path: "/insights", badge: "3" },
