@@ -22,12 +22,13 @@ export const Layout = ({ children }: LayoutProps) => {
               <SidebarTrigger className="-ml-1" />
             </div>
             <div className="flex flex-1 items-center justify-between px-4">
-              <h1 className="text-2xl font-semibold">
-                <span className={`text-${tenantConfig.primaryColor}-600`}>
-                  {tenantConfig.brandName}
-                </span>
-                <span className="text-gray-700 text-lg ml-2">Admin</span>
-              </h1>
+              <div>
+                <h1 className="text-2xl font-semibold">
+                  <span className="text-blue-600">{tenantConfig.brandName}</span>
+                  <span className="text-gray-700 text-lg ml-2">Admin</span>
+                </h1>
+                <p className="text-sm text-gray-500">{tenantConfig.tagline}</p>
+              </div>
               <UserMenu />
             </div>
           </header>

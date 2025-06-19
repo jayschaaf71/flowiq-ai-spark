@@ -89,7 +89,7 @@ export const AppSidebar = () => {
                     <Badge 
                       variant={item.badge === "AI" ? "default" : "secondary"} 
                       className={`ml-auto text-xs ${
-                        item.badge === "AI" ? `bg-${tenantConfig.primaryColor}-100 text-${tenantConfig.primaryColor}-700` : ""
+                        item.badge === "AI" ? "bg-blue-100 text-blue-700" : ""
                       }`}
                     >
                       {item.badge}
@@ -109,17 +109,17 @@ export const AppSidebar = () => {
       <SidebarHeader>
         <div className="flex items-center gap-2 px-4 py-2">
           <div className="relative">
-            <div className={`h-8 w-8 bg-gradient-to-r from-${tenantConfig.primaryColor}-500 to-${tenantConfig.secondaryColor}-500 rounded-lg flex items-center justify-center`}>
+            <div className="h-8 w-8 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
               <Brain className="h-4 w-4 text-white" />
             </div>
-            <Activity className={`h-3 w-3 text-${tenantConfig.primaryColor}-600 absolute -top-1 -right-1`} />
+            <Activity className="h-3 w-3 text-blue-600 absolute -top-1 -right-1" />
           </div>
           {state === "expanded" && (
             <div>
               <span className="font-bold text-sm">
-                <span className={`text-${tenantConfig.primaryColor}-600`}>{tenantConfig.brandName}</span>
+                <span className="text-blue-600">{tenantConfig.brandName}</span>
               </span>
-              <p className="text-xs text-gray-600">{tenantConfig.specialty}</p>
+              <p className="text-xs text-gray-600">{tenantConfig.tagline}</p>
             </div>
           )}
         </div>

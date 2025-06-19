@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,7 +7,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { Shield, Lock, Eye, EyeOff, AlertTriangle } from 'lucide-react';
+import { Shield, Lock, Eye, EyeOff, AlertTriangle, Brain, Activity } from 'lucide-react';
+import { useTenantConfig } from '@/utils/tenantConfig';
 
 export const AuthPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('signin');
@@ -33,6 +33,7 @@ export const AuthPage: React.FC = () => {
 
   const { signIn, signUp } = useAuth();
   const { toast } = useToast();
+  const tenantConfig = useTenantConfig();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -165,12 +166,18 @@ export const AuthPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-100 flex items-center justify-center p-4">
       <div className="max-w-md w-full space-y-6">
-        {/* HIPAA Compliance Header */}
+        {/* FlowIQ Branding Header */}
         <div className="text-center">
-          <Shield className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-          <h1 className="text-3xl font-bold text-gray-900">Healthcare Portal</h1>
+          <div className="relative mx-auto mb-4">
+            <div className="h-16 w-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center mx-auto">
+              <Brain className="h-8 w-8 text-white" />
+            </div>
+            <Activity className="h-4 w-4 text-blue-600 absolute -top-1 -right-1" />
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900">{tenantConfig.brandName}</h1>
+          <p className="text-blue-600 font-medium mt-1">{tenantConfig.tagline}</p>
           <p className="text-gray-600 mt-2">Secure & HIPAA Compliant Access</p>
         </div>
 
@@ -361,6 +368,9 @@ export const AuthPage: React.FC = () => {
           <p>
             All access attempts are logged. Unauthorized access is prohibited and may result in legal action.
           </p>
+          <div className="pt-2 text-blue-600">
+            <span className="font-medium">Powered by {tenantConfig.brandName}</span>
+          </div>
         </div>
       </div>
     </div>

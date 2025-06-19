@@ -5,6 +5,7 @@ export interface TenantConfig {
   name: string;
   domain: string;
   brandName: string;
+  tagline: string;
   primaryColor: string;
   secondaryColor: string;
   logo: string;
@@ -15,11 +16,12 @@ export interface TenantConfig {
 
 const tenantConfigs: Record<TenantType, TenantConfig> = {
   chiro: {
-    name: 'ChiroIQ',
+    name: 'FlowIQ',
     domain: 'chiro.flow-iq.ai',
-    brandName: 'ChiroIQ',
+    brandName: 'FlowIQ',
+    tagline: 'The AI Business Operating System',
     primaryColor: 'blue',
-    secondaryColor: 'green',
+    secondaryColor: 'cyan',
     logo: '/chiro-logo.svg',
     specialty: 'Chiropractic Care',
     visitTypes: [
@@ -38,11 +40,12 @@ const tenantConfigs: Record<TenantType, TenantConfig> = {
     ]
   },
   dental: {
-    name: 'DentalIQ',
+    name: 'FlowIQ',
     domain: 'dental.flow-iq.ai',
-    brandName: 'DentalIQ',
-    primaryColor: 'teal',
-    secondaryColor: 'blue',
+    brandName: 'FlowIQ',
+    tagline: 'The AI Business Operating System',
+    primaryColor: 'blue',
+    secondaryColor: 'cyan',
     logo: '/dental-logo.svg',
     specialty: 'Dental Care',
     visitTypes: [
@@ -65,8 +68,9 @@ const tenantConfigs: Record<TenantType, TenantConfig> = {
     name: 'FlowIQ',
     domain: 'flow-iq.ai',
     brandName: 'FlowIQ',
-    primaryColor: 'purple',
-    secondaryColor: 'blue',
+    tagline: 'The AI Business Operating System',
+    primaryColor: 'blue',
+    secondaryColor: 'cyan',
     logo: '/flowiq-logo.svg',
     specialty: 'Healthcare',
     visitTypes: [
