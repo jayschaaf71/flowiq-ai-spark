@@ -52,12 +52,25 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
-  if (!user || !profile) {
+  if (!user) {
     return <AuthPage />;
   }
 
+  // If we have a user but no profile yet, show loading
+  if (user && !profile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center space-y-4">
+          <Shield className="h-12 w-12 text-blue-600 mx-auto animate-pulse" />
+          <div className="text-lg font-medium">Setting up your profile...</div>
+          <div className="text-sm text-gray-600">Please wait while we complete your setup</div>
+        </div>
+      </div>
+    );
+  }
+
   // HIPAA Compliance: Role-based access control
-  if (requiredRole) {
+  if (requiredRole && profile) {
     const hasAccess = () => {
       switch (requiredRole) {
         case 'admin':

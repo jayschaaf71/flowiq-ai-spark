@@ -40,9 +40,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Fetch user profile with timeout to prevent hanging
+          // Fetch user profile with better error handling
           const fetchProfile = async () => {
             try {
+              console.log('Attempting to fetch profile for user:', session.user.id);
               const { data: profileData, error } = await supabase
                 .from('profiles')
                 .select('*')
@@ -51,22 +52,76 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               
               if (error) {
                 console.error('Error fetching profile:', error);
+                // If profile doesn't exist, create one with default values
+                if (error.code === 'PGRST116') { // No rows returned
+                  console.log('Profile not found, creating default profile');
+                  const { data: newProfile, error: createError } = await supabase
+                    .from('profiles')
+                    .insert({
+                      id: session.user.id,
+                      email: session.user.email,
+                      first_name: session.user.user_metadata?.first_name || null,
+                      last_name: session.user.user_metadata?.last_name || null,
+                      role: session.user.user_metadata?.role || 'patient'
+                    })
+                    .select()
+                    .single();
+                  
+                  if (createError) {
+                    console.error('Error creating profile:', createError);
+                    // Set a default profile to allow navigation
+                    setProfile({
+                      id: session.user.id,
+                      email: session.user.email!,
+                      first_name: session.user.user_metadata?.first_name || null,
+                      last_name: session.user.user_metadata?.last_name || null,
+                      phone: null,
+                      role: (session.user.user_metadata?.role as 'patient' | 'staff' | 'admin') || 'patient'
+                    });
+                  } else if (newProfile) {
+                    setProfile({
+                      ...newProfile,
+                      role: newProfile.role as 'patient' | 'staff' | 'admin'
+                    });
+                  }
+                } else {
+                  // For other errors, set a fallback profile to allow navigation
+                  console.log('Setting fallback profile due to fetch error');
+                  setProfile({
+                    id: session.user.id,
+                    email: session.user.email!,
+                    first_name: session.user.user_metadata?.first_name || null,
+                    last_name: session.user.user_metadata?.last_name || null,
+                    phone: null,
+                    role: (session.user.user_metadata?.role as 'patient' | 'staff' | 'admin') || 'patient'
+                  });
+                }
                 return;
               }
               
               if (profileData) {
+                console.log('Profile fetched successfully:', profileData);
                 setProfile({
                   ...profileData,
                   role: profileData.role as 'patient' | 'staff' | 'admin'
                 });
               }
             } catch (error) {
-              console.error('Profile fetch timeout or error:', error);
+              console.error('Profile fetch error:', error);
+              // Set fallback profile to allow navigation
+              setProfile({
+                id: session.user.id,
+                email: session.user.email!,
+                first_name: session.user.user_metadata?.first_name || null,
+                last_name: session.user.user_metadata?.last_name || null,
+                phone: null,
+                role: (session.user.user_metadata?.role as 'patient' | 'staff' | 'admin') || 'patient'
+              });
             }
           };
 
           // Use setTimeout to avoid auth callback recursion
-          setTimeout(fetchProfile, 0);
+          setTimeout(fetchProfile, 100);
         } else {
           setProfile(null);
         }
@@ -80,7 +135,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.log('Initial session check:', session?.user?.email);
       setSession(session);
       setUser(session?.user ?? null);
-      setLoading(false);
+      if (!session) {
+        setLoading(false);
+      }
     });
 
     return () => subscription.unsubscribe();
