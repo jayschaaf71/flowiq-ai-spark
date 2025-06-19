@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
@@ -14,7 +13,6 @@ import {
   Mail,
   MapPin,
   Settings,
-  Brain,
   Activity,
   Play,
   Users,
@@ -108,9 +106,6 @@ export const PatientLanding = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <div className={`h-10 w-10 bg-gradient-to-r from-${tenantConfig.primaryColor}-500 to-${tenantConfig.secondaryColor}-500 rounded-lg flex items-center justify-center`}>
-                <Brain className="h-5 w-5 text-white" />
-              </div>
               <div>
                 <span className="text-xl font-bold text-gray-900">{tenantConfig.brandName}</span>
                 <p className="text-sm text-gray-500">{tenantConfig.specialty}</p>
@@ -250,9 +245,6 @@ export const PatientLanding = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
               <div className="flex items-center space-x-2 mb-4">
-                <div className={`h-8 w-8 bg-gradient-to-r from-${tenantConfig.primaryColor}-500 to-${tenantConfig.secondaryColor}-500 rounded-lg flex items-center justify-center`}>
-                  <Brain className="h-4 w-4 text-white" />
-                </div>
                 <span className="font-bold text-gray-900">{tenantConfig.brandName}</span>
               </div>
               <p className="text-gray-600">

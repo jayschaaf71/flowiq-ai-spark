@@ -1,4 +1,3 @@
-
 import { NavLink, useLocation } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -10,7 +9,6 @@ import {
   Zap, 
   FileText,
   HelpCircle,
-  Brain,
   Calendar,
   ClipboardList,
   Bell,
@@ -112,14 +110,6 @@ export const AppSidebar = () => {
     <Sidebar variant="inset">
       <SidebarHeader>
         <div className="flex items-center gap-3 px-4 py-3">
-          <div className="relative">
-            <div className="h-10 w-10 bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-400 rounded-xl flex items-center justify-center shadow-lg border border-blue-200">
-              <Brain className="h-5 w-5 text-white" />
-            </div>
-            <div className="absolute -top-1 -right-1 h-4 w-4 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center">
-              <Activity className="h-2.5 w-2.5 text-white" />
-            </div>
-          </div>
           {state === "expanded" && (
             <div className="flex flex-col">
               <div className="flex items-center gap-1">
