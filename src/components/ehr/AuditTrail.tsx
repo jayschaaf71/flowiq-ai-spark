@@ -18,10 +18,9 @@ import { useAuditLogs } from "@/hooks/useAuditLog";
 interface AuditTrailProps {
   tableName?: string;
   recordId?: string;
-  patientId?: string;
 }
 
-export const AuditTrail = ({ tableName, recordId, patientId }: AuditTrailProps) => {
+export const AuditTrail = ({ tableName, recordId }: AuditTrailProps) => {
   const { data: auditLogs = [], isLoading } = useAuditLogs(tableName, recordId);
 
   const getActionIcon = (action: string) => {
@@ -104,7 +103,7 @@ export const AuditTrail = ({ tableName, recordId, patientId }: AuditTrailProps) 
                         </div>
                       )}
                       {log.ip_address && (
-                        <span>IP: {log.ip_address}</span>
+                        <span>IP: {String(log.ip_address)}</span>
                       )}
                     </div>
                   </div>

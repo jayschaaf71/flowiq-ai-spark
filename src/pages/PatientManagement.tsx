@@ -80,7 +80,7 @@ const PatientManagement = () => {
             </TabsContent>
             
             <TabsContent value="audit">
-              <AuditTrail patientId={selectedPatient.id} />
+              <AuditTrail />
             </TabsContent>
           </Tabs>
         )}
