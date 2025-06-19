@@ -3,12 +3,15 @@ import { ReactNode } from "react";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { UserMenu } from "./auth/UserMenu";
+import { useTenantConfig } from "@/utils/tenantConfig";
 
 interface LayoutProps {
   children: ReactNode;
 }
 
 export const Layout = ({ children }: LayoutProps) => {
+  const tenantConfig = useTenantConfig();
+  
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
@@ -20,9 +23,10 @@ export const Layout = ({ children }: LayoutProps) => {
             </div>
             <div className="flex flex-1 items-center justify-between px-4">
               <h1 className="text-2xl font-semibold">
-                <span className="text-green-600">West County</span>{" "}
-                <span className="text-blue-600">Spine & Joint</span>{" "}
-                <span className="text-gray-700 text-lg">Admin</span>
+                <span className={`text-${tenantConfig.primaryColor}-600`}>
+                  {tenantConfig.brandName}
+                </span>
+                <span className="text-gray-700 text-lg ml-2">Admin</span>
               </h1>
               <UserMenu />
             </div>

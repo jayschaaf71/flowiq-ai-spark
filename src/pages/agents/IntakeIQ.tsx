@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
@@ -11,15 +10,18 @@ import { FormTemplates } from "@/components/intake/FormTemplates";
 import { PatientRegistration } from "@/components/intake/PatientRegistration";
 import { IntakeAnalytics } from "@/components/intake/IntakeAnalytics";
 import { TrendingUp } from "lucide-react";
+import { TenantFormBuilder } from "@/components/intake/TenantFormBuilder";
+import { useTenantConfig } from "@/utils/tenantConfig";
 
 const IntakeIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
+  const tenantConfig = useTenantConfig();
 
   return (
     <Layout>
       <PageHeader 
-        title="Intake iQ"
-        subtitle="AI-powered patient intake and form management"
+        title={`${tenantConfig.brandName} Intake iQ`}
+        subtitle={`AI-powered ${tenantConfig.specialty.toLowerCase()} patient intake and form management`}
         badge="AI Agent"
       />
       
@@ -43,7 +45,7 @@ const IntakeIQ = () => {
           </TabsContent>
 
           <TabsContent value="builder" className="space-y-4">
-            <FormBuilder />
+            <TenantFormBuilder />
           </TabsContent>
 
           <TabsContent value="templates" className="space-y-4">

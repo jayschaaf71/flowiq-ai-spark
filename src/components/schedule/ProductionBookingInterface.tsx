@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,7 +10,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProviders } from "@/hooks/useProviders";
 import { useAvailability } from "@/hooks/useAvailability";
 import { supabase } from "@/integrations/supabase/client";
-import { Calendar, Clock, User, CheckCircle, Loader } from "lucide-react";
+import { aiAgentHub } from "@/services/aiAgentHub";
+import { useTenantConfig, detectTenant } from "@/utils/tenantConfig";
+import { Calendar, Clock, User, CheckCircle, Loader, Brain } from "lucide-react";
 import { format, addDays } from "date-fns";
 
 interface TimeSlot {
@@ -40,8 +41,13 @@ export const ProductionBookingInterface = ({ onAppointmentBooked }: ProductionBo
   const { user, profile } = useAuth();
   const { providers, loading: providersLoading } = useProviders();
   const { checkAvailability, loading: availabilityLoading } = useAvailability();
+  const tenantConfig = useTenantConfig();
+  const currentTenant = detectTenant();
+  
   const [loading, setLoading] = useState(false);
   const [availableSlots, setAvailableSlots] = useState<TimeSlot[]>([]);
+  const [aiRecommendations, setAiRecommendations] = useState<string[]>([]);
+  const [loadingRecommendations, setLoadingRecommendations] = useState(false);
   
   const [bookingData, setBookingData] = useState<BookingData>({
     patientName: profile?.first_name && profile?.last_name 
@@ -56,13 +62,54 @@ export const ProductionBookingInterface = ({ onAppointmentBooked }: ProductionBo
     providerId: ""
   });
 
-  const appointmentTypes = [
-    { value: "cleaning", label: "Regular Cleaning", duration: 60, price: "$120" },
-    { value: "consultation", label: "Consultation", duration: 30, price: "$80" },
-    { value: "filling", label: "Filling", duration: 90, price: "$200" },
-    { value: "root-canal", label: "Root Canal", duration: 120, price: "$800" },
-    { value: "whitening", label: "Teeth Whitening", duration: 45, price: "$300" }
-  ];
+  // Get appointment types from tenant config
+  const appointmentTypes = tenantConfig.visitTypes.map((type, index) => ({
+    value: type.toLowerCase().replace(/\s+/g, '-'),
+    label: type,
+    duration: currentTenant === 'dental' ? 
+      (type.includes('Cleaning') ? 60 : type.includes('Root Canal') ? 120 : type.includes('Surgery') ? 90 : 60) :
+      (type.includes('Initial') ? 90 : type.includes('Therapy') ? 60 : 45),
+    price: currentTenant === 'dental' ? 
+      (type.includes('Cleaning') ? '$120' : type.includes('Root Canal') ? '$800' : '$200') :
+      (type.includes('Initial') ? '$150' : '$75')
+  }));
+
+  // AI-powered slot recommendations
+  const getAIRecommendations = async () => {
+    if (!bookingData.appointmentType || !bookingData.providerId) return;
+    
+    setLoadingRecommendations(true);
+    try {
+      const response = await aiAgentHub.processRequest({
+        agentType: 'schedule',
+        action: 'recommend_slots',
+        tenant: currentTenant,
+        payload: {
+          visitType: bookingData.appointmentType,
+          providerId: bookingData.providerId,
+          patientPreferences: {
+            preferredTime: 'morning',
+            notes: bookingData.notes
+          }
+        },
+        context: {
+          visitType: bookingData.appointmentType,
+          calendarConstraints: {
+            startDate: format(new Date(), "yyyy-MM-dd"),
+            endDate: format(addDays(new Date(), 30), "yyyy-MM-dd")
+          }
+        }
+      });
+
+      if (response.success && response.recommendations) {
+        setAiRecommendations(response.recommendations);
+      }
+    } catch (error) {
+      console.error('Failed to get AI recommendations:', error);
+    } finally {
+      setLoadingRecommendations(false);
+    }
+  };
 
   // Check availability when provider or date changes
   useEffect(() => {
@@ -76,6 +123,11 @@ export const ProductionBookingInterface = ({ onAppointmentBooked }: ProductionBo
       setAvailableSlots([]);
     }
   }, [bookingData.providerId, bookingData.date, bookingData.appointmentType]);
+
+  // Trigger AI recommendations when appointment type or provider changes
+  useEffect(() => {
+    getAIRecommendations();
+  }, [bookingData.appointmentType, bookingData.providerId]);
 
   const handleInputChange = (field: keyof BookingData, value: string) => {
     setBookingData(prev => ({ ...prev, [field]: value }));
@@ -174,13 +226,13 @@ export const ProductionBookingInterface = ({ onAppointmentBooked }: ProductionBo
       });
       
       setAvailableSlots([]);
+      setAiRecommendations([]);
       
       toast({
         title: "Appointment Booked Successfully!",
         description: `Your ${selectedType?.label} appointment has been scheduled. You'll receive confirmation shortly.`,
       });
       
-      // Notify parent component
       if (onAppointmentBooked) {
         onAppointmentBooked();
       }
@@ -226,7 +278,7 @@ export const ProductionBookingInterface = ({ onAppointmentBooked }: ProductionBo
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5 text-blue-600" />
-            Book New Appointment
+            Book New {tenantConfig.specialty} Appointment
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -306,6 +358,27 @@ export const ProductionBookingInterface = ({ onAppointmentBooked }: ProductionBo
             </Select>
           </div>
 
+          {/* AI Recommendations */}
+          {aiRecommendations.length > 0 && (
+            <Card className="bg-purple-50 border-purple-200">
+              <CardContent className="pt-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Brain className="h-4 w-4 text-purple-600" />
+                  <h4 className="font-medium text-purple-900">AI Scheduling Recommendations</h4>
+                  {loadingRecommendations && <Loader className="h-4 w-4 animate-spin text-purple-600" />}
+                </div>
+                <ul className="space-y-1 text-sm text-purple-800">
+                  {aiRecommendations.map((rec, index) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <span className="text-purple-400 mt-1">•</span>
+                      {rec}
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Date and Time Selection */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -379,7 +452,7 @@ export const ProductionBookingInterface = ({ onAppointmentBooked }: ProductionBo
             <Label htmlFor="notes">Additional Notes</Label>
             <Textarea
               id="notes"
-              placeholder="Any special requests or medical conditions to note..."
+              placeholder={`Any special requests or ${currentTenant === 'chiro' ? 'pain-related information' : 'dental concerns'} to note...`}
               value={bookingData.notes}
               onChange={(e) => handleInputChange('notes', e.target.value)}
               className="mt-1"
@@ -402,7 +475,7 @@ export const ProductionBookingInterface = ({ onAppointmentBooked }: ProductionBo
             ) : (
               <>
                 <CheckCircle className="w-4 h-4 mr-2" />
-                Book Appointment
+                Book {tenantConfig.specialty} Appointment
               </>
             )}
           </Button>
