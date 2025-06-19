@@ -38,6 +38,7 @@ interface RecurringPattern {
   created_at: string;
   next_scheduled?: string;
   occurrences_created: number;
+  notes?: string;
 }
 
 export const RecurringAppointments = () => {
@@ -56,7 +57,8 @@ export const RecurringAppointments = () => {
     days_of_week: [] as number[],
     start_date: '',
     end_date: '',
-    max_occurrences: ''
+    max_occurrences: '',
+    notes: ''
   });
 
   useEffect(() => {
@@ -66,41 +68,20 @@ export const RecurringAppointments = () => {
   const loadPatterns = async () => {
     setLoading(true);
     try {
-      // For now, using mock data since we don't have a recurring_appointments table yet
-      const mockPatterns: RecurringPattern[] = [
-        {
-          id: '1',
-          patient_name: 'John Smith',
-          patient_id: 'patient-1',
-          appointment_type: 'Physical Therapy',
-          duration: 60,
-          frequency: 'weekly',
-          interval_count: 1,
-          days_of_week: [1, 3, 5], // Monday, Wednesday, Friday
-          start_date: '2024-01-15',
-          end_date: '2024-03-15',
-          is_active: true,
-          created_at: '2024-01-01T00:00:00Z',
-          next_scheduled: '2024-01-22',
-          occurrences_created: 8
-        },
-        {
-          id: '2',
-          patient_name: 'Sarah Johnson',
-          appointment_type: 'Dental Cleaning',
-          duration: 90,
-          frequency: 'monthly',
-          interval_count: 3,
-          start_date: '2024-01-01',
-          max_occurrences: 4,
-          is_active: true,
-          created_at: '2024-01-01T00:00:00Z',
-          next_scheduled: '2024-04-01',
-          occurrences_created: 2
-        }
-      ];
+      const { data, error } = await supabase
+        .from('recurring_appointments')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
       
-      setPatterns(mockPatterns);
+      // Type the data properly to match our interface
+      const typedData = (data || []).map(item => ({
+        ...item,
+        frequency: item.frequency as 'daily' | 'weekly' | 'monthly'
+      }));
+      
+      setPatterns(typedData);
     } catch (error) {
       console.error('Error loading recurring patterns:', error);
       toast({
@@ -123,19 +104,86 @@ export const RecurringAppointments = () => {
       return;
     }
 
-    toast({
-      title: "Feature Coming Soon",
-      description: "Recurring appointment patterns will be fully implemented soon",
-    });
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from('recurring_appointments')
+        .insert({
+          patient_name: newPattern.patient_name,
+          patient_id: newPattern.patient_id || null,
+          appointment_type: newPattern.appointment_type,
+          duration: newPattern.duration,
+          frequency: newPattern.frequency,
+          interval_count: newPattern.interval_count,
+          days_of_week: newPattern.days_of_week.length > 0 ? newPattern.days_of_week : null,
+          start_date: newPattern.start_date,
+          end_date: newPattern.end_date || null,
+          max_occurrences: newPattern.max_occurrences ? parseInt(newPattern.max_occurrences) : null,
+          notes: newPattern.notes || null,
+          next_scheduled: newPattern.start_date
+        });
 
-    setShowCreateForm(false);
+      if (error) throw error;
+      
+      toast({
+        title: "Pattern Created",
+        description: `Recurring appointment pattern for ${newPattern.patient_name} has been created`,
+      });
+
+      setNewPattern({
+        patient_name: '',
+        patient_id: '',
+        appointment_type: '',
+        duration: 60,
+        frequency: 'weekly',
+        interval_count: 1,
+        days_of_week: [],
+        start_date: '',
+        end_date: '',
+        max_occurrences: '',
+        notes: ''
+      });
+      
+      setShowCreateForm(false);
+      loadPatterns();
+    } catch (error) {
+      console.error('Error creating pattern:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create recurring pattern",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const togglePattern = async (id: string, isActive: boolean) => {
-    toast({
-      title: isActive ? "Pattern Activated" : "Pattern Paused",
-      description: `Recurring pattern has been ${isActive ? 'activated' : 'paused'}`,
-    });
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from('recurring_appointments')
+        .update({ is_active: isActive })
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      toast({
+        title: isActive ? "Pattern Activated" : "Pattern Paused",
+        description: `Recurring pattern has been ${isActive ? 'activated' : 'paused'}`,
+      });
+      
+      loadPatterns();
+    } catch (error) {
+      console.error('Error updating pattern:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update pattern status",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const generateNextOccurrences = async (patternId: string) => {
@@ -143,6 +191,20 @@ export const RecurringAppointments = () => {
       title: "Generating Appointments",
       description: "Creating next batch of appointments from recurring pattern",
     });
+  };
+
+  const handleDayOfWeekChange = (day: number, checked: boolean) => {
+    if (checked) {
+      setNewPattern(prev => ({
+        ...prev,
+        days_of_week: [...prev.days_of_week, day].sort()
+      }));
+    } else {
+      setNewPattern(prev => ({
+        ...prev,
+        days_of_week: prev.days_of_week.filter(d => d !== day)
+      }));
+    }
   };
 
   const getFrequencyDisplay = (pattern: RecurringPattern) => {
@@ -246,6 +308,24 @@ export const RecurringAppointments = () => {
                 />
               </div>
             </div>
+
+            {newPattern.frequency === 'weekly' && (
+              <div className="mb-4">
+                <Label>Days of Week</Label>
+                <div className="flex gap-2 mt-2">
+                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
+                    <div key={day} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`day-${index}`}
+                        checked={newPattern.days_of_week.includes(index)}
+                        onCheckedChange={(checked) => handleDayOfWeekChange(index, checked as boolean)}
+                      />
+                      <Label htmlFor={`day-${index}`} className="text-sm">{day}</Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             
             <div className="flex gap-2">
               <Button onClick={createPattern} disabled={loading}>
@@ -312,6 +392,10 @@ export const RecurringAppointments = () => {
                     <p className="text-xs text-gray-500">
                       Maximum {pattern.max_occurrences} appointments
                     </p>
+                  )}
+
+                  {pattern.notes && (
+                    <p className="text-sm text-gray-600 mt-2 italic">"{pattern.notes}"</p>
                   )}
                 </div>
                 

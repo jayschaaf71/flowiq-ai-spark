@@ -1146,6 +1146,69 @@ export type Database = {
         }
         Relationships: []
       }
+      recurring_appointments: {
+        Row: {
+          appointment_type: string
+          created_at: string
+          created_by: string | null
+          days_of_week: number[] | null
+          duration: number
+          end_date: string | null
+          frequency: string
+          id: string
+          interval_count: number
+          is_active: boolean
+          max_occurrences: number | null
+          next_scheduled: string | null
+          notes: string | null
+          occurrences_created: number
+          patient_id: string | null
+          patient_name: string
+          start_date: string
+          updated_at: string
+        }
+        Insert: {
+          appointment_type: string
+          created_at?: string
+          created_by?: string | null
+          days_of_week?: number[] | null
+          duration?: number
+          end_date?: string | null
+          frequency: string
+          id?: string
+          interval_count?: number
+          is_active?: boolean
+          max_occurrences?: number | null
+          next_scheduled?: string | null
+          notes?: string | null
+          occurrences_created?: number
+          patient_id?: string | null
+          patient_name: string
+          start_date: string
+          updated_at?: string
+        }
+        Update: {
+          appointment_type?: string
+          created_at?: string
+          created_by?: string | null
+          days_of_week?: number[] | null
+          duration?: number
+          end_date?: string | null
+          frequency?: string
+          id?: string
+          interval_count?: number
+          is_active?: boolean
+          max_occurrences?: number | null
+          next_scheduled?: string | null
+          notes?: string | null
+          occurrences_created?: number
+          patient_id?: string | null
+          patient_name?: string
+          start_date?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       soap_note_templates: {
         Row: {
           created_at: string | null

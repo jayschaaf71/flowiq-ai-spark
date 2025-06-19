@@ -73,6 +73,28 @@ export const useRealtime = () => {
           }
         }
       )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'appointment_waitlist'
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['appointment_waitlist'] });
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'recurring_appointments'
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['recurring_appointments'] });
+        }
+      )
       .subscribe();
 
     return () => {
