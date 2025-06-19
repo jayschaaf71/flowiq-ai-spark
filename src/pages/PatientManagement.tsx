@@ -58,25 +58,25 @@ const PatientManagement = () => {
             
             <TabsContent value="overview" className="space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <MedicalHistory patientId={selectedPatient.id} />
-                <PrescriptionManagement patientId={selectedPatient.id} />
+                <MedicalHistory />
+                <PrescriptionManagement />
               </div>
             </TabsContent>
             
             <TabsContent value="history">
-              <MedicalHistory patientId={selectedPatient.id} />
+              <MedicalHistory />
             </TabsContent>
             
             <TabsContent value="medications">
-              <PrescriptionManagement patientId={selectedPatient.id} />
+              <PrescriptionManagement />
             </TabsContent>
             
             <TabsContent value="soap">
-              <SOAPNotes patientId={selectedPatient.id} />
+              <SOAPNotes />
             </TabsContent>
             
             <TabsContent value="files">
-              <FileAttachments patientId={selectedPatient.id} />
+              <FileAttachments />
             </TabsContent>
             
             <TabsContent value="audit">
