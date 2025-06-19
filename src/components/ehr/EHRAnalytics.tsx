@@ -8,8 +8,6 @@ import {
   FileText, 
   Shield,
   Download,
-  Calendar,
-  Clock,
   AlertTriangle
 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
@@ -62,11 +60,11 @@ export const EHRAnalytics = () => {
       icon: Shield
     },
     {
-      title: "Avg. Note Completion Time",
+      title: "Average Note Completion",
       value: "4.2 min",
       change: "-15%",
       changeType: "positive" as const,
-      icon: Clock
+      icon: TrendingUp
     }
   ];
 

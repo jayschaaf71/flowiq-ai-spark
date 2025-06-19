@@ -13,13 +13,16 @@ import {
   Save,
   User,
   Calendar,
-  Clock
+  Clock,
+  Mic,
+  MicOff
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const SOAPNotes = () => {
   const [selectedNote, setSelectedNote] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isRecording, setIsRecording] = useState(false);
 
   const mockNotes = [
     {
@@ -57,6 +60,10 @@ export const SOAPNotes = () => {
     note.assessment.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const toggleRecording = () => {
+    setIsRecording(!isRecording);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -73,6 +80,10 @@ export const SOAPNotes = () => {
           </div>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" onClick={toggleRecording}>
+            {isRecording ? <MicOff className="h-4 w-4 mr-2" /> : <Mic className="h-4 w-4 mr-2" />}
+            {isRecording ? "Stop Recording" : "Voice Note"}
+          </Button>
           <Button variant="outline">
             <Brain className="h-4 w-4 mr-2" />
             AI Assist
@@ -166,6 +177,11 @@ const SOAPEditor = ({ note }: { note: any }) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleAIEnhance = () => {
+    // AI enhancement logic would go here
+    console.log("AI enhancing note...");
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -191,7 +207,7 @@ const SOAPEditor = ({ note }: { note: any }) => {
             </CardDescription>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={handleAIEnhance}>
               <Brain className="h-4 w-4 mr-2" />
               AI Enhance
             </Button>

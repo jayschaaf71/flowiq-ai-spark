@@ -12,13 +12,14 @@ import {
   Download,
   Settings,
   Brain,
-  Database
+  Database,
+  MapPin
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const MigrationDashboard = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [migrationStep, setMigrationStep] = useState<'upload' | 'mapping' | 'preview' | 'complete'>('upload');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const mockMigrationHistory = [
     {
@@ -60,6 +61,36 @@ export const MigrationDashboard = () => {
     "Diagnosis Codes": "diagnosisCodes"
   };
 
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      // Simulate upload progress
+      setUploadProgress(0);
+      const interval = setInterval(() => {
+        setUploadProgress(prev => {
+          if (prev >= 100) {
+            clearInterval(interval);
+            return 100;
+          }
+          return prev + 10;
+        });
+      }, 300);
+    }
+  };
+
+  const handleDrop = (event: React.DragEvent) => {
+    event.preventDefault();
+    const file = event.dataTransfer.files[0];
+    if (file && file.type === 'text/csv') {
+      setSelectedFile(file);
+    }
+  };
+
+  const handleDragOver = (event: React.DragEvent) => {
+    event.preventDefault();
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -93,14 +124,26 @@ export const MigrationDashboard = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors cursor-pointer">
+              <div 
+                className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors cursor-pointer"
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+                onClick={() => document.getElementById('file-input')?.click()}
+              >
                 <FileSpreadsheet className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Drop your CSV file here
+                  {selectedFile ? selectedFile.name : "Drop your CSV file here"}
                 </h3>
                 <p className="text-gray-500 mb-4">
                   or <span className="text-blue-600 font-medium">browse files</span>
                 </p>
+                <input
+                  id="file-input"
+                  type="file"
+                  accept=".csv"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
                 <Button>
                   Select File
                 </Button>
@@ -109,7 +152,7 @@ export const MigrationDashboard = () => {
               {uploadProgress > 0 && (
                 <div className="mt-6 space-y-2">
                   <div className="flex items-center justify-between text-sm">
-                    <span>Uploading EZBIS_Export_2024.csv</span>
+                    <span>Uploading {selectedFile?.name || "file"}</span>
                     <span>{uploadProgress}%</span>
                   </div>
                   <Progress value={uploadProgress} className="w-full" />
@@ -154,7 +197,10 @@ export const MigrationDashboard = () => {
         <TabsContent value="mapping" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Field Mapping Configuration</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="h-5 w-5" />
+                Field Mapping Configuration
+              </CardTitle>
               <CardDescription>
                 Review and adjust how CSV fields map to FlowIQ patient records
               </CardDescription>
