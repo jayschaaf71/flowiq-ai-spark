@@ -5,11 +5,10 @@ import { PageHeader } from "@/components/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EnhancedIntakeDashboard } from "@/components/intake/EnhancedIntakeDashboard";
 import { FormSubmissionsList } from "@/components/intake/FormSubmissionsList";
-import { FormBuilder } from "@/components/intake/FormBuilder";
+import { IntakeFormBuilder } from "@/components/intake/IntakeFormBuilder";
 import { FormTemplates } from "@/components/intake/FormTemplates";
 import { PatientRegistration } from "@/components/intake/PatientRegistration";
 import { IntakeAnalytics } from "@/components/intake/IntakeAnalytics";
-import { TenantFormBuilder } from "@/components/intake/TenantFormBuilder";
 import { useIntakeForms } from "@/hooks/useIntakeForms";
 import { useTenantConfig } from "@/utils/tenantConfig";
 
@@ -20,7 +19,7 @@ const IntakeIQ = () => {
 
   const handleViewSubmission = (submission: any) => {
     console.log('Viewing submission:', submission);
-    // TODO: Implement submission detail modal
+    // TODO: Implement submission detail modal or navigation
   };
 
   return (
@@ -38,7 +37,7 @@ const IntakeIQ = () => {
             <TabsTrigger value="submissions">Submissions</TabsTrigger>
             <TabsTrigger value="builder">Form Builder</TabsTrigger>
             <TabsTrigger value="templates">Templates</TabsTrigger>
-            <TabsTrigger value="registration">Registration</TabsTrigger>
+            <TabsTrigger value="registration">Patient Portal</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
@@ -54,7 +53,7 @@ const IntakeIQ = () => {
           </TabsContent>
 
           <TabsContent value="builder" className="space-y-4">
-            <TenantFormBuilder />
+            <IntakeFormBuilder />
           </TabsContent>
 
           <TabsContent value="templates" className="space-y-4">
