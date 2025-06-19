@@ -1,12 +1,11 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { 
   Search, 
-  Plus, 
   User, 
   Phone, 
   Mail,
@@ -16,9 +15,9 @@ import {
   AlertCircle,
   Edit
 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { usePatients } from "@/hooks/usePatients";
 import { Tables } from "@/integrations/supabase/types";
+import { PatientFormDialog } from "./PatientFormDialog";
 
 type Patient = Tables<"patients">;
 
@@ -26,24 +25,7 @@ export const PatientRecords = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
 
-  const { data: patients = [], isLoading, error } = useQuery({
-    queryKey: ['patients', searchTerm],
-    queryFn: async () => {
-      let query = supabase
-        .from('patients')
-        .select('*')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
-
-      if (searchTerm) {
-        query = query.or(`first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,phone.ilike.%${searchTerm}%`);
-      }
-
-      const { data, error } = await query;
-      if (error) throw error;
-      return data || [];
-    },
-  });
+  const { data: patients = [], isLoading, error } = usePatients(searchTerm);
 
   const calculateAge = (dateOfBirth: string) => {
     const today = new Date();
@@ -87,10 +69,7 @@ export const PatientRecords = () => {
             />
           </div>
         </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          New Patient
-        </Button>
+        <PatientFormDialog />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -116,10 +95,7 @@ export const PatientRecords = () => {
                 <p className="text-gray-500 mb-4">
                   {searchTerm ? 'Try adjusting your search terms' : 'Get started by adding your first patient'}
                 </p>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Patient
-                </Button>
+                <PatientFormDialog />
               </CardContent>
             </Card>
           ) : (
@@ -188,6 +164,19 @@ export const PatientRecords = () => {
 };
 
 const PatientDetail = ({ patient }: { patient: Patient }) => {
+  const calculateAge = (dateOfBirth: string) => {
+    const today = new Date();
+    const birthDate = new Date(dateOfBirth);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    return age;
+  };
+
   return (
     <div className="space-y-6">
       {/* Patient Header */}
@@ -319,18 +308,4 @@ const PatientDetail = ({ patient }: { patient: Patient }) => {
       </div>
     </div>
   );
-};
-
-// Helper function for age calculation
-const calculateAge = (dateOfBirth: string) => {
-  const today = new Date();
-  const birthDate = new Date(dateOfBirth);
-  let age = today.getFullYear() - birthDate.getFullYear();
-  const monthDiff = today.getMonth() - birthDate.getMonth();
-  
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-    age--;
-  }
-  
-  return age;
 };
