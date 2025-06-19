@@ -43,16 +43,16 @@ export const PatientFormRenderer: React.FC<PatientFormRendererProps> = ({
 
   // Safely cast form_fields to array with proper type handling
   const fields: FormField[] = Array.isArray(form.form_fields) 
-    ? (form.form_fields as Json[]).filter((field: Json): field is FormField => {
+    ? (form.form_fields as unknown as FormField[]).filter((field: any): field is FormField => {
         return (
           typeof field === 'object' && 
           field !== null && 
           !Array.isArray(field) &&
-          typeof (field as any).id === 'string' &&
-          typeof (field as any).type === 'string' &&
-          typeof (field as any).label === 'string'
+          typeof field.id === 'string' &&
+          typeof field.type === 'string' &&
+          typeof field.label === 'string'
         );
-      }) as FormField[]
+      })
     : [];
   
   const fieldsPerStep = 5;
@@ -359,4 +359,3 @@ export const PatientFormRenderer: React.FC<PatientFormRendererProps> = ({
     </div>
   );
 };
-
