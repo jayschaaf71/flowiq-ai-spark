@@ -14,8 +14,57 @@ import { useTenantConfig } from '@/utils/tenantConfig';
 import { useIntakeForms } from '@/hooks/useIntakeForms';
 import { useToast } from '@/hooks/use-toast';
 
+interface PreviousPregnancies {
+  vaginal: string;
+  cSection: string;
+  miscarriage: string;
+}
+
+interface CurrentPregnancyIssues {
+  preEclampsia: boolean;
+  infertilityTreatment: boolean;
+  morningSickness: boolean;
+  other: string;
+}
+
+interface FormData {
+  name: string;
+  dueDate: string;
+  weeksPregnant: string;
+  visitReason: string;
+  visitReasonOther: string;
+  previousChiropractic: string;
+  previousPregnancies: PreviousPregnancies;
+  priorPregnancyChiropractic: string;
+  currentPregnancyIssues: CurrentPregnancyIssues;
+  covidShot: string;
+  previousComplications: string;
+  birthClass: string;
+  birthClassOther: string;
+  birthLocation: string;
+  birthLocationSpecific: string;
+  careProvider: string;
+  doulaPlanned: string;
+  doulaName: string;
+  supplements: string;
+  supplementsList: string;
+  medications: string;
+  medicationsList: string;
+  prePregnancyActivity: string;
+  currentActivity: string;
+  birthExpectations: string;
+  birthExpectationsOther: string;
+  epiduralPreference: string;
+  biggestFear: string;
+  obMidwifeName: string;
+  practiceName: string;
+  phone: string;
+  fax: string;
+  permissionToContact: string;
+}
+
 export const PregnancyQuestionnaire = () => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     dueDate: '',
     weeksPregnant: '',
@@ -71,7 +120,7 @@ export const PregnancyQuestionnaire = () => {
       setFormData(prev => ({
         ...prev,
         [parent]: {
-          ...prev[parent as keyof typeof prev],
+          ...(prev[parent as keyof FormData] as object),
           [child]: value
         }
       }));
@@ -85,7 +134,7 @@ export const PregnancyQuestionnaire = () => {
     setFormData(prev => ({
       ...prev,
       [parent]: {
-        ...prev[parent as keyof typeof prev],
+        ...(prev[parent as keyof FormData] as object),
         [child]: checked
       }
     }));
