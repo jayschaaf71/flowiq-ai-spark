@@ -51,7 +51,13 @@ export const useRecurringAppointments = () => {
         return;
       }
 
-      setRecurringAppointments(data || []);
+      // Type cast the frequency field to match our interface
+      const typedData = (data || []).map(item => ({
+        ...item,
+        frequency: item.frequency as "daily" | "weekly" | "monthly"
+      }));
+
+      setRecurringAppointments(typedData);
     } catch (error) {
       console.error("Error loading recurring appointments:", error);
       toast({
