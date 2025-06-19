@@ -5,6 +5,7 @@ import { SOAPNotes } from "./SOAPNotes";
 import { MigrationDashboard } from "./MigrationDashboard";
 import { EHRAnalytics } from "./EHRAnalytics";
 import { AppointmentIntegration } from "./AppointmentIntegration";
+import { AppointmentReminders } from "./AppointmentReminders";
 
 export const EHRDashboard = () => {
   return (
@@ -17,9 +18,10 @@ export const EHRDashboard = () => {
       </div>
 
       <Tabs defaultValue="patients" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="patients">Patient Records</TabsTrigger>
           <TabsTrigger value="appointments">Appointments</TabsTrigger>
+          <TabsTrigger value="reminders">Reminders</TabsTrigger>
           <TabsTrigger value="soap">SOAP Notes</TabsTrigger>
           <TabsTrigger value="migration">Data Migration</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
@@ -31,6 +33,10 @@ export const EHRDashboard = () => {
 
         <TabsContent value="appointments">
           <AppointmentIntegration />
+        </TabsContent>
+
+        <TabsContent value="reminders">
+          <AppointmentReminders />
         </TabsContent>
 
         <TabsContent value="soap">

@@ -85,6 +85,41 @@ export type Database = {
           },
         ]
       }
+      appointment_reminders: {
+        Row: {
+          appointment_id: string
+          created_at: string | null
+          id: string
+          reminder_type: string
+          sent_at: string | null
+          status: string | null
+        }
+        Insert: {
+          appointment_id: string
+          created_at?: string | null
+          id?: string
+          reminder_type: string
+          sent_at?: string | null
+          status?: string | null
+        }
+        Update: {
+          appointment_id?: string
+          created_at?: string | null
+          id?: string
+          reminder_type?: string
+          sent_at?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointment_reminders_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       appointments: {
         Row: {
           appointment_type: string
@@ -786,6 +821,44 @@ export type Database = {
           },
         ]
       }
+      patient_notification_preferences: {
+        Row: {
+          created_at: string | null
+          email_reminders: boolean | null
+          id: string
+          patient_id: string
+          reminder_hours_before: number | null
+          sms_reminders: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email_reminders?: boolean | null
+          id?: string
+          patient_id: string
+          reminder_hours_before?: number | null
+          sms_reminders?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email_reminders?: boolean | null
+          id?: string
+          patient_id?: string
+          reminder_hours_before?: number | null
+          sms_reminders?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_notification_preferences_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       patients: {
         Row: {
           address_line1: string | null
@@ -939,6 +1012,36 @@ export type Database = {
           specialty?: string
           updated_at?: string
           working_hours?: Json | null
+        }
+        Relationships: []
+      }
+      soap_note_templates: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          specialty: string
+          template_data: Json
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          specialty: string
+          template_data?: Json
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          specialty?: string
+          template_data?: Json
         }
         Relationships: []
       }

@@ -13,19 +13,45 @@ import {
   MapPin,
   FileText,
   AlertCircle,
-  Edit
+  Edit,
+  CreditCard
 } from "lucide-react";
 import { usePatients } from "@/hooks/usePatients";
 import { Tables } from "@/integrations/supabase/types";
 import { PatientFormDialog } from "./PatientFormDialog";
+import { PatientSearch } from "./PatientSearch";
+import { InsuranceManagement } from "./InsuranceManagement";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type Patient = Tables<"patients">;
 
 export const PatientRecords = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchFilters, setSearchFilters] = useState({
+    searchTerm: "",
+    ageRange: "",
+    gender: "",
+    insuranceStatus: "",
+    lastVisitDate: undefined,
+  });
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
 
-  const { data: patients = [], isLoading, error } = usePatients(searchTerm);
+  const { data: patients = [], isLoading, error } = usePatients(searchFilters.searchTerm);
+
+  // Apply additional filters locally (in a real app, this would be done in the database query)
+  const filteredPatients = patients.filter(patient => {
+    if (searchFilters.gender && patient.gender !== searchFilters.gender) return false;
+    
+    if (searchFilters.ageRange) {
+      const age = calculateAge(patient.date_of_birth);
+      const [min, max] = searchFilters.ageRange.includes('+') 
+        ? [parseInt(searchFilters.ageRange.replace('+', '')), 999]
+        : searchFilters.ageRange.split('-').map(n => parseInt(n));
+      
+      if (age < min || age > max) return false;
+    }
+    
+    return true;
+  });
 
   const calculateAge = (dateOfBirth: string) => {
     const today = new Date();
@@ -56,28 +82,21 @@ export const PatientRecords = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-between">
-        <div className="flex-1 max-w-md">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input
-              placeholder="Search patients by name, email, or phone..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-        </div>
-        <PatientFormDialog />
-      </div>
+      {/* Enhanced Search */}
+      <PatientSearch 
+        onFiltersChange={setSearchFilters}
+        totalResults={filteredPatients.length}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Patient List */}
         <div className="lg:col-span-1 space-y-4">
-          <h3 className="text-lg font-semibold">
-            Patients ({patients.length})
-          </h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold">
+              Patients ({filteredPatients.length})
+            </h3>
+            <PatientFormDialog />
+          </div>
           
           {isLoading ? (
             <div className="space-y-3">
@@ -87,20 +106,20 @@ export const PatientRecords = () => {
                 </div>
               ))}
             </div>
-          ) : patients.length === 0 ? (
+          ) : filteredPatients.length === 0 ? (
             <Card>
               <CardContent className="text-center py-8">
                 <User className="h-12 w-12 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No patients found</h3>
                 <p className="text-gray-500 mb-4">
-                  {searchTerm ? 'Try adjusting your search terms' : 'Get started by adding your first patient'}
+                  {searchFilters.searchTerm || searchFilters.ageRange || searchFilters.gender ? 'Try adjusting your search filters' : 'Get started by adding your first patient'}
                 </p>
                 <PatientFormDialog />
               </CardContent>
             </Card>
           ) : (
             <div className="space-y-3">
-              {patients.map((patient) => (
+              {filteredPatients.map((patient) => (
                 <Card 
                   key={patient.id} 
                   className={`cursor-pointer transition-all hover:shadow-md ${
@@ -111,7 +130,7 @@ export const PatientRecords = () => {
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-base">
-                        {patient.first_name} {patient.last_name}
+                        {patient.first_name}  {patient.last_name}
                       </CardTitle>
                       <Badge variant="outline">
                         {patient.patient_number}
@@ -291,6 +310,51 @@ const PatientDetail = ({ patient }: { patient: Patient }) => {
         </CardContent>
       </Card>
 
+      {/* Patient Details Tabs */}
+      <Tabs defaultValue="insurance" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="insurance">Insurance</TabsTrigger>
+          <TabsTrigger value="history">Medical History</TabsTrigger>
+          <TabsTrigger value="appointments">Appointments</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="insurance">
+          <InsuranceManagement patientId={patient.id} />
+        </TabsContent>
+
+        <TabsContent value="history">
+          <Card>
+            <CardHeader>
+              <CardTitle>Medical History</CardTitle>
+              <CardDescription>
+                Patient's medical history and conditions
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-500 text-center py-8">
+                Medical history management coming soon...
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="appointments">
+          <Card>
+            <CardHeader>
+              <CardTitle>Appointment History</CardTitle>
+              <CardDescription>
+                Past and scheduled appointments for this patient
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-500 text-center py-8">
+                Appointment history coming soon...
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Button variant="outline" className="justify-start">
@@ -302,8 +366,8 @@ const PatientDetail = ({ patient }: { patient: Patient }) => {
           New SOAP Note
         </Button>
         <Button variant="outline" className="justify-start">
-          <User className="h-4 w-4 mr-2" />
-          View History
+          <CreditCard className="h-4 w-4 mr-2" />
+          Billing & Claims
         </Button>
       </div>
     </div>

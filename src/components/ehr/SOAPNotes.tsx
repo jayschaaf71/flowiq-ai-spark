@@ -15,14 +15,17 @@ import {
   Calendar,
   Clock,
   Mic,
-  MicOff
+  MicOff,
+  Template
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SOAPTemplateSelector } from "./SOAPTemplateSelector";
 
 export const SOAPNotes = () => {
   const [selectedNote, setSelectedNote] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isRecording, setIsRecording] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(false);
 
   const mockNotes = [
     {
@@ -80,6 +83,10 @@ export const SOAPNotes = () => {
           </div>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setShowTemplates(!showTemplates)}>
+            <Template className="h-4 w-4 mr-2" />
+            {showTemplates ? "Hide Templates" : "Show Templates"}
+          </Button>
           <Button variant="outline" onClick={toggleRecording}>
             {isRecording ? <MicOff className="h-4 w-4 mr-2" /> : <Mic className="h-4 w-4 mr-2" />}
             {isRecording ? "Stop Recording" : "Voice Note"}
@@ -94,6 +101,29 @@ export const SOAPNotes = () => {
           </Button>
         </div>
       </div>
+
+      {showTemplates && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Template className="h-5 w-5" />
+              SOAP Note Templates
+            </CardTitle>
+            <CardDescription>
+              Select a template to quickly start a new SOAP note
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <SOAPTemplateSelector
+              onSelectTemplate={(template) => {
+                console.log('Selected template:', template);
+                // Here you would apply the template to a new SOAP note
+                setShowTemplates(false);
+              }}
+            />
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Notes List */}
