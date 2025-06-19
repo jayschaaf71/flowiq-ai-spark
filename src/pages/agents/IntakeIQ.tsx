@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
@@ -12,6 +11,7 @@ import { IntakeAnalytics } from "@/components/intake/IntakeAnalytics";
 import { IntakeAIProcessor } from "@/components/intake/IntakeAIProcessor";
 import { SmartFormBuilder } from "@/components/intake/SmartFormBuilder";
 import { PregnancyQuestionnaire } from "@/components/intake/PregnancyQuestionnaire";
+import { NewPatientIntakeForm } from "@/components/intake/NewPatientIntakeForm";
 import { useIntakeForms } from "@/hooks/useIntakeForms";
 import { useTenantConfig } from "@/utils/tenantConfig";
 
@@ -35,7 +35,7 @@ const IntakeIQ = () => {
       
       <div className="p-6 space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-9">
+          <TabsList className="grid w-full grid-cols-10">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
             <TabsTrigger value="ai-processing">AI Processing</TabsTrigger>
             <TabsTrigger value="submissions">Submissions</TabsTrigger>
@@ -43,6 +43,7 @@ const IntakeIQ = () => {
             <TabsTrigger value="builder">Form Builder</TabsTrigger>
             <TabsTrigger value="templates">Templates</TabsTrigger>
             <TabsTrigger value="pregnancy">Pregnancy Form</TabsTrigger>
+            <TabsTrigger value="new-patient">New Patient</TabsTrigger>
             <TabsTrigger value="registration">Patient Portal</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
@@ -76,6 +77,10 @@ const IntakeIQ = () => {
 
           <TabsContent value="pregnancy" className="space-y-4">
             <PregnancyQuestionnaire />
+          </TabsContent>
+
+          <TabsContent value="new-patient" className="space-y-4">
+            <NewPatientIntakeForm />
           </TabsContent>
 
           <TabsContent value="registration" className="space-y-4">
