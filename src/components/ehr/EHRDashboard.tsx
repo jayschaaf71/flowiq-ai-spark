@@ -30,9 +30,7 @@ export const EHRDashboard = () => {
         </TabsContent>
 
         <TabsContent value="appointments">
-          <Appointment
-
- />
+          <AppointmentIntegration />
         </TabsContent>
 
         <TabsContent value="soap">
