@@ -237,7 +237,6 @@ export const SmartFormBuilder = () => {
                                 <Input
                                   value={field.label}
                                   onChange={(e) => updateField(field.id, { label: e.target.value })}
-                                  size="sm"
                                 />
                               </div>
                               
@@ -247,7 +246,6 @@ export const SmartFormBuilder = () => {
                                   <Input
                                     value={field.placeholder || ""}
                                     onChange={(e) => updateField(field.id, { placeholder: e.target.value })}
-                                    size="sm"
                                   />
                                 </div>
                               )}
