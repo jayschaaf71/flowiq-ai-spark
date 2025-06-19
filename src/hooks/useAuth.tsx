@@ -87,6 +87,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, firstName?: string, lastName?: string, role?: string) => {
+    // CRITICAL: Set the correct redirect URL for email confirmation
     const redirectUrl = `${window.location.origin}/`;
     
     // HIPAA Compliance: Enhanced error handling
