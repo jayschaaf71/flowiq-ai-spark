@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,7 +15,7 @@ import {
   Clock,
   Mic,
   MicOff,
-  Template
+  FileTemplate
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SOAPTemplateSelector } from "./SOAPTemplateSelector";
@@ -84,7 +83,7 @@ export const SOAPNotes = () => {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => setShowTemplates(!showTemplates)}>
-            <Template className="h-4 w-4 mr-2" />
+            <FileTemplate className="h-4 w-4 mr-2" />
             {showTemplates ? "Hide Templates" : "Show Templates"}
           </Button>
           <Button variant="outline" onClick={toggleRecording}>
@@ -106,7 +105,7 @@ export const SOAPNotes = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Template className="h-5 w-5" />
+              <FileTemplate className="h-5 w-5" />
               SOAP Note Templates
             </CardTitle>
             <CardDescription>

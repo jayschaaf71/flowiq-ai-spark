@@ -21,6 +21,7 @@ export const SOAPTemplateSelector = ({ onSelectTemplate, specialty }: SOAPTempla
   const [newTemplate, setNewTemplate] = useState({
     name: "",
     specialty: "",
+    is_active: true,
     template_data: {
       subjective: "",
       objective: "",
@@ -59,6 +60,7 @@ export const SOAPTemplateSelector = ({ onSelectTemplate, specialty }: SOAPTempla
       setNewTemplate({
         name: "",
         specialty: "",
+        is_active: true,
         template_data: { subjective: "", objective: "", assessment: "", plan: "" }
       });
       toast({
