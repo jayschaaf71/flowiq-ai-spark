@@ -9,10 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
-  UserPlus, 
   Search, 
-  Filter, 
-  MoreHorizontal, 
   Phone, 
   Mail, 
   Calendar,
@@ -21,94 +18,39 @@ import {
   Clock,
   TrendingUp,
   Shield,
-  Settings
+  Settings,
+  Edit,
+  Trash2,
+  MoreHorizontal
 } from "lucide-react";
 import { useState } from "react";
+import { useTeamMembers, useTeamPerformance, useDeleteTeamMember } from "@/hooks/useTeamMembers";
+import { AddTeamMemberDialog } from "@/components/team/AddTeamMemberDialog";
+import { EditTeamMemberDialog } from "@/components/team/EditTeamMemberDialog";
+import { Tables } from "@/integrations/supabase/types";
+import { useToast } from "@/hooks/use-toast";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+
+type TeamMember = Tables<'team_members'>;
 
 const Team = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
-  // Mock team data
-  const teamMembers = [
-    {
-      id: "1",
-      name: "Dr. Sarah Johnson",
-      email: "sarah.johnson@practice.com",
-      phone: "(555) 123-4567",
-      role: "Doctor",
-      specialty: "General Dentistry",
-      status: "active",
-      avatar: "/placeholder.svg",
-      joinDate: "Jan 2023",
-      appointmentsToday: 8,
-      hoursWorked: 32,
-      rating: 4.9
-    },
-    {
-      id: "2",
-      name: "Maria Rodriguez",
-      email: "maria.rodriguez@practice.com",
-      phone: "(555) 234-5678",
-      role: "Hygienist",
-      specialty: "Dental Hygiene",
-      status: "active",
-      avatar: "/placeholder.svg",
-      joinDate: "Mar 2023",
-      appointmentsToday: 6,
-      hoursWorked: 28,
-      rating: 4.8
-    },
-    {
-      id: "3",
-      name: "James Wilson",
-      email: "james.wilson@practice.com",
-      phone: "(555) 345-6789",
-      role: "Assistant",
-      specialty: "Dental Assistant",
-      status: "active",
-      avatar: "/placeholder.svg",
-      joinDate: "May 2023",
-      appointmentsToday: 12,
-      hoursWorked: 35,
-      rating: 4.7
-    },
-    {
-      id: "4",
-      name: "Emily Chen",
-      email: "emily.chen@practice.com",
-      phone: "(555) 456-7890",
-      role: "Receptionist",
-      specialty: "Front Desk",
-      status: "active",
-      avatar: "/placeholder.svg",
-      joinDate: "Feb 2023",
-      appointmentsToday: 0,
-      hoursWorked: 40,
-      rating: 4.9
-    },
-    {
-      id: "5",
-      name: "Dr. Michael Brown",
-      email: "michael.brown@practice.com",
-      phone: "(555) 567-8901",
-      role: "Doctor",
-      specialty: "Orthodontics",
-      status: "off",
-      avatar: "/placeholder.svg",
-      joinDate: "Dec 2022",
-      appointmentsToday: 0,
-      hoursWorked: 0,
-      rating: 4.8
-    }
-  ];
+  const { data: teamMembers = [], isLoading, error } = useTeamMembers();
+  const { data: performanceData = [] } = useTeamPerformance();
+  const { mutate: deleteTeamMember } = useDeleteTeamMember();
+  const { toast } = useToast();
 
   const filteredMembers = teamMembers.filter(member => {
-    const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         member.specialty.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRole = roleFilter === "all" || member.role.toLowerCase() === roleFilter;
+    const matchesSearch = member.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         member.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         member.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         member.specialty?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesRole = roleFilter === "all" || member.role === roleFilter;
     const matchesStatus = statusFilter === "all" || member.status === statusFilter;
     
     return matchesSearch && matchesRole && matchesStatus;
@@ -118,10 +60,10 @@ const Team = () => {
     switch (status) {
       case "active":
         return <Badge className="bg-green-100 text-green-700 border-green-200">Active</Badge>;
-      case "off":
-        return <Badge variant="secondary">Off Today</Badge>;
-      case "busy":
-        return <Badge className="bg-yellow-100 text-yellow-700 border-yellow-200">Busy</Badge>;
+      case "inactive":
+        return <Badge variant="secondary">Inactive</Badge>;
+      case "on_leave":
+        return <Badge className="bg-yellow-100 text-yellow-700 border-yellow-200">On Leave</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -137,14 +79,64 @@ const Team = () => {
         return "text-purple-600 bg-purple-50";
       case "receptionist":
         return "text-orange-600 bg-orange-50";
+      case "admin":
+        return "text-red-600 bg-red-50";
       default:
         return "text-gray-600 bg-gray-50";
     }
   };
 
+  const handleEdit = (member: TeamMember) => {
+    setEditingMember(member);
+    setEditDialogOpen(true);
+  };
+
+  const handleDelete = (id: string, name: string) => {
+    deleteTeamMember(id, {
+      onSuccess: () => {
+        toast({
+          title: "Success",
+          description: `${name} has been removed from the team.`,
+        });
+      },
+      onError: (error) => {
+        toast({
+          title: "Error",
+          description: "Failed to delete team member. Please try again.",
+          variant: "destructive",
+        });
+        console.error('Delete team member error:', error);
+      },
+    });
+  };
+
+  const getPerformanceForMember = (memberId: string) => {
+    const performance = performanceData.find(p => p.team_member_id === memberId);
+    return {
+      appointmentsToday: performance?.appointments_completed || 0,
+      hoursWorked: performance?.hours_worked || 0,
+      rating: performance?.patient_satisfaction_rating || 0
+    };
+  };
+
   const totalActiveMembers = teamMembers.filter(m => m.status === "active").length;
-  const totalAppointmentsToday = teamMembers.reduce((sum, m) => sum + m.appointmentsToday, 0);
-  const averageRating = teamMembers.reduce((sum, m) => sum + m.rating, 0) / teamMembers.length;
+  const totalAppointmentsToday = performanceData.reduce((sum, p) => sum + (p.appointments_completed || 0), 0);
+  const averageRating = performanceData.length > 0 
+    ? performanceData.reduce((sum, p) => sum + (p.patient_satisfaction_rating || 0), 0) / performanceData.length 
+    : 0;
+
+  if (error) {
+    return (
+      <Layout>
+        <div className="p-6">
+          <div className="text-center">
+            <h2 className="text-xl font-semibold text-red-600">Error Loading Team</h2>
+            <p className="text-gray-600 mt-2">Please try refreshing the page.</p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -153,10 +145,7 @@ const Team = () => {
         subtitle="Manage your practice team members and their schedules"
         badge="Team"
       >
-        <Button className="bg-blue-600 hover:bg-blue-700">
-          <UserPlus className="h-4 w-4 mr-2" />
-          Add Team Member
-        </Button>
+        <AddTeamMemberDialog />
       </PageHeader>
 
       <div className="p-6 space-y-6">
@@ -244,6 +233,7 @@ const Team = () => {
                   <SelectItem value="hygienist">Hygienist</SelectItem>
                   <SelectItem value="assistant">Assistant</SelectItem>
                   <SelectItem value="receptionist">Receptionist</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -253,8 +243,8 @@ const Team = () => {
                 <SelectContent>
                   <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="off">Off Today</SelectItem>
-                  <SelectItem value="busy">Busy</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                  <SelectItem value="on_leave">On Leave</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -273,99 +263,140 @@ const Team = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Member</TableHead>
-                  <TableHead>Role & Specialty</TableHead>
-                  <TableHead>Contact</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Today's Load</TableHead>
-                  <TableHead>Performance</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredMembers.map((member) => (
-                  <TableRow key={member.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage src={member.avatar} />
-                          <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white">
-                            {member.name.split(' ').map(n => n[0]).join('')}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="font-medium">{member.name}</div>
-                          <div className="text-sm text-gray-500">Joined {member.joinDate}</div>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <Badge className={`${getRoleColor(member.role)} border-0 mb-1`}>
-                          {member.role}
-                        </Badge>
-                        <div className="text-sm text-gray-600">{member.specialty}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-1 text-sm">
-                          <Mail className="h-3 w-3 text-gray-400" />
-                          <span className="text-gray-600 truncate">{member.email}</span>
-                        </div>
-                        <div className="flex items-center gap-1 text-sm">
-                          <Phone className="h-3 w-3 text-gray-400" />
-                          <span className="text-gray-600">{member.phone}</span>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {getStatusBadge(member.status)}
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-1 text-sm">
-                          <Calendar className="h-3 w-3 text-blue-500" />
-                          <span>{member.appointmentsToday} appointments</span>
-                        </div>
-                        <div className="flex items-center gap-1 text-sm">
-                          <Clock className="h-3 w-3 text-green-500" />
-                          <span>{member.hoursWorked}h this week</span>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Award className="h-4 w-4 text-yellow-500" />
-                        <span className="font-medium">{member.rating}</span>
-                        <span className="text-gray-400">/5.0</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm">
-                          <Calendar className="h-3 w-3 mr-1" />
-                          Schedule
-                        </Button>
-                        <Button variant="outline" size="icon">
-                          <Settings className="h-3 w-3" />
-                        </Button>
-                        <Button variant="outline" size="icon">
-                          <MoreHorizontal className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </TableCell>
+            {isLoading ? (
+              <div className="text-center py-8">
+                <div className="animate-pulse">Loading team members...</div>
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Member</TableHead>
+                    <TableHead>Role & Specialty</TableHead>
+                    <TableHead>Contact</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Today's Load</TableHead>
+                    <TableHead>Performance</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {filteredMembers.map((member) => {
+                    const performance = getPerformanceForMember(member.id);
+                    
+                    return (
+                      <TableRow key={member.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <Avatar className="h-10 w-10">
+                              <AvatarImage src={member.avatar_url || ""} />
+                              <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white">
+                                {member.first_name?.[0]}{member.last_name?.[0]}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <div className="font-medium">{member.first_name} {member.last_name}</div>
+                              <div className="text-sm text-gray-500">
+                                {member.hire_date ? `Joined ${new Date(member.hire_date).toLocaleDateString()}` : 'No hire date'}
+                              </div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div>
+                            <Badge className={`${getRoleColor(member.role)} border-0 mb-1 capitalize`}>
+                              {member.role}
+                            </Badge>
+                            {member.specialty && (
+                              <div className="text-sm text-gray-600">{member.specialty}</div>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-1 text-sm">
+                              <Mail className="h-3 w-3 text-gray-400" />
+                              <span className="text-gray-600 truncate">{member.email}</span>
+                            </div>
+                            {member.phone && (
+                              <div className="flex items-center gap-1 text-sm">
+                                <Phone className="h-3 w-3 text-gray-400" />
+                                <span className="text-gray-600">{member.phone}</span>
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {getStatusBadge(member.status)}
+                        </TableCell>
+                        <TableCell>
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-1 text-sm">
+                              <Calendar className="h-3 w-3 text-blue-500" />
+                              <span>{performance.appointmentsToday} appointments</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-sm">
+                              <Clock className="h-3 w-3 text-green-500" />
+                              <span>{performance.hoursWorked}h today</span>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Award className="h-4 w-4 text-yellow-500" />
+                            <span className="font-medium">{performance.rating.toFixed(1)}</span>
+                            <span className="text-gray-400">/5.0</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleEdit(member)}
+                            >
+                              <Edit className="h-3 w-3 mr-1" />
+                              Edit
+                            </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Delete Team Member</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Are you sure you want to remove {member.first_name} {member.last_name} from the team? This action cannot be undone.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction 
+                                    onClick={() => handleDelete(member.id, `${member.first_name} ${member.last_name}`)}
+                                    className="bg-red-600 hover:bg-red-700"
+                                  >
+                                    Delete
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            )}
             
-            {filteredMembers.length === 0 && (
+            {!isLoading && filteredMembers.length === 0 && (
               <div className="text-center py-8 text-gray-500">
-                No team members found matching your criteria
+                {teamMembers.length === 0 
+                  ? "No team members found. Add your first team member to get started."
+                  : "No team members found matching your criteria"
+                }
               </div>
             )}
           </CardContent>
@@ -373,14 +404,6 @@ const Team = () => {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="cursor-pointer hover:shadow-md transition-shadow">
-            <CardContent className="p-6 text-center">
-              <UserPlus className="h-8 w-8 text-blue-600 mx-auto mb-3" />
-              <h3 className="font-medium mb-2">Add New Member</h3>
-              <p className="text-sm text-gray-600">Invite new team members to join your practice</p>
-            </CardContent>
-          </Card>
-
           <Card className="cursor-pointer hover:shadow-md transition-shadow">
             <CardContent className="p-6 text-center">
               <Calendar className="h-8 w-8 text-green-600 mx-auto mb-3" />
@@ -396,7 +419,21 @@ const Team = () => {
               <p className="text-sm text-gray-600">Control access levels and permissions</p>
             </CardContent>
           </Card>
+
+          <Card className="cursor-pointer hover:shadow-md transition-shadow">
+            <CardContent className="p-6 text-center">
+              <TrendingUp className="h-8 w-8 text-blue-600 mx-auto mb-3" />
+              <h3 className="font-medium mb-2">Performance Analytics</h3>
+              <p className="text-sm text-gray-600">View detailed performance metrics and reports</p>
+            </CardContent>
+          </Card>
         </div>
+
+        <EditTeamMemberDialog 
+          member={editingMember}
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+        />
       </div>
     </Layout>
   );

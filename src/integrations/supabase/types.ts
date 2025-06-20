@@ -1375,6 +1375,116 @@ export type Database = {
         }
         Relationships: []
       }
+      team_members: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          created_by: string | null
+          email: string
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          first_name: string
+          hire_date: string | null
+          hourly_rate: number | null
+          id: string
+          last_name: string
+          notes: string | null
+          phone: string | null
+          role: string
+          salary: number | null
+          specialty: string | null
+          status: string
+          updated_at: string
+          updated_by: string | null
+          working_hours: Json | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          email: string
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          first_name: string
+          hire_date?: string | null
+          hourly_rate?: number | null
+          id?: string
+          last_name: string
+          notes?: string | null
+          phone?: string | null
+          role: string
+          salary?: number | null
+          specialty?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+          working_hours?: Json | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          first_name?: string
+          hire_date?: string | null
+          hourly_rate?: number | null
+          id?: string
+          last_name?: string
+          notes?: string | null
+          phone?: string | null
+          role?: string
+          salary?: number | null
+          specialty?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+          working_hours?: Json | null
+        }
+        Relationships: []
+      }
+      team_performance: {
+        Row: {
+          appointments_completed: number | null
+          created_at: string
+          date: string
+          hours_worked: number | null
+          id: string
+          patient_satisfaction_rating: number | null
+          revenue_generated: number | null
+          team_member_id: string
+        }
+        Insert: {
+          appointments_completed?: number | null
+          created_at?: string
+          date?: string
+          hours_worked?: number | null
+          id?: string
+          patient_satisfaction_rating?: number | null
+          revenue_generated?: number | null
+          team_member_id: string
+        }
+        Update: {
+          appointments_completed?: number | null
+          created_at?: string
+          date?: string
+          hours_worked?: number | null
+          id?: string
+          patient_satisfaction_rating?: number | null
+          revenue_generated?: number | null
+          team_member_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_performance_team_member_id_fkey"
+            columns: ["team_member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       treatment_plan_items: {
         Row: {
           completed_date: string | null
