@@ -14,6 +14,7 @@ import { useProviders } from "@/hooks/useProviders";
 import { useTeamMembers, useAddTeamMember, useUpdateTeamMember, useDeleteTeamMember } from "@/hooks/useTeamMembers";
 import { AddTeamMemberDialog } from "@/components/team/AddTeamMemberDialog";
 import { EditTeamMemberDialog } from "@/components/team/EditTeamMemberDialog";
+import { AppointmentTypesConfig } from "@/components/schedule/AppointmentTypesConfig";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
@@ -121,10 +122,14 @@ export const ScheduleSettings = () => {
       </div>
 
       <Tabs defaultValue="providers" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="providers" className="flex items-center gap-2">
             <Users className="w-4 h-4" />
             Staff & Providers
+          </TabsTrigger>
+          <TabsTrigger value="appointment-types" className="flex items-center gap-2">
+            <Calendar className="w-4 h-4" />
+            Appointment Types
           </TabsTrigger>
           <TabsTrigger value="hours" className="flex items-center gap-2">
             <Clock className="w-4 h-4" />
@@ -254,6 +259,10 @@ export const ScheduleSettings = () => {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="appointment-types" className="space-y-4">
+          <AppointmentTypesConfig />
         </TabsContent>
 
         <TabsContent value="hours" className="space-y-4">
