@@ -13,19 +13,19 @@ export const useAppointmentCreation = (user: any, profile: any) => {
       console.log('User:', user);
       console.log('Profile:', profile);
       
-      // Ensure we have a valid patient_id
+      // Ensure we have a valid patient_id - use user ID if no specific patient ID provided
       const patientId = appointmentData.patientId || user?.id;
       
       if (!patientId) {
         console.error('No patient ID available');
-        throw new Error('Patient ID is required for appointment creation');
+        throw new Error('User authentication required for appointment creation');
       }
 
       console.log('Using patient ID:', patientId);
       
-      // Create the appointment with proper error handling
+      // Create the appointment with simplified error handling
       const appointmentPayload = {
-        title: appointmentData.patientName || 'AI Scheduled Appointment',
+        title: appointmentData.patientName || profile?.first_name + ' ' + profile?.last_name || 'AI Scheduled Appointment',
         appointment_type: appointmentData.appointmentType || 'consultation',
         date: appointmentData.date,
         time: appointmentData.time,
@@ -47,12 +47,8 @@ export const useAppointmentCreation = (user: any, profile: any) => {
         .single();
 
       if (appointmentError) {
-        console.error('Detailed appointment error:', appointmentError);
-        console.error('Error code:', appointmentError.code);
-        console.error('Error message:', appointmentError.message);
-        console.error('Error details:', appointmentError.details);
-        console.error('Error hint:', appointmentError.hint);
-        throw appointmentError;
+        console.error('Appointment creation error:', appointmentError);
+        throw new Error(`Failed to create appointment: ${appointmentError.message}`);
       }
 
       console.log('Appointment created successfully:', appointment);
@@ -98,17 +94,7 @@ export const useAppointmentCreation = (user: any, profile: any) => {
       return appointment;
     } catch (error) {
       console.error('Error in createAppointmentAutomatically:', error);
-      
-      // Provide more specific error messages
-      if (error.message?.includes('row-level security')) {
-        throw new Error('Authentication required: Please make sure you are logged in');
-      } else if (error.message?.includes('patient_id')) {
-        throw new Error('Patient ID validation failed: Unable to identify patient');
-      } else if (error.code === '23503') {
-        throw new Error('Invalid provider or patient reference');
-      } else {
-        throw new Error(`Appointment creation failed: ${error.message}`);
-      }
+      throw new Error(`Appointment creation failed: ${error.message}`);
     }
   };
 
@@ -116,3 +102,4 @@ export const useAppointmentCreation = (user: any, profile: any) => {
     createAppointmentAutomatically
   };
 };
+

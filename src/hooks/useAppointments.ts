@@ -39,7 +39,7 @@ export const useAppointments = () => {
     try {
       console.log('Loading appointments for user:', user.id);
       
-      // Simple query without role-based filtering to avoid policy issues
+      // Simple query that works with our basic policies
       const { data, error } = await supabase
         .from('appointments')
         .select('*')
@@ -48,25 +48,11 @@ export const useAppointments = () => {
 
       if (error) {
         console.error("Error loading appointments:", error);
-        console.error("Error code:", error.code);
-        console.error("Error details:", error.details);
-        console.error("Error hint:", error.hint);
-        
-        // Handle specific error types
-        if (error.code === '42P17') {
-          console.error("Infinite recursion detected in database policy");
-          toast({
-            title: "Database Configuration Issue",
-            description: "There's a configuration issue with the database. Please contact support.",
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "Error",
-            description: `Failed to load appointments: ${error.message}`,
-            variant: "destructive",
-          });
-        }
+        toast({
+          title: "Error",
+          description: "Failed to load appointments",
+          variant: "destructive",
+        });
         return;
       }
 
@@ -157,3 +143,4 @@ export const useAppointments = () => {
     sendReminder
   };
 };
+
