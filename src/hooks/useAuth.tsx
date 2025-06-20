@@ -54,7 +54,8 @@ const fetchProfile = async (userId: string): Promise<Profile | null> => {
         console.log('Profile not found - will be created automatically');
         return null;
       }
-      throw error;
+      // Don't throw error, just return null to prevent blocking auth
+      return null;
     }
 
     console.log('Profile fetched successfully:', data);
@@ -129,17 +130,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setSession(initialSession);
           setUser(initialSession.user);
           
-          // Fetch profile - now that RLS is fixed, this should work
-          try {
-            const profileData = await fetchProfile(initialSession.user.id);
-            if (mounted) {
-              setProfile(profileData);
-            }
-          } catch (err) {
-            console.error('Profile fetch failed during init:', err);
-            if (mounted) {
-              setProfile(null);
-            }
+          // Fetch profile - should work now without RLS issues
+          const profileData = await fetchProfile(initialSession.user.id);
+          if (mounted) {
+            setProfile(profileData);
           }
         }
         
@@ -155,7 +149,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         if (!mounted) return;
 
         console.log('Auth state changed:', event, session?.user?.id);
@@ -164,19 +158,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Fetch profile when user signs in
-          try {
-            const profileData = await fetchProfile(session.user.id);
+          // Fetch profile when user signs in - non-blocking
+          fetchProfile(session.user.id).then(profileData => {
             if (mounted) {
               console.log('Profile loaded after auth change:', profileData);
               setProfile(profileData);
             }
-          } catch (err) {
+          }).catch(err => {
             console.error('Profile fetch failed after auth change:', err);
             if (mounted) {
               setProfile(null);
             }
-          }
+          });
         } else {
           setProfile(null);
         }
