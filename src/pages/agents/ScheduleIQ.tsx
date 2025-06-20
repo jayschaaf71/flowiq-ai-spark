@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
@@ -13,6 +14,7 @@ import { AIScheduleChat } from "@/components/schedule/AIScheduleChat";
 import { ScheduleAnalytics } from "@/components/schedule/ScheduleAnalytics";
 import { AutomatedReminders } from "@/components/schedule/AutomatedReminders";
 import { ScheduleSettings } from "@/components/schedule/ScheduleSettings";
+import { SetupWizard } from "@/components/schedule/SetupWizard";
 import { Settings, Zap, Brain, BarChart3, MessageCircle, Calendar, Users, Bell } from "lucide-react";
 
 const ScheduleIQ = () => {

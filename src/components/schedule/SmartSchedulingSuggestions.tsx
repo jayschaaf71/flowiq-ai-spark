@@ -3,273 +3,193 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Brain, Clock, Users, TrendingUp, CheckCircle, X, Lightbulb } from "lucide-react";
+import { Brain, TrendingUp, Clock, Users, Zap } from "lucide-react";
 
-interface SchedulingSuggestion {
+interface Suggestion {
   id: string;
-  type: 'optimization' | 'conflict' | 'efficiency' | 'revenue';
-  priority: 'high' | 'medium' | 'low';
+  type: 'optimization' | 'efficiency' | 'revenue' | 'patient-satisfaction';
   title: string;
   description: string;
-  impact: string;
+  impact: 'high' | 'medium' | 'low';
+  effort: 'easy' | 'moderate' | 'complex';
+  estimatedImprovement: string;
   action: string;
-  appointmentIds?: string[];
 }
 
 interface SmartSchedulingSuggestionsProps {
   appointments: any[];
-  onApplySuggestion?: (suggestion: SchedulingSuggestion) => void;
+  onApplySuggestion: (suggestion: Suggestion) => void;
 }
 
-export const SmartSchedulingSuggestions = ({ appointments, onApplySuggestion }: SmartSchedulingSuggestionsProps) => {
-  const [suggestions, setSuggestions] = useState<SchedulingSuggestion[]>([]);
+export const SmartSchedulingSuggestions = ({ 
+  appointments, 
+  onApplySuggestion 
+}: SmartSchedulingSuggestionsProps) => {
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const generateSuggestions = () => {
+    setLoading(true);
+    
+    // Simulate AI analysis
+    setTimeout(() => {
+      const aiSuggestions: Suggestion[] = [
+        {
+          id: 'gap-optimization',
+          type: 'efficiency',
+          title: 'Optimize Schedule Gaps',
+          description: 'Detected 12 minutes average gap between appointments. Tightening by 5 minutes would allow 2 more appointments per day.',
+          impact: 'high',
+          effort: 'easy',
+          estimatedImprovement: '+15% capacity',
+          action: 'Reduce buffer time from 15 to 10 minutes'
+        },
+        {
+          id: 'peak-hour-optimization',
+          type: 'revenue',
+          title: 'Peak Hour Revenue Optimization',
+          description: 'Schedule high-value procedures during 10 AM - 2 PM when patient attendance is 95% vs 78% in other slots.',
+          impact: 'high',
+          effort: 'moderate',
+          estimatedImprovement: '+22% revenue',
+          action: 'Prioritize premium services in peak hours'
+        },
+        {
+          id: 'no-show-prediction',
+          type: 'efficiency',
+          title: 'No-Show Pattern Detected',
+          description: 'Tuesday 2-4 PM shows 40% higher no-show rate. Double-booking strategy could improve utilization.',
+          impact: 'medium',
+          effort: 'moderate',
+          estimatedImprovement: '+12% utilization',
+          action: 'Implement selective double-booking'
+        },
+        {
+          id: 'appointment-clustering',
+          type: 'optimization',
+          title: 'Appointment Type Clustering',
+          description: 'Grouping similar appointment types together reduces setup time by 8 minutes per transition.',
+          impact: 'medium',
+          effort: 'easy',
+          estimatedImprovement: '+8% efficiency',
+          action: 'Cluster similar procedures in blocks'
+        },
+        {
+          id: 'patient-preference-matching',
+          type: 'patient-satisfaction',
+          title: 'Patient Preference Matching',
+          description: 'VIP patients prefer morning slots. 87% satisfaction vs 71% for afternoon appointments.',
+          impact: 'medium',
+          effort: 'easy',
+          estimatedImprovement: '+20% satisfaction',
+          action: 'Reserve morning slots for VIP patients'
+        },
+        {
+          id: 'weekend-demand',
+          type: 'revenue',
+          title: 'Weekend Demand Analysis',
+          description: 'Saturday morning shows 35% unmet demand. Adding weekend hours could capture significant revenue.',
+          impact: 'high',
+          effort: 'complex',
+          estimatedImprovement: '+18% revenue',
+          action: 'Open Saturday morning slots'
+        }
+      ];
+
+      setSuggestions(aiSuggestions);
+      setLoading(false);
+    }, 1500);
+  };
 
   useEffect(() => {
     generateSuggestions();
   }, [appointments]);
 
-  const generateSuggestions = async () => {
-    setLoading(true);
-    
-    // Simulate AI analysis delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const generatedSuggestions: SchedulingSuggestion[] = [];
-
-    // Analyze gaps in schedule
-    const gaps = findScheduleGaps(appointments);
-    if (gaps.length > 0) {
-      generatedSuggestions.push({
-        id: 'gap-optimization',
-        type: 'efficiency',
-        priority: 'medium',
-        title: 'Schedule Gap Optimization',
-        description: `Found ${gaps.length} schedule gaps that could be optimized`,
-        impact: 'Reduce idle time by 45 minutes',
-        action: 'Consolidate appointments to minimize gaps'
-      });
+  const getImpactColor = (impact: string) => {
+    switch (impact) {
+      case 'high': return 'bg-red-100 text-red-700';
+      case 'medium': return 'bg-yellow-100 text-yellow-700';
+      case 'low': return 'bg-green-100 text-green-700';
+      default: return 'bg-gray-100 text-gray-700';
     }
-
-    // Check for back-to-back conflicts
-    const conflicts = findBackToBackConflicts(appointments);
-    if (conflicts.length > 0) {
-      generatedSuggestions.push({
-        id: 'conflict-resolution',
-        type: 'conflict',
-        priority: 'high',
-        title: 'Scheduling Conflicts Detected',
-        description: `${conflicts.length} appointments may have insufficient buffer time`,
-        impact: 'Prevent delays and improve patient satisfaction',
-        action: 'Add 15-minute buffer between appointments',
-        appointmentIds: conflicts
-      });
-    }
-
-    // Suggest revenue optimization
-    const lowRevenueSlots = findLowRevenueOpportunities(appointments);
-    if (lowRevenueSlots.length > 0) {
-      generatedSuggestions.push({
-        id: 'revenue-optimization',
-        type: 'revenue',
-        priority: 'medium',
-        title: 'Revenue Optimization Opportunity',
-        description: 'Premium time slots available for higher-value appointments',
-        impact: 'Potential revenue increase of $450/week',
-        action: 'Move routine appointments to create premium slots'
-      });
-    }
-
-    // Check for no-show risk
-    const noShowRisk = identifyNoShowRisk(appointments);
-    if (noShowRisk.length > 0) {
-      generatedSuggestions.push({
-        id: 'noshow-prevention',
-        type: 'optimization',
-        priority: 'high',
-        title: 'No-Show Risk Prevention',
-        description: `${noShowRisk.length} appointments have high no-show probability`,
-        impact: 'Reduce no-show rate by 25%',
-        action: 'Send additional reminders and confirmations',
-        appointmentIds: noShowRisk
-      });
-    }
-
-    setSuggestions(generatedSuggestions);
-    setLoading(false);
   };
 
-  const findScheduleGaps = (appointments: any[]) => {
-    // Simple gap detection logic
-    return appointments.filter((_, index) => {
-      if (index === 0) return false;
-      const current = new Date(`${appointments[index].date}T${appointments[index].time}`);
-      const previous = new Date(`${appointments[index - 1].date}T${appointments[index - 1].time}`);
-      const gap = (current.getTime() - previous.getTime()) / (1000 * 60); // minutes
-      return gap > 60; // gaps longer than 60 minutes
-    });
-  };
-
-  const findBackToBackConflicts = (appointments: any[]) => {
-    const conflicts: string[] = [];
-    for (let i = 0; i < appointments.length - 1; i++) {
-      const current = appointments[i];
-      const next = appointments[i + 1];
-      
-      const currentEnd = new Date(`${current.date}T${current.time}`);
-      currentEnd.setMinutes(currentEnd.getMinutes() + (current.duration || 60));
-      
-      const nextStart = new Date(`${next.date}T${next.time}`);
-      
-      if (nextStart.getTime() - currentEnd.getTime() < 15 * 60 * 1000) { // less than 15 min buffer
-        conflicts.push(current.id, next.id);
-      }
-    }
-    return [...new Set(conflicts)]; // Remove duplicates
-  };
-
-  const findLowRevenueOpportunities = (appointments: any[]) => {
-    // Mock logic for identifying premium time slots
-    return appointments.filter(apt => {
-      const time = apt.time;
-      return time >= '10:00' && time <= '14:00'; // Premium hours
-    }).slice(0, 3); // Limit suggestions
-  };
-
-  const identifyNoShowRisk = (appointments: any[]) => {
-    // Mock no-show risk analysis
-    return appointments.filter(apt => {
-      // Simple heuristic: appointments more than 7 days out or on Mondays
-      const appointmentDate = new Date(apt.date);
-      const daysDiff = (appointmentDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24);
-      return daysDiff > 7 || appointmentDate.getDay() === 1;
-    }).slice(0, 2);
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800 border-red-200';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'low': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+  const getEffortColor = (effort: string) => {
+    switch (effort) {
+      case 'easy': return 'bg-green-100 text-green-700';
+      case 'moderate': return 'bg-yellow-100 text-yellow-700';
+      case 'complex': return 'bg-red-100 text-red-700';
+      default: return 'bg-gray-100 text-gray-700';
     }
   };
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'optimization': return <TrendingUp className="w-4 h-4" />;
-      case 'conflict': return <Clock className="w-4 h-4" />;
-      case 'efficiency': return <Brain className="w-4 h-4" />;
-      case 'revenue': return <Users className="w-4 h-4" />;
-      default: return <Lightbulb className="w-4 h-4" />;
+      case 'optimization': return <Zap className="w-4 h-4" />;
+      case 'efficiency': return <Clock className="w-4 h-4" />;
+      case 'revenue': return <TrendingUp className="w-4 h-4" />;
+      case 'patient-satisfaction': return <Users className="w-4 h-4" />;
+      default: return <Brain className="w-4 h-4" />;
     }
   };
-
-  const handleApplySuggestion = (suggestion: SchedulingSuggestion) => {
-    if (onApplySuggestion) {
-      onApplySuggestion(suggestion);
-    }
-    
-    // Remove the applied suggestion
-    setSuggestions(prev => prev.filter(s => s.id !== suggestion.id));
-  };
-
-  const handleDismissSuggestion = (suggestionId: string) => {
-    setSuggestions(prev => prev.filter(s => s.id !== suggestionId));
-  };
-
-  if (loading) {
-    return (
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex items-center gap-3">
-            <Brain className="w-5 h-5 text-purple-600 animate-pulse" />
-            <span>Analyzing schedule for optimization opportunities...</span>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (suggestions.length === 0) {
-    return (
-      <Alert>
-        <CheckCircle className="w-4 h-4" />
-        <AlertDescription>
-          Your schedule is well optimized! No suggestions at this time.
-        </AlertDescription>
-      </Alert>
-    );
-  }
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <Brain className="w-5 h-5 text-purple-600" />
-        <h3 className="text-lg font-semibold">AI Scheduling Suggestions</h3>
-        <Badge variant="secondary">{suggestions.length} suggestions</Badge>
-      </div>
-
-      {suggestions.map((suggestion) => (
-        <Card key={suggestion.id} className="border-l-4 border-l-purple-500">
-          <CardHeader className="pb-3">
-            <div className="flex items-start justify-between">
-              <div className="flex items-start gap-3">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  {getTypeIcon(suggestion.type)}
-                </div>
-                <div>
-                  <CardTitle className="text-base">{suggestion.title}</CardTitle>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Badge className={getPriorityColor(suggestion.priority)}>
-                      {suggestion.priority} priority
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Brain className="w-5 h-5 text-purple-600" />
+            AI-Powered Scheduling Suggestions
+            {loading && <div className="w-4 h-4 border-2 border-purple-600 border-t-transparent rounded-full animate-spin ml-2" />}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4">
+            {suggestions.map(suggestion => (
+              <div key={suggestion.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    {getTypeIcon(suggestion.type)}
+                    <h3 className="font-semibold">{suggestion.title}</h3>
+                  </div>
+                  <div className="flex gap-2">
+                    <Badge className={getImpactColor(suggestion.impact)}>
+                      {suggestion.impact} impact
                     </Badge>
-                    <Badge variant="outline" className="capitalize">
-                      {suggestion.type}
+                    <Badge className={getEffortColor(suggestion.effort)}>
+                      {suggestion.effort}
                     </Badge>
                   </div>
                 </div>
+                
+                <p className="text-gray-600 mb-3">{suggestion.description}</p>
+                
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="text-sm">
+                      <span className="font-medium text-green-600">
+                        {suggestion.estimatedImprovement}
+                      </span>
+                      <span className="text-gray-500 ml-1">improvement</span>
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      Action: {suggestion.action}
+                    </div>
+                  </div>
+                  
+                  <Button 
+                    size="sm" 
+                    onClick={() => onApplySuggestion(suggestion)}
+                    className="bg-purple-600 hover:bg-purple-700"
+                  >
+                    Apply
+                  </Button>
+                </div>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleDismissSuggestion(suggestion.id)}
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <p className="text-gray-600 mb-3">{suggestion.description}</p>
-            <div className="bg-green-50 p-3 rounded-lg mb-4">
-              <p className="text-sm font-medium text-green-800">Expected Impact:</p>
-              <p className="text-sm text-green-700">{suggestion.impact}</p>
-            </div>
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-600">
-                <strong>Recommended Action:</strong> {suggestion.action}
-              </p>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleDismissSuggestion(suggestion.id)}
-                >
-                  Dismiss
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={() => handleApplySuggestion(suggestion)}
-                  className="bg-purple-600 hover:bg-purple-700"
-                >
-                  Apply Suggestion
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
