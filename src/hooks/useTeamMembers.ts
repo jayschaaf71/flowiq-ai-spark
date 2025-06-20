@@ -53,11 +53,43 @@ export const useAddTeamMember = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (teamMember: Omit<TeamMember, 'id' | 'created_at' | 'updated_at'>) => {
+    mutationFn: async (teamMember: {
+      first_name: string;
+      last_name: string;
+      email: string;
+      phone?: string;
+      role: string;
+      specialty?: string;
+      hire_date?: string | null;
+      hourly_rate?: number | null;
+      salary?: number | null;
+      emergency_contact_name?: string;
+      emergency_contact_phone?: string;
+      notes?: string;
+    }) => {
       console.log('Adding team member:', teamMember);
+      
+      // Add required fields with defaults
+      const memberData = {
+        ...teamMember,
+        status: 'active' as const,
+        avatar_url: null,
+        working_hours: {
+          monday: { start: "09:00", end: "17:00" },
+          tuesday: { start: "09:00", end: "17:00" },
+          wednesday: { start: "09:00", end: "17:00" },
+          thursday: { start: "09:00", end: "17:00" },
+          friday: { start: "09:00", end: "17:00" },
+          saturday: null,
+          sunday: null
+        },
+        created_by: null,
+        updated_by: null
+      };
+
       const { data, error } = await supabase
         .from('team_members')
-        .insert(teamMember)
+        .insert(memberData)
         .select()
         .single();
 
