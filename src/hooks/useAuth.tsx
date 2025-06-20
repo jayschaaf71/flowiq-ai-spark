@@ -49,10 +49,15 @@ const fetchProfile = async (userId: string): Promise<Profile | null> => {
 
     if (error) {
       console.error('Profile fetch error:', error);
+      // If profile doesn't exist, create a basic one
+      if (error.code === 'PGRST116') {
+        console.log('Profile not found, this is expected for new users');
+        return null;
+      }
       return null;
     }
 
-    console.log('Profile fetched:', data);
+    console.log('Profile fetched successfully:', data);
     return data;
   } catch (error) {
     console.error('Profile fetch failed:', error);
@@ -112,14 +117,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       try {
         console.log('Initializing auth...');
         
-        // Set a hard timeout to ensure loading never hangs indefinitely
-        const timeoutId = setTimeout(() => {
-          if (mounted) {
-            console.log('Auth initialization timeout - forcing completion');
-            setLoading(false);
-          }
-        }, 2000); // Reduced to 2 seconds
-        
         // Get initial session
         const { data: { session: initialSession }, error } = await supabase.auth.getSession();
         
@@ -132,17 +129,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setSession(initialSession);
           setUser(initialSession.user);
           
-          // Fetch profile in background - don't block loading
+          // Try to fetch profile, but don't block on it
           fetchProfile(initialSession.user.id).then(profileData => {
             if (mounted) {
+              console.log('Profile loaded:', profileData);
               setProfile(profileData);
             }
           }).catch(err => {
-            console.error('Background profile fetch failed:', err);
+            console.error('Profile fetch failed:', err);
+            // Don't block auth flow if profile fetch fails
+            if (mounted) {
+              setProfile(null);
+            }
           });
         }
-        
-        clearTimeout(timeoutId);
         
       } catch (error) {
         console.error('Auth initialization error:', error);
@@ -159,7 +159,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       async (event, session) => {
         if (!mounted) return;
 
-        console.log('Auth state changed:', event);
+        console.log('Auth state changed:', event, session?.user?.id);
         
         setSession(session);
         setUser(session?.user ?? null);
@@ -168,16 +168,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           // Fetch profile in background
           fetchProfile(session.user.id).then(profileData => {
             if (mounted) {
+              console.log('Profile loaded after auth change:', profileData);
               setProfile(profileData);
             }
           }).catch(err => {
-            console.error('Auth state profile fetch failed:', err);
+            console.error('Profile fetch failed after auth change:', err);
+            if (mounted) {
+              setProfile(null);
+            }
           });
         } else {
           setProfile(null);
         }
         
-        // Ensure loading is always cleared
+        // Always clear loading state
         setLoading(false);
       }
     );
