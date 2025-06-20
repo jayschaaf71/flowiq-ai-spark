@@ -39,35 +39,23 @@ export const useAuth = () => {
 
 const fetchProfile = async (userId: string): Promise<Profile | null> => {
   try {
-    console.log('Attempting to fetch profile for user:', userId);
+    console.log('Fetching profile for user:', userId);
     
-    // Add timeout to prevent hanging
-    const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error('Profile fetch timeout')), 3000);
-    });
-    
-    const fetchPromise = supabase
+    const { data, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', userId)
       .single();
 
-    const { data, error } = await Promise.race([fetchPromise, timeoutPromise]);
-
     if (error) {
-      console.error('Error fetching profile:', error);
-      // If profile doesn't exist, create a basic one
-      if (error.code === 'PGRST116') {
-        console.log('Profile not found, user can continue without profile');
-        return null;
-      }
+      console.error('Profile fetch error:', error);
       return null;
     }
 
-    console.log('Profile fetched successfully:', data);
+    console.log('Profile fetched:', data);
     return data;
   } catch (error) {
-    console.error('Error fetching profile:', error);
+    console.error('Profile fetch failed:', error);
     return null;
   }
 };
@@ -119,58 +107,45 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     let mounted = true;
-    let initTimeout: NodeJS.Timeout;
 
     const initializeAuth = async () => {
       try {
-        console.log('Starting auth initialization...');
+        console.log('Initializing auth...');
         
-        // Set a shorter timeout for initialization
-        initTimeout = setTimeout(() => {
+        // Set a hard timeout to ensure loading never hangs indefinitely
+        const timeoutId = setTimeout(() => {
           if (mounted) {
-            console.log('Auth initialization timeout - proceeding without profile');
+            console.log('Auth initialization timeout - forcing completion');
             setLoading(false);
           }
-        }, 3000); // Reduced to 3 seconds
+        }, 2000); // Reduced to 2 seconds
         
         // Get initial session
         const { data: { session: initialSession }, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.error('Error getting initial session:', error);
-          if (mounted) {
-            setLoading(false);
-          }
-          return;
+          console.error('Session error:', error);
         }
 
-        console.log('Initial session check complete:', initialSession ? 'session found' : 'no session');
-
         if (initialSession?.user && mounted) {
-          console.log('Setting user from initial session:', initialSession.user.email);
+          console.log('Found existing session');
           setSession(initialSession);
           setUser(initialSession.user);
           
-          // Try to fetch profile but don't block if it fails
-          try {
-            const profileData = await fetchProfile(initialSession.user.id);
+          // Fetch profile in background - don't block loading
+          fetchProfile(initialSession.user.id).then(profileData => {
             if (mounted) {
               setProfile(profileData);
-              console.log('Profile set:', profileData ? `role: ${profileData.role}` : 'no profile');
             }
-          } catch (profileError) {
-            console.error('Profile fetch failed, continuing without profile:', profileError);
-            // Continue without profile - user can still access the app
-          }
+          }).catch(err => {
+            console.error('Background profile fetch failed:', err);
+          });
         }
         
-        // Clear timeout since we completed
-        if (initTimeout) {
-          clearTimeout(initTimeout);
-        }
+        clearTimeout(timeoutId);
         
       } catch (error) {
-        console.error('Error in auth initialization:', error);
+        console.error('Auth initialization error:', error);
       } finally {
         if (mounted) {
           console.log('Auth initialization complete');
@@ -179,52 +154,39 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     };
 
-    // Initialize auth state
-    initializeAuth();
-
-    // Listen for auth state changes
+    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!mounted) return;
 
-        console.log('Auth state changed:', event, session?.user?.email || 'no user');
+        console.log('Auth state changed:', event);
         
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Try to fetch profile but don't block the UI
-          setTimeout(async () => {
-            if (!mounted) return;
-            try {
-              const profileData = await fetchProfile(session.user.id);
-              if (mounted) {
-                setProfile(profileData);
-                console.log('Profile updated from auth change:', profileData ? `role: ${profileData.role}` : 'no profile');
-              }
-            } catch (profileError) {
-              console.error('Profile fetch failed during auth change:', profileError);
+          // Fetch profile in background
+          fetchProfile(session.user.id).then(profileData => {
+            if (mounted) {
+              setProfile(profileData);
             }
-          }, 100);
+          }).catch(err => {
+            console.error('Auth state profile fetch failed:', err);
+          });
         } else {
-          // Clear profile when user signs out
-          if (mounted) {
-            setProfile(null);
-          }
+          setProfile(null);
         }
         
-        // Make sure loading is false after auth state changes
-        if (mounted) {
-          setLoading(false);
-        }
+        // Ensure loading is always cleared
+        setLoading(false);
       }
     );
 
+    // Initialize
+    initializeAuth();
+
     return () => {
       mounted = false;
-      if (initTimeout) {
-        clearTimeout(initTimeout);
-      }
       subscription.unsubscribe();
     };
   }, []);
