@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -31,41 +30,53 @@ export const useAppointments = () => {
   const loadAppointments = async () => {
     setLoading(true);
     try {
-      console.log('Loading appointments...');
+      console.log('Starting to load appointments...');
       
-      // Simple query that doesn't depend on user context
+      // Test the most basic query first
       const { data, error } = await supabase
         .from('appointments')
-        .select('*')
-        .order('date', { ascending: true })
-        .order('time', { ascending: true });
+        .select('*');
+
+      console.log('Query result:', { data, error });
 
       if (error) {
-        console.error("Error loading appointments:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load appointments",
-          variant: "destructive",
-        });
+        console.error("Database error:", error);
+        throw error;
+      }
+
+      console.log('Raw appointments data:', data);
+      
+      if (!data) {
+        console.log('No data returned, setting empty array');
+        setAppointments([]);
         return;
       }
 
-      console.log('Appointments loaded successfully:', data?.length || 0);
-      
       // Type cast the appointments data to match our interface
-      const typedAppointments = (data || []).map(appointment => ({
+      const typedAppointments = data.map(appointment => ({
         ...appointment,
         status: appointment.status as "confirmed" | "pending" | "cancelled" | "completed" | "no-show"
       }));
 
+      console.log('Processed appointments:', typedAppointments);
       setAppointments(typedAppointments);
-    } catch (error) {
-      console.error("Error loading appointments:", error);
+      
+    } catch (error: any) {
+      console.error("Catch block error:", error);
+      console.error("Error details:", {
+        message: error.message,
+        code: error.code,
+        details: error.details
+      });
+      
       toast({
-        title: "Error", 
-        description: "Failed to load appointments",
+        title: "Error loading appointments",
+        description: error.message || "Unknown error occurred",
         variant: "destructive",
       });
+      
+      // Set empty array so UI doesn't break
+      setAppointments([]);
     } finally {
       setLoading(false);
     }
