@@ -1,3 +1,4 @@
+
 import { NavLink, useLocation } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -44,10 +45,8 @@ export const AppSidebar = () => {
   
   const mainNavigationItems = [
     { icon: Home, label: "Dashboard", path: "/", badge: null },
-    { icon: Users, label: "Manager Agent", path: "/manager", badge: "AI" },
     { icon: Workflow, label: "Workflows", path: "/workflows", badge: "12" },
     { icon: BarChart3, label: "Analytics", path: "/analytics", badge: null },
-    { icon: Zap, label: "AI Insights", path: "/insights", badge: "3" },
   ];
 
   const practiceManagement = [
@@ -57,6 +56,8 @@ export const AppSidebar = () => {
   ];
 
   const aiAgents = [
+    { icon: Users, label: "Manager Agent", path: "/manager", badge: "AI" },
+    { icon: Zap, label: "AI Insights", path: "/insights", badge: "3" },
     { icon: Calendar, label: "Schedule iQ", path: "/agents/schedule", badge: "AI" },
     { icon: ClipboardList, label: "Intake iQ", path: "/agents/intake", badge: "AI" },
     { icon: Bell, label: "Reminders iQ", path: "/agents/remind", badge: "AI" },
