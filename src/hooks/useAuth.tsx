@@ -41,14 +41,26 @@ const fetchProfile = async (userId: string): Promise<Profile | null> => {
   try {
     console.log('Attempting to fetch profile for user:', userId);
     
-    const { data, error } = await supabase
+    // Add timeout to prevent hanging
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error('Profile fetch timeout')), 3000);
+    });
+    
+    const fetchPromise = supabase
       .from('profiles')
       .select('*')
       .eq('id', userId)
       .single();
 
+    const { data, error } = await Promise.race([fetchPromise, timeoutPromise]);
+
     if (error) {
       console.error('Error fetching profile:', error);
+      // If profile doesn't exist, create a basic one
+      if (error.code === 'PGRST116') {
+        console.log('Profile not found, user can continue without profile');
+        return null;
+      }
       return null;
     }
 
@@ -107,19 +119,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     let mounted = true;
-    let timeoutId: NodeJS.Timeout;
+    let initTimeout: NodeJS.Timeout;
 
     const initializeAuth = async () => {
       try {
         console.log('Starting auth initialization...');
         
-        // Set timeout to prevent hanging indefinitely
-        timeoutId = setTimeout(() => {
+        // Set a shorter timeout for initialization
+        initTimeout = setTimeout(() => {
           if (mounted) {
-            console.log('Auth initialization timeout - setting loading to false');
+            console.log('Auth initialization timeout - proceeding without profile');
             setLoading(false);
           }
-        }, 5000); // 5 second timeout
+        }, 3000); // Reduced to 3 seconds
         
         // Get initial session
         const { data: { session: initialSession }, error } = await supabase.auth.getSession();
@@ -135,33 +147,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.log('Initial session check complete:', initialSession ? 'session found' : 'no session');
 
         if (initialSession?.user && mounted) {
-          console.log('Setting initial session for user:', initialSession.user.email);
+          console.log('Setting user from initial session:', initialSession.user.email);
           setSession(initialSession);
           setUser(initialSession.user);
           
-          // Fetch profile for authenticated user
+          // Try to fetch profile but don't block if it fails
           try {
             const profileData = await fetchProfile(initialSession.user.id);
             if (mounted) {
               setProfile(profileData);
-              console.log('User authenticated with role:', profileData?.role || 'no-profile');
+              console.log('Profile set:', profileData ? `role: ${profileData.role}` : 'no profile');
             }
           } catch (profileError) {
-            console.error('Error fetching profile during init:', profileError);
-            // Don't block authentication if profile fetch fails
+            console.error('Profile fetch failed, continuing without profile:', profileError);
+            // Continue without profile - user can still access the app
           }
         }
         
-        // Clear timeout since we completed successfully
-        if (timeoutId) {
-          clearTimeout(timeoutId);
+        // Clear timeout since we completed
+        if (initTimeout) {
+          clearTimeout(initTimeout);
         }
         
       } catch (error) {
         console.error('Error in auth initialization:', error);
       } finally {
         if (mounted) {
-          console.log('Auth initialization complete - setting loading to false');
+          console.log('Auth initialization complete');
           setLoading(false);
         }
       }
@@ -181,17 +193,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Fetch profile when user signs in
-          try {
-            const profileData = await fetchProfile(session.user.id);
-            if (mounted) {
-              setProfile(profileData);
-              console.log('User authenticated with role:', profileData?.role || 'no-profile');
+          // Try to fetch profile but don't block the UI
+          setTimeout(async () => {
+            if (!mounted) return;
+            try {
+              const profileData = await fetchProfile(session.user.id);
+              if (mounted) {
+                setProfile(profileData);
+                console.log('Profile updated from auth change:', profileData ? `role: ${profileData.role}` : 'no profile');
+              }
+            } catch (profileError) {
+              console.error('Profile fetch failed during auth change:', profileError);
             }
-          } catch (profileError) {
-            console.error('Error fetching profile during auth change:', profileError);
-            // Don't block authentication if profile fetch fails
-          }
+          }, 100);
         } else {
           // Clear profile when user signs out
           if (mounted) {
@@ -199,6 +213,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           }
         }
         
+        // Make sure loading is false after auth state changes
         if (mounted) {
           setLoading(false);
         }
@@ -207,8 +222,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     return () => {
       mounted = false;
-      if (timeoutId) {
-        clearTimeout(timeoutId);
+      if (initTimeout) {
+        clearTimeout(initTimeout);
       }
       subscription.unsubscribe();
     };
