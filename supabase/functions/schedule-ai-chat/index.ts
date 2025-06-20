@@ -23,16 +23,28 @@ serve(async (req) => {
 
     const currentDateTime = new Date().toLocaleString();
     
-    // Create role-specific system prompt
-    const getRoleSpecificPrompt = (role: string, profile: any) => {
-      const basePrompt = `You are Schedule iQ, an advanced AI assistant specialized in appointment scheduling and calendar management for healthcare practices. You have access to real-time scheduling data and can provide specific, actionable recommendations.
+    // Create enhanced role-specific system prompt with real-time data
+    const getRoleSpecificPrompt = (role: string, profile: any, context: any) => {
+      const basePrompt = `You are Schedule iQ, an advanced AI assistant specialized in appointment scheduling and calendar management for healthcare practices. You have access to REAL-TIME scheduling data and can provide specific, actionable recommendations based on actual appointment and availability information.
 
-Current Context:
+REAL-TIME CONTEXT:
 - Current Date/Time: ${currentDateTime}
 - Today's Appointments: ${context?.todaysAppointments || 0}
+- Available Slots Today: ${context?.availableSlots || 0}
 - Total Appointments This Week: ${context?.appointments || 0}
-- Active Providers: ${context?.providers || 'Loading...'}
-- Available Time Slots Today: ${context?.availableSlots || 0}
+- Active Providers: ${context?.totalActiveProviders || 0}
+- Provider Details: ${context?.providers || 'Loading...'}
+- Last Data Update: ${context?.realTimeData?.lastUpdated || 'Just now'}
+
+REAL AVAILABILITY DATA:
+${context?.availabilityDetails ? context.availabilityDetails.map((provider: any) => 
+  `- ${provider.providerName} (${provider.specialty}): ${provider.todayAvailable} slots today, ${provider.tomorrowAvailable} tomorrow`
+).join('\n') : 'No provider availability data available'}
+
+NEXT AVAILABLE SLOTS:
+${context?.nextAvailableSlots ? context.nextAvailableSlots.map((provider: any) => 
+  `- ${provider.provider} (${provider.specialty}): ${provider.slots.map((slot: any) => slot.time).join(', ')}`
+).join('\n') : 'No immediate availability found'}
 
 User Information:
 - Name: ${profile?.first_name || 'User'} ${profile?.last_name || ''}
@@ -42,69 +54,54 @@ User Information:
       if (role === 'patient') {
         return `${basePrompt}
 
-PATIENT MODE - You are assisting a patient with their healthcare appointments.
+PATIENT MODE - You are assisting a patient with their healthcare appointments using REAL-TIME data.
 
 Your Capabilities for Patients:
-1. BOOKING: Help find and book appointments
-2. RESCHEDULING: Assist with changing appointment times
-3. INFORMATION: Provide appointment details and preparation instructions
-4. AVAILABILITY: Check when providers are available
-5. REMINDERS: Help set up appointment notifications
-6. QUESTIONS: Answer general scheduling questions
+1. REAL-TIME AVAILABILITY: Check actual available appointment slots with specific providers and times
+2. BOOKING ASSISTANCE: Help find and book appointments using current availability data
+3. RESCHEDULING: Assist with changing appointment times based on real availability
+4. PROVIDER MATCHING: Match patients with available providers based on specialty and availability
+5. SPECIFIC SCHEDULING: Provide exact times and dates when providers are available
+6. REMINDERS: Help set up appointment notifications
+7. APPOINTMENT DETAILS: Provide information about upcoming appointments
 
 Communication Style:
 - Be warm, friendly, and patient-focused
-- Use clear, non-medical language when possible
-- Focus on the patient's needs and convenience
-- Provide reassurance and helpful guidance
-- Always prioritize patient privacy and comfort
+- Use SPECIFIC times and dates from real availability data
+- Provide ACTUAL appointment slots, not generic responses
+- Match patients with available providers and their specialties
+- Always use the real-time context data provided
+- When suggesting appointments, give specific times like "Dr. Smith has availability tomorrow at 10:30 AM and 2:15 PM"
 
-Limitations:
-- You cannot access other patients' information
-- You cannot make changes that require staff approval
-- You cannot provide medical advice
-- You cannot access full provider schedules beyond availability
-
-Patient-Focused Suggestions:
-- "Find my next available appointment"
-- "What do I need to know before my visit?"
-- "Can I reschedule to a different time?"
-- "Set up appointment reminders"`;
+IMPORTANT: Always use the real availability data provided in the context. If there are available slots, mention them specifically with times, providers, and specialties. Never give generic "no availability" responses when real data shows available slots.`;
 
       } else {
         return `${basePrompt}
 
-STAFF MODE - You are assisting healthcare staff with practice management.
+STAFF MODE - You are assisting healthcare staff with practice management using REAL-TIME data.
 
 Your Full Capabilities for Staff:
-1. SCHEDULING: Book, reschedule, cancel appointments for any patient
-2. OPTIMIZATION: Analyze and optimize scheduling patterns
-3. AVAILABILITY: Manage provider schedules and time slots
-4. CONFLICTS: Identify and resolve scheduling conflicts
-5. REMINDERS: Manage appointment notifications for all patients
-6. ANALYTICS: Provide scheduling insights and patterns
-7. WORKFLOW: Suggest process improvements
-8. EMERGENCY: Handle urgent scheduling needs
-9. REPORTING: Generate scheduling reports and statistics
-10. PATIENT MANAGEMENT: Access patient scheduling history
+1. REAL-TIME SCHEDULING: Book, reschedule, cancel appointments using current availability data
+2. LIVE OPTIMIZATION: Analyze and optimize scheduling patterns based on actual bookings
+3. PROVIDER MANAGEMENT: Manage provider schedules using real working hours and availability
+4. CONFLICT RESOLUTION: Identify and resolve scheduling conflicts using live data
+5. AVAILABILITY ANALYSIS: Provide detailed availability reports with specific time slots
+6. PATIENT MANAGEMENT: Access patient scheduling history and preferences
+7. PERFORMANCE ANALYTICS: Generate insights from real appointment data
+8. WORKFLOW OPTIMIZATION: Suggest improvements based on actual scheduling patterns
 
 Communication Style:
-- Be professional and efficient
-- Provide detailed, actionable insights
-- Use healthcare industry terminology appropriately
-- Focus on practice efficiency and patient care
-- Offer data-driven recommendations
+- Be professional and data-driven
+- Provide specific metrics and real numbers from the context
+- Use actual appointment data and availability information
+- Offer actionable insights based on current scheduling patterns
+- Reference specific providers, times, and availability when discussing scheduling
 
-Advanced Features:
-- Access to full practice scheduling data
-- Ability to make system-wide changes
-- Provider performance analytics
-- Revenue and utilization insights
-- Bulk scheduling operations`;
+IMPORTANT: Always reference the real-time data provided in the context. Use specific numbers, provider names, and availability slots in your responses. Provide actionable insights based on the actual scheduling data.`;
       }
     };
 
-    const systemPrompt = getRoleSpecificPrompt(userProfile?.role || 'patient', userProfile);
+    const systemPrompt = getRoleSpecificPrompt(userProfile?.role || 'patient', userProfile, context);
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -130,8 +127,8 @@ Advanced Features:
     const data = await response.json();
     const aiResponse = data.choices[0].message.content;
 
-    // Generate role-specific suggestions
-    const suggestions = generateRoleSpecificSuggestions(message, aiResponse, context, userProfile?.role);
+    // Generate enhanced role-specific suggestions based on real data
+    const suggestions = generateContextAwareSuggestions(message, aiResponse, context, userProfile?.role);
 
     return new Response(JSON.stringify({ 
       response: aiResponse,
@@ -139,8 +136,10 @@ Advanced Features:
       contextUsed: {
         todaysAppointments: context?.todaysAppointments || 0,
         availableSlots: context?.availableSlots || 0,
-        providersActive: context?.providers ? context.providers.split(',').length : 0,
-        userRole: userProfile?.role || 'patient'
+        providersActive: context?.totalActiveProviders || 0,
+        userRole: userProfile?.role || 'patient',
+        nextAvailableSlots: context?.nextAvailableSlots || [],
+        realTimeData: true
       }
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -159,71 +158,88 @@ Advanced Features:
   }
 });
 
-function generateRoleSpecificSuggestions(userMessage: string, aiResponse: string, context: any, userRole: string): string[] {
+function generateContextAwareSuggestions(userMessage: string, aiResponse: string, context: any, userRole: string): string[] {
   const lowerMessage = userMessage.toLowerCase();
   const suggestions = new Set<string>();
 
   if (userRole === 'patient') {
-    // Patient-specific suggestions
+    // Patient-specific suggestions based on real data
     if (lowerMessage.includes('book') || lowerMessage.includes('schedule') || lowerMessage.includes('appointment')) {
-      suggestions.add("Find my next available appointment");
-      suggestions.add("What providers are available?");
-      suggestions.add("Check appointment requirements");
+      if (context?.nextAvailableSlots && context.nextAvailableSlots.length > 0) {
+        suggestions.add(`Book with ${context.nextAvailableSlots[0].provider}`);
+        suggestions.add("Compare provider availability");
+      }
+      suggestions.add("Show me all available times this week");
+      suggestions.add("Check provider specialties");
     }
     
-    if (lowerMessage.includes('cancel') || lowerMessage.includes('reschedule') || lowerMessage.includes('change')) {
-      suggestions.add("Find alternative appointment times");
+    if (lowerMessage.includes('available') || lowerMessage.includes('next')) {
+      if (context?.availableSlots > 0) {
+        suggestions.add("Show specific available times");
+        suggestions.add("Book the earliest available slot");
+      }
+      suggestions.add("Check availability for next week");
+      suggestions.add("Find availability with specific provider");
+    }
+    
+    if (lowerMessage.includes('reschedule') || lowerMessage.includes('change')) {
+      suggestions.add("Find alternative times");
       suggestions.add("Check cancellation policy");
-      suggestions.add("What are my rescheduling options?");
-    }
-    
-    if (lowerMessage.includes('remind') || lowerMessage.includes('notification')) {
-      suggestions.add("Set up appointment reminders");
-      suggestions.add("How will I be notified?");
+      suggestions.add("See provider availability");
     }
 
-    // Default patient suggestions
+    // Default patient suggestions with real data awareness
     if (suggestions.size === 0) {
-      suggestions.add("Book my next appointment");
-      suggestions.add("Check my upcoming appointments");
-      suggestions.add("What should I bring to my visit?");
+      if (context?.availableSlots > 0) {
+        suggestions.add("Book next available appointment");
+        suggestions.add("See all available times today");
+      } else {
+        suggestions.add("Check availability for tomorrow");
+        suggestions.add("Find appointments next week");
+      }
+      suggestions.add("View my upcoming appointments");
       suggestions.add("Set up appointment reminders");
     }
   } else {
-    // Staff-specific suggestions
-    if (lowerMessage.includes('book') || lowerMessage.includes('schedule')) {
-      suggestions.add("Show available time slots");
-      suggestions.add("Check provider availability");
-      suggestions.add("View scheduling conflicts");
+    // Staff-specific suggestions based on real data
+    if (lowerMessage.includes('availability') || lowerMessage.includes('schedule')) {
+      if (context?.availableSlots > 0) {
+        suggestions.add("Show detailed availability breakdown");
+        suggestions.add("Optimize today's schedule");
+      }
+      suggestions.add("Check provider utilization");
+      suggestions.add("Analyze booking patterns");
     }
     
     if (lowerMessage.includes('optimize') || lowerMessage.includes('improve')) {
-      suggestions.add("Analyze scheduling patterns");
-      suggestions.add("Suggest time block improvements");
-      suggestions.add("Review provider utilization");
+      suggestions.add("Suggest schedule improvements");
+      suggestions.add("Identify peak hours");
+      suggestions.add("Review provider efficiency");
     }
     
     if (lowerMessage.includes('report') || lowerMessage.includes('analytics')) {
-      suggestions.add("Generate scheduling report");
-      suggestions.add("Show appointment statistics");
+      suggestions.add("Generate availability report");
+      suggestions.add("Show booking statistics");
       suggestions.add("Analyze no-show patterns");
     }
 
     // Context-aware staff suggestions
     if (context?.todaysAppointments > 10) {
-      suggestions.add("Optimize today's busy schedule");
+      suggestions.add("Manage high-volume day");
     }
     
-    if (context?.availableSlots < 3) {
-      suggestions.add("Find more availability options");
+    if (context?.availableSlots < 5) {
+      suggestions.add("Find ways to increase availability");
     }
 
-    // Default staff suggestions
+    // Default staff suggestions with real data awareness
     if (suggestions.size === 0) {
-      suggestions.add("Show today's schedule overview");
-      suggestions.add("Find next available slot");
-      suggestions.add("Check for scheduling conflicts");
-      suggestions.add("Analyze appointment patterns");
+      if (context?.availableSlots > 0) {
+        suggestions.add("Review available slots");
+        suggestions.add("Optimize appointment spacing");
+      }
+      suggestions.add("Check today's schedule status");
+      suggestions.add("Analyze current booking trends");
     }
   }
 
