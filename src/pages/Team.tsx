@@ -1,4 +1,3 @@
-
 import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,6 +29,7 @@ import { EditTeamMemberDialog } from "@/components/team/EditTeamMemberDialog";
 import { Tables } from "@/integrations/supabase/types";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { useNavigate } from "react-router-dom";
 
 type TeamMember = Tables<'team_members'>;
 
@@ -44,6 +44,7 @@ const Team = () => {
   const { data: performanceData = [] } = useTeamPerformance();
   const { mutate: deleteTeamMember } = useDeleteTeamMember();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const filteredMembers = teamMembers.filter(member => {
     const matchesSearch = member.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -124,6 +125,21 @@ const Team = () => {
   const averageRating = performanceData.length > 0 
     ? performanceData.reduce((sum, p) => sum + (p.patient_satisfaction_rating || 0), 0) / performanceData.length 
     : 0;
+
+  const handleManageSchedules = () => {
+    navigate('/schedule');
+  };
+
+  const handleManagePermissions = () => {
+    toast({
+      title: "Coming Soon",
+      description: "Permission management feature is under development.",
+    });
+  };
+
+  const handlePerformanceAnalytics = () => {
+    navigate('/analytics');
+  };
 
   if (error) {
     return (
@@ -404,7 +420,7 @@ const Team = () => {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="cursor-pointer hover:shadow-md transition-shadow">
+          <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={handleManageSchedules}>
             <CardContent className="p-6 text-center">
               <Calendar className="h-8 w-8 text-green-600 mx-auto mb-3" />
               <h3 className="font-medium mb-2">Manage Schedules</h3>
@@ -412,7 +428,7 @@ const Team = () => {
             </CardContent>
           </Card>
 
-          <Card className="cursor-pointer hover:shadow-md transition-shadow">
+          <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={handleManagePermissions}>
             <CardContent className="p-6 text-center">
               <Shield className="h-8 w-8 text-purple-600 mx-auto mb-3" />
               <h3 className="font-medium mb-2">Permissions</h3>
@@ -420,7 +436,7 @@ const Team = () => {
             </CardContent>
           </Card>
 
-          <Card className="cursor-pointer hover:shadow-md transition-shadow">
+          <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={handlePerformanceAnalytics}>
             <CardContent className="p-6 text-center">
               <TrendingUp className="h-8 w-8 text-blue-600 mx-auto mb-3" />
               <h3 className="font-medium mb-2">Performance Analytics</h3>
