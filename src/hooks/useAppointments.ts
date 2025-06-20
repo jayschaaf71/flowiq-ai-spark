@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Appointment {
@@ -22,24 +21,19 @@ interface Appointment {
 
 export const useAppointments = () => {
   const { toast } = useToast();
-  const { user } = useAuth();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      loadAppointments();
-    }
-  }, [user]);
+    loadAppointments();
+  }, []);
 
   const loadAppointments = async () => {
-    if (!user) return;
-    
     setLoading(true);
     try {
-      console.log('Loading appointments for user:', user.id);
+      console.log('Loading appointments...');
       
-      // Simple query that works with our basic policies
+      // Simple query that doesn't depend on user context
       const { data, error } = await supabase
         .from('appointments')
         .select('*')
@@ -68,7 +62,7 @@ export const useAppointments = () => {
     } catch (error) {
       console.error("Error loading appointments:", error);
       toast({
-        title: "Error",
+        title: "Error", 
         description: "Failed to load appointments",
         variant: "destructive",
       });
@@ -143,4 +137,3 @@ export const useAppointments = () => {
     sendReminder
   };
 };
-

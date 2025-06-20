@@ -1,7 +1,6 @@
 
 import { AppointmentSection } from "./AppointmentSection";
 import { useAppointments } from "@/hooks/useAppointments";
-import { useAuth } from "@/hooks/useAuth";
 import { Calendar, Clock } from "lucide-react";
 import { isToday, parseISO } from "date-fns";
 
@@ -26,7 +25,6 @@ interface AppointmentManagerProps {
 }
 
 export const AppointmentManager = ({ onAppointmentUpdate }: AppointmentManagerProps) => {
-  const { profile } = useAuth();
   const { appointments, loading, updateAppointmentStatus, sendReminder } = useAppointments();
 
   const handleStatusUpdate = async (appointmentId: string, newStatus: Appointment['status']) => {
@@ -58,7 +56,7 @@ export const AppointmentManager = ({ onAppointmentUpdate }: AppointmentManagerPr
         iconColor="text-blue-600"
         appointments={todayAppointments}
         emptyMessage="No appointments today"
-        userRole={profile?.role}
+        userRole="staff"
         onStatusUpdate={handleStatusUpdate}
         onSendReminder={sendReminder}
         loading={loading}
@@ -71,7 +69,7 @@ export const AppointmentManager = ({ onAppointmentUpdate }: AppointmentManagerPr
         iconColor="text-green-600"
         appointments={upcomingAppointments}
         emptyMessage="No upcoming appointments"
-        userRole={profile?.role}
+        userRole="staff"
         onStatusUpdate={handleStatusUpdate}
         onSendReminder={sendReminder}
         loading={loading}
