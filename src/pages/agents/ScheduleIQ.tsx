@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
@@ -13,6 +12,7 @@ import { EnhancedCalendarView } from "@/components/schedule/EnhancedCalendarView
 import { AIScheduleChat } from "@/components/schedule/AIScheduleChat";
 import { ScheduleAnalytics } from "@/components/schedule/ScheduleAnalytics";
 import { AutomatedReminders } from "@/components/schedule/AutomatedReminders";
+import { ScheduleSettings } from "@/components/schedule/ScheduleSettings";
 import { Settings, Zap, Brain, BarChart3, MessageCircle, Calendar, Users, Bell } from "lucide-react";
 
 const ScheduleIQ = () => {
@@ -48,6 +48,10 @@ const ScheduleIQ = () => {
     setActiveTab("appointments");
   };
 
+  const handleConfigureClick = () => {
+    setActiveTab("settings");
+  };
+
   return (
     <Layout>
       <PageHeader 
@@ -62,7 +66,7 @@ const ScheduleIQ = () => {
           <Badge className="bg-blue-100 text-blue-800 border-blue-200">
             Production Ready
           </Badge>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={handleConfigureClick}>
             <Settings className="w-4 h-4 mr-2" />
             Configure
           </Button>
@@ -78,7 +82,7 @@ const ScheduleIQ = () => {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <div className="flex items-center justify-between">
-            <TabsList className="grid w-full grid-cols-7">
+            <TabsList className="grid w-full grid-cols-8">
               <TabsTrigger value="dashboard" className="flex items-center gap-1">
                 <Brain className="w-4 h-4" />
                 AI Dashboard
@@ -106,6 +110,10 @@ const ScheduleIQ = () => {
               <TabsTrigger value="reminders" className="flex items-center gap-1">
                 <Bell className="w-4 h-4" />
                 Reminders
+              </TabsTrigger>
+              <TabsTrigger value="settings" className="flex items-center gap-1">
+                <Settings className="w-4 h-4" />
+                Settings
               </TabsTrigger>
             </TabsList>
           </div>
@@ -145,6 +153,10 @@ const ScheduleIQ = () => {
 
           <TabsContent value="reminders" className="space-y-4">
             <AutomatedReminders />
+          </TabsContent>
+
+          <TabsContent value="settings" className="space-y-4">
+            <ScheduleSettings />
           </TabsContent>
         </Tabs>
       </div>
