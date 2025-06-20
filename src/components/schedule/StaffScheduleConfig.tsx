@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Clock, Plus, Edit, Trash2, Calendar, User } from "lucide-react";
+import { Json } from "@/integrations/supabase/types";
 
 interface WorkingHours {
   [key: string]: {
@@ -26,7 +26,7 @@ interface StaffMember {
   last_name: string;
   role: string;
   email: string;
-  working_hours?: WorkingHours;
+  working_hours?: Json;
   procedure_schedules?: ProcedureSchedule[];
 }
 
@@ -83,6 +83,44 @@ export const StaffScheduleConfig = ({ staff, onUpdateSchedule }: StaffScheduleCo
     duration: 60
   });
 
+  const parseWorkingHours = (jsonHours: Json | undefined): WorkingHours => {
+    if (!jsonHours) return {};
+    
+    // Handle the case where jsonHours might be a string or object
+    let parsed: any;
+    if (typeof jsonHours === 'string') {
+      try {
+        parsed = JSON.parse(jsonHours);
+      } catch {
+        return {};
+      }
+    } else {
+      parsed = jsonHours;
+    }
+
+    // Ensure the structure matches our WorkingHours interface
+    const workingHours: WorkingHours = {};
+    daysOfWeek.forEach(({ key }) => {
+      if (parsed[key]) {
+        workingHours[key] = {
+          enabled: parsed[key].enabled || (parsed[key].start && parsed[key].end),
+          start: parsed[key].start || "09:00",
+          end: parsed[key].end || "17:00",
+          procedures: parsed[key].procedures || []
+        };
+      } else {
+        workingHours[key] = {
+          enabled: false,
+          start: "09:00",
+          end: "17:00",
+          procedures: []
+        };
+      }
+    });
+
+    return workingHours;
+  };
+
   const initializeStaffSchedule = (staffMember: StaffMember) => {
     const defaultHours: WorkingHours = {
       monday: { enabled: true, start: "09:00", end: "17:00" },
@@ -95,7 +133,7 @@ export const StaffScheduleConfig = ({ staff, onUpdateSchedule }: StaffScheduleCo
     };
 
     setSelectedStaff(staffMember);
-    setWorkingHours(staffMember.working_hours || defaultHours);
+    setWorkingHours(parseWorkingHours(staffMember.working_hours) || defaultHours);
     setProcedureSchedules(staffMember.procedure_schedules || []);
     setEditDialogOpen(true);
   };
