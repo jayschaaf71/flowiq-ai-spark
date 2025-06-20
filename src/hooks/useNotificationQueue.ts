@@ -2,48 +2,15 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-
-interface NotificationItem {
-  id: string;
-  appointment_id: string;
-  type: 'confirmation' | 'reminder' | 'cancellation' | 'rescheduled';
-  channel: 'email' | 'sms' | 'push';
-  recipient: string;
-  message: string;
-  scheduled_for: string;
-  sent_at?: string;
-  status: 'pending' | 'sent' | 'failed' | 'cancelled';
-  retry_count: number;
-  created_at: string;
-}
-
-// Type for Supabase data (with string types)
-interface SupabaseNotificationItem {
-  id: string;
-  appointment_id: string;
-  type: string;
-  channel: string;
-  recipient: string;
-  message: string;
-  scheduled_for: string;
-  sent_at?: string;
-  status: string;
-  retry_count: number;
-  created_at: string;
-}
-
-// Helper function to convert Supabase data to NotificationItem
-const convertToNotificationItem = (item: SupabaseNotificationItem): NotificationItem => ({
-  ...item,
-  type: item.type as NotificationItem['type'],
-  channel: item.channel as NotificationItem['channel'],
-  status: item.status as NotificationItem['status']
-});
+import { NotificationItem } from "@/types/notification";
+import { convertToNotificationItem, createReminderNotifications } from "@/utils/notificationUtils";
+import { useNotificationOperations } from "./useNotificationOperations";
 
 export const useNotificationQueue = () => {
   const { toast } = useToast();
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const { scheduleNotification, sendNotification, cancelNotification } = useNotificationOperations();
 
   const loadNotifications = async (status?: string) => {
     setLoading(true);
@@ -75,70 +42,19 @@ export const useNotificationQueue = () => {
     }
   };
 
-  const scheduleNotification = async (notification: Omit<NotificationItem, 'id' | 'sent_at' | 'status' | 'retry_count' | 'created_at'>) => {
-    try {
-      const { data, error } = await supabase
-        .from('notification_queue')
-        .insert({
-          ...notification,
-          status: 'pending',
-          retry_count: 0
-        })
-        .select()
-        .single();
+  const scheduleAppointmentReminders = async (
+    appointmentId: string,
+    appointmentDate: Date,
+    patientEmail: string,
+    patientPhone?: string
+  ) => {
+    const notifications = createReminderNotifications(
+      appointmentId,
+      appointmentDate,
+      patientEmail,
+      patientPhone
+    );
 
-      if (error) throw error;
-
-      const convertedData = convertToNotificationItem(data);
-      setNotifications(prev => [...prev, convertedData]);
-
-      toast({
-        title: "Notification Scheduled",
-        description: `${notification.type} notification scheduled for ${new Date(notification.scheduled_for).toLocaleString()}`,
-      });
-
-      return convertedData;
-    } catch (error) {
-      console.error("Error scheduling notification:", error);
-      toast({
-        title: "Error",
-        description: "Failed to schedule notification",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const scheduleAppointmentReminders = async (appointmentId: string, appointmentDate: Date, patientEmail: string, patientPhone?: string) => {
-    const reminderTimes = [24, 2]; // hours before appointment
-    const notifications: Omit<NotificationItem, 'id' | 'sent_at' | 'status' | 'retry_count' | 'created_at'>[] = [];
-
-    reminderTimes.forEach(hours => {
-      const scheduledFor = new Date(appointmentDate.getTime() - hours * 60 * 60 * 1000);
-
-      // Email reminder
-      notifications.push({
-        appointment_id: appointmentId,
-        type: 'reminder',
-        channel: 'email',
-        recipient: patientEmail,
-        message: `Reminder: You have an appointment in ${hours} hours.`,
-        scheduled_for: scheduledFor.toISOString()
-      });
-
-      // SMS reminder if phone number provided
-      if (patientPhone) {
-        notifications.push({
-          appointment_id: appointmentId,
-          type: 'reminder',
-          channel: 'sms',
-          recipient: patientPhone,
-          message: `Reminder: You have an appointment in ${hours} hours. Reply CONFIRM to confirm or RESCHEDULE to reschedule.`,
-          scheduled_for: scheduledFor.toISOString()
-        });
-      }
-    });
-
-    // Schedule all notifications
     const results = await Promise.all(
       notifications.map(notification => scheduleNotification(notification))
     );
@@ -146,67 +62,24 @@ export const useNotificationQueue = () => {
     return results.filter(Boolean);
   };
 
-  const sendNotification = async (notificationId: string) => {
-    try {
-      // In a real implementation, this would integrate with email/SMS services
-      // For now, we'll just mark it as sent
-      const { error } = await supabase
-        .from('notification_queue')
-        .update({ 
-          status: 'sent', 
-          sent_at: new Date().toISOString() 
-        })
-        .eq('id', notificationId);
-
-      if (error) throw error;
-
-      setNotifications(prev => prev.map(notif => 
-        notif.id === notificationId 
-          ? { ...notif, status: 'sent' as const, sent_at: new Date().toISOString() }
-          : notif
-      ));
-
-      toast({
-        title: "Notification Sent",
-        description: "Notification has been delivered successfully",
-      });
-    } catch (error) {
-      console.error("Error sending notification:", error);
-      toast({
-        title: "Error",
-        description: "Failed to send notification",
-        variant: "destructive",
-      });
-    }
+  const sendNotificationAndUpdate = async (notificationId: string) => {
+    await sendNotification(notificationId);
+    
+    setNotifications(prev => prev.map(notif => 
+      notif.id === notificationId 
+        ? { ...notif, status: 'sent' as const, sent_at: new Date().toISOString() }
+        : notif
+    ));
   };
 
-  const cancelNotification = async (notificationId: string) => {
-    try {
-      const { error } = await supabase
-        .from('notification_queue')
-        .update({ status: 'cancelled' })
-        .eq('id', notificationId);
-
-      if (error) throw error;
-
-      setNotifications(prev => prev.map(notif => 
-        notif.id === notificationId 
-          ? { ...notif, status: 'cancelled' as const }
-          : notif
-      ));
-
-      toast({
-        title: "Notification Cancelled",
-        description: "Notification has been cancelled",
-      });
-    } catch (error) {
-      console.error("Error cancelling notification:", error);
-      toast({
-        title: "Error",
-        description: "Failed to cancel notification",
-        variant: "destructive",
-      });
-    }
+  const cancelNotificationAndUpdate = async (notificationId: string) => {
+    await cancelNotification(notificationId);
+    
+    setNotifications(prev => prev.map(notif => 
+      notif.id === notificationId 
+        ? { ...notif, status: 'cancelled' as const }
+        : notif
+    ));
   };
 
   const processPendingNotifications = async () => {
@@ -216,7 +89,7 @@ export const useNotificationQueue = () => {
     );
 
     for (const notification of pendingNotifications) {
-      await sendNotification(notification.id);
+      await sendNotificationAndUpdate(notification.id);
     }
   };
 
@@ -232,8 +105,8 @@ export const useNotificationQueue = () => {
     loadNotifications,
     scheduleNotification,
     scheduleAppointmentReminders,
-    sendNotification,
-    cancelNotification,
+    sendNotification: sendNotificationAndUpdate,
+    cancelNotification: cancelNotificationAndUpdate,
     processPendingNotifications
   };
 };
