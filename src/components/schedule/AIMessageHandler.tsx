@@ -73,6 +73,7 @@ export const useAIMessageHandler = ({
       // Check if AI wants to create an appointment automatically
       if (data.createAppointment) {
         try {
+          console.log('AI requested appointment creation with data:', data.appointmentData);
           const appointment = await onAppointmentCreated(data.appointmentData);
           
           // Update the AI response to include confirmation
@@ -84,7 +85,23 @@ export const useAIMessageHandler = ({
           });
         } catch (appointmentError) {
           console.error('Failed to create appointment:', appointmentError);
-          data.response += `\n\n❌ I found an available slot but encountered an error creating the appointment. Please try again or contact support.`;
+          
+          // Provide specific error feedback based on the error type
+          let errorMessage = `I found an available slot but encountered an error creating the appointment: ${appointmentError.message}`;
+          
+          if (appointmentError.message?.includes('Authentication required')) {
+            errorMessage = "Please make sure you are logged in to book appointments.";
+          } else if (appointmentError.message?.includes('Patient ID validation')) {
+            errorMessage = "There was an issue with your user profile. Please try refreshing the page and logging in again.";
+          }
+          
+          data.response += `\n\n❌ ${errorMessage}`;
+          
+          toast({
+            title: "Booking Failed",
+            description: appointmentError.message,
+            variant: "destructive"
+          });
         }
       }
 
