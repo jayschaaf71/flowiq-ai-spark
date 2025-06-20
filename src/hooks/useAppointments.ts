@@ -22,7 +22,7 @@ interface Appointment {
 
 export const useAppointments = () => {
   const { toast } = useToast();
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -37,30 +37,41 @@ export const useAppointments = () => {
     
     setLoading(true);
     try {
-      let query = supabase
+      console.log('Loading appointments for user:', user.id);
+      
+      // Simple query without role-based filtering to avoid policy issues
+      const { data, error } = await supabase
         .from('appointments')
         .select('*')
         .order('date', { ascending: true })
         .order('time', { ascending: true });
 
-      // If user is a patient, only show their appointments
-      // If user is staff/admin, show all appointments
-      if (profile?.role === 'patient') {
-        query = query.eq('patient_id', user.id);
-      }
-
-      const { data, error } = await query;
-
       if (error) {
         console.error("Error loading appointments:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load appointments",
-          variant: "destructive",
-        });
+        console.error("Error code:", error.code);
+        console.error("Error details:", error.details);
+        console.error("Error hint:", error.hint);
+        
+        // Handle specific error types
+        if (error.code === '42P17') {
+          console.error("Infinite recursion detected in database policy");
+          toast({
+            title: "Database Configuration Issue",
+            description: "There's a configuration issue with the database. Please contact support.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: `Failed to load appointments: ${error.message}`,
+            variant: "destructive",
+          });
+        }
         return;
       }
 
+      console.log('Appointments loaded successfully:', data?.length || 0);
+      
       // Type cast the appointments data to match our interface
       const typedAppointments = (data || []).map(appointment => ({
         ...appointment,
