@@ -20,7 +20,7 @@ const ScheduleIQ = () => {
   const [refreshKey, setRefreshKey] = useState(0);
 
   const stats = {
-    appoint mentsToday: 24,
+    appointmentsToday: 24,
     bookedThisWeek: 156,
     utilizationRate: 87,
     noShowRate: 5,
