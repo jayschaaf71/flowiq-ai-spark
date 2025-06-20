@@ -1,5 +1,3 @@
-
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -160,7 +158,10 @@ export const AIScheduleChat = () => {
 
   const handleSendMessage = async (messageText?: string) => {
     const messageToSend = messageText || inputValue;
-    if (!messageToSend.trim() || !profile) return;
+    if (!messageToSend.trim() || !profile) {
+      console.log('Message send blocked - no message or profile:', { messageToSend: messageToSend.trim(), profile });
+      return;
+    }
 
     console.log('Sending message:', messageToSend);
 
@@ -176,6 +177,12 @@ export const AIScheduleChat = () => {
     setIsTyping(true);
 
     try {
+      console.log('Invoking schedule-ai-chat function with:', {
+        message: messageToSend,
+        context: scheduleContext,
+        userProfile: profile
+      });
+
       const { data, error } = await supabase.functions.invoke('schedule-ai-chat', {
         body: {
           message: messageToSend,
@@ -184,7 +191,10 @@ export const AIScheduleChat = () => {
         }
       });
 
+      console.log('Function response:', { data, error });
+
       if (error) {
+        console.error('Function error:', error);
         if (error.message?.includes('OpenAI API key')) {
           setNeedsApiKey(true);
           throw new Error('OpenAI API key not configured. Please add your API key to continue.');
@@ -201,6 +211,7 @@ export const AIScheduleChat = () => {
         contextUsed: data.contextUsed
       };
       
+      console.log('Adding AI response:', aiResponse);
       setMessages(prev => [...prev, aiResponse]);
       await loadScheduleContext();
 
@@ -234,7 +245,20 @@ export const AIScheduleChat = () => {
 
   const handleQuickAction = async (action: string) => {
     console.log('Quick action clicked:', action);
-    await handleSendMessage(action);
+    if (!action || !action.trim()) {
+      console.error('Empty action provided to handleQuickAction');
+      return;
+    }
+    try {
+      await handleSendMessage(action);
+    } catch (error) {
+      console.error('Error in handleQuickAction:', error);
+      toast({
+        title: "Error",
+        description: "Failed to process action. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (!user || !profile) {
@@ -289,12 +313,12 @@ export const AIScheduleChat = () => {
     );
   }
 
-  const roleBasedQuickActions = profile.role === 'patient' 
+  const roleBasedQuickActions = profile?.role === 'patient' 
     ? ["Book my next appointment", "Check my appointments", "Find available times", "Set up reminders"]
     : ["Show today's schedule overview", "Find next available slot", "Optimize calendar", "Check conflicts"];
 
   // Quick AI Actions for larger buttons
-  const quickAIActions = profile.role === 'patient' 
+  const quickAIActions = profile?.role === 'patient' 
     ? [
         { icon: Calendar, label: "Book Next Appointment", action: "Help me book my next appointment with the best available time slot" },
         { icon: Clock, label: "Check My Schedule", action: "Show me all my upcoming appointments and any important details" },
@@ -315,8 +339,8 @@ export const AIScheduleChat = () => {
           <Brain className="h-5 w-5 text-purple-600" />
           Schedule iQ AI Assistant
           <div className="flex gap-2">
-            <Badge className={`${profile.role === 'patient' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
-              {profile.role === 'patient' ? 'Patient Mode' : 'Staff Mode'}
+            <Badge className={`${profile?.role === 'patient' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
+              {profile?.role === 'patient' ? 'Patient Mode' : 'Staff Mode'}
             </Badge>
             <Badge className="bg-green-100 text-green-700">
               {scheduleContext ? `${scheduleContext.todaysAppointments} today` : 'Loading...'}
@@ -341,9 +365,13 @@ export const AIScheduleChat = () => {
                   key={index}
                   variant="outline"
                   className="h-16 flex flex-col gap-2 text-xs hover:bg-purple-50 hover:border-purple-200"
-                  onClick={() => {
+                  onClick={async () => {
                     console.log('Quick AI Action button clicked:', actionItem.label, actionItem.action);
-                    handleQuickAction(actionItem.action);
+                    try {
+                      await handleQuickAction(actionItem.action);
+                    } catch (error) {
+                      console.error('Error in Quick AI Action click:', error);
+                    }
                   }}
                   disabled={isTyping}
                 >
@@ -363,9 +391,13 @@ export const AIScheduleChat = () => {
               variant="outline"
               size="sm"
               className="text-xs h-8"
-              onClick={() => {
+              onClick={async () => {
                 console.log('Role-based action clicked:', action);
-                handleQuickAction(action);
+                try {
+                  await handleQuickAction(action);
+                } catch (error) {
+                  console.error('Error in role-based action click:', error);
+                }
               }}
               disabled={isTyping}
             >
@@ -509,4 +541,3 @@ export const AIScheduleChat = () => {
     </Card>
   );
 };
-
