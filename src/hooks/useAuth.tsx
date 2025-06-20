@@ -107,9 +107,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     let mounted = true;
+    let timeoutId: NodeJS.Timeout;
 
     const initializeAuth = async () => {
       try {
+        console.log('Starting auth initialization...');
+        
+        // Set timeout to prevent hanging indefinitely
+        timeoutId = setTimeout(() => {
+          if (mounted) {
+            console.log('Auth initialization timeout - setting loading to false');
+            setLoading(false);
+          }
+        }, 5000); // 5 second timeout
+        
         // Get initial session
         const { data: { session: initialSession }, error } = await supabase.auth.getSession();
         
@@ -121,22 +132,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           return;
         }
 
+        console.log('Initial session check complete:', initialSession ? 'session found' : 'no session');
+
         if (initialSession?.user && mounted) {
-          console.log('Initial session found:', initialSession.user.email);
+          console.log('Setting initial session for user:', initialSession.user.email);
           setSession(initialSession);
           setUser(initialSession.user);
           
           // Fetch profile for authenticated user
-          const profileData = await fetchProfile(initialSession.user.id);
-          if (mounted) {
-            setProfile(profileData);
-            console.log('User authenticated with role:', profileData?.role || 'no-profile');
+          try {
+            const profileData = await fetchProfile(initialSession.user.id);
+            if (mounted) {
+              setProfile(profileData);
+              console.log('User authenticated with role:', profileData?.role || 'no-profile');
+            }
+          } catch (profileError) {
+            console.error('Error fetching profile during init:', profileError);
+            // Don't block authentication if profile fetch fails
           }
         }
+        
+        // Clear timeout since we completed successfully
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+        
       } catch (error) {
-        console.error('Error in initial session check:', error);
+        console.error('Error in auth initialization:', error);
       } finally {
         if (mounted) {
+          console.log('Auth initialization complete - setting loading to false');
           setLoading(false);
         }
       }
@@ -150,17 +175,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       async (event, session) => {
         if (!mounted) return;
 
-        console.log('Auth state changed:', event, session?.user?.email);
+        console.log('Auth state changed:', event, session?.user?.email || 'no user');
         
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
           // Fetch profile when user signs in
-          const profileData = await fetchProfile(session.user.id);
-          if (mounted) {
-            setProfile(profileData);
-            console.log('User authenticated with role:', profileData?.role || 'no-profile');
+          try {
+            const profileData = await fetchProfile(session.user.id);
+            if (mounted) {
+              setProfile(profileData);
+              console.log('User authenticated with role:', profileData?.role || 'no-profile');
+            }
+          } catch (profileError) {
+            console.error('Error fetching profile during auth change:', profileError);
+            // Don't block authentication if profile fetch fails
           }
         } else {
           // Clear profile when user signs out
@@ -177,6 +207,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     return () => {
       mounted = false;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
       subscription.unsubscribe();
     };
   }, []);
