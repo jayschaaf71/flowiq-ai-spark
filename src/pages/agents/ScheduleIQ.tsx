@@ -18,6 +18,7 @@ import { Settings, Zap, Brain, BarChart3, MessageCircle, Calendar, Users, Bell }
 const ScheduleIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [refreshKey, setRefreshKey] = useState(0);
+  const [aiOptimizing, setAiOptimizing] = useState(false);
 
   const stats = {
     appointmentsToday: 24,
@@ -52,6 +53,16 @@ const ScheduleIQ = () => {
     setActiveTab("settings");
   };
 
+  const handleAiOptimize = async () => {
+    setAiOptimizing(true);
+    // Simulate AI optimization process
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    setAiOptimizing(false);
+    
+    // Refresh data after optimization
+    setRefreshKey(prev => prev + 1);
+  };
+
   return (
     <Layout>
       <PageHeader 
@@ -70,9 +81,23 @@ const ScheduleIQ = () => {
             <Settings className="w-4 h-4 mr-2" />
             Configure
           </Button>
-          <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
-            <Zap className="w-4 h-4 mr-2" />
-            Optimize Now
+          <Button 
+            size="sm" 
+            className="bg-purple-600 hover:bg-purple-700"
+            onClick={handleAiOptimize}
+            disabled={aiOptimizing}
+          >
+            {aiOptimizing ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                Optimizing...
+              </>
+            ) : (
+              <>
+                <Zap className="w-4 h-4 mr-2" />
+                Optimize Now
+              </>
+            )}
           </Button>
         </div>
       </PageHeader>

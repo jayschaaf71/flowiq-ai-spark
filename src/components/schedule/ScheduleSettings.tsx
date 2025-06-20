@@ -6,321 +6,459 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Settings, Clock, MessageSquare, Bell, Calendar } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { Settings, Clock, Bell, Brain, Calendar, Users, Shield } from "lucide-react";
 
 export const ScheduleSettings = () => {
+  const { toast } = useToast();
   const [settings, setSettings] = useState({
-    // Working Hours
     workingHours: {
-      monday: { enabled: true, start: "08:00", end: "17:00" },
-      tuesday: { enabled: true, start: "08:00", end: "17:00" },
-      wednesday: { enabled: true, start: "08:00", end: "17:00" },
-      thursday: { enabled: true, start: "08:00", end: "17:00" },
-      friday: { enabled: true, start: "08:00", end: "17:00" },
-      saturday: { enabled: false, start: "09:00", end: "15:00" },
-      sunday: { enabled: false, start: "09:00", end: "15:00" }
+      monday: { start: "09:00", end: "17:00", enabled: true },
+      tuesday: { start: "09:00", end: "17:00", enabled: true },
+      wednesday: { start: "09:00", end: "17:00", enabled: true },
+      thursday: { start: "09:00", end: "17:00", enabled: true },
+      friday: { start: "09:00", end: "17:00", enabled: true },
+      saturday: { start: "09:00", end: "13:00", enabled: false },
+      sunday: { start: "09:00", end: "13:00", enabled: false }
     },
-    
-    // Appointment Settings
-    defaultDuration: "60",
-    bufferTime: "15",
-    advanceBooking: "30",
-    
-    // Automation Settings
-    autoConfirmation: true,
-    reminderSMS: true,
-    reminderEmail: true,
-    reminderTiming: "24",
-    followUpEnabled: true,
-    
-    // Notification Templates
-    confirmationMessage: "Hi {name}, your appointment is confirmed for {date} at {time}. Reply STOP to opt out.",
-    reminderMessage: "Reminder: You have an appointment tomorrow at {time}. Reply C to confirm or R to reschedule.",
-    
-    // AI Settings
-    aiBookingEnabled: true,
-    aiReschedulingEnabled: true,
-    requireHumanApproval: false
+    appointments: {
+      defaultDuration: 60,
+      bufferTime: 15,
+      maxAdvanceBooking: 90,
+      minAdvanceBooking: 2,
+      allowOnlineBooking: true,
+      requireDeposit: false,
+      depositAmount: 0
+    },
+    notifications: {
+      emailReminders: true,
+      smsReminders: true,
+      reminderTiming: [24, 2], // hours before
+      confirmationRequired: true,
+      autoReschedule: false
+    },
+    aiSettings: {
+      autoOptimization: true,
+      conflictResolution: true,
+      predictiveScheduling: true,
+      waitlistManagement: true,
+      noShowPrediction: true,
+      smartReminders: true
+    }
   });
 
-  const handleSettingChange = (path: string, value: any) => {
-    setSettings(prev => {
-      const keys = path.split('.');
-      const newSettings = { ...prev };
-      let current: any = newSettings;
-      
-      for (let i = 0; i < keys.length - 1; i++) {
-        current[keys[i]] = { ...current[keys[i]] };
-        current = current[keys[i]];
-      }
-      
-      current[keys[keys.length - 1]] = value;
-      return newSettings;
+  const handleSave = () => {
+    // In a real implementation, this would save to the database
+    toast({
+      title: "Settings Saved",
+      description: "Your schedule settings have been updated successfully.",
     });
   };
 
-  const saveSettings = () => {
-    console.log("Saving settings:", settings);
-    alert("Settings saved successfully!");
+  const handleWorkingHoursChange = (day: string, field: string, value: string | boolean) => {
+    setSettings(prev => ({
+      ...prev,
+      workingHours: {
+        ...prev.workingHours,
+        [day]: {
+          ...prev.workingHours[day as keyof typeof prev.workingHours],
+          [field]: value
+        }
+      }
+    }));
   };
 
-  const days = [
-    { key: 'monday', label: 'Monday' },
-    { key: 'tuesday', label: 'Tuesday' },
-    { key: 'wednesday', label: 'Wednesday' },
-    { key: 'thursday', label: 'Thursday' },
-    { key: 'friday', label: 'Friday' },
-    { key: 'saturday', label: 'Saturday' },
-    { key: 'sunday', label: 'Sunday' }
-  ];
+  const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
   return (
     <div className="space-y-6">
-      {/* Working Hours */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Clock className="h-5 w-5" />
-            Working Hours
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {days.map((day) => (
-            <div key={day.key} className="flex items-center gap-4">
-              <div className="w-24">
-                <Switch
-                  checked={settings.workingHours[day.key as keyof typeof settings.workingHours].enabled}
-                  onCheckedChange={(checked) => handleSettingChange(`workingHours.${day.key}.enabled`, checked)}
-                />
-                <Label className="ml-2 text-sm">{day.label}</Label>
-              </div>
-              
-              {settings.workingHours[day.key as keyof typeof settings.workingHours].enabled && (
-                <>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="time"
-                      value={settings.workingHours[day.key as keyof typeof settings.workingHours].start}
-                      onChange={(e) => handleSettingChange(`workingHours.${day.key}.start`, e.target.value)}
-                      className="w-32"
-                    />
-                    <span className="text-sm text-gray-500">to</span>
-                    <Input
-                      type="time"
-                      value={settings.workingHours[day.key as keyof typeof settings.workingHours].end}
-                      onChange={(e) => handleSettingChange(`workingHours.${day.key}.end`, e.target.value)}
-                      className="w-32"
-                    />
-                  </div>
-                </>
-              )}
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-
-      {/* Appointment Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calendar className="h-5 w-5" />
-            Appointment Settings
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <Label htmlFor="defaultDuration">Default Duration (minutes)</Label>
-              <Input
-                id="defaultDuration"
-                type="number"
-                value={settings.defaultDuration}
-                onChange={(e) => handleSettingChange('defaultDuration', e.target.value)}
-                className="mt-1"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="bufferTime">Buffer Time (minutes)</Label>
-              <Input
-                id="bufferTime"
-                type="number"
-                value={settings.bufferTime}
-                onChange={(e) => handleSettingChange('bufferTime', e.target.value)}
-                className="mt-1"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="advanceBooking">Advance Booking (days)</Label>
-              <Input
-                id="advanceBooking"
-                type="number"
-                value={settings.advanceBooking}
-                onChange={(e) => handleSettingChange('advanceBooking', e.target.value)}
-                className="mt-1"
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Automation Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Bell className="h-5 w-5" />
-            Automation & Notifications
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="autoConfirmation">Auto-send confirmations</Label>
-                <Switch
-                  id="autoConfirmation"
-                  checked={settings.autoConfirmation}
-                  onCheckedChange={(checked) => handleSettingChange('autoConfirmation', checked)}
-                />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <Label htmlFor="reminderSMS">SMS reminders</Label>
-                <Switch
-                  id="reminderSMS"
-                  checked={settings.reminderSMS}
-                  onCheckedChange={(checked) => handleSettingChange('reminderSMS', checked)}
-                />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <Label htmlFor="reminderEmail">Email reminders</Label>
-                <Switch
-                  id="reminderEmail"
-                  checked={settings.reminderEmail}
-                  onCheckedChange={(checked) => handleSettingChange('reminderEmail', checked)}
-                />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <Label htmlFor="followUpEnabled">Follow-up messages</Label>
-                <Switch
-                  id="followUpEnabled"
-                  checked={settings.followUpEnabled}
-                  onCheckedChange={(checked) => handleSettingChange('followUpEnabled', checked)}
-                />
-              </div>
-            </div>
-            
-            <div>
-              <Label htmlFor="reminderTiming">Reminder timing</Label>
-              <Select value={settings.reminderTiming} onValueChange={(value) => handleSettingChange('reminderTiming', value)}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="2">2 hours before</SelectItem>
-                  <SelectItem value="24">1 day before</SelectItem>
-                  <SelectItem value="48">2 days before</SelectItem>
-                  <SelectItem value="72">3 days before</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Message Templates */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MessageSquare className="h-5 w-5" />
-            Message Templates
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label htmlFor="confirmationMessage">Confirmation Message</Label>
-            <Textarea
-              id="confirmationMessage"
-              value={settings.confirmationMessage}
-              onChange={(e) => handleSettingChange('confirmationMessage', e.target.value)}
-              className="mt-1"
-              rows={3}
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Use {'{name}'}, {'{date}'}, {'{time}'} as placeholders
-            </p>
-          </div>
-          
-          <div>
-            <Label htmlFor="reminderMessage">Reminder Message</Label>
-            <Textarea
-              id="reminderMessage"
-              value={settings.reminderMessage}
-              onChange={(e) => handleSettingChange('reminderMessage', e.target.value)}
-              className="mt-1"
-              rows={3}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* AI Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Settings className="h-5 w-5" />
-            AI Automation
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <Label htmlFor="aiBookingEnabled">AI-powered booking</Label>
-              <p className="text-sm text-gray-500">Allow AI to automatically book appointments</p>
-            </div>
-            <Switch
-              id="aiBookingEnabled"
-              checked={settings.aiBookingEnabled}
-              onCheckedChange={(checked) => handleSettingChange('aiBookingEnabled', checked)}
-            />
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div>
-              <Label htmlFor="aiReschedulingEnabled">AI rescheduling</Label>
-              <p className="text-sm text-gray-500">Allow AI to handle reschedule requests</p>
-            </div>
-            <Switch
-              id="aiReschedulingEnabled"
-              checked={settings.aiReschedulingEnabled}
-              onCheckedChange={(checked) => handleSettingChange('aiReschedulingEnabled', checked)}
-            />
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div>
-              <Label htmlFor="requireHumanApproval">Require human approval</Label>
-              <p className="text-sm text-gray-500">All AI actions need staff confirmation</p>
-            </div>
-            <Switch
-              id="requireHumanApproval"
-              checked={settings.requireHumanApproval}
-              onCheckedChange={(checked) => handleSettingChange('requireHumanApproval', checked)}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Save Button */}
-      <div className="flex justify-end">
-        <Button onClick={saveSettings} className="bg-blue-600 hover:bg-blue-700">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">Schedule Settings</h2>
+          <p className="text-gray-600">Configure your scheduling preferences and AI automation</p>
+        </div>
+        <Button onClick={handleSave} className="bg-purple-600 hover:bg-purple-700">
           Save Settings
         </Button>
       </div>
+
+      <Tabs defaultValue="hours" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="hours" className="flex items-center gap-2">
+            <Clock className="w-4 h-4" />
+            Working Hours
+          </TabsTrigger>
+          <TabsTrigger value="appointments" className="flex items-center gap-2">
+            <Calendar className="w-4 h-4" />
+            Appointments
+          </TabsTrigger>
+          <TabsTrigger value="notifications" className="flex items-center gap-2">
+            <Bell className="w-4 h-4" />
+            Notifications
+          </TabsTrigger>
+          <TabsTrigger value="ai" className="flex items-center gap-2">
+            <Brain className="w-4 h-4" />
+            AI Settings
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="hours" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="w-5 h-5" />
+                Working Hours Configuration
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {days.map((day) => (
+                <div key={day} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex items-center gap-4">
+                    <Switch
+                      checked={settings.workingHours[day as keyof typeof settings.workingHours].enabled}
+                      onCheckedChange={(checked) => handleWorkingHoursChange(day, 'enabled', checked)}
+                    />
+                    <Label className="capitalize font-medium w-20">{day}</Label>
+                  </div>
+                  {settings.workingHours[day as keyof typeof settings.workingHours].enabled && (
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="time"
+                        value={settings.workingHours[day as keyof typeof settings.workingHours].start}
+                        onChange={(e) => handleWorkingHoursChange(day, 'start', e.target.value)}
+                        className="w-32"
+                      />
+                      <span>to</span>
+                      <Input
+                        type="time"
+                        value={settings.workingHours[day as keyof typeof settings.workingHours].end}
+                        onChange={(e) => handleWorkingHoursChange(day, 'end', e.target.value)}
+                        className="w-32"
+                      />
+                    </div>
+                  )}
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="appointments" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="w-5 h-5" />
+                Appointment Configuration
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label>Default Duration (minutes)</Label>
+                  <Select value={settings.appointments.defaultDuration.toString()} onValueChange={(value) => 
+                    setSettings(prev => ({ ...prev, appointments: { ...prev.appointments, defaultDuration: parseInt(value) } }))
+                  }>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="15">15 minutes</SelectItem>
+                      <SelectItem value="30">30 minutes</SelectItem>
+                      <SelectItem value="45">45 minutes</SelectItem>
+                      <SelectItem value="60">60 minutes</SelectItem>
+                      <SelectItem value="90">90 minutes</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Buffer Time (minutes)</Label>
+                  <Select value={settings.appointments.bufferTime.toString()} onValueChange={(value) => 
+                    setSettings(prev => ({ ...prev, appointments: { ...prev.appointments, bufferTime: parseInt(value) } }))
+                  }>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="0">No buffer</SelectItem>
+                      <SelectItem value="5">5 minutes</SelectItem>
+                      <SelectItem value="10">10 minutes</SelectItem>
+                      <SelectItem value="15">15 minutes</SelectItem>
+                      <SelectItem value="30">30 minutes</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Max Advance Booking (days)</Label>
+                  <Input
+                    type="number"
+                    value={settings.appointments.maxAdvanceBooking}
+                    onChange={(e) => setSettings(prev => ({ 
+                      ...prev, 
+                      appointments: { ...prev.appointments, maxAdvanceBooking: parseInt(e.target.value) || 90 } 
+                    }))}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Min Advance Booking (hours)</Label>
+                  <Input
+                    type="number"
+                    value={settings.appointments.minAdvanceBooking}
+                    onChange={(e) => setSettings(prev => ({ 
+                      ...prev, 
+                      appointments: { ...prev.appointments, minAdvanceBooking: parseInt(e.target.value) || 2 } 
+                    }))}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Allow Online Booking</Label>
+                    <p className="text-sm text-gray-600">Enable patients to book appointments online</p>
+                  </div>
+                  <Switch
+                    checked={settings.appointments.allowOnlineBooking}
+                    onCheckedChange={(checked) => setSettings(prev => ({ 
+                      ...prev, 
+                      appointments: { ...prev.appointments, allowOnlineBooking: checked } 
+                    }))}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Require Deposit</Label>
+                    <p className="text-sm text-gray-600">Require payment to secure appointment</p>
+                  </div>
+                  <Switch
+                    checked={settings.appointments.requireDeposit}
+                    onCheckedChange={(checked) => setSettings(prev => ({ 
+                      ...prev, 
+                      appointments: { ...prev.appointments, requireDeposit: checked } 
+                    }))}
+                  />
+                </div>
+
+                {settings.appointments.requireDeposit && (
+                  <div className="space-y-2">
+                    <Label>Deposit Amount ($)</Label>
+                    <Input
+                      type="number"
+                      value={settings.appointments.depositAmount}
+                      onChange={(e) => setSettings(prev => ({ 
+                        ...prev, 
+                        appointments: { ...prev.appointments, depositAmount: parseFloat(e.target.value) || 0 } 
+                      }))}
+                    />
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="notifications" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Bell className="w-5 h-5" />
+                Notification Settings
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Email Reminders</Label>
+                    <p className="text-sm text-gray-600">Send appointment reminders via email</p>
+                  </div>
+                  <Switch
+                    checked={settings.notifications.emailReminders}
+                    onCheckedChange={(checked) => setSettings(prev => ({ 
+                      ...prev, 
+                      notifications: { ...prev.notifications, emailReminders: checked } 
+                    }))}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>SMS Reminders</Label>
+                    <p className="text-sm text-gray-600">Send appointment reminders via text message</p>
+                  </div>
+                  <Switch
+                    checked={settings.notifications.smsReminders}
+                    onCheckedChange={(checked) => setSettings(prev => ({ 
+                      ...prev, 
+                      notifications: { ...prev.notifications, smsReminders: checked } 
+                    }))}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Confirmation Required</Label>
+                    <p className="text-sm text-gray-600">Require patients to confirm appointments</p>
+                  </div>
+                  <Switch
+                    checked={settings.notifications.confirmationRequired}
+                    onCheckedChange={(checked) => setSettings(prev => ({ 
+                      ...prev, 
+                      notifications: { ...prev.notifications, confirmationRequired: checked } 
+                    }))}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Auto Reschedule</Label>
+                    <p className="text-sm text-gray-600">Automatically reschedule cancelled appointments</p>
+                  </div>
+                  <Switch
+                    checked={settings.notifications.autoReschedule}
+                    onCheckedChange={(checked) => setSettings(prev => ({ 
+                      ...prev, 
+                      notifications: { ...prev.notifications, autoReschedule: checked } 
+                    }))}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Reminder Timing</Label>
+                <p className="text-sm text-gray-600">When to send reminders (hours before appointment)</p>
+                <div className="flex gap-2">
+                  <Badge variant="secondary">24 hours</Badge>
+                  <Badge variant="secondary">2 hours</Badge>
+                  <Button variant="outline" size="sm">+ Add Timing</Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="ai" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Brain className="w-5 h-5 text-purple-600" />
+                AI Automation Settings
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Auto Optimization</Label>
+                    <p className="text-sm text-gray-600">Automatically optimize schedule for efficiency</p>
+                  </div>
+                  <Switch
+                    checked={settings.aiSettings.autoOptimization}
+                    onCheckedChange={(checked) => setSettings(prev => ({ 
+                      ...prev, 
+                      aiSettings: { ...prev.aiSettings, autoOptimization: checked } 
+                    }))}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Conflict Resolution</Label>
+                    <p className="text-sm text-gray-600">AI resolves scheduling conflicts automatically</p>
+                  </div>
+                  <Switch
+                    checked={settings.aiSettings.conflictResolution}
+                    onCheckedChange={(checked) => setSettings(prev => ({ 
+                      ...prev, 
+                      aiSettings: { ...prev.aiSettings, conflictResolution: checked } 
+                    }))}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Predictive Scheduling</Label>
+                    <p className="text-sm text-gray-600">AI suggests optimal appointment times</p>
+                  </div>
+                  <Switch
+                    checked={settings.aiSettings.predictiveScheduling}
+                    onCheckedChange={(checked) => setSettings(prev => ({ 
+                      ...prev, 
+                      aiSettings: { ...prev.aiSettings, predictiveScheduling: checked } 
+                    }))}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Waitlist Management</Label>
+                    <p className="text-sm text-gray-600">Automatically manage patient waitlist</p>
+                  </div>
+                  <Switch
+                    checked={settings.aiSettings.waitlistManagement}
+                    onCheckedChange={(checked) => setSettings(prev => ({ 
+                      ...prev, 
+                      aiSettings: { ...prev.aiSettings, waitlistManagement: checked } 
+                    }))}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>No-Show Prediction</Label>
+                    <p className="text-sm text-gray-600">Predict and prevent no-shows with AI</p>
+                  </div>
+                  <Switch
+                    checked={settings.aiSettings.noShowPrediction}
+                    onCheckedChange={(checked) => setSettings(prev => ({ 
+                      ...prev, 
+                      aiSettings: { ...prev.aiSettings, noShowPrediction: checked } 
+                    }))}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Smart Reminders</Label>
+                    <p className="text-sm text-gray-600">AI optimizes reminder timing and content</p>
+                  </div>
+                  <Switch
+                    checked={settings.aiSettings.smartReminders}
+                    onCheckedChange={(checked) => setSettings(prev => ({ 
+                      ...prev, 
+                      aiSettings: { ...prev.aiSettings, smartReminders: checked } 
+                    }))}
+                  />
+                </div>
+              </div>
+
+              <Card className="bg-purple-50 border-purple-200">
+                <CardContent className="pt-4">
+                  <div className="flex items-start gap-3">
+                    <Brain className="w-5 h-5 text-purple-600 mt-0.5" />
+                    <div>
+                      <h4 className="font-medium text-purple-900">AI Performance</h4>
+                      <p className="text-sm text-purple-700 mt-1">
+                        Your AI scheduling agent is performing at 94.5% accuracy with excellent optimization results.
+                      </p>
+                      <Button variant="outline" size="sm" className="mt-2 border-purple-300 text-purple-700 hover:bg-purple-100">
+                        View AI Analytics
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

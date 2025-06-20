@@ -333,6 +333,57 @@ export type Database = {
         }
         Relationships: []
       }
+      availability_slots: {
+        Row: {
+          appointment_id: string | null
+          created_at: string | null
+          date: string
+          end_time: string
+          id: string
+          is_available: boolean
+          provider_id: string | null
+          start_time: string
+          updated_at: string | null
+        }
+        Insert: {
+          appointment_id?: string | null
+          created_at?: string | null
+          date: string
+          end_time: string
+          id?: string
+          is_available?: boolean
+          provider_id?: string | null
+          start_time: string
+          updated_at?: string | null
+        }
+        Update: {
+          appointment_id?: string | null
+          created_at?: string | null
+          date?: string
+          end_time?: string
+          id?: string
+          is_available?: boolean
+          provider_id?: string | null
+          start_time?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "availability_slots_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "availability_slots_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       billing_codes: {
         Row: {
           code: string
@@ -850,6 +901,56 @@ export type Database = {
           },
         ]
       }
+      notification_queue: {
+        Row: {
+          appointment_id: string | null
+          channel: string
+          created_at: string | null
+          id: string
+          message: string
+          recipient: string
+          retry_count: number
+          scheduled_for: string
+          sent_at: string | null
+          status: string
+          type: string
+        }
+        Insert: {
+          appointment_id?: string | null
+          channel: string
+          created_at?: string | null
+          id?: string
+          message: string
+          recipient: string
+          retry_count?: number
+          scheduled_for: string
+          sent_at?: string | null
+          status?: string
+          type: string
+        }
+        Update: {
+          appointment_id?: string | null
+          channel?: string
+          created_at?: string | null
+          id?: string
+          message?: string
+          recipient?: string
+          retry_count?: number
+          scheduled_for?: string
+          sent_at?: string | null
+          status?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_queue_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       patient_insurance: {
         Row: {
           copay_amount: number | null
@@ -1211,6 +1312,50 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      schedule_templates: {
+        Row: {
+          buffer_time: number
+          created_at: string | null
+          day_of_week: number
+          end_time: string
+          id: string
+          is_active: boolean
+          provider_id: string | null
+          slot_duration: number
+          start_time: string
+        }
+        Insert: {
+          buffer_time?: number
+          created_at?: string | null
+          day_of_week: number
+          end_time: string
+          id?: string
+          is_active?: boolean
+          provider_id?: string | null
+          slot_duration?: number
+          start_time: string
+        }
+        Update: {
+          buffer_time?: number
+          created_at?: string | null
+          day_of_week?: number
+          end_time?: string
+          id?: string
+          is_active?: boolean
+          provider_id?: string | null
+          slot_duration?: number
+          start_time?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedule_templates_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       soap_note_templates: {
         Row: {
