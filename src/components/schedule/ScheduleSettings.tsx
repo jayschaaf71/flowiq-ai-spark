@@ -17,6 +17,7 @@ import { EditTeamMemberDialog } from "@/components/team/EditTeamMemberDialog";
 import { AppointmentTypesConfig } from "@/components/schedule/AppointmentTypesConfig";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { StaffScheduleConfig } from "./StaffScheduleConfig";
 
 export const ScheduleSettings = () => {
   const { toast } = useToast();
@@ -107,6 +108,16 @@ export const ScheduleSettings = () => {
     });
   };
 
+  const handleUpdateStaffSchedule = (staffId: string, workingHours: any, procedureSchedules?: any[]) => {
+    // In a real implementation, this would update the database
+    console.log("Updating staff schedule:", { staffId, workingHours, procedureSchedules });
+    
+    toast({
+      title: "Schedule Updated",
+      description: "Staff member schedule has been updated successfully.",
+    });
+  };
+
   const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
   return (
@@ -121,8 +132,12 @@ export const ScheduleSettings = () => {
         </Button>
       </div>
 
-      <Tabs defaultValue="providers" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-7">
+      <Tabs defaultValue="staff-schedules" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-8">
+          <TabsTrigger value="staff-schedules" className="flex items-center gap-2">
+            <Calendar className="w-4 h-4" />
+            Staff Schedules
+          </TabsTrigger>
           <TabsTrigger value="providers" className="flex items-center gap-2">
             <Users className="w-4 h-4" />
             Staff & Providers
@@ -152,6 +167,59 @@ export const ScheduleSettings = () => {
             General
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="staff-schedules" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="w-5 h-5" />
+                Individual Staff Schedules
+              </CardTitle>
+              <p className="text-sm text-gray-600">
+                Configure working hours and procedure-specific availability for each staff member and provider
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {/* Team Members Schedules */}
+                <div>
+                  <h3 className="text-lg font-medium mb-4">Team Members</h3>
+                  {teamLoading ? (
+                    <p className="text-gray-600">Loading team members...</p>
+                  ) : !teamMembers || teamMembers.length === 0 ? (
+                    <p className="text-gray-600">No team members found.</p>
+                  ) : (
+                    <StaffScheduleConfig 
+                      staff={teamMembers} 
+                      onUpdateSchedule={handleUpdateStaffSchedule}
+                    />
+                  )}
+                </div>
+
+                {/* Providers Schedules */}
+                <div>
+                  <h3 className="text-lg font-medium mb-4">Healthcare Providers</h3>
+                  {providersLoading ? (
+                    <p className="text-gray-600">Loading providers...</p>
+                  ) : providers.length === 0 ? (
+                    <p className="text-gray-600">No providers configured yet.</p>
+                  ) : (
+                    <StaffScheduleConfig 
+                      staff={providers.map(p => ({
+                        id: p.id,
+                        first_name: p.first_name,
+                        last_name: p.last_name,
+                        role: p.specialty,
+                        email: p.email
+                      }))} 
+                      onUpdateSchedule={handleUpdateStaffSchedule}
+                    />
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="providers" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
