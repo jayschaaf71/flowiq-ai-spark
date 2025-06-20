@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useAvailability } from "@/hooks/useAvailability";
 import { useProviders } from "@/hooks/useProviders";
+import { useNotificationQueue } from "@/hooks/useNotificationQueue";
 import { format, addDays, parseISO } from "date-fns";
 
 interface Message {
@@ -33,6 +34,7 @@ export const AIScheduleChat = () => {
   const { toast } = useToast();
   const { checkAvailability } = useAvailability();
   const { providers } = useProviders();
+  const { scheduleAppointmentReminders } = useNotificationQueue();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -57,24 +59,24 @@ export const AIScheduleChat = () => {
     const name = profile?.first_name ? ` ${profile.first_name}` : '';
     
     if (role === 'patient') {
-      return `Hello${name}! I'm Schedule iQ, your personal appointment assistant. I have real-time access to your scheduling information and can help you with:\n\n• Finding and booking your next appointment\n• Checking actual provider availability\n• Rescheduling existing appointments\n• Setting up appointment reminders\n• Answering questions about your visits\n\nI can see current availability and provide personalized assistance based on real data. What would you like help with today?`;
+      return `Hello${name}! I'm Schedule iQ, your personal appointment assistant. I have real-time access to your scheduling information and can help you with:\n\n• Finding and booking your next appointment automatically\n• Checking actual provider availability\n• Rescheduling existing appointments\n• Setting up appointment reminders\n• Answering questions about your visits\n\nI can see current availability, book appointments instantly, and send confirmations automatically. What would you like help with today?`;
     } else {
-      return `Hello${name}! I'm Schedule iQ, your AI scheduling assistant with real-time access to your practice data. I can help you with:\n\n• Managing appointments with live availability data\n• Optimizing provider schedules based on actual bookings\n• Resolving scheduling conflicts with real-time information\n• Analyzing current scheduling patterns and trends\n• Setting up automated reminders\n• Generating reports from actual appointment data\n• Improving practice efficiency with data-driven insights\n\nI have access to your current schedule and can provide actionable recommendations. What would you like to work on today?`;
+      return `Hello${name}! I'm Schedule iQ, your AI scheduling assistant with real-time access to your practice data. I can help you with:\n\n• Managing appointments with live availability data\n• Automatically creating appointments for patients\n• Optimizing provider schedules based on actual bookings\n• Resolving scheduling conflicts with real-time information\n• Analyzing current scheduling patterns and trends\n• Setting up automated reminders and confirmations\n• Generating reports from actual appointment data\n• Improving practice efficiency with data-driven insights\n\nI have access to your current schedule and can create appointments automatically with confirmations. What would you like to work on today?`;
     }
   };
 
   const getRoleSpecificInitialSuggestions = (role: string) => {
     if (role === 'patient') {
       return [
-        "Find my next available appointment",
-        "Check availability with any provider", 
+        "Book my next available appointment automatically",
+        "Find and schedule with any available provider", 
         "Show me upcoming appointments",
         "Set up appointment reminders"
       ];
     } else {
       return [
-        "Show me today's real-time schedule",
-        "Find the next available slot with any provider",
+        "Book next available slot for a patient automatically",
+        "Find and create appointment with any provider",
         "Check current provider availability",
         "Analyze today's appointment patterns"
       ];
@@ -156,6 +158,7 @@ export const AIScheduleChat = () => {
         .filter(provider => provider.nextSlots.length > 0)
         .map(provider => ({
           provider: provider.providerName,
+          providerId: provider.providerId,
           specialty: provider.specialty,
           slots: provider.nextSlots
         }));
@@ -171,6 +174,7 @@ export const AIScheduleChat = () => {
         availabilityDetails: availabilityData,
         nextAvailableSlots: nextAvailableSlots,
         totalActiveProviders: providersData?.length || 0,
+        providersData: providersData || [],
         realTimeData: {
           lastUpdated: new Date().toISOString(),
           todayDate: today,
@@ -187,6 +191,84 @@ export const AIScheduleChat = () => {
         description: "Some scheduling data may not be current",
         variant: "destructive"
       });
+    }
+  };
+
+  const createAppointmentAutomatically = async (appointmentData: any) => {
+    try {
+      console.log('Creating appointment automatically:', appointmentData);
+      
+      // Create the appointment
+      const { data: appointment, error: appointmentError } = await supabase
+        .from('appointments')
+        .insert({
+          title: appointmentData.patientName || 'AI Scheduled Appointment',
+          appointment_type: appointmentData.appointmentType || 'consultation',
+          date: appointmentData.date,
+          time: appointmentData.time,
+          duration: appointmentData.duration || 60,
+          notes: appointmentData.notes || 'Automatically scheduled by AI assistant',
+          phone: appointmentData.phone || profile?.phone,
+          email: appointmentData.email || profile?.email,
+          status: 'confirmed',
+          patient_id: appointmentData.patientId || user?.id || '00000000-0000-0000-0000-000000000000',
+          provider_id: appointmentData.providerId
+        })
+        .select()
+        .single();
+
+      if (appointmentError) {
+        console.error('Error creating appointment:', appointmentError);
+        throw appointmentError;
+      }
+
+      console.log('Appointment created successfully:', appointment);
+
+      // Schedule automatic reminders
+      if (appointment && appointmentData.email) {
+        const appointmentDateTime = new Date(`${appointmentData.date}T${appointmentData.time}`);
+        
+        try {
+          await scheduleAppointmentReminders(
+            appointment.id,
+            appointmentDateTime,
+            appointmentData.email,
+            appointmentData.phone
+          );
+          console.log('Reminders scheduled successfully');
+        } catch (reminderError) {
+          console.error('Error scheduling reminders:', reminderError);
+          // Don't fail the whole operation if reminders fail
+        }
+      }
+
+      // Send immediate confirmation
+      try {
+        await supabase.functions.invoke('send-appointment-confirmation', {
+          body: {
+            appointmentId: appointment.id,
+            patientEmail: appointmentData.email || profile?.email,
+            appointmentDetails: {
+              date: appointmentData.date,
+              time: appointmentData.time,
+              providerName: appointmentData.providerName,
+              appointmentType: appointmentData.appointmentType
+            }
+          }
+        });
+        console.log('Confirmation email sent');
+      } catch (confirmationError) {
+        console.error('Error sending confirmation:', confirmationError);
+        // Don't fail the whole operation if confirmation fails
+      }
+
+      // Refresh schedule context
+      await loadScheduleContext();
+
+      return appointment;
+    } catch (error) {
+      console.error('Error in createAppointmentAutomatically:', error);
+      throw error;
     }
   };
 
@@ -215,7 +297,8 @@ export const AIScheduleChat = () => {
         body: {
           message: messageToSend,
           context: scheduleContext,
-          userProfile: profile
+          userProfile: profile,
+          enableAutomation: true // Flag to enable automatic appointment creation
         }
       });
 
@@ -225,6 +308,24 @@ export const AIScheduleChat = () => {
           throw new Error('OpenAI API key not configured. Please add your API key to continue.');
         }
         throw error;
+      }
+
+      // Check if AI wants to create an appointment automatically
+      if (data.createAppointment) {
+        try {
+          const appointment = await createAppointmentAutomatically(data.appointmentData);
+          
+          // Update the AI response to include confirmation
+          data.response += `\n\n✅ **Appointment Created Successfully!**\n\nAppointment Details:\n• Date: ${format(new Date(data.appointmentData.date), 'MMMM d, yyyy')}\n• Time: ${data.appointmentData.time}\n• Provider: ${data.appointmentData.providerName}\n• Type: ${data.appointmentData.appointmentType}\n• Confirmation sent to: ${data.appointmentData.email}\n• Reminders scheduled automatically\n\nYour appointment is now confirmed and you'll receive reminder notifications.`;
+          
+          toast({
+            title: "Appointment Created!",
+            description: `Appointment scheduled for ${format(new Date(data.appointmentData.date), 'MMM d')} at ${data.appointmentData.time}`,
+          });
+        } catch (appointmentError) {
+          console.error('Failed to create appointment:', appointmentError);
+          data.response += `\n\n❌ I found an available slot but encountered an error creating the appointment. Please try again or contact support.`;
+        }
       }
 
       const aiResponse: Message = {
@@ -337,22 +438,22 @@ export const AIScheduleChat = () => {
   }
 
   const roleBasedQuickActions = profile?.role === 'patient' 
-    ? ["Find next available appointment with any provider", "Check availability this week", "Show my upcoming appointments", "Set up reminders"]
-    : ["Show real-time availability for all providers", "Find next open slot", "Check today's schedule status", "Analyze current booking patterns"];
+    ? ["Book my next available appointment automatically", "Find and schedule with any provider", "Show my upcoming appointments", "Set up reminders"]
+    : ["Book next available slot for a patient automatically", "Find and create appointment with any provider", "Check today's schedule status", "Analyze current booking patterns"];
 
-  // Enhanced Quick AI Actions for real-time data
+  // Enhanced Quick AI Actions for automatic appointment creation
   const quickAIActions = profile?.role === 'patient' 
     ? [
-        { icon: Calendar, label: "Find Next Available", action: "Find the next available appointment slot with any provider, showing real appointment times and provider availability" },
-        { icon: Clock, label: "Check This Week", action: "Show me all available appointment times this week with provider details and specialties" },
+        { icon: Calendar, label: "Auto-Book Next Available", action: "Find the next available appointment slot with any provider and book it automatically for me, including confirmation email and reminders" },
+        { icon: Clock, label: "Schedule This Week", action: "Find and automatically book an appointment this week with any available provider, send confirmation and set up reminders" },
         { icon: Mail, label: "Setup Reminders", action: "Help me set up appointment reminders via email or SMS for my upcoming visits" },
-        { icon: Target, label: "Provider Availability", action: "Show me which providers have availability today and tomorrow with their specialties and time slots" }
+        { icon: Target, label: "Book with Specific Provider", action: "Show me available providers and automatically book with my preferred choice, including all confirmations" }
       ]
     : [
-        { icon: Zap, label: "Real-Time Availability", action: "Show me current real-time availability for all providers with specific time slots and provider details" },
-        { icon: BarChart3, label: "Today's Schedule Status", action: "Analyze today's appointment schedule showing booked vs available slots and provider utilization" },
-        { icon: Target, label: "Find Open Slots", action: "Identify all open appointment slots today and tomorrow across all providers with specific times" },
-        { icon: Mail, label: "Schedule Optimization", action: "Analyze current scheduling patterns and suggest optimizations based on real appointment data" }
+        { icon: Zap, label: "Auto-Book for Patient", action: "Find the next available slot and automatically create an appointment for a patient, including confirmation email and reminder setup" },
+        { icon: BarChart3, label: "Quick Patient Booking", action: "Book the next available appointment slot for a patient automatically with any provider, send confirmations and set reminders" },
+        { icon: Target, label: "Instant Appointment", action: "Create an appointment immediately with the next available provider, including automated confirmations and reminder scheduling" },
+        { icon: Mail, label: "Bulk Appointment Setup", action: "Help me set up multiple appointments automatically with confirmations and reminders for efficient scheduling" }
       ];
 
   return (
@@ -370,16 +471,16 @@ export const AIScheduleChat = () => {
             </Badge>
             <Badge className="bg-purple-100 text-purple-700">
               <Zap className="h-3 w-3 mr-1" />
-              Real-Time Data
+              Auto-Booking
             </Badge>
           </div>
         </CardTitle>
       </CardHeader>
       
       <CardContent className="flex-1 flex flex-col gap-4">
-        {/* Enhanced Quick AI Actions with real-time context */}
+        {/* Enhanced Quick AI Actions with automatic booking */}
         <div className="space-y-3">
-          <h3 className="text-sm font-medium text-gray-700">Smart Actions (Real-Time Data)</h3>
+          <h3 className="text-sm font-medium text-gray-700">Smart Actions (Auto-Booking + Confirmations)</h3>
           <div className="grid grid-cols-2 gap-3">
             {quickAIActions.map((actionItem, index) => {
               const IconComponent = actionItem.icon;
@@ -415,7 +516,7 @@ export const AIScheduleChat = () => {
           ))}
         </div>
 
-        {/* Enhanced Context Status with real-time information */}
+        {/* Enhanced Context Status with auto-booking capability */}
         {scheduleContext && (
           <div className="flex items-center gap-4 text-xs text-gray-600 bg-gray-50 p-2 rounded">
             <span className="flex items-center gap-1">
@@ -432,12 +533,12 @@ export const AIScheduleChat = () => {
                   <Clock className="h-3 w-3" />
                   {scheduleContext.availableSlots} slots available today
                 </span>
-                <span className="flex items-center gap-1">
-                  <Zap className="h-3 w-3" />
-                  Live data
-                </span>
               </>
             )}
+            <span className="flex items-center gap-1">
+              <Zap className="h-3 w-3" />
+              Auto-booking enabled
+            </span>
           </div>
         )}
 
@@ -467,9 +568,9 @@ export const AIScheduleChat = () => {
                       <div className="flex items-center gap-2 mt-2 pt-2 border-t border-gray-200">
                         <TrendingUp className="h-3 w-3 text-gray-500" />
                         <span className="text-xs text-gray-500">
-                          {message.contextUsed.userRole === 'patient' ? 'Personalized' : 'Live data'}: {message.contextUsed.todaysAppointments} appointments, {message.contextUsed.availableSlots} slots available
+                          Auto-booking enabled: {message.contextUsed.todaysAppointments} appointments, {message.contextUsed.availableSlots} slots available
                           {message.contextUsed.nextAvailableSlots && message.contextUsed.nextAvailableSlots.length > 0 && (
-                            `, ${message.contextUsed.nextAvailableSlots.length} providers with availability`
+                            `, ${message.contextUsed.nextAvailableSlots.length} providers ready for instant booking`
                           )}
                         </span>
                       </div>
@@ -495,7 +596,7 @@ export const AIScheduleChat = () => {
                     <div className="flex items-center gap-2">
                       <Loader2 className="w-4 h-4 animate-spin" />
                       <span className="text-sm text-gray-600">
-                        {profile.role === 'patient' ? 'Checking real-time availability...' : 'Analyzing live schedule data...'}
+                        {profile.role === 'patient' ? 'Finding appointment and preparing auto-booking...' : 'Analyzing schedule and preparing appointment creation...'}
                       </span>
                     </div>
                   </div>
@@ -510,7 +611,7 @@ export const AIScheduleChat = () => {
           <div className="space-y-2">
             <p className="text-xs text-gray-500 font-medium flex items-center gap-1">
               <Zap className="h-3 w-3" />
-              {profile.role === 'patient' ? 'Suggested actions:' : 'Smart suggestions:'}
+              {profile.role === 'patient' ? 'Quick auto-booking actions:' : 'Smart booking suggestions:'}
             </p>
             <div className="flex flex-wrap gap-2">
               {messages[messages.length - 1].suggestions!.map((suggestion, index) => (
@@ -534,7 +635,7 @@ export const AIScheduleChat = () => {
           <Input
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            placeholder={profile.role === 'patient' ? "Ask about appointments, availability, or booking..." : "Ask about schedules, availability, optimization..."}
+            placeholder={profile.role === 'patient' ? "Ask to book appointments automatically..." : "Request automatic appointment creation..."}
             onKeyPress={(e) => e.key === 'Enter' && !isTyping && handleSendMessage()}
             disabled={isTyping}
             className="flex-1"
