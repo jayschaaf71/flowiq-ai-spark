@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -5,14 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Brain, Send, User, Bot, Calendar, Clock, Users, Loader2, Zap, TrendingUp, Shield, BarChart3, Mail, Target } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { Brain, Send, User, Bot, Calendar, Clock, Users, Loader2, Zap, TrendingUp, Shield } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { useAvailability } from "@/hooks/useAvailability";
-import { useProviders } from "@/hooks/useProviders";
-import { useNotificationQueue } from "@/hooks/useNotificationQueue";
-import { format, addDays, parseISO } from "date-fns";
+import { useScheduleContext } from "@/hooks/useScheduleContext";
+import { useAppointmentCreation } from "@/hooks/useAppointmentCreation";
+import { useAIMessageHandler } from "@/components/schedule/AIMessageHandler";
+import { AIQuickActions } from "@/components/schedule/AIQuickActions";
 
 interface Message {
   id: string;
@@ -20,26 +19,24 @@ interface Message {
   content: string;
   timestamp: Date;
   suggestions?: string[];
-  contextUsed?: {
-    todaysAppointments: number;
-    availableSlots: number;
-    providersActive: number;
-    userRole: string;
-    nextAvailableSlots?: any[];
-  };
+  contextUsed?: any;
 }
 
 export const AIScheduleChat = () => {
   const { user, profile } = useAuth();
-  const { toast } = useToast();
-  const { checkAvailability } = useAvailability();
-  const { providers } = useProviders();
-  const { scheduleAppointmentReminders } = useNotificationQueue();
+  const { scheduleContext, loadScheduleContext } = useScheduleContext(profile);
+  const { createAppointmentAutomatically } = useAppointmentCreation(user, profile);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
-  const [scheduleContext, setScheduleContext] = useState<any>(null);
-  const [needsApiKey, setNeedsApiKey] = useState(false);
+
+  const { handleSendMessage, isTyping, needsApiKey } = useAIMessageHandler({
+    profile,
+    scheduleContext,
+    messages,
+    setMessages,
+    onAppointmentCreated: createAppointmentAutomatically,
+    onContextRefresh: loadScheduleContext
+  });
 
   // Initialize with role-specific welcome message
   useEffect(() => {
@@ -83,292 +80,6 @@ export const AIScheduleChat = () => {
     }
   };
 
-  // Load comprehensive scheduling context with real data
-  useEffect(() => {
-    if (profile) {
-      loadScheduleContext();
-      
-      // Refresh context every 30 seconds for real-time updates
-      const interval = setInterval(loadScheduleContext, 30000);
-      return () => clearInterval(interval);
-    }
-  }, [profile]);
-
-  const loadScheduleContext = async () => {
-    if (!profile) return;
-
-    try {
-      const today = new Date().toISOString().split('T')[0];
-      const tomorrow = format(addDays(new Date(), 1), 'yyyy-MM-dd');
-      const nextWeek = format(addDays(new Date(), 7), 'yyyy-MM-dd');
-
-      // Load appointments based on user role
-      let appointmentsQuery = supabase
-        .from('appointments')
-        .select('*')
-        .gte('date', today)
-        .order('date')
-        .order('time');
-
-      // If patient, only show their appointments
-      if (profile.role === 'patient') {
-        appointmentsQuery = appointmentsQuery.eq('email', profile.email);
-      }
-
-      const { data: appointments } = await appointmentsQuery.limit(100);
-
-      // Load active providers with their details
-      const { data: providersData } = await supabase
-        .from('providers')
-        .select('*')
-        .eq('is_active', true);
-
-      // Load team members
-      const { data: teamMembers } = await supabase
-        .from('team_members')
-        .select('*')
-        .eq('status', 'active');
-
-      // Get real availability data for next few days
-      const availabilityPromises = (providersData || []).map(async (provider) => {
-        const slots = await checkAvailability(provider.id, today, 60);
-        const tomorrowSlots = await checkAvailability(provider.id, tomorrow, 60);
-        return {
-          providerId: provider.id,
-          providerName: `${provider.first_name} ${provider.last_name}`,
-          specialty: provider.specialty,
-          todayAvailable: slots.filter(slot => slot.available).length,
-          tomorrowAvailable: tomorrowSlots.filter(slot => slot.available).length,
-          nextSlots: slots.filter(slot => slot.available).slice(0, 3)
-        };
-      });
-
-      const availabilityData = await Promise.all(availabilityPromises);
-      
-      const todaysAppointments = appointments?.filter(apt => apt.date === today).length || 0;
-      const weekAppointments = appointments?.filter(apt => {
-        const aptDate = parseISO(apt.date);
-        const today = new Date();
-        const weekFromNow = addDays(today, 7);
-        return aptDate >= today && aptDate <= weekFromNow;
-      }).length || 0;
-
-      const totalAvailableSlots = availabilityData.reduce((sum, provider) => sum + provider.todayAvailable, 0);
-      const nextAvailableSlots = availabilityData
-        .filter(provider => provider.nextSlots.length > 0)
-        .map(provider => ({
-          provider: provider.providerName,
-          providerId: provider.providerId,
-          specialty: provider.specialty,
-          slots: provider.nextSlots
-        }));
-
-      const contextData = {
-        appointments: weekAppointments,
-        providers: providersData?.map(p => `${p.first_name} ${p.last_name} (${p.specialty})`).join(', ') || 'None configured',
-        availableSlots: totalAvailableSlots,
-        todaysAppointments: todaysAppointments,
-        totalProviders: (providersData?.length || 0) + (teamMembers?.length || 0),
-        upcomingAppointments: appointments?.slice(0, 5) || [],
-        userRole: profile.role,
-        availabilityDetails: availabilityData,
-        nextAvailableSlots: nextAvailableSlots,
-        totalActiveProviders: providersData?.length || 0,
-        providersData: providersData || [],
-        realTimeData: {
-          lastUpdated: new Date().toISOString(),
-          todayDate: today,
-          totalSlotsChecked: availabilityData.length * 18, // Assuming 9 hour day with 30min slots
-        }
-      };
-
-      setScheduleContext(contextData);
-
-    } catch (error) {
-      console.error('Error loading comprehensive schedule context:', error);
-      toast({
-        title: "Context Loading Error",
-        description: "Some scheduling data may not be current",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const createAppointmentAutomatically = async (appointmentData: any) => {
-    try {
-      console.log('Creating appointment automatically:', appointmentData);
-      
-      // Create the appointment
-      const { data: appointment, error: appointmentError } = await supabase
-        .from('appointments')
-        .insert({
-          title: appointmentData.patientName || 'AI Scheduled Appointment',
-          appointment_type: appointmentData.appointmentType || 'consultation',
-          date: appointmentData.date,
-          time: appointmentData.time,
-          duration: appointmentData.duration || 60,
-          notes: appointmentData.notes || 'Automatically scheduled by AI assistant',
-          phone: appointmentData.phone || profile?.phone,
-          email: appointmentData.email || profile?.email,
-          status: 'confirmed',
-          patient_id: appointmentData.patientId || user?.id || '00000000-0000-0000-0000-000000000000',
-          provider_id: appointmentData.providerId
-        })
-        .select()
-        .single();
-
-      if (appointmentError) {
-        console.error('Error creating appointment:', appointmentError);
-        throw appointmentError;
-      }
-
-      console.log('Appointment created successfully:', appointment);
-
-      // Schedule automatic reminders
-      if (appointment && appointmentData.email) {
-        const appointmentDateTime = new Date(`${appointmentData.date}T${appointmentData.time}`);
-        
-        try {
-          await scheduleAppointmentReminders(
-            appointment.id,
-            appointmentDateTime,
-            appointmentData.email,
-            appointmentData.phone
-          );
-          console.log('Reminders scheduled successfully');
-        } catch (reminderError) {
-          console.error('Error scheduling reminders:', reminderError);
-          // Don't fail the whole operation if reminders fail
-        }
-      }
-
-      // Send immediate confirmation
-      try {
-        await supabase.functions.invoke('send-appointment-confirmation', {
-          body: {
-            appointmentId: appointment.id,
-            patientEmail: appointmentData.email || profile?.email,
-            appointmentDetails: {
-              date: appointmentData.date,
-              time: appointmentData.time,
-              providerName: appointmentData.providerName,
-              appointmentType: appointmentData.appointmentType
-            }
-          }
-        });
-        console.log('Confirmation email sent');
-      } catch (confirmationError) {
-        console.error('Error sending confirmation:', confirmationError);
-        // Don't fail the whole operation if confirmation fails
-      }
-
-      // Refresh schedule context
-      await loadScheduleContext();
-
-      return appointment;
-    } catch (error) {
-      console.error('Error in createAppointmentAutomatically:', error);
-      throw error;
-    }
-  };
-
-  const handleSendMessage = async (messageText?: string) => {
-    const messageToSend = messageText || inputValue;
-    if (!messageToSend.trim() || !profile) {
-      return;
-    }
-
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      type: 'user',
-      content: messageToSend,
-      timestamp: new Date()
-    };
-
-    setMessages(prev => [...prev, userMessage]);
-    setInputValue("");
-    setIsTyping(true);
-
-    try {
-      // Refresh context before sending to AI for most current data
-      await loadScheduleContext();
-
-      const { data, error } = await supabase.functions.invoke('schedule-ai-chat', {
-        body: {
-          message: messageToSend,
-          context: scheduleContext,
-          userProfile: profile,
-          enableAutomation: true // Flag to enable automatic appointment creation
-        }
-      });
-
-      if (error) {
-        if (error.message?.includes('OpenAI API key')) {
-          setNeedsApiKey(true);
-          throw new Error('OpenAI API key not configured. Please add your API key to continue.');
-        }
-        throw error;
-      }
-
-      // Check if AI wants to create an appointment automatically
-      if (data.createAppointment) {
-        try {
-          const appointment = await createAppointmentAutomatically(data.appointmentData);
-          
-          // Update the AI response to include confirmation
-          data.response += `\n\n✅ **Appointment Created Successfully!**\n\nAppointment Details:\n• Date: ${format(new Date(data.appointmentData.date), 'MMMM d, yyyy')}\n• Time: ${data.appointmentData.time}\n• Provider: ${data.appointmentData.providerName}\n• Type: ${data.appointmentData.appointmentType}\n• Confirmation sent to: ${data.appointmentData.email}\n• Reminders scheduled automatically\n\nYour appointment is now confirmed and you'll receive reminder notifications.`;
-          
-          toast({
-            title: "Appointment Created!",
-            description: `Appointment scheduled for ${format(new Date(data.appointmentData.date), 'MMM d')} at ${data.appointmentData.time}`,
-          });
-        } catch (appointmentError) {
-          console.error('Failed to create appointment:', appointmentError);
-          data.response += `\n\n❌ I found an available slot but encountered an error creating the appointment. Please try again or contact support.`;
-        }
-      }
-
-      const aiResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        type: 'ai',
-        content: data.response,
-        timestamp: new Date(),
-        suggestions: data.suggestions || [],
-        contextUsed: {
-          ...data.contextUsed,
-          nextAvailableSlots: scheduleContext?.nextAvailableSlots || []
-        }
-      };
-      
-      setMessages(prev => [...prev, aiResponse]);
-
-    } catch (error) {
-      console.error('Error sending message:', error);
-      
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        type: 'ai',
-        content: `I apologize, but I encountered an error: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`,
-        timestamp: new Date(),
-        suggestions: ["Try again", "Refresh the page", "Check system status"]
-      };
-      
-      setMessages(prev => [...prev, errorMessage]);
-      
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to send message",
-        variant: "destructive",
-      });
-    } finally {
-      setIsTyping(false);
-    }
-  };
-
-  const handleSuggestionClick = async (suggestion: string) => {
-    await handleSendMessage(suggestion);
-  };
-
   const handleQuickAction = async (action: string) => {
     if (!action || !action.trim()) {
       return;
@@ -377,12 +88,17 @@ export const AIScheduleChat = () => {
       await handleSendMessage(action);
     } catch (error) {
       console.error('Error in handleQuickAction:', error);
-      toast({
-        title: "Error",
-        description: "Failed to process action. Please try again.",
-        variant: "destructive",
-      });
     }
+  };
+
+  const handleSuggestionClick = async (suggestion: string) => {
+    await handleSendMessage(suggestion);
+  };
+
+  const handleInputSubmit = async () => {
+    if (!inputValue.trim() || isTyping) return;
+    await handleSendMessage(inputValue);
+    setInputValue("");
   };
 
   if (!user || !profile) {
@@ -437,25 +153,6 @@ export const AIScheduleChat = () => {
     );
   }
 
-  const roleBasedQuickActions = profile?.role === 'patient' 
-    ? ["Book my next available appointment automatically", "Find and schedule with any provider", "Show my upcoming appointments", "Set up reminders"]
-    : ["Book next available slot for a patient automatically", "Find and create appointment with any provider", "Check today's schedule status", "Analyze current booking patterns"];
-
-  // Enhanced Quick AI Actions for automatic appointment creation
-  const quickAIActions = profile?.role === 'patient' 
-    ? [
-        { icon: Calendar, label: "Auto-Book Next Available", action: "Find the next available appointment slot with any provider and book it automatically for me, including confirmation email and reminders" },
-        { icon: Clock, label: "Schedule This Week", action: "Find and automatically book an appointment this week with any available provider, send confirmation and set up reminders" },
-        { icon: Mail, label: "Setup Reminders", action: "Help me set up appointment reminders via email or SMS for my upcoming visits" },
-        { icon: Target, label: "Book with Specific Provider", action: "Show me available providers and automatically book with my preferred choice, including all confirmations" }
-      ]
-    : [
-        { icon: Zap, label: "Auto-Book for Patient", action: "Find the next available slot and automatically create an appointment for a patient, including confirmation email and reminder setup" },
-        { icon: BarChart3, label: "Quick Patient Booking", action: "Book the next available appointment slot for a patient automatically with any provider, send confirmations and set reminders" },
-        { icon: Target, label: "Instant Appointment", action: "Create an appointment immediately with the next available provider, including automated confirmations and reminder scheduling" },
-        { icon: Mail, label: "Bulk Appointment Setup", action: "Help me set up multiple appointments automatically with confirmations and reminders for efficient scheduling" }
-      ];
-
   return (
     <Card className="h-[600px] flex flex-col">
       <CardHeader className="pb-3">
@@ -478,45 +175,13 @@ export const AIScheduleChat = () => {
       </CardHeader>
       
       <CardContent className="flex-1 flex flex-col gap-4">
-        {/* Enhanced Quick AI Actions with automatic booking */}
-        <div className="space-y-3">
-          <h3 className="text-sm font-medium text-gray-700">Smart Actions (Auto-Booking + Confirmations)</h3>
-          <div className="grid grid-cols-2 gap-3">
-            {quickAIActions.map((actionItem, index) => {
-              const IconComponent = actionItem.icon;
-              return (
-                <Button
-                  key={index}
-                  variant="outline"
-                  className="h-16 flex flex-col gap-2 text-xs hover:bg-purple-50 hover:border-purple-200"
-                  onClick={() => handleQuickAction(actionItem.action)}
-                  disabled={isTyping}
-                >
-                  <IconComponent className="h-5 w-5 text-purple-600" />
-                  <span className="text-center leading-tight">{actionItem.label}</span>
-                </Button>
-              );
-            })}
-          </div>
-        </div>
+        <AIQuickActions 
+          userRole={profile?.role || 'patient'}
+          isTyping={isTyping}
+          onActionClick={handleQuickAction}
+        />
 
-        {/* Role-based Quick Action Buttons */}
-        <div className="grid grid-cols-2 gap-2">
-          {roleBasedQuickActions.map((action) => (
-            <Button
-              key={action}
-              variant="outline"
-              size="sm"
-              className="text-xs h-8"
-              onClick={() => handleQuickAction(action)}
-              disabled={isTyping}
-            >
-              {action}
-            </Button>
-          ))}
-        </div>
-
-        {/* Enhanced Context Status with auto-booking capability */}
+        {/* Enhanced Context Status */}
         {scheduleContext && (
           <div className="flex items-center gap-4 text-xs text-gray-600 bg-gray-50 p-2 rounded">
             <span className="flex items-center gap-1">
@@ -636,12 +301,12 @@ export const AIScheduleChat = () => {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             placeholder={profile.role === 'patient' ? "Ask to book appointments automatically..." : "Request automatic appointment creation..."}
-            onKeyPress={(e) => e.key === 'Enter' && !isTyping && handleSendMessage()}
+            onKeyPress={(e) => e.key === 'Enter' && !isTyping && handleInputSubmit()}
             disabled={isTyping}
             className="flex-1"
           />
           <Button 
-            onClick={() => handleSendMessage()} 
+            onClick={handleInputSubmit} 
             disabled={isTyping || !inputValue.trim()}
             className="bg-purple-600 hover:bg-purple-700"
           >
