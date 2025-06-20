@@ -1,39 +1,112 @@
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { getTenantConfig } from '@/utils/tenantConfig';
+import { useToast } from '@/hooks/use-toast';
 
 interface Profile {
   id: string;
   email: string;
-  first_name: string | null;
-  last_name: string | null;
-  phone: string | null;
-  role: 'patient' | 'staff' | 'admin';
-  tenant_id: string | null;
+  first_name?: string;
+  last_name?: string;
+  phone?: string;
+  role: string;
+  tenant_id?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface AuthContextType {
   user: User | null;
-  session: Session | null;
   profile: Profile | null;
+  session: Session | null;
   loading: boolean;
-  signUp: (email: string, password: string, firstName?: string, lastName?: string, role?: string) => Promise<{ error: any }>;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+
+const fetchProfile = async (userId: string): Promise<Profile | null> => {
+  try {
+    console.log('Attempting to fetch profile for user:', userId);
+    
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching profile:', error);
+      return null;
+    }
+
+    console.log('Profile fetched successfully:', data);
+    return data;
+  } catch (error) {
+    console.error('Error fetching profile:', error);
+    return null;
+  }
+};
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  const refreshProfile = async () => {
+    if (user) {
+      const profileData = await fetchProfile(user.id);
+      setProfile(profileData);
+    }
+  };
 
   useEffect(() => {
-    // HIPAA Compliance: Secure session handling with enhanced audit logging
+    // Get initial session
+    const getInitialSession = async () => {
+      try {
+        const { data: { session: initialSession }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting initial session:', error);
+          setLoading(false);
+          return;
+        }
+
+        if (initialSession?.user) {
+          console.log('Initial session check:', initialSession.user.email);
+          setSession(initialSession);
+          setUser(initialSession.user);
+          
+          // Fetch profile for authenticated user
+          const profileData = await fetchProfile(initialSession.user.id);
+          setProfile(profileData);
+          
+          // Set default role if no profile exists
+          const userRole = profileData?.role || 'staff';
+          console.log('User authenticated with role:', userRole);
+        }
+      } catch (error) {
+        console.error('Error in initial session check:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getInitialSession();
+
+    // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email);
@@ -42,112 +115,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Fetch user profile with tenant information
-          const fetchProfile = async () => {
-            try {
-              console.log('Attempting to fetch profile for user:', session.user.id);
-              const { data: profileData, error } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', session.user.id)
-                .single();
-              
-              if (error) {
-                console.error('Error fetching profile:', error);
-                if (error.code === 'PGRST116') {
-                  console.log('Profile not found, creating default profile with tenant');
-                  
-                  // Get tenant configuration
-                  const tenantConfig = getTenantConfig();
-                  const tenantId = tenantConfig.name.toLowerCase();
-                  
-                  const { data: newProfile, error: createError } = await supabase
-                    .from('profiles')
-                    .insert({
-                      id: session.user.id,
-                      email: session.user.email,
-                      first_name: session.user.user_metadata?.first_name || null,
-                      last_name: session.user.user_metadata?.last_name || null,
-                      role: session.user.user_metadata?.role || 'patient',
-                      tenant_id: tenantId
-                    })
-                    .select()
-                    .single();
-                  
-                  if (createError) {
-                    console.error('Error creating profile:', createError);
-                    const tenantConfig = getTenantConfig();
-                    setProfile({
-                      id: session.user.id,
-                      email: session.user.email!,
-                      first_name: session.user.user_metadata?.first_name || null,
-                      last_name: session.user.user_metadata?.last_name || null,
-                      phone: null,
-                      role: (session.user.user_metadata?.role as 'patient' | 'staff' | 'admin') || 'patient',
-                      tenant_id: tenantConfig.name.toLowerCase()
-                    });
-                  } else if (newProfile) {
-                    setProfile({
-                      ...newProfile,
-                      role: newProfile.role as 'patient' | 'staff' | 'admin'
-                    });
-                  }
-                } else {
-                  const tenantConfig = getTenantConfig();
-                  setProfile({
-                    id: session.user.id,
-                    email: session.user.email!,
-                    first_name: session.user.user_metadata?.first_name || null,
-                    last_name: session.user.user_metadata?.last_name || null,
-                    phone: null,
-                    role: (session.user.user_metadata?.role as 'patient' | 'staff' | 'admin') || 'patient',
-                    tenant_id: tenantConfig.name.toLowerCase()
-                  });
-                }
-                return;
-              }
-              
-              if (profileData) {
-                console.log('Profile fetched successfully:', profileData);
-                
-                // Ensure tenant_id is set if missing
-                if (!profileData.tenant_id) {
-                  const tenantConfig = getTenantConfig();
-                  const tenantId = tenantConfig.name.toLowerCase();
-                  
-                  await supabase
-                    .from('profiles')
-                    .update({ tenant_id: tenantId })
-                    .eq('id', session.user.id);
-                  
-                  setProfile({
-                    ...profileData,
-                    role: profileData.role as 'patient' | 'staff' | 'admin',
-                    tenant_id: tenantId
-                  });
-                } else {
-                  setProfile({
-                    ...profileData,
-                    role: profileData.role as 'patient' | 'staff' | 'admin'
-                  });
-                }
-              }
-            } catch (error) {
-              console.error('Profile fetch error:', error);
-              const tenantConfig = getTenantConfig();
-              setProfile({
-                id: session.user.id,
-                email: session.user.email!,
-                first_name: session.user.user_metadata?.first_name || null,
-                last_name: session.user.user_metadata?.last_name || null,
-                phone: null,
-                role: (session.user.user_metadata?.role as 'patient' | 'staff' | 'admin') || 'patient',
-                tenant_id: tenantConfig.name.toLowerCase()
-              });
-            }
-          };
-
-          setTimeout(fetchProfile, 100);
+          const profileData = await fetchProfile(session.user.id);
+          setProfile(profileData);
+          
+          const userRole = profileData?.role || 'staff';
+          console.log('User authenticated with role:', userRole);
         } else {
           setProfile(null);
         }
@@ -156,106 +128,45 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session check:', session?.user?.email);
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (!session) {
-        setLoading(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
-
-  const signUp = async (email: string, password: string, firstName?: string, lastName?: string, role?: string) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
-    try {
-      // Get tenant configuration for new user registration
-      const tenantConfig = getTenantConfig();
-      
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: redirectUrl,
-          data: {
-            first_name: firstName,
-            last_name: lastName,
-            role: role || 'patient',
-            tenant_id: tenantConfig.name.toLowerCase()
-          }
-        }
-      });
-      
-      // HIPAA Compliance: Log authentication attempt (without sensitive data)
-      console.log('Sign up attempt for tenant:', tenantConfig.name, 'email:', email.replace(/(.{2})(.*)(@.*)/, '$1***$3'));
-      
-      return { error };
-    } catch (error) {
-      console.error('Sign up error:', error);
-      return { error };
-    }
-  };
-
-  const signIn = async (email: string, password: string) => {
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-      
-      // HIPAA Compliance: Log authentication attempt (without sensitive data)
-      const tenantConfig = getTenantConfig();
-      console.log('Sign in attempt for tenant:', tenantConfig.name, 'email:', email.replace(/(.{2})(.*)(@.*)/, '$1***$3'));
-      
-      return { error };
-    } catch (error) {
-      console.error('Sign in error:', error);
-      return { error };
-    }
-  };
 
   const signOut = async () => {
     try {
-      // HIPAA Compliance: Clear all local data on logout and log the action
-      console.log('User signing out - clearing PHI from local storage');
-      setProfile(null);
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Error signing out:', error);
+        toast({
+          title: "Error signing out",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+      
       setUser(null);
+      setProfile(null);
       setSession(null);
       
-      await supabase.auth.signOut();
-      
-      // Clear any cached PHI data
-      localStorage.removeItem('supabase.auth.token');
-      sessionStorage.clear();
-      
-      console.log('User signed out successfully');
+      toast({
+        title: "Signed out successfully",
+        description: "You have been logged out.",
+      });
     } catch (error) {
-      console.error('Sign out error:', error);
+      console.error('Error in signOut:', error);
     }
   };
 
-  return (
-    <AuthContext.Provider value={{
-      user,
-      session,
-      profile,
-      loading,
-      signUp,
-      signIn,
-      signOut
-    }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
+  const value = {
+    user,
+    profile,
+    session,
+    loading,
+    signOut,
+    refreshProfile,
+  };
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

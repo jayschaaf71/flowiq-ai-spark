@@ -31,7 +31,7 @@ export const useAppointments = () => {
   const loadAppointments = async () => {
     setLoading(true);
     try {
-      console.log('Loading appointments with new policies...');
+      console.log('Loading appointments with simplified policies...');
       
       const { data, error } = await supabase
         .from('appointments')
@@ -77,12 +77,15 @@ export const useAppointments = () => {
   const updateAppointmentStatus = async (appointmentId: string, newStatus: Appointment['status']) => {
     setLoading(true);
     try {
+      console.log('Updating appointment status:', appointmentId, newStatus);
+      
       const { error } = await supabase
         .from('appointments')
         .update({ status: newStatus })
         .eq('id', appointmentId);
 
       if (error) {
+        console.error('Error updating appointment:', error);
         throw error;
       }
 
@@ -114,6 +117,8 @@ export const useAppointments = () => {
   const sendReminder = async (appointment: Appointment) => {
     setLoading(true);
     try {
+      console.log('Sending reminder for appointment:', appointment.id);
+      
       // Simulate sending SMS/Email reminder
       await new Promise(resolve => setTimeout(resolve, 1000));
       
@@ -122,6 +127,7 @@ export const useAppointments = () => {
         description: `Reminder sent for appointment on ${appointment.date}`,
       });
     } catch (error) {
+      console.error('Error sending reminder:', error);
       toast({
         title: "Error",
         description: "Failed to send reminder",

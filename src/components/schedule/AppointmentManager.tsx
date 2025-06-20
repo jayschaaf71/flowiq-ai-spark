@@ -28,6 +28,7 @@ export const AppointmentManager = ({ onAppointmentUpdate }: AppointmentManagerPr
   const { appointments, loading, updateAppointmentStatus, sendReminder } = useAppointments();
 
   const handleStatusUpdate = async (appointmentId: string, newStatus: Appointment['status']) => {
+    console.log('Handling status update:', appointmentId, newStatus);
     const updatedAppointment = await updateAppointmentStatus(appointmentId, newStatus);
     if (updatedAppointment && onAppointmentUpdate) {
       onAppointmentUpdate({ ...updatedAppointment, status: newStatus });
