@@ -2,20 +2,25 @@
 import { useState } from "react";
 import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
-import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { ScheduleStats } from "@/components/schedule/ScheduleStats";
-import { ScheduleDashboard } from "@/components/schedule/ScheduleDashboard";
-import { ScheduleTabsHeader } from "@/components/schedule/ScheduleTabsHeader";
-import { BookingInterface } from "@/components/schedule/BookingInterface";
-import { CalendarView } from "@/components/schedule/CalendarView";
-import { AppointmentsList } from "@/components/schedule/AppointmentsList";
-import { AdvancedScheduling } from "@/components/schedule/AdvancedScheduling";
+import { ScheduleAgentDashboard } from "@/components/schedule/ScheduleAgentDashboard";
+import { AppointmentManager } from "@/components/schedule/AppointmentManager";
+import { ProductionBookingInterface } from "@/components/schedule/ProductionBookingInterface";
+import { EnhancedCalendarView } from "@/components/schedule/EnhancedCalendarView";
+import { AIScheduleChat } from "@/components/schedule/AIScheduleChat";
+import { ScheduleAnalytics } from "@/components/schedule/ScheduleAnalytics";
+import { AutomatedReminders } from "@/components/schedule/AutomatedReminders";
+import { Settings, Zap, Brain, BarChart3, MessageCircle, Calendar, Users, Bell } from "lucide-react";
 
 const ScheduleIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const stats = {
-    appointmentsToday: 24,
+    appoint mentsToday: 24,
     bookedThisWeek: 156,
     utilizationRate: 87,
     noShowRate: 5,
@@ -38,38 +43,108 @@ const ScheduleIQ = () => {
     { task: "Update provider preferences", priority: "medium" as const, eta: "1 hour" }
   ];
 
+  const handleAppointmentBooked = () => {
+    setRefreshKey(prev => prev + 1);
+    setActiveTab("appointments");
+  };
+
   return (
     <Layout>
       <PageHeader 
         title="Schedule iQ"
-        subtitle="AI-powered appointment scheduling and calendar optimization"
-        badge="AI Agent"
-      />
+        subtitle="Advanced AI-powered appointment scheduling and calendar optimization agent"
+      >
+        <div className="flex items-center gap-2">
+          <Badge className="bg-green-100 text-green-800 border-green-200">
+            <Brain className="w-3 h-3 mr-1" />
+            AI Active
+          </Badge>
+          <Badge className="bg-blue-100 text-blue-800 border-blue-200">
+            Production Ready
+          </Badge>
+          <Button variant="outline" size="sm">
+            <Settings className="w-4 h-4 mr-2" />
+            Configure
+          </Button>
+          <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
+            <Zap className="w-4 h-4 mr-2" />
+            Optimize Now
+          </Button>
+        </div>
+      </PageHeader>
       
       <div className="p-6 space-y-6">
         <ScheduleStats stats={stats} />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <ScheduleTabsHeader />
+          <div className="flex items-center justify-between">
+            <TabsList className="grid w-full grid-cols-7">
+              <TabsTrigger value="dashboard" className="flex items-center gap-1">
+                <Brain className="w-4 h-4" />
+                AI Dashboard
+              </TabsTrigger>
+              <TabsTrigger value="chat" className="flex items-center gap-1">
+                <MessageCircle className="w-4 h-4" />
+                AI Chat
+              </TabsTrigger>
+              <TabsTrigger value="book" className="flex items-center gap-1">
+                <Calendar className="w-4 h-4" />
+                Book
+              </TabsTrigger>
+              <TabsTrigger value="appointments" className="flex items-center gap-1">
+                <Users className="w-4 h-4" />
+                Appointments
+              </TabsTrigger>
+              <TabsTrigger value="calendar" className="flex items-center gap-1">
+                <Calendar className="w-4 h-4" />
+                Calendar
+              </TabsTrigger>
+              <TabsTrigger value="analytics" className="flex items-center gap-1">
+                <BarChart3 className="w-4 h-4" />
+                Analytics
+              </TabsTrigger>
+              <TabsTrigger value="reminders" className="flex items-center gap-1">
+                <Bell className="w-4 h-4" />
+                Reminders
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value="dashboard" className="space-y-4">
-            <ScheduleDashboard recentActivity={recentActivity} upcomingTasks={upcomingTasks} />
+            <ScheduleAgentDashboard 
+              stats={stats}
+              recentActivity={recentActivity}
+              upcomingTasks={upcomingTasks}
+            />
+          </TabsContent>
+
+          <TabsContent value="chat" className="space-y-4">
+            <AIScheduleChat />
           </TabsContent>
 
           <TabsContent value="book" className="space-y-4">
-            <BookingInterface />
-          </TabsContent>
-
-          <TabsContent value="calendar" className="space-y-4">
-            <CalendarView />
+            <ProductionBookingInterface onAppointmentBooked={handleAppointmentBooked} />
           </TabsContent>
 
           <TabsContent value="appointments" className="space-y-4">
-            <AppointmentsList />
+            <AppointmentManager 
+              key={refreshKey}
+              onAppointmentUpdate={(appointment) => {
+                console.log("Appointment updated:", appointment);
+              }}
+            />
+          </TabsContent>
+
+          <TabsContent value="calendar" className="space-y-4">
+            <EnhancedCalendarView />
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-4">
-            <AdvancedScheduling />
+            <ScheduleAnalytics />
+          </TabsContent>
+
+          <TabsContent value="reminders" className="space-y-4">
+            <AutomatedReminders />
           </TabsContent>
         </Tabs>
       </div>
