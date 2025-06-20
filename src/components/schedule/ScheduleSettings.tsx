@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,10 +9,23 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Settings, Clock, Bell, Brain, Calendar, Users, Shield } from "lucide-react";
+import { Settings, Clock, Bell, Brain, Calendar, Users, Shield, Plus, Edit, Trash2 } from "lucide-react";
+import { useProviders } from "@/hooks/useProviders";
+import { useTeamMembers, useAddTeamMember, useUpdateTeamMember, useDeleteTeamMember } from "@/hooks/useTeamMembers";
+import { AddTeamMemberDialog } from "@/components/team/AddTeamMemberDialog";
+import { EditTeamMemberDialog } from "@/components/team/EditTeamMemberDialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 export const ScheduleSettings = () => {
   const { toast } = useToast();
+  const { providers, loading: providersLoading } = useProviders();
+  const { data: teamMembers, isLoading: teamLoading } = useTeamMembers();
+  const { mutate: deleteTeamMember } = useDeleteTeamMember();
+  
+  const [editingMember, setEditingMember] = useState(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  
   const [settings, setSettings] = useState({
     workingHours: {
       monday: { start: "09:00", end: "17:00", enabled: true },
@@ -71,6 +83,29 @@ export const ScheduleSettings = () => {
     }));
   };
 
+  const handleEditMember = (member: any) => {
+    setEditingMember(member);
+    setEditDialogOpen(true);
+  };
+
+  const handleDeleteMember = (id: string) => {
+    deleteTeamMember(id, {
+      onSuccess: () => {
+        toast({
+          title: "Success",
+          description: "Team member deleted successfully",
+        });
+      },
+      onError: () => {
+        toast({
+          title: "Error",
+          description: "Failed to delete team member",
+          variant: "destructive",
+        });
+      }
+    });
+  };
+
   const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
   return (
@@ -85,8 +120,12 @@ export const ScheduleSettings = () => {
         </Button>
       </div>
 
-      <Tabs defaultValue="hours" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+      <Tabs defaultValue="providers" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="providers" className="flex items-center gap-2">
+            <Users className="w-4 h-4" />
+            Staff & Providers
+          </TabsTrigger>
           <TabsTrigger value="hours" className="flex items-center gap-2">
             <Clock className="w-4 h-4" />
             Working Hours
@@ -103,7 +142,119 @@ export const ScheduleSettings = () => {
             <Brain className="w-4 h-4" />
             AI Settings
           </TabsTrigger>
+          <TabsTrigger value="general" className="flex items-center gap-2">
+            <Settings className="w-4 h-4" />
+            General
+          </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="providers" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Providers Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="w-5 h-5" />
+                  Healthcare Providers
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {providersLoading ? (
+                  <p className="text-gray-600">Loading providers...</p>
+                ) : providers.length === 0 ? (
+                  <p className="text-gray-600">No providers configured yet.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {providers.map((provider) => (
+                      <div key={provider.id} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div>
+                          <p className="font-medium">{provider.first_name} {provider.last_name}</p>
+                          <p className="text-sm text-gray-600">{provider.specialty}</p>
+                          <p className="text-xs text-gray-500">{provider.email}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={provider.is_active ? "default" : "secondary"}>
+                            {provider.is_active ? "Active" : "Inactive"}
+                          </Badge>
+                          <Button variant="outline" size="sm">
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <Button className="w-full" variant="outline">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Provider
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Team Members Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="w-5 h-5" />
+                  Team Members
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {teamLoading ? (
+                  <p className="text-gray-600">Loading team members...</p>
+                ) : !teamMembers || teamMembers.length === 0 ? (
+                  <p className="text-gray-600">No team members found.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {teamMembers.map((member) => (
+                      <div key={member.id} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div>
+                          <p className="font-medium">{member.first_name} {member.last_name}</p>
+                          <p className="text-sm text-gray-600 capitalize">{member.role}</p>
+                          <p className="text-xs text-gray-500">{member.email}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={member.status === 'active' ? "default" : "secondary"}>
+                            {member.status}
+                          </Badge>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleEditMember(member)}
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="outline" size="sm">
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete Team Member</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete {member.first_name} {member.last_name}? This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDeleteMember(member.id)}>
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <AddTeamMemberDialog />
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
 
         <TabsContent value="hours" className="space-y-4">
           <Card>
@@ -458,7 +609,62 @@ export const ScheduleSettings = () => {
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="general" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="w-5 h-5" />
+                General Settings
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Practice Name</Label>
+                  <Input placeholder="Enter your practice name" />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>Time Zone</Label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select timezone" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="est">Eastern Time</SelectItem>
+                      <SelectItem value="cst">Central Time</SelectItem>
+                      <SelectItem value="mst">Mountain Time</SelectItem>
+                      <SelectItem value="pst">Pacific Time</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Default Language</Label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select language" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="en">English</SelectItem>
+                      <SelectItem value="es">Spanish</SelectItem>
+                      <SelectItem value="fr">French</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
+
+      {/* Edit Team Member Dialog */}
+      <EditTeamMemberDialog 
+        member={editingMember}
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+      />
     </div>
   );
 };
