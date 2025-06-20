@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -5,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Brain, Send, User, Bot, Calendar, Clock, Users, Loader2, Zap, TrendingUp, Shield } from "lucide-react";
+import { Brain, Send, User, Bot, Calendar, Clock, Users, Loader2, Zap, TrendingUp, Shield, BarChart3, Mail, Target } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
@@ -287,6 +288,21 @@ export const AIScheduleChat = () => {
     ? ["Book my next appointment", "Check my appointments", "Find available times", "Set up reminders"]
     : ["Show today's schedule overview", "Find next available slot", "Optimize calendar", "Check conflicts"];
 
+  // Quick AI Actions for larger buttons
+  const quickAIActions = profile.role === 'patient' 
+    ? [
+        { icon: Calendar, label: "Book Next Appointment", action: "Help me book my next appointment with the best available time slot" },
+        { icon: Clock, label: "Check My Schedule", action: "Show me all my upcoming appointments and any important details" },
+        { icon: Mail, label: "Setup Reminders", action: "Help me set up appointment reminders via email or SMS" },
+        { icon: Target, label: "Find Specialists", action: "Help me find available specialists for my specific needs" }
+      ]
+    : [
+        { icon: Zap, label: "Optimize Today's Schedule", action: "Analyze today's schedule and suggest optimizations to improve efficiency and reduce gaps" },
+        { icon: Mail, label: "Send Batch Reminders", action: "Send appointment reminders to all patients with appointments in the next 24-48 hours" },
+        { icon: Target, label: "Fill Empty Slots", action: "Identify empty time slots today and tomorrow and suggest how to fill them from the waitlist" },
+        { icon: BarChart3, label: "Generate Report", action: "Generate a comprehensive scheduling report with utilization rates, no-show patterns, and recommendations" }
+      ];
+
   return (
     <Card className="h-[600px] flex flex-col">
       <CardHeader className="pb-3">
@@ -309,6 +325,28 @@ export const AIScheduleChat = () => {
       </CardHeader>
       
       <CardContent className="flex-1 flex flex-col gap-4">
+        {/* Quick AI Actions - Large Buttons */}
+        <div className="space-y-3">
+          <h3 className="text-sm font-medium text-gray-700">Quick AI Actions</h3>
+          <div className="grid grid-cols-2 gap-3">
+            {quickAIActions.map((actionItem, index) => {
+              const IconComponent = actionItem.icon;
+              return (
+                <Button
+                  key={index}
+                  variant="outline"
+                  className="h-16 flex flex-col gap-2 text-xs hover:bg-purple-50 hover:border-purple-200"
+                  onClick={() => handleQuickAction(actionItem.action)}
+                  disabled={isTyping}
+                >
+                  <IconComponent className="h-5 w-5 text-purple-600" />
+                  <span className="text-center leading-tight">{actionItem.label}</span>
+                </Button>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Role-based Quick Action Buttons */}
         <div className="grid grid-cols-2 gap-2">
           {roleBasedQuickActions.map((action) => (
@@ -347,6 +385,7 @@ export const AIScheduleChat = () => {
           </div>
         )}
 
+        {/* Messages Area */}
         <ScrollArea className="flex-1 pr-4">
           <div className="space-y-4">
             {messages.map((message) => (
