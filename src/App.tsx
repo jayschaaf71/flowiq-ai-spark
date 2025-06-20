@@ -135,6 +135,14 @@ function App() {
                 } 
               />
               <Route 
+                path="/schedule" 
+                element={
+                  <ProtectedRoute requiredRole="staff">
+                    <ScheduleIQ />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
                 path="/setup" 
                 element={
                   <ProtectedRoute requiredRole="admin">
