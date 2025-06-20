@@ -1,6 +1,7 @@
 
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.0';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -13,7 +14,7 @@ serve(async (req) => {
   }
 
   try {
-    const { message, context } = await req.json();
+    const { message, context, userProfile } = await req.json();
     
     const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
     if (!OPENAI_API_KEY) {
@@ -21,7 +22,10 @@ serve(async (req) => {
     }
 
     const currentDateTime = new Date().toLocaleString();
-    const systemPrompt = `You are Schedule iQ, an advanced AI assistant specialized in appointment scheduling and calendar management for healthcare practices. You have access to real-time scheduling data and can provide specific, actionable recommendations.
+    
+    // Create role-specific system prompt
+    const getRoleSpecificPrompt = (role: string, profile: any) => {
+      const basePrompt = `You are Schedule iQ, an advanced AI assistant specialized in appointment scheduling and calendar management for healthcare practices. You have access to real-time scheduling data and can provide specific, actionable recommendations.
 
 Current Context:
 - Current Date/Time: ${currentDateTime}
@@ -30,35 +34,77 @@ Current Context:
 - Active Providers: ${context?.providers || 'Loading...'}
 - Available Time Slots Today: ${context?.availableSlots || 0}
 
-Your Capabilities:
-1. SCHEDULING: Book, reschedule, cancel appointments
+User Information:
+- Name: ${profile?.first_name || 'User'} ${profile?.last_name || ''}
+- Role: ${role}
+- Email: ${profile?.email || 'N/A'}`;
+
+      if (role === 'patient') {
+        return `${basePrompt}
+
+PATIENT MODE - You are assisting a patient with their healthcare appointments.
+
+Your Capabilities for Patients:
+1. BOOKING: Help find and book appointments
+2. RESCHEDULING: Assist with changing appointment times
+3. INFORMATION: Provide appointment details and preparation instructions
+4. AVAILABILITY: Check when providers are available
+5. REMINDERS: Help set up appointment notifications
+6. QUESTIONS: Answer general scheduling questions
+
+Communication Style:
+- Be warm, friendly, and patient-focused
+- Use clear, non-medical language when possible
+- Focus on the patient's needs and convenience
+- Provide reassurance and helpful guidance
+- Always prioritize patient privacy and comfort
+
+Limitations:
+- You cannot access other patients' information
+- You cannot make changes that require staff approval
+- You cannot provide medical advice
+- You cannot access full provider schedules beyond availability
+
+Patient-Focused Suggestions:
+- "Find my next available appointment"
+- "What do I need to know before my visit?"
+- "Can I reschedule to a different time?"
+- "Set up appointment reminders"`;
+
+      } else {
+        return `${basePrompt}
+
+STAFF MODE - You are assisting healthcare staff with practice management.
+
+Your Full Capabilities for Staff:
+1. SCHEDULING: Book, reschedule, cancel appointments for any patient
 2. OPTIMIZATION: Analyze and optimize scheduling patterns
-3. AVAILABILITY: Check provider and time slot availability
+3. AVAILABILITY: Manage provider schedules and time slots
 4. CONFLICTS: Identify and resolve scheduling conflicts
-5. REMINDERS: Manage appointment notifications
+5. REMINDERS: Manage appointment notifications for all patients
 6. ANALYTICS: Provide scheduling insights and patterns
 7. WORKFLOW: Suggest process improvements
 8. EMERGENCY: Handle urgent scheduling needs
+9. REPORTING: Generate scheduling reports and statistics
+10. PATIENT MANAGEMENT: Access patient scheduling history
 
 Communication Style:
-- Be professional but conversational
-- Provide specific, actionable suggestions
-- Use data from the context to give precise recommendations
-- Always offer multiple options when possible
-- Be proactive in identifying potential issues or improvements
+- Be professional and efficient
+- Provide detailed, actionable insights
+- Use healthcare industry terminology appropriately
+- Focus on practice efficiency and patient care
+- Offer data-driven recommendations
 
-Response Format:
-- Start with a direct answer to their question
-- Provide specific recommendations based on current data
-- Offer relevant follow-up actions
-- Include time-sensitive information when applicable
+Advanced Features:
+- Access to full practice scheduling data
+- Ability to make system-wide changes
+- Provider performance analytics
+- Revenue and utilization insights
+- Bulk scheduling operations`;
+      }
+    };
 
-If you need more specific information to help effectively, ask targeted questions about:
-- Specific dates/times they're interested in
-- Which providers they prefer
-- Type of appointment needed
-- Urgency level
-- Patient preferences`;
+    const systemPrompt = getRoleSpecificPrompt(userProfile?.role || 'patient', userProfile);
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -84,8 +130,8 @@ If you need more specific information to help effectively, ask targeted question
     const data = await response.json();
     const aiResponse = data.choices[0].message.content;
 
-    // Generate intelligent suggestions based on the conversation
-    const suggestions = generateIntelligentSuggestions(message, aiResponse, context);
+    // Generate role-specific suggestions
+    const suggestions = generateRoleSpecificSuggestions(message, aiResponse, context, userProfile?.role);
 
     return new Response(JSON.stringify({ 
       response: aiResponse,
@@ -93,7 +139,8 @@ If you need more specific information to help effectively, ask targeted question
       contextUsed: {
         todaysAppointments: context?.todaysAppointments || 0,
         availableSlots: context?.availableSlots || 0,
-        providersActive: context?.providers ? context.providers.split(',').length : 0
+        providersActive: context?.providers ? context.providers.split(',').length : 0,
+        userRole: userProfile?.role || 'patient'
       }
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -112,77 +159,73 @@ If you need more specific information to help effectively, ask targeted question
   }
 });
 
-function generateIntelligentSuggestions(userMessage: string, aiResponse: string, context: any): string[] {
+function generateRoleSpecificSuggestions(userMessage: string, aiResponse: string, context: any, userRole: string): string[] {
   const lowerMessage = userMessage.toLowerCase();
-  const lowerResponse = aiResponse.toLowerCase();
   const suggestions = new Set<string>();
 
-  // Context-aware suggestions based on current state
-  if (context?.todaysAppointments > 10) {
-    suggestions.add("Optimize today's busy schedule");
-  }
-  
-  if (context?.availableSlots < 3) {
-    suggestions.add("Find more availability options");
+  if (userRole === 'patient') {
+    // Patient-specific suggestions
+    if (lowerMessage.includes('book') || lowerMessage.includes('schedule') || lowerMessage.includes('appointment')) {
+      suggestions.add("Find my next available appointment");
+      suggestions.add("What providers are available?");
+      suggestions.add("Check appointment requirements");
+    }
+    
+    if (lowerMessage.includes('cancel') || lowerMessage.includes('reschedule') || lowerMessage.includes('change')) {
+      suggestions.add("Find alternative appointment times");
+      suggestions.add("Check cancellation policy");
+      suggestions.add("What are my rescheduling options?");
+    }
+    
+    if (lowerMessage.includes('remind') || lowerMessage.includes('notification')) {
+      suggestions.add("Set up appointment reminders");
+      suggestions.add("How will I be notified?");
+    }
+
+    // Default patient suggestions
+    if (suggestions.size === 0) {
+      suggestions.add("Book my next appointment");
+      suggestions.add("Check my upcoming appointments");
+      suggestions.add("What should I bring to my visit?");
+      suggestions.add("Set up appointment reminders");
+    }
+  } else {
+    // Staff-specific suggestions
+    if (lowerMessage.includes('book') || lowerMessage.includes('schedule')) {
+      suggestions.add("Show available time slots");
+      suggestions.add("Check provider availability");
+      suggestions.add("View scheduling conflicts");
+    }
+    
+    if (lowerMessage.includes('optimize') || lowerMessage.includes('improve')) {
+      suggestions.add("Analyze scheduling patterns");
+      suggestions.add("Suggest time block improvements");
+      suggestions.add("Review provider utilization");
+    }
+    
+    if (lowerMessage.includes('report') || lowerMessage.includes('analytics')) {
+      suggestions.add("Generate scheduling report");
+      suggestions.add("Show appointment statistics");
+      suggestions.add("Analyze no-show patterns");
+    }
+
+    // Context-aware staff suggestions
+    if (context?.todaysAppointments > 10) {
+      suggestions.add("Optimize today's busy schedule");
+    }
+    
+    if (context?.availableSlots < 3) {
+      suggestions.add("Find more availability options");
+    }
+
+    // Default staff suggestions
+    if (suggestions.size === 0) {
+      suggestions.add("Show today's schedule overview");
+      suggestions.add("Find next available slot");
+      suggestions.add("Check for scheduling conflicts");
+      suggestions.add("Analyze appointment patterns");
+    }
   }
 
-  // Intent-based suggestions
-  if (lowerMessage.includes('book') || lowerMessage.includes('schedule') || lowerMessage.includes('appointment')) {
-    suggestions.add("Show available time slots");
-    suggestions.add("Check provider availability");
-    suggestions.add("View patient preferences");
-  }
-  
-  if (lowerMessage.includes('cancel') || lowerMessage.includes('reschedule') || lowerMessage.includes('change')) {
-    suggestions.add("Find alternative times");
-    suggestions.add("Check cancellation policy");
-    suggestions.add("Notify affected patients");
-  }
-  
-  if (lowerMessage.includes('remind') || lowerMessage.includes('notification') || lowerMessage.includes('alert')) {
-    suggestions.add("Set up automated reminders");
-    suggestions.add("Send immediate notifications");
-    suggestions.add("Review reminder preferences");
-  }
-
-  if (lowerMessage.includes('optimize') || lowerMessage.includes('improve') || lowerMessage.includes('efficient')) {
-    suggestions.add("Analyze scheduling patterns");
-    suggestions.add("Suggest time block improvements");
-    suggestions.add("Review provider utilization");
-  }
-
-  if (lowerMessage.includes('conflict') || lowerMessage.includes('double') || lowerMessage.includes('overlap')) {
-    suggestions.add("Resolve scheduling conflicts");
-    suggestions.add("Prevent future conflicts");
-    suggestions.add("Review conflict settings");
-  }
-
-  // Response-based suggestions
-  if (lowerResponse.includes('available') || lowerResponse.includes('slot')) {
-    suggestions.add("Book the suggested time");
-    suggestions.add("See more options");
-  }
-
-  if (lowerResponse.includes('busy') || lowerResponse.includes('full')) {
-    suggestions.add("Add to waitlist");
-    suggestions.add("Suggest alternative dates");
-  }
-
-  // Time-sensitive suggestions
-  const hour = new Date().getHours();
-  if (hour < 12) {
-    suggestions.add("Plan morning appointments");
-  } else if (hour > 16) {
-    suggestions.add("Prepare tomorrow's schedule");
-  }
-
-  // Default helpful suggestions if none match
-  if (suggestions.size === 0) {
-    suggestions.add("Show today's schedule");
-    suggestions.add("Find next available slot");
-    suggestions.add("Check provider status");
-    suggestions.add("Review upcoming appointments");
-  }
-
-  return Array.from(suggestions).slice(0, 4); // Limit to 4 most relevant
+  return Array.from(suggestions).slice(0, 4);
 }

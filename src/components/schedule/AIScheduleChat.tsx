@@ -6,9 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Brain, Send, User, Bot, Calendar, Clock, Users, Loader2, Zap, TrendingUp } from "lucide-react";
+import { Brain, Send, User, Bot, Calendar, Clock, Users, Loader2, Zap, TrendingUp, Shield } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Message {
   id: string;
@@ -20,40 +21,75 @@ interface Message {
     todaysAppointments: number;
     availableSlots: number;
     providersActive: number;
+    userRole: string;
   };
 }
 
 export const AIScheduleChat = () => {
+  const { user, profile } = useAuth();
   const { toast } = useToast();
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      type: 'ai',
-      content: "Hello! I'm Schedule iQ, your AI scheduling assistant. I have access to your real scheduling data and can help you with:\n\n• Booking and managing appointments\n• Optimizing your calendar for better efficiency\n• Resolving scheduling conflicts\n• Analyzing scheduling patterns\n• Setting up automated reminders\n• Finding available time slots\n\nI can see your current schedule and provide specific, data-driven recommendations. What would you like to work on today?",
-      timestamp: new Date(),
-      suggestions: [
-        "Show me today's schedule overview",
-        "Find the next available appointment slot",
-        "Optimize my calendar for better flow",
-        "Check for any scheduling conflicts"
-      ]
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [scheduleContext, setScheduleContext] = useState<any>(null);
   const [needsApiKey, setNeedsApiKey] = useState(false);
 
-  // Load scheduling context with more detailed information
+  // Initialize with role-specific welcome message
   useEffect(() => {
-    loadScheduleContext();
+    if (profile) {
+      const welcomeMessage = getWelcomeMessage(profile.role);
+      setMessages([{
+        id: '1',
+        type: 'ai',
+        content: welcomeMessage,
+        timestamp: new Date(),
+        suggestions: getRoleSpecificInitialSuggestions(profile.role)
+      }]);
+    }
+  }, [profile]);
+
+  const getWelcomeMessage = (role: string) => {
+    const name = profile?.first_name ? ` ${profile.first_name}` : '';
     
-    // Refresh context every 30 seconds for real-time updates
-    const interval = setInterval(loadScheduleContext, 30000);
-    return () => clearInterval(interval);
-  }, []);
+    if (role === 'patient') {
+      return `Hello${name}! I'm Schedule iQ, your personal appointment assistant. I'm here to help you with:\n\n• Booking your next appointment\n• Rescheduling existing appointments\n• Finding available time slots\n• Setting up appointment reminders\n• Answering questions about your visits\n\nI can see your scheduling information and provide personalized assistance. What would you like help with today?`;
+    } else {
+      return `Hello${name}! I'm Schedule iQ, your AI scheduling assistant for healthcare practice management. I have access to your real scheduling data and can help you with:\n\n• Managing appointments for all patients\n• Optimizing provider schedules\n• Resolving scheduling conflicts\n• Analyzing scheduling patterns and trends\n• Setting up automated reminders\n• Generating scheduling reports\n• Improving practice efficiency\n\nI can see your current schedule and provide data-driven recommendations. What would you like to work on today?`;
+    }
+  };
+
+  const getRoleSpecificInitialSuggestions = (role: string) => {
+    if (role === 'patient') {
+      return [
+        "Book my next appointment",
+        "Check my upcoming appointments", 
+        "Find available appointment times",
+        "Set up appointment reminders"
+      ];
+    } else {
+      return [
+        "Show me today's schedule overview",
+        "Find the next available appointment slot",
+        "Optimize my calendar for better flow",
+        "Check for any scheduling conflicts"
+      ];
+    }
+  };
+
+  // Load scheduling context with role-based filtering
+  useEffect(() => {
+    if (profile) {
+      loadScheduleContext();
+      
+      // Refresh context every 30 seconds for real-time updates
+      const interval = setInterval(loadScheduleContext, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [profile]);
 
   const loadScheduleContext = async () => {
+    if (!profile) return;
+
     try {
       const today = new Date().toISOString().split('T')[0];
       const weekStart = new Date();
@@ -61,22 +97,29 @@ export const AIScheduleChat = () => {
       const weekEnd = new Date(weekStart);
       weekEnd.setDate(weekStart.getDate() + 6);
 
-      // Load current appointments with more details
-      const { data: appointments } = await supabase
+      // Load appointments based on user role
+      let appointmentsQuery = supabase
         .from('appointments')
         .select('*')
         .gte('date', today)
         .order('date')
-        .order('time')
-        .limit(50);
+        .order('time');
 
-      // Load active providers with specialty information
+      // If patient, only show their appointments
+      if (profile.role === 'patient') {
+        // Note: In a real implementation, you'd link user to patient record
+        appointmentsQuery = appointmentsQuery.eq('email', profile.email);
+      }
+
+      const { data: appointments } = await appointmentsQuery.limit(50);
+
+      // Load provider data (staff can see all, patients see limited info)
       const { data: providers } = await supabase
         .from('providers')
         .select('first_name, last_name, specialty')
         .eq('is_active', true);
 
-      // Load available slots for today and tomorrow
+      // Load available slots
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
       const { data: availableSlots } = await supabase
@@ -86,10 +129,7 @@ export const AIScheduleChat = () => {
         .lte('date', tomorrow.toISOString().split('T')[0])
         .eq('is_available', true);
 
-      // Calculate today's appointments
       const todaysAppointments = appointments?.filter(apt => apt.date === today).length || 0;
-      
-      // Calculate this week's appointments
       const thisWeekAppointments = appointments?.filter(apt => {
         const aptDate = new Date(apt.date);
         return aptDate >= weekStart && aptDate <= weekEnd;
@@ -101,7 +141,8 @@ export const AIScheduleChat = () => {
         availableSlots: availableSlots?.length || 0,
         todaysAppointments: todaysAppointments,
         totalProviders: providers?.length || 0,
-        upcomingAppointments: appointments?.slice(0, 5) || []
+        upcomingAppointments: appointments?.slice(0, 5) || [],
+        userRole: profile.role
       };
 
       setScheduleContext(contextData);
@@ -117,7 +158,7 @@ export const AIScheduleChat = () => {
   };
 
   const handleSendMessage = async () => {
-    if (!inputValue.trim()) return;
+    if (!inputValue.trim() || !profile) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -134,7 +175,8 @@ export const AIScheduleChat = () => {
       const { data, error } = await supabase.functions.invoke('schedule-ai-chat', {
         body: {
           message: inputValue,
-          context: scheduleContext
+          context: scheduleContext,
+          userProfile: profile
         }
       });
 
@@ -156,8 +198,6 @@ export const AIScheduleChat = () => {
       };
       
       setMessages(prev => [...prev, aiResponse]);
-
-      // Refresh context after AI interaction to get latest data
       await loadScheduleContext();
 
     } catch (error) {
@@ -188,19 +228,32 @@ export const AIScheduleChat = () => {
   };
 
   const handleQuickAction = async (action: string) => {
-    const quickActions = {
-      "Show today's schedule overview": "Give me a detailed overview of today's appointments and schedule",
-      "Find next available slot": "What's the next available appointment slot across all providers?",
-      "Optimize calendar": "Analyze my current schedule and suggest optimizations for better efficiency",
-      "Check conflicts": "Check for any scheduling conflicts or issues I should address",
-      "Send reminders": "Help me manage appointment reminders for upcoming appointments",
-      "Provider availability": "Show me current provider availability and utilization"
-    };
-
-    const message = quickActions[action as keyof typeof quickActions] || action;
-    setInputValue(message);
+    setInputValue(action);
     await handleSendMessage();
   };
+
+  if (!user || !profile) {
+    return (
+      <Card className="h-[600px] flex flex-col">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2">
+            <Brain className="h-5 w-5 text-purple-600" />
+            Schedule iQ AI Assistant
+            <Badge className="bg-yellow-100 text-yellow-700">Authentication Required</Badge>
+          </CardTitle>
+        </CardHeader>
+        
+        <CardContent className="flex-1 flex flex-col justify-center items-center gap-4">
+          <Alert>
+            <Shield className="h-4 w-4" />
+            <AlertDescription>
+              Please log in to access your personalized AI scheduling assistant.
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (needsApiKey) {
     return (
@@ -231,6 +284,10 @@ export const AIScheduleChat = () => {
     );
   }
 
+  const roleBasedQuickActions = profile.role === 'patient' 
+    ? ["Book my next appointment", "Check my appointments", "Find available times", "Set up reminders"]
+    : ["Show today's schedule overview", "Find next available slot", "Optimize calendar", "Check conflicts"];
+
   return (
     <Card className="h-[600px] flex flex-col">
       <CardHeader className="pb-3">
@@ -238,6 +295,9 @@ export const AIScheduleChat = () => {
           <Brain className="h-5 w-5 text-purple-600" />
           Schedule iQ AI Assistant
           <div className="flex gap-2">
+            <Badge className={`${profile.role === 'patient' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
+              {profile.role === 'patient' ? 'Patient Mode' : 'Staff Mode'}
+            </Badge>
             <Badge className="bg-green-100 text-green-700">
               {scheduleContext ? `${scheduleContext.todaysAppointments} today` : 'Loading...'}
             </Badge>
@@ -250,14 +310,9 @@ export const AIScheduleChat = () => {
       </CardHeader>
       
       <CardContent className="flex-1 flex flex-col gap-4">
-        {/* Enhanced Quick Action Buttons */}
+        {/* Role-based Quick Action Buttons */}
         <div className="grid grid-cols-2 gap-2">
-          {[
-            "Show today's schedule overview", 
-            "Find next available slot", 
-            "Optimize calendar", 
-            "Check conflicts"
-          ].map((action) => (
+          {roleBasedQuickActions.map((action) => (
             <Button
               key={action}
               variant="outline"
@@ -275,16 +330,20 @@ export const AIScheduleChat = () => {
           <div className="flex items-center gap-4 text-xs text-gray-600 bg-gray-50 p-2 rounded">
             <span className="flex items-center gap-1">
               <Calendar className="h-3 w-3" />
-              {scheduleContext.appointments} this week
+              {profile.role === 'patient' ? 'Your appointments' : `${scheduleContext.appointments} this week`}
             </span>
-            <span className="flex items-center gap-1">
-              <Users className="h-3 w-3" />
-              {scheduleContext.totalProviders} providers
-            </span>
-            <span className="flex items-center gap-1">
-              <Clock className="h-3 w-3" />
-              {scheduleContext.availableSlots} slots available
-            </span>
+            {profile.role !== 'patient' && (
+              <>
+                <span className="flex items-center gap-1">
+                  <Users className="h-3 w-3" />
+                  {scheduleContext.totalProviders} providers
+                </span>
+                <span className="flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
+                  {scheduleContext.availableSlots} slots available
+                </span>
+              </>
+            )}
           </div>
         )}
 
@@ -313,7 +372,7 @@ export const AIScheduleChat = () => {
                       <div className="flex items-center gap-2 mt-2 pt-2 border-t border-gray-200">
                         <TrendingUp className="h-3 w-3 text-gray-500" />
                         <span className="text-xs text-gray-500">
-                          Used live data: {message.contextUsed.todaysAppointments} appointments, {message.contextUsed.availableSlots} slots
+                          {message.contextUsed.userRole === 'patient' ? 'Personalized' : 'Live data'}: {message.contextUsed.todaysAppointments} appointments, {message.contextUsed.availableSlots} slots
                         </span>
                       </div>
                     )}
@@ -337,7 +396,9 @@ export const AIScheduleChat = () => {
                   <div className="bg-gray-100 p-3 rounded-lg">
                     <div className="flex items-center gap-2">
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      <span className="text-sm text-gray-600">Analyzing your schedule...</span>
+                      <span className="text-sm text-gray-600">
+                        {profile.role === 'patient' ? 'Checking your schedule...' : 'Analyzing your schedule...'}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -351,7 +412,7 @@ export const AIScheduleChat = () => {
           <div className="space-y-2">
             <p className="text-xs text-gray-500 font-medium flex items-center gap-1">
               <Zap className="h-3 w-3" />
-              Smart suggestions:
+              {profile.role === 'patient' ? 'Suggested actions:' : 'Smart suggestions:'}
             </p>
             <div className="flex flex-wrap gap-2">
               {messages[messages.length - 1].suggestions!.map((suggestion, index) => (
@@ -374,7 +435,10 @@ export const AIScheduleChat = () => {
           <Input
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            placeholder="Ask me about scheduling, optimization, conflicts, or any calendar management task..."
+            placeholder={profile.role === 'patient' 
+              ? "Ask me about your appointments, booking, or rescheduling..."
+              : "Ask me about scheduling, optimization, conflicts, or any calendar management task..."
+            }
             onKeyPress={(e) => e.key === 'Enter' && !isTyping && handleSendMessage()}
             className="flex-1"
             disabled={isTyping}
