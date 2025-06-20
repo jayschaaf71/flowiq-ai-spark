@@ -17,6 +17,29 @@ interface NotificationItem {
   created_at: string;
 }
 
+// Type for Supabase data (with string types)
+interface SupabaseNotificationItem {
+  id: string;
+  appointment_id: string;
+  type: string;
+  channel: string;
+  recipient: string;
+  message: string;
+  scheduled_for: string;
+  sent_at?: string;
+  status: string;
+  retry_count: number;
+  created_at: string;
+}
+
+// Helper function to convert Supabase data to NotificationItem
+const convertToNotificationItem = (item: SupabaseNotificationItem): NotificationItem => ({
+  ...item,
+  type: item.type as NotificationItem['type'],
+  channel: item.channel as NotificationItem['channel'],
+  status: item.status as NotificationItem['status']
+});
+
 export const useNotificationQueue = () => {
   const { toast } = useToast();
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
@@ -37,7 +60,9 @@ export const useNotificationQueue = () => {
       const { data, error } = await query;
 
       if (error) throw error;
-      setNotifications(data || []);
+      
+      const convertedData = (data || []).map(convertToNotificationItem);
+      setNotifications(convertedData);
     } catch (error) {
       console.error("Error loading notifications:", error);
       toast({
@@ -64,14 +89,15 @@ export const useNotificationQueue = () => {
 
       if (error) throw error;
 
-      setNotifications(prev => [...prev, data]);
+      const convertedData = convertToNotificationItem(data);
+      setNotifications(prev => [...prev, convertedData]);
 
       toast({
         title: "Notification Scheduled",
         description: `${notification.type} notification scheduled for ${new Date(notification.scheduled_for).toLocaleString()}`,
       });
 
-      return data;
+      return convertedData;
     } catch (error) {
       console.error("Error scheduling notification:", error);
       toast({
