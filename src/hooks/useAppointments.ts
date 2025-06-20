@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,24 +31,22 @@ export const useAppointments = () => {
   const loadAppointments = async () => {
     setLoading(true);
     try {
-      console.log('Starting to load appointments...');
+      console.log('Loading appointments with new policies...');
       
-      // Test the most basic query first
       const { data, error } = await supabase
         .from('appointments')
-        .select('*');
-
-      console.log('Query result:', { data, error });
+        .select('*')
+        .order('date', { ascending: true })
+        .order('time', { ascending: true });
 
       if (error) {
         console.error("Database error:", error);
         throw error;
       }
 
-      console.log('Raw appointments data:', data);
+      console.log('Appointments loaded successfully:', data?.length || 0);
       
       if (!data) {
-        console.log('No data returned, setting empty array');
         setAppointments([]);
         return;
       }
@@ -58,24 +57,17 @@ export const useAppointments = () => {
         status: appointment.status as "confirmed" | "pending" | "cancelled" | "completed" | "no-show"
       }));
 
-      console.log('Processed appointments:', typedAppointments);
       setAppointments(typedAppointments);
       
     } catch (error: any) {
-      console.error("Catch block error:", error);
-      console.error("Error details:", {
-        message: error.message,
-        code: error.code,
-        details: error.details
-      });
+      console.error("Error loading appointments:", error);
       
       toast({
         title: "Error loading appointments",
-        description: error.message || "Unknown error occurred",
+        description: error.message || "Failed to load appointments",
         variant: "destructive",
       });
       
-      // Set empty array so UI doesn't break
       setAppointments([]);
     } finally {
       setLoading(false);
