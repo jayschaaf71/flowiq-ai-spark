@@ -49,12 +49,12 @@ const fetchProfile = async (userId: string): Promise<Profile | null> => {
 
     if (error) {
       console.error('Profile fetch error:', error);
-      // If profile doesn't exist, create a basic one
+      // If profile doesn't exist, this is normal for new users
       if (error.code === 'PGRST116') {
-        console.log('Profile not found, this is expected for new users');
+        console.log('Profile not found - will be created automatically');
         return null;
       }
-      return null;
+      throw error;
     }
 
     console.log('Profile fetched successfully:', data);
@@ -125,23 +125,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
 
         if (initialSession?.user && mounted) {
-          console.log('Found existing session');
+          console.log('Found existing session for user:', initialSession.user.id);
           setSession(initialSession);
           setUser(initialSession.user);
           
-          // Try to fetch profile, but don't block on it
-          fetchProfile(initialSession.user.id).then(profileData => {
+          // Fetch profile - now that RLS is fixed, this should work
+          try {
+            const profileData = await fetchProfile(initialSession.user.id);
             if (mounted) {
-              console.log('Profile loaded:', profileData);
               setProfile(profileData);
             }
-          }).catch(err => {
-            console.error('Profile fetch failed:', err);
-            // Don't block auth flow if profile fetch fails
+          } catch (err) {
+            console.error('Profile fetch failed during init:', err);
             if (mounted) {
               setProfile(null);
             }
-          });
+          }
         }
         
       } catch (error) {
@@ -165,24 +164,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Fetch profile in background
-          fetchProfile(session.user.id).then(profileData => {
+          // Fetch profile when user signs in
+          try {
+            const profileData = await fetchProfile(session.user.id);
             if (mounted) {
               console.log('Profile loaded after auth change:', profileData);
               setProfile(profileData);
             }
-          }).catch(err => {
+          } catch (err) {
             console.error('Profile fetch failed after auth change:', err);
             if (mounted) {
               setProfile(null);
             }
-          });
+          }
         } else {
           setProfile(null);
         }
         
-        // Always clear loading state
-        setLoading(false);
+        // Clear loading state
+        if (mounted) {
+          setLoading(false);
+        }
       }
     );
 
