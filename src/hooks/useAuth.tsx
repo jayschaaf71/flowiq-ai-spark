@@ -106,62 +106,77 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    // Get initial session
-    const getInitialSession = async () => {
+    let mounted = true;
+
+    const initializeAuth = async () => {
       try {
+        // Get initial session
         const { data: { session: initialSession }, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error('Error getting initial session:', error);
-          setLoading(false);
+          if (mounted) {
+            setLoading(false);
+          }
           return;
         }
 
-        if (initialSession?.user) {
-          console.log('Initial session check:', initialSession.user.email);
+        if (initialSession?.user && mounted) {
+          console.log('Initial session found:', initialSession.user.email);
           setSession(initialSession);
           setUser(initialSession.user);
           
           // Fetch profile for authenticated user
           const profileData = await fetchProfile(initialSession.user.id);
-          setProfile(profileData);
-          
-          // Set default role if no profile exists
-          const userRole = profileData?.role || 'staff';
-          console.log('User authenticated with role:', userRole);
+          if (mounted) {
+            setProfile(profileData);
+            console.log('User authenticated with role:', profileData?.role || 'no-profile');
+          }
         }
       } catch (error) {
         console.error('Error in initial session check:', error);
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
-    getInitialSession();
+    // Initialize auth state
+    initializeAuth();
 
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (!mounted) return;
+
         console.log('Auth state changed:', event, session?.user?.email);
         
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
+          // Fetch profile when user signs in
           const profileData = await fetchProfile(session.user.id);
-          setProfile(profileData);
-          
-          const userRole = profileData?.role || 'staff';
-          console.log('User authenticated with role:', userRole);
+          if (mounted) {
+            setProfile(profileData);
+            console.log('User authenticated with role:', profileData?.role || 'no-profile');
+          }
         } else {
-          setProfile(null);
+          // Clear profile when user signs out
+          if (mounted) {
+            setProfile(null);
+          }
         }
         
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     );
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, []);
