@@ -3,7 +3,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { AvailabilitySlot } from "@/types/availability";
-import { convertToAvailabilitySlot, generateSlotsFromTemplates } from "@/utils/availabilityUtils";
+import { convertToAvailabilitySlot, convertToScheduleTemplate, generateSlotsFromTemplates } from "@/utils/availabilityUtils";
 import { useScheduleTemplates } from "./useScheduleTemplates";
 import { useAvailabilityOperations } from "./useAvailabilityOperations";
 
@@ -27,7 +27,7 @@ export const useAvailabilitySlots = () => {
 
       if (templatesError) throw templatesError;
 
-      const convertedTemplates = (templatesData || []).map(convertToAvailabilitySlot);
+      const convertedTemplates = (templatesData || []).map(convertToScheduleTemplate);
       const generatedSlots = generateSlotsFromTemplates(convertedTemplates, providerId, startDate, endDate);
 
       // Insert generated slots
