@@ -1,4 +1,5 @@
 
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -161,6 +162,8 @@ export const AIScheduleChat = () => {
     const messageToSend = messageText || inputValue;
     if (!messageToSend.trim() || !profile) return;
 
+    console.log('Sending message:', messageToSend);
+
     const userMessage: Message = {
       id: Date.now().toString(),
       type: 'user',
@@ -225,10 +228,12 @@ export const AIScheduleChat = () => {
   };
 
   const handleSuggestionClick = async (suggestion: string) => {
+    console.log('Suggestion clicked:', suggestion);
     await handleSendMessage(suggestion);
   };
 
   const handleQuickAction = async (action: string) => {
+    console.log('Quick action clicked:', action);
     await handleSendMessage(action);
   };
 
@@ -336,7 +341,10 @@ export const AIScheduleChat = () => {
                   key={index}
                   variant="outline"
                   className="h-16 flex flex-col gap-2 text-xs hover:bg-purple-50 hover:border-purple-200"
-                  onClick={() => handleQuickAction(actionItem.action)}
+                  onClick={() => {
+                    console.log('Quick AI Action button clicked:', actionItem.label, actionItem.action);
+                    handleQuickAction(actionItem.action);
+                  }}
                   disabled={isTyping}
                 >
                   <IconComponent className="h-5 w-5 text-purple-600" />
@@ -355,7 +363,10 @@ export const AIScheduleChat = () => {
               variant="outline"
               size="sm"
               className="text-xs h-8"
-              onClick={() => handleQuickAction(action)}
+              onClick={() => {
+                console.log('Role-based action clicked:', action);
+                handleQuickAction(action);
+              }}
               disabled={isTyping}
             >
               {action}
@@ -460,7 +471,10 @@ export const AIScheduleChat = () => {
                   variant="outline"
                   size="sm"
                   className="text-xs h-7 hover:bg-purple-50 hover:border-purple-200"
-                  onClick={() => handleSuggestionClick(suggestion)}
+                  onClick={() => {
+                    console.log('Suggestion button clicked:', suggestion);
+                    handleSuggestionClick(suggestion);
+                  }}
                   disabled={isTyping}
                 >
                   {suggestion}
@@ -495,3 +509,4 @@ export const AIScheduleChat = () => {
     </Card>
   );
 };
+
