@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -157,13 +156,14 @@ export const AIScheduleChat = () => {
     }
   };
 
-  const handleSendMessage = async () => {
-    if (!inputValue.trim() || !profile) return;
+  const handleSendMessage = async (messageText?: string) => {
+    const messageToSend = messageText || inputValue;
+    if (!messageToSend.trim() || !profile) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
       type: 'user',
-      content: inputValue,
+      content: messageToSend,
       timestamp: new Date()
     };
 
@@ -174,7 +174,7 @@ export const AIScheduleChat = () => {
     try {
       const { data, error } = await supabase.functions.invoke('schedule-ai-chat', {
         body: {
-          message: inputValue,
+          message: messageToSend,
           context: scheduleContext,
           userProfile: profile
         }
@@ -223,13 +223,12 @@ export const AIScheduleChat = () => {
     }
   };
 
-  const handleSuggestionClick = (suggestion: string) => {
-    setInputValue(suggestion);
+  const handleSuggestionClick = async (suggestion: string) => {
+    await handleSendMessage(suggestion);
   };
 
   const handleQuickAction = async (action: string) => {
-    setInputValue(action);
-    await handleSendMessage();
+    await handleSendMessage(action);
   };
 
   if (!user || !profile) {
@@ -319,6 +318,7 @@ export const AIScheduleChat = () => {
               size="sm"
               className="text-xs h-8"
               onClick={() => handleQuickAction(action)}
+              disabled={isTyping}
             >
               {action}
             </Button>
@@ -422,6 +422,7 @@ export const AIScheduleChat = () => {
                   size="sm"
                   className="text-xs h-7 hover:bg-purple-50 hover:border-purple-200"
                   onClick={() => handleSuggestionClick(suggestion)}
+                  disabled={isTyping}
                 >
                   {suggestion}
                 </Button>
@@ -444,7 +445,7 @@ export const AIScheduleChat = () => {
             disabled={isTyping}
           />
           <Button 
-            onClick={handleSendMessage} 
+            onClick={() => handleSendMessage()} 
             disabled={!inputValue.trim() || isTyping}
             className="bg-purple-600 hover:bg-purple-700"
           >
