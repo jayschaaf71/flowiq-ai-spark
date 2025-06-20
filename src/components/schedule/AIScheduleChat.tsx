@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Brain, Send, User, Bot, Calendar, Clock, Users, Loader2 } from "lucide-react";
+import { Brain, Send, User, Bot, Calendar, Clock, Users, Loader2, Zap, TrendingUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -16,6 +16,11 @@ interface Message {
   content: string;
   timestamp: Date;
   suggestions?: string[];
+  contextUsed?: {
+    todaysAppointments: number;
+    availableSlots: number;
+    providersActive: number;
+  };
 }
 
 export const AIScheduleChat = () => {
@@ -24,13 +29,13 @@ export const AIScheduleChat = () => {
     {
       id: '1',
       type: 'ai',
-      content: "Hello! I'm your Schedule iQ AI assistant. I can help you with appointment scheduling, calendar optimization, and managing your practice schedule. I have access to your real scheduling data and can provide specific recommendations. What would you like to do today?",
+      content: "Hello! I'm Schedule iQ, your AI scheduling assistant. I have access to your real scheduling data and can help you with:\n\n• Booking and managing appointments\n• Optimizing your calendar for better efficiency\n• Resolving scheduling conflicts\n• Analyzing scheduling patterns\n• Setting up automated reminders\n• Finding available time slots\n\nI can see your current schedule and provide specific, data-driven recommendations. What would you like to work on today?",
       timestamp: new Date(),
       suggestions: [
-        "Show me today's schedule",
-        "Find available slots for next week",
-        "Optimize my calendar",
-        "Send appointment reminders"
+        "Show me today's schedule overview",
+        "Find the next available appointment slot",
+        "Optimize my calendar for better flow",
+        "Check for any scheduling conflicts"
       ]
     }
   ]);
@@ -39,44 +44,75 @@ export const AIScheduleChat = () => {
   const [scheduleContext, setScheduleContext] = useState<any>(null);
   const [needsApiKey, setNeedsApiKey] = useState(false);
 
-  // Load scheduling context
+  // Load scheduling context with more detailed information
   useEffect(() => {
     loadScheduleContext();
+    
+    // Refresh context every 30 seconds for real-time updates
+    const interval = setInterval(loadScheduleContext, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   const loadScheduleContext = async () => {
     try {
-      // Load current appointments
+      const today = new Date().toISOString().split('T')[0];
+      const weekStart = new Date();
+      weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 6);
+
+      // Load current appointments with more details
       const { data: appointments } = await supabase
         .from('appointments')
         .select('*')
-        .gte('date', new Date().toISOString().split('T')[0])
+        .gte('date', today)
         .order('date')
         .order('time')
-        .limit(10);
+        .limit(50);
 
-      // Load providers
+      // Load active providers with specialty information
       const { data: providers } = await supabase
         .from('providers')
         .select('first_name, last_name, specialty')
         .eq('is_active', true);
 
-      // Load available slots for today
+      // Load available slots for today and tomorrow
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
       const { data: availableSlots } = await supabase
         .from('availability_slots')
         .select('*')
-        .eq('date', new Date().toISOString().split('T')[0])
+        .gte('date', today)
+        .lte('date', tomorrow.toISOString().split('T')[0])
         .eq('is_available', true);
 
-      setScheduleContext({
-        appointments: appointments?.length || 0,
+      // Calculate today's appointments
+      const todaysAppointments = appointments?.filter(apt => apt.date === today).length || 0;
+      
+      // Calculate this week's appointments
+      const thisWeekAppointments = appointments?.filter(apt => {
+        const aptDate = new Date(apt.date);
+        return aptDate >= weekStart && aptDate <= weekEnd;
+      }).length || 0;
+
+      const contextData = {
+        appointments: thisWeekAppointments,
         providers: providers?.map(p => `${p.first_name} ${p.last_name} (${p.specialty})`).join(', ') || 'None configured',
         availableSlots: availableSlots?.length || 0,
-        todaysAppointments: appointments?.filter(apt => apt.date === new Date().toISOString().split('T')[0]).length || 0
-      });
+        todaysAppointments: todaysAppointments,
+        totalProviders: providers?.length || 0,
+        upcomingAppointments: appointments?.slice(0, 5) || []
+      };
+
+      setScheduleContext(contextData);
 
     } catch (error) {
       console.error('Error loading schedule context:', error);
+      toast({
+        title: "Context Loading Error",
+        description: "Some scheduling data may not be current",
+        variant: "destructive"
+      });
     }
   };
 
@@ -115,12 +151,13 @@ export const AIScheduleChat = () => {
         type: 'ai',
         content: data.response,
         timestamp: new Date(),
-        suggestions: data.suggestions || []
+        suggestions: data.suggestions || [],
+        contextUsed: data.contextUsed
       };
       
       setMessages(prev => [...prev, aiResponse]);
 
-      // Refresh context after AI interaction
+      // Refresh context after AI interaction to get latest data
       await loadScheduleContext();
 
     } catch (error) {
@@ -131,7 +168,7 @@ export const AIScheduleChat = () => {
         type: 'ai',
         content: `I apologize, but I encountered an error: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`,
         timestamp: new Date(),
-        suggestions: ["Try again", "Check system status", "Contact support"]
+        suggestions: ["Try again", "Refresh the page", "Check system status"]
       };
       
       setMessages(prev => [...prev, errorMessage]);
@@ -152,10 +189,12 @@ export const AIScheduleChat = () => {
 
   const handleQuickAction = async (action: string) => {
     const quickActions = {
-      "Show today's schedule": "What appointments do I have scheduled for today?",
-      "Find available slots": "What time slots are available for booking this week?",
-      "Optimize schedule": "Can you analyze my schedule and suggest optimizations?",
-      "Send reminders": "Help me send appointment reminders to patients"
+      "Show today's schedule overview": "Give me a detailed overview of today's appointments and schedule",
+      "Find next available slot": "What's the next available appointment slot across all providers?",
+      "Optimize calendar": "Analyze my current schedule and suggest optimizations for better efficiency",
+      "Check conflicts": "Check for any scheduling conflicts or issues I should address",
+      "Send reminders": "Help me manage appointment reminders for upcoming appointments",
+      "Provider availability": "Show me current provider availability and utilization"
     };
 
     const message = quickActions[action as keyof typeof quickActions] || action;
@@ -198,16 +237,27 @@ export const AIScheduleChat = () => {
         <CardTitle className="flex items-center gap-2">
           <Brain className="h-5 w-5 text-purple-600" />
           Schedule iQ AI Assistant
-          <Badge className="bg-green-100 text-green-700">
-            {scheduleContext ? `${scheduleContext.todaysAppointments} appointments today` : 'Loading...'}
-          </Badge>
+          <div className="flex gap-2">
+            <Badge className="bg-green-100 text-green-700">
+              {scheduleContext ? `${scheduleContext.todaysAppointments} today` : 'Loading...'}
+            </Badge>
+            <Badge className="bg-blue-100 text-blue-700">
+              <Zap className="h-3 w-3 mr-1" />
+              AI Enhanced
+            </Badge>
+          </div>
         </CardTitle>
       </CardHeader>
       
       <CardContent className="flex-1 flex flex-col gap-4">
-        {/* Quick Action Buttons */}
+        {/* Enhanced Quick Action Buttons */}
         <div className="grid grid-cols-2 gap-2">
-          {["Show today's schedule", "Find available slots", "Optimize schedule", "Send reminders"].map((action) => (
+          {[
+            "Show today's schedule overview", 
+            "Find next available slot", 
+            "Optimize calendar", 
+            "Check conflicts"
+          ].map((action) => (
             <Button
               key={action}
               variant="outline"
@@ -220,17 +270,35 @@ export const AIScheduleChat = () => {
           ))}
         </div>
 
+        {/* Context Status */}
+        {scheduleContext && (
+          <div className="flex items-center gap-4 text-xs text-gray-600 bg-gray-50 p-2 rounded">
+            <span className="flex items-center gap-1">
+              <Calendar className="h-3 w-3" />
+              {scheduleContext.appointments} this week
+            </span>
+            <span className="flex items-center gap-1">
+              <Users className="h-3 w-3" />
+              {scheduleContext.totalProviders} providers
+            </span>
+            <span className="flex items-center gap-1">
+              <Clock className="h-3 w-3" />
+              {scheduleContext.availableSlots} slots available
+            </span>
+          </div>
+        )}
+
         <ScrollArea className="flex-1 pr-4">
           <div className="space-y-4">
             {messages.map((message) => (
               <div key={message.id} className={`flex gap-3 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`flex gap-2 max-w-[80%] ${message.type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                <div className={`flex gap-2 max-w-[85%] ${message.type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                     message.type === 'user' 
                       ? 'bg-blue-600 text-white' 
                       : 'bg-purple-100 text-purple-600'
                   }`}>
-                    {message.type === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+                    {message.type === 'user' ? <User className="w-4 h-4" /> : <Brain className="w-4 h-4" />}
                   </div>
                   
                   <div className={`p-3 rounded-lg ${
@@ -239,6 +307,17 @@ export const AIScheduleChat = () => {
                       : 'bg-gray-100 text-gray-900'
                   }`}>
                     <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                    
+                    {/* Context indicators for AI messages */}
+                    {message.type === 'ai' && message.contextUsed && (
+                      <div className="flex items-center gap-2 mt-2 pt-2 border-t border-gray-200">
+                        <TrendingUp className="h-3 w-3 text-gray-500" />
+                        <span className="text-xs text-gray-500">
+                          Used live data: {message.contextUsed.todaysAppointments} appointments, {message.contextUsed.availableSlots} slots
+                        </span>
+                      </div>
+                    )}
+                    
                     <p className={`text-xs mt-1 ${
                       message.type === 'user' ? 'text-blue-100' : 'text-gray-500'
                     }`}>
@@ -253,12 +332,12 @@ export const AIScheduleChat = () => {
               <div className="flex gap-3 justify-start">
                 <div className="flex gap-2">
                   <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center">
-                    <Bot className="w-4 h-4" />
+                    <Brain className="w-4 h-4" />
                   </div>
                   <div className="bg-gray-100 p-3 rounded-lg">
                     <div className="flex items-center gap-2">
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      <span className="text-sm text-gray-600">Thinking...</span>
+                      <span className="text-sm text-gray-600">Analyzing your schedule...</span>
                     </div>
                   </div>
                 </div>
@@ -267,17 +346,20 @@ export const AIScheduleChat = () => {
           </div>
         </ScrollArea>
 
-        {/* AI Suggestions */}
+        {/* Enhanced AI Suggestions */}
         {messages.length > 0 && messages[messages.length - 1].type === 'ai' && messages[messages.length - 1].suggestions && !isTyping && (
           <div className="space-y-2">
-            <p className="text-xs text-gray-500 font-medium">Suggested actions:</p>
+            <p className="text-xs text-gray-500 font-medium flex items-center gap-1">
+              <Zap className="h-3 w-3" />
+              Smart suggestions:
+            </p>
             <div className="flex flex-wrap gap-2">
               {messages[messages.length - 1].suggestions!.map((suggestion, index) => (
                 <Button
                   key={index}
                   variant="outline"
                   size="sm"
-                  className="text-xs h-7"
+                  className="text-xs h-7 hover:bg-purple-50 hover:border-purple-200"
                   onClick={() => handleSuggestionClick(suggestion)}
                 >
                   {suggestion}
@@ -287,12 +369,12 @@ export const AIScheduleChat = () => {
           </div>
         )}
 
-        {/* Input Area */}
+        {/* Enhanced Input Area */}
         <div className="flex gap-2">
           <Input
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            placeholder="Ask me about scheduling, availability, or optimizations..."
+            placeholder="Ask me about scheduling, optimization, conflicts, or any calendar management task..."
             onKeyPress={(e) => e.key === 'Enter' && !isTyping && handleSendMessage()}
             className="flex-1"
             disabled={isTyping}
@@ -300,6 +382,7 @@ export const AIScheduleChat = () => {
           <Button 
             onClick={handleSendMessage} 
             disabled={!inputValue.trim() || isTyping}
+            className="bg-purple-600 hover:bg-purple-700"
           >
             {isTyping ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           </Button>
