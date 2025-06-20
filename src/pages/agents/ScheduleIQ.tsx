@@ -93,7 +93,7 @@ const ScheduleIQ = () => {
               </TabsTrigger>
               <TabsTrigger value="book" className="flex items-center gap-1">
                 <Calendar className="w-4 h-4" />
-                Book
+                Book new appointment
               </TabsTrigger>
               <TabsTrigger value="appointments" className="flex items-center gap-1">
                 <Users className="w-4 h-4" />
