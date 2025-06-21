@@ -19,6 +19,8 @@ import { IntakeFormSeed } from "@/components/intake/IntakeFormSeed";
 import { StaffIntakeDashboard } from "@/components/intake/StaffIntakeDashboard";
 import { EnhancedAIProcessor } from "@/components/intake/EnhancedAIProcessor";
 import { PatientCommunicationCenter } from "@/components/intake/PatientCommunicationCenter";
+import { AdvancedFormBuilder } from "@/components/intake/AdvancedFormBuilder";
+import { IntakeAnalyticsAdvanced } from "@/components/intake/IntakeAnalyticsAdvanced";
 import { useIntakeForms } from "@/hooks/useIntakeForms";
 import { useTenantConfig } from "@/utils/tenantConfig";
 
