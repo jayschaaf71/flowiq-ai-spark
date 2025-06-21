@@ -99,6 +99,35 @@ export const FormTemplates = () => {
     return matchesSearch && matchesCategory;
   });
 
+  const handleImportTemplate = () => {
+    // Create a file input element
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json,.xml,.csv';
+    input.onchange = (e) => {
+      const target = e.target as HTMLInputElement;
+      const file = target.files?.[0];
+      if (file) {
+        console.log('Importing template file:', file.name);
+        // TODO: Implement actual file import logic
+        alert(`Would import template from: ${file.name}`);
+      }
+    };
+    input.click();
+  };
+
+  const handleBulkExport = () => {
+    console.log('Exporting all templates as ZIP');
+    // TODO: Implement actual bulk export logic
+    alert('Would export all templates as ZIP file');
+  };
+
+  const handleGoToFormBuilder = () => {
+    // Navigate to form builder tab
+    const event = new CustomEvent('changeIntakeTab', { detail: 'builder' });
+    window.dispatchEvent(event);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -212,19 +241,31 @@ export const FormTemplates = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button variant="outline" className="justify-start h-auto p-4">
+            <Button 
+              variant="outline" 
+              className="justify-start h-auto p-4"
+              onClick={handleImportTemplate}
+            >
               <div className="text-left">
                 <div className="font-medium">Import Template</div>
                 <div className="text-sm text-gray-600">Upload form template from file</div>
               </div>
             </Button>
-            <Button variant="outline" className="justify-start h-auto p-4">
+            <Button 
+              variant="outline" 
+              className="justify-start h-auto p-4"
+              onClick={handleBulkExport}
+            >
               <div className="text-left">
                 <div className="font-medium">Bulk Export</div>
                 <div className="text-sm text-gray-600">Export all templates as ZIP</div>
               </div>
             </Button>
-            <Button variant="outline" className="justify-start h-auto p-4">
+            <Button 
+              variant="outline" 
+              className="justify-start h-auto p-4"
+              onClick={handleGoToFormBuilder}
+            >
               <div className="text-left">
                 <div className="font-medium">Form Builder</div>
                 <div className="text-sm text-gray-600">Create custom form from scratch</div>
