@@ -11,6 +11,8 @@ interface FormNavigationProps {
   onPrevious: () => void;
   onNext: () => void;
   onSubmit: () => void;
+  hasErrors?: boolean;
+  completeness?: number;
 }
 
 export const FormNavigation: React.FC<FormNavigationProps> = ({
@@ -20,7 +22,9 @@ export const FormNavigation: React.FC<FormNavigationProps> = ({
   primaryColor,
   onPrevious,
   onNext,
-  onSubmit
+  onSubmit,
+  hasErrors,
+  completeness
 }) => {
   return (
     <Card>
@@ -37,13 +41,14 @@ export const FormNavigation: React.FC<FormNavigationProps> = ({
           <Button
             onClick={onNext}
             className={`bg-${primaryColor}-600 hover:bg-${primaryColor}-700`}
+            disabled={hasErrors}
           >
             Next
           </Button>
         ) : (
           <Button
             onClick={onSubmit}
-            disabled={isSubmitting}
+            disabled={isSubmitting || hasErrors}
             className={`bg-${primaryColor}-600 hover:bg-${primaryColor}-700`}
           >
             {isSubmitting ? 'Submitting...' : 'Submit Form'}

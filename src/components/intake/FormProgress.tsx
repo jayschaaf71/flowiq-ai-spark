@@ -9,6 +9,7 @@ interface FormProgressProps {
   currentStep: number;
   totalSteps: number;
   primaryColor: string;
+  completeness?: number;
 }
 
 export const FormProgress: React.FC<FormProgressProps> = ({
@@ -16,9 +17,10 @@ export const FormProgress: React.FC<FormProgressProps> = ({
   description,
   currentStep,
   totalSteps,
-  primaryColor
+  primaryColor,
+  completeness
 }) => {
-  const progress = ((currentStep + 1) / totalSteps) * 100;
+  const progress = completeness !== undefined ? completeness : ((currentStep + 1) / totalSteps) * 100;
 
   return (
     <Card>
