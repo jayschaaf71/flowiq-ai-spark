@@ -2,6 +2,7 @@
 import { useEffect } from 'react';
 import { useIntakeForms } from '@/hooks/useIntakeForms';
 import { useTenantConfig } from '@/utils/tenantConfig';
+import type { Json } from '@/integrations/supabase/types';
 
 interface FormField {
   id: string;
@@ -237,7 +238,12 @@ export const IntakeFormSeed = () => {
         
         for (const formData of westCountyForms) {
           try {
-            await createForm(formData);
+            await createForm({
+              title: formData.title,
+              description: formData.description,
+              form_fields: formData.form_fields as Json,
+              is_active: formData.is_active
+            });
             console.log(`Created form: ${formData.title}`);
           } catch (error) {
             console.error(`Error creating form ${formData.title}:`, error);
