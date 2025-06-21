@@ -51,27 +51,17 @@ const IntakeIQ = () => {
       
       <div className="p-6 space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-12">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="ai-processing">AI Processing</TabsTrigger>
             <TabsTrigger value="submissions">Submissions</TabsTrigger>
-            <TabsTrigger value="smart-builder">Smart Builder</TabsTrigger>
-            <TabsTrigger value="builder">Form Builder</TabsTrigger>
-            <TabsTrigger value="templates">Templates</TabsTrigger>
-            <TabsTrigger value="pregnancy">Pregnancy Form</TabsTrigger>
-            <TabsTrigger value="menstrual">Menstrual History</TabsTrigger>
-            <TabsTrigger value="new-patient">New Patient</TabsTrigger>
-            <TabsTrigger value="credit-card">Credit Card</TabsTrigger>
-            <TabsTrigger value="registration">Patient Portal</TabsTrigger>
+            <TabsTrigger value="forms">Forms</TabsTrigger>
+            <TabsTrigger value="ai-tools">AI Tools</TabsTrigger>
+            <TabsTrigger value="patient-portal">Patient Portal</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-4">
             <EnhancedIntakeDashboard />
-          </TabsContent>
-
-          <TabsContent value="ai-processing" className="space-y-4">
-            <IntakeAIProcessor />
           </TabsContent>
 
           <TabsContent value="submissions" className="space-y-4">
@@ -81,35 +71,61 @@ const IntakeIQ = () => {
             />
           </TabsContent>
 
-          <TabsContent value="smart-builder" className="space-y-4">
-            <SmartFormBuilder />
+          <TabsContent value="forms" className="space-y-4">
+            <Tabs defaultValue="templates" className="space-y-4">
+              <TabsList>
+                <TabsTrigger value="templates">Templates</TabsTrigger>
+                <TabsTrigger value="builder">Form Builder</TabsTrigger>
+                <TabsTrigger value="pregnancy">Pregnancy Form</TabsTrigger>
+                <TabsTrigger value="menstrual">Menstrual History</TabsTrigger>
+                <TabsTrigger value="new-patient">New Patient</TabsTrigger>
+                <TabsTrigger value="credit-card">Credit Card</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="templates">
+                <FormTemplates />
+              </TabsContent>
+              
+              <TabsContent value="builder">
+                <IntakeFormBuilder />
+              </TabsContent>
+              
+              <TabsContent value="pregnancy">
+                <PregnancyQuestionnaire />
+              </TabsContent>
+              
+              <TabsContent value="menstrual">
+                <MenstrualHistoryForm />
+              </TabsContent>
+              
+              <TabsContent value="new-patient">
+                <NewPatientIntakeForm />
+              </TabsContent>
+              
+              <TabsContent value="credit-card">
+                <CreditCardAgreementForm />
+              </TabsContent>
+            </Tabs>
           </TabsContent>
 
-          <TabsContent value="builder" className="space-y-4">
-            <IntakeFormBuilder />
+          <TabsContent value="ai-tools" className="space-y-4">
+            <Tabs defaultValue="processor" className="space-y-4">
+              <TabsList>
+                <TabsTrigger value="processor">AI Processing</TabsTrigger>
+                <TabsTrigger value="smart-builder">Smart Builder</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="processor">
+                <IntakeAIProcessor />
+              </TabsContent>
+              
+              <TabsContent value="smart-builder">
+                <SmartFormBuilder />
+              </TabsContent>
+            </Tabs>
           </TabsContent>
 
-          <TabsContent value="templates" className="space-y-4">
-            <FormTemplates />
-          </TabsContent>
-
-          <TabsContent value="pregnancy" className="space-y-4">
-            <PregnancyQuestionnaire />
-          </TabsContent>
-
-          <TabsContent value="menstrual" className="space-y-4">
-            <MenstrualHistoryForm />
-          </TabsContent>
-
-          <TabsContent value="new-patient" className="space-y-4">
-            <NewPatientIntakeForm />
-          </TabsContent>
-
-          <TabsContent value="credit-card" className="space-y-4">
-            <CreditCardAgreementForm />
-          </TabsContent>
-
-          <TabsContent value="registration" className="space-y-4">
+          <TabsContent value="patient-portal" className="space-y-4">
             <PatientRegistration />
           </TabsContent>
 
