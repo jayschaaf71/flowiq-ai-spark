@@ -44,7 +44,7 @@ const IntakeIQ = () => {
   return (
     <Layout>
       <PageHeader 
-        title={`${tenantConfig.brandName} Intake iQ`}
+        title="Intake IQ"
         subtitle={`AI-powered ${tenantConfig.specialty.toLowerCase()} patient intake and form management`}
         badge="AI Agent"
       />
