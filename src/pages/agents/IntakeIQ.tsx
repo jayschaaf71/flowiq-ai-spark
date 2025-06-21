@@ -15,6 +15,7 @@ import { PregnancyQuestionnaire } from "@/components/intake/PregnancyQuestionnai
 import { NewPatientIntakeForm } from "@/components/intake/NewPatientIntakeForm";
 import { MenstrualHistoryForm } from "@/components/intake/MenstrualHistoryForm";
 import { CreditCardAgreementForm } from "@/components/intake/CreditCardAgreementForm";
+import { IntakeFormSeed } from "@/components/intake/IntakeFormSeed";
 import { useIntakeForms } from "@/hooks/useIntakeForms";
 import { useTenantConfig } from "@/utils/tenantConfig";
 
@@ -43,6 +44,9 @@ const IntakeIQ = () => {
 
   return (
     <Layout>
+      {/* Seed component to create initial forms */}
+      <IntakeFormSeed />
+      
       <PageHeader 
         title="Intake IQ"
         subtitle={`AI-powered ${tenantConfig.specialty.toLowerCase()} patient intake and form management`}
@@ -51,11 +55,10 @@ const IntakeIQ = () => {
       
       <div className="p-6 space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
             <TabsTrigger value="submissions">Submissions</TabsTrigger>
             <TabsTrigger value="forms">Form Management</TabsTrigger>
-            <TabsTrigger value="ai-tools">AI Tools</TabsTrigger>
             <TabsTrigger value="patient-portal">Patient Portal</TabsTrigger>
           </TabsList>
 
@@ -75,6 +78,7 @@ const IntakeIQ = () => {
               <TabsList>
                 <TabsTrigger value="templates">Templates</TabsTrigger>
                 <TabsTrigger value="builder">Form Builder</TabsTrigger>
+                <TabsTrigger value="ai-tools">AI Tools</TabsTrigger>
               </TabsList>
               
               <TabsContent value="templates">
@@ -84,22 +88,22 @@ const IntakeIQ = () => {
               <TabsContent value="builder">
                 <IntakeFormBuilder />
               </TabsContent>
-            </Tabs>
-          </TabsContent>
-
-          <TabsContent value="ai-tools" className="space-y-4">
-            <Tabs defaultValue="processor" className="space-y-4">
-              <TabsList>
-                <TabsTrigger value="processor">AI Processing</TabsTrigger>
-                <TabsTrigger value="smart-builder">Smart Builder</TabsTrigger>
-              </TabsList>
               
-              <TabsContent value="processor">
-                <IntakeAIProcessor />
-              </TabsContent>
-              
-              <TabsContent value="smart-builder">
-                <SmartFormBuilder />
+              <TabsContent value="ai-tools">
+                <Tabs defaultValue="processor" className="space-y-4">
+                  <TabsList>
+                    <TabsTrigger value="processor">AI Processing</TabsTrigger>
+                    <TabsTrigger value="smart-builder">Smart Builder</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="processor">
+                    <IntakeAIProcessor />
+                  </TabsContent>
+                  
+                  <TabsContent value="smart-builder">
+                    <SmartFormBuilder />
+                  </TabsContent>
+                </Tabs>
               </TabsContent>
             </Tabs>
           </TabsContent>
