@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,6 +22,19 @@ const IntakeIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const tenantConfig = useTenantConfig();
   const { submissions } = useIntakeForms();
+
+  // Listen for custom events to change tabs
+  useEffect(() => {
+    const handleTabChange = (event: CustomEvent) => {
+      setActiveTab(event.detail);
+    };
+
+    window.addEventListener('changeIntakeTab', handleTabChange as EventListener);
+    
+    return () => {
+      window.removeEventListener('changeIntakeTab', handleTabChange as EventListener);
+    };
+  }, []);
 
   const handleViewSubmission = (submission: any) => {
     console.log('Viewing submission:', submission);

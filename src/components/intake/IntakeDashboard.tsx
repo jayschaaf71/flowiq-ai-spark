@@ -13,13 +13,18 @@ import {
   Plus,
   Eye
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useIntakeForms } from "@/hooks/useIntakeForms";
 
 export const IntakeDashboard = () => {
+  const navigate = useNavigate();
+  const { forms, submissions } = useIntakeForms();
+
   const stats = {
-    formsProcessed: 142,
+    formsProcessed: submissions?.length || 0,
     avgCompletionTime: "8.5 min",
     completionRate: 94,
-    pendingReviews: 7
+    pendingReviews: submissions?.filter(s => s.status === 'partial')?.length || 0
   };
 
   const recentActivity = [
@@ -39,6 +44,35 @@ export const IntakeDashboard = () => {
       case "automation": return <TrendingUp className="w-4 h-4 text-emerald-600" />;
       default: return <FileText className="w-4 h-4 text-gray-600" />;
     }
+  };
+
+  const handleCreateNewForm = () => {
+    // Navigate to form builder tab
+    const currentUrl = new URL(window.location.href);
+    currentUrl.hash = '';
+    window.history.pushState({}, '', currentUrl.toString());
+    
+    // Trigger tab change by dispatching a custom event
+    const event = new CustomEvent('changeIntakeTab', { detail: 'builder' });
+    window.dispatchEvent(event);
+  };
+
+  const handleReviewForms = () => {
+    // Navigate to submissions tab
+    const event = new CustomEvent('changeIntakeTab', { detail: 'submissions' });
+    window.dispatchEvent(event);
+  };
+
+  const handleGeneratePackets = () => {
+    // Navigate to templates tab
+    const event = new CustomEvent('changeIntakeTab', { detail: 'templates' });
+    window.dispatchEvent(event);
+  };
+
+  const handleViewAnalytics = () => {
+    // Navigate to analytics tab
+    const event = new CustomEvent('changeIntakeTab', { detail: 'analytics' });
+    window.dispatchEvent(event);
   };
 
   return (
@@ -125,19 +159,35 @@ export const IntakeDashboard = () => {
             <CardDescription>Common intake management tasks</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button className="w-full justify-start" variant="outline">
+            <Button 
+              className="w-full justify-start" 
+              variant="outline"
+              onClick={handleCreateNewForm}
+            >
               <Plus className="w-4 h-4 mr-2" />
               Create New Form Template
             </Button>
-            <Button className="w-full justify-start" variant="outline">
+            <Button 
+              className="w-full justify-start" 
+              variant="outline"
+              onClick={handleReviewForms}
+            >
               <Eye className="w-4 h-4 mr-2" />
               Review Flagged Forms
             </Button>
-            <Button className="w-full justify-start" variant="outline">
+            <Button 
+              className="w-full justify-start" 
+              variant="outline"
+              onClick={handleGeneratePackets}
+            >
               <FileText className="w-4 h-4 mr-2" />
               Generate Patient Packets
             </Button>
-            <Button className="w-full justify-start" variant="outline">
+            <Button 
+              className="w-full justify-start" 
+              variant="outline"
+              onClick={handleViewAnalytics}
+            >
               <TrendingUp className="w-4 h-4 mr-2" />
               View Analytics Report
             </Button>
