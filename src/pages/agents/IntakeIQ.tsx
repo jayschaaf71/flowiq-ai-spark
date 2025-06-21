@@ -51,13 +51,12 @@ const IntakeIQ = () => {
       
       <div className="p-6 space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
             <TabsTrigger value="submissions">Submissions</TabsTrigger>
             <TabsTrigger value="forms">Form Management</TabsTrigger>
             <TabsTrigger value="ai-tools">AI Tools</TabsTrigger>
             <TabsTrigger value="patient-portal">Patient Portal</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-4">
@@ -106,16 +105,16 @@ const IntakeIQ = () => {
           </TabsContent>
 
           <TabsContent value="patient-portal" className="space-y-4">
-            <Tabs defaultValue="registration" className="space-y-4">
-              <TabsList>
-                <TabsTrigger value="registration">Patient Registration</TabsTrigger>
-                <TabsTrigger value="pregnancy">Pregnancy Form</TabsTrigger>
-                <TabsTrigger value="menstrual">Menstrual History</TabsTrigger>
+            <Tabs defaultValue="all-forms" className="space-y-4">
+              <TabsList className="grid w-full grid-cols-5">
+                <TabsTrigger value="all-forms">All Forms</TabsTrigger>
+                <TabsTrigger value="pregnancy">Pregnancy</TabsTrigger>
                 <TabsTrigger value="new-patient">New Patient</TabsTrigger>
-                <TabsTrigger value="credit-card">Credit Card</TabsTrigger>
+                <TabsTrigger value="menstrual">Menstrual History</TabsTrigger>
+                <TabsTrigger value="credit-card">Payment Info</TabsTrigger>
               </TabsList>
               
-              <TabsContent value="registration">
+              <TabsContent value="all-forms">
                 <PatientRegistration />
               </TabsContent>
               
@@ -123,22 +122,18 @@ const IntakeIQ = () => {
                 <PregnancyQuestionnaire />
               </TabsContent>
               
-              <TabsContent value="menstrual">
-                <MenstrualHistoryForm />
-              </TabsContent>
-              
               <TabsContent value="new-patient">
                 <NewPatientIntakeForm />
+              </TabsContent>
+              
+              <TabsContent value="menstrual">
+                <MenstrualHistoryForm />
               </TabsContent>
               
               <TabsContent value="credit-card">
                 <CreditCardAgreementForm />
               </TabsContent>
             </Tabs>
-          </TabsContent>
-
-          <TabsContent value="analytics" className="space-y-4">
-            <IntakeAnalytics />
           </TabsContent>
         </Tabs>
       </div>
