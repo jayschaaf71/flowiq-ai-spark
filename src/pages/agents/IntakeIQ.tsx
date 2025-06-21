@@ -54,7 +54,7 @@ const IntakeIQ = () => {
           <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
             <TabsTrigger value="submissions">Submissions</TabsTrigger>
-            <TabsTrigger value="forms">Forms</TabsTrigger>
+            <TabsTrigger value="forms">Form Management</TabsTrigger>
             <TabsTrigger value="ai-tools">AI Tools</TabsTrigger>
             <TabsTrigger value="patient-portal">Patient Portal</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
@@ -76,10 +76,6 @@ const IntakeIQ = () => {
               <TabsList>
                 <TabsTrigger value="templates">Templates</TabsTrigger>
                 <TabsTrigger value="builder">Form Builder</TabsTrigger>
-                <TabsTrigger value="pregnancy">Pregnancy Form</TabsTrigger>
-                <TabsTrigger value="menstrual">Menstrual History</TabsTrigger>
-                <TabsTrigger value="new-patient">New Patient</TabsTrigger>
-                <TabsTrigger value="credit-card">Credit Card</TabsTrigger>
               </TabsList>
               
               <TabsContent value="templates">
@@ -88,22 +84,6 @@ const IntakeIQ = () => {
               
               <TabsContent value="builder">
                 <IntakeFormBuilder />
-              </TabsContent>
-              
-              <TabsContent value="pregnancy">
-                <PregnancyQuestionnaire />
-              </TabsContent>
-              
-              <TabsContent value="menstrual">
-                <MenstrualHistoryForm />
-              </TabsContent>
-              
-              <TabsContent value="new-patient">
-                <NewPatientIntakeForm />
-              </TabsContent>
-              
-              <TabsContent value="credit-card">
-                <CreditCardAgreementForm />
               </TabsContent>
             </Tabs>
           </TabsContent>
@@ -126,7 +106,35 @@ const IntakeIQ = () => {
           </TabsContent>
 
           <TabsContent value="patient-portal" className="space-y-4">
-            <PatientRegistration />
+            <Tabs defaultValue="registration" className="space-y-4">
+              <TabsList>
+                <TabsTrigger value="registration">Patient Registration</TabsTrigger>
+                <TabsTrigger value="pregnancy">Pregnancy Form</TabsTrigger>
+                <TabsTrigger value="menstrual">Menstrual History</TabsTrigger>
+                <TabsTrigger value="new-patient">New Patient</TabsTrigger>
+                <TabsTrigger value="credit-card">Credit Card</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="registration">
+                <PatientRegistration />
+              </TabsContent>
+              
+              <TabsContent value="pregnancy">
+                <PregnancyQuestionnaire />
+              </TabsContent>
+              
+              <TabsContent value="menstrual">
+                <MenstrualHistoryForm />
+              </TabsContent>
+              
+              <TabsContent value="new-patient">
+                <NewPatientIntakeForm />
+              </TabsContent>
+              
+              <TabsContent value="credit-card">
+                <CreditCardAgreementForm />
+              </TabsContent>
+            </Tabs>
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-4">
