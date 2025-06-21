@@ -19,6 +19,7 @@ interface FormField {
     max?: number;
   };
   helpText?: string;
+  [key: string]: Json;
 }
 
 export const IntakeFormSeed = () => {
