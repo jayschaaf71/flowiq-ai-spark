@@ -231,7 +231,7 @@ export const PatientCommunicationCenter: React.FC = () => {
                 />
                 {selectedTemplate && (
                   <p className="text-xs text-gray-500 mt-1">
-                    Template variables: {{patient_name}}, {{form_type}}, {{submission_date}}
+                    Template variables: {`{{patient_name}}, {{form_type}}, {{submission_date}}`}
                   </p>
                 )}
               </div>
