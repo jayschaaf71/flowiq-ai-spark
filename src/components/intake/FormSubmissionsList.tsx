@@ -24,11 +24,17 @@ import { useTenantConfig } from '@/utils/tenantConfig';
 interface FormSubmissionsListProps {
   submissions: FormSubmission[];
   onViewSubmission: (submission: FormSubmission) => void;
+  showActions?: boolean;
+  onAssignToStaff?: (submissionId: string, staffMember: string) => void;
+  onSendFollowUp?: (submission: FormSubmission) => void;
 }
 
 export const FormSubmissionsList: React.FC<FormSubmissionsListProps> = ({
   submissions,
-  onViewSubmission
+  onViewSubmission,
+  showActions = false,
+  onAssignToStaff,
+  onSendFollowUp
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -283,6 +289,35 @@ export const FormSubmissionsList: React.FC<FormSubmissionsListProps> = ({
                         <SubmissionDetailModal submission={selectedSubmission} />
                       )}
                     </Dialog>
+                    
+                    {showActions && (
+                      <>
+                        {onAssignToStaff && (
+                          <Select onValueChange={(value) => onAssignToStaff(submission.id, value)}>
+                            <SelectTrigger className="w-32">
+                              <SelectValue placeholder="Assign" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="dr-smith">Dr. Smith</SelectItem>
+                              <SelectItem value="nurse-johnson">Nurse Johnson</SelectItem>
+                              <SelectItem value="admin-jones">Admin Jones</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
+                        
+                        {onSendFollowUp && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => onSendFollowUp(submission)}
+                          >
+                            <Mail className="w-4 h-4 mr-1" />
+                            Follow-up
+                          </Button>
+                        )}
+                      </>
+                    )}
+                    
                     <Button variant="outline" size="sm">
                       <Download className="w-4 h-4 mr-1" />
                       Export

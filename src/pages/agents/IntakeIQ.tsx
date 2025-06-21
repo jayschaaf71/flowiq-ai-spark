@@ -16,11 +16,14 @@ import { NewPatientIntakeForm } from "@/components/intake/NewPatientIntakeForm";
 import { MenstrualHistoryForm } from "@/components/intake/MenstrualHistoryForm";
 import { CreditCardAgreementForm } from "@/components/intake/CreditCardAgreementForm";
 import { IntakeFormSeed } from "@/components/intake/IntakeFormSeed";
+import { StaffIntakeDashboard } from "@/components/intake/StaffIntakeDashboard";
+import { EnhancedAIProcessor } from "@/components/intake/EnhancedAIProcessor";
+import { PatientCommunicationCenter } from "@/components/intake/PatientCommunicationCenter";
 import { useIntakeForms } from "@/hooks/useIntakeForms";
 import { useTenantConfig } from "@/utils/tenantConfig";
 
 const IntakeIQ = () => {
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const [activeTab, setActiveTab] = useState("staff-dashboard");
   const tenantConfig = useTenantConfig();
   const { submissions } = useIntakeForms();
 
@@ -55,22 +58,24 @@ const IntakeIQ = () => {
       
       <div className="p-6 space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="submissions">Submissions</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="staff-dashboard">Staff Dashboard</TabsTrigger>
+            <TabsTrigger value="ai-processing">AI Processing</TabsTrigger>
+            <TabsTrigger value="communications">Communications</TabsTrigger>
             <TabsTrigger value="forms">Form Management</TabsTrigger>
             <TabsTrigger value="patient-portal">Patient Portal</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="dashboard" className="space-y-4">
-            <EnhancedIntakeDashboard />
+          <TabsContent value="staff-dashboard" className="space-y-4">
+            <StaffIntakeDashboard />
           </TabsContent>
 
-          <TabsContent value="submissions" className="space-y-4">
-            <FormSubmissionsList 
-              submissions={submissions} 
-              onViewSubmission={handleViewSubmission}
-            />
+          <TabsContent value="ai-processing" className="space-y-4">
+            <EnhancedAIProcessor />
+          </TabsContent>
+
+          <TabsContent value="communications" className="space-y-4">
+            <PatientCommunicationCenter />
           </TabsContent>
 
           <TabsContent value="forms" className="space-y-4">
