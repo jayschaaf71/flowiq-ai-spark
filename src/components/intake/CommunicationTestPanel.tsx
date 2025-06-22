@@ -14,8 +14,11 @@ interface CommunicationTestPanelProps {
 }
 
 export const CommunicationTestPanel: React.FC<CommunicationTestPanelProps> = ({
-  submissionId = 'test-submission-id'
+  submissionId
 }) => {
+  // Generate a valid UUID for testing if none provided
+  const testSubmissionId = submissionId || crypto.randomUUID();
+  
   const [recipient, setRecipient] = useState('');
   const [message, setMessage] = useState('Hello! This is a test message from your intake system.');
   const [type, setType] = useState<'email' | 'sms'>('email');
@@ -33,7 +36,7 @@ export const CommunicationTestPanel: React.FC<CommunicationTestPanelProps> = ({
 
     try {
       await CommunicationService.sendCommunication({
-        submissionId,
+        submissionId: testSubmissionId,
         templateId: 'test-template',
         recipient,
         patientName: 'Test Patient',
@@ -129,6 +132,7 @@ export const CommunicationTestPanel: React.FC<CommunicationTestPanelProps> = ({
           <p>• Email requires valid Resend API key configuration</p>
           <p>• SMS is currently simulated for testing purposes</p>
           <p>• Check the Communication History tab to see delivery status</p>
+          <p>• Using test submission ID: {testSubmissionId.substring(0, 8)}...</p>
         </div>
       </CardContent>
     </Card>
