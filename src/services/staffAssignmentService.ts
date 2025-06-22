@@ -21,8 +21,24 @@ export class StaffAssignmentService {
     notes?: string
   ) {
     try {
-      // Update the submission status directly since staff_assignments table doesn't exist yet
-      const { error } = await supabase
+      // Create the staff assignment record
+      const { data: assignment, error: assignmentError } = await supabase
+        .from('staff_assignments')
+        .insert({
+          submission_id: submissionId,
+          staff_id: staffId,
+          staff_name: staffName,
+          assigned_by: assignedBy,
+          notes: notes,
+          status: 'active'
+        })
+        .select()
+        .single();
+
+      if (assignmentError) throw assignmentError;
+
+      // Update the submission status
+      const { error: updateError } = await supabase
         .from('intake_submissions')
         .update({ 
           status: 'assigned',
@@ -30,21 +46,9 @@ export class StaffAssignmentService {
         })
         .eq('id', submissionId);
 
-      if (error) throw error;
+      if (updateError) throw updateError;
 
-      // Create a mock assignment object for the UI
-      const mockAssignment = {
-        id: `temp-${Date.now()}`,
-        submission_id: submissionId,
-        staff_id: staffId,
-        staff_name: staffName,
-        assigned_at: new Date().toISOString(),
-        assigned_by: assignedBy,
-        status: 'active' as const,
-        notes
-      };
-
-      return { success: true, assignment: mockAssignment };
+      return { success: true, assignment };
     } catch (error) {
       console.error('Staff assignment error:', error);
       throw error;
@@ -53,9 +57,14 @@ export class StaffAssignmentService {
 
   static async getSubmissionAssignments(submissionId: string) {
     try {
-      // Return empty array until staff_assignments table is available
-      console.log('Getting assignments for submission:', submissionId);
-      return [];
+      const { data, error } = await supabase
+        .from('staff_assignments')
+        .select('*')
+        .eq('submission_id', submissionId)
+        .order('assigned_at', { ascending: false });
+
+      if (error) throw error;
+      return data || [];
     } catch (error) {
       console.error('Failed to get assignments:', error);
       return [];
@@ -64,9 +73,17 @@ export class StaffAssignmentService {
 
   static async getCurrentAssignment(submissionId: string) {
     try {
-      // Return null until staff_assignments table is available
-      console.log('Getting current assignment for submission:', submissionId);
-      return null;
+      const { data, error } = await supabase
+        .from('staff_assignments')
+        .select('*')
+        .eq('submission_id', submissionId)
+        .eq('status', 'active')
+        .order('assigned_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data;
     } catch (error) {
       console.error('Failed to get current assignment:', error);
       return null;
@@ -75,7 +92,16 @@ export class StaffAssignmentService {
 
   static async completeAssignment(assignmentId: string, notes?: string) {
     try {
-      console.log('Completing assignment:', assignmentId, notes);
+      const { error } = await supabase
+        .from('staff_assignments')
+        .update({ 
+          status: 'completed',
+          completed_at: new Date().toISOString(),
+          notes: notes
+        })
+        .eq('id', assignmentId);
+
+      if (error) throw error;
       return { success: true };
     } catch (error) {
       console.error('Failed to complete assignment:', error);
