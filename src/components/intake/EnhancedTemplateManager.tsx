@@ -1,16 +1,14 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
-  Template, 
+  FileText, 
   Variable, 
   Settings,
   Library,
-  TrendingUp,
-  FileText
+  TrendingUp
 } from 'lucide-react';
 import { TemplateLibrary } from './TemplateLibrary';
 import { TemplateVariableSystem } from './TemplateVariableSystem';
