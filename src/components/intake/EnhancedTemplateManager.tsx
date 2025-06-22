@@ -90,7 +90,7 @@ export const EnhancedTemplateManager: React.FC = () => {
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-orange-100 rounded-lg">
-                <Template className="w-5 h-5 text-orange-600" />
+                <FileText className="w-5 h-5 text-orange-600" />
               </div>
               <div>
                 <p className="text-sm text-gray-600">Email vs SMS</p>
