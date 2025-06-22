@@ -50,6 +50,141 @@ export type Database = {
           },
         ]
       }
+      application_interviews: {
+        Row: {
+          application_id: string
+          created_at: string
+          id: string
+          interviewer_email: string
+          interviewer_name: string
+          meeting_link: string | null
+          notes: string | null
+          scheduled_date: string
+          scheduled_time: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          application_id: string
+          created_at?: string
+          id?: string
+          interviewer_email: string
+          interviewer_name: string
+          meeting_link?: string | null
+          notes?: string | null
+          scheduled_date: string
+          scheduled_time: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          application_id?: string
+          created_at?: string
+          id?: string
+          interviewer_email?: string
+          interviewer_name?: string
+          meeting_link?: string | null
+          notes?: string | null
+          scheduled_date?: string
+          scheduled_time?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_interviews_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "network_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      application_notifications: {
+        Row: {
+          application_id: string
+          created_at: string
+          error_message: string | null
+          id: string
+          message: string
+          notification_type: string
+          recipient_email: string
+          sent_at: string | null
+          status: string
+          subject: string
+        }
+        Insert: {
+          application_id: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          message: string
+          notification_type: string
+          recipient_email: string
+          sent_at?: string | null
+          status?: string
+          subject: string
+        }
+        Update: {
+          application_id?: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          message?: string
+          notification_type?: string
+          recipient_email?: string
+          sent_at?: string | null
+          status?: string
+          subject?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_notifications_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "network_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      application_reviews: {
+        Row: {
+          application_id: string
+          created_at: string
+          id: string
+          review_notes: string | null
+          reviewed_at: string
+          reviewer_id: string
+          status: string
+        }
+        Insert: {
+          application_id: string
+          created_at?: string
+          id?: string
+          review_notes?: string | null
+          reviewed_at?: string
+          reviewer_id: string
+          status: string
+        }
+        Update: {
+          application_id?: string
+          created_at?: string
+          id?: string
+          review_notes?: string | null
+          reviewed_at?: string
+          reviewer_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_reviews_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "network_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       appointment_notifications: {
         Row: {
           appointment_id: string
