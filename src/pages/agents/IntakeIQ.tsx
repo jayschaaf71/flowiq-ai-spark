@@ -21,6 +21,9 @@ import { EnhancedAIProcessor } from "@/components/intake/EnhancedAIProcessor";
 import { PatientCommunicationCenter } from "@/components/intake/PatientCommunicationCenter";
 import { AdvancedFormBuilder } from "@/components/intake/AdvancedFormBuilder";
 import { IntakeAnalyticsAdvanced } from "@/components/intake/IntakeAnalyticsAdvanced";
+import { PatientDataAnalytics } from "@/components/analytics/PatientDataAnalytics";
+import { DataExportManager } from "@/components/analytics/DataExportManager";
+import { APIManagement } from "@/components/analytics/APIManagement";
 import { useIntakeForms } from "@/hooks/useIntakeForms";
 import { useTenantConfig } from "@/utils/tenantConfig";
 
@@ -60,9 +63,10 @@ const IntakeIQ = () => {
       
       <div className="p-6 space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="staff-dashboard">Staff Dashboard</TabsTrigger>
             <TabsTrigger value="ai-processing">AI Processing</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="communications">Communications</TabsTrigger>
             <TabsTrigger value="forms">Form Management</TabsTrigger>
             <TabsTrigger value="patient-portal">Patient Portal</TabsTrigger>
@@ -74,6 +78,28 @@ const IntakeIQ = () => {
 
           <TabsContent value="ai-processing" className="space-y-4">
             <EnhancedAIProcessor />
+          </TabsContent>
+
+          <TabsContent value="analytics" className="space-y-4">
+            <Tabs defaultValue="patient-data" className="space-y-4">
+              <TabsList>
+                <TabsTrigger value="patient-data">Patient Analytics</TabsTrigger>
+                <TabsTrigger value="data-export">Data Export/Import</TabsTrigger>
+                <TabsTrigger value="api-management">API Management</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="patient-data">
+                <PatientDataAnalytics />
+              </TabsContent>
+              
+              <TabsContent value="data-export">
+                <DataExportManager />
+              </TabsContent>
+              
+              <TabsContent value="api-management">
+                <APIManagement />
+              </TabsContent>
+            </Tabs>
           </TabsContent>
 
           <TabsContent value="communications" className="space-y-4">
