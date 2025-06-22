@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -42,7 +41,13 @@ export const CommunicationLogViewer: React.FC<CommunicationLogViewerProps> = ({
     try {
       setIsLoading(true);
       const fetchedLogs = await CommunicationService.getCommunicationLogs(submissionId);
-      setLogs(fetchedLogs);
+      // Type assertion to handle the database response
+      const typedLogs = fetchedLogs.map(log => ({
+        ...log,
+        type: log.type as 'email' | 'sms',
+        status: log.status as 'pending' | 'sent' | 'failed' | 'delivered'
+      }));
+      setLogs(typedLogs);
     } catch (error) {
       console.error('Failed to fetch communication logs:', error);
     } finally {
