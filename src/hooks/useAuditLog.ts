@@ -2,6 +2,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Tables } from '@/integrations/supabase/types';
+import { useAuth } from './useAuth';
 
 type AuditLog = Tables<'audit_logs'>;
 
@@ -28,7 +29,7 @@ export const useAuditLogs = (tableName?: string, recordId?: string) => {
   });
 };
 
-// Enhanced audit logging function for HIPAA compliance
+// Enhanced audit logging function for HIPAA compliance with tenant context
 export const logAuditAction = async (
   tableName: string,
   recordId: string,
@@ -50,7 +51,7 @@ export const logAuditAction = async (
       old_values: oldValues,
       new_values: newValues,
       user_agent: userAgent,
-      session_id: crypto.randomUUID(), // Generate session identifier
+      session_id: crypto.randomUUID(),
     });
   } catch (error) {
     console.error('Failed to log audit action:', error);
@@ -59,23 +60,26 @@ export const logAuditAction = async (
   }
 };
 
-// Hook for compliance monitoring
+// Hook for compliance monitoring with tenant context
 export const useComplianceMetrics = () => {
+  const { profile } = useAuth();
+  
   return useQuery({
-    queryKey: ['compliance_metrics'],
+    queryKey: ['compliance_metrics', profile?.primary_tenant_id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('compliance_summary')
+        .from('compliance_dashboard')
         .select('*');
       
       if (error) throw error;
       return data || [];
     },
     refetchInterval: 300000, // Refresh every 5 minutes for compliance monitoring
+    enabled: !!profile?.id,
   });
 };
 
-// Enhanced patient access logging for HIPAA
+// Enhanced patient access logging for HIPAA with tenant context
 export const logPatientAccess = async (patientId: string, accessType: 'view' | 'edit' | 'create') => {
   await logAuditAction('patients', patientId, `PATIENT_${accessType.toUpperCase()}`, null, { 
     access_type: accessType,

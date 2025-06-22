@@ -1,13 +1,13 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Shield, AlertTriangle, CheckCircle, Activity } from "lucide-react";
+import { Shield, AlertTriangle, CheckCircle, Activity, Lock, Eye } from "lucide-react";
 import { useComplianceMetrics } from "@/hooks/useAuditLog";
-import { useAuth } from "@/hooks/useAuth";
+import { useEnhancedAuth } from "@/hooks/useEnhancedAuth";
 
 export const ComplianceMonitor = () => {
   const { data: complianceData, isLoading } = useComplianceMetrics();
-  const { profile } = useAuth();
+  const { primaryTenant, user } = useEnhancedAuth();
 
   if (isLoading) {
     return (
@@ -23,17 +23,19 @@ export const ComplianceMonitor = () => {
     );
   }
 
-  const patientRecords = complianceData?.find(d => d.table_name === 'patients');
-  const auditLogs = complianceData?.find(d => d.table_name === 'audit_logs');
+  // Find current tenant's compliance data
+  const tenantCompliance = complianceData?.find(d => 
+    d.tenant_name === primaryTenant?.tenant.brand_name
+  );
 
   const getComplianceStatus = () => {
-    if (!auditLogs || auditLogs.recent_records === 0) {
-      return { status: 'warning', text: 'Limited Recent Activity', icon: AlertTriangle };
+    if (!tenantCompliance || tenantCompliance.total_audit_logs === 0) {
+      return { status: 'warning', text: 'Limited Audit Activity', icon: AlertTriangle, color: 'bg-yellow-100 text-yellow-800' };
     }
-    if (auditLogs.total_records > 100) {
-      return { status: 'good', text: 'Active Monitoring', icon: CheckCircle };
+    if (tenantCompliance.total_audit_logs > 50) {
+      return { status: 'good', text: 'Compliant & Active', icon: CheckCircle, color: 'bg-green-100 text-green-800' };
     }
-    return { status: 'info', text: 'Monitoring Active', icon: Activity };
+    return { status: 'info', text: 'Monitoring Active', icon: Activity, color: 'bg-blue-100 text-blue-800' };
   };
 
   const complianceStatus = getComplianceStatus();
@@ -47,7 +49,7 @@ export const ComplianceMonitor = () => {
           HIPAA Compliance Monitor
         </CardTitle>
         <CardDescription>
-          Real-time compliance status for tenant: {profile?.tenant_id}
+          Real-time compliance status for {primaryTenant?.tenant.brand_name || 'Current Tenant'}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -59,41 +61,61 @@ export const ComplianceMonitor = () => {
               <span className="text-sm">{complianceStatus.text}</span>
             </div>
           </div>
-          <Badge 
-            variant={complianceStatus.status === 'good' ? 'default' : 'secondary'}
-            className={
-              complianceStatus.status === 'good' ? 'bg-green-100 text-green-800' :
-              complianceStatus.status === 'warning' ? 'bg-yellow-100 text-yellow-800' :
-              'bg-blue-100 text-blue-800'
-            }
-          >
+          <Badge className={complianceStatus.color}>
             {complianceStatus.status === 'good' ? 'Compliant' : 
-             complianceStatus.status === 'warning' ? 'Attention' : 'Active'}
+             complianceStatus.status === 'warning' ? 'Attention Required' : 'Active'}
           </Badge>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1">
             <p className="text-xs text-muted-foreground">Patient Records</p>
-            <p className="text-lg font-semibold">{patientRecords?.total_records || 0}</p>
-            <p className="text-xs text-muted-foreground">
-              {patientRecords?.recent_records || 0} recent
-            </p>
+            <p className="text-lg font-semibold">{tenantCompliance?.total_patients || 0}</p>
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <Lock className="h-3 w-3" />
+              <span>Tenant Isolated</span>
+            </div>
           </div>
           
           <div className="space-y-1">
             <p className="text-xs text-muted-foreground">Audit Entries</p>
-            <p className="text-lg font-semibold">{auditLogs?.total_records || 0}</p>
-            <p className="text-xs text-muted-foreground">
-              {auditLogs?.recent_records || 0} recent
-            </p>
+            <p className="text-lg font-semibold">{tenantCompliance?.total_audit_logs || 0}</p>
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <Eye className="h-3 w-3" />
+              <span>All Access Logged</span>
+            </div>
           </div>
         </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-1">
+            <p className="text-xs text-muted-foreground">Appointments</p>
+            <p className="text-lg font-semibold">{tenantCompliance?.total_appointments || 0}</p>
+          </div>
+          
+          <div className="space-y-1">
+            <p className="text-xs text-muted-foreground">SOAP Notes</p>
+            <p className="text-lg font-semibold">{tenantCompliance?.total_soap_notes || 0}</p>
+          </div>
+        </div>
+
+        {tenantCompliance?.last_audit_entry && (
+          <div className="pt-2 border-t">
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span>Last Activity:</span>
+              <span>{new Date(tenantCompliance.last_audit_entry).toLocaleDateString()}</span>
+            </div>
+          </div>
+        )}
 
         <div className="pt-2 border-t">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Shield className="h-3 w-3" />
             <span>All PHI access is monitored and logged per HIPAA requirements</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+            <Lock className="h-3 w-3" />
+            <span>Data is isolated by tenant with Row-Level Security</span>
           </div>
         </div>
       </CardContent>
