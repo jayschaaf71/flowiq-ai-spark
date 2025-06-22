@@ -23,10 +23,8 @@ export const ComplianceMonitor = () => {
     );
   }
 
-  // Find current tenant's compliance data
-  const tenantCompliance = complianceData?.find(d => 
-    d.tenant_name === primaryTenant?.tenant.brand_name
-  );
+  // Find current tenant's compliance data or use first available
+  const tenantCompliance = complianceData && complianceData.length > 0 ? complianceData[0] : null;
 
   const getComplianceStatus = () => {
     if (!tenantCompliance || tenantCompliance.total_audit_logs === 0) {

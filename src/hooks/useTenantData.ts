@@ -9,7 +9,7 @@ export const useTenantPatients = () => {
   const { profile } = useAuth();
   
   return useQuery({
-    queryKey: ['patients', profile?.primary_tenant_id],
+    queryKey: ['patients', profile?.id],
     queryFn: async () => {
       if (!profile?.id) {
         throw new Error('User not authenticated');
@@ -44,19 +44,18 @@ export const useTenantIntakeSubmissions = () => {
   const { profile } = useAuth();
   
   return useQuery({
-    queryKey: ['intake_submissions', profile?.primary_tenant_id],
+    queryKey: ['intake_submissions', profile?.id],
     queryFn: async () => {
       if (!profile?.id) {
         throw new Error('User not authenticated');
       }
 
-      console.log(`Fetching intake submissions for tenant: ${profile.primary_tenant_id}`);
+      console.log(`Fetching intake submissions for user: ${profile.id}`);
       
-      // Get tenant-specific forms first
+      // Get all intake forms first (RLS will filter by tenant)
       const { data: forms, error: formsError } = await supabase
         .from('intake_forms')
-        .select('id')
-        .eq('tenant_id', profile.primary_tenant_id);
+        .select('id');
 
       if (formsError) {
         console.error('Error fetching forms:', formsError);
@@ -69,7 +68,7 @@ export const useTenantIntakeSubmissions = () => {
 
       const formIds = forms.map(f => f.id);
 
-      // Get submissions for tenant forms - RLS will further filter
+      // Get submissions for available forms - RLS will further filter
       const { data, error } = await supabase
         .from('intake_submissions')
         .select('*')
@@ -83,7 +82,7 @@ export const useTenantIntakeSubmissions = () => {
 
       return data || [];
     },
-    enabled: !!profile?.id && !!profile?.primary_tenant_id,
+    enabled: !!profile?.id,
   });
 };
 
@@ -92,7 +91,7 @@ export const useTenantAppointments = () => {
   const { profile } = useAuth();
   
   return useQuery({
-    queryKey: ['appointments', profile?.primary_tenant_id],
+    queryKey: ['appointments', profile?.id],
     queryFn: async () => {
       if (!profile?.id) {
         throw new Error('User not authenticated');

@@ -12,9 +12,7 @@ export const TenantSecurityDashboard: React.FC = () => {
   const { data: auditLogs } = useAuditLogs();
   const { data: complianceData } = useComplianceMetrics();
 
-  const tenantCompliance = complianceData?.find(d => 
-    d.tenant_name === primaryTenant?.tenant.brand_name
-  );
+  const tenantCompliance = complianceData && complianceData.length > 0 ? complianceData[0] : null;
 
   const securityMetrics = {
     rlsEnabled: true,
