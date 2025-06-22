@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -8,11 +9,16 @@ import {
   Variable, 
   Settings,
   Library,
-  TrendingUp
+  TrendingUp,
+  Download,
+  Upload,
+  TestTube
 } from 'lucide-react';
 import { TemplateLibrary } from './TemplateLibrary';
 import { TemplateVariableSystem } from './TemplateVariableSystem';
 import { TemplateEditor } from './TemplateEditor';
+import { TemplateImportExport } from './TemplateImportExport';
+import { EnhancedSMSTestPanel } from './EnhancedSMSTestPanel';
 
 interface TemplateStats {
   totalTemplates: number;
@@ -21,6 +27,19 @@ interface TemplateStats {
   customVariables: number;
   totalUsage: number;
   mostUsedTemplate: string;
+}
+
+interface Template {
+  id: string;
+  name: string;
+  type: 'email' | 'sms';
+  category: string;
+  subject?: string;
+  content: string;
+  variables: string[];
+  usageCount: number;
+  lastUsed?: string;
+  isBuiltIn: boolean;
 }
 
 export const EnhancedTemplateManager: React.FC = () => {
@@ -32,6 +51,12 @@ export const EnhancedTemplateManager: React.FC = () => {
     totalUsage: 342,
     mostUsedTemplate: 'Appointment Reminder SMS'
   });
+
+  const [templates, setTemplates] = useState<Template[]>([]);
+
+  const handleImportTemplates = (importedTemplates: Template[]) => {
+    setTemplates(prev => [...prev, ...importedTemplates]);
+  };
 
   return (
     <div className="space-y-6">
@@ -110,14 +135,22 @@ export const EnhancedTemplateManager: React.FC = () => {
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="library" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="library" className="flex items-center gap-2">
             <Library className="w-4 h-4" />
-            Template Library
+            Library
           </TabsTrigger>
           <TabsTrigger value="variables" className="flex items-center gap-2">
             <Variable className="w-4 h-4" />
             Variables
+          </TabsTrigger>
+          <TabsTrigger value="import-export" className="flex items-center gap-2">
+            <Download className="w-4 h-4" />
+            Import/Export
+          </TabsTrigger>
+          <TabsTrigger value="testing" className="flex items-center gap-2">
+            <TestTube className="w-4 h-4" />
+            Testing
           </TabsTrigger>
           <TabsTrigger value="settings" className="flex items-center gap-2">
             <Settings className="w-4 h-4" />
@@ -131,6 +164,17 @@ export const EnhancedTemplateManager: React.FC = () => {
 
         <TabsContent value="variables">
           <TemplateVariableSystem />
+        </TabsContent>
+
+        <TabsContent value="import-export">
+          <TemplateImportExport 
+            templates={templates}
+            onImportTemplates={handleImportTemplates}
+          />
+        </TabsContent>
+
+        <TabsContent value="testing">
+          <EnhancedSMSTestPanel templates={templates} />
         </TabsContent>
 
         <TabsContent value="settings">

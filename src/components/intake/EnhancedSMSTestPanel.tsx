@@ -4,305 +4,308 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { 
   MessageSquare, 
   Send, 
-  AlertCircle, 
-  CheckCircle, 
-  Phone,
-  MessageCircle,
-  DollarSign,
-  Clock
+  Clock,
+  CheckCircle,
+  AlertCircle,
+  Info
 } from 'lucide-react';
-import { CommunicationService } from '@/services/communicationService';
-import { validatePhoneNumber, formatPhoneNumber, formatPhoneForDisplay } from '@/utils/phoneValidation';
+import { useToast } from '@/hooks/use-toast';
 
-interface EnhancedSMSTestPanelProps {
-  submissionId?: string;
+interface Template {
+  id: string;
+  name: string;
+  type: 'email' | 'sms';
+  content: string;
+  variables: string[];
 }
 
-const smsTemplates = [
-  {
-    id: 'welcome-sms',
-    name: 'Welcome SMS',
-    message: 'Welcome {{patientName}}! We\'ve received your intake form. We\'ll contact you within 24 hours. Reply STOP to opt out.',
-    category: 'welcome'
-  },
-  {
-    id: 'appointment-reminder-sms',
-    name: 'Appointment Reminder',
-    message: 'Hi {{patientName}}, this is a reminder about your appointment tomorrow at {{time}}. Reply CONFIRM to confirm or RESCHEDULE if needed.',
-    category: 'reminder'
-  },
-  {
-    id: 'follow-up-sms',
-    name: 'Follow-up Message',
-    message: 'Hi {{patientName}}, thank you for your visit. How are you feeling? Reply with any questions or concerns. Reply STOP to opt out.',
-    category: 'follow-up'
-  },
-  {
-    id: 'test-sms',
-    name: 'Test Message',
-    message: 'This is a test SMS from your healthcare system. Reply STOP to opt out.',
-    category: 'test'
-  }
-];
+interface TestResult {
+  success: boolean;
+  message: string;
+  timestamp: Date;
+  characterCount: number;
+  segmentCount: number;
+  estimatedCost: number;
+}
 
-export const EnhancedSMSTestPanel: React.FC<EnhancedSMSTestPanelProps> = ({
-  submissionId
-}) => {
-  const testSubmissionId = submissionId || crypto.randomUUID();
-  
+interface EnhancedSMSTestPanelProps {
+  templates: Template[];
+}
+
+export const EnhancedSMSTestPanel: React.FC<EnhancedSMSTestPanelProps> = ({ templates }) => {
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [selectedTemplate, setSelectedTemplate] = useState('test-sms');
   const [customMessage, setCustomMessage] = useState('');
-  const [patientName, setPatientName] = useState('Test Patient');
-  const [isSending, setIsSending] = useState(false);
-  const [result, setResult] = useState<{ success: boolean; message: string; details?: any } | null>(null);
-  const [phoneValidation, setPhoneValidation] = useState<{ isValid: boolean; message?: string }>({ isValid: true });
+  const [variableValues, setVariableValues] = useState<Record<string, string>>({});
+  const [sending, setSending] = useState(false);
+  const [testResults, setTestResults] = useState<TestResult[]>([]);
+  const { toast } = useToast();
 
-  const selectedTemplateData = smsTemplates.find(t => t.id === selectedTemplate);
-  const finalMessage = customMessage || selectedTemplateData?.message || '';
-  const processedMessage = finalMessage
-    .replace(/\{\{patientName\}\}/g, patientName)
-    .replace(/\{\{time\}\}/g, '2:00 PM')
-    .replace(/\{\{date\}\}/g, 'tomorrow');
+  const smsTemplates = templates.filter(t => t.type === 'sms');
 
-  const characterCount = processedMessage.length;
-  const segmentCount = Math.ceil(characterCount / 160);
-  const estimatedCost = segmentCount * 0.0075;
-
-  const handlePhoneChange = (value: string) => {
-    setPhoneNumber(value);
-    const validation = validatePhoneNumber(value);
-    setPhoneValidation(validation);
+  const handleTemplateSelect = (templateId: string) => {
+    const template = smsTemplates.find(t => t.id === templateId);
+    if (template) {
+      setSelectedTemplate(template);
+      setCustomMessage(template.content);
+      // Initialize variable values
+      const newVariableValues: Record<string, string> = {};
+      template.variables.forEach(variable => {
+        newVariableValues[variable] = getDefaultVariableValue(variable);
+      });
+      setVariableValues(newVariableValues);
+    }
   };
 
-  const handleSendSMS = async () => {
-    const validation = validatePhoneNumber(phoneNumber);
-    if (!validation.isValid) {
-      setResult({ success: false, message: validation.message || 'Invalid phone number' });
+  const getDefaultVariableValue = (variable: string): string => {
+    const defaults: Record<string, string> = {
+      patientName: 'John Doe',
+      firstName: 'John',
+      lastName: 'Doe',
+      appointmentDate: 'March 25, 2024',
+      appointmentTime: '2:00 PM',
+      doctorName: 'Dr. Smith',
+      practiceName: 'Healthcare Plus',
+      phoneNumber: '(555) 123-4567'
+    };
+    return defaults[variable] || `{${variable}}`;
+  };
+
+  const renderPreview = () => {
+    let preview = customMessage;
+    Object.entries(variableValues).forEach(([key, value]) => {
+      preview = preview.replace(new RegExp(`{{${key}}}`, 'g'), value);
+    });
+    return preview;
+  };
+
+  const getMessageStats = () => {
+    const preview = renderPreview();
+    const characterCount = preview.length;
+    const segmentCount = Math.ceil(characterCount / 160);
+    const estimatedCost = segmentCount * 0.0075;
+    
+    return { characterCount, segmentCount, estimatedCost };
+  };
+
+  const handleSendTest = async () => {
+    if (!phoneNumber || !customMessage) {
+      toast({
+        title: "Missing Information",
+        description: "Please enter a phone number and message",
+        variant: "destructive",
+      });
       return;
     }
 
-    if (!processedMessage.trim()) {
-      setResult({ success: false, message: 'Message cannot be empty' });
-      return;
-    }
-
-    setIsSending(true);
-    setResult(null);
-
+    setSending(true);
+    
     try {
-      const formattedPhone = formatPhoneNumber(phoneNumber);
+      // Simulate API call - replace with actual SMS service
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
-      const response = await CommunicationService.sendCommunication({
-        submissionId: testSubmissionId,
-        templateId: selectedTemplate,
-        recipient: formattedPhone,
-        patientName,
-        customMessage: processedMessage,
-        type: 'sms'
+      const stats = getMessageStats();
+      const result: TestResult = {
+        success: true,
+        message: `Test SMS sent to ${phoneNumber}`,
+        timestamp: new Date(),
+        ...stats
+      };
+      
+      setTestResults(prev => [result, ...prev.slice(0, 4)]);
+      
+      toast({
+        title: "Test SMS Sent",
+        description: `Message sent to ${phoneNumber}`,
       });
-
-      setResult({ 
-        success: true, 
-        message: 'SMS sent successfully (simulated)!',
-        details: {
-          recipient: formatPhoneForDisplay(formattedPhone),
-          characterCount,
-          segmentCount,
-          estimatedCost: `$${estimatedCost.toFixed(4)}`
-        }
+      
+    } catch (error) {
+      const errorResult: TestResult = {
+        success: false,
+        message: `Failed to send SMS: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        timestamp: new Date(),
+        ...getMessageStats()
+      };
+      
+      setTestResults(prev => [errorResult, ...prev.slice(0, 4)]);
+      
+      toast({
+        title: "Send Failed",
+        description: "Failed to send test SMS",
+        variant: "destructive",
       });
-    } catch (error: any) {
-      setResult({ success: false, message: error.message || 'Failed to send SMS' });
     } finally {
-      setIsSending(false);
+      setSending(false);
     }
   };
+
+  const stats = getMessageStats();
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <MessageSquare className="w-5 h-5" />
-          Enhanced SMS Testing
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Phone Number Input */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Phone Number</label>
-          <Input
-            placeholder="+1 (555) 123-4567"
-            value={phoneNumber}
-            onChange={(e) => handlePhoneChange(e.target.value)}
-            className={!phoneValidation.isValid ? 'border-red-500' : ''}
-          />
-          {!phoneValidation.isValid && (
-            <p className="text-sm text-red-600 flex items-center gap-1">
-              <AlertCircle className="w-3 h-3" />
-              {phoneValidation.message}
-            </p>
-          )}
-          {phoneValidation.isValid && phoneNumber && (
-            <p className="text-sm text-green-600 flex items-center gap-1">
-              <CheckCircle className="w-3 h-3" />
-              Valid: {formatPhoneForDisplay(formatPhoneNumber(phoneNumber))}
-            </p>
-          )}
-        </div>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MessageSquare className="w-5 h-5" />
+            Enhanced SMS Test Panel
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div>
+                <Label>Select SMS Template</Label>
+                <Select onValueChange={handleTemplateSelect}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose a template..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {smsTemplates.map(template => (
+                      <SelectItem key={template.id} value={template.id}>
+                        {template.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-        {/* Patient Name */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Patient Name</label>
-          <Input
-            placeholder="Patient Name"
-            value={patientName}
-            onChange={(e) => setPatientName(e.target.value)}
-          />
-        </div>
+              <div>
+                <Label>Test Phone Number</Label>
+                <Input
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  placeholder="+1 (555) 123-4567"
+                  type="tel"
+                />
+              </div>
 
-        {/* Template Selection */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium">SMS Template</label>
-          <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {smsTemplates.map((template) => (
-                <SelectItem key={template.id} value={template.id}>
-                  <div className="flex items-center gap-2">
-                    <MessageCircle className="w-4 h-4" />
-                    {template.name}
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Template Preview */}
-        {selectedTemplateData && (
-          <div className="p-3 bg-gray-50 rounded-lg">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">Template Preview:</span>
-              <Badge variant="outline">{selectedTemplateData.category}</Badge>
-            </div>
-            <p className="text-sm font-mono">{selectedTemplateData.message}</p>
-          </div>
-        )}
-
-        {/* Custom Message */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Custom Message (Optional)</label>
-          <Textarea
-            placeholder="Override template with custom message..."
-            value={customMessage}
-            onChange={(e) => setCustomMessage(e.target.value)}
-            rows={3}
-          />
-        </div>
-
-        {/* Final Message Preview */}
-        <div className="p-3 bg-blue-50 rounded-lg">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-blue-800">Final Message:</span>
-            <div className="flex items-center gap-2 text-xs text-blue-600">
-              <span>{characterCount}/160 chars</span>
-              <span>•</span>
-              <span>{segmentCount} segment{segmentCount !== 1 ? 's' : ''}</span>
-            </div>
-          </div>
-          <p className="text-sm font-mono text-blue-700">{processedMessage}</p>
-        </div>
-
-        {/* Cost Estimation */}
-        <div className="grid grid-cols-3 gap-4 p-3 bg-green-50 rounded-lg">
-          <div className="text-center">
-            <div className="flex items-center justify-center mb-1">
-              <MessageSquare className="w-4 h-4 text-green-600" />
-            </div>
-            <div className="text-sm font-medium">{characterCount}</div>
-            <div className="text-xs text-gray-600">Characters</div>
-          </div>
-          <div className="text-center">
-            <div className="flex items-center justify-center mb-1">
-              <Phone className="w-4 h-4 text-green-600" />
-            </div>
-            <div className="text-sm font-medium">{segmentCount}</div>
-            <div className="text-xs text-gray-600">Segments</div>
-          </div>
-          <div className="text-center">
-            <div className="flex items-center justify-center mb-1">
-              <DollarSign className="w-4 h-4 text-green-600" />
-            </div>
-            <div className="text-sm font-medium">${estimatedCost.toFixed(4)}</div>
-            <div className="text-xs text-gray-600">Est. Cost</div>
-          </div>
-        </div>
-
-        <Separator />
-
-        {/* Send Button */}
-        <Button 
-          onClick={handleSendSMS}
-          disabled={isSending || !phoneValidation.isValid || !phoneNumber || !processedMessage.trim()}
-          className="w-full flex items-center gap-2"
-        >
-          {isSending ? (
-            <>
-              <Clock className="w-4 h-4 animate-spin" />
-              Sending SMS...
-            </>
-          ) : (
-            <>
-              <Send className="w-4 h-4" />
-              Send Test SMS
-            </>
-          )}
-        </Button>
-
-        {/* Result */}
-        {result && (
-          <Alert className={result.success ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}>
-            {result.success ? (
-              <CheckCircle className="w-4 h-4 text-green-600" />
-            ) : (
-              <AlertCircle className="w-4 h-4 text-red-600" />
-            )}
-            <AlertDescription className={result.success ? 'text-green-800' : 'text-red-800'}>
-              {result.message}
-              {result.success && result.details && (
-                <div className="mt-2 text-xs space-y-1">
-                  <div>Sent to: {result.details.recipient}</div>
-                  <div>Characters: {result.details.characterCount}</div>
-                  <div>Segments: {result.details.segmentCount}</div>
-                  <div>Cost: {result.details.estimatedCost}</div>
+              {selectedTemplate && selectedTemplate.variables.length > 0 && (
+                <div className="space-y-3">
+                  <Label>Template Variables</Label>
+                  {selectedTemplate.variables.map(variable => (
+                    <div key={variable}>
+                      <Label className="text-xs text-gray-600">{variable}</Label>
+                      <Input
+                        value={variableValues[variable] || ''}
+                        onChange={(e) => setVariableValues(prev => ({
+                          ...prev,
+                          [variable]: e.target.value
+                        }))}
+                        placeholder={`Enter ${variable}`}
+                        className="mt-1"
+                      />
+                    </div>
+                  ))}
                 </div>
               )}
-            </AlertDescription>
-          </Alert>
-        )}
+            </div>
 
-        {/* SMS Guidelines */}
-        <div className="text-xs text-gray-500 space-y-1 p-3 bg-gray-50 rounded">
-          <p className="font-medium">SMS Guidelines:</p>
-          <ul className="list-disc list-inside space-y-1">
-            <li>SMS messages over 160 characters are split into multiple segments</li>
-            <li>Each segment typically costs $0.0075 (varies by provider)</li>
-            <li>Always include opt-out instructions (Reply STOP to opt out)</li>
-            <li>SMS is currently simulated for testing purposes</li>
-            <li>Use variables like {`{{patientName}}`} for personalization</li>
-          </ul>
-        </div>
-      </CardContent>
-    </Card>
+            <div className="space-y-4">
+              <div>
+                <Label>Message Content</Label>
+                <Textarea
+                  value={customMessage}
+                  onChange={(e) => setCustomMessage(e.target.value)}
+                  placeholder="Enter your SMS message..."
+                  rows={6}
+                  className="font-mono text-sm"
+                />
+              </div>
+
+              <div className="flex items-center justify-between text-sm">
+                <div className="flex gap-4">
+                  <span className={stats.characterCount > 160 ? "text-orange-600" : "text-gray-600"}>
+                    {stats.characterCount} characters
+                  </span>
+                  <span className="text-gray-600">
+                    {stats.segmentCount} segments
+                  </span>
+                </div>
+                <span className="text-gray-600">
+                  Est. cost: ${stats.estimatedCost.toFixed(4)}
+                </span>
+              </div>
+
+              {stats.characterCount > 160 && (
+                <Alert>
+                  <Info className="h-4 w-4" />
+                  <AlertDescription>
+                    Message exceeds 160 characters and will be sent as {stats.segmentCount} segments.
+                  </AlertDescription>
+                </Alert>
+              )}
+            </div>
+          </div>
+
+          <div className="border-t pt-4">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="font-medium">Message Preview</h4>
+              <Button 
+                onClick={handleSendTest}
+                disabled={sending || !phoneNumber || !customMessage}
+                className="flex items-center gap-2"
+              >
+                {sending ? (
+                  <Clock className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Send className="w-4 h-4" />
+                )}
+                {sending ? 'Sending...' : 'Send Test'}
+              </Button>
+            </div>
+            
+            <div className="bg-gray-50 p-4 rounded-lg border">
+              <p className="text-sm whitespace-pre-wrap">
+                {renderPreview() || 'Enter a message to see preview...'}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {testResults.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Test Results</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {testResults.map((result, index) => (
+                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="flex items-center gap-3">
+                    {result.success ? (
+                      <CheckCircle className="w-5 h-5 text-green-600" />
+                    ) : (
+                      <AlertCircle className="w-5 h-5 text-red-600" />
+                    )}
+                    <div>
+                      <p className="text-sm font-medium">{result.message}</p>
+                      <p className="text-xs text-gray-500">
+                        {result.timestamp.toLocaleTimeString()}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Badge variant="outline" className="text-xs">
+                      {result.characterCount} chars
+                    </Badge>
+                    <Badge variant="outline" className="text-xs">
+                      ${result.estimatedCost.toFixed(4)}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 };

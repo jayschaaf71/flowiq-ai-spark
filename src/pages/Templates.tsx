@@ -1,16 +1,17 @@
 
 import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
+import { EnhancedTemplateManager } from "@/components/intake/EnhancedTemplateManager";
 
 const Templates = () => {
   return (
     <Layout>
       <PageHeader 
         title="Templates"
-        subtitle="Workflow templates and presets"
+        subtitle="Create, customize, and manage your communication templates"
       />
       <div className="p-6">
-        <p className="text-gray-600">Templates library coming soon...</p>
+        <EnhancedTemplateManager />
       </div>
     </Layout>
   );
