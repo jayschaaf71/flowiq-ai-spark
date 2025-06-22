@@ -14,10 +14,7 @@ import {
   Eye, 
   Code, 
   Type,
-  Palette,
   Settings,
-  Plus,
-  X,
   Info
 } from 'lucide-react';
 
