@@ -1,142 +1,119 @@
 
-import React, { useState, useRef } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Upload, 
-  X, 
-  File, 
-  Image, 
-  FileText,
-  Camera,
-  CheckCircle
-} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Upload, X, File, Loader2 } from 'lucide-react';
+import { FileUploadService } from '@/services/fileUploadService';
 
 interface FileUploadFieldProps {
-  field: {
-    id: string;
-    label: string;
-    required?: boolean;
-    acceptedTypes?: string[];
-    maxSize?: number; // in MB
-    multiple?: boolean;
-    helpText?: string;
-  };
-  value: File[];
-  onChange: (files: File[]) => void;
-  error?: string;
+  submissionId?: string;
+  onFileUploaded?: (file: any) => void;
+  onFileRemoved?: (fileId: string) => void;
+  maxFiles?: number;
+  acceptedTypes?: string[];
+  maxSizeBytes?: number;
 }
 
 export const FileUploadField: React.FC<FileUploadFieldProps> = ({
-  field,
-  value = [],
-  onChange,
-  error
+  submissionId,
+  onFileUploaded,
+  onFileRemoved,
+  maxFiles = 5,
+  acceptedTypes = ['image/*', 'application/pdf', '.doc,.docx'],
+  maxSizeBytes = 10 * 1024 * 1024 // 10MB
 }) => {
-  const [dragActive, setDragActive] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
   const { toast } = useToast();
 
-  const acceptedTypes = field.acceptedTypes || ['image/*', '.pdf', '.doc', '.docx'];
-  const maxSize = field.maxSize || 10; // 10MB default
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || !submissionId) return;
 
-  const handleDrag = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFiles(Array.from(e.dataTransfer.files));
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    if (e.target.files && e.target.files[0]) {
-      handleFiles(Array.from(e.target.files));
-    }
-  };
-
-  const handleFiles = async (files: File[]) => {
-    const validFiles: File[] = [];
-    
-    for (const file of files) {
-      // Check file size
-      if (file.size > maxSize * 1024 * 1024) {
-        toast({
-          title: "File too large",
-          description: `${file.name} exceeds ${maxSize}MB limit`,
-          variant: "destructive"
-        });
-        continue;
-      }
-
-      // Check file type
-      const fileType = file.type || file.name.split('.').pop()?.toLowerCase();
-      const isAccepted = acceptedTypes.some(type => {
-        if (type.includes('*')) {
-          return fileType?.startsWith(type.replace('*', ''));
-        }
-        return type === fileType || file.name.toLowerCase().endsWith(type);
+    if (uploadedFiles.length + files.length > maxFiles) {
+      toast({
+        title: "Too many files",
+        description: `Maximum ${maxFiles} files allowed`,
+        variant: "destructive"
       });
+      return;
+    }
 
-      if (!isAccepted) {
-        toast({
-          title: "Invalid file type",
-          description: `${file.name} is not an accepted file type`,
-          variant: "destructive"
-        });
-        continue;
+    setUploading(true);
+
+    try {
+      for (const file of Array.from(files)) {
+        if (file.size > maxSizeBytes) {
+          toast({
+            title: "File too large",
+            description: `${file.name} exceeds ${maxSizeBytes / (1024 * 1024)}MB limit`,
+            variant: "destructive"
+          });
+          continue;
+        }
+
+        const result = await FileUploadService.uploadPatientFile(
+          file,
+          submissionId,
+          `Uploaded with form submission`
+        );
+
+        if (result.success && result.file) {
+          const newFile = result.file;
+          setUploadedFiles(prev => [...prev, newFile]);
+          onFileUploaded?.(newFile);
+          
+          toast({
+            title: "File uploaded",
+            description: `${file.name} uploaded successfully`
+          });
+        } else {
+          toast({
+            title: "Upload failed",
+            description: result.error || "Unknown error",
+            variant: "destructive"
+          });
+        }
       }
-
-      validFiles.push(file);
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({
+        title: "Upload failed",
+        description: "An error occurred during upload",
+        variant: "destructive"
+      });
+    } finally {
+      setUploading(false);
+      // Reset input
+      if (event.target) {
+        event.target.value = '';
+      }
     }
+  };
 
-    if (validFiles.length > 0) {
-      setUploading(true);
-      setUploadProgress(0);
-
-      // Simulate upload progress
-      const progressInterval = setInterval(() => {
-        setUploadProgress(prev => {
-          if (prev >= 100) {
-            clearInterval(progressInterval);
-            setUploading(false);
-            return 100;
-          }
-          return prev + 10;
+  const handleRemoveFile = async (fileId: string) => {
+    try {
+      const result = await FileUploadService.deleteFile(fileId);
+      if (result.success) {
+        setUploadedFiles(prev => prev.filter(f => f.id !== fileId));
+        onFileRemoved?.(fileId);
+        toast({
+          title: "File removed",
+          description: "File deleted successfully"
         });
-      }, 100);
-
-      const newFiles = field.multiple ? [...value, ...validFiles] : validFiles;
-      onChange(newFiles);
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Deletion failed",
+        description: error.message,
+        variant: "destructive"
+      });
     }
-  };
-
-  const removeFile = (index: number) => {
-    const newFiles = value.filter((_, i) => i !== index);
-    onChange(newFiles);
-  };
-
-  const getFileIcon = (file: File) => {
-    if (file.type.startsWith('image/')) return <Image className="w-4 h-4" />;
-    if (file.type === 'application/pdf') return <FileText className="w-4 h-4" />;
-    return <File className="w-4 h-4" />;
   };
 
   const formatFileSize = (bytes: number) => {
@@ -148,100 +125,66 @@ export const FileUploadField: React.FC<FileUploadFieldProps> = ({
   };
 
   return (
-    <div className="space-y-2">
-      <label className="text-sm font-medium">
-        {field.label}
-        {field.required && <span className="text-red-500 ml-1">*</span>}
-      </label>
-      
-      <Card className={`border-2 border-dashed transition-colors ${
-        dragActive ? 'border-blue-500 bg-blue-50' : 
-        error ? 'border-red-300' : 'border-gray-300'
-      }`}>
-        <CardContent className="p-6">
-          <div
-            className="text-center"
-            onDragEnter={handleDrag}
-            onDragLeave={handleDrag}
-            onDragOver={handleDrag}
-            onDrop={handleDrop}
-          >
-            <div className="flex flex-col items-center space-y-4">
-              <div className="flex space-x-2">
-                <Upload className="w-8 h-8 text-gray-400" />
-                <Camera className="w-8 h-8 text-gray-400" />
-              </div>
-              
-              <div>
-                <p className="text-sm text-gray-600">
-                  Drag and drop files here, or{' '}
-                  <button
-                    type="button"
-                    className="text-blue-600 hover:text-blue-700 font-medium"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    browse
-                  </button>
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  {acceptedTypes.join(', ')} • Max {maxSize}MB
-                </p>
-              </div>
-              
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple={field.multiple}
-                accept={acceptedTypes.join(',')}
-                onChange={handleChange}
-                className="hidden"
-              />
-            </div>
+    <div className="space-y-4">
+      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+        <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+        <div className="space-y-2">
+          <p className="text-sm text-gray-600">
+            Drop files here or click to browse
+          </p>
+          <p className="text-xs text-gray-500">
+            Max {maxFiles} files, up to {maxSizeBytes / (1024 * 1024)}MB each
+          </p>
+        </div>
+        <Input
+          type="file"
+          multiple
+          accept={acceptedTypes.join(',')}
+          onChange={handleFileSelect}
+          disabled={uploading || !submissionId}
+          className="mt-4"
+        />
+        {uploading && (
+          <div className="mt-4 flex items-center justify-center">
+            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            <span className="text-sm">Uploading...</span>
           </div>
+        )}
+      </div>
 
-          {uploading && (
-            <div className="mt-4">
-              <Progress value={uploadProgress} className="h-2" />
-              <p className="text-xs text-gray-500 mt-1">Uploading... {uploadProgress}%</p>
-            </div>
-          )}
-
-          {value.length > 0 && (
-            <div className="mt-4 space-y-2">
-              <h4 className="text-sm font-medium">Uploaded Files:</h4>
-              {value.map((file, index) => (
-                <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                  <div className="flex items-center space-x-2">
-                    {getFileIcon(file)}
+      {uploadedFiles.length > 0 && (
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium">Uploaded Files</h4>
+          {uploadedFiles.map((file) => (
+            <Card key={file.id}>
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <File className="h-5 w-5 text-gray-500" />
                     <div>
                       <p className="text-sm font-medium">{file.name}</p>
-                      <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+                      <p className="text-xs text-gray-500">
+                        {formatFileSize(file.size)}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <Badge variant="secondary">
+                      {file.type.split('/')[0]}
+                    </Badge>
                     <Button
-                      type="button"
                       variant="ghost"
                       size="sm"
-                      onClick={() => removeFile(index)}
+                      onClick={() => handleRemoveFile(file.id)}
                     >
-                      <X className="w-4 h-4" />
+                      <X className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {field.helpText && (
-        <p className="text-xs text-gray-500">{field.helpText}</p>
-      )}
-      
-      {error && (
-        <p className="text-xs text-red-500">{error}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       )}
     </div>
   );

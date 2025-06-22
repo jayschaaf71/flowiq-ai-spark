@@ -3,19 +3,27 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Eye, UserCheck, Mail, Phone } from 'lucide-react';
+import { Eye, UserCheck, Mail, Phone, Calendar } from 'lucide-react';
 import { IntakeSubmission } from '@/types/intake';
 import { SubmissionDetailModal } from './SubmissionDetailModal';
 import { StaffAssignmentManager } from './StaffAssignmentManager';
 import { PatientCommunicationManager } from './PatientCommunicationManager';
 
 interface FormSubmissionsListProps {
-  submissions: IntakeSubmission[];
+  submissions: (IntakeSubmission & { currentAssignment?: any })[];
   onViewSubmission: (submission: IntakeSubmission) => void;
   showActions?: boolean;
-  onAssignToStaff?: (submissionId: string, staffMember: string) => void;
-  onSendFollowUp?: (submission: IntakeSubmission) => void;
+  onAssignToStaff?: (submissionId: string, staffId: string, staffName: string) => void;
+  onSendCommunication?: (
+    submissionId: string,
+    templateId: string,
+    recipient: string,
+    patientName: string,
+    customMessage?: string,
+    type?: 'email' | 'sms'
+  ) => void;
+  isAssigning?: boolean;
+  isSendingCommunication?: boolean;
 }
 
 export const FormSubmissionsList: React.FC<FormSubmissionsListProps> = ({
@@ -23,10 +31,13 @@ export const FormSubmissionsList: React.FC<FormSubmissionsListProps> = ({
   onViewSubmission,
   showActions = true,
   onAssignToStaff,
-  onSendFollowUp
+  onSendCommunication,
+  isAssigning = false,
+  isSendingCommunication = false
 }) => {
   const [selectedSubmission, setSelectedSubmission] = useState<IntakeSubmission | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [expandedSubmission, setExpandedSubmission] = useState<string | null>(null);
 
   const getStatusBadge = (status: string, priority: string) => {
     if (priority === 'high') {
@@ -38,6 +49,8 @@ export const FormSubmissionsList: React.FC<FormSubmissionsListProps> = ({
         return <Badge className="bg-green-100 text-green-700">Completed</Badge>;
       case 'pending':
         return <Badge className="bg-yellow-100 text-yellow-700">Pending</Badge>;
+      case 'assigned':
+        return <Badge className="bg-blue-100 text-blue-700">Assigned</Badge>;
       case 'partial':
         return <Badge className="bg-orange-100 text-orange-700">Partial</Badge>;
       default:
@@ -51,24 +64,8 @@ export const FormSubmissionsList: React.FC<FormSubmissionsListProps> = ({
     onViewSubmission(submission);
   };
 
-  const handleAssignToStaff = (submissionId: string, staffMember: string) => {
-    console.log(`Assigning submission ${submissionId} to ${staffMember}`);
-    onAssignToStaff?.(submissionId, staffMember);
-  };
-
-  const handleSendFollowUp = (submission: IntakeSubmission) => {
-    console.log(`Sending follow-up to ${submission.patient_email}`);
-    onSendFollowUp?.(submission);
-  };
-
-  const handleSendCommunication = (submission: IntakeSubmission, template: any, customMessage?: string) => {
-    console.log('Sending communication:', { submission: submission.id, template: template.id, customMessage });
-    // TODO: Implement actual communication sending
-  };
-
-  const handleUpdateStatus = (submissionId: string, status: string) => {
-    console.log(`Updating submission ${submissionId} status to ${status}`);
-    // TODO: Implement status update
+  const handleToggleExpand = (submissionId: string) => {
+    setExpandedSubmission(expandedSubmission === submissionId ? null : submissionId);
   };
 
   if (submissions.length === 0) {
@@ -90,22 +87,36 @@ export const FormSubmissionsList: React.FC<FormSubmissionsListProps> = ({
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="text-lg">{submission.patient_name}</CardTitle>
-                  <p className="text-sm text-gray-600">{submission.patient_email}</p>
-                  {submission.patient_phone && (
-                    <p className="text-sm text-gray-600">{submission.patient_phone}</p>
-                  )}
+                  <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
+                    <div className="flex items-center gap-1">
+                      <Mail className="w-4 h-4" />
+                      {submission.patient_email}
+                    </div>
+                    {submission.patient_phone && (
+                      <div className="flex items-center gap-1">
+                        <Phone className="w-4 h-4" />
+                        {submission.patient_phone}
+                      </div>
+                    )}
+                    <div className="flex items-center gap-1">
+                      <Calendar className="w-4 h-4" />
+                      {new Date(submission.created_at).toLocaleDateString()}
+                    </div>
+                  </div>
                 </div>
                 <div className="flex items-center gap-2">
                   {getStatusBadge(submission.status, submission.priority_level)}
-                  <span className="text-sm text-gray-500">
-                    {new Date(submission.created_at).toLocaleDateString()}
-                  </span>
+                  {submission.currentAssignment && (
+                    <Badge variant="outline" className="text-xs">
+                      Assigned to {submission.currentAssignment.staff_name}
+                    </Badge>
+                  )}
                 </div>
               </div>
             </CardHeader>
             
             {submission.ai_summary && (
-              <CardContent>
+              <CardContent className="pt-0">
                 <div className="bg-blue-50 p-3 rounded-lg">
                   <h4 className="font-medium text-blue-900 mb-1">AI Summary</h4>
                   <p className="text-sm text-blue-800">{submission.ai_summary}</p>
@@ -115,7 +126,7 @@ export const FormSubmissionsList: React.FC<FormSubmissionsListProps> = ({
 
             {showActions && (
               <CardContent className="pt-0">
-                <div className="flex gap-2 flex-wrap">
+                <div className="flex gap-2 flex-wrap mb-4">
                   <Button
                     variant="outline"
                     size="sm"
@@ -125,31 +136,36 @@ export const FormSubmissionsList: React.FC<FormSubmissionsListProps> = ({
                     View Details
                   </Button>
                   
-                  {onAssignToStaff && (
-                    <Select onValueChange={(value) => handleAssignToStaff(submission.id, value)}>
-                      <SelectTrigger className="w-48">
-                        <UserCheck className="w-4 h-4 mr-2" />
-                        <span>Assign to...</span>
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="dr-smith">Dr. Smith</SelectItem>
-                        <SelectItem value="nurse-johnson">Nurse Johnson</SelectItem>
-                        <SelectItem value="staff-williams">Staff Williams</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  )}
-                  
-                  {onSendFollowUp && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleSendFollowUp(submission)}
-                    >
-                      <Mail className="w-4 h-4 mr-1" />
-                      Follow Up
-                    </Button>
-                  )}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleToggleExpand(submission.id)}
+                  >
+                    <UserCheck className="w-4 h-4 mr-1" />
+                    {expandedSubmission === submission.id ? 'Hide' : 'Show'} Actions
+                  </Button>
                 </div>
+
+                {expandedSubmission === submission.id && (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+                    {onAssignToStaff && (
+                      <StaffAssignmentManager
+                        submissionId={submission.id}
+                        currentAssignee={submission.currentAssignment}
+                        onAssignment={onAssignToStaff}
+                        isAssigning={isAssigning}
+                      />
+                    )}
+                    
+                    {onSendCommunication && (
+                      <PatientCommunicationManager
+                        submission={submission}
+                        onSendCommunication={onSendCommunication}
+                        isSending={isSendingCommunication}
+                      />
+                    )}
+                  </div>
+                )}
               </CardContent>
             )}
           </Card>
@@ -163,9 +179,22 @@ export const FormSubmissionsList: React.FC<FormSubmissionsListProps> = ({
           setIsDetailModalOpen(false);
           setSelectedSubmission(null);
         }}
-        onAssignToStaff={handleAssignToStaff}
-        onSendFollowUp={handleSendFollowUp}
-        onUpdateStatus={handleUpdateStatus}
+        onAssignToStaff={onAssignToStaff}
+        onSendFollowUp={(submission) => {
+          // Handle follow-up with default template
+          onSendCommunication?.(
+            submission.id,
+            'appointment-follow-up',
+            submission.patient_email,
+            submission.patient_name,
+            undefined,
+            'email'
+          );
+        }}
+        onUpdateStatus={(submissionId, status) => {
+          // You might want to add this functionality
+          console.log('Update status:', submissionId, status);
+        }}
       />
     </>
   );

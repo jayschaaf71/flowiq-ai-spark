@@ -5,9 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Mail, MessageSquare, Send, Clock } from 'lucide-react';
+import { Mail, MessageSquare, Send, Clock, Loader2 } from 'lucide-react';
 import { IntakeSubmission } from '@/types/intake';
-import { useToast } from '@/hooks/use-toast';
 
 interface CommunicationTemplate {
   id: string;
@@ -38,39 +37,67 @@ const COMMUNICATION_TEMPLATES: CommunicationTemplate[] = [
     subject: 'Urgent: Please Contact Our Office',
     body: 'Based on your submission, please contact our office immediately at (555) 123-4567.',
     type: 'email'
+  },
+  {
+    id: 'welcome-sms',
+    name: 'Welcome SMS',
+    subject: '',
+    body: 'Welcome {patient_name}! Your intake form has been received. We will contact you soon.',
+    type: 'sms'
   }
 ];
 
 interface PatientCommunicationManagerProps {
-  submission: IntakeSubmission;
-  onSendCommunication: (submission: IntakeSubmission, template: CommunicationTemplate, customMessage?: string) => void;
+  submission: IntakeSubmission & {
+    currentAssignment?: any;
+  };
+  onSendCommunication: (
+    submissionId: string,
+    templateId: string,
+    recipient: string,
+    patientName: string,
+    customMessage?: string,
+    type?: 'email' | 'sms'
+  ) => void;
+  isSending?: boolean;
 }
 
 export const PatientCommunicationManager: React.FC<PatientCommunicationManagerProps> = ({
   submission,
-  onSendCommunication
+  onSendCommunication,
+  isSending = false
 }) => {
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [customMessage, setCustomMessage] = useState<string>('');
   const [communicationType, setCommunicationType] = useState<'email' | 'sms'>('email');
-  const { toast } = useToast();
 
   const handleSendCommunication = () => {
     const template = COMMUNICATION_TEMPLATES.find(t => t.id === selectedTemplate);
     if (!template) return;
 
-    onSendCommunication(submission, template, customMessage);
-    
-    toast({
-      title: "Communication sent",
-      description: `${template.type === 'email' ? 'Email' : 'SMS'} sent to ${submission.patient_name}`,
-    });
+    const recipient = communicationType === 'email' ? submission.patient_email : submission.patient_phone;
+    if (!recipient) {
+      // Handle missing contact info
+      return;
+    }
 
+    onSendCommunication(
+      submission.id,
+      selectedTemplate,
+      recipient,
+      submission.patient_name,
+      customMessage || template.body,
+      communicationType
+    );
+
+    // Reset form
     setCustomMessage('');
     setSelectedTemplate('');
   };
 
   const selectedTemplateData = COMMUNICATION_TEMPLATES.find(t => t.id === selectedTemplate);
+  const canSend = selectedTemplate && 
+    (communicationType === 'email' ? submission.patient_email : submission.patient_phone);
 
   return (
     <Card>
@@ -103,6 +130,12 @@ export const PatientCommunicationManager: React.FC<PatientCommunicationManagerPr
                 </SelectItem>
               </SelectContent>
             </Select>
+            {communicationType === 'email' && !submission.patient_email && (
+              <p className="text-xs text-red-600 mt-1">No email address available</p>
+            )}
+            {communicationType === 'sms' && !submission.patient_phone && (
+              <p className="text-xs text-red-600 mt-1">No phone number available</p>
+            )}
           </div>
 
           <div>
@@ -127,7 +160,11 @@ export const PatientCommunicationManager: React.FC<PatientCommunicationManagerPr
         {selectedTemplateData && (
           <div className="bg-gray-50 p-3 rounded-lg">
             <div className="mb-2">
-              <Badge variant="outline">{selectedTemplateData.subject}</Badge>
+              {selectedTemplateData.subject && (
+                <Badge variant="outline" className="mb-2">
+                  {selectedTemplateData.subject}
+                </Badge>
+              )}
             </div>
             <p className="text-sm text-gray-700">
               {selectedTemplateData.body.replace('{patient_name}', submission.patient_name)}
@@ -138,7 +175,7 @@ export const PatientCommunicationManager: React.FC<PatientCommunicationManagerPr
         <div>
           <label className="text-sm font-medium">Custom Message (Optional)</label>
           <Textarea
-            placeholder="Add a custom message..."
+            placeholder={selectedTemplateData ? "Override template message..." : "Add a custom message..."}
             value={customMessage}
             onChange={(e) => setCustomMessage(e.target.value)}
             className="mt-1"
@@ -147,11 +184,20 @@ export const PatientCommunicationManager: React.FC<PatientCommunicationManagerPr
 
         <Button 
           onClick={handleSendCommunication}
-          disabled={!selectedTemplate}
+          disabled={!canSend || isSending}
           className="w-full"
         >
-          <Send className="w-4 h-4 mr-2" />
-          Send {communicationType === 'email' ? 'Email' : 'SMS'}
+          {isSending ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Sending...
+            </>
+          ) : (
+            <>
+              <Send className="w-4 h-4 mr-2" />
+              Send {communicationType === 'email' ? 'Email' : 'SMS'}
+            </>
+          )}
         </Button>
 
         <div className="text-xs text-gray-500 flex items-center gap-1">
