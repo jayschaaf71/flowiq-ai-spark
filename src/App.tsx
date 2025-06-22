@@ -4,9 +4,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { TenantProtectedRoute } from "@/components/auth/TenantProtectedRoute";
 import { SessionManager } from "@/components/auth/SessionManager";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useEnhancedAuth } from "@/hooks/useEnhancedAuth";
 
 // Import all pages
 import Index from "./pages/Index";
@@ -44,13 +46,13 @@ const queryClient = new QueryClient();
 // Component to handle authentication-based navigation
 const AuthNavigationHandler = () => {
   const { user, profile, loading } = useAuth();
+  const { primaryTenant, isPlatformAdmin } = useEnhancedAuth();
 
   useEffect(() => {
     if (!loading && user && profile) {
-      console.log('User authenticated with role:', profile.role);
-      // Navigation will be handled by the route components themselves
+      console.log('User authenticated with role:', profile.role, 'Primary tenant:', primaryTenant?.tenant.name);
     }
-  }, [user, profile, loading]);
+  }, [user, profile, loading, primaryTenant]);
 
   return null;
 };
@@ -78,88 +80,88 @@ function App() {
                 } 
               />
               
-              {/* Staff/Admin protected routes */}
+              {/* Staff/Admin protected routes with tenant context */}
               <Route 
                 path="/" 
                 element={
-                  <ProtectedRoute requiredRole="staff">
+                  <TenantProtectedRoute requiredRole="staff">
                     <Index />
-                  </ProtectedRoute>
+                  </TenantProtectedRoute>
                 } 
               />
               <Route 
                 path="/manager" 
                 element={
-                  <ProtectedRoute requiredRole="staff">
+                  <TenantProtectedRoute requiredRole="staff">
                     <ManagerAgent />
-                  </ProtectedRoute>
+                  </TenantProtectedRoute>
                 } 
               />
               
-              {/* Enterprise Tenant Administration */}
+              {/* Platform Admin only - Tenant Administration */}
               <Route 
                 path="/tenant-admin" 
                 element={
-                  <ProtectedRoute requiredRole="admin">
+                  <TenantProtectedRoute requiredRole="platform_admin">
                     <TenantAdmin />
-                  </ProtectedRoute>
+                  </TenantProtectedRoute>
                 } 
               />
               
               <Route 
                 path="/workflows" 
                 element={
-                  <ProtectedRoute requiredRole="staff">
+                  <TenantProtectedRoute requiredRole="staff">
                     <Workflows />
-                  </ProtectedRoute>
+                  </TenantProtectedRoute>
                 } 
               />
               <Route 
                 path="/analytics" 
                 element={
-                  <ProtectedRoute requiredRole="staff">
+                  <TenantProtectedRoute requiredRole="staff">
                     <Analytics />
-                  </ProtectedRoute>
+                  </TenantProtectedRoute>
                 } 
               />
               <Route 
                 path="/insights" 
                 element={
-                  <ProtectedRoute requiredRole="staff">
+                  <TenantProtectedRoute requiredRole="staff">
                     <AIInsights />
-                  </ProtectedRoute>
+                  </TenantProtectedRoute>
                 } 
               />
               <Route 
                 path="/patients" 
                 element={
-                  <ProtectedRoute requiredRole="staff">
+                  <TenantProtectedRoute requiredRole="staff">
                     <PatientManagement />
-                  </ProtectedRoute>
+                  </TenantProtectedRoute>
                 } 
               />
               <Route 
                 path="/team" 
                 element={
-                  <ProtectedRoute requiredRole="staff">
+                  <TenantProtectedRoute requiredRole="practice_manager">
                     <Team />
-                  </ProtectedRoute>
+                  </TenantProtectedRoute>
                 } 
               />
               <Route 
                 path="/schedule" 
                 element={
-                  <ProtectedRoute requiredRole="staff">
+                  <TenantProtectedRoute requiredRole="staff">
                     <ScheduleIQ />
-                  </ProtectedRoute>
+                  </TenantProtectedRoute>
                 } 
               />
               <Route 
                 path="/setup" 
                 element={
-                  <ProtectedRoute requiredRole="admin">
+                  <TenantProtectedRoute requiredRole="tenant_admin">
                     <PracticeSetup />
-                  </ProtectedRoute>
+                  </TenantProtectedRoute>
                 } 
               />
               
@@ -167,65 +169,65 @@ function App() {
               <Route 
                 path="/agents/schedule" 
                 element={
-                  <ProtectedRoute requiredRole="staff">
+                  <TenantProtectedRoute requiredRole="staff">
                     <ScheduleIQ />
-                  </ProtectedRoute>
+                  </TenantProtectedRoute>
                 } 
               />
               <Route 
                 path="/agents/schedule-production" 
                 element={
-                  <ProtectedRoute requiredRole="staff">
+                  <TenantProtectedRoute requiredRole="staff">
                     <ScheduleIQProduction />
-                  </ProtectedRoute>
+                  </TenantProtectedRoute>
                 } 
               />
               <Route 
                 path="/agents/intake" 
                 element={
-                  <ProtectedRoute requiredRole="staff">
+                  <TenantProtectedRoute requiredRole="staff">
                     <IntakeIQ />
-                  </ProtectedRoute>
+                  </TenantProtectedRoute>
                 } 
               />
               <Route 
                 path="/agents/remind" 
                 element={
-                  <ProtectedRoute requiredRole="staff">
+                  <TenantProtectedRoute requiredRole="staff">
                     <RemindIQ />
-                  </ProtectedRoute>
+                  </TenantProtectedRoute>
                 } 
               />
               <Route 
                 path="/agents/billing" 
                 element={
-                  <ProtectedRoute requiredRole="staff">
+                  <TenantProtectedRoute requiredRole="staff">
                     <BillingIQ />
-                  </ProtectedRoute>
+                  </TenantProtectedRoute>
                 } 
               />
               <Route 
                 path="/agents/claims" 
                 element={
-                  <ProtectedRoute requiredRole="staff">
+                  <TenantProtectedRoute requiredRole="staff">
                     <ClaimsIQ />
-                  </ProtectedRoute>
+                  </TenantProtectedRoute>
                 } 
               />
               <Route 
                 path="/agents/scribe" 
                 element={
-                  <ProtectedRoute requiredRole="staff">
+                  <TenantProtectedRoute requiredRole="staff">
                     <ScribeIQ />
-                  </ProtectedRoute>
+                  </TenantProtectedRoute>
                 } 
               />
               <Route 
                 path="/agents/ehr" 
                 element={
-                  <ProtectedRoute requiredRole="staff">
+                  <TenantProtectedRoute requiredRole="staff">
                     <EHRIQ />
-                  </ProtectedRoute>
+                  </TenantProtectedRoute>
                 } 
               />
               
@@ -233,17 +235,17 @@ function App() {
               <Route 
                 path="/settings" 
                 element={
-                  <ProtectedRoute requiredRole="staff">
+                  <TenantProtectedRoute requiredRole="staff">
                     <Settings />
-                  </ProtectedRoute>
+                  </TenantProtectedRoute>
                 } 
               />
               <Route 
                 path="/templates" 
                 element={
-                  <ProtectedRoute requiredRole="staff">
+                  <TenantProtectedRoute requiredRole="staff">
                     <Templates />
-                  </ProtectedRoute>
+                  </TenantProtectedRoute>
                 } 
               />
               <Route 

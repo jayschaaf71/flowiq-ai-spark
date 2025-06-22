@@ -36,12 +36,14 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { useTenantConfig } from "@/utils/tenantConfig";
+import { useTenantConfig } from "@/utils/enhancedTenantConfig";
+import { useEnhancedAuth } from "@/hooks/useEnhancedAuth";
 
 export const AppSidebar = () => {
   const location = useLocation();
   const { state } = useSidebar();
   const tenantConfig = useTenantConfig();
+  const { isPlatformAdmin, hasMinimumRole, primaryTenant } = useEnhancedAuth();
   
   const mainNavigationItems = [
     { icon: Home, label: "Dashboard", path: "/", badge: null },
@@ -51,9 +53,9 @@ export const AppSidebar = () => {
 
   const practiceManagement = [
     { icon: UserPlus, label: "Patients", path: "/patients", badge: null },
-    { icon: Users, label: "Team", path: "/team", badge: null },
-    { icon: Building2, label: "Practice Setup", path: "/setup", badge: null },
-    { icon: Building2, label: "Tenant Admin", path: "/tenant-admin", badge: "Enterprise" },
+    ...(hasMinimumRole('practice_manager') ? [{ icon: Users, label: "Team", path: "/team", badge: null }] : []),
+    ...(hasMinimumRole('tenant_admin') ? [{ icon: Building2, label: "Practice Setup", path: "/setup", badge: null }] : []),
+    ...(isPlatformAdmin ? [{ icon: Building2, label: "Tenant Admin", path: "/tenant-admin", badge: "Enterprise" }] : []),
   ];
 
   const aiAgents = [
@@ -119,7 +121,14 @@ export const AppSidebar = () => {
                 <span className="font-bold text-lg text-blue-600">Flow</span>
                 <span className="font-bold text-lg text-gray-800">IQ</span>
               </div>
-              <p className="text-xs text-gray-500 leading-tight">{tenantConfig.tagline}</p>
+              <p className="text-xs text-gray-500 leading-tight">
+                {tenantConfig.tagline}
+              </p>
+              {primaryTenant && (
+                <p className="text-xs text-blue-600 font-medium mt-1">
+                  {primaryTenant.tenant.brand_name}
+                </p>
+              )}
             </div>
           )}
         </div>
