@@ -21,24 +21,20 @@ export interface SendCommunicationRequest {
 export class CommunicationService {
   static async sendCommunication(request: SendCommunicationRequest) {
     try {
-      // Log the communication attempt using raw query to work around type issues
+      // Create communication log entry first
       const { data: logEntry, error: logError } = await supabase
-        .rpc('execute_raw_sql', {
-          query: `
-            INSERT INTO communication_logs (
-              submission_id, type, template_id, recipient, subject, message, status
-            ) VALUES ($1, $2, $3, $4, $5, $6, 'pending')
-            RETURNING *
-          `,
-          params: [
-            request.submissionId,
-            request.type,
-            request.templateId,
-            request.recipient,
-            request.type === 'email' ? `Message for ${request.patientName}` : null,
-            request.customMessage || `Template: ${request.templateId}`
-          ]
-        });
+        .from('communication_logs')
+        .insert({
+          submission_id: request.submissionId,
+          type: request.type,
+          template_id: request.templateId,
+          recipient: request.recipient,
+          subject: request.type === 'email' ? `Message for ${request.patientName}` : null,
+          message: request.customMessage || `Template: ${request.templateId}`,
+          status: 'pending'
+        })
+        .select()
+        .single();
 
       if (logError) {
         console.error('Failed to log communication:', logError);
@@ -49,7 +45,7 @@ export class CommunicationService {
       const { data, error } = await supabase.functions.invoke('send-communication', {
         body: {
           ...request,
-          logId: logEntry?.[0]?.id
+          logId: logEntry?.id
         }
       });
 
@@ -67,14 +63,10 @@ export class CommunicationService {
   static async getCommunicationLogs(submissionId: string) {
     try {
       const { data, error } = await supabase
-        .rpc('execute_raw_sql', {
-          query: `
-            SELECT * FROM communication_logs 
-            WHERE submission_id = $1 
-            ORDER BY created_at DESC
-          `,
-          params: [submissionId]
-        });
+        .from('communication_logs')
+        .select('*')
+        .eq('submission_id', submissionId)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       return data || [];
@@ -89,15 +81,12 @@ export class CommunicationService {
       const updateData: any = { status };
       if (deliveredAt) updateData.delivered_at = deliveredAt;
 
-      await supabase
-        .rpc('execute_raw_sql', {
-          query: deliveredAt 
-            ? `UPDATE communication_logs SET status = $1, delivered_at = $2 WHERE id = $3`
-            : `UPDATE communication_logs SET status = $1 WHERE id = $2`,
-          params: deliveredAt 
-            ? [status, deliveredAt, logId]
-            : [status, logId]
-        });
+      const { error } = await supabase
+        .from('communication_logs')
+        .update(updateData)
+        .eq('id', logId);
+
+      if (error) throw error;
     } catch (error) {
       console.error('Failed to update communication status:', error);
     }

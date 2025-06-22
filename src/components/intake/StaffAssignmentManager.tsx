@@ -49,6 +49,7 @@ export const StaffAssignmentManager: React.FC<StaffAssignmentManagerProps> = ({
     const staffMember = STAFF_MEMBERS.find(s => s.id === selectedStaff);
     if (!staffMember) return;
 
+    // Call the onAssignment function with the correct parameters
     onAssignment(submissionId, selectedStaff, staffMember.name);
     setSelectedStaff('');
   };

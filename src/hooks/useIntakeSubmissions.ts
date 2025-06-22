@@ -37,15 +37,15 @@ export const useIntakeSubmissions = () => {
 
   // Assign staff mutation
   const assignStaffMutation = useMutation({
-    mutationFn: async ({ submissionId, staffId, staffName }: {
+    mutationFn: async (params: {
       submissionId: string;
       staffId: string;
       staffName: string;
     }) => {
       return await StaffAssignmentService.assignSubmission(
-        submissionId,
-        staffId,
-        staffName,
+        params.submissionId,
+        params.staffId,
+        params.staffName,
         'system' // You might want to track who made the assignment
       );
     },
@@ -67,14 +67,7 @@ export const useIntakeSubmissions = () => {
 
   // Send communication mutation
   const sendCommunicationMutation = useMutation({
-    mutationFn: async ({
-      submissionId,
-      templateId,
-      recipient,
-      patientName,
-      customMessage,
-      type
-    }: {
+    mutationFn: async (params: {
       submissionId: string;
       templateId: string;
       recipient: string;
@@ -83,12 +76,12 @@ export const useIntakeSubmissions = () => {
       type: 'email' | 'sms';
     }) => {
       return await CommunicationService.sendCommunication({
-        submissionId,
-        templateId,
-        recipient,
-        patientName,
-        customMessage,
-        type
+        submissionId: params.submissionId,
+        templateId: params.templateId,
+        recipient: params.recipient,
+        patientName: params.patientName,
+        customMessage: params.customMessage,
+        type: params.type
       });
     },
     onSuccess: () => {
@@ -138,12 +131,39 @@ export const useIntakeSubmissions = () => {
     },
   });
 
+  // Wrapper functions to match expected signatures
+  const assignStaff = (submissionId: string, staffId: string, staffName: string) => {
+    assignStaffMutation.mutate({ submissionId, staffId, staffName });
+  };
+
+  const sendCommunication = (
+    submissionId: string,
+    templateId: string,
+    recipient: string,
+    patientName: string,
+    customMessage?: string,
+    type: 'email' | 'sms' = 'email'
+  ) => {
+    sendCommunicationMutation.mutate({
+      submissionId,
+      templateId,
+      recipient,
+      patientName,
+      customMessage,
+      type
+    });
+  };
+
+  const updateStatus = (submissionId: string, status: string) => {
+    updateStatusMutation.mutate({ submissionId, status });
+  };
+
   return {
     submissions: submissions || [],
     isLoading,
-    assignStaff: assignStaffMutation.mutate,
-    sendCommunication: sendCommunicationMutation.mutate,
-    updateStatus: updateStatusMutation.mutate,
+    assignStaff,
+    sendCommunication,
+    updateStatus,
     isAssigning: assignStaffMutation.isPending,
     isSendingCommunication: sendCommunicationMutation.isPending,
     isUpdatingStatus: updateStatusMutation.isPending,

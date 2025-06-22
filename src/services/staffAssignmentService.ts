@@ -21,28 +21,26 @@ export class StaffAssignmentService {
     notes?: string
   ) {
     try {
-      // First, mark any existing assignments as transferred using raw SQL
+      // First, mark any existing assignments as transferred
       await supabase
-        .rpc('execute_raw_sql', {
-          query: `
-            UPDATE staff_assignments 
-            SET status = 'transferred' 
-            WHERE submission_id = $1 AND status = 'active'
-          `,
-          params: [submissionId]
-        });
+        .from('staff_assignments')
+        .update({ status: 'transferred' })
+        .eq('submission_id', submissionId)
+        .eq('status', 'active');
 
       // Create new assignment
       const { data, error } = await supabase
-        .rpc('execute_raw_sql', {
-          query: `
-            INSERT INTO staff_assignments (
-              submission_id, staff_id, staff_name, assigned_by, notes, status
-            ) VALUES ($1, $2, $3, $4, $5, 'active')
-            RETURNING *
-          `,
-          params: [submissionId, staffId, staffName, assignedBy, notes]
-        });
+        .from('staff_assignments')
+        .insert({
+          submission_id: submissionId,
+          staff_id: staffId,
+          staff_name: staffName,
+          assigned_by: assignedBy,
+          notes: notes,
+          status: 'active'
+        })
+        .select()
+        .single();
 
       if (error) throw error;
 
@@ -55,7 +53,7 @@ export class StaffAssignmentService {
         })
         .eq('id', submissionId);
 
-      return { success: true, assignment: data?.[0] };
+      return { success: true, assignment: data };
     } catch (error) {
       console.error('Staff assignment error:', error);
       throw error;
@@ -65,14 +63,10 @@ export class StaffAssignmentService {
   static async getSubmissionAssignments(submissionId: string) {
     try {
       const { data, error } = await supabase
-        .rpc('execute_raw_sql', {
-          query: `
-            SELECT * FROM staff_assignments 
-            WHERE submission_id = $1 
-            ORDER BY assigned_at DESC
-          `,
-          params: [submissionId]
-        });
+        .from('staff_assignments')
+        .select('*')
+        .eq('submission_id', submissionId)
+        .order('assigned_at', { ascending: false });
 
       if (error) throw error;
       return data || [];
@@ -85,17 +79,14 @@ export class StaffAssignmentService {
   static async getCurrentAssignment(submissionId: string) {
     try {
       const { data, error } = await supabase
-        .rpc('execute_raw_sql', {
-          query: `
-            SELECT * FROM staff_assignments 
-            WHERE submission_id = $1 AND status = 'active' 
-            LIMIT 1
-          `,
-          params: [submissionId]
-        });
+        .from('staff_assignments')
+        .select('*')
+        .eq('submission_id', submissionId)
+        .eq('status', 'active')
+        .single();
 
       if (error && error.code !== 'PGRST116') throw error;
-      return data?.[0] || null;
+      return data || null;
     } catch (error) {
       console.error('Failed to get current assignment:', error);
       return null;
@@ -104,16 +95,16 @@ export class StaffAssignmentService {
 
   static async completeAssignment(assignmentId: string, notes?: string) {
     try {
-      await supabase
-        .rpc('execute_raw_sql', {
-          query: `
-            UPDATE staff_assignments 
-            SET status = 'completed', notes = $1, updated_at = NOW() 
-            WHERE id = $2
-          `,
-          params: [notes, assignmentId]
-        });
+      const { error } = await supabase
+        .from('staff_assignments')
+        .update({ 
+          status: 'completed', 
+          notes: notes,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', assignmentId);
 
+      if (error) throw error;
       return { success: true };
     } catch (error) {
       console.error('Failed to complete assignment:', error);
