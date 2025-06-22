@@ -7,6 +7,7 @@ import { EnhancedFormField } from './EnhancedFormField';
 import { FormProgress } from './FormProgress';
 import { FormNavigation } from './FormNavigation';
 import { FormSuccessMessage } from './FormSuccessMessage';
+import { MobileFormOptimizer } from './MobileFormOptimizer';
 import { validateFields, calculateFormCompleteness } from './FormValidation';
 import { IntakeFormProcessor } from '@/services/intakeFormProcessor';
 import { useToast } from '@/hooks/use-toast';
