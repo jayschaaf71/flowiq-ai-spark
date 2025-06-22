@@ -23,14 +23,15 @@ interface AdminCommunicationDashboardProps {
 }
 
 export const AdminCommunicationDashboard: React.FC<AdminCommunicationDashboardProps> = ({
-  submissionId = 'demo-submission-id',
+  submissionId,
   submission,
   onSendCommunication
 }) => {
   const { submissions } = useIntakeSubmissions();
   
-  // Get the first submission for demo purposes if none provided
+  // Get the first submission for demo purposes if none provided, or generate a UUID
   const demoSubmission = submission || submissions[0];
+  const effectiveSubmissionId = submissionId || (submissions[0]?.id) || crypto.randomUUID();
 
   return (
     <div className="space-y-6">
@@ -88,11 +89,11 @@ export const AdminCommunicationDashboard: React.FC<AdminCommunicationDashboardPr
         </TabsList>
 
         <TabsContent value="test" className="space-y-4">
-          <CommunicationTestPanel submissionId={submissionId} />
+          <CommunicationTestPanel submissionId={effectiveSubmissionId} />
         </TabsContent>
 
         <TabsContent value="history" className="space-y-4">
-          <CommunicationLogViewer submissionId={submissionId} />
+          <CommunicationLogViewer submissionId={effectiveSubmissionId} />
         </TabsContent>
 
         <TabsContent value="send" className="space-y-4">
