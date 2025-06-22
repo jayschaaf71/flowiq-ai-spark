@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -36,10 +35,14 @@ interface TestResult {
 }
 
 interface EnhancedSMSTestPanelProps {
-  templates: Template[];
+  templates?: Template[];
+  submissionId?: string;
 }
 
-export const EnhancedSMSTestPanel: React.FC<EnhancedSMSTestPanelProps> = ({ templates }) => {
+export const EnhancedSMSTestPanel: React.FC<EnhancedSMSTestPanelProps> = ({ 
+  templates = [], 
+  submissionId 
+}) => {
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [customMessage, setCustomMessage] = useState('');
@@ -155,26 +158,33 @@ export const EnhancedSMSTestPanel: React.FC<EnhancedSMSTestPanelProps> = ({ temp
           <CardTitle className="flex items-center gap-2">
             <MessageSquare className="w-5 h-5" />
             Enhanced SMS Test Panel
+            {submissionId && (
+              <Badge variant="outline" className="ml-2">
+                ID: {submissionId.substring(0, 8)}...
+              </Badge>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
-              <div>
-                <Label>Select SMS Template</Label>
-                <Select onValueChange={handleTemplateSelect}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choose a template..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {smsTemplates.map(template => (
-                      <SelectItem key={template.id} value={template.id}>
-                        {template.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              {smsTemplates.length > 0 && (
+                <div>
+                  <Label>Select SMS Template</Label>
+                  <Select onValueChange={handleTemplateSelect}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose a template..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {smsTemplates.map(template => (
+                        <SelectItem key={template.id} value={template.id}>
+                          {template.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
               <div>
                 <Label>Test Phone Number</Label>
