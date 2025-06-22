@@ -978,6 +978,75 @@ export type Database = {
           },
         ]
       }
+      network_applications: {
+        Row: {
+          achievements: string
+          annual_revenue: string | null
+          company: string
+          created_at: string
+          email: string
+          experience_level: string
+          first_name: string
+          id: string
+          last_name: string
+          linkedin_url: string
+          membership_type: string
+          network_goals: string
+          phone: string
+          position: string
+          referral_source: string | null
+          specializations: string[]
+          status: string
+          team_size: string | null
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          achievements: string
+          annual_revenue?: string | null
+          company: string
+          created_at?: string
+          email: string
+          experience_level: string
+          first_name: string
+          id?: string
+          last_name: string
+          linkedin_url: string
+          membership_type: string
+          network_goals: string
+          phone: string
+          position: string
+          referral_source?: string | null
+          specializations?: string[]
+          status?: string
+          team_size?: string | null
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          achievements?: string
+          annual_revenue?: string | null
+          company?: string
+          created_at?: string
+          email?: string
+          experience_level?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          linkedin_url?: string
+          membership_type?: string
+          network_goals?: string
+          phone?: string
+          position?: string
+          referral_source?: string | null
+          specializations?: string[]
+          status?: string
+          team_size?: string | null
+          updated_at?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       notification_queue: {
         Row: {
           appointment_id: string | null
