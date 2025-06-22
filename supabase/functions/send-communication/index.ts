@@ -22,6 +22,31 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 );
 
+// SMS utilities
+const calculateSMSSegments = (message: string): number => {
+  return Math.ceil(message.length / 160);
+};
+
+const estimateSMSCost = (message: string): number => {
+  const segments = calculateSMSSegments(message);
+  return segments * 0.0075; // Approximate cost per segment
+};
+
+const validatePhoneNumber = (phone: string): boolean => {
+  const digits = phone.replace(/\D/g, '');
+  return digits.length >= 10 && digits.length <= 15;
+};
+
+const formatPhoneNumber = (phone: string): string => {
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length === 10) {
+    return `+1${digits}`;
+  } else if (digits.length === 11 && digits.startsWith('1')) {
+    return `+${digits}`;
+  }
+  return phone;
+};
+
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -132,13 +157,48 @@ const handler = async (req: Request): Promise<Response> => {
       });
 
     } else if (request.type === 'sms') {
-      // Enhanced SMS simulation with better logging
-      console.log(`SMS Simulation - To: ${request.recipient}, Message: ${request.customMessage}`);
+      // Enhanced SMS processing with validation and analytics
+      const formattedPhone = formatPhoneNumber(request.recipient);
       
-      // Simulate SMS processing delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (!validatePhoneNumber(formattedPhone)) {
+        throw new Error('Invalid phone number format');
+      }
+
+      const message = request.customMessage || 'This is a test SMS from your healthcare system.';
+      const segments = calculateSMSSegments(message);
+      const estimatedCost = estimateSMSCost(message);
+
+      // Enhanced SMS template processing
+      let smsMessage = message;
+      switch (request.templateId) {
+        case 'welcome-sms':
+          smsMessage = `Welcome ${request.patientName}! We've received your intake form. We'll contact you within 24 hours. Reply STOP to opt out.`;
+          break;
+        case 'appointment-reminder-sms':
+          smsMessage = `Hi ${request.patientName}, this is a reminder about your appointment tomorrow at 2:00 PM. Reply CONFIRM to confirm or RESCHEDULE if needed.`;
+          break;
+        case 'follow-up-sms':
+          smsMessage = `Hi ${request.patientName}, thank you for your visit. How are you feeling? Reply with any questions or concerns. Reply STOP to opt out.`;
+          break;
+        case 'confirmation-sms':
+          smsMessage = `Hi ${request.patientName}, please confirm your appointment tomorrow at 2:00 PM. Reply YES to confirm or NO to reschedule.`;
+          break;
+        default:
+          smsMessage = request.customMessage || message;
+      }
+
+      console.log(`SMS Simulation - Enhanced Processing:`);
+      console.log(`To: ${formattedPhone}`);
+      console.log(`Message: ${smsMessage}`);
+      console.log(`Characters: ${smsMessage.length}`);
+      console.log(`Segments: ${segments}`);
+      console.log(`Estimated Cost: $${estimatedCost.toFixed(4)}`);
       
-      // Update communication log
+      // Simulate SMS processing delay based on message length
+      const processingDelay = Math.min(1000 + (segments * 200), 3000);
+      await new Promise(resolve => setTimeout(resolve, processingDelay));
+      
+      // Update communication log with enhanced metadata
       await supabase
         .from('communication_logs')
         .update({ 
@@ -146,8 +206,13 @@ const handler = async (req: Request): Promise<Response> => {
           sent_at: new Date().toISOString(),
           metadata: { 
             sms_simulated: true, 
-            message_length: request.customMessage?.length || 0,
-            template_used: request.templateId
+            message_length: smsMessage.length,
+            character_count: smsMessage.length,
+            segment_count: segments,
+            estimated_cost: estimatedCost,
+            formatted_phone: formattedPhone,
+            template_used: request.templateId,
+            processing_time_ms: processingDelay
           }
         })
         .eq('id', request.logId);
@@ -156,9 +221,13 @@ const handler = async (req: Request): Promise<Response> => {
         success: true, 
         message: 'SMS sent successfully (simulated)',
         details: {
-          recipient: request.recipient,
+          recipient: formattedPhone,
           template: request.templateId,
-          messageLength: request.customMessage?.length || 0
+          messageLength: smsMessage.length,
+          characterCount: smsMessage.length,
+          segmentCount: segments,
+          estimatedCost: `$${estimatedCost.toFixed(4)}`,
+          processingTime: `${processingDelay}ms`
         }
       }), {
         status: 200,

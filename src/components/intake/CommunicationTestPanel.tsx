@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -8,6 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Mail, MessageSquare, Send, AlertCircle, CheckCircle } from 'lucide-react';
 import { CommunicationService } from '@/services/communicationService';
+import { EnhancedSMSTestPanel } from './EnhancedSMSTestPanel';
+import { SMSTemplateManager } from './SMSTemplateManager';
 
 interface CommunicationTestPanelProps {
   submissionId?: string;
@@ -53,88 +56,108 @@ export const CommunicationTestPanel: React.FC<CommunicationTestPanelProps> = ({
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Send className="w-5 h-5" />
-          Test Communication System
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="text-sm font-medium">Type</label>
-            <Select value={type} onValueChange={(value: 'email' | 'sms') => setType(value)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="email">
-                  <div className="flex items-center gap-2">
-                    <Mail className="w-4 h-4" />
-                    Email
-                  </div>
-                </SelectItem>
-                <SelectItem value="sms">
-                  <div className="flex items-center gap-2">
-                    <MessageSquare className="w-4 h-4" />
-                    SMS
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div>
-            <label className="text-sm font-medium">
-              {type === 'email' ? 'Email Address' : 'Phone Number'}
-            </label>
-            <Input
-              placeholder={type === 'email' ? 'test@example.com' : '+1234567890'}
-              value={recipient}
-              onChange={(e) => setRecipient(e.target.value)}
-            />
-          </div>
-        </div>
+    <div className="space-y-6">
+      <Tabs defaultValue="quick-test" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="quick-test">Quick Test</TabsTrigger>
+          <TabsTrigger value="sms-enhanced">Enhanced SMS</TabsTrigger>
+          <TabsTrigger value="sms-templates">SMS Templates</TabsTrigger>
+        </TabsList>
 
-        <div>
-          <label className="text-sm font-medium">Test Message</label>
-          <Textarea
-            placeholder="Enter your test message..."
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            rows={4}
-          />
-        </div>
+        <TabsContent value="quick-test">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Send className="w-5 h-5" />
+                Quick Communication Test
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Type</label>
+                  <Select value={type} onValueChange={(value: 'email' | 'sms') => setType(value)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="email">
+                        <div className="flex items-center gap-2">
+                          <Mail className="w-4 h-4" />
+                          Email
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="sms">
+                        <div className="flex items-center gap-2">
+                          <MessageSquare className="w-4 h-4" />
+                          SMS
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium">
+                    {type === 'email' ? 'Email Address' : 'Phone Number'}
+                  </label>
+                  <Input
+                    placeholder={type === 'email' ? 'test@example.com' : '+1234567890'}
+                    value={recipient}
+                    onChange={(e) => setRecipient(e.target.value)}
+                  />
+                </div>
+              </div>
 
-        <Button 
-          onClick={handleSendTest}
-          disabled={isSending || !recipient || !message}
-          className="w-full"
-        >
-          {isSending ? 'Sending...' : `Send Test ${type.charAt(0).toUpperCase() + type.slice(1)}`}
-        </Button>
+              <div>
+                <label className="text-sm font-medium">Test Message</label>
+                <Textarea
+                  placeholder="Enter your test message..."
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  rows={4}
+                />
+              </div>
 
-        {result && (
-          <Alert className={result.success ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}>
-            {result.success ? (
-              <CheckCircle className="w-4 h-4 text-green-600" />
-            ) : (
-              <AlertCircle className="w-4 h-4 text-red-600" />
-            )}
-            <AlertDescription className={result.success ? 'text-green-800' : 'text-red-800'}>
-              {result.message}
-            </AlertDescription>
-          </Alert>
-        )}
+              <Button 
+                onClick={handleSendTest}
+                disabled={isSending || !recipient || !message}
+                className="w-full"
+              >
+                {isSending ? 'Sending...' : `Send Test ${type.charAt(0).toUpperCase() + type.slice(1)}`}
+              </Button>
 
-        <div className="text-xs text-gray-500 space-y-1">
-          <p>• Email requires valid Resend API key configuration</p>
-          <p>• SMS is currently simulated for testing purposes</p>
-          <p>• Check the Communication History tab to see delivery status</p>
-          <p>• Using test submission ID: {testSubmissionId.substring(0, 8)}...</p>
-        </div>
-      </CardContent>
-    </Card>
+              {result && (
+                <Alert className={result.success ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}>
+                  {result.success ? (
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                  ) : (
+                    <AlertCircle className="w-4 h-4 text-red-600" />
+                  )}
+                  <AlertDescription className={result.success ? 'text-green-800' : 'text-red-800'}>
+                    {result.message}
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              <div className="text-xs text-gray-500 space-y-1">
+                <p>• Email requires valid Resend API key configuration</p>
+                <p>• SMS is currently simulated for testing purposes</p>
+                <p>• Check the Communication History tab to see delivery status</p>
+                <p>• Using test submission ID: {testSubmissionId.substring(0, 8)}...</p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="sms-enhanced">
+          <EnhancedSMSTestPanel submissionId={testSubmissionId} />
+        </TabsContent>
+
+        <TabsContent value="sms-templates">
+          <SMSTemplateManager />
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
