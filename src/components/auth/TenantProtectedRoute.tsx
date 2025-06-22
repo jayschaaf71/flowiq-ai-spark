@@ -2,7 +2,7 @@
 import React from 'react';
 import { useEnhancedAuth } from '@/hooks/useEnhancedAuth';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Shield, AlertTriangle } from 'lucide-react';
+import { Shield, AlertTriangle, RefreshCw } from 'lucide-react';
 
 interface TenantProtectedRouteProps {
   children: React.ReactNode;
@@ -17,8 +17,9 @@ export const TenantProtectedRoute: React.FC<TenantProtectedRouteProps> = ({
   tenantId,
   fallback
 }) => {
-  const { rolesLoading, hasMinimumRole, canAccessTenant, userRoles, isPlatformAdmin } = useEnhancedAuth();
+  const { rolesLoading, hasMinimumRole, canAccessTenant, userRoles, isPlatformAdmin, rolesError } = useEnhancedAuth();
 
+  // Handle loading state
   if (rolesLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -26,6 +27,30 @@ export const TenantProtectedRoute: React.FC<TenantProtectedRouteProps> = ({
           <Shield className="h-12 w-12 text-blue-600 mx-auto animate-pulse" />
           <div className="text-lg font-medium">Verifying tenant access...</div>
           <div className="text-sm text-gray-600">Please wait while we check your permissions</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle error state
+  if (rolesError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="max-w-md w-full">
+          <Alert className="border-yellow-200 bg-yellow-50">
+            <AlertTriangle className="h-4 w-4 text-yellow-600" />
+            <AlertDescription className="text-yellow-800">
+              <div className="font-medium mb-2">Unable to Verify Access</div>
+              <p>We're having trouble verifying your tenant permissions. Please refresh the page or contact support if the issue persists.</p>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="mt-3 inline-flex items-center gap-1 text-sm text-yellow-700 hover:text-yellow-900"
+              >
+                <RefreshCw className="h-3 w-3" />
+                Refresh Page
+              </button>
+            </AlertDescription>
+          </Alert>
         </div>
       </div>
     );

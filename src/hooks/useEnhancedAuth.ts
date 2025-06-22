@@ -45,7 +45,8 @@ export const useEnhancedAuth = () => {
       
       if (error) {
         console.error('Error fetching user roles:', error);
-        throw error;
+        // Don't throw error - return empty array to prevent blocking
+        return [];
       }
       
       console.log('Raw tenant_users data:', data);
@@ -67,7 +68,8 @@ export const useEnhancedAuth = () => {
       return roles;
     },
     enabled: !!user?.id,
-    retry: 1,
+    retry: 2,
+    retryDelay: 1000,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
@@ -149,15 +151,14 @@ export const useEnhancedAuth = () => {
 
   const isPlatformAdmin = userRoles?.some(role => role.role === 'platform_admin') || false;
 
-  // Log current state for debugging
+  // Log current state for debugging but don't log errors to avoid noise
   useEffect(() => {
-    if (user && !rolesLoading) {
+    if (user && !rolesLoading && !rolesError) {
       console.log('Enhanced Auth State:', {
         userId: user.id,
         userRoles: userRoles?.length || 0,
         primaryTenant: getPrimaryTenant()?.tenant?.name,
-        isPlatformAdmin,
-        rolesError
+        isPlatformAdmin
       });
     }
   }, [user, userRoles, rolesLoading, rolesError]);
