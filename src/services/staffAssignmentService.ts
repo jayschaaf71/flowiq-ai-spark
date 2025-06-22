@@ -21,14 +21,16 @@ export class StaffAssignmentService {
     notes?: string
   ) {
     try {
-      // For now, just update the submission status directly
-      await supabase
+      // Update the submission status directly since staff_assignments table doesn't exist yet
+      const { error } = await supabase
         .from('intake_submissions')
         .update({ 
           status: 'assigned',
           updated_at: new Date().toISOString()
         })
         .eq('id', submissionId);
+
+      if (error) throw error;
 
       // Create a mock assignment object for the UI
       const mockAssignment = {
@@ -51,6 +53,7 @@ export class StaffAssignmentService {
 
   static async getSubmissionAssignments(submissionId: string) {
     try {
+      // Return empty array until staff_assignments table is available
       console.log('Getting assignments for submission:', submissionId);
       return [];
     } catch (error) {
@@ -61,6 +64,7 @@ export class StaffAssignmentService {
 
   static async getCurrentAssignment(submissionId: string) {
     try {
+      // Return null until staff_assignments table is available
       console.log('Getting current assignment for submission:', submissionId);
       return null;
     } catch (error) {

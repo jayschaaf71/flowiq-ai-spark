@@ -190,7 +190,13 @@ export const FormSubmissionsList: React.FC<FormSubmissionsListProps> = ({
           setIsDetailModalOpen(false);
           setSelectedSubmission(null);
         }}
-        onAssignToStaff={onAssignToStaff}
+        onAssignToStaff={(submissionId, staffMember) => {
+          // Convert the 2-parameter call to 3-parameter call by parsing staffMember
+          const staffParts = staffMember.split('|');
+          const staffId = staffParts[0] || staffMember;
+          const staffName = staffParts[1] || staffMember;
+          onAssignToStaff?.(submissionId, staffId, staffName);
+        }}
         onSendFollowUp={handleSendFollowUp}
         onUpdateStatus={(submissionId, status) => {
           console.log('Update status:', submissionId, status);
