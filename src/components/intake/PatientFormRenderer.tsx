@@ -214,51 +214,60 @@ export const PatientFormRenderer: React.FC<PatientFormRendererProps> = ({
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <FormProgress
-        title={form.title}
-        description={form.description}
+      <MobileFormOptimizer
         currentStep={currentStep}
         totalSteps={totalSteps}
-        primaryColor={tenantConfig.primaryColor}
-        completeness={completeness}
-      />
-
-      {/* Form completeness indicator */}
-      <Alert className="border-blue-200 bg-blue-50">
-        <Clock className="h-4 w-4 text-blue-600" />
-        <AlertDescription className="text-blue-800">
-          Form is {completeness}% complete
-          {completeness < 100 && ` • ${Math.ceil((100 - completeness) / 20)} more fields to go`}
-        </AlertDescription>
-      </Alert>
-
-      <Card>
-        <CardContent className="space-y-6 pt-6">
-          {currentFields.map(field => (
-            <EnhancedFormField
-              key={field.id}
-              field={field}
-              value={formData[field.id]}
-              error={errors[field.id]}
-              onChange={(value) => handleFieldChange(field.id, value)}
-              onBlur={() => handleFieldBlur(field.id)}
-              showValidation={touchedFields.has(field.id)}
-            />
-          ))}
-        </CardContent>
-      </Card>
-
-      <FormNavigation
-        currentStep={currentStep}
-        totalSteps={totalSteps}
-        isSubmitting={isSubmitting}
-        primaryColor={tenantConfig.primaryColor}
-        onPrevious={handlePrevious}
         onNext={handleNext}
+        onPrevious={handlePrevious}
         onSubmit={handleSubmit}
-        hasErrors={Object.keys(errors).length > 0}
-        completeness={completeness}
-      />
+        isSubmitting={isSubmitting}
+      >
+        <FormProgress
+          title={form.title}
+          description={form.description}
+          currentStep={currentStep}
+          totalSteps={totalSteps}
+          primaryColor={tenantConfig.primaryColor}
+          completeness={completeness}
+        />
+
+        {/* Form completeness indicator */}
+        <Alert className="border-blue-200 bg-blue-50">
+          <Clock className="h-4 w-4 text-blue-600" />
+          <AlertDescription className="text-blue-800">
+            Form is {completeness}% complete
+            {completeness < 100 && ` • ${Math.ceil((100 - completeness) / 20)} more fields to go`}
+          </AlertDescription>
+        </Alert>
+
+        <Card>
+          <CardContent className="space-y-6 pt-6">
+            {currentFields.map(field => (
+              <EnhancedFormField
+                key={field.id}
+                field={field}
+                value={formData[field.id]}
+                error={errors[field.id]}
+                onChange={(value) => handleFieldChange(field.id, value)}
+                onBlur={() => handleFieldBlur(field.id)}
+                showValidation={touchedFields.has(field.id)}
+              />
+            ))}
+          </CardContent>
+        </Card>
+
+        <FormNavigation
+          currentStep={currentStep}
+          totalSteps={totalSteps}
+          isSubmitting={isSubmitting}
+          primaryColor={tenantConfig.primaryColor}
+          onPrevious={handlePrevious}
+          onNext={handleNext}
+          onSubmit={handleSubmit}
+          hasErrors={Object.keys(errors).length > 0}
+          completeness={completeness}
+        />
+      </MobileFormOptimizer>
     </div>
   );
 };

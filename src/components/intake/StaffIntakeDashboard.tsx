@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -23,6 +22,7 @@ import { useIntakeForms } from '@/hooks/useIntakeForms';
 import { useTenantConfig } from '@/utils/tenantConfig';
 import { FormSubmissionsList } from './FormSubmissionsList';
 import { IntakeAnalyticsDashboard } from './IntakeAnalyticsDashboard';
+import { EnhancedAnalyticsDashboard } from './EnhancedAnalyticsDashboard';
 
 export const StaffIntakeDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('pending');
@@ -58,12 +58,12 @@ export const StaffIntakeDashboard: React.FC = () => {
 
   const handleAssignToStaff = (submissionId: string, staffMember: string) => {
     console.log(`Assigning submission ${submissionId} to ${staffMember}`);
-    // TODO: Implement assignment logic
+    // TODO: Implement assignment logic with backend
   };
 
   const handleSendFollowUp = (submission: any) => {
     console.log(`Sending follow-up to ${submission.patient_email}`);
-    // TODO: Implement follow-up email logic
+    // TODO: Implement follow-up email logic with backend
   };
 
   if (loading) {
@@ -193,7 +193,7 @@ export const StaffIntakeDashboard: React.FC = () => {
             Analytics
           </TabsTrigger>
           <TabsTrigger value="notifications">
-            Notifications
+            Communications
           </TabsTrigger>
         </TabsList>
 
@@ -252,7 +252,7 @@ export const StaffIntakeDashboard: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-4">
-          <IntakeAnalyticsDashboard />
+          <EnhancedAnalyticsDashboard />
         </TabsContent>
 
         <TabsContent value="notifications" className="space-y-4">
@@ -276,8 +276,8 @@ export const StaffIntakeDashboard: React.FC = () => {
                   </Button>
                 </div>
                 <div className="text-sm text-gray-600">
-                  <p>• 12 patients have incomplete forms</p>
-                  <p>• 3 high-priority submissions need immediate attention</p>
+                  <p>• {statusCounts.pending} patients have incomplete forms</p>
+                  <p>• {statusCounts.high_priority} high-priority submissions need immediate attention</p>
                   <p>• 8 follow-up emails scheduled for today</p>
                 </div>
               </div>
