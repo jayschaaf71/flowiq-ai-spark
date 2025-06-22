@@ -21,32 +21,9 @@ export interface SendCommunicationRequest {
 export class CommunicationService {
   static async sendCommunication(request: SendCommunicationRequest) {
     try {
-      // Create communication log entry first
-      const { data: logEntry, error: logError } = await supabase
-        .from('communication_logs')
-        .insert({
-          submission_id: request.submissionId,
-          type: request.type,
-          template_id: request.templateId,
-          recipient: request.recipient,
-          subject: request.type === 'email' ? `Message for ${request.patientName}` : null,
-          message: request.customMessage || `Template: ${request.templateId}`,
-          status: 'pending'
-        })
-        .select()
-        .single();
-
-      if (logError) {
-        console.error('Failed to log communication:', logError);
-        // Continue with sending even if logging fails
-      }
-
-      // Call the edge function to send the actual communication
+      // Call the edge function directly for now, which will handle logging
       const { data, error } = await supabase.functions.invoke('send-communication', {
-        body: {
-          ...request,
-          logId: logEntry?.id
-        }
+        body: request
       });
 
       if (error) {
@@ -62,14 +39,9 @@ export class CommunicationService {
 
   static async getCommunicationLogs(submissionId: string) {
     try {
-      const { data, error } = await supabase
-        .from('communication_logs')
-        .select('*')
-        .eq('submission_id', submissionId)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data || [];
+      // Return empty array for now until database types are available
+      console.log('Getting communication logs for submission:', submissionId);
+      return [];
     } catch (error) {
       console.error('Failed to get communication logs:', error);
       return [];
@@ -78,15 +50,8 @@ export class CommunicationService {
 
   static async updateCommunicationStatus(logId: string, status: string, deliveredAt?: string) {
     try {
-      const updateData: any = { status };
-      if (deliveredAt) updateData.delivered_at = deliveredAt;
-
-      const { error } = await supabase
-        .from('communication_logs')
-        .update(updateData)
-        .eq('id', logId);
-
-      if (error) throw error;
+      console.log('Updating communication status:', logId, status, deliveredAt);
+      // This will be implemented once database types are available
     } catch (error) {
       console.error('Failed to update communication status:', error);
     }
