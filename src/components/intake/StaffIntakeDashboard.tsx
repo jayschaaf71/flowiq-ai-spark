@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -18,8 +19,7 @@ import {
   UserCheck,
   Calendar
 } from 'lucide-react';
-import { useIntakeForms } from '@/hooks/useIntakeForms';
-import { useTenantConfig } from '@/utils/tenantConfig';
+import { useIntakeSubmissions } from '@/hooks/useIntakeSubmissions';
 import { FormSubmissionsList } from './FormSubmissionsList';
 import { IntakeAnalyticsDashboard } from './IntakeAnalyticsDashboard';
 import { EnhancedAnalyticsDashboard } from './EnhancedAnalyticsDashboard';
@@ -30,8 +30,16 @@ export const StaffIntakeDashboard: React.FC = () => {
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [assigneeFilter, setAssigneeFilter] = useState('all');
   
-  const { submissions, loading } = useIntakeForms();
-  const tenantConfig = useTenantConfig();
+  const { 
+    submissions, 
+    isLoading, 
+    assignStaff, 
+    sendCommunication, 
+    updateStatus,
+    isAssigning,
+    isSendingCommunication,
+    isUpdatingStatus
+  } = useIntakeSubmissions();
 
   // Filter submissions based on status and filters
   const filteredSubmissions = submissions.filter(submission => {
@@ -56,17 +64,7 @@ export const StaffIntakeDashboard: React.FC = () => {
 
   const statusCounts = getStatusCounts();
 
-  const handleAssignToStaff = (submissionId: string, staffMember: string) => {
-    console.log(`Assigning submission ${submissionId} to ${staffMember}`);
-    // TODO: Implement assignment logic with backend
-  };
-
-  const handleSendFollowUp = (submission: any) => {
-    console.log(`Sending follow-up to ${submission.patient_email}`);
-    // TODO: Implement follow-up email logic with backend
-  };
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="space-y-6">
         <div className="animate-pulse space-y-4">
@@ -213,8 +211,10 @@ export const StaffIntakeDashboard: React.FC = () => {
                 submissions={filteredSubmissions} 
                 onViewSubmission={(submission) => console.log('View:', submission)}
                 showActions={true}
-                onAssignToStaff={handleAssignToStaff}
-                onSendFollowUp={handleSendFollowUp}
+                onAssignToStaff={assignStaff}
+                onSendCommunication={sendCommunication}
+                isAssigning={isAssigning}
+                isSendingCommunication={isSendingCommunication}
               />
             </CardContent>
           </Card>
@@ -246,8 +246,10 @@ export const StaffIntakeDashboard: React.FC = () => {
             submissions={filteredSubmissions} 
             onViewSubmission={(submission) => console.log('View:', submission)}
             showActions={true}
-            onAssignToStaff={handleAssignToStaff}
-            onSendFollowUp={handleSendFollowUp}
+            onAssignToStaff={assignStaff}
+            onSendCommunication={sendCommunication}
+            isAssigning={isAssigning}
+            isSendingCommunication={isSendingCommunication}
           />
         </TabsContent>
 

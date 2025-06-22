@@ -68,6 +68,17 @@ export const FormSubmissionsList: React.FC<FormSubmissionsListProps> = ({
     setExpandedSubmission(expandedSubmission === submissionId ? null : submissionId);
   };
 
+  const handleSendFollowUp = (submission: IntakeSubmission) => {
+    onSendCommunication?.(
+      submission.id,
+      'appointment-follow-up',
+      submission.patient_email,
+      submission.patient_name,
+      undefined,
+      'email'
+    );
+  };
+
   if (submissions.length === 0) {
     return (
       <Card>
@@ -180,19 +191,8 @@ export const FormSubmissionsList: React.FC<FormSubmissionsListProps> = ({
           setSelectedSubmission(null);
         }}
         onAssignToStaff={onAssignToStaff}
-        onSendFollowUp={(submission) => {
-          // Handle follow-up with default template
-          onSendCommunication?.(
-            submission.id,
-            'appointment-follow-up',
-            submission.patient_email,
-            submission.patient_name,
-            undefined,
-            'email'
-          );
-        }}
+        onSendFollowUp={handleSendFollowUp}
         onUpdateStatus={(submissionId, status) => {
-          // You might want to add this functionality
           console.log('Update status:', submissionId, status);
         }}
       />

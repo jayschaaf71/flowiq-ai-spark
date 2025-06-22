@@ -132,7 +132,13 @@ export const MobileOptimizedForm: React.FC<MobileOptimizedFormProps> = ({
 
     switch (currentField.type) {
       case 'file':
-        return <FileUploadField {...commonProps} />;
+        return (
+          <FileUploadField
+            submissionId="temp-submission-id"
+            onFileUploaded={(file) => handleFieldChange(file)}
+            onFileRemoved={(fileId) => console.log('File removed:', fileId)}
+          />
+        );
       case 'signature':
         return <DigitalSignatureField {...commonProps} />;
       default:
