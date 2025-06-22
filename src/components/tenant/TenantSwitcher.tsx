@@ -10,11 +10,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import { Building2, ChevronDown, Check } from 'lucide-react';
+import { Building2, ChevronDown, Check, Loader2 } from 'lucide-react';
 import { useEnhancedAuth } from '@/hooks/useEnhancedAuth';
+import { useTenantSwitching } from '@/hooks/useTenantSwitching';
 
 export const TenantSwitcher: React.FC = () => {
   const { userRoles, primaryTenant } = useEnhancedAuth();
+  const { switchTenant, isSwitching } = useTenantSwitching();
 
   if (!userRoles || userRoles.length <= 1) {
     return null; // Don't show switcher if user only has access to one tenant
@@ -31,17 +33,20 @@ export const TenantSwitcher: React.FC = () => {
   };
 
   const handleTenantSwitch = (tenantId: string) => {
-    // This would typically update the user's primary tenant preference
-    // For now, we'll just log it - this would need backend implementation
-    console.log('Switching to tenant:', tenantId);
-    // TODO: Implement tenant switching logic
+    if (tenantId !== primaryTenant?.tenant_id) {
+      switchTenant(tenantId);
+    }
   };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="flex items-center gap-2">
-          <Building2 className="w-4 h-4" />
+        <Button variant="outline" className="flex items-center gap-2" disabled={isSwitching}>
+          {isSwitching ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <Building2 className="w-4 h-4" />
+          )}
           <span className="truncate max-w-32">
             {primaryTenant?.tenant.brand_name || 'Select Tenant'}
           </span>
@@ -56,6 +61,7 @@ export const TenantSwitcher: React.FC = () => {
             key={userRole.tenant_id}
             onClick={() => handleTenantSwitch(userRole.tenant_id)}
             className="flex items-center justify-between p-3"
+            disabled={isSwitching}
           >
             <div className="flex flex-col flex-1 min-w-0">
               <div className="flex items-center gap-2">

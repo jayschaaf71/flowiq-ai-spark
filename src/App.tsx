@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -23,6 +22,7 @@ import Team from "./pages/Team";
 import PracticeSetup from "./pages/PracticeSetup";
 import PatientManagement from "./pages/PatientManagement";
 import TenantAdmin from "./pages/TenantAdmin";
+import TenantOnboarding from "./pages/TenantOnboarding";
 
 // Agent pages
 import ScheduleIQ from "./pages/agents/ScheduleIQ";
@@ -104,6 +104,16 @@ function App() {
                 element={
                   <TenantProtectedRoute requiredRole="platform_admin">
                     <TenantAdmin />
+                  </TenantProtectedRoute>
+                } 
+              />
+              
+              {/* Tenant Onboarding */}
+              <Route 
+                path="/tenant/:tenantId/onboarding" 
+                element={
+                  <TenantProtectedRoute requiredRole="tenant_admin">
+                    <TenantOnboarding />
                   </TenantProtectedRoute>
                 } 
               />
