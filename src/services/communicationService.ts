@@ -21,22 +21,71 @@ export interface SendCommunicationRequest {
 export class CommunicationService {
   static async sendCommunication(request: SendCommunicationRequest) {
     try {
-      // First, create a log entry
-      const { data: logEntry, error: logError } = await supabase
-        .from('communication_logs')
-        .insert({
-          submission_id: request.submissionId,
-          type: request.type,
-          recipient: request.recipient,
-          subject: request.type === 'email' ? `Message for ${request.patientName}` : null,
-          message: request.customMessage || `Hello ${request.patientName}, this is an automated message from our intake system.`,
-          template_id: request.templateId,
-          status: 'pending'
-        })
-        .select()
+      // Check if this is a test submission (UUID that doesn't exist in database)
+      const { data: existingSubmission } = await supabase
+        .from('intake_submissions')
+        .select('id')
+        .eq('id', request.submissionId)
         .single();
 
-      if (logError) throw logError;
+      let logEntry;
+      
+      if (existingSubmission) {
+        // Real submission - create log with foreign key
+        const { data: logData, error: logError } = await supabase
+          .from('communication_logs')
+          .insert({
+            submission_id: request.submissionId,
+            type: request.type,
+            recipient: request.recipient,
+            subject: request.type === 'email' ? `Message for ${request.patientName}` : null,
+            message: request.customMessage || `Hello ${request.patientName}, this is an automated message from our intake system.`,
+            template_id: request.templateId,
+            status: 'pending'
+          })
+          .select()
+          .single();
+        
+        if (logError) throw logError;
+        logEntry = logData;
+      } else {
+        // Test submission - create a test submission first, then the log
+        const { data: testSubmission, error: testSubmissionError } = await supabase
+          .from('intake_submissions')
+          .insert({
+            id: request.submissionId,
+            patient_name: request.patientName,
+            patient_email: request.recipient,
+            form_data: { test: true },
+            status: 'test',
+            form_id: (await supabase.from('intake_forms').select('id').limit(1).single()).data?.id || '00000000-0000-0000-0000-000000000000'
+          })
+          .select()
+          .single();
+
+        if (testSubmissionError) {
+          console.error('Failed to create test submission:', testSubmissionError);
+          throw new Error('Failed to create test submission for communication logging');
+        }
+
+        // Now create the log entry
+        const { data: logData, error: logError } = await supabase
+          .from('communication_logs')
+          .insert({
+            submission_id: request.submissionId,
+            type: request.type,
+            recipient: request.recipient,
+            subject: request.type === 'email' ? `Message for ${request.patientName}` : null,
+            message: request.customMessage || `Hello ${request.patientName}, this is an automated message from our intake system.`,
+            template_id: request.templateId,
+            status: 'pending'
+          })
+          .select()
+          .single();
+
+        if (logError) throw logError;
+        logEntry = logData;
+      }
 
       // Call the edge function with the log ID
       const { data, error } = await supabase.functions.invoke('send-communication', {
