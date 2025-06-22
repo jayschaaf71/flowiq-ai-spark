@@ -1,25 +1,13 @@
-
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import React, { useState } from 'react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { Plus } from 'lucide-react';
 import { useTenantManagement } from '@/hooks/useTenantManagement';
-
-interface TenantCreateDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
 
 interface TenantFormData {
   name: string;
@@ -28,133 +16,146 @@ interface TenantFormData {
   tagline: string;
   specialty: string;
   subscription_tier: string;
-  max_forms: number;
-  max_submissions: number;
-  max_users: number;
+  primary_color: string;
+  secondary_color: string;
   custom_branding_enabled: boolean;
   api_access_enabled: boolean;
   white_label_enabled: boolean;
-  domain?: string;
-  subdomain?: string;
-  primary_color: string;
-  secondary_color: string;
+  max_forms: number;
+  max_submissions: number;
+  max_users: number;
 }
 
-export const TenantCreateDialog: React.FC<TenantCreateDialogProps> = ({
-  open,
-  onOpenChange,
-}) => {
+export const TenantCreateDialog: React.FC = () => {
+  const [open, setOpen] = useState(false);
+  const [formData, setFormData] = useState<TenantFormData>({
+    name: '',
+    slug: '',
+    brand_name: '',
+    tagline: '',
+    specialty: 'Healthcare',
+    subscription_tier: 'basic',
+    primary_color: '#3B82F6',
+    secondary_color: '#06B6D4',
+    custom_branding_enabled: false,
+    api_access_enabled: false,
+    white_label_enabled: false,
+    max_forms: 10,
+    max_submissions: 1000,
+    max_users: 5
+  });
+
   const { createTenant, isCreating } = useTenantManagement();
-  const { register, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm<TenantFormData>({
-    defaultValues: {
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Add the missing is_active property
+    const tenantData = {
+      ...formData,
+      is_active: true
+    };
+    
+    createTenant(tenantData);
+    setOpen(false);
+    setFormData({
+      name: '',
+      slug: '',
+      brand_name: '',
+      tagline: '',
+      specialty: 'Healthcare',
       subscription_tier: 'basic',
-      max_forms: 10,
-      max_submissions: 1000,
-      max_users: 5,
+      primary_color: '#3B82F6',
+      secondary_color: '#06B6D4',
       custom_branding_enabled: false,
       api_access_enabled: false,
       white_label_enabled: false,
-      primary_color: '#3B82F6',
-      secondary_color: '#06B6D4',
-    }
-  });
-
-  const selectedTier = watch('subscription_tier');
-
-  const onSubmit = (data: TenantFormData) => {
-    createTenant(data);
-    reset();
-    onOpenChange(false);
-  };
-
-  const generateSlug = (name: string) => {
-    return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      max_forms: 10,
+      max_submissions: 1000,
+      max_users: 5
+    });
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button>
+          <Plus className="w-4 h-4 mr-2" />
+          Create Tenant
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create New Tenant</DialogTitle>
           <DialogDescription>
-            Set up a new tenant with custom branding and configuration
+            Set up a new tenant organization with custom branding and configuration.
           </DialogDescription>
         </DialogHeader>
-
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Basic Information */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Basic Information</h3>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="name">Tenant Name</Label>
-                <Input
-                  id="name"
-                  {...register('name', { required: 'Name is required' })}
-                  onChange={(e) => {
-                    register('name').onChange(e);
-                    setValue('slug', generateSlug(e.target.value));
-                  }}
-                />
-                {errors.name && <p className="text-sm text-red-600">{errors.name.message}</p>}
-              </div>
-
-              <div>
-                <Label htmlFor="slug">URL Slug</Label>
-                <Input
-                  id="slug"
-                  {...register('slug', { required: 'Slug is required' })}
-                />
-                {errors.slug && <p className="text-sm text-red-600">{errors.slug.message}</p>}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="brand_name">Brand Name</Label>
-                <Input
-                  id="brand_name"
-                  {...register('brand_name', { required: 'Brand name is required' })}
-                />
-                {errors.brand_name && <p className="text-sm text-red-600">{errors.brand_name.message}</p>}
-              </div>
-
-              <div>
-                <Label htmlFor="specialty">Specialty</Label>
-                <Select onValueChange={(value) => setValue('specialty', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select specialty" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Chiropractic Care">Chiropractic Care</SelectItem>
-                    <SelectItem value="Dental Care">Dental Care</SelectItem>
-                    <SelectItem value="Physical Therapy">Physical Therapy</SelectItem>
-                    <SelectItem value="Mental Health">Mental Health</SelectItem>
-                    <SelectItem value="General Healthcare">General Healthcare</SelectItem>
-                    <SelectItem value="Veterinary">Veterinary</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="tagline">Tagline</Label>
+        
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Organization Name</Label>
               <Input
-                id="tagline"
-                {...register('tagline')}
-                placeholder="Brief description of the practice"
+                id="name"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="slug">URL Slug</Label>
+              <Input
+                id="slug"
+                value={formData.slug}
+                onChange={(e) => setFormData({ ...formData, slug: e.target.value.toLowerCase() })}
+                placeholder="organization-name"
+                required
               />
             </div>
           </div>
 
-          {/* Subscription & Limits */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Subscription & Limits</h3>
-            
-            <div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="brand_name">Brand Name</Label>
+              <Input
+                id="brand_name"
+                value={formData.brand_name}
+                onChange={(e) => setFormData({ ...formData, brand_name: e.target.value })}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="specialty">Specialty</Label>
+              <Select value={formData.specialty} onValueChange={(value) => setFormData({ ...formData, specialty: value })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Chiropractic Care">Chiropractic Care</SelectItem>
+                  <SelectItem value="Dental Care">Dental Care</SelectItem>
+                  <SelectItem value="Physical Therapy">Physical Therapy</SelectItem>
+                  <SelectItem value="Mental Health">Mental Health</SelectItem>
+                  <SelectItem value="Healthcare">General Healthcare</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="tagline">Tagline</Label>
+            <Textarea
+              id="tagline"
+              value={formData.tagline}
+              onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
+              placeholder="Brief description of your organization"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
               <Label htmlFor="subscription_tier">Subscription Tier</Label>
-              <Select onValueChange={(value) => setValue('subscription_tier', value)} defaultValue="basic">
+              <Select value={formData.subscription_tier} onValueChange={(value) => setFormData({ ...formData, subscription_tier: value })}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -165,130 +166,55 @@ export const TenantCreateDialog: React.FC<TenantCreateDialogProps> = ({
                 </SelectContent>
               </Select>
             </div>
-
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <Label htmlFor="max_forms">Max Forms</Label>
-                <Input
-                  id="max_forms"
-                  type="number"
-                  {...register('max_forms', { valueAsNumber: true })}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="max_submissions">Max Submissions</Label>
-                <Input
-                  id="max_submissions"
-                  type="number"
-                  {...register('max_submissions', { valueAsNumber: true })}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="max_users">Max Users</Label>
-                <Input
-                  id="max_users"
-                  type="number"
-                  {...register('max_users', { valueAsNumber: true })}
-                />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="primary_color">Primary Color</Label>
+              <Input
+                id="primary_color"
+                type="color"
+                value={formData.primary_color}
+                onChange={(e) => setFormData({ ...formData, primary_color: e.target.value })}
+              />
             </div>
           </div>
 
-          {/* Features & Branding */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Features & Branding</h3>
-            
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label htmlFor="custom_branding">Custom Branding</Label>
-                  <p className="text-sm text-gray-600">Allow custom colors, logos, and styling</p>
-                </div>
+            <h4 className="font-medium">Features</h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-center space-x-2">
                 <Switch
                   id="custom_branding"
-                  onCheckedChange={(checked) => setValue('custom_branding_enabled', checked)}
+                  checked={formData.custom_branding_enabled}
+                  onCheckedChange={(checked) => setFormData({ ...formData, custom_branding_enabled: checked })}
                 />
+                <Label htmlFor="custom_branding">Custom Branding</Label>
               </div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label htmlFor="api_access">API Access</Label>
-                  <p className="text-sm text-gray-600">Enable API integration capabilities</p>
-                </div>
+              <div className="flex items-center space-x-2">
                 <Switch
                   id="api_access"
-                  onCheckedChange={(checked) => setValue('api_access_enabled', checked)}
+                  checked={formData.api_access_enabled}
+                  onCheckedChange={(checked) => setFormData({ ...formData, api_access_enabled: checked })}
                 />
+                <Label htmlFor="api_access">API Access</Label>
               </div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label htmlFor="white_label">White Label</Label>
-                  <p className="text-sm text-gray-600">Hide FlowIQ branding completely</p>
-                </div>
+              <div className="flex items-center space-x-2">
                 <Switch
                   id="white_label"
-                  onCheckedChange={(checked) => setValue('white_label_enabled', checked)}
+                  checked={formData.white_label_enabled}
+                  onCheckedChange={(checked) => setFormData({ ...formData, white_label_enabled: checked })}
                 />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="primary_color">Primary Color</Label>
-                <Input
-                  id="primary_color"
-                  type="color"
-                  {...register('primary_color')}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="secondary_color">Secondary Color</Label>
-                <Input
-                  id="secondary_color"
-                  type="color"
-                  {...register('secondary_color')}
-                />
+                <Label htmlFor="white_label">White Label</Label>
               </div>
             </div>
           </div>
 
-          {/* Domain Settings */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Domain Settings</h3>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="subdomain">Subdomain</Label>
-                <Input
-                  id="subdomain"
-                  {...register('subdomain')}
-                  placeholder="tenant.flowiq.ai"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="domain">Custom Domain</Label>
-                <Input
-                  id="domain"
-                  {...register('domain')}
-                  placeholder="practice.com"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="flex justify-end space-x-3 pt-6">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
             <Button type="submit" disabled={isCreating}>
               {isCreating ? 'Creating...' : 'Create Tenant'}
             </Button>
-          </div>
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
