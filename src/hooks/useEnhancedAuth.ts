@@ -20,10 +20,12 @@ export const useEnhancedAuth = () => {
   const { user, profile } = useAuth();
   
   // Fetch user's tenant roles and permissions
-  const { data: userRoles, isLoading: rolesLoading } = useQuery({
+  const { data: userRoles, isLoading: rolesLoading, error: rolesError } = useQuery({
     queryKey: ['user-roles', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
+      
+      console.log('Fetching user roles for:', user.id);
       
       const { data, error } = await supabase
         .from('tenant_users')
@@ -41,10 +43,15 @@ export const useEnhancedAuth = () => {
         .eq('user_id', user.id)
         .eq('is_active', true);
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching user roles:', error);
+        throw error;
+      }
+      
+      console.log('Raw tenant_users data:', data);
       
       // Transform the data to match our UserRole interface
-      return (data || []).map(item => ({
+      const roles = (data || []).map(item => ({
         tenant_id: item.tenant_id,
         role: item.role,
         permissions: item.permissions || {},
@@ -55,8 +62,13 @@ export const useEnhancedAuth = () => {
           specialty: item.tenants?.specialty || ''
         }
       })) as UserRole[];
+      
+      console.log('Transformed user roles:', roles);
+      return roles;
     },
     enabled: !!user?.id,
+    retry: 1,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
   // Get current tenant context
@@ -67,11 +79,13 @@ export const useEnhancedAuth = () => {
 
   // Check if user has specific permission
   const hasPermission = (permission: string, tenantId?: string) => {
-    const role = getCurrentTenantRole(tenantId);
-    if (!role) return false;
+    if (!userRoles) return false;
     
     // Platform admins have all permissions
-    if (role.role === 'platform_admin') return true;
+    if (userRoles.some(role => role.role === 'platform_admin')) return true;
+    
+    const role = getCurrentTenantRole(tenantId);
+    if (!role) return false;
     
     // Check specific permissions
     return role.permissions[permission] === true;
@@ -79,8 +93,10 @@ export const useEnhancedAuth = () => {
 
   // Check if user has minimum role level
   const hasMinimumRole = (minimumRole: string, tenantId?: string) => {
-    const role = getCurrentTenantRole(tenantId);
-    if (!role) return false;
+    if (!userRoles) return false;
+    
+    // Platform admins always have access
+    if (userRoles.some(role => role.role === 'platform_admin')) return true;
     
     const roleHierarchy = {
       'patient': 0,
@@ -90,9 +106,21 @@ export const useEnhancedAuth = () => {
       'platform_admin': 4
     };
     
-    const userLevel = roleHierarchy[role.role as keyof typeof roleHierarchy] || 0;
     const requiredLevel = roleHierarchy[minimumRole as keyof typeof roleHierarchy] || 0;
     
+    // If no specific tenant, check if user has the role in any tenant
+    if (!tenantId) {
+      return userRoles.some(role => {
+        const userLevel = roleHierarchy[role.role as keyof typeof roleHierarchy] || 0;
+        return userLevel >= requiredLevel;
+      });
+    }
+    
+    // Check specific tenant
+    const role = getCurrentTenantRole(tenantId);
+    if (!role) return false;
+    
+    const userLevel = roleHierarchy[role.role as keyof typeof roleHierarchy] || 0;
     return userLevel >= requiredLevel;
   };
 
@@ -114,21 +142,42 @@ export const useEnhancedAuth = () => {
     })[0];
   };
 
+  const canAccessTenant = (tenantId?: string) => {
+    if (!tenantId || !userRoles) return false;
+    return getCurrentTenantRole(tenantId) !== null;
+  };
+
+  const isPlatformAdmin = userRoles?.some(role => role.role === 'platform_admin') || false;
+
+  // Log current state for debugging
+  useEffect(() => {
+    if (user && !rolesLoading) {
+      console.log('Enhanced Auth State:', {
+        userId: user.id,
+        userRoles: userRoles?.length || 0,
+        primaryTenant: getPrimaryTenant()?.tenant?.name,
+        isPlatformAdmin,
+        rolesError
+      });
+    }
+  }, [user, userRoles, rolesLoading, rolesError]);
+
   return {
     user,
     profile,
     userRoles: userRoles || [],
     rolesLoading,
+    rolesError,
     primaryTenant: getPrimaryTenant(),
     getCurrentTenantRole,
     hasPermission,
     hasMinimumRole,
-    isPlatformAdmin: userRoles?.some(role => role.role === 'platform_admin') || false,
+    isPlatformAdmin,
     isTenantAdmin: (tenantId?: string) => {
       const role = getCurrentTenantRole(tenantId);
       return role?.role === 'tenant_admin' || role?.role === 'platform_admin';
     },
     canManageTenant: (tenantId?: string) => hasMinimumRole('practice_manager', tenantId),
-    canAccessTenant: (tenantId?: string) => getCurrentTenantRole(tenantId) !== null,
+    canAccessTenant,
   };
 };
