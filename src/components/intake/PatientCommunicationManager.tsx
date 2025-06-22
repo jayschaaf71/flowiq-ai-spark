@@ -2,55 +2,23 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Mail, MessageSquare, Send, Clock, Loader2 } from 'lucide-react';
-import { IntakeSubmission } from '@/types/intake';
-
-interface CommunicationTemplate {
-  id: string;
-  name: string;
-  subject: string;
-  body: string;
-  type: 'email' | 'sms';
-}
-
-const COMMUNICATION_TEMPLATES: CommunicationTemplate[] = [
-  {
-    id: 'incomplete-form',
-    name: 'Incomplete Form Reminder',
-    subject: 'Complete Your Patient Intake Form',
-    body: 'Hi {patient_name}, we noticed your intake form is incomplete. Please complete it at your earliest convenience.',
-    type: 'email'
-  },
-  {
-    id: 'appointment-follow-up',
-    name: 'Appointment Follow-up',
-    subject: 'Follow-up on Your Recent Submission',
-    body: 'Thank you for submitting your intake form. We will review it and contact you within 24 hours.',
-    type: 'email'
-  },
-  {
-    id: 'high-priority-alert',
-    name: 'High Priority Alert',
-    subject: 'Urgent: Please Contact Our Office',
-    body: 'Based on your submission, please contact our office immediately at (555) 123-4567.',
-    type: 'email'
-  },
-  {
-    id: 'welcome-sms',
-    name: 'Welcome SMS',
-    subject: '',
-    body: 'Welcome {patient_name}! Your intake form has been received. We will contact you soon.',
-    type: 'sms'
-  }
-];
+import { Separator } from '@/components/ui/separator';
+import { 
+  Mail, 
+  MessageSquare, 
+  User, 
+  Phone, 
+  Calendar,
+  Send,
+  AlertCircle 
+} from 'lucide-react';
 
 interface PatientCommunicationManagerProps {
-  submission: IntakeSubmission & {
-    currentAssignment?: any;
-  };
+  submission: any;
   onSendCommunication: (
     submissionId: string,
     templateId: string,
@@ -59,152 +27,223 @@ interface PatientCommunicationManagerProps {
     customMessage?: string,
     type?: 'email' | 'sms'
   ) => void;
-  isSending?: boolean;
 }
 
 export const PatientCommunicationManager: React.FC<PatientCommunicationManagerProps> = ({
   submission,
-  onSendCommunication,
-  isSending = false
+  onSendCommunication
 }) => {
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('');
-  const [customMessage, setCustomMessage] = useState<string>('');
+  const [selectedTemplate, setSelectedTemplate] = useState('welcome');
+  const [customMessage, setCustomMessage] = useState('');
   const [communicationType, setCommunicationType] = useState<'email' | 'sms'>('email');
+  const [customRecipient, setCustomRecipient] = useState('');
 
-  const handleSendCommunication = () => {
-    const template = COMMUNICATION_TEMPLATES.find(t => t.id === selectedTemplate);
-    if (!template) return;
+  const templates = [
+    {
+      id: 'welcome',
+      name: 'Welcome Message',
+      description: 'Welcome new patients and confirm receipt of intake form',
+      defaultMessage: 'Welcome! We\'ve received your intake form and will contact you within 24 hours.'
+    },
+    {
+      id: 'appointment-reminder',
+      name: 'Appointment Reminder',
+      description: 'Remind patients of upcoming appointments',
+      defaultMessage: 'This is a reminder about your upcoming appointment. Please arrive 15 minutes early.'
+    },
+    {
+      id: 'follow-up',
+      name: 'Follow-up Message',
+      description: 'Follow up after appointments or treatments',
+      defaultMessage: 'Thank you for your recent visit. Please contact us if you have any questions.'
+    },
+    {
+      id: 'test-template',
+      name: 'Test Message',
+      description: 'General test message for system testing',
+      defaultMessage: 'This is a test message from the intake system.'
+    }
+  ];
 
-    const recipient = communicationType === 'email' ? submission.patient_email : submission.patient_phone;
+  const selectedTemplateData = templates.find(t => t.id === selectedTemplate);
+
+  const handleSend = () => {
+    const recipient = customRecipient || submission?.patient_email || '';
+    const patientName = submission?.patient_name || 'Patient';
+    const message = customMessage || selectedTemplateData?.defaultMessage || '';
+
     if (!recipient) {
-      // Handle missing contact info
+      alert('Please provide a recipient email or phone number');
       return;
     }
 
     onSendCommunication(
-      submission.id,
+      submission?.id || 'test-submission',
       selectedTemplate,
       recipient,
-      submission.patient_name,
-      customMessage || template.body,
+      patientName,
+      message,
       communicationType
     );
 
     // Reset form
     setCustomMessage('');
-    setSelectedTemplate('');
+    setCustomRecipient('');
   };
 
-  const selectedTemplateData = COMMUNICATION_TEMPLATES.find(t => t.id === selectedTemplate);
-  const canSend = selectedTemplate && 
-    (communicationType === 'email' ? submission.patient_email : submission.patient_phone);
-
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <MessageSquare className="w-5 h-5" />
-          Send Communication
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="text-sm font-medium">Communication Type</label>
-            <Select value={communicationType} onValueChange={(value: 'email' | 'sms') => setCommunicationType(value)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="email">
-                  <div className="flex items-center gap-2">
-                    <Mail className="w-4 h-4" />
-                    Email
-                  </div>
-                </SelectItem>
-                <SelectItem value="sms">
-                  <div className="flex items-center gap-2">
-                    <MessageSquare className="w-4 h-4" />
-                    SMS
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
-            {communicationType === 'email' && !submission.patient_email && (
-              <p className="text-xs text-red-600 mt-1">No email address available</p>
-            )}
-            {communicationType === 'sms' && !submission.patient_phone && (
-              <p className="text-xs text-red-600 mt-1">No phone number available</p>
-            )}
+    <div className="space-y-6">
+      {/* Patient Information Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <User className="w-5 h-5" />
+            Patient Information
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex items-center gap-2">
+              <User className="w-4 h-4 text-gray-500" />
+              <span className="font-medium">Name:</span>
+              <span>{submission?.patient_name || 'N/A'}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Mail className="w-4 h-4 text-gray-500" />
+              <span className="font-medium">Email:</span>
+              <span>{submission?.patient_email || 'N/A'}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Phone className="w-4 h-4 text-gray-500" />
+              <span className="font-medium">Phone:</span>
+              <span>{submission?.patient_phone || 'N/A'}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-gray-500" />
+              <span className="font-medium">Status:</span>
+              <Badge variant="outline">{submission?.status || 'pending'}</Badge>
+            </div>
           </div>
 
-          <div>
-            <label className="text-sm font-medium">Template</label>
-            <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select template..." />
-              </SelectTrigger>
-              <SelectContent>
-                {COMMUNICATION_TEMPLATES
-                  .filter(t => t.type === communicationType)
-                  .map((template) => (
+          {submission?.currentAssignment && (
+            <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+              <div className="flex items-center gap-2">
+                <User className="w-4 h-4 text-blue-600" />
+                <span className="font-medium text-blue-800">
+                  Assigned to: {submission.currentAssignment.staff_name}
+                </span>
+                <Badge variant="secondary">{submission.currentAssignment.status}</Badge>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Communication Form */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Send className="w-5 h-5" />
+            Send Communication
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium">Communication Type</label>
+              <Select value={communicationType} onValueChange={(value: 'email' | 'sms') => setCommunicationType(value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="email">
+                    <div className="flex items-center gap-2">
+                      <Mail className="w-4 h-4" />
+                      Email
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="sms">
+                    <div className="flex items-center gap-2">
+                      <MessageSquare className="w-4 h-4" />
+                      SMS
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium">Template</label>
+              <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {templates.map((template) => (
                     <SelectItem key={template.id} value={template.id}>
                       {template.name}
                     </SelectItem>
                   ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        {selectedTemplateData && (
-          <div className="bg-gray-50 p-3 rounded-lg">
-            <div className="mb-2">
-              {selectedTemplateData.subject && (
-                <Badge variant="outline" className="mb-2">
-                  {selectedTemplateData.subject}
-                </Badge>
-              )}
+                </SelectContent>
+              </Select>
             </div>
-            <p className="text-sm text-gray-700">
-              {selectedTemplateData.body.replace('{patient_name}', submission.patient_name)}
-            </p>
           </div>
-        )}
 
-        <div>
-          <label className="text-sm font-medium">Custom Message (Optional)</label>
-          <Textarea
-            placeholder={selectedTemplateData ? "Override template message..." : "Add a custom message..."}
-            value={customMessage}
-            onChange={(e) => setCustomMessage(e.target.value)}
-            className="mt-1"
-          />
-        </div>
-
-        <Button 
-          onClick={handleSendCommunication}
-          disabled={!canSend || isSending}
-          className="w-full"
-        >
-          {isSending ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Sending...
-            </>
-          ) : (
-            <>
-              <Send className="w-4 h-4 mr-2" />
-              Send {communicationType === 'email' ? 'Email' : 'SMS'}
-            </>
+          {selectedTemplateData && (
+            <div className="p-3 bg-gray-50 rounded-lg">
+              <p className="text-sm text-gray-600 mb-2">{selectedTemplateData.description}</p>
+              <p className="text-sm font-mono bg-white p-2 rounded border">
+                {selectedTemplateData.defaultMessage}
+              </p>
+            </div>
           )}
-        </Button>
 
-        <div className="text-xs text-gray-500 flex items-center gap-1">
-          <Clock className="w-3 h-3" />
-          Communications are typically delivered within 2-5 minutes
-        </div>
-      </CardContent>
-    </Card>
+          <div>
+            <label className="text-sm font-medium">
+              Recipient ({communicationType === 'email' ? 'Email' : 'Phone'})
+            </label>
+            <Input
+              placeholder={
+                communicationType === 'email' 
+                  ? submission?.patient_email || 'Enter email address'
+                  : submission?.patient_phone || 'Enter phone number'
+              }
+              value={customRecipient}
+              onChange={(e) => setCustomRecipient(e.target.value)}
+            />
+            {!customRecipient && (
+              <p className="text-xs text-gray-500 mt-1">
+                Will use patient's {communicationType === 'email' ? 'email' : 'phone'} from submission
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label className="text-sm font-medium">Custom Message (Optional)</label>
+            <Textarea
+              placeholder="Enter custom message or leave blank to use template default..."
+              value={customMessage}
+              onChange={(e) => setCustomMessage(e.target.value)}
+              rows={4}
+            />
+          </div>
+
+          <Separator />
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <AlertCircle className="w-4 h-4" />
+              <span>
+                {communicationType === 'email' ? 'Email will be sent via Resend' : 'SMS is currently simulated'}
+              </span>
+            </div>
+            <Button onClick={handleSend} className="flex items-center gap-2">
+              <Send className="w-4 h-4" />
+              Send {communicationType === 'email' ? 'Email' : 'SMS'}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };

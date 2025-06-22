@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
@@ -19,6 +18,7 @@ import { IntakeFormSeed } from "@/components/intake/IntakeFormSeed";
 import { StaffIntakeDashboard } from "@/components/intake/StaffIntakeDashboard";
 import { EnhancedAIProcessor } from "@/components/intake/EnhancedAIProcessor";
 import { PatientCommunicationCenter } from "@/components/intake/PatientCommunicationCenter";
+import { AdminCommunicationDashboard } from "@/components/intake/AdminCommunicationDashboard";
 import { AdvancedFormBuilder } from "@/components/intake/AdvancedFormBuilder";
 import { IntakeAnalyticsAdvanced } from "@/components/intake/IntakeAnalyticsAdvanced";
 import { PatientDataAnalytics } from "@/components/analytics/PatientDataAnalytics";
@@ -26,11 +26,13 @@ import { DataExportManager } from "@/components/analytics/DataExportManager";
 import { APIManagement } from "@/components/analytics/APIManagement";
 import { useIntakeForms } from "@/hooks/useIntakeForms";
 import { useTenantConfig } from "@/utils/tenantConfig";
+import { useIntakeSubmissions } from "@/hooks/useIntakeSubmissions";
 
 const IntakeIQ = () => {
   const [activeTab, setActiveTab] = useState("staff-dashboard");
   const tenantConfig = useTenantConfig();
   const { submissions } = useIntakeForms();
+  const { sendCommunication } = useIntakeSubmissions();
 
   // Listen for custom events to change tabs
   useEffect(() => {
@@ -48,6 +50,17 @@ const IntakeIQ = () => {
   const handleViewSubmission = (submission: any) => {
     console.log('Viewing submission:', submission);
     // TODO: Implement submission detail modal or navigation
+  };
+
+  const handleSendCommunication = (
+    submissionId: string,
+    templateId: string,
+    recipient: string,
+    patientName: string,
+    customMessage?: string,
+    type: 'email' | 'sms' = 'email'
+  ) => {
+    sendCommunication(submissionId, templateId, recipient, patientName, customMessage, type);
   };
 
   return (
@@ -103,7 +116,9 @@ const IntakeIQ = () => {
           </TabsContent>
 
           <TabsContent value="communications" className="space-y-4">
-            <PatientCommunicationCenter />
+            <AdminCommunicationDashboard 
+              onSendCommunication={handleSendCommunication}
+            />
           </TabsContent>
 
           <TabsContent value="forms" className="space-y-4">
