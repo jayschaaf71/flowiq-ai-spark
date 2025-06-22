@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,7 +22,6 @@ import {
 
 export const TenantAdminDashboard: React.FC = () => {
   const { tenants, tenantsLoading, currentTenant } = useTenantManagement();
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
   const [selectedTenant, setSelectedTenant] = useState<any>(null);
 
@@ -65,10 +63,7 @@ export const TenantAdminDashboard: React.FC = () => {
           <h1 className="text-3xl font-bold">Tenant Administration</h1>
           <p className="text-gray-600">Manage multi-tenant enterprise features</p>
         </div>
-        <Button onClick={() => setCreateDialogOpen(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          Create Tenant
-        </Button>
+        <TenantCreateDialog />
       </div>
 
       {/* Overview Stats */}
@@ -235,11 +230,6 @@ export const TenantAdminDashboard: React.FC = () => {
       </Tabs>
 
       {/* Dialogs */}
-      <TenantCreateDialog 
-        open={createDialogOpen} 
-        onOpenChange={setCreateDialogOpen} 
-      />
-      
       {selectedTenant && (
         <TenantSettingsDialog
           tenant={selectedTenant}

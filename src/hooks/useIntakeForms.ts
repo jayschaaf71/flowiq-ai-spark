@@ -1,11 +1,10 @@
-
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from './use-toast';
-import { IntakeForm, IntakeSubmission } from '@/types/intake';
+import type { IntakeForm, IntakeSubmission } from '@/types/intake';
 
-export { IntakeForm, IntakeSubmission } from '@/types/intake';
+export type { IntakeForm, IntakeSubmission } from '@/types/intake';
 
 export const useIntakeForms = () => {
   const [forms, setForms] = useState<IntakeForm[]>([]);
@@ -182,7 +181,7 @@ export const useIntakeForms = () => {
         .insert([{
           form_id: formId,
           event_type: eventType,
-          tenant_type: 'healthcare', // This could be dynamic based on tenant
+          tenant_type: 'healthcare',
           metadata: metadata || {}
         }]);
     } catch (error) {
