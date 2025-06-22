@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -322,9 +321,7 @@ export const AdvancedFormBuilder: React.FC = () => {
                           {fields
                             .filter(f => f.id !== selectedField)
                             .map(field => (
-                              <Select
-
-Item key={field.id} value={field.id}>
+                              <SelectItem key={field.id} value={field.id}>
                                 {field.label}
                               </SelectItem>
                             ))}
