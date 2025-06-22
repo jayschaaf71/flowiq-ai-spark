@@ -42,7 +42,19 @@ export const useEnhancedAuth = () => {
         .eq('is_active', true);
       
       if (error) throw error;
-      return data as UserRole[];
+      
+      // Transform the data to match our UserRole interface
+      return (data || []).map(item => ({
+        tenant_id: item.tenant_id,
+        role: item.role,
+        permissions: item.permissions || {},
+        tenant: {
+          id: item.tenants?.id || '',
+          name: item.tenants?.name || '',
+          brand_name: item.tenants?.brand_name || '',
+          specialty: item.tenants?.specialty || ''
+        }
+      })) as UserRole[];
     },
     enabled: !!user?.id,
   });
@@ -88,9 +100,10 @@ export const useEnhancedAuth = () => {
   const getPrimaryTenant = () => {
     if (!userRoles || userRoles.length === 0) return null;
     
-    // Return tenant that matches profile's primary_tenant_id
-    if (profile?.primary_tenant_id) {
-      const primaryRole = userRoles.find(role => role.tenant_id === profile.primary_tenant_id);
+    // Return tenant that matches profile's primary_tenant_id if available
+    const profileTenantId = (profile as any)?.primary_tenant_id;
+    if (profileTenantId) {
+      const primaryRole = userRoles.find(role => role.tenant_id === profileTenantId);
       if (primaryRole) return primaryRole;
     }
     

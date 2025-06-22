@@ -1,192 +1,121 @@
 
 import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useTenantConfig } from '@/utils/tenantConfig';
-import type { Json } from '@/integrations/supabase/types';
-
-export interface IntakeForm {
-  id: string;
-  title: string;
-  description: string | null;
-  tenant_type: string;
-  form_fields: Json;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface FormSubmission {
-  id: string;
-  form_id: string;
-  patient_name: string;
-  patient_email: string;
-  patient_phone: string | null;
-  form_data: Json;
-  ai_summary: string | null;
-  priority_level: string | null;
-  status: string;
-  created_at: string;
-  updated_at: string;
-}
+import { useToast } from './use-toast';
+import { IntakeForm, IntakeSubmission } from '@/types/intake';
 
 export const useIntakeForms = () => {
   const [forms, setForms] = useState<IntakeForm[]>([]);
-  const [submissions, setSubmissions] = useState<FormSubmission[]>([]);
   const [loading, setLoading] = useState(true);
-  const tenantConfig = useTenantConfig();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  const fetchForms = async () => {
-    try {
+  // Fetch intake forms
+  const { data: fetchedForms, isLoading } = useQuery({
+    queryKey: ['intake-forms'],
+    queryFn: async () => {
       const { data, error } = await supabase
         .from('intake_forms')
         .select('*')
-        .eq('tenant_type', tenantConfig.name.toLowerCase())
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setForms(data || []);
-    } catch (error) {
-      console.error('Error fetching forms:', error);
+      if (error) {
+        console.error('Error fetching intake forms:', error);
+        throw error;
+      }
+
+      return data;
+    },
+  });
+
+  useEffect(() => {
+    if (fetchedForms) {
+      // Transform the data to match our IntakeForm interface
+      const transformedForms: IntakeForm[] = fetchedForms.map(form => ({
+        id: form.id,
+        title: form.title,
+        description: form.description || undefined,
+        form_fields: form.form_fields,
+        is_active: form.is_active,
+        tenant_id: form.tenant_id || undefined,
+        created_at: form.created_at,
+        updated_at: form.updated_at
+      }));
+      setForms(transformedForms);
     }
-  };
+    setLoading(isLoading);
+  }, [fetchedForms, isLoading]);
 
-  const fetchSubmissions = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('intake_submissions')
-        .select(`
-          *,
-          intake_forms!inner(tenant_type)
-        `)
-        .eq('intake_forms.tenant_type', tenantConfig.name.toLowerCase())
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setSubmissions(data || []);
-    } catch (error) {
-      console.error('Error fetching submissions:', error);
-    }
-  };
-
-  const createForm = async (formData: Omit<IntakeForm, 'id' | 'created_at' | 'updated_at' | 'tenant_type'>) => {
-    try {
+  // Create form mutation
+  const createFormMutation = useMutation({
+    mutationFn: async (formData: Omit<IntakeForm, 'id' | 'created_at' | 'updated_at'>) => {
       const { data, error } = await supabase
         .from('intake_forms')
-        .insert([{
-          title: formData.title,
-          description: formData.description,
-          form_fields: formData.form_fields,
-          is_active: formData.is_active,
-          tenant_type: tenantConfig.name.toLowerCase()
-        }])
+        .insert([formData])
         .select()
         .single();
 
       if (error) throw error;
-      await fetchForms();
       return data;
-    } catch (error) {
-      console.error('Error creating form:', error);
-      throw error;
-    }
-  };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['intake-forms'] });
+      toast({ title: 'Form created successfully' });
+    },
+    onError: (error) => {
+      toast({ 
+        title: 'Error creating form', 
+        description: error.message,
+        variant: 'destructive' 
+      });
+    },
+  });
 
-  const updateForm = async (id: string, updates: Partial<Omit<IntakeForm, 'id' | 'created_at' | 'updated_at' | 'tenant_type'>>) => {
-    try {
+  // Update form mutation
+  const updateFormMutation = useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: Partial<IntakeForm> }) => {
       const { data, error } = await supabase
         .from('intake_forms')
-        .update({
-          ...(updates.title && { title: updates.title }),
-          ...(updates.description !== undefined && { description: updates.description }),
-          ...(updates.form_fields && { form_fields: updates.form_fields }),
-          ...(updates.is_active !== undefined && { is_active: updates.is_active })
-        })
+        .update(updates)
         .eq('id', id)
         .select()
         .single();
 
       if (error) throw error;
-      await fetchForms();
       return data;
-    } catch (error) {
-      console.error('Error updating form:', error);
-      throw error;
-    }
-  };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['intake-forms'] });
+      toast({ title: 'Form updated successfully' });
+    },
+  });
 
-  const submitForm = async (formId: string, submissionData: {
-    patient_name: string;
-    patient_email: string;
-    patient_phone?: string;
-    form_data: Json;
-  }) => {
-    try {
-      const { data, error } = await supabase
-        .from('intake_submissions')
-        .insert([{
-          form_id: formId,
-          patient_name: submissionData.patient_name,
-          patient_email: submissionData.patient_email,
-          patient_phone: submissionData.patient_phone || null,
-          form_data: submissionData.form_data
-        }])
-        .select()
-        .single();
+  // Delete form mutation
+  const deleteFormMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('intake_forms')
+        .update({ is_active: false })
+        .eq('id', id);
 
       if (error) throw error;
-      
-      // Track analytics
-      await supabase
-        .from('intake_analytics')
-        .insert([{
-          form_id: formId,
-          submission_id: data.id,
-          event_type: 'form_completed',
-          tenant_type: tenantConfig.name.toLowerCase()
-        }]);
-
-      return data;
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      throw error;
-    }
-  };
-
-  const trackFormEvent = async (formId: string, eventType: string, metadata?: Json) => {
-    try {
-      await supabase
-        .from('intake_analytics')
-        .insert([{
-          form_id: formId,
-          event_type: eventType,
-          tenant_type: tenantConfig.name.toLowerCase(),
-          metadata: metadata || {}
-        }]);
-    } catch (error) {
-      console.error('Error tracking form event:', error);
-    }
-  };
-
-  useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
-      await Promise.all([fetchForms(), fetchSubmissions()]);
-      setLoading(false);
-    };
-
-    loadData();
-  }, [tenantConfig.name]);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['intake-forms'] });
+      toast({ title: 'Form deleted successfully' });
+    },
+  });
 
   return {
     forms,
-    submissions,
     loading,
-    createForm,
-    updateForm,
-    submitForm,
-    trackFormEvent,
-    refreshForms: fetchForms,
-    refreshSubmissions: fetchSubmissions
+    createForm: createFormMutation.mutate,
+    updateForm: updateFormMutation.mutate,
+    deleteForm: deleteFormMutation.mutate,
+    isCreating: createFormMutation.isPending,
+    isUpdating: updateFormMutation.isPending,
+    isDeleting: deleteFormMutation.isPending,
   };
 };

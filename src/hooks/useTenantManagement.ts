@@ -95,14 +95,15 @@ export const useTenantManagement = () => {
 
   // Get current tenant
   const getCurrentTenant = () => {
-    if (!profile?.primary_tenant_id || !userTenants) return null;
-    const tenantUser = userTenants.find(tu => tu.tenant_id === profile.primary_tenant_id);
+    const profileTenantId = (profile as any)?.primary_tenant_id;
+    if (!profileTenantId || !userTenants) return null;
+    const tenantUser = userTenants.find(tu => tu.tenant_id === profileTenantId);
     return tenantUser?.tenants as Tenant;
   };
 
   // Create tenant mutation
   const createTenantMutation = useMutation({
-    mutationFn: async (tenantData: Partial<Tenant>) => {
+    mutationFn: async (tenantData: Omit<Tenant, 'id' | 'created_at' | 'updated_at'>) => {
       const { data, error } = await supabase
         .from('tenants')
         .insert([tenantData])
