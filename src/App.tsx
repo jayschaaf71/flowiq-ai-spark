@@ -20,6 +20,7 @@ import Help from "./pages/Help";
 import Team from "./pages/Team";
 import PracticeSetup from "./pages/PracticeSetup";
 import PatientManagement from "./pages/PatientManagement";
+import TenantAdmin from "./pages/TenantAdmin";
 
 // Agent pages
 import ScheduleIQ from "./pages/agents/ScheduleIQ";
@@ -94,6 +95,17 @@ function App() {
                   </ProtectedRoute>
                 } 
               />
+              
+              {/* Enterprise Tenant Administration */}
+              <Route 
+                path="/tenant-admin" 
+                element={
+                  <ProtectedRoute requiredRole="admin">
+                    <TenantAdmin />
+                  </ProtectedRoute>
+                } 
+              />
+              
               <Route 
                 path="/workflows" 
                 element={

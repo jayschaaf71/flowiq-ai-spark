@@ -728,7 +728,7 @@ export type Database = {
           form_fields: Json
           id: string
           is_active: boolean
-          tenant_type: string
+          tenant_id: string | null
           title: string
           updated_at: string
         }
@@ -738,7 +738,7 @@ export type Database = {
           form_fields?: Json
           id?: string
           is_active?: boolean
-          tenant_type?: string
+          tenant_id?: string | null
           title: string
           updated_at?: string
         }
@@ -748,11 +748,19 @@ export type Database = {
           form_fields?: Json
           id?: string
           is_active?: boolean
-          tenant_type?: string
+          tenant_id?: string | null
           title?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "intake_forms_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       intake_submissions: {
         Row: {
@@ -766,6 +774,7 @@ export type Database = {
           patient_phone: string | null
           priority_level: string | null
           status: string
+          tenant_id: string | null
           updated_at: string
         }
         Insert: {
@@ -779,6 +788,7 @@ export type Database = {
           patient_phone?: string | null
           priority_level?: string | null
           status?: string
+          tenant_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -792,6 +802,7 @@ export type Database = {
           patient_phone?: string | null
           priority_level?: string | null
           status?: string
+          tenant_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -800,6 +811,13 @@ export type Database = {
             columns: ["form_id"]
             isOneToOne: false
             referencedRelation: "intake_forms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "intake_submissions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
         ]
@@ -1148,8 +1166,10 @@ export type Database = {
           email: string
           first_name: string | null
           id: string
+          last_active_tenant_id: string | null
           last_name: string | null
           phone: string | null
+          primary_tenant_id: string | null
           role: string
           tenant_id: string | null
           updated_at: string
@@ -1159,8 +1179,10 @@ export type Database = {
           email: string
           first_name?: string | null
           id: string
+          last_active_tenant_id?: string | null
           last_name?: string | null
           phone?: string | null
+          primary_tenant_id?: string | null
           role?: string
           tenant_id?: string | null
           updated_at?: string
@@ -1170,13 +1192,30 @@ export type Database = {
           email?: string
           first_name?: string | null
           id?: string
+          last_active_tenant_id?: string | null
           last_name?: string | null
           phone?: string | null
+          primary_tenant_id?: string | null
           role?: string
           tenant_id?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_last_active_tenant_id_fkey"
+            columns: ["last_active_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_primary_tenant_id_fkey"
+            columns: ["primary_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       provider_assignments: {
         Row: {
@@ -1630,6 +1669,175 @@ export type Database = {
           },
         ]
       }
+      tenant_settings: {
+        Row: {
+          api_keys: Json | null
+          branding_settings: Json | null
+          created_at: string
+          custom_fields: Json | null
+          email_templates: Json | null
+          form_templates: Json | null
+          id: string
+          integration_settings: Json | null
+          notification_settings: Json | null
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          api_keys?: Json | null
+          branding_settings?: Json | null
+          created_at?: string
+          custom_fields?: Json | null
+          email_templates?: Json | null
+          form_templates?: Json | null
+          id?: string
+          integration_settings?: Json | null
+          notification_settings?: Json | null
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          api_keys?: Json | null
+          branding_settings?: Json | null
+          created_at?: string
+          custom_fields?: Json | null
+          email_templates?: Json | null
+          form_templates?: Json | null
+          id?: string
+          integration_settings?: Json | null
+          notification_settings?: Json | null
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_settings_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenant_users: {
+        Row: {
+          created_at: string
+          id: string
+          invited_at: string | null
+          invited_by: string | null
+          is_active: boolean | null
+          joined_at: string | null
+          permissions: Json | null
+          role: Database["public"]["Enums"]["user_role"]
+          tenant_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          invited_at?: string | null
+          invited_by?: string | null
+          is_active?: boolean | null
+          joined_at?: string | null
+          permissions?: Json | null
+          role?: Database["public"]["Enums"]["user_role"]
+          tenant_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          invited_at?: string | null
+          invited_by?: string | null
+          is_active?: boolean | null
+          joined_at?: string | null
+          permissions?: Json | null
+          role?: Database["public"]["Enums"]["user_role"]
+          tenant_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_users_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenants: {
+        Row: {
+          api_access_enabled: boolean | null
+          brand_name: string
+          created_at: string
+          custom_branding_enabled: boolean | null
+          domain: string | null
+          id: string
+          is_active: boolean | null
+          logo_url: string | null
+          max_forms: number | null
+          max_submissions: number | null
+          max_users: number | null
+          name: string
+          primary_color: string | null
+          secondary_color: string | null
+          slug: string
+          specialty: string
+          subdomain: string | null
+          subscription_tier: string
+          tagline: string | null
+          updated_at: string
+          white_label_enabled: boolean | null
+        }
+        Insert: {
+          api_access_enabled?: boolean | null
+          brand_name: string
+          created_at?: string
+          custom_branding_enabled?: boolean | null
+          domain?: string | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          max_forms?: number | null
+          max_submissions?: number | null
+          max_users?: number | null
+          name: string
+          primary_color?: string | null
+          secondary_color?: string | null
+          slug: string
+          specialty: string
+          subdomain?: string | null
+          subscription_tier?: string
+          tagline?: string | null
+          updated_at?: string
+          white_label_enabled?: boolean | null
+        }
+        Update: {
+          api_access_enabled?: boolean | null
+          brand_name?: string
+          created_at?: string
+          custom_branding_enabled?: boolean | null
+          domain?: string | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          max_forms?: number | null
+          max_submissions?: number | null
+          max_users?: number | null
+          name?: string
+          primary_color?: string | null
+          secondary_color?: string | null
+          slug?: string
+          specialty?: string
+          subdomain?: string | null
+          subscription_tier?: string
+          tagline?: string | null
+          updated_at?: string
+          white_label_enabled?: boolean | null
+        }
+        Relationships: []
+      }
       treatment_plan_items: {
         Row: {
           completed_date: string | null
@@ -1758,6 +1966,10 @@ export type Database = {
       }
     }
     Functions: {
+      get_user_primary_tenant: {
+        Args: { user_uuid: string }
+        Returns: string
+      }
       get_user_role_simple: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -1766,9 +1978,18 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_user_tenant_role: {
+        Args: { user_uuid: string; tenant_uuid: string }
+        Returns: Database["public"]["Enums"]["user_role"]
+      }
     }
     Enums: {
-      [_ in never]: never
+      user_role:
+        | "platform_admin"
+        | "tenant_admin"
+        | "practice_manager"
+        | "staff"
+        | "patient"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1883,6 +2104,14 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      user_role: [
+        "platform_admin",
+        "tenant_admin",
+        "practice_manager",
+        "staff",
+        "patient",
+      ],
+    },
   },
 } as const

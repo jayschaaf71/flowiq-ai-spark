@@ -53,6 +53,7 @@ export const AppSidebar = () => {
     { icon: UserPlus, label: "Patients", path: "/patients", badge: null },
     { icon: Users, label: "Team", path: "/team", badge: null },
     { icon: Building2, label: "Practice Setup", path: "/setup", badge: null },
+    { icon: Building2, label: "Tenant Admin", path: "/tenant-admin", badge: "Enterprise" },
   ];
 
   const aiAgents = [
@@ -90,9 +91,10 @@ export const AppSidebar = () => {
                   <span>{item.label}</span>
                   {item.badge && (
                     <Badge 
-                      variant={item.badge === "AI" ? "default" : "secondary"} 
+                      variant={item.badge === "AI" ? "default" : item.badge === "Enterprise" ? "secondary" : "secondary"} 
                       className={`ml-auto text-xs ${
-                        item.badge === "AI" ? "bg-blue-100 text-blue-700" : ""
+                        item.badge === "AI" ? "bg-blue-100 text-blue-700" : 
+                        item.badge === "Enterprise" ? "bg-purple-100 text-purple-700" : ""
                       }`}
                     >
                       {item.badge}
