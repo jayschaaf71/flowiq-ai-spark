@@ -1,10 +1,9 @@
 
-import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
 
 const Settings = () => {
   return (
-    <Layout>
+    <div className="space-y-6">
       <PageHeader 
         title="Settings"
         subtitle="Configure your FlowIQ preferences"
@@ -12,7 +11,7 @@ const Settings = () => {
       <div className="p-6">
         <p className="text-gray-600">Settings panel coming soon...</p>
       </div>
-    </Layout>
+    </div>
   );
 };
 
