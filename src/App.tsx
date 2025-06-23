@@ -30,13 +30,17 @@ function App() {
           <Routes>
             <Route path="/" element={
               <ProtectedRoute>
-                <ComprehensiveDashboard />
+                <Layout>
+                  <ComprehensiveDashboard />
+                </Layout>
               </ProtectedRoute>
             } />
             
             <Route path="/patient-management" element={
               <ProtectedRoute requiredRole="staff">
-                <PatientManagement />
+                <Layout>
+                  <PatientManagement />
+                </Layout>
               </ProtectedRoute>
             } />
             
@@ -50,13 +54,17 @@ function App() {
             
             <Route path="/schedule" element={
               <ProtectedRoute>
-                <ScheduleIQ />
+                <Layout>
+                  <ScheduleIQ />
+                </Layout>
               </ProtectedRoute>
             } />
             
             <Route path="/book-appointment" element={
               <ProtectedRoute>
-                <BookAppointment />
+                <Layout>
+                  <BookAppointment />
+                </Layout>
               </ProtectedRoute>
             } />
             
@@ -69,49 +77,65 @@ function App() {
             {/* AI Agent Routes */}
             <Route path="/manager" element={
               <ProtectedRoute>
-                <ManagerAgent />
+                <Layout>
+                  <ManagerAgent />
+                </Layout>
               </ProtectedRoute>
             } />
 
             <Route path="/agents/schedule" element={
               <ProtectedRoute>
-                <ScheduleIQ />
+                <Layout>
+                  <ScheduleIQ />
+                </Layout>
               </ProtectedRoute>
             } />
 
             <Route path="/agents/intake" element={
               <ProtectedRoute>
-                <IntakeIQ />
+                <Layout>
+                  <IntakeIQ />
+                </Layout>
               </ProtectedRoute>
             } />
 
             <Route path="/agents/remind" element={
               <ProtectedRoute>
-                <RemindIQ />
+                <Layout>
+                  <RemindIQ />
+                </Layout>
               </ProtectedRoute>
             } />
 
             <Route path="/agents/billing" element={
               <ProtectedRoute>
-                <BillingIQ />
+                <Layout>
+                  <BillingIQ />
+                </Layout>
               </ProtectedRoute>
             } />
 
             <Route path="/agents/claims" element={
               <ProtectedRoute>
-                <ClaimsIQ />
+                <Layout>
+                  <ClaimsIQ />
+                </Layout>
               </ProtectedRoute>
             } />
 
             <Route path="/agents/ehr" element={
               <ProtectedRoute>
-                <EHRIQ />
+                <Layout>
+                  <EHRIQ />
+                </Layout>
               </ProtectedRoute>
             } />
 
             <Route path="/agents/scribe" element={
               <ProtectedRoute>
-                <ScribeIQ />
+                <Layout>
+                  <ScribeIQ />
+                </Layout>
               </ProtectedRoute>
             } />
           </Routes>

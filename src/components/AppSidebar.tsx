@@ -3,25 +3,21 @@ import { NavLink, useLocation } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { 
   Home, 
-  Workflow, 
+  Calendar, 
+  Users, 
+  Database, 
   BarChart3, 
   Settings, 
-  Users, 
-  Zap, 
-  FileText,
   HelpCircle,
-  Calendar,
   ClipboardList,
   Bell,
   CreditCard,
   Receipt,
-  Stethoscope,
-  UserPlus,
-  Building2,
-  Activity,
-  Database,
   UserCheck,
-  TrendingUp
+  TrendingUp,
+  Stethoscope,
+  Building2,
+  UserPlus
 } from "lucide-react";
 import {
   Sidebar,
@@ -47,33 +43,30 @@ export const AppSidebar = () => {
   
   const mainNavigationItems = [
     { icon: Home, label: "Dashboard", path: "/", badge: null },
-    { icon: Workflow, label: "Workflows", path: "/workflows", badge: "12" },
+    { icon: Calendar, label: "Schedule", path: "/schedule", badge: null },
+    { icon: Users, label: "Patients", path: "/patient-management", badge: null },
+    { icon: Database, label: "EHR", path: "/ehr", badge: null },
     { icon: BarChart3, label: "Analytics", path: "/analytics", badge: null },
   ];
 
-  const practiceManagement = [
-    { icon: UserPlus, label: "Patients", path: "/patients", badge: null },
-    ...(hasMinimumRole('practice_manager') ? [{ icon: Users, label: "Team", path: "/team", badge: null }] : []),
-    ...(hasMinimumRole('tenant_admin') ? [{ icon: Building2, label: "Practice Setup", path: "/setup", badge: null }] : []),
-    ...(isPlatformAdmin ? [{ icon: Building2, label: "Tenant Admin", path: "/tenant-admin", badge: "Enterprise" }] : []),
-  ];
-
   const aiAgents = [
-    { icon: Users, label: "Manager Agent", path: "/manager", badge: "AI" },
-    { icon: Zap, label: "AI Insights", path: "/insights", badge: "3" },
-    { icon: Calendar, label: "Schedule iQ", path: "/agents/schedule", badge: "AI" },
     { icon: ClipboardList, label: "Intake iQ", path: "/agents/intake", badge: "AI" },
-    { icon: Bell, label: "Reminders iQ", path: "/agents/remind", badge: "AI" },
+    { icon: Bell, label: "Remind iQ", path: "/agents/remind", badge: "AI" },
     { icon: CreditCard, label: "Billing iQ", path: "/agents/billing", badge: "AI" },
     { icon: Receipt, label: "Claims iQ", path: "/agents/claims", badge: "AI" },
-    { icon: Database, label: "EHR iQ", path: "/agents/ehr", badge: "AI" },
     { icon: UserCheck, label: "Follow up iQ", path: "/agents/followup", badge: "AI" },
     { icon: TrendingUp, label: "Insight iQ", path: "/agents/insight", badge: "AI" },
     { icon: Stethoscope, label: "Scribe iQ", path: "/agents/scribe", badge: "AI" },
   ];
 
+  const managementItems = [
+    { icon: UserPlus, label: "Manager Agent", path: "/manager", badge: "AI" },
+    ...(hasMinimumRole('practice_manager') ? [{ icon: Users, label: "Team", path: "/team", badge: null }] : []),
+    ...(hasMinimumRole('tenant_admin') ? [{ icon: Building2, label: "Practice Setup", path: "/setup", badge: null }] : []),
+    ...(isPlatformAdmin ? [{ icon: Building2, label: "Tenant Admin", path: "/tenant-admin", badge: "Enterprise" }] : []),
+  ];
+
   const bottomItems = [
-    { icon: FileText, label: "Templates", path: "/templates" },
     { icon: Settings, label: "Settings", path: "/settings" },
     { icon: HelpCircle, label: "Help", path: "/help" },
   ];
@@ -119,7 +112,7 @@ export const AppSidebar = () => {
             <div className="flex flex-col">
               <div className="flex items-center gap-1">
                 <span className="font-bold text-lg text-blue-600">Flow</span>
-                <span className="font-bold text-lg text-gray-800">IQ</span>
+                <span className="font-bold text-lg text-gray-800">iQ</span>
               </div>
               <p className="text-xs text-gray-500 leading-tight">
                 {tenantConfig.tagline}
@@ -136,8 +129,8 @@ export const AppSidebar = () => {
       
       <SidebarContent>
         {renderNavSection("Main", mainNavigationItems)}
-        {renderNavSection("Practice", practiceManagement)}
-        {renderNavSection("AI Agents", aiAgents)}
+        {renderNavSection("AI Assistants", aiAgents)}
+        {renderNavSection("Management", managementItems)}
       </SidebarContent>
 
       <SidebarFooter>
