@@ -17,7 +17,9 @@ import {
   TrendingUp,
   Stethoscope,
   Building2,
-  UserPlus
+  UserPlus,
+  MessageSquare,
+  Brain
 } from "lucide-react";
 import {
   Sidebar,
@@ -46,7 +48,7 @@ export const AppSidebar = () => {
     { icon: Calendar, label: "Schedule", path: "/schedule", badge: null },
     { icon: Users, label: "Patients", path: "/patient-management", badge: null },
     { icon: Database, label: "EHR", path: "/ehr", badge: null },
-    { icon: BarChart3, label: "Analytics", path: "/analytics", badge: null },
+    { icon: TrendingUp, label: "Insights", path: "/insights", badge: null },
   ];
 
   const aiAgents = [
@@ -54,8 +56,8 @@ export const AppSidebar = () => {
     { icon: Bell, label: "Remind iQ", path: "/agents/remind", badge: "AI" },
     { icon: CreditCard, label: "Billing iQ", path: "/agents/billing", badge: "AI" },
     { icon: Receipt, label: "Claims iQ", path: "/agents/claims", badge: "AI" },
-    { icon: UserCheck, label: "Follow up iQ", path: "/agents/followup", badge: "AI" },
-    { icon: TrendingUp, label: "Insight iQ", path: "/agents/insight", badge: "AI" },
+    { icon: MessageSquare, label: "Follow up iQ", path: "/agents/followup", badge: "AI" },
+    { icon: Brain, label: "Insight iQ", path: "/agents/insight", badge: "AI" },
     { icon: Stethoscope, label: "Scribe iQ", path: "/agents/scribe", badge: "AI" },
   ];
 

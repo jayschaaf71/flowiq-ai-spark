@@ -1,6 +1,5 @@
 
 import { useState } from "react";
-import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -25,14 +24,14 @@ const ManagerAgent = () => {
   };
 
   return (
-    <Layout>
+    <div className="space-y-6">
       <PageHeader 
         title="Manager Agent"
         subtitle="Central AI orchestration and task management"
         badge="AI Manager"
       />
       
-      <div className="space-y-6">
+      <div className="p-6 space-y-6">
         {/* System Overview Cards */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <Card>
@@ -134,7 +133,7 @@ const ManagerAgent = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </Layout>
+    </div>
   );
 };
 

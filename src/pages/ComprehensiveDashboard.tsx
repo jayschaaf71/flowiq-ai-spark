@@ -10,6 +10,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { useNotificationAutomation } from "@/hooks/useNotificationAutomation";
+import { AIAgentPerformance } from "@/components/insights/AIAgentPerformance";
+import { PredictiveAnalytics } from "@/components/insights/PredictiveAnalytics";
+import { WorkflowOptimization } from "@/components/insights/WorkflowOptimization";
 import { 
   Calendar, 
   Users, 
@@ -20,7 +23,8 @@ import {
   Plus,
   Activity,
   TrendingUp,
-  Clock
+  Clock,
+  Brain
 } from "lucide-react";
 
 export const ComprehensiveDashboard = () => {
@@ -165,7 +169,7 @@ export const ComprehensiveDashboard = () => {
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="booking">Book Appointment</TabsTrigger>
           <TabsTrigger value="ehr">Patient Records</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="insights">Analytics & Insights</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
 
@@ -192,10 +196,10 @@ export const ComprehensiveDashboard = () => {
                   </RoleGuard>
                   <RoleGuard allowedRoles={['admin']}>
                     <QuickActionCard
-                      title="View Analytics"
-                      description="Practice performance metrics"
-                      icon={BarChart3}
-                      onClick={() => setActiveView("analytics")}
+                      title="Analytics & Insights"
+                      description="Practice performance and AI insights"
+                      icon={Brain}
+                      onClick={() => setActiveView("insights")}
                     />
                   </RoleGuard>
                   <QuickActionCard
@@ -243,9 +247,39 @@ export const ComprehensiveDashboard = () => {
           </RoleGuard>
         </TabsContent>
 
-        <TabsContent value="analytics">
+        <TabsContent value="insights">
           <RoleGuard allowedRoles={['admin']}>
-            <AnalyticsDashboard />
+            <div className="space-y-6">
+              <div className="flex items-center gap-2 mb-6">
+                <Brain className="w-6 h-6 text-purple-600" />
+                <h2 className="text-2xl font-bold">Analytics & AI Insights</h2>
+              </div>
+              
+              <Tabs defaultValue="analytics" className="space-y-4">
+                <TabsList>
+                  <TabsTrigger value="analytics">Practice Analytics</TabsTrigger>
+                  <TabsTrigger value="ai-performance">AI Performance</TabsTrigger>
+                  <TabsTrigger value="predictions">Predictions</TabsTrigger>
+                  <TabsTrigger value="optimization">Optimization</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="analytics">
+                  <AnalyticsDashboard />
+                </TabsContent>
+                
+                <TabsContent value="ai-performance">
+                  <AIAgentPerformance />
+                </TabsContent>
+                
+                <TabsContent value="predictions">
+                  <PredictiveAnalytics />
+                </TabsContent>
+                
+                <TabsContent value="optimization">
+                  <WorkflowOptimization />
+                </TabsContent>
+              </Tabs>
+            </div>
           </RoleGuard>
         </TabsContent>
 

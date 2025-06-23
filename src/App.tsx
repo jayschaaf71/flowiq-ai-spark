@@ -19,6 +19,11 @@ import BillingIQ from './pages/agents/BillingIQ';
 import ClaimsIQ from './pages/agents/ClaimsIQ';
 import EHRIQ from './pages/agents/EHRIQ';
 import ScribeIQ from './pages/agents/ScribeIQ';
+import FollowupIQ from './pages/agents/FollowupIQ';
+import InsightIQ from './pages/agents/InsightIQ';
+import Settings from './pages/Settings';
+import Help from './pages/Help';
+import AIInsights from './pages/AIInsights';
 
 function App() {
   return (
@@ -71,6 +76,30 @@ function App() {
             <Route path="/patient-dashboard" element={
               <ProtectedRoute requiredRole="patient">
                 <PatientDashboard />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/settings" element={
+              <ProtectedRoute>
+                <Layout>
+                  <Settings />
+                </Layout>
+              </ProtectedRoute>
+            } />
+
+            <Route path="/help" element={
+              <ProtectedRoute>
+                <Layout>
+                  <Help />
+                </Layout>
+              </ProtectedRoute>
+            } />
+
+            <Route path="/insights" element={
+              <ProtectedRoute>
+                <Layout>
+                  <AIInsights />
+                </Layout>
               </ProtectedRoute>
             } />
 
@@ -135,6 +164,22 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <ScribeIQ />
+                </Layout>
+              </ProtectedRoute>
+            } />
+
+            <Route path="/agents/followup" element={
+              <ProtectedRoute>
+                <Layout>
+                  <FollowupIQ />
+                </Layout>
+              </ProtectedRoute>
+            } />
+
+            <Route path="/agents/insight" element={
+              <ProtectedRoute>
+                <Layout>
+                  <InsightIQ />
                 </Layout>
               </ProtectedRoute>
             } />

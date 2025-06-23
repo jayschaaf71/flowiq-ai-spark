@@ -3,16 +3,16 @@ import { useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TrendingUp } from "lucide-react";
+import { MessageSquare } from "lucide-react";
 
-const ClaimsIQ = () => {
+const FollowupIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
 
   return (
     <div className="space-y-6">
       <PageHeader 
-        title="Claims iQ"
-        subtitle="AI-powered insurance claims processing and management"
+        title="Follow-up iQ"
+        subtitle="AI-powered patient follow-up and engagement automation"
         badge="AI Agent"
       />
       
@@ -20,67 +20,67 @@ const ClaimsIQ = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="claims">Claims</TabsTrigger>
-            <TabsTrigger value="processing">Processing</TabsTrigger>
-            <TabsTrigger value="reports">Reports</TabsTrigger>
+            <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
+            <TabsTrigger value="templates">Templates</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Claims Dashboard</CardTitle>
-                <CardDescription>Overview of insurance claims processing</CardDescription>
+                <CardTitle>Follow-up Dashboard</CardTitle>
+                <CardDescription>Patient engagement and follow-up overview</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-center py-12 text-muted-foreground">
-                  <TrendingUp className="w-12 h-12 mx-auto mb-4" />
-                  <p>Claims dashboard coming soon...</p>
+                  <MessageSquare className="w-12 h-12 mx-auto mb-4" />
+                  <p>Follow-up dashboard coming soon...</p>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="claims" className="space-y-4">
+          <TabsContent value="campaigns" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Claims Management</CardTitle>
-                <CardDescription>Submit and track insurance claims</CardDescription>
+                <CardTitle>Follow-up Campaigns</CardTitle>
+                <CardDescription>Automated patient follow-up sequences</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-center py-12 text-muted-foreground">
-                  <TrendingUp className="w-12 h-12 mx-auto mb-4" />
-                  <p>Claims management coming soon...</p>
+                  <MessageSquare className="w-12 h-12 mx-auto mb-4" />
+                  <p>Follow-up campaigns coming soon...</p>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="processing" className="space-y-4">
+          <TabsContent value="templates" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Automated Processing</CardTitle>
-                <CardDescription>AI-powered claims processing workflow</CardDescription>
+                <CardTitle>Message Templates</CardTitle>
+                <CardDescription>Pre-built templates for patient follow-up</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-center py-12 text-muted-foreground">
-                  <TrendingUp className="w-12 h-12 mx-auto mb-4" />
-                  <p>Automated processing coming soon...</p>
+                  <MessageSquare className="w-12 h-12 mx-auto mb-4" />
+                  <p>Message templates coming soon...</p>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="reports" className="space-y-4">
+          <TabsContent value="analytics" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Claims Reports</CardTitle>
-                <CardDescription>Analytics and reporting for claims data</CardDescription>
+                <CardTitle>Engagement Analytics</CardTitle>
+                <CardDescription>Track patient engagement and response rates</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-center py-12 text-muted-foreground">
-                  <TrendingUp className="w-12 h-12 mx-auto mb-4" />
-                  <p>Claims reports coming soon...</p>
+                  <MessageSquare className="w-12 h-12 mx-auto mb-4" />
+                  <p>Engagement analytics coming soon...</p>
                 </div>
               </CardContent>
             </Card>
@@ -89,13 +89,13 @@ const ClaimsIQ = () => {
           <TabsContent value="settings" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Claims Settings</CardTitle>
-                <CardDescription>Configure claims processing preferences</CardDescription>
+                <CardTitle>Follow-up Settings</CardTitle>
+                <CardDescription>Configure follow-up automation preferences</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="text-center py-12 text-muted-foreground">
-                  <TrendingUp className="w-12 h-12 mx-auto mb-4" />
-                  <p>Claims settings coming soon...</p>
+                  <MessageSquare className="w-12 h-12 mx-auto mb-4" />
+                  <p>Follow-up settings coming soon...</p>
                 </div>
               </CardContent>
             </Card>
@@ -106,4 +106,4 @@ const ClaimsIQ = () => {
   );
 };
 
-export default ClaimsIQ;
+export default FollowupIQ;
