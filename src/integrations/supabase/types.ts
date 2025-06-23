@@ -9,6 +9,87 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      advisor_invites: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          invite_code: string
+          invited_by: string | null
+          invited_email: string | null
+          status: string
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          invite_code: string
+          invited_by?: string | null
+          invited_email?: string | null
+          status?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          invite_code?: string
+          invited_by?: string | null
+          invited_email?: string | null
+          status?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Relationships: []
+      }
+      advisor_profiles: {
+        Row: {
+          avatar_url: string | null
+          company: string
+          created_at: string
+          first_name: string
+          id: string
+          last_name: string
+          member_since: string
+          position: string | null
+          specialty: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          company: string
+          created_at?: string
+          first_name: string
+          id?: string
+          last_name: string
+          member_since?: string
+          position?: string | null
+          specialty?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          company?: string
+          created_at?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          member_since?: string
+          position?: string | null
+          specialty?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       allergies: {
         Row: {
           allergen: string
@@ -734,6 +815,62 @@ export type Database = {
           },
         ]
       }
+      custom_variables: {
+        Row: {
+          category: string
+          created_at: string | null
+          created_by: string | null
+          default_value: string | null
+          description: string | null
+          id: string
+          is_system: boolean | null
+          key: string
+          label: string
+          options: string[] | null
+          tenant_id: string | null
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          created_by?: string | null
+          default_value?: string | null
+          description?: string | null
+          id?: string
+          is_system?: boolean | null
+          key: string
+          label: string
+          options?: string[] | null
+          tenant_id?: string | null
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          created_by?: string | null
+          default_value?: string | null
+          description?: string | null
+          id?: string
+          is_system?: boolean | null
+          key?: string
+          label?: string
+          options?: string[] | null
+          tenant_id?: string | null
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_variables_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       demo_requests: {
         Row: {
           company: string
@@ -1109,6 +1246,68 @@ export type Database = {
             columns: ["patient_id"]
             isOneToOne: false
             referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      message_templates: {
+        Row: {
+          category: string
+          content: string
+          created_at: string | null
+          created_by: string | null
+          id: string
+          is_active: boolean | null
+          is_built_in: boolean | null
+          metadata: Json | null
+          name: string
+          styling: Json | null
+          subject: string | null
+          tenant_id: string | null
+          type: string
+          updated_at: string | null
+          variables: string[] | null
+        }
+        Insert: {
+          category: string
+          content: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_built_in?: boolean | null
+          metadata?: Json | null
+          name: string
+          styling?: Json | null
+          subject?: string | null
+          tenant_id?: string | null
+          type: string
+          updated_at?: string | null
+          variables?: string[] | null
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_built_in?: boolean | null
+          metadata?: Json | null
+          name?: string
+          styling?: Json | null
+          subject?: string | null
+          tenant_id?: string | null
+          type?: string
+          updated_at?: string | null
+          variables?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_templates_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
         ]
@@ -1978,6 +2177,54 @@ export type Database = {
             columns: ["team_member_id"]
             isOneToOne: false
             referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      template_usage: {
+        Row: {
+          created_by: string | null
+          id: string
+          recipient: string
+          status: string
+          template_id: string
+          tenant_id: string | null
+          type: string
+          used_at: string | null
+        }
+        Insert: {
+          created_by?: string | null
+          id?: string
+          recipient: string
+          status?: string
+          template_id: string
+          tenant_id?: string | null
+          type: string
+          used_at?: string | null
+        }
+        Update: {
+          created_by?: string | null
+          id?: string
+          recipient?: string
+          status?: string
+          template_id?: string
+          tenant_id?: string | null
+          type?: string
+          used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "template_usage_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "message_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "template_usage_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
         ]

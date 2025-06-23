@@ -5,10 +5,21 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Plus } from 'lucide-react';
 import { CustomVariableForm } from './components/CustomVariableForm';
 import { VariablesByCategory } from './components/VariablesByCategory';
-import { CustomVariable, systemVariables } from './types/variableTypes';
+import { useCustomVariables, CustomVariable } from '@/hooks/useCustomVariables';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export const TemplateVariableSystem: React.FC = () => {
-  const [variables, setVariables] = useState<CustomVariable[]>(systemVariables);
+  const {
+    variables,
+    variablesByCategory,
+    isLoading,
+    createVariable,
+    updateVariable,
+    deleteVariable,
+    isCreating,
+    isUpdating
+  } = useCustomVariables();
+
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingVariable, setEditingVariable] = useState<CustomVariable | null>(null);
   const [newVariable, setNewVariable] = useState<Partial<CustomVariable>>({
@@ -16,34 +27,23 @@ export const TemplateVariableSystem: React.FC = () => {
     label: '',
     description: '',
     type: 'text',
-    category: 'Custom',
-    isSystem: false
+    category: 'Custom'
   });
-
-  const variablesByCategory = variables.reduce((acc, variable) => {
-    if (!acc[variable.category]) {
-      acc[variable.category] = [];
-    }
-    acc[variable.category].push(variable);
-    return acc;
-  }, {} as Record<string, CustomVariable[]>);
 
   const handleCreateVariable = () => {
     if (!newVariable.key || !newVariable.label) return;
 
-    const variable: CustomVariable = {
-      id: crypto.randomUUID(),
+    const variable: Omit<CustomVariable, 'id' | 'isSystem' | 'createdAt' | 'updatedAt'> = {
       key: newVariable.key,
       label: newVariable.label,
       description: newVariable.description || '',
       type: newVariable.type || 'text',
       defaultValue: newVariable.defaultValue,
       options: newVariable.options,
-      category: newVariable.category || 'Custom',
-      isSystem: false
+      category: newVariable.category || 'Custom'
     };
 
-    setVariables(prev => [...prev, variable]);
+    createVariable(variable);
     resetForm();
   };
 
@@ -56,17 +56,16 @@ export const TemplateVariableSystem: React.FC = () => {
   const handleUpdateVariable = () => {
     if (!editingVariable || !newVariable.key || !newVariable.label) return;
 
-    setVariables(prev => prev.map(v => 
-      v.id === editingVariable.id 
-        ? { ...v, ...newVariable } as CustomVariable
-        : v
-    ));
+    updateVariable({
+      id: editingVariable.id,
+      ...newVariable
+    } as CustomVariable & { id: string });
     
     resetForm();
   };
 
   const handleDeleteVariable = (id: string) => {
-    setVariables(prev => prev.filter(v => v.id !== id));
+    deleteVariable(id);
   };
 
   const resetForm = () => {
@@ -76,11 +75,36 @@ export const TemplateVariableSystem: React.FC = () => {
       label: '',
       description: '',
       type: 'text',
-      category: 'Custom',
-      isSystem: false
+      category: 'Custom'
     });
     setIsCreateDialogOpen(false);
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-4 w-96 mt-2" />
+          </div>
+          <Skeleton className="h-10 w-32" />
+        </div>
+        <div className="space-y-6">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="space-y-4">
+              <Skeleton className="h-6 w-32" />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Array.from({ length: 4 }).map((_, j) => (
+                  <Skeleton key={j} className="h-32 w-full" />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

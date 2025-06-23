@@ -6,10 +6,20 @@ import { Plus } from 'lucide-react';
 import { TemplateEditor } from './TemplateEditor';
 import { TemplateFilters } from './TemplateFilters';
 import { TemplateGrid } from './TemplateGrid';
-import { builtInTemplates, Template } from './BuiltInTemplates';
+import { useTemplates, Template } from '@/hooks/useTemplates';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export const TemplateLibrary: React.FC = () => {
-  const [templates, setTemplates] = useState<Template[]>(builtInTemplates);
+  const { 
+    templates, 
+    isLoading, 
+    createTemplate, 
+    updateTemplate, 
+    deleteTemplate,
+    isCreating,
+    isUpdating 
+  } = useTemplates();
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState<string>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -38,30 +48,63 @@ export const TemplateLibrary: React.FC = () => {
   };
 
   const handleDuplicate = (template: Template) => {
-    const duplicated: Template = {
-      ...template,
-      id: crypto.randomUUID(),
+    const duplicated: Omit<Template, 'id' | 'isBuiltIn' | 'usageCount' | 'lastUsed' | 'createdAt' | 'updatedAt'> = {
       name: `${template.name} (Copy)`,
-      isBuiltIn: false,
-      usageCount: 0,
-      lastUsed: undefined
+      type: template.type,
+      category: template.category,
+      subject: template.subject,
+      content: template.content,
+      variables: template.variables,
+      isActive: true,
+      styling: template.styling,
+      metadata: template.metadata
     };
-    setTemplates(prev => [...prev, duplicated]);
+    createTemplate(duplicated);
   };
 
   const handleDelete = (templateId: string) => {
-    setTemplates(prev => prev.filter(t => t.id !== templateId));
+    deleteTemplate(templateId);
   };
 
   const handleSaveTemplate = (template: Template) => {
     if (editingTemplate) {
-      setTemplates(prev => prev.map(t => t.id === template.id ? template : t));
+      updateTemplate({ id: editingTemplate.id, ...template });
     } else {
-      setTemplates(prev => [...prev, { ...template, usageCount: 0, isBuiltIn: false }]);
+      const newTemplate: Omit<Template, 'id' | 'isBuiltIn' | 'usageCount' | 'lastUsed' | 'createdAt' | 'updatedAt'> = {
+        name: template.name,
+        type: template.type,
+        category: template.category,
+        subject: template.subject,
+        content: template.content,
+        variables: template.variables,
+        isActive: true,
+        styling: template.styling,
+        metadata: template.metadata
+      };
+      createTemplate(newTemplate);
     }
     setIsEditorOpen(false);
     setEditingTemplate(undefined);
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-4 w-96 mt-2" />
+          </div>
+          <Skeleton className="h-10 w-32" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-64 w-full" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

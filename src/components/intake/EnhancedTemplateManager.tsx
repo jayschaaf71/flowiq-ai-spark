@@ -1,44 +1,15 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { TemplateStatsOverview } from './TemplateStatsOverview';
 import { TemplateManagerTabs } from './TemplateManagerTabs';
-
-interface TemplateStats {
-  totalTemplates: number;
-  emailTemplates: number;
-  smsTemplates: number;
-  customVariables: number;
-  totalUsage: number;
-  mostUsedTemplate: string;
-}
-
-interface Template {
-  id: string;
-  name: string;
-  type: 'email' | 'sms';
-  category: string;
-  subject?: string;
-  content: string;
-  variables: string[];
-  usageCount: number;
-  lastUsed?: string;
-  isBuiltIn: boolean;
-}
+import { useTemplates } from '@/hooks/useTemplates';
 
 export const EnhancedTemplateManager: React.FC = () => {
-  const [stats] = useState<TemplateStats>({
-    totalTemplates: 12,
-    emailTemplates: 8,
-    smsTemplates: 4,
-    customVariables: 15,
-    totalUsage: 342,
-    mostUsedTemplate: 'Appointment Reminder SMS'
-  });
+  const { templates } = useTemplates();
 
-  const [templates, setTemplates] = useState<Template[]>([]);
-
-  const handleImportTemplates = (importedTemplates: Template[]) => {
-    setTemplates(prev => [...prev, ...importedTemplates]);
+  const handleImportTemplates = (importedTemplates: any[]) => {
+    // This will be implemented when we create the import functionality
+    console.log('Importing templates:', importedTemplates);
   };
 
   return (
@@ -50,7 +21,7 @@ export const EnhancedTemplateManager: React.FC = () => {
         </div>
       </div>
 
-      <TemplateStatsOverview stats={stats} />
+      <TemplateStatsOverview />
 
       <TemplateManagerTabs 
         templates={templates}
