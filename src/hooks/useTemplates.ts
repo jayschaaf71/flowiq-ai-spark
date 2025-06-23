@@ -65,8 +65,8 @@ export const useTemplates = () => {
         variables: template.variables || [],
         isBuiltIn: template.is_built_in,
         isActive: template.is_active,
-        styling: template.styling,
-        metadata: template.metadata,
+        styling: (template.styling as Record<string, any>) || {},
+        metadata: (template.metadata as Record<string, any>) || {},
         createdAt: template.created_at,
         updatedAt: template.updated_at,
         usageCount: 0, // Will be populated by usage query
