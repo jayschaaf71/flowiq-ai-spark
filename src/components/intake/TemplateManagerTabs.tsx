@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
@@ -13,6 +12,8 @@ import { TemplateVariableSystem } from './TemplateVariableSystem';
 import { TemplateImportExport } from './TemplateImportExport';
 import { EnhancedSMSTestPanel } from './EnhancedSMSTestPanel';
 import { TemplateSettingsTab } from './TemplateSettingsTab';
+import { TemplateTestingPanel } from './TemplateTestingPanel';
+import { TemplateSettingsPanel } from './TemplateSettingsPanel';
 import { Template } from '@/hooks/useTemplates';
 
 interface TemplateManagerTabsProps {
@@ -70,11 +71,11 @@ export const TemplateManagerTabs: React.FC<TemplateManagerTabsProps> = ({
       </TabsContent>
 
       <TabsContent value="testing">
-        <EnhancedSMSTestPanel templates={templates} />
+        <TemplateTestingPanel templates={templates} />
       </TabsContent>
 
       <TabsContent value="settings">
-        <TemplateSettingsTab />
+        <TemplateSettingsPanel />
       </TabsContent>
     </Tabs>
   );
