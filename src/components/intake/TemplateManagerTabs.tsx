@@ -13,19 +13,7 @@ import { TemplateVariableSystem } from './TemplateVariableSystem';
 import { TemplateImportExport } from './TemplateImportExport';
 import { EnhancedSMSTestPanel } from './EnhancedSMSTestPanel';
 import { TemplateSettingsTab } from './TemplateSettingsTab';
-
-interface Template {
-  id: string;
-  name: string;
-  type: 'email' | 'sms';
-  category: string;
-  subject?: string;
-  content: string;
-  variables: string[];
-  usageCount: number;
-  lastUsed?: string;
-  isBuiltIn: boolean;
-}
+import { Template } from '@/hooks/useTemplates';
 
 interface TemplateManagerTabsProps {
   templates: Template[];
