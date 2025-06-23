@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -202,6 +201,9 @@ export const PatientOnboardingWorkflow = ({ onComplete, onCancel }: PatientOnboa
 
       if (patientError) throw patientError;
 
+      // Convert PatientData to JSON-serializable format for Supabase
+      const formDataJson = JSON.parse(JSON.stringify(patientData));
+
       // Create intake submission record
       const { error: submissionError } = await supabase
         .from('intake_submissions')
@@ -210,7 +212,7 @@ export const PatientOnboardingWorkflow = ({ onComplete, onCancel }: PatientOnboa
           patient_name: `${patientData.firstName} ${patientData.lastName}`,
           patient_email: patientData.email,
           patient_phone: patientData.phone,
-          form_data: patientData,
+          form_data: formDataJson,
           status: 'completed',
           ai_summary: `New patient onboarding completed for ${patientData.firstName} ${patientData.lastName}. Insurance: ${patientData.insurance.provider}. Emergency contact: ${patientData.emergencyContact.name}.`
         });
