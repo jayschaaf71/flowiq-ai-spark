@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -11,6 +12,13 @@ import BookAppointment from './pages/BookAppointment';
 import { PatientDashboard } from './pages/PatientDashboard';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { ComprehensiveDashboard } from "./pages/ComprehensiveDashboard";
+import ManagerAgent from './pages/ManagerAgent';
+import IntakeIQ from './pages/agents/IntakeIQ';
+import RemindIQ from './pages/agents/RemindIQ';
+import BillingIQ from './pages/agents/BillingIQ';
+import ClaimsIQ from './pages/agents/ClaimsIQ';
+import EHRIQ from './pages/agents/EHRIQ';
+import ScribeIQ from './pages/agents/ScribeIQ';
 
 function App() {
   return (
@@ -55,6 +63,55 @@ function App() {
             <Route path="/patient-dashboard" element={
               <ProtectedRoute requiredRole="patient">
                 <PatientDashboard />
+              </ProtectedRoute>
+            } />
+
+            {/* AI Agent Routes */}
+            <Route path="/manager" element={
+              <ProtectedRoute>
+                <ManagerAgent />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/agents/schedule" element={
+              <ProtectedRoute>
+                <ScheduleIQ />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/agents/intake" element={
+              <ProtectedRoute>
+                <IntakeIQ />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/agents/remind" element={
+              <ProtectedRoute>
+                <RemindIQ />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/agents/billing" element={
+              <ProtectedRoute>
+                <BillingIQ />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/agents/claims" element={
+              <ProtectedRoute>
+                <ClaimsIQ />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/agents/ehr" element={
+              <ProtectedRoute>
+                <EHRIQ />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/agents/scribe" element={
+              <ProtectedRoute>
+                <ScribeIQ />
               </ProtectedRoute>
             } />
           </Routes>
