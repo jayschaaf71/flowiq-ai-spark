@@ -4,19 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { MessageSquare, Plus } from 'lucide-react';
 import { TemplateCard } from './TemplateCard';
-
-interface Template {
-  id: string;
-  name: string;
-  type: 'email' | 'sms';
-  category: string;
-  subject?: string;
-  content: string;
-  variables: string[];
-  usageCount: number;
-  lastUsed?: string;
-  isBuiltIn: boolean;
-}
+import { Template } from '@/hooks/useTemplates';
 
 interface TemplateGridProps {
   templates: Template[];

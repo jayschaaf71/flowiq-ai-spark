@@ -4,19 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Edit, Copy, Trash2, Mail, MessageSquare } from 'lucide-react';
-
-interface Template {
-  id: string;
-  name: string;
-  type: 'email' | 'sms';
-  category: string;
-  subject?: string;
-  content: string;
-  variables: string[];
-  usageCount: number;
-  lastUsed?: string;
-  isBuiltIn: boolean;
-}
+import { Template } from '@/hooks/useTemplates';
 
 interface TemplateCardProps {
   template: Template;
@@ -78,7 +66,7 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
         </div>
 
         <div className="flex items-center justify-between text-xs text-gray-500">
-          <span>Used {template.usageCount} times</span>
+          <span>Used {template.usageCount || 0} times</span>
           {template.lastUsed && (
             <span>Last used: {template.lastUsed}</span>
           )}
