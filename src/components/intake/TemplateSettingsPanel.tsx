@@ -14,7 +14,9 @@ import {
   Globe, 
   Shield, 
   Bell,
-  Save
+  Save,
+  Mail,
+  MessageSquare
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
