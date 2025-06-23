@@ -36,6 +36,11 @@ export const TemplateManagerTabs: React.FC<TemplateManagerTabsProps> = ({
   templates,
   onImportTemplates
 }) => {
+  const handleImportComplete = () => {
+    // Refresh templates after import
+    window.location.reload(); // Simple refresh for now
+  };
+
   return (
     <Tabs defaultValue="library" className="space-y-6">
       <TabsList className="grid w-full grid-cols-5">
@@ -72,7 +77,7 @@ export const TemplateManagerTabs: React.FC<TemplateManagerTabsProps> = ({
       <TabsContent value="import-export">
         <TemplateImportExport 
           templates={templates}
-          onImportTemplates={onImportTemplates}
+          onImportComplete={handleImportComplete}
         />
       </TabsContent>
 
