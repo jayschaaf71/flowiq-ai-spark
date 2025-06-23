@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -41,6 +40,12 @@ const availableVariables = [
   { key: 'portalLink', label: 'Patient Portal', description: 'Link to patient portal' }
 ];
 
+const defaultStyling = {
+  primaryColor: '#3B82F6',
+  fontFamily: 'Arial, sans-serif',
+  backgroundColor: '#ffffff'
+};
+
 export const TemplateEditor: React.FC<TemplateEditorProps> = ({
   template,
   onSave,
@@ -55,12 +60,8 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({
     content: '',
     variables: [] as string[],
     isActive: true,
-    styling: {
-      primaryColor: '#3B82F6',
-      fontFamily: 'Arial, sans-serif',
-      backgroundColor: '#ffffff'
-    },
-    metadata: {}
+    styling: defaultStyling,
+    metadata: {} as Record<string, any>
   });
 
   const [previewData, setPreviewData] = useState({
@@ -80,6 +81,7 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({
 
   useEffect(() => {
     if (template) {
+      const templateStyling = template.styling || {};
       setEditingTemplate({
         name: template.name,
         type: template.type,
@@ -88,10 +90,10 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({
         content: template.content,
         variables: template.variables,
         isActive: template.isActive,
-        styling: template.styling || {
-          primaryColor: '#3B82F6',
-          fontFamily: 'Arial, sans-serif',
-          backgroundColor: '#ffffff'
+        styling: {
+          primaryColor: templateStyling.primaryColor || defaultStyling.primaryColor,
+          fontFamily: templateStyling.fontFamily || defaultStyling.fontFamily,
+          backgroundColor: templateStyling.backgroundColor || defaultStyling.backgroundColor
         },
         metadata: template.metadata || {}
       });
