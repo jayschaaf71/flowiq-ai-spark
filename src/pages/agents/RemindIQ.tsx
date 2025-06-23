@@ -1,6 +1,5 @@
 
 import { useState } from "react";
-import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RemindDashboard } from "@/components/remind/RemindDashboard";
@@ -13,7 +12,7 @@ const RemindIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
 
   return (
-    <Layout>
+    <div className="space-y-6">
       <PageHeader 
         title="Reminders iQ"
         subtitle="AI-powered patient reminders and messaging automation"
@@ -51,7 +50,7 @@ const RemindIQ = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </Layout>
+    </div>
   );
 };
 
