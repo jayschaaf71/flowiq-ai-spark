@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { User } from "lucide-react";
 import { EnhancedIntakeDashboard } from "@/components/intake/EnhancedIntakeDashboard";
 import { FormSubmissionsList } from "@/components/intake/FormSubmissionsList";
 import { IntakeFormBuilder } from "@/components/intake/IntakeFormBuilder";
@@ -24,15 +26,19 @@ import { IntakeAnalyticsAdvanced } from "@/components/intake/IntakeAnalyticsAdva
 import { PatientDataAnalytics } from "@/components/analytics/PatientDataAnalytics";
 import { DataExportManager } from "@/components/analytics/DataExportManager";
 import { APIManagement } from "@/components/analytics/APIManagement";
+import { PatientOnboardingWorkflow } from "@/components/intake/PatientOnboardingWorkflow";
 import { useIntakeForms } from "@/hooks/useIntakeForms";
 import { useTenantConfig } from "@/utils/tenantConfig";
 import { useIntakeSubmissions } from "@/hooks/useIntakeSubmissions";
+import { useToast } from "@/hooks/use-toast";
 
 const IntakeIQ = () => {
   const [activeTab, setActiveTab] = useState("staff-dashboard");
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const tenantConfig = useTenantConfig();
   const { submissions } = useIntakeForms();
   const { sendCommunication } = useIntakeSubmissions();
+  const { toast } = useToast();
 
   // Listen for custom events to change tabs
   useEffect(() => {
@@ -63,6 +69,33 @@ const IntakeIQ = () => {
     sendCommunication(submissionId, templateId, recipient, patientName, customMessage, type);
   };
 
+  const handleStartOnboarding = () => {
+    setShowOnboarding(true);
+  };
+
+  const handleOnboardingComplete = (patientId: string) => {
+    setShowOnboarding(false);
+    toast({
+      title: "Patient Onboarding Complete",
+      description: "Patient has been successfully registered and can now book appointments.",
+    });
+  };
+
+  const handleOnboardingCancel = () => {
+    setShowOnboarding(false);
+  };
+
+  if (showOnboarding) {
+    return (
+      <Layout>
+        <PatientOnboardingWorkflow
+          onComplete={handleOnboardingComplete}
+          onCancel={handleOnboardingCancel}
+        />
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       {/* Seed component to create initial forms */}
@@ -72,7 +105,12 @@ const IntakeIQ = () => {
         title="Intake IQ"
         subtitle={`AI-powered ${tenantConfig.specialty.toLowerCase()} patient intake and form management`}
         badge="AI Agent"
-      />
+      >
+        <Button onClick={handleStartOnboarding} className="bg-blue-600 hover:bg-blue-700">
+          <User className="w-4 h-4 mr-2" />
+          New Patient Onboarding
+        </Button>
+      </PageHeader>
       
       <div className="p-6 space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">

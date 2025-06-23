@@ -15,6 +15,8 @@ import { ScheduleAnalytics } from "@/components/schedule/ScheduleAnalytics";
 import { AutomatedReminders } from "@/components/schedule/AutomatedReminders";
 import { ScheduleSettings } from "@/components/schedule/ScheduleSettings";
 import { SetupWizard } from "@/components/schedule/SetupWizard";
+import { SchedulingEngine } from "@/components/schedule/SchedulingEngine";
+import { useToast } from "@/hooks/use-toast";
 import { Settings, Zap, Brain, BarChart3, MessageCircle, Calendar, Users, Bell } from "lucide-react";
 
 const ScheduleIQ = () => {
