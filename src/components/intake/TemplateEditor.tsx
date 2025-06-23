@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,26 +17,13 @@ import {
   Settings,
   Info
 } from 'lucide-react';
-
-interface Template {
-  id: string;
-  name: string;
-  type: 'email' | 'sms';
-  category: string;
-  subject?: string;
-  content: string;
-  variables: string[];
-  styling?: {
-    primaryColor?: string;
-    fontFamily?: string;
-    backgroundColor?: string;
-  };
-}
+import { Template } from '@/hooks/useTemplates';
 
 interface TemplateEditorProps {
   template?: Template;
-  onSave: (template: Template) => void;
+  onSave: (template: Omit<Template, 'id' | 'isBuiltIn' | 'usageCount' | 'lastUsed' | 'createdAt' | 'updatedAt'>) => void;
   onCancel: () => void;
+  isEditing?: boolean;
 }
 
 const availableVariables = [
@@ -57,24 +44,24 @@ const availableVariables = [
 export const TemplateEditor: React.FC<TemplateEditorProps> = ({
   template,
   onSave,
-  onCancel
+  onCancel,
+  isEditing = false
 }) => {
-  const [editingTemplate, setEditingTemplate] = useState<Template>(
-    template || {
-      id: '',
-      name: '',
-      type: 'email',
-      category: 'appointment',
-      subject: '',
-      content: '',
-      variables: [],
-      styling: {
-        primaryColor: '#3B82F6',
-        fontFamily: 'Arial, sans-serif',
-        backgroundColor: '#ffffff'
-      }
-    }
-  );
+  const [editingTemplate, setEditingTemplate] = useState({
+    name: '',
+    type: 'email' as 'email' | 'sms',
+    category: 'appointment',
+    subject: '',
+    content: '',
+    variables: [] as string[],
+    isActive: true,
+    styling: {
+      primaryColor: '#3B82F6',
+      fontFamily: 'Arial, sans-serif',
+      backgroundColor: '#ffffff'
+    },
+    metadata: {}
+  });
 
   const [previewData, setPreviewData] = useState({
     patientName: 'John Doe',
@@ -91,14 +78,37 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({
     portalLink: '#portal'
   });
 
+  useEffect(() => {
+    if (template) {
+      setEditingTemplate({
+        name: template.name,
+        type: template.type,
+        category: template.category,
+        subject: template.subject || '',
+        content: template.content,
+        variables: template.variables,
+        isActive: template.isActive,
+        styling: template.styling || {
+          primaryColor: '#3B82F6',
+          fontFamily: 'Arial, sans-serif',
+          backgroundColor: '#ffffff'
+        },
+        metadata: template.metadata || {}
+      });
+    }
+  }, [template]);
+
   const insertVariable = (variable: string) => {
     const variableTag = `{{${variable}}}`;
+    const updatedContent = editingTemplate.content + variableTag;
+    const updatedVariables = editingTemplate.variables.includes(variable) 
+      ? editingTemplate.variables 
+      : [...editingTemplate.variables, variable];
+    
     setEditingTemplate(prev => ({
       ...prev,
-      content: prev.content + variableTag,
-      variables: prev.variables.includes(variable) 
-        ? prev.variables 
-        : [...prev.variables, variable]
+      content: updatedContent,
+      variables: updatedVariables
     }));
   };
 
@@ -121,12 +131,7 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({
 
   const handleSave = () => {
     if (!editingTemplate.name || !editingTemplate.content) return;
-    
-    const templateToSave = {
-      ...editingTemplate,
-      id: editingTemplate.id || crypto.randomUUID()
-    };
-    onSave(templateToSave);
+    onSave(editingTemplate);
   };
 
   const stats = getCharacterCount();
@@ -135,7 +140,7 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">
-          {template ? 'Edit Template' : 'Create New Template'}
+          {isEditing ? 'Edit Template' : 'Create New Template'}
         </h2>
         <div className="flex gap-2">
           <Button variant="outline" onClick={onCancel}>
@@ -211,7 +216,7 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({
                 <div>
                   <Label>Subject Line</Label>
                   <Input
-                    value={editingTemplate.subject || ''}
+                    value={editingTemplate.subject}
                     onChange={(e) => setEditingTemplate(prev => ({ ...prev, subject: e.target.value }))}
                     placeholder="Email subject"
                   />

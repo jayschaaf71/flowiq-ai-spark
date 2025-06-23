@@ -48,7 +48,7 @@ export const TemplateLibrary: React.FC = () => {
   };
 
   const handleDuplicate = (template: Template) => {
-    const duplicated: Omit<Template, 'id' | 'isBuiltIn' | 'usageCount' | 'lastUsed' | 'createdAt' | 'updatedAt'> = {
+    const duplicated = {
       name: `${template.name} (Copy)`,
       type: template.type,
       category: template.category,
@@ -56,8 +56,8 @@ export const TemplateLibrary: React.FC = () => {
       content: template.content,
       variables: template.variables,
       isActive: true,
-      styling: template.styling,
-      metadata: template.metadata
+      styling: template.styling || {},
+      metadata: template.metadata || {}
     };
     createTemplate(duplicated);
   };
@@ -66,22 +66,14 @@ export const TemplateLibrary: React.FC = () => {
     deleteTemplate(templateId);
   };
 
-  const handleSaveTemplate = (template: Template) => {
+  const handleSaveTemplate = (templateData: Omit<Template, 'id' | 'isBuiltIn' | 'usageCount' | 'lastUsed' | 'createdAt' | 'updatedAt'>) => {
     if (editingTemplate) {
-      updateTemplate({ id: editingTemplate.id, ...template });
+      updateTemplate({ 
+        id: editingTemplate.id, 
+        ...templateData 
+      });
     } else {
-      const newTemplate: Omit<Template, 'id' | 'isBuiltIn' | 'usageCount' | 'lastUsed' | 'createdAt' | 'updatedAt'> = {
-        name: template.name,
-        type: template.type,
-        category: template.category,
-        subject: template.subject,
-        content: template.content,
-        variables: template.variables,
-        isActive: true,
-        styling: template.styling,
-        metadata: template.metadata
-      };
-      createTemplate(newTemplate);
+      createTemplate(templateData);
     }
     setIsEditorOpen(false);
     setEditingTemplate(undefined);
@@ -152,6 +144,7 @@ export const TemplateLibrary: React.FC = () => {
             template={editingTemplate}
             onSave={handleSaveTemplate}
             onCancel={() => setIsEditorOpen(false)}
+            isEditing={!!editingTemplate}
           />
         </DialogContent>
       </Dialog>
