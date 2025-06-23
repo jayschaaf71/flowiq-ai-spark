@@ -1,5 +1,4 @@
 
-import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PatientHeader } from "@/components/ehr/PatientHeader";
@@ -22,7 +21,7 @@ const PatientManagement = () => {
   useRealtime();
 
   return (
-    <Layout>
+    <div className="space-y-6">
       <PageHeader 
         title="Patient Management"
         subtitle="Comprehensive patient records with integrated onboarding data"
@@ -45,7 +44,7 @@ const PatientManagement = () => {
           <EnhancedPatientDetail patientId={selectedPatient.id} />
         )}
       </div>
-    </Layout>
+    </div>
   );
 };
 
