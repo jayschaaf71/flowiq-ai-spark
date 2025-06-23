@@ -19,7 +19,8 @@ export const submitPatientOnboardingData = async (patientData: PatientData) => {
       zip_code: patientData.address.zipCode,
       emergency_contact_name: patientData.emergencyContact.name,
       emergency_contact_relationship: patientData.emergencyContact.relationship,
-      emergency_contact_phone: patientData.emergencyContact.phone
+      emergency_contact_phone: patientData.emergencyContact.phone,
+      onboarding_completed_at: new Date().toISOString()
     })
     .select()
     .single();
@@ -29,8 +30,8 @@ export const submitPatientOnboardingData = async (patientData: PatientData) => {
   // Convert PatientData to JSON-serializable format for Supabase
   const formDataJson = JSON.parse(JSON.stringify(patientData));
 
-  // Create intake submission record
-  const { error: submissionError } = await supabase
+  // Create intake submission record with patient link
+  const { data: submission, error: submissionError } = await supabase
     .from('intake_submissions')
     .insert({
       form_id: 'onboarding-workflow',
@@ -39,10 +40,19 @@ export const submitPatientOnboardingData = async (patientData: PatientData) => {
       patient_phone: patientData.phone,
       form_data: formDataJson,
       status: 'completed',
-      ai_summary: `New patient onboarding completed for ${patientData.firstName} ${patientData.lastName}. Insurance: ${patientData.insurance.provider}. Emergency contact: ${patientData.emergencyContact.name}.`
-    });
+      ai_summary: `New patient onboarding completed for ${patientData.firstName} ${patientData.lastName}. Insurance: ${patientData.insurance.provider}. Emergency contact: ${patientData.emergencyContact.name}.`,
+      patient_id: patient.id
+    })
+    .select()
+    .single();
 
   if (submissionError) throw submissionError;
+
+  // Update patient record with onboarding submission link
+  await supabase
+    .from('patients')
+    .update({ onboarding_submission_id: submission.id })
+    .eq('id', patient.id);
 
   // Create medical history records
   if (patientData.medicalHistory.allergies.length > 0) {

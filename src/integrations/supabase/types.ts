@@ -126,6 +126,13 @@ export type Database = {
             foreignKeyName: "allergies_patient_id_fkey"
             columns: ["patient_id"]
             isOneToOne: false
+            referencedRelation: "patient_onboarding_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "allergies_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
             referencedRelation: "patients"
             referencedColumns: ["id"]
           },
@@ -744,6 +751,13 @@ export type Database = {
             foreignKeyName: "claims_patient_id_fkey"
             columns: ["patient_id"]
             isOneToOne: false
+            referencedRelation: "patient_onboarding_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "claims_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
             referencedRelation: "patients"
             referencedColumns: ["id"]
           },
@@ -953,6 +967,13 @@ export type Database = {
             foreignKeyName: "file_attachments_patient_id_fkey"
             columns: ["patient_id"]
             isOneToOne: false
+            referencedRelation: "patient_onboarding_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "file_attachments_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
             referencedRelation: "patients"
             referencedColumns: ["id"]
           },
@@ -1101,6 +1122,7 @@ export type Database = {
           form_id: string
           id: string
           patient_email: string
+          patient_id: string | null
           patient_name: string
           patient_phone: string | null
           priority_level: string | null
@@ -1115,6 +1137,7 @@ export type Database = {
           form_id: string
           id?: string
           patient_email: string
+          patient_id?: string | null
           patient_name: string
           patient_phone?: string | null
           priority_level?: string | null
@@ -1129,6 +1152,7 @@ export type Database = {
           form_id?: string
           id?: string
           patient_email?: string
+          patient_id?: string | null
           patient_name?: string
           patient_phone?: string | null
           priority_level?: string | null
@@ -1142,6 +1166,20 @@ export type Database = {
             columns: ["form_id"]
             isOneToOne: false
             referencedRelation: "intake_forms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "intake_submissions_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patient_onboarding_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "intake_submissions_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
             referencedColumns: ["id"]
           },
           {
@@ -1188,6 +1226,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "medical_history_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patient_onboarding_summary"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "medical_history_patient_id_fkey"
             columns: ["patient_id"]
@@ -1241,6 +1286,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "medications_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patient_onboarding_summary"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "medications_patient_id_fkey"
             columns: ["patient_id"]
@@ -1495,6 +1547,13 @@ export type Database = {
             foreignKeyName: "patient_insurance_patient_id_fkey"
             columns: ["patient_id"]
             isOneToOne: false
+            referencedRelation: "patient_onboarding_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_insurance_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
             referencedRelation: "patients"
             referencedColumns: ["id"]
           },
@@ -1533,6 +1592,13 @@ export type Database = {
             foreignKeyName: "patient_notification_preferences_patient_id_fkey"
             columns: ["patient_id"]
             isOneToOne: false
+            referencedRelation: "patient_onboarding_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_notification_preferences_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
             referencedRelation: "patients"
             referencedColumns: ["id"]
           },
@@ -1558,6 +1624,8 @@ export type Database = {
           last_name: string
           marital_status: string | null
           occupation: string | null
+          onboarding_completed_at: string | null
+          onboarding_submission_id: string | null
           patient_number: string
           phone: string | null
           preferred_language: string | null
@@ -1585,6 +1653,8 @@ export type Database = {
           last_name: string
           marital_status?: string | null
           occupation?: string | null
+          onboarding_completed_at?: string | null
+          onboarding_submission_id?: string | null
           patient_number?: string
           phone?: string | null
           preferred_language?: string | null
@@ -1612,6 +1682,8 @@ export type Database = {
           last_name?: string
           marital_status?: string | null
           occupation?: string | null
+          onboarding_completed_at?: string | null
+          onboarding_submission_id?: string | null
           patient_number?: string
           phone?: string | null
           preferred_language?: string | null
@@ -1620,7 +1692,15 @@ export type Database = {
           updated_by?: string | null
           zip_code?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "patients_onboarding_submission_id_fkey"
+            columns: ["onboarding_submission_id"]
+            isOneToOne: false
+            referencedRelation: "intake_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -1970,6 +2050,13 @@ export type Database = {
             columns: ["appointment_id"]
             isOneToOne: false
             referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "soap_notes_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patient_onboarding_summary"
             referencedColumns: ["id"]
           },
           {
@@ -2502,6 +2589,13 @@ export type Database = {
             foreignKeyName: "treatment_plans_patient_id_fkey"
             columns: ["patient_id"]
             isOneToOne: false
+            referencedRelation: "patient_onboarding_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "treatment_plans_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
             referencedRelation: "patients"
             referencedColumns: ["id"]
           },
@@ -2523,6 +2617,50 @@ export type Database = {
           total_records: number | null
         }
         Relationships: []
+      }
+      patient_onboarding_summary: {
+        Row: {
+          address_line1: string | null
+          address_line2: string | null
+          city: string | null
+          created_at: string | null
+          created_by: string | null
+          date_of_birth: string | null
+          email: string | null
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          emergency_contact_relationship: string | null
+          employer: string | null
+          first_name: string | null
+          gender: string | null
+          id: string | null
+          is_active: boolean | null
+          last_name: string | null
+          marital_status: string | null
+          occupation: string | null
+          onboarding_completed_at: string | null
+          onboarding_data: Json | null
+          onboarding_date: string | null
+          onboarding_status: string | null
+          onboarding_submission_id: string | null
+          onboarding_summary: string | null
+          patient_number: string | null
+          phone: string | null
+          preferred_language: string | null
+          state: string | null
+          updated_at: string | null
+          updated_by: string | null
+          zip_code: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patients_onboarding_submission_id_fkey"
+            columns: ["onboarding_submission_id"]
+            isOneToOne: false
+            referencedRelation: "intake_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Functions: {
