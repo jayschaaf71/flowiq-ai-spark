@@ -1,294 +1,183 @@
 
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Save, Play, GitBranch, RotateCcw } from "lucide-react";
-
-interface WorkflowNode {
-  id: string;
-  type: "agent" | "condition" | "delay" | "trigger";
-  name: string;
-  agent?: string;
-  action?: string;
-  condition?: string;
-  delay?: number;
-  x: number;
-  y: number;
-  connections: string[];
-}
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  Brain, 
+  MessageSquare, 
+  Calendar, 
+  Users, 
+  FileText, 
+  Zap,
+  Plus,
+  ArrowRight,
+  Settings
+} from "lucide-react";
 
 export const DragDropWorkflowBuilder = () => {
-  const [nodes, setNodes] = useState<WorkflowNode[]>([
-    {
-      id: "start",
-      type: "trigger",
-      name: "Start",
-      x: 100,
-      y: 100,
-      connections: ["step1"]
+  const [selectedWorkflow, setSelectedWorkflow] = useState("patient-onboarding");
+
+  const workflowTemplates = {
+    "patient-onboarding": {
+      name: "AI-Powered Patient Onboarding",
+      description: "Intelligent end-to-end patient registration with AI optimization",
+      steps: [
+        { id: 1, name: "Initial Contact", agent: "Intake iQ", ai: "Natural language processing for initial queries", duration: "2 min" },
+        { id: 2, name: "Smart Form Generation", agent: "Intake iQ", ai: "Dynamic form creation based on patient needs", duration: "5 min" },
+        { id: 3, name: "Document Processing", agent: "Scribe iQ", ai: "AI-powered document analysis and validation", duration: "3 min" },
+        { id: 4, name: "Schedule Optimization", agent: "Schedule iQ", ai: "Predictive scheduling with provider matching", duration: "2 min" },
+        { id: 5, name: "Automated Communications", agent: "Remind iQ", ai: "Personalized welcome sequence", duration: "1 min" }
+      ],
+      aiFeatures: ["Predictive form fields", "Intelligent routing", "Auto-verification", "Risk assessment"]
     },
-    {
-      id: "step1",
-      type: "agent",
-      name: "Welcome Patient",
-      agent: "Assist iQ",
-      action: "send_welcome_message",
-      x: 300,
-      y: 100,
-      connections: ["condition1"]
-    },
-    {
-      id: "condition1",
-      type: "condition",
-      name: "New Patient?",
-      condition: "patient.isNew === true",
-      x: 500,
-      y: 100,
-      connections: ["step2", "step3"]
+    "appointment-lifecycle": {
+      name: "Autonomous Appointment Management",
+      description: "Complete appointment lifecycle with AI decision-making",
+      steps: [
+        { id: 1, name: "Intelligent Booking", agent: "Schedule iQ", ai: "Natural language booking with conflict resolution", duration: "3 min" },
+        { id: 2, name: "Pre-Visit Preparation", agent: "Intake iQ", ai: "Smart prep based on appointment type", duration: "5 min" },
+        { id: 3, name: "Visit Documentation", agent: "Scribe iQ", ai: "Real-time AI scribe with clinical insights", duration: "15 min" },
+        { id: 4, name: "Follow-up Automation", agent: "Remind iQ", ai: "Personalized post-visit care plans", duration: "2 min" },
+        { id: 5, name: "Billing Intelligence", agent: "Billing iQ", ai: "Auto-coding with accuracy optimization", duration: "1 min" }
+      ],
+      aiFeatures: ["Predictive no-show prevention", "Dynamic scheduling", "Clinical AI insights", "Revenue optimization"]
     }
-  ]);
+  };
 
-  const [selectedNode, setSelectedNode] = useState<string | null>(null);
-  const [isSimulating, setIsSimulating] = useState(false);
-
-  const availableAgents = [
-    "Schedule iQ", "Intake iQ", "Remind iQ", "Billing iQ", 
-    "Claims iQ", "Assist iQ", "Scribe iQ"
+  const aiAgents = [
+    { id: "schedule-iq", name: "Schedule iQ", icon: Calendar, color: "bg-blue-100 text-blue-700", ai: "Advanced scheduling AI" },
+    { id: "intake-iq", name: "Intake iQ", icon: Users, color: "bg-green-100 text-green-700", ai: "Intelligent patient onboarding" },
+    { id: "scribe-iq", name: "Scribe iQ", icon: FileText, color: "bg-purple-100 text-purple-700", ai: "AI-powered documentation" },
+    { id: "remind-iq", name: "Remind iQ", icon: MessageSquare, color: "bg-orange-100 text-orange-700", ai: "Smart communications" },
   ];
 
-  const addNode = (type: WorkflowNode["type"]) => {
-    const newNode: WorkflowNode = {
-      id: `node_${Date.now()}`,
-      type,
-      name: type === "agent" ? "New Agent Action" : 
-            type === "condition" ? "New Condition" :
-            type === "delay" ? "Wait" : "New Step",
-      x: 200 + Math.random() * 300,
-      y: 150 + Math.random() * 200,
-      connections: []
-    };
-    
-    if (type === "agent") {
-      newNode.agent = "Assist iQ";
-      newNode.action = "send_message";
-    }
-    
-    setNodes(prev => [...prev, newNode]);
-  };
-
-  const simulateWorkflow = async () => {
-    setIsSimulating(true);
-    
-    // Simple simulation - highlight nodes in sequence
-    for (const node of nodes) {
-      setSelectedNode(node.id);
-      await new Promise(resolve => setTimeout(resolve, 1500));
-    }
-    
-    setSelectedNode(null);
-    setIsSimulating(false);
-  };
-
-  const updateNode = (nodeId: string, updates: Partial<WorkflowNode>) => {
-    setNodes(prev => prev.map(node => 
-      node.id === nodeId ? { ...node, ...updates } : node
-    ));
-  };
+  const currentWorkflow = workflowTemplates[selectedWorkflow];
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-      {/* Toolbar */}
-      <div className="space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Add Components</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Button 
-              variant="outline" 
-              className="w-full justify-start"
-              onClick={() => addNode("agent")}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Agent Action
-            </Button>
-            <Button 
-              variant="outline" 
-              className="w-full justify-start"
-              onClick={() => addNode("condition")}
-            >
-              <GitBranch className="w-4 h-4 mr-2" />
-              Condition
-            </Button>
-            <Button 
-              variant="outline" 
-              className="w-full justify-start"
-              onClick={() => addNode("delay")}
-            >
-              <RotateCcw className="w-4 h-4 mr-2" />
-              Delay
-            </Button>
-          </CardContent>
-        </Card>
+    <div className="space-y-6">
+      <Tabs value={selectedWorkflow} onValueChange={setSelectedWorkflow}>
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="patient-onboarding">Patient Onboarding</TabsTrigger>
+          <TabsTrigger value="appointment-lifecycle">Appointment Lifecycle</TabsTrigger>
+        </TabsList>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Actions</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Button className="w-full">
-              <Save className="w-4 h-4 mr-2" />
-              Save Workflow
-            </Button>
-            <Button 
-              variant="outline" 
-              className="w-full"
-              onClick={simulateWorkflow}
-              disabled={isSimulating}
-            >
-              <Play className="w-4 h-4 mr-2" />
-              {isSimulating ? "Simulating..." : "Test Workflow"}
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Canvas */}
-      <div className="lg:col-span-2">
-        <Card className="h-[600px]">
-          <CardHeader>
-            <CardTitle className="text-base">Workflow Canvas</CardTitle>
-            <CardDescription>Drag and drop to build your workflow</CardDescription>
-          </CardHeader>
-          <CardContent className="relative h-full overflow-hidden">
-            <div className="absolute inset-0 bg-dot-pattern">
-              {nodes.map((node) => (
-                <div
-                  key={node.id}
-                  className={`absolute p-3 rounded-lg border cursor-pointer transition-all ${
-                    selectedNode === node.id 
-                      ? "ring-2 ring-blue-500 bg-blue-50" 
-                      : "bg-white hover:shadow-md"
-                  } ${isSimulating && selectedNode === node.id ? "animate-pulse" : ""}`}
-                  style={{ left: node.x, top: node.y }}
-                  onClick={() => setSelectedNode(node.id)}
-                >
-                  <div className="flex items-center gap-2">
-                    <Badge variant={
-                      node.type === "agent" ? "default" :
-                      node.type === "condition" ? "secondary" :
-                      node.type === "delay" ? "outline" : "destructive"
-                    }>
-                      {node.type}
-                    </Badge>
-                    <span className="text-sm font-medium">{node.name}</span>
-                  </div>
-                  {node.agent && (
-                    <div className="text-xs text-muted-foreground mt-1">
-                      {node.agent}
-                    </div>
-                  )}
+        <TabsContent value={selectedWorkflow} className="space-y-6">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Brain className="w-5 h-5 text-purple-600" />
+                    {currentWorkflow.name}
+                  </CardTitle>
+                  <p className="text-gray-600 mt-1">{currentWorkflow.description}</p>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+                <div className="flex gap-2">
+                  <Badge className="bg-purple-100 text-purple-700">
+                    <Zap className="w-3 h-3 mr-1" />
+                    AI-Native
+                  </Badge>
+                  <Button size="sm">
+                    <Settings className="w-4 h-4 mr-2" />
+                    Configure
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {/* AI Features Overview */}
+              <div className="mb-6">
+                <h4 className="font-medium mb-2">AI-Native Features</h4>
+                <div className="flex flex-wrap gap-2">
+                  {currentWorkflow.aiFeatures.map((feature, index) => (
+                    <Badge key={index} variant="outline" className="bg-blue-50">
+                      {feature}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
 
-      {/* Properties Panel */}
-      <div className="space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Properties</CardTitle>
-            <CardDescription>
-              {selectedNode ? "Edit selected component" : "Select a component to edit"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {selectedNode && (() => {
-              const node = nodes.find(n => n.id === selectedNode);
-              if (!node) return null;
-              
-              return (
+              {/* Workflow Steps */}
+              <div className="space-y-4">
+                <h4 className="font-medium">Intelligent Workflow Steps</h4>
                 <div className="space-y-3">
-                  <div>
-                    <label className="text-sm font-medium">Name</label>
-                    <Input
-                      value={node.name}
-                      onChange={(e) => updateNode(node.id, { name: e.target.value })}
-                      className="mt-1"
-                    />
-                  </div>
-                  
-                  {node.type === "agent" && (
-                    <>
-                      <div>
-                        <label className="text-sm font-medium">Agent</label>
-                        <Select 
-                          value={node.agent} 
-                          onValueChange={(value) => updateNode(node.id, { agent: value })}
-                        >
-                          <SelectTrigger className="mt-1">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {availableAgents.map(agent => (
-                              <SelectItem key={agent} value={agent}>{agent}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                  {currentWorkflow.steps.map((step, index) => (
+                    <div key={step.id} className="flex items-center gap-4 p-4 border rounded-lg bg-gray-50">
+                      <div className="flex items-center justify-center w-8 h-8 bg-blue-600 text-white rounded-full text-sm font-medium">
+                        {step.id}
                       </div>
                       
-                      <div>
-                        <label className="text-sm font-medium">Action</label>
-                        <Input
-                          value={node.action || ""}
-                          onChange={(e) => updateNode(node.id, { action: e.target.value })}
-                          placeholder="send_message, book_appointment, etc."
-                          className="mt-1"
-                        />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h5 className="font-medium">{step.name}</h5>
+                          <Badge variant="outline" className="text-xs">
+                            {step.duration}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-2">{step.ai}</p>
+                        <Badge className="bg-purple-100 text-purple-700 text-xs">
+                          <Brain className="w-3 h-3 mr-1" />
+                          {step.agent}
+                        </Badge>
                       </div>
-                    </>
-                  )}
-                  
-                  {node.type === "condition" && (
-                    <div>
-                      <label className="text-sm font-medium">Condition</label>
-                      <Input
-                        value={node.condition || ""}
-                        onChange={(e) => updateNode(node.id, { condition: e.target.value })}
-                        placeholder="patient.isNew === true"
-                        className="mt-1"
-                      />
+
+                      {index < currentWorkflow.steps.length - 1 && (
+                        <ArrowRight className="w-5 h-5 text-gray-400" />
+                      )}
                     </div>
-                  )}
-                  
-                  {node.type === "delay" && (
-                    <div>
-                      <label className="text-sm font-medium">Delay (minutes)</label>
-                      <Input
-                        type="number"
-                        value={node.delay || 0}
-                        onChange={(e) => updateNode(node.id, { delay: parseInt(e.target.value) })}
-                        className="mt-1"
-                      />
-                    </div>
-                  )}
+                  ))}
                 </div>
-              );
-            })()}
-            
-            {!selectedNode && (
-              <div className="text-center py-8 text-muted-foreground">
-                <p>Click on a component in the canvas to edit its properties</p>
               </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+
+              {/* Execution Controls */}
+              <div className="flex gap-2 mt-6 pt-4 border-t">
+                <Button className="bg-purple-600 hover:bg-purple-700">
+                  <Zap className="w-4 h-4 mr-2" />
+                  Deploy AI Workflow
+                </Button>
+                <Button variant="outline">
+                  <Settings className="w-4 h-4 mr-2" />
+                  Test & Optimize
+                </Button>
+                <Button variant="outline">
+                  <Brain className="w-4 h-4 mr-2" />
+                  AI Training
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Available AI Agents */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Available AI Agents</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {aiAgents.map((agent) => (
+                  <div key={agent.id} className="p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className={`p-2 rounded-lg ${agent.color}`}>
+                        <agent.icon className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="font-medium text-sm">{agent.name}</div>
+                        <div className="text-xs text-gray-600">{agent.ai}</div>
+                      </div>
+                    </div>
+                    <Button size="sm" variant="outline" className="w-full text-xs">
+                      <Plus className="w-3 h-3 mr-1" />
+                      Add to Workflow
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

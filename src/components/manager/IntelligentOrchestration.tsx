@@ -1,304 +1,297 @@
 
-import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Brain, Zap, TrendingUp, AlertTriangle, CheckCircle, Settings } from "lucide-react";
-
-interface OptimizationSuggestion {
-  id: string;
-  type: "efficiency" | "bottleneck" | "cost" | "quality";
-  title: string;
-  description: string;
-  impact: "high" | "medium" | "low";
-  effort: "low" | "medium" | "high";
-  potentialSavings?: string;
-}
-
-interface WorkflowInsight {
-  workflowId: string;
-  name: string;
-  currentEfficiency: number;
-  predictedEfficiency: number;
-  bottlenecks: string[];
-  suggestions: OptimizationSuggestion[];
-}
+import { aiNativeCore } from "@/services/aiNativeCore";
+import { 
+  Brain, 
+  Zap, 
+  Target, 
+  Activity, 
+  TrendingUp, 
+  CheckCircle,
+  Clock,
+  AlertTriangle
+} from "lucide-react";
 
 export const IntelligentOrchestration = () => {
-  const [insights] = useState<WorkflowInsight[]>([
+  const [orchestrationMetrics, setOrchestrationMetrics] = useState({
+    totalDecisions: 0,
+    autonomousDecisions: 0,
+    accuracyRate: 0,
+    learningProgress: 0
+  });
+
+  const [activeWorkflows, setActiveWorkflows] = useState([
     {
-      workflowId: "1",
-      name: "Patient Onboarding",
-      currentEfficiency: 87,
-      predictedEfficiency: 94,
-      bottlenecks: ["Insurance verification delay", "Form completion reminders"],
-      suggestions: [
-        {
-          id: "1",
-          type: "efficiency",
-          title: "Automate Insurance Pre-verification",
-          description: "Check insurance eligibility before sending intake forms",
-          impact: "high",
-          effort: "medium",
-          potentialSavings: "45 min per patient"
-        },
-        {
-          id: "2", 
-          type: "bottleneck",
-          title: "Smart Form Reminders",
-          description: "Send targeted reminders based on completion status",
-          impact: "medium",
-          effort: "low",
-          potentialSavings: "20% faster completion"
-        }
-      ]
+      id: 'patient-journey',
+      name: 'Intelligent Patient Journey',
+      autonomyLevel: 92,
+      decisions: 47,
+      accuracy: 94,
+      status: 'optimizing',
+      lastAction: 'Automatically scheduled follow-up based on treatment response'
+    },
+    {
+      id: 'resource-optimization',
+      name: 'Dynamic Resource Allocation',
+      autonomyLevel: 88,
+      decisions: 23,
+      accuracy: 91,
+      status: 'active',
+      lastAction: 'Redistributed provider schedules based on demand prediction'
+    },
+    {
+      id: 'predictive-maintenance',
+      name: 'Predictive System Maintenance',
+      autonomyLevel: 95,
+      decisions: 12,
+      accuracy: 98,
+      status: 'monitoring',
+      lastAction: 'Preemptively addressed potential scheduling conflicts'
     }
   ]);
 
-  const [autoOptimizations] = useState([
+  const [intelligentInsights, setIntelligentInsights] = useState([
     {
-      id: "1",
-      workflow: "Appointment Scheduling",
-      optimization: "Intelligent time slot suggestions",
-      status: "active",
-      improvement: "+15% efficiency",
-      implemented: "2 hours ago"
+      type: 'opportunity',
+      title: 'Revenue Optimization Detected',
+      description: 'AI identified 15% revenue increase opportunity through schedule optimization',
+      confidence: 89,
+      action: 'Auto-implement scheduling changes',
+      status: 'pending'
     },
     {
-      id: "2", 
-      workflow: "Follow-up Care",
-      optimization: "Predictive reminder timing",
-      status: "testing",
-      improvement: "+8% response rate",
-      implemented: "1 day ago"
+      type: 'risk',
+      title: 'Patient Retention Risk',
+      description: '8 patients showing early indicators of potential churn',
+      confidence: 76,
+      action: 'Initiate automated retention workflow',
+      status: 'active'
+    },
+    {
+      type: 'efficiency',
+      title: 'Workflow Bottleneck Identified',
+      description: 'Patient intake process can be optimized by 23%',
+      confidence: 92,
+      action: 'Deploy autonomous process improvement',
+      status: 'completed'
     }
   ]);
 
-  const [taskPriorities] = useState([
-    {
-      id: "1",
-      task: "Process insurance verification for Sarah Johnson",
-      priority: "high",
-      assignedAgent: "Claims iQ",
-      estimatedTime: "5 min",
-      dependencies: ["Intake form submission"]
-    },
-    {
-      id: "2",
-      task: "Send appointment reminder to Michael Chen", 
-      priority: "medium",
-      assignedAgent: "Remind iQ",
-      estimatedTime: "2 min",
-      dependencies: []
-    },
-    {
-      id: "3",
-      task: "Generate invoice for Jennifer Davis",
-      priority: "low", 
-      assignedAgent: "Billing iQ",
-      estimatedTime: "3 min",
-      dependencies: ["Appointment completion"]
-    }
-  ]);
+  useEffect(() => {
+    // Simulate real-time metrics updates
+    const interval = setInterval(() => {
+      setOrchestrationMetrics(prev => ({
+        totalDecisions: prev.totalDecisions + Math.floor(Math.random() * 3),
+        autonomousDecisions: prev.autonomousDecisions + Math.floor(Math.random() * 2),
+        accuracyRate: Math.min(99, prev.accuracyRate + (Math.random() - 0.5) * 2),
+        learningProgress: Math.min(100, prev.learningProgress + Math.random() * 0.5)
+      }));
+    }, 5000);
 
-  const getImpactColor = (impact: string) => {
-    switch (impact) {
-      case "high": return "bg-red-100 text-red-700";
-      case "medium": return "bg-yellow-100 text-yellow-700"; 
-      case "low": return "bg-green-100 text-green-700";
-      default: return "bg-gray-100 text-gray-700";
+    return () => clearInterval(interval);
+  }, []);
+
+  const executeIntelligentAction = async (insightIndex: number) => {
+    const insight = intelligentInsights[insightIndex];
+    insight.status = 'executing';
+    setIntelligentInsights([...intelligentInsights]);
+
+    // Simulate AI execution
+    setTimeout(() => {
+      insight.status = 'completed';
+      setIntelligentInsights([...intelligentInsights]);
+    }, 2000);
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'active': return <Activity className="w-4 h-4 text-green-600" />;
+      case 'optimizing': return <TrendingUp className="w-4 h-4 text-blue-600" />;
+      case 'monitoring': return <Target className="w-4 h-4 text-purple-600" />;
+      default: return <Clock className="w-4 h-4 text-gray-600" />;
     }
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "high": return "bg-red-100 text-red-700";
-      case "medium": return "bg-yellow-100 text-yellow-700";
-      case "low": return "bg-green-100 text-green-700";
-      default: return "bg-gray-100 text-gray-700";
+  const getInsightIcon = (type: string) => {
+    switch (type) {
+      case 'opportunity': return <TrendingUp className="w-4 h-4 text-green-600" />;
+      case 'risk': return <AlertTriangle className="w-4 h-4 text-orange-600" />;
+      case 'efficiency': return <Zap className="w-4 h-4 text-blue-600" />;
+      default: return <Brain className="w-4 h-4 text-gray-600" />;
     }
   };
 
   return (
     <div className="space-y-6">
-      {/* AI Insights Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-xl font-semibold flex items-center gap-2">
+            <Brain className="w-5 h-5 text-purple-600" />
+            Intelligent Orchestration Engine
+          </h3>
+          <p className="text-gray-600">AI-driven autonomous decision making and optimization</p>
+        </div>
+        <Badge className="bg-purple-100 text-purple-700">
+          <Zap className="w-3 h-3 mr-1" />
+          Self-Optimizing
+        </Badge>
+      </div>
+
+      {/* Real-time Orchestration Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Total Decisions</p>
+                <p className="text-2xl font-bold">{orchestrationMetrics.totalDecisions}</p>
+              </div>
+              <Brain className="w-8 h-8 text-purple-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Autonomous</p>
+                <p className="text-2xl font-bold">{orchestrationMetrics.autonomousDecisions}</p>
+              </div>
+              <Zap className="w-8 h-8 text-green-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Accuracy Rate</p>
+                <p className="text-2xl font-bold">{orchestrationMetrics.accuracyRate.toFixed(1)}%</p>
+              </div>
+              <Target className="w-8 h-8 text-blue-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Learning Progress</p>
+                <p className="text-2xl font-bold">{orchestrationMetrics.learningProgress.toFixed(1)}%</p>
+              </div>
+              <TrendingUp className="w-8 h-8 text-indigo-600" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Active Intelligent Workflows */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Brain className="w-5 h-5 text-purple-600" />
-              <CardTitle>AI Orchestration Intelligence</CardTitle>
-            </div>
-            <Button variant="outline" size="sm">
-              <Settings className="w-4 h-4 mr-2" />
-              Configure AI
-            </Button>
-          </div>
-          <CardDescription>
-            Intelligent workflow optimization and task routing powered by AI
-          </CardDescription>
+          <CardTitle>Active Intelligent Workflows</CardTitle>
         </CardHeader>
-      </Card>
-
-      <Tabs defaultValue="optimization" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="optimization">Optimization</TabsTrigger>
-          <TabsTrigger value="routing">Smart Routing</TabsTrigger>
-          <TabsTrigger value="insights">Insights</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="optimization" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Workflow Insights */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Workflow Optimization</CardTitle>
-                <CardDescription>AI-powered improvement suggestions</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {insights.map((insight) => (
-                  <div key={insight.workflowId} className="border rounded-lg p-4 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-medium">{insight.name}</h4>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-muted-foreground">
-                          {insight.currentEfficiency}% → {insight.predictedEfficiency}%
-                        </span>
-                        <TrendingUp className="w-4 h-4 text-green-600" />
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Current Efficiency</span>
-                        <span>{insight.currentEfficiency}%</span>
-                      </div>
-                      <Progress value={insight.currentEfficiency} />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <h5 className="text-sm font-medium">Optimization Suggestions</h5>
-                      {insight.suggestions.map((suggestion) => (
-                        <div key={suggestion.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                          <div className="flex-1">
-                            <div className="text-sm font-medium">{suggestion.title}</div>
-                            <div className="text-xs text-muted-foreground">{suggestion.description}</div>
-                          </div>
-                          <div className="flex gap-1">
-                            <Badge variant="outline" className={getImpactColor(suggestion.impact)}>
-                              {suggestion.impact} impact
-                            </Badge>
-                            <Button size="sm" variant="outline">Apply</Button>
-                          </div>
-                        </div>
-                      ))}
+        <CardContent>
+          <div className="space-y-4">
+            {activeWorkflows.map((workflow) => (
+              <div key={workflow.id} className="border rounded-lg p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    {getStatusIcon(workflow.status)}
+                    <div>
+                      <h4 className="font-medium">{workflow.name}</h4>
+                      <p className="text-sm text-gray-600">{workflow.lastAction}</p>
                     </div>
                   </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            {/* Auto-Optimizations */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Active Optimizations</CardTitle>
-                <CardDescription>AI improvements currently running</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {autoOptimizations.map((opt) => (
-                  <div key={opt.id} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div className="flex-1">
-                      <div className="font-medium text-sm">{opt.workflow}</div>
-                      <div className="text-sm text-muted-foreground">{opt.optimization}</div>
-                      <div className="text-xs text-muted-foreground">Implemented {opt.implemented}</div>
-                    </div>
-                    <div className="text-right">
-                      <Badge variant={opt.status === "active" ? "default" : "secondary"}>
-                        {opt.status}
-                      </Badge>
-                      <div className="text-sm font-medium text-green-600 mt-1">{opt.improvement}</div>
-                    </div>
+                  <Badge variant="outline">
+                    {workflow.autonomyLevel}% autonomous
+                  </Badge>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-500">Decisions Made</span>
+                    <div className="font-medium">{workflow.decisions}</div>
                   </div>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="routing" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Intelligent Task Routing</CardTitle>
-              <CardDescription>AI-optimized task prioritization and agent assignment</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {taskPriorities.map((task) => (
-                <div key={task.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex-1">
-                    <div className="font-medium">{task.task}</div>
-                    <div className="text-sm text-muted-foreground">
-                      Assigned to {task.assignedAgent} • Est. {task.estimatedTime}
-                    </div>
-                    {task.dependencies.length > 0 && (
-                      <div className="text-xs text-muted-foreground mt-1">
-                        Dependencies: {task.dependencies.join(", ")}
-                      </div>
-                    )}
+                  <div>
+                    <span className="text-gray-500">Accuracy</span>
+                    <div className="font-medium">{workflow.accuracy}%</div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className={getPriorityColor(task.priority)}>
-                      {task.priority} priority
-                    </Badge>
-                    <Button size="sm" variant="outline">
-                      <Zap className="w-3 h-3 mr-1" />
-                      Optimize
-                    </Button>
+                  <div>
+                    <span className="text-gray-500">Autonomy Level</span>
+                    <Progress value={workflow.autonomyLevel} className="mt-1" />
                   </div>
                 </div>
-              ))}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="insights" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Efficiency Gains</CardTitle>
-                <TrendingUp className="h-4 w-4 text-green-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-green-600">+23%</div>
-                <p className="text-xs text-muted-foreground">This month vs last month</p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Time Saved</CardTitle>
-                <CheckCircle className="h-4 w-4 text-blue-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-blue-600">156h</div>
-                <p className="text-xs text-muted-foreground">Through AI optimization</p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Bottlenecks</CardTitle>
-                <AlertTriangle className="h-4 w-4 text-yellow-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-yellow-600">3</div>
-                <p className="text-xs text-muted-foreground">Identified & resolving</p>
-              </CardContent>
-            </Card>
+              </div>
+            ))}
           </div>
-        </TabsContent>
-      </Tabs>
+        </CardContent>
+      </Card>
+
+      {/* Intelligent Insights & Automated Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Intelligent Insights & Actions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {intelligentInsights.map((insight, index) => (
+              <div key={index} className="border rounded-lg p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex gap-3">
+                    {getInsightIcon(insight.type)}
+                    <div className="flex-1">
+                      <h4 className="font-medium flex items-center gap-2">
+                        {insight.title}
+                        <Badge variant="outline" className="text-xs">
+                          {insight.confidence}% confidence
+                        </Badge>
+                      </h4>
+                      <p className="text-sm text-gray-600 mt-1">{insight.description}</p>
+                      <p className="text-sm font-medium text-blue-600 mt-2">
+                        Recommended Action: {insight.action}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {insight.status === 'completed' ? (
+                      <Badge className="bg-green-100 text-green-700">
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        Completed
+                      </Badge>
+                    ) : insight.status === 'active' ? (
+                      <Badge className="bg-blue-100 text-blue-700">
+                        <Activity className="w-3 h-3 mr-1" />
+                        Active
+                      </Badge>
+                    ) : insight.status === 'executing' ? (
+                      <Badge className="bg-orange-100 text-orange-700">
+                        <Clock className="w-3 h-3 mr-1" />
+                        Executing
+                      </Badge>
+                    ) : (
+                      <Button 
+                        size="sm" 
+                        onClick={() => executeIntelligentAction(index)}
+                        className="bg-purple-600 hover:bg-purple-700"
+                      >
+                        <Zap className="w-3 h-3 mr-1" />
+                        Execute
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
