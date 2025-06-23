@@ -1,5 +1,5 @@
+
 import { useState, useEffect } from "react";
-import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -87,17 +87,17 @@ const IntakeIQ = () => {
 
   if (showOnboarding) {
     return (
-      <Layout>
+      <div className="space-y-6">
         <PatientOnboardingWorkflow
           onComplete={handleOnboardingComplete}
           onCancel={handleOnboardingCancel}
         />
-      </Layout>
+      </div>
     );
   }
 
   return (
-    <Layout>
+    <div className="space-y-6">
       {/* Seed component to create initial forms */}
       <IntakeFormSeed />
       
@@ -227,7 +227,7 @@ const IntakeIQ = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </Layout>
+    </div>
   );
 };
 

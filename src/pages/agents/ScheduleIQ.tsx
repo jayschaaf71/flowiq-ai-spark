@@ -1,6 +1,5 @@
 
 import { useState } from "react";
-import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -68,7 +67,7 @@ const ScheduleIQ = () => {
   };
 
   return (
-    <Layout>
+    <div className="space-y-6">
       <PageHeader 
         title="Schedule iQ"
         subtitle="Advanced AI-powered appointment scheduling and calendar optimization agent"
@@ -189,7 +188,7 @@ const ScheduleIQ = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </Layout>
+    </div>
   );
 };
 
