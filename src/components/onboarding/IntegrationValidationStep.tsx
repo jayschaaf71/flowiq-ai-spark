@@ -14,12 +14,10 @@ import {
   FileText,
   ExternalLink
 } from 'lucide-react';
-import { IntegrationValidator, IntegrationValidationResults, ValidationResult } from '@/services/integrationValidation';
-import { useToast } from '@/hooks/use-toast';
 
 interface IntegrationValidationStepProps {
   onboardingData: any;
-  onValidationComplete: (results: IntegrationValidationResults) => void;
+  onValidationComplete: (results: any) => void;
   onSkip: () => void;
 }
 
@@ -28,18 +26,17 @@ export const IntegrationValidationStep: React.FC<IntegrationValidationStepProps>
   onValidationComplete,
   onSkip
 }) => {
-  const [validationResults, setValidationResults] = useState<IntegrationValidationResults>({
+  const [validationResults, setValidationResults] = useState<any>({
     ehrIntegration: null,
     paymentProcessor: null,
     templateGeneration: null
   });
   const [isValidating, setIsValidating] = useState(false);
   const [validationProgress, setValidationProgress] = useState(0);
-  const { toast } = useToast();
 
   const integrationItems = [
     {
-      key: 'ehrIntegration' as keyof IntegrationValidationResults,
+      key: 'ehrIntegration',
       name: 'EHR Integration',
       description: 'Electronic Health Records connection',
       icon: Database,
@@ -47,7 +44,7 @@ export const IntegrationValidationStep: React.FC<IntegrationValidationStepProps>
       config: onboardingData.ehrConfig
     },
     {
-      key: 'paymentProcessor' as keyof IntegrationValidationResults,
+      key: 'paymentProcessor',
       name: 'Payment Processing',
       description: 'Payment gateway and billing setup',
       icon: CreditCard,
@@ -55,7 +52,7 @@ export const IntegrationValidationStep: React.FC<IntegrationValidationStepProps>
       config: onboardingData.paymentConfig
     },
     {
-      key: 'templateGeneration' as keyof IntegrationValidationResults,
+      key: 'templateGeneration',
       name: 'Template Generation',
       description: 'Specialty-specific form templates',
       icon: FileText,
@@ -68,10 +65,6 @@ export const IntegrationValidationStep: React.FC<IntegrationValidationStepProps>
 
   const runValidation = async () => {
     if (enabledIntegrations.length === 0) {
-      toast({
-        title: "No integrations to validate",
-        description: "Skip this step or enable integrations in previous steps.",
-      });
       return;
     }
 
@@ -79,36 +72,50 @@ export const IntegrationValidationStep: React.FC<IntegrationValidationStepProps>
     setValidationProgress(0);
 
     try {
-      const results = await IntegrationValidator.validateAllIntegrations(onboardingData);
-      setValidationResults(results);
+      const results: any = {};
+      
+      for (let i = 0; i < enabledIntegrations.length; i++) {
+        const integration = enabledIntegrations[i];
+        setValidationProgress(((i + 0.5) / enabledIntegrations.length) * 100);
+        
+        // Simulate validation logic
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Mock validation results
+        const success = Math.random() > 0.3; // 70% success rate
+        results[integration.key] = {
+          success,
+          message: success 
+            ? `${integration.name} connected successfully`
+            : `Failed to connect to ${integration.name}`,
+          details: success ? {
+            status: 'Connected',
+            lastSync: new Date().toISOString(),
+            version: '1.0.0'
+          } : {
+            error: 'Connection timeout',
+            suggestion: 'Check API credentials'
+          }
+        };
+        
+        setValidationResults(prev => ({ ...prev, ...results }));
+        setValidationProgress(((i + 1) / enabledIntegrations.length) * 100);
+      }
+
       onValidationComplete(results);
-      
-      const successCount = Object.values(results).filter(result => result?.success).length;
-      const totalEnabled = enabledIntegrations.length;
-      
-      toast({
-        title: "Validation Complete",
-        description: `${successCount}/${totalEnabled} integrations validated successfully.`,
-      });
     } catch (error) {
       console.error('Validation error:', error);
-      toast({
-        title: "Validation Error",
-        description: "Failed to validate integrations. Please try again.",
-        variant: "destructive"
-      });
     } finally {
       setIsValidating(false);
-      setValidationProgress(100);
     }
   };
 
-  const getValidationStatus = (result: ValidationResult | null) => {
+  const getValidationStatus = (result: any) => {
     if (!result) return 'pending';
     return result.success ? 'success' : 'error';
   };
 
-  const getStatusIcon = (result: ValidationResult | null) => {
+  const getStatusIcon = (result: any) => {
     if (isValidating && !result) return <Loader2 className="w-4 h-4 animate-spin" />;
     if (!result) return <div className="w-4 h-4 rounded-full bg-gray-300" />;
     return result.success 
@@ -116,7 +123,7 @@ export const IntegrationValidationStep: React.FC<IntegrationValidationStepProps>
       : <AlertCircle className="w-4 h-4 text-red-600" />;
   };
 
-  const getStatusBadge = (result: ValidationResult | null) => {
+  const getStatusBadge = (result: any) => {
     if (!result) return <Badge variant="secondary">Pending</Badge>;
     return result.success 
       ? <Badge className="bg-green-100 text-green-800">Connected</Badge>

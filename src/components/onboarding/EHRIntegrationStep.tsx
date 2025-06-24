@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -40,11 +40,11 @@ interface EHRIntegrationStepProps {
   onUpdateEHRConfig: (config: any) => void;
 }
 
-export const EHRIntegrationStep = ({ 
+export const EHRIntegrationStep: React.FC<EHRIntegrationStepProps> = ({ 
   specialty, 
   ehrConfig, 
   onUpdateEHRConfig 
-}: EHRIntegrationStepProps) => {
+}) => {
   const specialtyConfig = specialtyConfigs[specialty];
 
   const ehrSystems = [
@@ -357,7 +357,7 @@ export const EHRIntegrationStep = ({
               </p>
               <Button variant="outline" size="sm">
                 <ExternalLink className="w-4 h-4 mr-2" />
-                View Integration Guide
+                Skip for Now
               </Button>
             </CardContent>
           </Card>
