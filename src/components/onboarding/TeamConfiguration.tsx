@@ -14,10 +14,26 @@ export const TeamConfiguration: React.FC<TeamConfigurationProps> = ({
   teamConfig, 
   onTeamConfigUpdate 
 }) => {
+  // Transform the data structure to match what TeamInvitationStep expects
+  const transformedConfig = {
+    inviteTeam: teamConfig.inviteTeam,
+    teamMembers: teamConfig.teamMembers,
+    roles: ['Admin', 'Staff', 'Provider', 'Receptionist']
+  };
+
+  const handleUpdate = (updatedConfig: any) => {
+    // Transform back to the expected format
+    const transformedBack = {
+      inviteTeam: updatedConfig.inviteTeam,
+      teamMembers: updatedConfig.teamMembers
+    };
+    onTeamConfigUpdate(transformedBack);
+  };
+
   return (
     <TeamInvitationStep
-      teamConfig={teamConfig}
-      onUpdateTeamConfig={onTeamConfigUpdate}
+      teamConfig={transformedConfig}
+      onUpdateTeamConfig={handleUpdate}
     />
   );
 };
