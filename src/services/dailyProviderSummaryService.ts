@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { format, isToday, startOfDay, endOfDay } from "date-fns";
 
@@ -78,7 +77,9 @@ export class DailyProviderSummaryService {
     const formattedAppointments = (appointments || []).map(apt => ({
       id: apt.id,
       time: apt.time,
-      patient_name: apt.patients ? `${apt.patients.first_name} ${apt.patients.last_name}` : 'Unknown Patient',
+      patient_name: apt.patients && Array.isArray(apt.patients) && apt.patients.length > 0 
+        ? `${apt.patients[0].first_name} ${apt.patients[0].last_name}` 
+        : 'Unknown Patient',
       appointment_type: apt.appointment_type,
       status: apt.status,
       duration: apt.duration,
@@ -89,7 +90,21 @@ export class DailyProviderSummaryService {
     const notifications = this.generateNotifications(formattedAppointments, provider);
 
     // Get working hours (default if not set)
-    const workingHours = provider.working_hours || { start: '09:00', end: '17:00' };
+    let workingHours = { start: '09:00', end: '17:00' };
+    
+    // Handle working_hours from database - it might be a JSON object or null
+    if (provider.working_hours) {
+      try {
+        if (typeof provider.working_hours === 'string') {
+          workingHours = JSON.parse(provider.working_hours);
+        } else if (typeof provider.working_hours === 'object' && provider.working_hours !== null) {
+          workingHours = provider.working_hours as { start: string; end: string };
+        }
+      } catch (error) {
+        console.error('Error parsing working hours:', error);
+        // Keep default working hours
+      }
+    }
 
     return {
       provider: {
