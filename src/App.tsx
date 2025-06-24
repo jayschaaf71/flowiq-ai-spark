@@ -24,170 +24,173 @@ import Settings from './pages/Settings';
 import Help from './pages/Help';
 import AIInsights from './pages/AIInsights';
 import PilotDashboard from "@/pages/PilotDashboard";
+import { SpecialtyProvider } from './contexts/SpecialtyContext';
 
 function App() {
   return (
     <QueryClientProvider client={new QueryClient()}>
-      <AuthProvider>
-        <Router>
-          <Toaster />
-          
-          <Routes>
-            <Route path="/" element={
-              <ProtectedRoute>
-                <Layout>
-                  <ComprehensiveDashboard />
-                </Layout>
-              </ProtectedRoute>
-            } />
+      <SpecialtyProvider>
+        <AuthProvider>
+          <Router>
+            <Toaster />
             
-            <Route path="/patient-management" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <PatientManagement />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/ehr" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <EHRDashboard />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/schedule" element={
-              <ProtectedRoute>
-                <Layout>
-                  <ScheduleIQ />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/book-appointment" element={
-              <ProtectedRoute>
-                <Layout>
-                  <BookAppointment />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/patient-dashboard" element={
-              <ProtectedRoute requiredRole="patient">
-                <PatientDashboard />
-              </ProtectedRoute>
-            } />
-
-            <Route path="/settings" element={
-              <ProtectedRoute>
-                <Layout>
-                  <Settings />
-                </Layout>
-              </ProtectedRoute>
-            } />
-
-            <Route path="/help" element={
-              <ProtectedRoute>
-                <Layout>
-                  <Help />
-                </Layout>
-              </ProtectedRoute>
-            } />
-
-            <Route path="/insights" element={
-              <ProtectedRoute>
-                <Layout>
-                  <AIInsights />
-                </Layout>
-              </ProtectedRoute>
-            } />
-
-            {/* AI Agent Routes */}
-            <Route path="/manager" element={
-              <ProtectedRoute>
-                <Layout>
-                  <ManagerAgent />
-                </Layout>
-              </ProtectedRoute>
-            } />
-
-            <Route path="/agents/schedule" element={
-              <ProtectedRoute>
-                <Layout>
-                  <ScheduleIQ />
-                </Layout>
-              </ProtectedRoute>
-            } />
-
-            <Route path="/agents/intake" element={
-              <ProtectedRoute>
-                <Layout>
-                  <IntakeIQ />
-                </Layout>
-              </ProtectedRoute>
-            } />
-
-            <Route path="/agents/remind" element={
-              <ProtectedRoute>
-                <Layout>
-                  <RemindIQ />
-                </Layout>
-              </ProtectedRoute>
-            } />
-
-            <Route path="/agents/billing" element={
-              <ProtectedRoute>
-                <Layout>
-                  <BillingIQ />
-                </Layout>
-              </ProtectedRoute>
-            } />
-
-            <Route path="/agents/claims" element={
-              <ProtectedRoute>
-                <Layout>
-                  <ClaimsIQ />
-                </Layout>
-              </ProtectedRoute>
-            } />
-
-            <Route path="/agents/ehr" element={
-              <ProtectedRoute>
-                <Layout>
-                  <EHRIQ />
-                </Layout>
-              </ProtectedRoute>
-            } />
-
-            <Route path="/agents/scribe" element={
-              <ProtectedRoute>
-                <Layout>
-                  <ScribeIQ />
-                </Layout>
-              </ProtectedRoute>
-            } />
-
-            <Route path="/agents/followup" element={
-              <ProtectedRoute>
-                <Layout>
-                  <FollowupIQ />
-                </Layout>
-              </ProtectedRoute>
-            } />
-
-            <Route path="/agents/insight" element={
-              <ProtectedRoute>
-                <Layout>
-                  <InsightIQ />
-                </Layout>
-              </ProtectedRoute>
-            } />
-
-            <Route path="/pilot-dashboard" element={<PilotDashboard />} />
-          </Routes>
-        </Router>
-      </AuthProvider>
+            <Routes>
+              <Route path="/" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ComprehensiveDashboard />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/patient-management" element={
+                <ProtectedRoute requiredRole="staff">
+                  <Layout>
+                    <PatientManagement />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/ehr" element={
+                <ProtectedRoute requiredRole="staff">
+                  <Layout>
+                    <EHRDashboard />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/schedule" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ScheduleIQ />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/book-appointment" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <BookAppointment />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/patient-dashboard" element={
+                <ProtectedRoute requiredRole="patient">
+                  <PatientDashboard />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/settings" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Settings />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/help" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Help />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/insights" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <AIInsights />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              {/* AI Agent Routes */}
+              <Route path="/manager" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ManagerAgent />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/agents/schedule" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ScheduleIQ />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/agents/intake" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <IntakeIQ />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/agents/remind" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <RemindIQ />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/agents/billing" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <BillingIQ />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/agents/claims" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ClaimsIQ />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/agents/ehr" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <EHRIQ />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/agents/scribe" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ScribeIQ />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/agents/followup" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <FollowupIQ />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/agents/insight" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <InsightIQ />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/pilot-dashboard" element={<PilotDashboard />} />
+            </Routes>
+          </Router>
+        </AuthProvider>
+      </SpecialtyProvider>
     </QueryClientProvider>
   );
 }

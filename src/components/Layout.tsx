@@ -4,6 +4,7 @@ import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/s
 import { AppSidebar } from "./AppSidebar";
 import { UserMenu } from "./auth/UserMenu";
 import { TenantSwitcher } from "./tenant/TenantSwitcher";
+import { SpecialtySwitcher } from "./specialty/SpecialtySwitcher";
 
 interface LayoutProps {
   children: ReactNode;
@@ -20,6 +21,7 @@ export const Layout = ({ children }: LayoutProps) => {
               <SidebarTrigger className="-ml-1" />
             </div>
             <div className="flex flex-1 items-center justify-end gap-3 px-4">
+              <SpecialtySwitcher />
               <TenantSwitcher />
               <UserMenu />
             </div>
