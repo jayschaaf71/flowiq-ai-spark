@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { ClaimsQueue } from "@/components/claims/ClaimsQueue";
 import { RevenueAnalytics } from "@/components/claims/RevenueAnalytics";
 import { DenialManagement } from "@/components/claims/DenialManagement";
+import { DevelopmentRoadmap } from "@/components/development/DevelopmentRoadmap";
 import { useClaimsSampleData } from "@/hooks/useClaimsSampleData";
-import { Database, TrendingUp, AlertTriangle, FileText } from "lucide-react";
+import { Database, TrendingUp, AlertTriangle, FileText, Map } from "lucide-react";
 
 const ClaimsIQ = () => {
   const { loading, createSampleData } = useClaimsSampleData();
@@ -35,7 +36,7 @@ const ClaimsIQ = () => {
       </div>
 
       <Tabs defaultValue="queue" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="queue" className="flex items-center gap-2">
             <FileText className="w-4 h-4" />
             Claims Queue
@@ -51,6 +52,10 @@ const ClaimsIQ = () => {
           <TabsTrigger value="reports" className="flex items-center gap-2">
             <Database className="w-4 h-4" />
             Reports
+          </TabsTrigger>
+          <TabsTrigger value="roadmap" className="flex items-center gap-2">
+            <Map className="w-4 h-4" />
+            Development
           </TabsTrigger>
         </TabsList>
 
@@ -72,6 +77,10 @@ const ClaimsIQ = () => {
             <h3 className="text-lg font-medium mb-2">Reports Dashboard</h3>
             <p>Advanced reporting and compliance features coming soon...</p>
           </div>
+        </TabsContent>
+
+        <TabsContent value="roadmap" className="space-y-6">
+          <DevelopmentRoadmap />
         </TabsContent>
       </Tabs>
     </div>
