@@ -7,10 +7,12 @@ import { RevenueAnalytics } from "@/components/claims/RevenueAnalytics";
 import { DenialManagement } from "@/components/claims/DenialManagement";
 import { DevelopmentRoadmap } from "@/components/development/DevelopmentRoadmap";
 import { useClaimsSampleData } from "@/hooks/useClaimsSampleData";
-import { Database, TrendingUp, AlertTriangle, FileText, Map, Brain } from "lucide-react";
+import { Database, TrendingUp, AlertTriangle, FileText, Map, Brain, Zap, BarChart3 } from "lucide-react";
 import { AIClaimsReviewEngine } from "@/components/claims/AIClaimsReviewEngine";
 import { PayerIntegration } from "@/components/claims/PayerIntegration";
 import { ClaimGenerationEngine } from "@/components/claims/ClaimGenerationEngine";
+import { EnhancedDenialManagement } from "@/components/claims/EnhancedDenialManagement";
+import { ComprehensiveRevenueAnalytics } from "@/components/claims/ComprehensiveRevenueAnalytics";
 
 const ClaimsIQ = () => {
   const { loading, createSampleData } = useClaimsSampleData();
@@ -39,7 +41,7 @@ const ClaimsIQ = () => {
       </div>
 
       <Tabs defaultValue="generation" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-7">
+        <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="generation" className="flex items-center gap-2">
             <Brain className="w-4 h-4" />
             Generate
@@ -52,13 +54,17 @@ const ClaimsIQ = () => {
             <FileText className="w-4 h-4" />
             Payer Integration
           </TabsTrigger>
+          <TabsTrigger value="enhanced-denials" className="flex items-center gap-2">
+            <Zap className="w-4 h-4" />
+            Smart Denials
+          </TabsTrigger>
+          <TabsTrigger value="comprehensive-analytics" className="flex items-center gap-2">
+            <BarChart3 className="w-4 h-4" />
+            Revenue Analytics
+          </TabsTrigger>
           <TabsTrigger value="queue" className="flex items-center gap-2">
             <FileText className="w-4 h-4" />
             Claims Queue
-          </TabsTrigger>
-          <TabsTrigger value="analytics" className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4" />
-            Revenue Analytics
           </TabsTrigger>
           <TabsTrigger value="denials" className="flex items-center gap-2">
             <AlertTriangle className="w-4 h-4" />
@@ -82,12 +88,16 @@ const ClaimsIQ = () => {
           <PayerIntegration />
         </TabsContent>
 
-        <TabsContent value="queue" className="space-y-6">
-          <ClaimsQueue />
+        <TabsContent value="enhanced-denials" className="space-y-6">
+          <EnhancedDenialManagement />
         </TabsContent>
 
-        <TabsContent value="analytics" className="space-y-6">
-          <RevenueAnalytics />
+        <TabsContent value="comprehensive-analytics" className="space-y-6">
+          <ComprehensiveRevenueAnalytics />
+        </TabsContent>
+
+        <TabsContent value="queue" className="space-y-6">
+          <ClaimsQueue />
         </TabsContent>
 
         <TabsContent value="denials" className="space-y-6">
