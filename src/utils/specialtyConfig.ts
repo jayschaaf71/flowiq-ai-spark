@@ -27,7 +27,7 @@ export const specialtyConfigs: Record<SpecialtyType, SpecialtyConfig> = {
   chiropractic: {
     id: 'chiropractic',
     name: 'West County Spine & Joint',
-    brandName: 'ChiroFlow iQ',
+    brandName: 'Chiro IQ',
     description: 'Complete practice management for chiropractic care with specialized spinal health workflows',
     tagline: 'Advanced Spinal Care Management',
     primaryColor: '#16A34A',
@@ -52,7 +52,7 @@ export const specialtyConfigs: Record<SpecialtyType, SpecialtyConfig> = {
   dental_sleep: {
     id: 'dental_sleep',
     name: 'Midwest Dental Sleep Medicine',
-    brandName: 'SleepFlow iQ',
+    brandName: 'Dental Sleep IQ',
     description: 'Specialized practice management for dental sleep medicine with comprehensive sleep disorder workflows',
     tagline: 'Comprehensive Sleep Disorder Solutions',
     primaryColor: '#1E40AF',
@@ -77,7 +77,7 @@ export const specialtyConfigs: Record<SpecialtyType, SpecialtyConfig> = {
   med_spa: {
     id: 'med_spa',
     name: 'Elite Medical Spa',
-    brandName: 'AestheticFlow iQ',
+    brandName: 'Med Spa IQ',
     description: 'Luxury medical spa management with comprehensive aesthetic treatment workflows',
     tagline: 'Luxury Aesthetic Medicine Platform',
     primaryColor: '#EC4899',
@@ -102,7 +102,7 @@ export const specialtyConfigs: Record<SpecialtyType, SpecialtyConfig> = {
   concierge: {
     id: 'concierge',
     name: 'Premium Concierge Medicine',
-    brandName: 'ConciergeFlow iQ',
+    brandName: 'Concierge IQ',
     description: 'Executive healthcare management with personalized concierge medicine workflows',
     tagline: 'Personalized Healthcare Excellence',
     primaryColor: '#7C3AED',
@@ -127,7 +127,7 @@ export const specialtyConfigs: Record<SpecialtyType, SpecialtyConfig> = {
   hrt: {
     id: 'hrt',
     name: 'Optimal Hormone Therapy',
-    brandName: 'HormoneFlow iQ',
+    brandName: 'HRT IQ',
     description: 'Advanced hormone replacement therapy management with comprehensive optimization workflows',
     tagline: 'Precision Hormone Optimization',
     primaryColor: '#DC2626',
