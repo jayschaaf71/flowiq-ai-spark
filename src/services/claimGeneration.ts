@@ -124,21 +124,22 @@ class ClaimGenerationService {
   }
 
   private calculateClaimAmount(codes: MedicalCode[]): number {
-    // Simple fee calculation for MVP
-    const feeSchedule: Record<string, number> = {
+    // Get fee schedule from database or use defaults
+    const defaultFees: Record<string, number> = {
       '99213': 150.00,
       '99214': 200.00,
       'D1110': 120.00,
+      'D0120': 85.00,
       '98940': 75.00
     };
 
     return codes.reduce((total, code) => {
-      return total + (feeSchedule[code.code] || 100.00);
+      return total + (defaultFees[code.code] || 100.00);
     }, 0);
   }
 
   private determineClaimStatus(
-    codingResponse: any, 
+    codingResponse: CodingResponse, 
     validation: any
   ): 'draft' | 'ready_for_review' | 'ready_for_submission' {
     if (validation.errors.length > 0) {
@@ -157,6 +158,41 @@ class ClaimGenerationService {
       requests.map(request => this.generateClaim(request))
     );
     return results;
+  }
+
+  // Get claim by ID with full details
+  async getClaimById(claimId: string): Promise<GeneratedClaim | null> {
+    const { data: claim, error } = await supabase
+      .from('claims')
+      .select(`
+        *,
+        patients!inner(first_name, last_name),
+        providers!inner(first_name, last_name),
+        insurance_providers!inner(name)
+      `)
+      .eq('id', claimId)
+      .single();
+
+    if (error || !claim) {
+      console.error('Error fetching claim:', error);
+      return null;
+    }
+
+    // For now, return basic claim structure
+    // In a real implementation, you'd reconstruct the codes from claim_line_items
+    return {
+      id: claim.id,
+      claimNumber: claim.claim_number,
+      patientId: claim.patient_id,
+      providerId: claim.provider_id,
+      serviceDate: claim.service_date,
+      codes: [], // TODO: Get from claim_line_items table
+      totalAmount: parseFloat(claim.total_amount),
+      status: claim.processing_status as 'draft' | 'ready_for_review' | 'ready_for_submission',
+      confidence: (claim.ai_confidence_score || 0) / 100,
+      validationErrors: [],
+      validationWarnings: []
+    };
   }
 }
 

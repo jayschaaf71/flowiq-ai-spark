@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { claimGenerationService } from "@/services/claimGeneration";
-import { Brain, FileText, Clock, CheckCircle } from "lucide-react";
+import { Brain, FileText, Clock, CheckCircle, AlertTriangle } from "lucide-react";
 
 interface ClaimGenerationFormData {
   patientId: string;
@@ -51,7 +51,7 @@ export const ClaimGenerationEngine = () => {
         providerId: formData.providerId || 'provider-001',
         serviceDate: formData.serviceDate,
         clinicalNotes: formData.clinicalNotes,
-        diagnosis: formData.diagnosis.split(',').map(d => d.trim()),
+        diagnosis: formData.diagnosis.split(',').map(d => d.trim()).filter(d => d.length > 0),
         procedures: [formData.procedureType],
         specialty: formData.specialty
       });
@@ -81,6 +81,17 @@ export const ClaimGenerationEngine = () => {
         return <Clock className="w-4 h-4 text-yellow-600" />;
       default:
         return <FileText className="w-4 h-4 text-gray-600" />;
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'ready_for_submission':
+        return 'text-green-700 bg-green-50';
+      case 'ready_for_review':
+        return 'text-yellow-700 bg-yellow-50';
+      default:
+        return 'text-gray-700 bg-gray-50';
     }
   };
 
@@ -169,9 +180,11 @@ export const ClaimGenerationEngine = () => {
               {getStatusIcon(generatedClaim.status)}
               Generated Claim: {generatedClaim.claimNumber}
             </CardTitle>
-            <CardDescription>
-              Confidence Score: {Math.round(generatedClaim.confidence * 100)}% | 
-              Status: {generatedClaim.status.replace('_', ' ').toUpperCase()}
+            <CardDescription className="flex items-center gap-4">
+              <span>Confidence Score: {Math.round(generatedClaim.confidence * 100)}%</span>
+              <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(generatedClaim.status)}`}>
+                {generatedClaim.status.replace('_', ' ').toUpperCase()}
+              </span>
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -180,28 +193,53 @@ export const ClaimGenerationEngine = () => {
                 <h4 className="font-medium mb-2">Generated Medical Codes</h4>
                 <div className="space-y-2">
                   {generatedClaim.codes.map((code: any, index: number) => (
-                    <div key={index} className="flex items-center justify-between p-2 border rounded">
+                    <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                       <div>
-                        <span className="font-mono font-medium">{code.code}</span>
-                        <span className="ml-2 text-sm text-gray-600">{code.description}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono font-medium text-lg">{code.code}</span>
+                          <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">{code.codeType}</span>
+                        </div>
+                        <span className="text-sm text-gray-600">{code.description}</span>
+                        {code.category && (
+                          <span className="text-xs text-gray-500 block">Category: {code.category}</span>
+                        )}
                       </div>
                       <div className="text-right">
-                        <div className="text-sm font-medium">{code.codeType}</div>
-                        <div className="text-xs text-gray-500">{Math.round(code.confidence * 100)}% confidence</div>
+                        <div className="text-sm font-medium">{Math.round(code.confidence * 100)}% confidence</div>
+                        {code.specialty && (
+                          <div className="text-xs text-gray-500">{code.specialty}</div>
+                        )}
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
+              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                 <span className="font-medium">Total Claim Amount:</span>
                 <span className="text-lg font-bold">${generatedClaim.totalAmount.toFixed(2)}</span>
               </div>
 
+              {generatedClaim.validationErrors.length > 0 && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <h5 className="font-medium text-red-800 mb-1 flex items-center gap-1">
+                    <AlertTriangle className="w-4 h-4" />
+                    Validation Errors
+                  </h5>
+                  <ul className="text-sm text-red-700 space-y-1">
+                    {generatedClaim.validationErrors.map((error: string, index: number) => (
+                      <li key={index}>• {error}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
               {generatedClaim.validationWarnings.length > 0 && (
-                <div className="p-3 bg-yellow-50 border border-yellow-200 rounded">
-                  <h5 className="font-medium text-yellow-800 mb-1">Warnings</h5>
+                <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <h5 className="font-medium text-yellow-800 mb-1 flex items-center gap-1">
+                    <AlertTriangle className="w-4 h-4" />
+                    Warnings
+                  </h5>
                   <ul className="text-sm text-yellow-700 space-y-1">
                     {generatedClaim.validationWarnings.map((warning: string, index: number) => (
                       <li key={index}>• {warning}</li>

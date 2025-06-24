@@ -1344,6 +1344,45 @@ export type Database = {
           },
         ]
       }
+      medical_codes: {
+        Row: {
+          category: string | null
+          code: string
+          code_type: string
+          created_at: string
+          description: string
+          effective_date: string | null
+          id: string
+          is_active: boolean | null
+          specialty: string | null
+          termination_date: string | null
+        }
+        Insert: {
+          category?: string | null
+          code: string
+          code_type: string
+          created_at?: string
+          description: string
+          effective_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          specialty?: string | null
+          termination_date?: string | null
+        }
+        Update: {
+          category?: string | null
+          code?: string
+          code_type?: string
+          created_at?: string
+          description?: string
+          effective_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          specialty?: string | null
+          termination_date?: string | null
+        }
+        Relationships: []
+      }
       medical_history: {
         Row: {
           condition_name: string
