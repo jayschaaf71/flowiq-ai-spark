@@ -148,7 +148,7 @@ export const ClaimsQueue = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="draft">Draft</Select
+                <SelectItem value="draft">Draft</SelectItem>
                 <SelectItem value="processing">Processing</SelectItem>
                 <SelectItem value="ready">Ready</SelectItem>
                 <SelectItem value="submitted">Submitted</SelectItem>
