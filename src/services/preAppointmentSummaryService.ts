@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { format, differenceInDays } from "date-fns";
 
@@ -204,8 +203,8 @@ export class PreAppointmentSummaryService {
     return `${appointment.appointment_type} appointment`;
   }
 
-  private generatePatientFlags(patient: any, lastVisit: any, medicalHistory: any[], medications: any[]): Array<{type: string, message: string}> {
-    const flags = [];
+  private generatePatientFlags(patient: any, lastVisit: any, medicalHistory: any[], medications: any[]): Array<{type: 'high_priority' | 'follow_up_needed' | 'insurance_issue' | 'special_needs', message: string}> {
+    const flags: Array<{type: 'high_priority' | 'follow_up_needed' | 'insurance_issue' | 'special_needs', message: string}> = [];
 
     // High-risk conditions
     const highRiskConditions = ['diabetes', 'hypertension', 'heart', 'cancer'];
