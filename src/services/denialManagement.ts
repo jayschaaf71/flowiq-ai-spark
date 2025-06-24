@@ -44,6 +44,11 @@ export interface RecommendedAction {
   description: string;
 }
 
+interface GroupedDenialData {
+  count: number;
+  amount: number;
+}
+
 class DenialManagementService {
   // Analyze denial and provide auto-correction recommendations
   async analyzeDenial(claimId: string, denialReasons: string[]): Promise<DenialAnalysis> {
@@ -338,12 +343,12 @@ class DenialManagementService {
       acc[reason].count++;
       acc[reason].amount += parseFloat(denial.denial_amount.toString());
       return acc;
-    }, {} as Record<string, { count: number; amount: number }>);
+    }, {} as Record<string, GroupedDenialData>);
 
     return Object.entries(grouped).map(([reason, data]) => ({
       reason,
-      count: data.count,
-      amount: data.amount
+      count: (data as GroupedDenialData).count,
+      amount: (data as GroupedDenialData).amount
     }));
   }
 
@@ -357,12 +362,12 @@ class DenialManagementService {
       acc[month].count++;
       acc[month].amount += parseFloat(denial.denial_amount.toString());
       return acc;
-    }, {} as Record<string, { count: number; amount: number }>);
+    }, {} as Record<string, GroupedDenialData>);
 
     return Object.entries(monthlyData).map(([month, data]) => ({
       month,
-      count: data.count,
-      amount: data.amount
+      count: (data as GroupedDenialData).count,
+      amount: (data as GroupedDenialData).amount
     }));
   }
 }
