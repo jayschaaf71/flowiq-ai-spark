@@ -13,14 +13,18 @@ interface SOAPNote {
   assessment?: string;
   plan?: string;
   transcription_text?: string;
-  generated_by_ai: boolean;
-  confidence_score?: number;
+  is_ai_generated: boolean;
+  ai_confidence_score?: number;
   status: string;
   signed_at?: string;
   signed_by?: string;
   created_at: string;
   updated_at: string;
   created_by?: string;
+  visit_date: string;
+  chief_complaint?: string;
+  diagnosis_codes?: string[];
+  vital_signs?: any;
 }
 
 export const useSOAPNotes = () => {
@@ -38,13 +42,7 @@ export const useSOAPNotes = () => {
 
       if (error) throw error;
       
-      // Map database fields to our interface
-      const mappedData = (data || []).map(note => ({
-        ...note,
-        generated_by_ai: note.generated_by_ai || false
-      }));
-      
-      setSOAPNotes(mappedData);
+      setSOAPNotes(data || []);
     } catch (error) {
       console.error('Error fetching SOAP notes:', error);
       toast({
@@ -59,25 +57,29 @@ export const useSOAPNotes = () => {
 
   const createSOAPNote = async (soapData: Partial<SOAPNote>) => {
     try {
-      // Ensure required fields are present
+      // Ensure required fields are present and map to database schema
       const noteData = {
         patient_id: soapData.patient_id || '',
+        provider_id: soapData.provider_id,
+        appointment_id: soapData.appointment_id,
         subjective: soapData.subjective,
         objective: soapData.objective,
         assessment: soapData.assessment,
         plan: soapData.plan,
         transcription_text: soapData.transcription_text,
-        generated_by_ai: soapData.generated_by_ai || false,
-        confidence_score: soapData.confidence_score,
+        is_ai_generated: soapData.is_ai_generated || false,
+        ai_confidence_score: soapData.ai_confidence_score,
         status: soapData.status || 'draft',
-        provider_id: soapData.provider_id,
-        appointment_id: soapData.appointment_id,
+        visit_date: soapData.visit_date || new Date().toISOString().split('T')[0],
+        chief_complaint: soapData.chief_complaint,
+        diagnosis_codes: soapData.diagnosis_codes || [],
+        vital_signs: soapData.vital_signs,
         created_by: soapData.created_by
       };
 
       const { data, error } = await supabase
         .from('soap_notes')
-        .insert([noteData])
+        .insert(noteData)
         .select()
         .single();
 

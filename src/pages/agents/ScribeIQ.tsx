@@ -32,14 +32,16 @@ const ScribeIQ = () => {
     
     try {
       await createSOAPNote({
+        patient_id: 'temp-patient-id', // This should come from actual patient selection
         subjective: currentSOAP.subjective,
         objective: currentSOAP.objective,
         assessment: currentSOAP.assessment,
         plan: currentSOAP.plan,
         transcription_text: currentTranscription,
-        generated_by_ai: true,
-        confidence_score: 95,
-        status: 'draft'
+        is_ai_generated: true,
+        ai_confidence_score: 95,
+        status: 'draft',
+        visit_date: new Date().toISOString().split('T')[0]
       });
       
       toast({
@@ -219,7 +221,7 @@ const ScribeIQ = () => {
                           <p className="text-sm text-muted-foreground">
                             {new Date(note.created_at).toLocaleDateString()} • 
                             Status: {note.status}
-                            {note.generated_by_ai && ' • AI Generated'}
+                            {note.is_ai_generated && ' • AI Generated'}
                           </p>
                         </div>
                         <div className="flex items-center gap-3">
