@@ -10,6 +10,10 @@ import { SpecialtyType } from '@/utils/specialtyConfig';
 import { SpecialtySelectionStep } from './SpecialtySelectionStep';
 import { PracticeDetailsStep } from './PracticeDetailsStep';
 import { AIAgentConfigurationStep } from './AIAgentConfigurationStep';
+import { PaymentIntegrationStep } from './PaymentIntegrationStep';
+import { EHRIntegrationStep } from './EHRIntegrationStep';
+import { TeamInvitationStep } from './TeamInvitationStep';
+import { TemplatePrePopulationStep } from './TemplatePrePopulationStep';
 
 interface OnboardingData {
   specialty: SpecialtyType | null;
@@ -36,6 +40,57 @@ interface OnboardingData {
       start: string;
       end: string;
       timezone: string;
+    };
+  };
+  paymentConfig: {
+    enablePayments: boolean;
+    subscriptionPlan: string;
+    paymentMethods: {
+      creditCard: boolean;
+      bankTransfer: boolean;
+      paymentPlans: boolean;
+    };
+    pricing: {
+      consultationFee: string;
+      followUpFee: string;
+      packageDeals: boolean;
+    };
+  };
+  ehrConfig: {
+    enableIntegration: boolean;
+    selectedEHR: string;
+    syncSettings: {
+      patientData: boolean;
+      appointments: boolean;
+      clinicalNotes: boolean;
+      billing: boolean;
+    };
+    apiCredentials: {
+      endpoint: string;
+      apiKey: string;
+      clientId: string;
+    };
+  };
+  teamConfig: {
+    inviteTeam: boolean;
+    teamMembers: Array<{
+      id: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+      role: string;
+      department: string;
+      personalMessage: string;
+    }>;
+    roles: string[];
+  };
+  templateConfig: {
+    enableAutoGeneration: boolean;
+    selectedTemplates: string[];
+    customizationPreferences: {
+      useSpecialtyTerminology: boolean;
+      includeBranding: boolean;
+      autoTranslate: boolean;
     };
   };
 }
@@ -76,6 +131,49 @@ export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: Comprehens
         end: '17:00',
         timezone: 'America/New_York'
       }
+    },
+    paymentConfig: {
+      enablePayments: false,
+      subscriptionPlan: 'professional',
+      paymentMethods: {
+        creditCard: true,
+        bankTransfer: false,
+        paymentPlans: false
+      },
+      pricing: {
+        consultationFee: '',
+        followUpFee: '',
+        packageDeals: false
+      }
+    },
+    ehrConfig: {
+      enableIntegration: false,
+      selectedEHR: '',
+      syncSettings: {
+        patientData: true,
+        appointments: true,
+        clinicalNotes: false,
+        billing: false
+      },
+      apiCredentials: {
+        endpoint: '',
+        apiKey: '',
+        clientId: ''
+      }
+    },
+    teamConfig: {
+      inviteTeam: false,
+      teamMembers: [],
+      roles: []
+    },
+    templateConfig: {
+      enableAutoGeneration: true,
+      selectedTemplates: [],
+      customizationPreferences: {
+        useSpecialtyTerminology: true,
+        includeBranding: true,
+        autoTranslate: false
+      }
     }
   });
 
@@ -97,6 +195,30 @@ export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: Comprehens
       title: 'AI Configuration',
       description: 'Configure your AI agents',
       component: AIAgentConfigurationStep
+    },
+    {
+      id: 'payment-integration',
+      title: 'Payment Setup',
+      description: 'Configure billing and payments',
+      component: PaymentIntegrationStep
+    },
+    {
+      id: 'ehr-integration',
+      title: 'EHR Integration',
+      description: 'Connect your existing systems',
+      component: EHRIntegrationStep
+    },
+    {
+      id: 'team-invitation',
+      title: 'Team Invitations',
+      description: 'Invite your team members',
+      component: TeamInvitationStep
+    },
+    {
+      id: 'template-population',
+      title: 'Template Setup',
+      description: 'Generate specialty templates',
+      component: TemplatePrePopulationStep
     }
   ];
 
@@ -111,7 +233,11 @@ export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: Comprehens
         const { practiceName, addressLine1, city, state, zipCode, phone, email } = onboardingData.practiceData;
         return !!(practiceName && addressLine1 && city && state && zipCode && phone && email);
       case 2: // AI configuration
-        return true; // AI config is optional/has defaults
+      case 3: // Payment integration
+      case 4: // EHR integration
+      case 5: // Team invitation
+      case 6: // Template population
+        return true; // These steps are optional/have defaults
       default:
         return false;
     }
@@ -166,8 +292,6 @@ export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: Comprehens
   };
 
   const renderCurrentStep = () => {
-    const StepComponent = currentStepData.component;
-    
     switch (currentStep) {
       case 0:
         return (
@@ -191,6 +315,38 @@ export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: Comprehens
             onUpdateAgentConfig={(agentConfig) => updateOnboardingData({ agentConfig })}
           />
         ) : null;
+      case 3:
+        return onboardingData.specialty ? (
+          <PaymentIntegrationStep
+            specialty={onboardingData.specialty}
+            paymentConfig={onboardingData.paymentConfig}
+            onUpdatePaymentConfig={(paymentConfig) => updateOnboardingData({ paymentConfig })}
+          />
+        ) : null;
+      case 4:
+        return onboardingData.specialty ? (
+          <EHRIntegrationStep
+            specialty={onboardingData.specialty}
+            ehrConfig={onboardingData.ehrConfig}
+            onUpdateEHRConfig={(ehrConfig) => updateOnboardingData({ ehrConfig })}
+          />
+        ) : null;
+      case 5:
+        return onboardingData.specialty ? (
+          <TeamInvitationStep
+            specialty={onboardingData.specialty}
+            teamConfig={onboardingData.teamConfig}
+            onUpdateTeamConfig={(teamConfig) => updateOnboardingData({ teamConfig })}
+          />
+        ) : null;
+      case 6:
+        return onboardingData.specialty ? (
+          <TemplatePrePopulationStep
+            specialty={onboardingData.specialty}
+            templateConfig={onboardingData.templateConfig}
+            onUpdateTemplateConfig={(templateConfig) => updateOnboardingData({ templateConfig })}
+          />
+        ) : null;
       default:
         return null;
     }
@@ -206,7 +362,7 @@ export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: Comprehens
             <h1 className="text-4xl font-bold text-gray-900">Welcome to FlowIQ</h1>
           </div>
           <p className="text-xl text-gray-600">
-            Let's get your practice set up in just a few minutes
+            Let's get your practice set up with all the integrations and workflows you need
           </p>
         </div>
 
