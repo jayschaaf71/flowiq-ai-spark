@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from "@/hooks/use-toast";
@@ -56,6 +56,7 @@ export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: any) => {
   });
 
   const { toast } = useToast();
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const steps = [
     { id: 'specialty', title: 'Practice Specialty', component: 'specialty' },
@@ -69,11 +70,26 @@ export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: any) => {
     { id: 'review', title: 'Review & Launch', component: 'review' }
   ];
 
+  // Debounced auto-save - only saves after user stops typing for 3 seconds
   useEffect(() => {
-    // Auto-save every time onboardingData changes (except when component is 'review')
     if (steps[currentStep].component !== 'review') {
-      saveProgress();
+      // Clear existing timeout
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+      
+      // Set new timeout for 3 seconds
+      saveTimeoutRef.current = setTimeout(() => {
+        saveProgress();
+      }, 3000);
     }
+
+    // Cleanup timeout on unmount
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
   }, [onboardingData, currentStep]);
 
   const updateOnboardingData = (updates: Partial<any>) => {
@@ -92,17 +108,15 @@ export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: any) => {
     try {
       // Simulate API call to save progress
       console.log('Saving onboarding progress:', onboardingData);
-      toast({
-        title: "Progress Saved",
-        description: "Your progress has been saved successfully.",
-      })
+      // Removed the toast notification to prevent constant popups
     } catch (error) {
       console.error('Error saving progress:', error);
       toast({
         title: "Error Saving Progress",
         description: "There was an issue saving your progress. Please try again.",
-        variant: "destructive"
-      })
+        variant: "destructive",
+        className: "bg-white border border-red-200" // Make toast opaque
+      });
     }
   };
 
