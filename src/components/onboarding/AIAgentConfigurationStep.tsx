@@ -163,11 +163,12 @@ export const AIAgentConfigurationStep = ({
               key={agent.id}
               className={`transition-all duration-200 ${
                 isEnabled 
-                  ? 'ring-2 shadow-lg' 
+                  ? 'shadow-lg' 
                   : 'border hover:border-gray-300'
               }`}
               style={{
-                ringColor: isEnabled ? specialtyConfig.primaryColor : undefined,
+                borderWidth: isEnabled ? '2px' : '1px',
+                borderColor: isEnabled ? specialtyConfig.primaryColor : undefined,
                 backgroundColor: isEnabled ? specialtyConfig.primaryColor + '05' : undefined
               }}
             >
