@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { medicalCodingService, MedicalCode } from "./medicalCoding";
+import { medicalCodingService, MedicalCode, CodingResponse } from "./medicalCoding";
 import { eligibilityService } from "./eligibilityVerification";
 
 export interface ClaimGenerationRequest {
@@ -187,7 +187,7 @@ class ClaimGenerationService {
       providerId: claim.provider_id,
       serviceDate: claim.service_date,
       codes: [], // TODO: Get from claim_line_items table
-      totalAmount: parseFloat(claim.total_amount),
+      totalAmount: parseFloat(claim.total_amount.toString()),
       status: claim.processing_status as 'draft' | 'ready_for_review' | 'ready_for_submission',
       confidence: (claim.ai_confidence_score || 0) / 100,
       validationErrors: [],
