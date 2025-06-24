@@ -1,26 +1,33 @@
 
 import { useState, useEffect } from 'react';
-import { useAuth } from './useAuth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from './useAuth';
 
-export interface UserRole {
+export interface TenantUser {
+  id: string;
   tenant_id: string;
+  user_id: string;
   role: 'platform_admin' | 'tenant_admin' | 'practice_manager' | 'staff' | 'patient';
   permissions: Record<string, any>;
+  is_active: boolean;
   tenant: {
     id: string;
     name: string;
     brand_name: string;
     specialty: string;
+    slug: string;
+    is_active: boolean;
   };
 }
 
 export const useEnhancedAuth = () => {
   const { user, profile } = useAuth();
-  
-  // Fetch user's tenant roles and permissions
-  const { data: userRoles, isLoading: rolesLoading, error: rolesError } = useQuery({
+  const [rolesLoading, setRolesLoading] = useState(true);
+  const [rolesError, setRolesError] = useState<string | null>(null);
+
+  // Fetch user's tenant roles and memberships
+  const { data: userRoles, isLoading: rolesQueryLoading, error: rolesQueryError } = useQuery({
     queryKey: ['user-roles', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
@@ -30,75 +37,45 @@ export const useEnhancedAuth = () => {
       const { data, error } = await supabase
         .from('tenant_users')
         .select(`
-          tenant_id,
-          role,
-          permissions,
+          *,
           tenants!tenant_users_tenant_id_fkey(
             id,
             name,
             brand_name,
-            specialty
+            specialty,
+            slug,
+            is_active
           )
         `)
         .eq('user_id', user.id)
         .eq('is_active', true);
-      
+
       if (error) {
         console.error('Error fetching user roles:', error);
-        // Don't throw error - return empty array to prevent blocking
-        return [];
+        throw error;
       }
-      
-      console.log('Raw tenant_users data:', data);
-      
-      // Transform the data to match our UserRole interface
-      const roles = (data || []).map(item => ({
-        tenant_id: item.tenant_id,
-        role: item.role,
-        permissions: item.permissions || {},
-        tenant: {
-          id: item.tenants?.id || '',
-          name: item.tenants?.name || '',
-          brand_name: item.tenants?.brand_name || '',
-          specialty: item.tenants?.specialty || ''
-        }
-      })) as UserRole[];
-      
-      console.log('Transformed user roles:', roles);
-      return roles;
+
+      console.log('User roles fetched:', data);
+      return (data || []) as TenantUser[];
     },
     enabled: !!user?.id,
-    retry: 2,
-    retryDelay: 1000,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    cacheTime: 10 * 60 * 1000, // 10 minutes
   });
 
-  // Get current tenant context
-  const getCurrentTenantRole = (tenantId?: string) => {
-    if (!userRoles || !tenantId) return null;
-    return userRoles.find(role => role.tenant_id === tenantId);
-  };
+  useEffect(() => {
+    setRolesLoading(rolesQueryLoading);
+    setRolesError(rolesQueryError?.message || null);
+  }, [rolesQueryLoading, rolesQueryError]);
 
-  // Check if user has specific permission
-  const hasPermission = (permission: string, tenantId?: string) => {
-    if (!userRoles) return false;
-    
-    // Platform admins have all permissions
-    if (userRoles.some(role => role.role === 'platform_admin')) return true;
-    
-    const role = getCurrentTenantRole(tenantId);
-    if (!role) return false;
-    
-    // Check specific permissions
-    return role.permissions[permission] === true;
-  };
+  // Get primary tenant (from profile or first active tenant)
+  const primaryTenant = userRoles?.find(role => 
+    role.tenant_id === (profile as any)?.primary_tenant_id
+  ) || userRoles?.[0];
 
-  // Check if user has minimum role level
-  const hasMinimumRole = (minimumRole: string, tenantId?: string) => {
+  // Check if user has minimum role in specific tenant
+  const hasMinimumRole = (requiredRole: string, tenantId?: string) => {
     if (!userRoles) return false;
-    
-    // Platform admins always have access
-    if (userRoles.some(role => role.role === 'platform_admin')) return true;
     
     const roleHierarchy = {
       'patient': 0,
@@ -108,77 +85,44 @@ export const useEnhancedAuth = () => {
       'platform_admin': 4
     };
     
-    const requiredLevel = roleHierarchy[minimumRole as keyof typeof roleHierarchy] || 0;
+    const requiredLevel = roleHierarchy[requiredRole as keyof typeof roleHierarchy] || 0;
     
-    // If no specific tenant, check if user has the role in any tenant
-    if (!tenantId) {
-      return userRoles.some(role => {
-        const userLevel = roleHierarchy[role.role as keyof typeof roleHierarchy] || 0;
-        return userLevel >= requiredLevel;
-      });
-    }
+    const relevantRoles = tenantId 
+      ? userRoles.filter(role => role.tenant_id === tenantId)
+      : userRoles;
     
-    // Check specific tenant
-    const role = getCurrentTenantRole(tenantId);
-    if (!role) return false;
-    
-    const userLevel = roleHierarchy[role.role as keyof typeof roleHierarchy] || 0;
-    return userLevel >= requiredLevel;
+    return relevantRoles.some(role => {
+      const userLevel = roleHierarchy[role.role as keyof typeof roleHierarchy] || 0;
+      return userLevel >= requiredLevel;
+    });
   };
 
-  // Get primary tenant
-  const getPrimaryTenant = () => {
-    if (!userRoles || userRoles.length === 0) return null;
-    
-    // Return tenant that matches profile's primary_tenant_id if available
-    const profileTenantId = (profile as any)?.primary_tenant_id;
-    if (profileTenantId) {
-      const primaryRole = userRoles.find(role => role.tenant_id === profileTenantId);
-      if (primaryRole) return primaryRole;
-    }
-    
-    // Fallback to first tenant with highest role
-    return userRoles.sort((a, b) => {
-      const roleOrder = { 'platform_admin': 4, 'tenant_admin': 3, 'practice_manager': 2, 'staff': 1, 'patient': 0 };
-      return (roleOrder[b.role] || 0) - (roleOrder[a.role] || 0);
-    })[0];
+  // Check if user can access specific tenant
+  const canAccessTenant = (tenantId: string) => {
+    return userRoles?.some(role => role.tenant_id === tenantId && role.is_active) || false;
   };
 
-  const canAccessTenant = (tenantId?: string) => {
-    if (!tenantId || !userRoles) return false;
-    return getCurrentTenantRole(tenantId) !== null;
-  };
-
+  // Check if user is platform admin
   const isPlatformAdmin = userRoles?.some(role => role.role === 'platform_admin') || false;
 
-  // Log current state for debugging but don't log errors to avoid noise
-  useEffect(() => {
-    if (user && !rolesLoading && !rolesError) {
-      console.log('Enhanced Auth State:', {
-        userId: user.id,
-        userRoles: userRoles?.length || 0,
-        primaryTenant: getPrimaryTenant()?.tenant?.name,
-        isPlatformAdmin
-      });
-    }
-  }, [user, userRoles, rolesLoading, rolesError]);
+  // Get user's role in specific tenant
+  const getTenantRole = (tenantId: string) => {
+    return userRoles?.find(role => role.tenant_id === tenantId)?.role || null;
+  };
 
   return {
     user,
     profile,
     userRoles: userRoles || [],
+    primaryTenant,
     rolesLoading,
     rolesError,
-    primaryTenant: getPrimaryTenant(),
-    getCurrentTenantRole,
-    hasPermission,
     hasMinimumRole,
-    isPlatformAdmin,
-    isTenantAdmin: (tenantId?: string) => {
-      const role = getCurrentTenantRole(tenantId);
-      return role?.role === 'tenant_admin' || role?.role === 'platform_admin';
-    },
-    canManageTenant: (tenantId?: string) => hasMinimumRole('practice_manager', tenantId),
     canAccessTenant,
+    isPlatformAdmin,
+    getTenantRole,
+    // Helper functions
+    isAuthenticated: !!user,
+    hasAnyTenantAccess: (userRoles?.length || 0) > 0,
   };
 };
