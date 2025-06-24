@@ -24,12 +24,15 @@ export const TemplateConfiguration: React.FC<TemplateConfigurationProps> = ({
   // Transform the data structure to match what TemplatePrePopulationStep expects
   const transformedConfig = {
     enableAutoGeneration: templateConfig.enableAutoGeneration,
-    selectedTemplates: ['intake-form', 'soap-notes'],
+    selectedTemplates: ['intake-forms', 'consent-forms'],
     customizationPreferences: {
-      useSpecialtyTerminology: true,
       includeBranding: templateConfig.customizationPreferences.includeBranding,
-      autoTranslate: false
-    }
+      primaryColor: templateConfig.customizationPreferences.primaryColor,
+      secondaryColor: templateConfig.customizationPreferences.secondaryColor,
+      logoUrl: undefined
+    },
+    generationProgress: 0,
+    generatedTemplates: []
   };
 
   const handleUpdate = (updatedConfig: any) => {
@@ -38,8 +41,8 @@ export const TemplateConfiguration: React.FC<TemplateConfigurationProps> = ({
       enableAutoGeneration: updatedConfig.enableAutoGeneration,
       customizationPreferences: {
         includeBranding: updatedConfig.customizationPreferences.includeBranding,
-        primaryColor: templateConfig.customizationPreferences.primaryColor,
-        secondaryColor: templateConfig.customizationPreferences.secondaryColor
+        primaryColor: updatedConfig.customizationPreferences.primaryColor || templateConfig.customizationPreferences.primaryColor,
+        secondaryColor: updatedConfig.customizationPreferences.secondaryColor || templateConfig.customizationPreferences.secondaryColor
       }
     };
     onTemplateConfigUpdate(transformedBack);
