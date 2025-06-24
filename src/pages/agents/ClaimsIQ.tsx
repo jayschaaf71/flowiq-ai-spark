@@ -1,4 +1,3 @@
-
 import { PageHeader } from "@/components/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,8 @@ import { DenialManagement } from "@/components/claims/DenialManagement";
 import { DevelopmentRoadmap } from "@/components/development/DevelopmentRoadmap";
 import { useClaimsSampleData } from "@/hooks/useClaimsSampleData";
 import { Database, TrendingUp, AlertTriangle, FileText, Map } from "lucide-react";
+import { AIClaimsReviewEngine } from "@/components/claims/AIClaimsReviewEngine";
+import { PayerIntegration } from "@/components/claims/PayerIntegration";
 
 const ClaimsIQ = () => {
   const { loading, createSampleData } = useClaimsSampleData();
@@ -35,8 +36,16 @@ const ClaimsIQ = () => {
         </Button>
       </div>
 
-      <Tabs defaultValue="queue" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+      <Tabs defaultValue="ai-review" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="ai-review" className="flex items-center gap-2">
+            <Database className="w-4 h-4" />
+            AI Review
+          </TabsTrigger>
+          <TabsTrigger value="payer-integration" className="flex items-center gap-2">
+            <FileText className="w-4 h-4" />
+            Payer Integration
+          </TabsTrigger>
           <TabsTrigger value="queue" className="flex items-center gap-2">
             <FileText className="w-4 h-4" />
             Claims Queue
@@ -49,15 +58,19 @@ const ClaimsIQ = () => {
             <AlertTriangle className="w-4 h-4" />
             Denial Management
           </TabsTrigger>
-          <TabsTrigger value="reports" className="flex items-center gap-2">
-            <Database className="w-4 h-4" />
-            Reports
-          </TabsTrigger>
           <TabsTrigger value="roadmap" className="flex items-center gap-2">
             <Map className="w-4 h-4" />
             Development
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="ai-review" className="space-y-6">
+          <AIClaimsReviewEngine />
+        </TabsContent>
+
+        <TabsContent value="payer-integration" className="space-y-6">
+          <PayerIntegration />
+        </TabsContent>
 
         <TabsContent value="queue" className="space-y-6">
           <ClaimsQueue />
@@ -69,14 +82,6 @@ const ClaimsIQ = () => {
 
         <TabsContent value="denials" className="space-y-6">
           <DenialManagement />
-        </TabsContent>
-
-        <TabsContent value="reports" className="space-y-6">
-          <div className="text-center py-12 text-muted-foreground">
-            <Database className="w-12 h-12 mx-auto mb-4" />
-            <h3 className="text-lg font-medium mb-2">Reports Dashboard</h3>
-            <p>Advanced reporting and compliance features coming soon...</p>
-          </div>
         </TabsContent>
 
         <TabsContent value="roadmap" className="space-y-6">

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -24,6 +23,7 @@ import InsightIQ from './pages/agents/InsightIQ';
 import Settings from './pages/Settings';
 import Help from './pages/Help';
 import AIInsights from './pages/AIInsights';
+import PilotDashboard from "@/pages/PilotDashboard";
 
 function App() {
   return (
@@ -183,6 +183,8 @@ function App() {
                 </Layout>
               </ProtectedRoute>
             } />
+
+            <Route path="/pilot-dashboard" element={<PilotDashboard />} />
           </Routes>
         </Router>
       </AuthProvider>
