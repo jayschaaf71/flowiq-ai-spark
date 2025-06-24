@@ -84,15 +84,29 @@ const AcceptInvitation = () => {
 
     setAccepting(true);
     try {
-      // Add user to tenant
+      // Map invitation role to valid tenant_users role
+      const mapRole = (invitationRole: string) => {
+        switch (invitationRole.toLowerCase()) {
+          case 'admin':
+          case 'practice manager':
+            return 'practice_manager';
+          case 'doctor':
+          case 'provider':
+          case 'staff':
+          default:
+            return 'staff';
+        }
+      };
+
+      // Add user to tenant - fix: pass single object, not array
       const { error: tenantUserError } = await supabase
         .from('tenant_users')
-        .insert([{
+        .insert({
           tenant_id: invitation.tenant_id,
           user_id: user.id,
-          role: invitation.role,
+          role: mapRole(invitation.role),
           joined_at: new Date().toISOString(),
-        }]);
+        });
 
       if (tenantUserError) throw tenantUserError;
 
