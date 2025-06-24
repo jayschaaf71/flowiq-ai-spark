@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,7 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { Shield, Lock, Eye, EyeOff, AlertTriangle } from 'lucide-react';
 import { useTenantConfig } from '@/utils/tenantConfig';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 
 export const AuthPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('signin');
@@ -32,10 +33,19 @@ export const AuthPage: React.FC = () => {
     role: 'patient' as 'patient' | 'staff' | 'admin'
   });
 
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, user, profile } = useAuth();
   const { toast } = useToast();
   const tenantConfig = useTenantConfig();
   const navigate = useNavigate();
+
+  // Redirect authenticated users
+  if (user) {
+    if (profile?.role === 'patient') {
+      return <Navigate to="/patient-dashboard" replace />;
+    } else {
+      return <Navigate to="/" replace />;
+    }
+  }
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,7 +83,6 @@ export const AuthPage: React.FC = () => {
           title: "Welcome back!",
           description: "You have successfully signed in."
         });
-        // Navigation will be handled by the useEffect in App.tsx based on user role
       }
     } catch (error) {
       toast({

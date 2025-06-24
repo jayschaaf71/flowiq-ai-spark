@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -27,6 +28,7 @@ import PilotDashboard from "@/pages/PilotDashboard";
 import OnboardNewTenant from './pages/OnboardNewTenant';
 import { SpecialtyProvider } from './contexts/SpecialtyContext';
 import AcceptInvitation from './pages/AcceptInvitation';
+import { AuthPage } from './components/auth/AuthPage';
 
 function App() {
   return (
@@ -37,6 +39,9 @@ function App() {
             <Toaster />
             
             <Routes>
+              {/* Public Auth Route */}
+              <Route path="/auth" element={<AuthPage />} />
+              
               <Route path="/" element={
                 <ProtectedRoute>
                   <Layout>
