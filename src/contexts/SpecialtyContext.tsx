@@ -1,11 +1,12 @@
 
 import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
-import { SpecialtyType, SpecialtyConfig, getSpecialtyConfig, detectSpecialty } from '@/utils/specialtyConfig';
+import { SpecialtyType, SpecialtyConfig, getSpecialtyConfig } from '@/utils/specialtyConfig';
+import { useEnhancedAuth } from '@/hooks/useEnhancedAuth';
 
 interface SpecialtyContextType {
   currentSpecialty: SpecialtyType;
   config: SpecialtyConfig;
-  switchSpecialty: (specialty: SpecialtyType) => void;
+  isLoading: boolean;
 }
 
 const SpecialtyContext = createContext<SpecialtyContextType | undefined>(undefined);
@@ -15,23 +16,35 @@ interface SpecialtyProviderProps {
 }
 
 export const SpecialtyProvider = ({ children }: SpecialtyProviderProps) => {
-  const [currentSpecialty, setCurrentSpecialty] = useState<SpecialtyType>(() => detectSpecialty());
-  const [config, setConfig] = useState<SpecialtyConfig>(() => getSpecialtyConfig(detectSpecialty()));
-
-  const switchSpecialty = (specialty: SpecialtyType) => {
-    setCurrentSpecialty(specialty);
-    setConfig(getSpecialtyConfig(specialty));
-    
-    // Update CSS custom properties for theming
-    const root = document.documentElement;
-    const newConfig = getSpecialtyConfig(specialty);
-    root.style.setProperty('--specialty-primary', newConfig.primaryColor);
-    root.style.setProperty('--specialty-secondary', newConfig.secondaryColor);
-    root.style.setProperty('--specialty-accent', newConfig.accentColor);
-  };
+  const { primaryTenant, rolesLoading } = useEnhancedAuth();
+  const [currentSpecialty, setCurrentSpecialty] = useState<SpecialtyType>('chiropractic');
+  const [config, setConfig] = useState<SpecialtyConfig>(() => getSpecialtyConfig('chiropractic'));
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Initialize CSS custom properties
+    if (!rolesLoading && primaryTenant?.tenant) {
+      // Set specialty based on tenant's specialty
+      const tenantSpecialty = primaryTenant.tenant.specialty as SpecialtyType;
+      if (tenantSpecialty && tenantSpecialty !== currentSpecialty) {
+        setCurrentSpecialty(tenantSpecialty);
+        setConfig(getSpecialtyConfig(tenantSpecialty));
+        
+        // Update CSS custom properties for theming
+        const root = document.documentElement;
+        const newConfig = getSpecialtyConfig(tenantSpecialty);
+        root.style.setProperty('--specialty-primary', newConfig.primaryColor);
+        root.style.setProperty('--specialty-secondary', newConfig.secondaryColor);
+        root.style.setProperty('--specialty-accent', newConfig.accentColor);
+      }
+      setIsLoading(false);
+    } else if (!rolesLoading && !primaryTenant) {
+      // No tenant found - use default
+      setIsLoading(false);
+    }
+  }, [primaryTenant, rolesLoading, currentSpecialty]);
+
+  // Initialize CSS custom properties
+  useEffect(() => {
     const root = document.documentElement;
     root.style.setProperty('--specialty-primary', config.primaryColor);
     root.style.setProperty('--specialty-secondary', config.secondaryColor);
@@ -42,7 +55,7 @@ export const SpecialtyProvider = ({ children }: SpecialtyProviderProps) => {
     <SpecialtyContext.Provider value={{
       currentSpecialty,
       config,
-      switchSpecialty
+      isLoading: isLoading || rolesLoading
     }}>
       {children}
     </SpecialtyContext.Provider>
