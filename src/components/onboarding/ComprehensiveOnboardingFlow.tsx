@@ -1,13 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
-import { Slider } from "@/components/ui/slider"
-import { Checkbox } from "@/components/ui/checkbox"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/hooks/use-toast";
 import { PracticeSpecialty } from './PracticeSpecialty';
 import { PracticeDetails } from './PracticeDetails';
 import { TeamConfiguration } from './TeamConfiguration';
@@ -18,20 +12,9 @@ import { TemplateConfiguration } from './TemplateConfiguration';
 import { ReviewAndLaunch } from './ReviewAndLaunch';
 import { IntegrationValidationStep } from './IntegrationValidationStep';
 
-interface ComprehensiveOnboardingFlowProps {
-  onComplete: (data: any) => void;
-  onCancel: () => void;
-}
-
-interface OnboardingStep {
-  id: string;
-  title: string;
-  component: string;
-}
-
-export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: ComprehensiveOnboardingFlowProps) => {
+export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: any) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [onboardingData, setOnboardingData] = useState<any>({
+  const [onboardingData, setOnboardingData] = useState({
     specialty: null,
     practiceData: {
       practiceName: '',
@@ -71,6 +54,7 @@ export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: Comprehens
       templateGeneration: null
     }
   });
+
   const { toast } = useToast();
 
   const steps = [
@@ -136,6 +120,7 @@ export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: Comprehens
             onSpecialtySelect={(specialty) => updateOnboardingData({ specialty })}
           />
         );
+
       case 'practice':
         return (
           <PracticeDetails
@@ -143,13 +128,16 @@ export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: Comprehens
             onPracticeDetailsUpdate={(practiceData) => updateOnboardingData({ practiceData })}
           />
         );
+
       case 'team':
         return (
           <TeamConfiguration
+            specialty={onboardingData.specialty || 'chiropractic'}
             teamConfig={onboardingData.teamConfig}
             onTeamConfigUpdate={(teamConfig) => updateOnboardingData({ teamConfig })}
           />
         );
+
       case 'agents':
         return (
           <AgentConfiguration
@@ -157,28 +145,34 @@ export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: Comprehens
             onAgentConfigUpdate={(agentConfig) => updateOnboardingData({ agentConfig })}
           />
         );
+
       case 'payment':
         return (
           <PaymentConfiguration
+            specialty={onboardingData.specialty || 'chiropractic'}
             paymentConfig={onboardingData.paymentConfig}
             onPaymentConfigUpdate={(paymentConfig) => updateOnboardingData({ paymentConfig })}
           />
         );
+
       case 'ehr':
         return (
           <EHRConfiguration
+            specialty={onboardingData.specialty || 'chiropractic'}
             ehrConfig={onboardingData.ehrConfig}
             onEHRConfigUpdate={(ehrConfig) => updateOnboardingData({ ehrConfig })}
           />
         );
+
       case 'templates':
         return (
           <TemplateConfiguration
+            specialty={onboardingData.specialty || 'chiropractic'}
             templateConfig={onboardingData.templateConfig}
             onTemplateConfigUpdate={(templateConfig) => updateOnboardingData({ templateConfig })}
           />
         );
-      
+
       case 'validation':
         return (
           <IntegrationValidationStep
@@ -193,7 +187,7 @@ export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: Comprehens
             }}
           />
         );
-      
+
       case 'review':
         return (
           <ReviewAndLaunch
@@ -202,6 +196,7 @@ export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: Comprehens
             onCancel={onCancel}
           />
         );
+
       default:
         return <div>Unknown step</div>;
     }

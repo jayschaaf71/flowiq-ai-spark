@@ -1,8 +1,10 @@
 
 import React from 'react';
 import { TemplatePrePopulationStep } from './TemplatePrePopulationStep';
+import { SpecialtyType } from '@/utils/specialtyConfig';
 
 interface TemplateConfigurationProps {
+  specialty: SpecialtyType;
   templateConfig: {
     enableAutoGeneration: boolean;
     customizationPreferences: {
@@ -15,6 +17,7 @@ interface TemplateConfigurationProps {
 }
 
 export const TemplateConfiguration: React.FC<TemplateConfigurationProps> = ({ 
+  specialty,
   templateConfig, 
   onTemplateConfigUpdate 
 }) => {
@@ -44,6 +47,7 @@ export const TemplateConfiguration: React.FC<TemplateConfigurationProps> = ({
 
   return (
     <TemplatePrePopulationStep
+      specialty={specialty}
       templateConfig={transformedConfig}
       onUpdateTemplateConfig={handleUpdate}
     />

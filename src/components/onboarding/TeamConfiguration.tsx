@@ -1,8 +1,10 @@
 
 import React from 'react';
 import { TeamInvitationStep } from './TeamInvitationStep';
+import { SpecialtyType } from '@/utils/specialtyConfig';
 
 interface TeamConfigurationProps {
+  specialty: SpecialtyType;
   teamConfig: {
     inviteTeam: boolean;
     teamMembers: any[];
@@ -11,6 +13,7 @@ interface TeamConfigurationProps {
 }
 
 export const TeamConfiguration: React.FC<TeamConfigurationProps> = ({ 
+  specialty,
   teamConfig, 
   onTeamConfigUpdate 
 }) => {
@@ -32,6 +35,7 @@ export const TeamConfiguration: React.FC<TeamConfigurationProps> = ({
 
   return (
     <TeamInvitationStep
+      specialty={specialty}
       teamConfig={transformedConfig}
       onUpdateTeamConfig={handleUpdate}
     />

@@ -1,8 +1,10 @@
 
 import React from 'react';
 import { EHRIntegrationStep } from './EHRIntegrationStep';
+import { SpecialtyType } from '@/utils/specialtyConfig';
 
 interface EHRConfigurationProps {
+  specialty: SpecialtyType;
   ehrConfig: {
     enableIntegration: boolean;
     ehrSystem: string;
@@ -12,6 +14,7 @@ interface EHRConfigurationProps {
 }
 
 export const EHRConfiguration: React.FC<EHRConfigurationProps> = ({ 
+  specialty,
   ehrConfig, 
   onEHRConfigUpdate 
 }) => {
@@ -44,6 +47,7 @@ export const EHRConfiguration: React.FC<EHRConfigurationProps> = ({
 
   return (
     <EHRIntegrationStep
+      specialty={specialty}
       ehrConfig={transformedConfig}
       onUpdateEHRConfig={handleUpdate}
     />

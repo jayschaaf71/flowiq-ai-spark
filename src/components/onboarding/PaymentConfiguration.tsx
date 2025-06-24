@@ -1,8 +1,10 @@
 
 import React from 'react';
 import { PaymentIntegrationStep } from './PaymentIntegrationStep';
+import { SpecialtyType } from '@/utils/specialtyConfig';
 
 interface PaymentConfigurationProps {
+  specialty: SpecialtyType;
   paymentConfig: {
     enablePayments: boolean;
     subscriptionPlan: string;
@@ -11,6 +13,7 @@ interface PaymentConfigurationProps {
 }
 
 export const PaymentConfiguration: React.FC<PaymentConfigurationProps> = ({ 
+  specialty,
   paymentConfig, 
   onPaymentConfigUpdate 
 }) => {
@@ -41,6 +44,7 @@ export const PaymentConfiguration: React.FC<PaymentConfigurationProps> = ({
 
   return (
     <PaymentIntegrationStep
+      specialty={specialty}
       paymentConfig={transformedConfig}
       onUpdatePaymentConfig={handleUpdate}
     />
