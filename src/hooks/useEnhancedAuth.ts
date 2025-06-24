@@ -56,11 +56,16 @@ export const useEnhancedAuth = () => {
       }
 
       console.log('User roles fetched:', data);
-      return (data || []) as TenantUser[];
+      
+      // Transform the data to match our TenantUser interface
+      return (data || []).map(item => ({
+        ...item,
+        tenant: item.tenants // Map tenants to tenant (singular)
+      })) as TenantUser[];
     },
     enabled: !!user?.id,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    cacheTime: 10 * 60 * 1000, // 10 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes (renamed from cacheTime)
   });
 
   useEffect(() => {
