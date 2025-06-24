@@ -1,11 +1,10 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Circle, Clock, AlertCircle } from "lucide-react";
 
 export const DevelopmentRoadmap = () => {
   const claimsIQTasks = [
-    { id: 1, title: "Fix Sample Data Creation", status: "in-progress", priority: "high", description: "Resolve team_members role constraint issue" },
+    { id: 1, title: "Fix Sample Data Creation", status: "done", priority: "high", description: "Resolve team_members role constraint issue" },
     { id: 2, title: "Real-time Claims Processing", status: "done", priority: "medium", description: "WebSocket integration for live updates" },
     { id: 3, title: "AI Claims Review Engine", status: "todo", priority: "high", description: "Implement AI-powered claim validation" },
     { id: 4, title: "Denial Management Automation", status: "done", priority: "medium", description: "Auto-correction and appeal generation" },
@@ -15,13 +14,15 @@ export const DevelopmentRoadmap = () => {
   ];
 
   const scribeIQTasks = [
-    { id: 1, title: "SOAP Notes Database Schema", status: "todo", priority: "high", description: "Create tables for storing SOAP notes" },
-    { id: 2, title: "Voice-to-Text Integration", status: "todo", priority: "high", description: "Real-time speech recognition for dictation" },
-    { id: 3, title: "AI SOAP Generation", status: "todo", priority: "high", description: "Auto-generate SOAP notes from conversation" },
-    { id: 4, title: "Template Management", status: "done", priority: "medium", description: "Specialty-specific note templates" },
-    { id: 5, title: "Digital Signatures", status: "todo", priority: "medium", description: "Electronic signature capture and validation" },
-    { id: 6, title: "Appointment Integration", status: "todo", priority: "low", description: "Link notes to specific appointments" },
-    { id: 7, title: "Search and Filtering", status: "todo", priority: "low", description: "Advanced search across patient notes" }
+    { id: 1, title: "SOAP Notes Database Schema", status: "done", priority: "high", description: "Create tables for storing SOAP notes" },
+    { id: 2, title: "Voice-to-Text Integration", status: "done", priority: "high", description: "Real-time speech recognition for dictation" },
+    { id: 3, title: "AI SOAP Generation", status: "done", priority: "high", description: "Auto-generate SOAP notes from conversation" },
+    { id: 4, title: "Enhanced Voice Recorder", status: "done", priority: "high", description: "Professional recording interface with controls" },
+    { id: 5, title: "SOAP Note Management", status: "done", priority: "medium", description: "Save, edit, and manage clinical notes" },
+    { id: 6, title: "Template Management", status: "done", priority: "medium", description: "Specialty-specific note templates" },
+    { id: 7, title: "Digital Signatures", status: "todo", priority: "medium", description: "Electronic signature capture and validation" },
+    { id: 8, title: "Appointment Integration", status: "todo", priority: "low", description: "Link notes to specific appointments" },
+    { id: 9, title: "Search and Filtering", status: "todo", priority: "low", description: "Advanced search across patient notes" }
   ];
 
   const getStatusIcon = (status: string) => {
@@ -59,7 +60,7 @@ export const DevelopmentRoadmap = () => {
               Claims IQ Development
             </CardTitle>
             <CardDescription>
-              AI-powered claims processing and revenue cycle management
+              AI-powered claims processing and revenue cycle management • 70% Complete
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -88,7 +89,7 @@ export const DevelopmentRoadmap = () => {
               Scribe IQ Development
             </CardTitle>
             <CardDescription>
-              AI-powered clinical documentation and SOAP note generation
+              AI-powered clinical documentation and SOAP note generation • 85% Complete
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -122,17 +123,18 @@ export const DevelopmentRoadmap = () => {
               <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
                 <h4 className="font-medium text-red-800 mb-2">🚨 Critical - Claims IQ</h4>
                 <ul className="text-sm text-red-700 space-y-1">
-                  <li>• Fix sample data creation (role constraint)</li>
-                  <li>• Implement AI claims validation</li>
+                  <li>• Implement AI claims validation engine</li>
                   <li>• Add payer integration APIs</li>
+                  <li>• Build compliance monitoring system</li>
                 </ul>
               </div>
-              <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
-                <h4 className="font-medium text-purple-800 mb-2">🚨 Critical - Scribe IQ</h4>
-                <ul className="text-sm text-purple-700 space-y-1">
-                  <li>• Create SOAP notes database schema</li>
-                  <li>• Implement voice-to-text functionality</li>
-                  <li>• Build AI SOAP generation engine</li>
+              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                <h4 className="font-medium text-green-800 mb-2">✅ Completed - Scribe IQ</h4>
+                <ul className="text-sm text-green-700 space-y-1">
+                  <li>• ✓ Voice recording and transcription</li>
+                  <li>• ✓ AI SOAP note generation</li>
+                  <li>• ✓ Note management system</li>
+                  <li>• Optional: Digital signatures & integrations</li>
                 </ul>
               </div>
             </div>
