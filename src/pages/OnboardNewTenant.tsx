@@ -22,22 +22,30 @@ const OnboardNewTenant = () => {
       
       const specialtyConfig = specialtyConfigs[onboardingData.specialty as SpecialtyType];
       
-      // Create the tenant with comprehensive onboarding data
+      // Use custom branding if provided, otherwise fall back to specialty defaults
+      const customBranding = onboardingData.templateConfig.customizationPreferences;
+      const brandName = customBranding.brandName || onboardingData.practiceData.practiceName || specialtyConfig.brandName;
+      const primaryColor = customBranding.primaryColor || specialtyConfig.primaryColor;
+      const secondaryColor = customBranding.secondaryColor || specialtyConfig.secondaryColor;
+      const logoUrl = customBranding.logoUrl || specialtyConfig.logoUrl;
+      
+      // Create the tenant with comprehensive onboarding data including custom branding
       const tenantData = {
         name: onboardingData.practiceData.practiceName,
         slug: onboardingData.practiceData.practiceName.toLowerCase().replace(/[^a-z0-9]/g, '-'),
-        brand_name: onboardingData.practiceData.practiceName,
+        brand_name: brandName,
         tagline: onboardingData.practiceData.description || `Professional ${specialtyConfig.brandName} care`,
+        logo_url: logoUrl,
         specialty: onboardingData.specialty,
         subscription_tier: onboardingData.paymentConfig.subscriptionPlan || 'professional',
         max_forms: getMaxFormsByPlan(onboardingData.paymentConfig.subscriptionPlan),
         max_submissions: getMaxSubmissionsByPlan(onboardingData.paymentConfig.subscriptionPlan),
         max_users: getMaxUsersByPlan(onboardingData.paymentConfig.subscriptionPlan),
-        custom_branding_enabled: onboardingData.templateConfig.customizationPreferences.includeBranding,
+        custom_branding_enabled: customBranding.includeBranding,
         api_access_enabled: onboardingData.ehrConfig.enableIntegration,
         white_label_enabled: onboardingData.paymentConfig.subscriptionPlan === 'enterprise',
-        primary_color: specialtyConfig.primaryColor,
-        secondary_color: specialtyConfig.secondaryColor,
+        primary_color: primaryColor,
+        secondary_color: secondaryColor,
         is_active: true
       };
 
@@ -99,13 +107,14 @@ const OnboardNewTenant = () => {
         if (onboardingData.ehrConfig.enableIntegration) setupFeatures.push('EHR Integration');
         if (onboardingData.teamConfig.teamMembers.length > 0) setupFeatures.push(`${onboardingData.teamConfig.teamMembers.length} Team Members`);
         if (onboardingData.templateConfig.enableAutoGeneration) setupFeatures.push('Specialty Templates');
-
+        if (customBranding.includeBranding) setupFeatures.push('Custom Branding');
+        
         await supabase.functions.invoke('send-welcome-email', {
           body: {
             email: user?.email || onboardingData.practiceData.email,
             firstName: user?.user_metadata?.first_name || 'there',
             practiceName: onboardingData.practiceData.practiceName,
-            specialty: specialtyConfig.brandName,
+            specialty: brandName,
             features: setupFeatures,
             dashboardUrl: `${window.location.origin}/`
           }
@@ -117,17 +126,18 @@ const OnboardNewTenant = () => {
       // Complete the onboarding progress
       completeProgress((createdTenant as any).id);
       
-      // Show comprehensive success message
+      // Show enhanced success message including branding info
       const setupFeatures = [];
       if (onboardingData.agentConfig.receptionistAgent) setupFeatures.push('AI Receptionist');
       if (onboardingData.paymentConfig.enablePayments) setupFeatures.push('Payment Processing');
       if (onboardingData.ehrConfig.enableIntegration) setupFeatures.push('EHR Integration');
       if (onboardingData.teamConfig.teamMembers.length > 0) setupFeatures.push(`${onboardingData.teamConfig.teamMembers.length} Team Members`);
       if (onboardingData.templateConfig.enableAutoGeneration) setupFeatures.push('Specialty Templates');
+      if (customBranding.includeBranding) setupFeatures.push('Custom Branding');
       
       toast({
         title: "🎉 Practice Setup Complete!",
-        description: `${onboardingData.practiceData.practiceName} is ready with: ${setupFeatures.join(', ')}.`,
+        description: `${brandName} is ready with: ${setupFeatures.join(', ')}.`,
       });
 
       // Navigate to specialty-specific dashboard

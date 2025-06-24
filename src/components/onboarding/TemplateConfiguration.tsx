@@ -11,6 +11,8 @@ interface TemplateConfigurationProps {
       includeBranding: boolean;
       primaryColor: string;
       secondaryColor: string;
+      logoUrl?: string;
+      brandName?: string;
     };
   };
   onTemplateConfigUpdate: (config: any) => void;
@@ -29,7 +31,8 @@ export const TemplateConfiguration: React.FC<TemplateConfigurationProps> = ({
       includeBranding: templateConfig.customizationPreferences.includeBranding,
       primaryColor: templateConfig.customizationPreferences.primaryColor,
       secondaryColor: templateConfig.customizationPreferences.secondaryColor,
-      logoUrl: undefined
+      logoUrl: templateConfig.customizationPreferences.logoUrl,
+      brandName: templateConfig.customizationPreferences.brandName
     },
     generationProgress: 0,
     generatedTemplates: []
@@ -42,7 +45,9 @@ export const TemplateConfiguration: React.FC<TemplateConfigurationProps> = ({
       customizationPreferences: {
         includeBranding: updatedConfig.customizationPreferences.includeBranding,
         primaryColor: updatedConfig.customizationPreferences.primaryColor || templateConfig.customizationPreferences.primaryColor,
-        secondaryColor: updatedConfig.customizationPreferences.secondaryColor || templateConfig.customizationPreferences.secondaryColor
+        secondaryColor: updatedConfig.customizationPreferences.secondaryColor || templateConfig.customizationPreferences.secondaryColor,
+        logoUrl: updatedConfig.customizationPreferences.logoUrl,
+        brandName: updatedConfig.customizationPreferences.brandName
       }
     };
     onTemplateConfigUpdate(transformedBack);

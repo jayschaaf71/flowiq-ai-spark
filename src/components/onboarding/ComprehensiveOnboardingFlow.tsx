@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -45,7 +46,9 @@ export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: any) => {
       customizationPreferences: {
         includeBranding: true,
         primaryColor: '#007BFF',
-        secondaryColor: '#6C757D'
+        secondaryColor: '#6C757D',
+        logoUrl: undefined,
+        brandName: ''
       }
     },
     validationResults: {
