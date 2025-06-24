@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
-import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useClaimsData } from "@/hooks/useClaimsData";
 import { 
   Search, 
   Filter, 
@@ -20,60 +21,16 @@ import {
   RefreshCw
 } from "lucide-react";
 
-interface Claim {
-  id: string;
-  patient: string;
-  dateOfService: string;
-  amount: number;
-  status: 'draft' | 'processing' | 'ready' | 'submitted' | 'paid' | 'denied';
-  payer: string;
-  confidence: number;
-  procedures: string[];
-}
-
 export const ClaimsQueue = () => {
-  const [claims, setClaims] = useState<Claim[]>([
-    {
-      id: "CLM-2024-001",
-      patient: "Sarah Johnson",
-      dateOfService: "2024-01-15",
-      amount: 350.00,
-      status: "ready",
-      payer: "Aetna",
-      confidence: 96,
-      procedures: ["D1110", "D0150"]
-    },
-    {
-      id: "CLM-2024-002",
-      patient: "Mike Wilson",
-      dateOfService: "2024-01-14",
-      amount: 275.50,
-      status: "processing",
-      payer: "BCBS",
-      confidence: 89,
-      procedures: ["D2392", "D2140"]
-    },
-    {
-      id: "CLM-2024-003",
-      patient: "Emma Davis",
-      dateOfService: "2024-01-13",
-      amount: 125.00,
-      status: "submitted",
-      payer: "Cigna",
-      confidence: 98,
-      procedures: ["D1110"]
-    }
-  ]);
-
+  const { claims, loading, updateClaimStatus } = useClaimsData();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const { toast } = useToast();
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'draft': return <Clock className="w-4 h-4 text-gray-500" />;
-      case 'processing': return <Brain className="w-4 h-4 text-blue-500" />;
-      case 'ready': return <CheckCircle className="w-4 h-4 text-green-500" />;
+      case 'ai_processing': return <Brain className="w-4 h-4 text-blue-500" />;
+      case 'ready_for_review': return <CheckCircle className="w-4 h-4 text-green-500" />;
       case 'submitted': return <Send className="w-4 h-4 text-blue-600" />;
       case 'paid': return <CheckCircle className="w-4 h-4 text-green-600" />;
       case 'denied': return <AlertTriangle className="w-4 h-4 text-red-500" />;
@@ -84,42 +41,50 @@ export const ClaimsQueue = () => {
   const getStatusBadge = (status: string) => {
     const variants = {
       draft: "secondary",
-      processing: "outline",
-      ready: "default",
+      ai_processing: "outline",
+      ready_for_review: "default",
       submitted: "secondary",
       paid: "default",
       denied: "destructive"
     } as const;
     
-    return <Badge variant={variants[status as keyof typeof variants]}>{status}</Badge>;
+    return <Badge variant={variants[status as keyof typeof variants] || "secondary"}>{status.replace('_', ' ')}</Badge>;
   };
 
   const handleProcessClaim = (claimId: string) => {
-    setClaims(prev => prev.map(claim =>
-      claim.id === claimId ? { ...claim, status: 'processing' as const } : claim
-    ));
-    toast({
-      title: "Claim Processing Started",
-      description: `AI coding analysis initiated for ${claimId}`,
-    });
+    updateClaimStatus(claimId, 'ai_processing');
   };
 
   const handleSubmitClaim = (claimId: string) => {
-    setClaims(prev => prev.map(claim =>
-      claim.id === claimId ? { ...claim, status: 'submitted' as const } : claim
-    ));
-    toast({
-      title: "Claim Submitted",
-      description: `${claimId} has been submitted to the payer`,
-    });
+    updateClaimStatus(claimId, 'submitted');
   };
 
   const filteredClaims = claims.filter(claim => {
-    const matchesSearch = claim.patient.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         claim.id.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === "all" || claim.status === statusFilter;
+    const matchesSearch = claim.patient_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         claim.claim_number?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === "all" || claim.processing_status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-48" />
+            <Skeleton className="h-4 w-96" />
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-16 w-full" />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -149,8 +114,8 @@ export const ClaimsQueue = () => {
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="draft">Draft</SelectItem>
-                <SelectItem value="processing">Processing</SelectItem>
-                <SelectItem value="ready">Ready</SelectItem>
+                <SelectItem value="ai_processing">AI Processing</SelectItem>
+                <SelectItem value="ready_for_review">Ready for Review</SelectItem>
                 <SelectItem value="submitted">Submitted</SelectItem>
                 <SelectItem value="paid">Paid</SelectItem>
                 <SelectItem value="denied">Denied</SelectItem>
@@ -190,50 +155,46 @@ export const ClaimsQueue = () => {
               <TableRow>
                 <TableHead>Claim ID</TableHead>
                 <TableHead>Patient</TableHead>
-                <TableHead>Date of Service</TableHead>
+                <TableHead>Service Date</TableHead>
                 <TableHead>Amount</TableHead>
                 <TableHead>Payer</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Confidence</TableHead>
-                <TableHead>Procedures</TableHead>
+                <TableHead>Days in A/R</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredClaims.map((claim) => (
                 <TableRow key={claim.id}>
-                  <TableCell className="font-medium">{claim.id}</TableCell>
-                  <TableCell>{claim.patient}</TableCell>
-                  <TableCell>{claim.dateOfService}</TableCell>
-                  <TableCell>${claim.amount.toFixed(2)}</TableCell>
-                  <TableCell>{claim.payer}</TableCell>
+                  <TableCell className="font-medium">{claim.claim_number}</TableCell>
+                  <TableCell>{claim.patient_name}</TableCell>
+                  <TableCell>{new Date(claim.service_date).toLocaleDateString()}</TableCell>
+                  <TableCell>${claim.total_amount?.toFixed(2) || '0.00'}</TableCell>
+                  <TableCell>{claim.insurance_name || 'N/A'}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      {getStatusIcon(claim.status)}
-                      {getStatusBadge(claim.status)}
+                      {getStatusIcon(claim.processing_status)}
+                      {getStatusBadge(claim.processing_status)}
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Progress value={claim.confidence} className="w-16" />
-                      <span className="text-sm">{claim.confidence}%</span>
+                      <Progress value={claim.ai_confidence_score || 0} className="w-16" />
+                      <span className="text-sm">{claim.ai_confidence_score || 0}%</span>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="flex gap-1">
-                      {claim.procedures.map((code, index) => (
-                        <Badge key={index} variant="outline" className="text-xs">
-                          {code}
-                        </Badge>
-                      ))}
-                    </div>
+                    <span className={`text-sm ${(claim.days_in_ar || 0) > 30 ? 'text-red-600' : 'text-gray-600'}`}>
+                      {claim.days_in_ar || 0} days
+                    </span>
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-1">
                       <Button variant="ghost" size="sm">
                         <Eye className="w-3 h-3" />
                       </Button>
-                      {claim.status === 'draft' && (
+                      {claim.processing_status === 'draft' && (
                         <Button 
                           variant="ghost" 
                           size="sm"
@@ -242,7 +203,7 @@ export const ClaimsQueue = () => {
                           <Brain className="w-3 h-3" />
                         </Button>
                       )}
-                      {claim.status === 'ready' && (
+                      {claim.processing_status === 'ready_for_review' && (
                         <Button 
                           variant="ghost" 
                           size="sm"
@@ -257,6 +218,12 @@ export const ClaimsQueue = () => {
               ))}
             </TableBody>
           </Table>
+          
+          {filteredClaims.length === 0 && (
+            <div className="text-center py-8 text-muted-foreground">
+              No claims found matching your criteria
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
