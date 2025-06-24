@@ -1253,6 +1253,74 @@ export type Database = {
           },
         ]
       }
+      job_opportunities: {
+        Row: {
+          application_deadline: string | null
+          company_name: string
+          contact_info: string | null
+          created_at: string
+          description: string
+          employment_type: string | null
+          experience_level: string | null
+          id: string
+          job_type: string
+          location: string | null
+          posted_by: string
+          remote_ok: boolean | null
+          salary_range: string | null
+          skills_required: string[] | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          application_deadline?: string | null
+          company_name: string
+          contact_info?: string | null
+          created_at?: string
+          description: string
+          employment_type?: string | null
+          experience_level?: string | null
+          id?: string
+          job_type: string
+          location?: string | null
+          posted_by: string
+          remote_ok?: boolean | null
+          salary_range?: string | null
+          skills_required?: string[] | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          application_deadline?: string | null
+          company_name?: string
+          contact_info?: string | null
+          created_at?: string
+          description?: string
+          employment_type?: string | null
+          experience_level?: string | null
+          id?: string
+          job_type?: string
+          location?: string | null
+          posted_by?: string
+          remote_ok?: boolean | null
+          salary_range?: string | null
+          skills_required?: string[] | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_posted_by"
+            columns: ["posted_by"]
+            isOneToOne: false
+            referencedRelation: "advisor_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       medical_history: {
         Row: {
           condition_name: string
@@ -1360,6 +1428,113 @@ export type Database = {
             columns: ["patient_id"]
             isOneToOne: false
             referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mentoring_relationships: {
+        Row: {
+          created_at: string
+          goals: string | null
+          id: string
+          meeting_frequency: string | null
+          mentee_id: string
+          mentor_id: string
+          notes: string | null
+          specialization: string | null
+          started_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          goals?: string | null
+          id?: string
+          meeting_frequency?: string | null
+          mentee_id: string
+          mentor_id: string
+          notes?: string | null
+          specialization?: string | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          goals?: string | null
+          id?: string
+          meeting_frequency?: string | null
+          mentee_id?: string
+          mentor_id?: string
+          notes?: string | null
+          specialization?: string | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_mentee"
+            columns: ["mentee_id"]
+            isOneToOne: false
+            referencedRelation: "advisor_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_mentor"
+            columns: ["mentor_id"]
+            isOneToOne: false
+            referencedRelation: "advisor_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mentoring_requests: {
+        Row: {
+          created_at: string
+          description: string
+          experience_level: string | null
+          id: string
+          preferred_format: string | null
+          request_type: string
+          requester_id: string
+          specialization: string
+          status: string
+          time_commitment: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          experience_level?: string | null
+          id?: string
+          preferred_format?: string | null
+          request_type: string
+          requester_id: string
+          specialization: string
+          status?: string
+          time_commitment?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          experience_level?: string | null
+          id?: string
+          preferred_format?: string | null
+          request_type?: string
+          requester_id?: string
+          specialization?: string
+          status?: string
+          time_commitment?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_requester"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "advisor_profiles"
             referencedColumns: ["id"]
           },
         ]
