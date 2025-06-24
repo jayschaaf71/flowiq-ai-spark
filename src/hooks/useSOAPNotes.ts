@@ -37,7 +37,14 @@ export const useSOAPNotes = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setSOAPNotes(data || []);
+      
+      // Map database fields to our interface
+      const mappedData = (data || []).map(note => ({
+        ...note,
+        generated_by_ai: note.generated_by_ai || false
+      }));
+      
+      setSOAPNotes(mappedData);
     } catch (error) {
       console.error('Error fetching SOAP notes:', error);
       toast({
@@ -52,9 +59,25 @@ export const useSOAPNotes = () => {
 
   const createSOAPNote = async (soapData: Partial<SOAPNote>) => {
     try {
+      // Ensure required fields are present
+      const noteData = {
+        patient_id: soapData.patient_id || '',
+        subjective: soapData.subjective,
+        objective: soapData.objective,
+        assessment: soapData.assessment,
+        plan: soapData.plan,
+        transcription_text: soapData.transcription_text,
+        generated_by_ai: soapData.generated_by_ai || false,
+        confidence_score: soapData.confidence_score,
+        status: soapData.status || 'draft',
+        provider_id: soapData.provider_id,
+        appointment_id: soapData.appointment_id,
+        created_by: soapData.created_by
+      };
+
       const { data, error } = await supabase
         .from('soap_notes')
-        .insert([soapData])
+        .insert([noteData])
         .select()
         .single();
 
