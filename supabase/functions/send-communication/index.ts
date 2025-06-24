@@ -63,6 +63,16 @@ const handler = async (req: Request): Promise<Response> => {
 
       // Template-specific content
       switch (request.templateId) {
+        case 'daily-provider-summary':
+          emailSubject = `Daily Schedule Summary - ${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
+          emailContent = request.customMessage || `
+            <h2>Good Morning!</h2>
+            <p>Here's your daily schedule summary.</p>
+            <p>Have a great day!</p>
+            <br>
+            <p>Best regards,<br>Your Practice Management System</p>
+          `;
+          break;
         case 'welcome':
           emailSubject = `Welcome to Our Practice, ${request.patientName}!`;
           emailContent = `
@@ -115,7 +125,7 @@ const handler = async (req: Request): Promise<Response> => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: 'Intake System <noreply@resend.dev>', // Using default Resend test domain
+          from: 'Practice Management <noreply@resend.dev>', // Using default Resend test domain
           to: [request.recipient],
           subject: emailSubject,
           html: emailContent,
@@ -171,6 +181,9 @@ const handler = async (req: Request): Promise<Response> => {
       // Enhanced SMS template processing
       let smsMessage = message;
       switch (request.templateId) {
+        case 'daily-provider-summary-sms':
+          smsMessage = request.customMessage || `Good morning! Here's your daily schedule summary. Have a great day!`;
+          break;
         case 'welcome-sms':
           smsMessage = `Welcome ${request.patientName}! We've received your intake form. We'll contact you within 24 hours. Reply STOP to opt out.`;
           break;
