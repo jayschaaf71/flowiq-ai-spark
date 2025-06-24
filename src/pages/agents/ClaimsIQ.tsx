@@ -14,12 +14,12 @@ const ClaimsIQ = () => {
 
   return (
     <Layout>
-      <PageHeader 
-        title="Claims iQ"
-        subtitle="AI-powered claims processing, denial management, and revenue cycle optimization"
-      />
-      
       <div className="space-y-6">
+        <PageHeader 
+          title="Claims iQ"
+          subtitle="AI-powered claims processing, denial management, and revenue cycle optimization"
+        />
+        
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
