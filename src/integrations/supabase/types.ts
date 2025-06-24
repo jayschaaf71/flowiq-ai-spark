@@ -1804,6 +1804,48 @@ export type Database = {
         }
         Relationships: []
       }
+      nomination_votes: {
+        Row: {
+          created_at: string
+          id: string
+          nomination_id: string
+          vote_comment: string | null
+          vote_type: string
+          voter_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nomination_id: string
+          vote_comment?: string | null
+          vote_type: string
+          voter_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nomination_id?: string
+          vote_comment?: string | null
+          vote_type?: string
+          voter_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nomination_votes_nomination_id_fkey"
+            columns: ["nomination_id"]
+            isOneToOne: false
+            referencedRelation: "sponsorship_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nomination_votes_voter_id_fkey"
+            columns: ["voter_id"]
+            isOneToOne: false
+            referencedRelation: "advisor_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notification_queue: {
         Row: {
           appointment_id: string | null
@@ -2701,7 +2743,10 @@ export type Database = {
           candidate_name: string
           candidate_position: string | null
           created_at: string
+          expected_contribution: string | null
           id: string
+          nominee_background: string | null
+          nominee_linkedin: string | null
           reason_for_nomination: string
           reviewed_at: string | null
           sponsor_id: string
@@ -2715,7 +2760,10 @@ export type Database = {
           candidate_name: string
           candidate_position?: string | null
           created_at?: string
+          expected_contribution?: string | null
           id?: string
+          nominee_background?: string | null
+          nominee_linkedin?: string | null
           reason_for_nomination: string
           reviewed_at?: string | null
           sponsor_id: string
@@ -2729,7 +2777,10 @@ export type Database = {
           candidate_name?: string
           candidate_position?: string | null
           created_at?: string
+          expected_contribution?: string | null
           id?: string
+          nominee_background?: string | null
+          nominee_linkedin?: string | null
           reason_for_nomination?: string
           reviewed_at?: string | null
           sponsor_id?: string

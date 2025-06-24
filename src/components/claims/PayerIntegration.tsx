@@ -282,7 +282,7 @@ export const PayerIntegration = () => {
             </TableBody>
           </Table>
         </CardContent>
-      </div>
+      </Card>
 
       {/* Integration Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
