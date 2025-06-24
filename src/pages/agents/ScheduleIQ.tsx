@@ -16,8 +16,9 @@ import { SetupWizard } from "@/components/schedule/SetupWizard";
 import { SchedulingEngine } from "@/components/schedule/SchedulingEngine";
 import { DailyProviderSummary } from "@/components/schedule/DailyProviderSummary";
 import { PreAppointmentSummaryPreview } from "@/components/schedule/PreAppointmentSummaryPreview";
+import { PreAppointmentAutomation } from "@/components/schedule/PreAppointmentAutomation";
 import { useToast } from "@/hooks/use-toast";
-import { Settings, Zap, Brain, BarChart3, MessageCircle, Calendar, Users, Bell, Mail, User } from "lucide-react";
+import { Settings, Zap, Brain, BarChart3, MessageCircle, Calendar, Users, Bell, Mail, User, Cog } from "lucide-react";
 
 const ScheduleIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -111,7 +112,7 @@ const ScheduleIQ = () => {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <div className="flex items-center justify-between">
-            <TabsList className="grid w-full grid-cols-10">
+            <TabsList className="grid w-full grid-cols-11">
               <TabsTrigger value="dashboard" className="flex items-center gap-1">
                 <Brain className="w-4 h-4" />
                 AI Dashboard
@@ -143,6 +144,10 @@ const ScheduleIQ = () => {
               <TabsTrigger value="pre-summary" className="flex items-center gap-1">
                 <User className="w-4 h-4" />
                 Pre-Appt Summary
+              </TabsTrigger>
+              <TabsTrigger value="automation" className="flex items-center gap-1">
+                <Cog className="w-4 h-4" />
+                Automation
               </TabsTrigger>
               <TabsTrigger value="daily-summary" className="flex items-center gap-1">
                 <Mail className="w-4 h-4" />
@@ -194,6 +199,10 @@ const ScheduleIQ = () => {
 
           <TabsContent value="pre-summary" className="space-y-4">
             <PreAppointmentSummaryPreview />
+          </TabsContent>
+
+          <TabsContent value="automation" className="space-y-4">
+            <PreAppointmentAutomation />
           </TabsContent>
 
           <TabsContent value="daily-summary" className="space-y-4">
