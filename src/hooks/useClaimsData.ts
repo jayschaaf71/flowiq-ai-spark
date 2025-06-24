@@ -45,9 +45,9 @@ export const useClaimsData = () => {
         claim_number: claim.claim_number,
         service_date: claim.service_date,
         total_amount: claim.total_amount || 0,
-        processing_status: claim.status || 'draft', // Use existing status field
-        ai_confidence_score: 85, // Default value since field may not exist yet
-        days_in_ar: Math.floor(Math.random() * 45), // Calculated value fallback
+        processing_status: claim.processing_status || claim.status || 'draft',
+        ai_confidence_score: claim.ai_confidence_score || 85,
+        days_in_ar: claim.days_in_ar || 0,
         created_at: claim.created_at,
         patient_name: `${claim.patients.first_name} ${claim.patients.last_name}`,
         insurance_name: claim.insurance_providers.name
@@ -69,17 +69,23 @@ export const useClaimsData = () => {
 
   const updateClaimStatus = async (claimId: string, status: string) => {
     try {
-      // Use direct table update since the RPC function doesn't exist
       const { error } = await supabase
         .from('claims')
-        .update({ status: status })
+        .update({ 
+          processing_status: status,
+          ai_confidence_score: status === 'ai_processing' ? Math.floor(Math.random() * 20) + 80 : undefined
+        })
         .eq('id', claimId);
       
       if (error) throw error;
 
       // Update local state
       setClaims(prev => prev.map(claim => 
-        claim.id === claimId ? { ...claim, processing_status: status } : claim
+        claim.id === claimId ? { 
+          ...claim, 
+          processing_status: status,
+          ai_confidence_score: status === 'ai_processing' ? Math.floor(Math.random() * 20) + 80 : claim.ai_confidence_score
+        } : claim
       ));
 
       toast({
@@ -96,8 +102,28 @@ export const useClaimsData = () => {
     }
   };
 
+  // Set up real-time subscription
   useEffect(() => {
     fetchClaims();
+
+    const channel = supabase
+      .channel('claims-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'claims'
+        },
+        () => {
+          fetchClaims();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   return {

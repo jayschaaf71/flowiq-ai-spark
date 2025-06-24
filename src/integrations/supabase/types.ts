@@ -640,6 +640,59 @@ export type Database = {
         }
         Relationships: []
       }
+      claim_denials: {
+        Row: {
+          appeal_status: string
+          auto_correction_attempted: boolean
+          auto_correction_success: boolean
+          claim_id: string
+          created_at: string
+          denial_amount: number
+          denial_date: string
+          denial_reason: string | null
+          id: string
+          is_auto_correctable: boolean | null
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          appeal_status?: string
+          auto_correction_attempted?: boolean
+          auto_correction_success?: boolean
+          claim_id: string
+          created_at?: string
+          denial_amount: number
+          denial_date: string
+          denial_reason?: string | null
+          id?: string
+          is_auto_correctable?: boolean | null
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          appeal_status?: string
+          auto_correction_attempted?: boolean
+          auto_correction_success?: boolean
+          claim_id?: string
+          created_at?: string
+          denial_amount?: number
+          denial_date?: string
+          denial_reason?: string | null
+          id?: string
+          is_auto_correctable?: boolean | null
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "claim_denials_claim_id_fkey"
+            columns: ["claim_id"]
+            isOneToOne: false
+            referencedRelation: "claims"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       claim_line_items: {
         Row: {
           claim_id: string
@@ -689,13 +742,16 @@ export type Database = {
       }
       claims: {
         Row: {
+          ai_confidence_score: number | null
           claim_number: string
           created_at: string
+          days_in_ar: number | null
           id: string
           insurance_amount: number | null
           insurance_provider_id: string
           patient_amount: number | null
           patient_id: string
+          processing_status: string | null
           provider_id: string
           rejection_reason: string | null
           response_date: string | null
@@ -706,13 +762,16 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          ai_confidence_score?: number | null
           claim_number: string
           created_at?: string
+          days_in_ar?: number | null
           id?: string
           insurance_amount?: number | null
           insurance_provider_id: string
           patient_amount?: number | null
           patient_id: string
+          processing_status?: string | null
           provider_id: string
           rejection_reason?: string | null
           response_date?: string | null
@@ -723,13 +782,16 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          ai_confidence_score?: number | null
           claim_number?: string
           created_at?: string
+          days_in_ar?: number | null
           id?: string
           insurance_amount?: number | null
           insurance_provider_id?: string
           patient_amount?: number | null
           patient_id?: string
+          processing_status?: string | null
           provider_id?: string
           rejection_reason?: string | null
           response_date?: string | null
@@ -1702,6 +1764,42 @@ export type Database = {
           },
         ]
       }
+      payer_performance: {
+        Row: {
+          average_payment_days: number
+          claims_count: number
+          collection_rate: number
+          created_at: string
+          id: string
+          payer_name: string
+          period_end: string
+          period_start: string
+          total_collected: number
+        }
+        Insert: {
+          average_payment_days?: number
+          claims_count?: number
+          collection_rate?: number
+          created_at?: string
+          id?: string
+          payer_name: string
+          period_end: string
+          period_start: string
+          total_collected?: number
+        }
+        Update: {
+          average_payment_days?: number
+          claims_count?: number
+          collection_rate?: number
+          created_at?: string
+          id?: string
+          payer_name?: string
+          period_end?: string
+          period_start?: string
+          total_collected?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -1891,6 +1989,51 @@ export type Database = {
           patient_name?: string
           start_date?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      revenue_metrics: {
+        Row: {
+          average_days_in_ar: number
+          claims_denied: number
+          claims_paid: number
+          claims_submitted: number
+          collection_rate: number
+          created_at: string
+          denial_rate: number
+          id: string
+          period_end: string
+          period_start: string
+          total_charges: number
+          total_collections: number
+        }
+        Insert: {
+          average_days_in_ar?: number
+          claims_denied?: number
+          claims_paid?: number
+          claims_submitted?: number
+          collection_rate?: number
+          created_at?: string
+          denial_rate?: number
+          id?: string
+          period_end: string
+          period_start: string
+          total_charges?: number
+          total_collections?: number
+        }
+        Update: {
+          average_days_in_ar?: number
+          claims_denied?: number
+          claims_paid?: number
+          claims_submitted?: number
+          collection_rate?: number
+          created_at?: string
+          denial_rate?: number
+          id?: string
+          period_end?: string
+          period_start?: string
+          total_charges?: number
+          total_collections?: number
         }
         Relationships: []
       }

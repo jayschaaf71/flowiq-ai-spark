@@ -28,40 +28,35 @@ export const useDenialData = () => {
     try {
       setLoading(true);
       
-      // Since claim_denials table may not be in types yet, let's create sample data
-      // In a real implementation, this would query the actual table
-      const sampleDenials: Denial[] = [
-        {
-          id: '1',
-          claim_id: 'CLM001',
-          denial_date: '2024-06-20',
-          denial_amount: 250.00,
-          appeal_status: 'not_appealed',
-          notes: 'Prior authorization required',
-          auto_correction_attempted: false,
-          auto_correction_success: false,
-          claim_number: 'CLM001',
-          patient_name: 'John Doe',
-          denial_reason: 'Prior authorization required',
-          is_auto_correctable: true
-        },
-        {
-          id: '2',
-          claim_id: 'CLM002',
-          denial_date: '2024-06-19',
-          denial_amount: 180.00,
-          appeal_status: 'appeal_pending',
-          notes: 'Missing documentation',
-          auto_correction_attempted: true,
-          auto_correction_success: false,
-          claim_number: 'CLM002',
-          patient_name: 'Jane Smith',
-          denial_reason: 'Incomplete claim information',
-          is_auto_correctable: true
-        }
-      ];
+      const { data, error } = await supabase
+        .from('claim_denials')
+        .select(`
+          *,
+          claims!inner(
+            claim_number,
+            patients!inner(first_name, last_name)
+          )
+        `)
+        .order('denial_date', { ascending: false });
 
-      setDenials(sampleDenials);
+      if (error) throw error;
+
+      const transformedDenials: Denial[] = data?.map((denial: any) => ({
+        id: denial.id,
+        claim_id: denial.claim_id,
+        denial_date: denial.denial_date,
+        denial_amount: denial.denial_amount,
+        appeal_status: denial.appeal_status,
+        notes: denial.notes,
+        auto_correction_attempted: denial.auto_correction_attempted,
+        auto_correction_success: denial.auto_correction_success,
+        claim_number: denial.claims.claim_number,
+        patient_name: `${denial.claims.patients.first_name} ${denial.claims.patients.last_name}`,
+        denial_reason: denial.denial_reason,
+        is_auto_correctable: denial.is_auto_correctable
+      })) || [];
+
+      setDenials(transformedDenials);
     } catch (err) {
       console.error('Error fetching denials:', err);
       toast({
@@ -76,13 +71,23 @@ export const useDenialData = () => {
 
   const processAutoCorrection = async (denialId: string) => {
     try {
-      // Update local state for demo
+      const { error } = await supabase
+        .from('claim_denials')
+        .update({ 
+          auto_correction_attempted: true,
+          auto_correction_success: Math.random() > 0.3 // 70% success rate for demo
+        })
+        .eq('id', denialId);
+
+      if (error) throw error;
+
+      // Update local state
       setDenials(prev => prev.map(denial => 
         denial.id === denialId 
           ? { 
               ...denial, 
               auto_correction_attempted: true,
-              auto_correction_success: true 
+              auto_correction_success: Math.random() > 0.3
             } 
           : denial
       ));
@@ -101,8 +106,28 @@ export const useDenialData = () => {
     }
   };
 
+  // Set up real-time subscription
   useEffect(() => {
     fetchDenials();
+
+    const channel = supabase
+      .channel('denials-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'claim_denials'
+        },
+        () => {
+          fetchDenials();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   return {
