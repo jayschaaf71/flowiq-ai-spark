@@ -11,6 +11,7 @@ export interface ClaimGenerationRequest {
   diagnosis: string[];
   procedures: string[];
   specialty: string;
+  insuranceProviderId?: string;
 }
 
 export interface GeneratedClaim {
@@ -52,7 +53,10 @@ class ClaimGenerationService {
       // Step 4: Determine claim status
       const status = this.determineClaimStatus(codingResponse, validation);
 
-      // Step 5: Create claim record
+      // Step 5: Get or create default insurance provider
+      const insuranceProviderId = request.insuranceProviderId || await this.getDefaultInsuranceProvider();
+
+      // Step 6: Create claim record with correct field names
       const claimNumber = `CLM-${Date.now()}`;
       
       const { data: claim, error } = await supabase
@@ -61,10 +65,12 @@ class ClaimGenerationService {
           claim_number: claimNumber,
           patient_id: request.patientId,
           provider_id: request.providerId,
+          insurance_provider_id: insuranceProviderId,
           service_date: request.serviceDate,
           total_amount: totalAmount,
           processing_status: status,
-          ai_confidence_score: Math.round(codingResponse.overallConfidence * 100)
+          ai_confidence_score: Math.round(codingResponse.overallConfidence * 100),
+          status: 'draft'
         })
         .select()
         .single();
@@ -89,6 +95,32 @@ class ClaimGenerationService {
       console.error('Claim generation error:', error);
       throw error;
     }
+  }
+
+  private async getDefaultInsuranceProvider(): Promise<string> {
+    // Try to get the first active insurance provider
+    const { data: providers, error } = await supabase
+      .from('insurance_providers')
+      .select('id')
+      .eq('is_active', true)
+      .limit(1);
+
+    if (error || !providers || providers.length === 0) {
+      // Create a default insurance provider if none exists
+      const { data: defaultProvider, error: createError } = await supabase
+        .from('insurance_providers')
+        .insert({
+          name: 'Default Insurance',
+          is_active: true
+        })
+        .select('id')
+        .single();
+
+      if (createError) throw createError;
+      return defaultProvider.id;
+    }
+
+    return providers[0].id;
   }
 
   private calculateClaimAmount(codes: MedicalCode[]): number {
