@@ -63,6 +63,16 @@ const handler = async (req: Request): Promise<Response> => {
 
       // Template-specific content
       switch (request.templateId) {
+        case 'pre-appointment-summary':
+          emailSubject = `Pre-Appointment Patient Summary - ${new Date().toLocaleDateString()}`;
+          emailContent = request.customMessage || `
+            <h2>Pre-Appointment Patient Summary</h2>
+            <p>Here's the patient summary for your upcoming appointment.</p>
+            <p>Please review this information before seeing the patient.</p>
+            <br>
+            <p>Best regards,<br>Your Practice Management System</p>
+          `;
+          break;
         case 'daily-provider-summary':
           emailSubject = `Daily Schedule Summary - ${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
           emailContent = request.customMessage || `
@@ -181,6 +191,9 @@ const handler = async (req: Request): Promise<Response> => {
       // Enhanced SMS template processing
       let smsMessage = message;
       switch (request.templateId) {
+        case 'pre-appointment-summary-sms':
+          smsMessage = request.customMessage || `Pre-appointment patient summary: Please check your email for detailed patient information before your next appointment.`;
+          break;
         case 'daily-provider-summary-sms':
           smsMessage = request.customMessage || `Good morning! Here's your daily schedule summary. Have a great day!`;
           break;
