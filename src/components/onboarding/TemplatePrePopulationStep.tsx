@@ -1,38 +1,21 @@
 
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Label } from "@/components/ui/label";
 import { 
   FileText, 
   Sparkles, 
   Clock, 
-  CheckCircle2,
   Settings,
-  Download,
-  Eye
+  Database
 } from "lucide-react";
 import { SpecialtyType, specialtyConfigs } from '@/utils/specialtyConfig';
-
-interface TemplatePrePopulationStepProps {
-  specialty: SpecialtyType;
-  templateConfig: {
-    enableAutoGeneration: boolean;
-    selectedTemplates: string[];
-    customizationPreferences: {
-      includeBranding: boolean;
-      primaryColor: string;
-      secondaryColor: string;
-      logoUrl?: string;
-    };
-    generationProgress: number;
-    generatedTemplates: any[];
-  };
-  onUpdateTemplateConfig: (config: any) => void;
-}
+import { TemplateSelectionCard } from './template/TemplateSelectionCard';
+import { CustomizationPreferences } from './template/CustomizationPreferences';
+import { GenerationControls } from './template/GenerationControls';
+import { GeneratedTemplatesPreview } from './template/GeneratedTemplatesPreview';
+import { TemplatePrePopulationStepProps } from './template/types';
 
 export const TemplatePrePopulationStep: React.FC<TemplatePrePopulationStepProps> = ({
   specialty,
@@ -70,7 +53,7 @@ export const TemplatePrePopulationStep: React.FC<TemplatePrePopulationStepProps>
       id: 'billing-templates',
       name: 'Billing Templates',
       description: 'Insurance claims and payment request templates',
-      icon: Settings,
+      icon: Database,
       estimated_time: '2 min',
       templates_count: 5
     }
@@ -122,7 +105,6 @@ export const TemplatePrePopulationStep: React.FC<TemplatePrePopulationStepProps>
     }
   };
 
-  const isGenerating = templateConfig.generationProgress > 0 && templateConfig.generationProgress < 100;
   const hasGenerated = templateConfig.generationProgress === 100;
 
   return (
@@ -162,174 +144,34 @@ export const TemplatePrePopulationStep: React.FC<TemplatePrePopulationStepProps>
       {templateConfig.enableAutoGeneration && (
         <>
           {/* Template Selection */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Select Templates to Generate</CardTitle>
-              <CardDescription>
-                Choose which templates you'd like us to create for your practice.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {availableTemplates.map((template) => {
-                  const Icon = template.icon;
-                  const isSelected = templateConfig.selectedTemplates.includes(template.id);
-                  
-                  return (
-                    <div key={template.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <Icon className="w-5 h-5 text-gray-600" />
-                        <div>
-                          <h4 className="font-medium">{template.name}</h4>
-                          <p className="text-sm text-gray-600">{template.description}</p>
-                          <div className="flex items-center gap-4 mt-2">
-                            <Badge variant="secondary" className="text-xs">
-                              {template.templates_count} templates
-                            </Badge>
-                            <Badge variant="outline" className="text-xs">
-                              ~{template.estimated_time}
-                            </Badge>
-                          </div>
-                        </div>
-                      </div>
-                      <Switch
-                        checked={isSelected}
-                        onCheckedChange={(checked) => handleTemplateToggle(template.id, checked)}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
+          <TemplateSelectionCard
+            availableTemplates={availableTemplates}
+            selectedTemplates={templateConfig.selectedTemplates}
+            onTemplateToggle={handleTemplateToggle}
+            primaryColor={specialtyConfig.primaryColor}
+          />
 
           {/* Customization Preferences */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Customization Preferences</CardTitle>
-              <CardDescription>
-                Customize how your templates will look and feel.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>Include Practice Branding</Label>
-                  <p className="text-sm text-gray-600">Add your practice colors and styling</p>
-                </div>
-                <Switch
-                  checked={templateConfig.customizationPreferences.includeBranding}
-                  onCheckedChange={(checked) => handleCustomizationChange('includeBranding', checked)}
-                />
-              </div>
-
-              {templateConfig.customizationPreferences.includeBranding && (
-                <div className="pl-4 space-y-3 border-l-2" style={{ borderColor: specialtyConfig.primaryColor }}>
-                  <div>
-                    <Label>Primary Color</Label>
-                    <div className="flex items-center gap-2 mt-1">
-                      <div 
-                        className="w-8 h-8 rounded-full border-2 border-gray-300"
-                        style={{ backgroundColor: specialtyConfig.primaryColor }}
-                      ></div>
-                      <span className="text-sm font-mono">{specialtyConfig.primaryColor}</span>
-                    </div>
-                  </div>
-                  <div>
-                    <Label>Secondary Color</Label>
-                    <div className="flex items-center gap-2 mt-1">
-                      <div 
-                        className="w-8 h-8 rounded-full border-2 border-gray-300"
-                        style={{ backgroundColor: specialtyConfig.secondaryColor }}
-                      ></div>
-                      <span className="text-sm font-mono">{specialtyConfig.secondaryColor}</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <CustomizationPreferences
+            customizationPreferences={templateConfig.customizationPreferences}
+            onCustomizationChange={handleCustomizationChange}
+            primaryColor={specialtyConfig.primaryColor}
+          />
 
           {/* Generation Controls */}
-          {templateConfig.selectedTemplates.length > 0 && (
-            <Card>
-              <CardContent className="pt-6">
-                {!isGenerating && !hasGenerated && (
-                  <div className="text-center">
-                    <Button 
-                      onClick={handleGenerateTemplates}
-                      className="w-full"
-                      style={{ backgroundColor: specialtyConfig.primaryColor }}
-                    >
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      Generate {templateConfig.selectedTemplates.length} Template Set(s)
-                    </Button>
-                    <p className="text-sm text-gray-600 mt-2">
-                      This will take approximately 3-5 minutes
-                    </p>
-                  </div>
-                )}
-
-                {isGenerating && (
-                  <div className="space-y-4">
-                    <div className="text-center">
-                      <h4 className="font-medium mb-2">Generating Templates...</h4>
-                      <Progress value={templateConfig.generationProgress} className="w-full" />
-                      <p className="text-sm text-gray-600 mt-2">
-                        {templateConfig.generationProgress}% complete
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {hasGenerated && (
-                  <div className="space-y-4">
-                    <div className="text-center text-green-600">
-                      <CheckCircle2 className="w-8 h-8 mx-auto mb-2" />
-                      <h4 className="font-medium">Templates Generated Successfully!</h4>
-                    </div>
-                    <div className="flex gap-2 justify-center">
-                      <Button variant="outline" size="sm">
-                        <Eye className="w-4 h-4 mr-2" />
-                        Preview Templates
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        <Download className="w-4 h-4 mr-2" />
-                        Export Templates
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
+          <GenerationControls
+            selectedTemplatesCount={templateConfig.selectedTemplates.length}
+            generationProgress={templateConfig.generationProgress}
+            onGenerateTemplates={handleGenerateTemplates}
+            primaryColor={specialtyConfig.primaryColor}
+          />
 
           {/* Preview of Generated Content */}
-          {hasGenerated && (
-            <Card className="bg-green-50 border-green-200">
-              <CardHeader>
-                <CardTitle className="text-green-900">Generated Templates</CardTitle>
-                <CardDescription className="text-green-700">
-                  Your specialty-specific templates are ready to use.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {templateConfig.selectedTemplates.map((templateId) => {
-                    const template = availableTemplates.find(t => t.id === templateId);
-                    return (
-                      <div key={templateId} className="flex items-center justify-between p-2 bg-white rounded border">
-                        <span className="text-sm font-medium">{template?.name}</span>
-                        <Badge className="bg-green-100 text-green-800">
-                          {template?.templates_count} templates
-                        </Badge>
-                      </div>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          <GeneratedTemplatesPreview
+            selectedTemplates={templateConfig.selectedTemplates}
+            availableTemplates={availableTemplates}
+            hasGenerated={hasGenerated}
+          />
         </>
       )}
     </div>
