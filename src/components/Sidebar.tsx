@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import { useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
@@ -22,10 +23,11 @@ import {
   MessageSquare,
   ShieldCheck,
   CreditCard,
-  Play
+  Play,
+  Mic
 } from "lucide-react"
 
-interface SidebarProps extends React.HTMLAttributes<HTMLElement> {}
+interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 const navigationItems = [
   {
@@ -90,7 +92,7 @@ const navigationItems = [
   },
 ];
 
-const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(({ className, ...props }, ref) => {
+const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(({ className, ...props }, ref) => {
   const { user, profile, signOut } = useAuth();
   const tenantConfig = useTenantConfig();
   const navigate = useNavigate();
@@ -154,10 +156,10 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(({ className, ...pro
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="flex h-8 w-full items-center justify-between px-2">
               <Avatar className="mr-2 h-8 w-8">
-                <AvatarImage src={profile?.avatar_url} alt={profile?.full_name} />
-                <AvatarFallback>{profile?.full_name?.slice(0, 2).toUpperCase()}</AvatarFallback>
+                <AvatarImage src={profile?.avatar_url || ""} alt={profile?.first_name || ""} />
+                <AvatarFallback>{profile?.first_name?.slice(0, 1)}{profile?.last_name?.slice(0, 1)}</AvatarFallback>
               </Avatar>
-              <span className="truncate text-left">{profile?.full_name}</span>
+              <span className="truncate text-left">{profile?.first_name} {profile?.last_name}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" forceMount className="w-48">

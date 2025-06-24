@@ -1,7 +1,8 @@
+
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from "@/components/ui/toaster"
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthPage } from './components/auth/AuthPage';
 import { Layout } from './components/Layout';
 import { Dashboard } from './pages/Dashboard';
@@ -11,15 +12,17 @@ import ScheduleIQ from './pages/agents/ScheduleIQ';
 import IntakeIQ from './pages/agents/IntakeIQ';
 import ClaimsIQ from './pages/agents/ClaimsIQ';
 import ScribeIQ from './pages/agents/ScribeIQ';
-import EHRDashboard from './components/ehr/EHRDashboard';
-import WorkflowOrchestration from './components/manager/WorkflowOrchestration';
+import { EHRDashboard } from './components/ehr/EHRDashboard';
+import { WorkflowOrchestration } from './components/manager/WorkflowOrchestration';
 import ScheduleIQProduction from './pages/agents/ScheduleIQProduction';
 import PilotDemo from "./pages/PilotDemo";
+
+const queryClient = new QueryClient();
 
 function App() {
   return (
     <BrowserRouter>
-      <QueryClient>
+      <QueryClientProvider client={queryClient}>
         <Toaster />
         <Routes>
           <Route path="/auth" element={<AuthPage />} />
@@ -35,7 +38,7 @@ function App() {
           <Route path="/workflow-orchestration" element={<Layout><WorkflowOrchestration /></Layout>} />
           <Route path="/pilot-demo" element={<PilotDemo />} />
         </Routes>
-      </QueryClient>
+      </QueryClientProvider>
     </BrowserRouter>
   );
 }
