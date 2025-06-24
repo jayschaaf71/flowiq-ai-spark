@@ -26,6 +26,7 @@ import AIInsights from './pages/AIInsights';
 import PilotDashboard from "@/pages/PilotDashboard";
 import OnboardNewTenant from './pages/OnboardNewTenant';
 import { SpecialtyProvider } from './contexts/SpecialtyContext';
+import AcceptInvitation from './pages/AcceptInvitation';
 
 function App() {
   return (
@@ -192,6 +193,8 @@ function App() {
                   </Layout>
                 </ProtectedRoute>
               } />
+              
+              <Route path="/accept-invitation/:token" element={<AcceptInvitation />} />
               
               <Route path="/pilot-dashboard" element={<PilotDashboard />} />
             </Routes>

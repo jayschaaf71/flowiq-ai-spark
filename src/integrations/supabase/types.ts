@@ -1545,6 +1545,50 @@ export type Database = {
           },
         ]
       }
+      onboarding_progress: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          current_step: number
+          form_data: Json
+          id: string
+          is_completed: boolean
+          tenant_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          current_step?: number
+          form_data?: Json
+          id?: string
+          is_completed?: boolean
+          tenant_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          current_step?: number
+          form_data?: Json
+          id?: string
+          is_completed?: boolean
+          tenant_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "onboarding_progress_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       patient_insurance: {
         Row: {
           copay_amount: number | null
@@ -2297,6 +2341,68 @@ export type Database = {
             columns: ["submission_id"]
             isOneToOne: false
             referencedRelation: "intake_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_invitations: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          department: string | null
+          email: string
+          expires_at: string
+          first_name: string
+          id: string
+          invitation_token: string
+          invited_by: string
+          last_name: string
+          personal_message: string | null
+          role: string
+          status: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          department?: string | null
+          email: string
+          expires_at?: string
+          first_name: string
+          id?: string
+          invitation_token?: string
+          invited_by: string
+          last_name: string
+          personal_message?: string | null
+          role: string
+          status?: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          department?: string | null
+          email?: string
+          expires_at?: string
+          first_name?: string
+          id?: string
+          invitation_token?: string
+          invited_by?: string
+          last_name?: string
+          personal_message?: string | null
+          role?: string
+          status?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_invitations_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
         ]

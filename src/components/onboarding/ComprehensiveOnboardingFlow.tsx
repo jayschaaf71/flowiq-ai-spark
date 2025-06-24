@@ -1,11 +1,11 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Circle, ArrowRight, ArrowLeft, Sparkles } from "lucide-react";
+import { CheckCircle, Circle, ArrowRight, ArrowLeft, Sparkles, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useOnboardingProgress } from "@/hooks/useOnboardingProgress";
 import { SpecialtyType } from '@/utils/specialtyConfig';
 import { SpecialtySelectionStep } from './SpecialtySelectionStep';
 import { PracticeDetailsStep } from './PracticeDetailsStep';
@@ -104,6 +104,14 @@ export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: Comprehens
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { 
+    progress, 
+    isLoading: isLoadingProgress, 
+    saveProgress, 
+    isSaving, 
+    completeProgress,
+    clearProgress 
+  } = useOnboardingProgress();
 
   const [onboardingData, setOnboardingData] = useState<OnboardingData>({
     specialty: null,
@@ -177,6 +185,20 @@ export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: Comprehens
     }
   });
 
+  // Load saved progress when component mounts
+  useEffect(() => {
+    if (progress && !isLoadingProgress) {
+      setCurrentStep(progress.current_step);
+      if (progress.form_data && Object.keys(progress.form_data).length > 0) {
+        setOnboardingData(prev => ({ ...prev, ...progress.form_data }));
+        toast({
+          title: "Progress restored",
+          description: "We've restored your previous onboarding progress.",
+        });
+      }
+    }
+  }, [progress, isLoadingProgress, toast]);
+
   const steps = [
     {
       id: 'specialty',
@@ -223,7 +245,21 @@ export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: Comprehens
   ];
 
   const currentStepData = steps[currentStep];
-  const progress = ((currentStep + 1) / steps.length) * 100;
+  const progressPercentage = ((currentStep + 1) / steps.length) * 100;
+
+  // Auto-save progress when form data changes
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (currentStep > 0 && onboardingData.specialty) {
+        saveProgress({
+          currentStep,
+          formData: onboardingData,
+        });
+      }
+    }, 2000); // Auto-save after 2 seconds of inactivity
+
+    return () => clearTimeout(timeoutId);
+  }, [onboardingData, currentStep, saveProgress]);
 
   const validateCurrentStep = (): boolean => {
     switch (currentStep) {
@@ -243,6 +279,103 @@ export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: Comprehens
     }
   };
 
+  const handleSaveAndExit = () => {
+    saveProgress({
+      currentStep,
+      formData: onboardingData,
+    });
+    
+    toast({
+      title: "Progress saved",
+      description: "You can continue your setup later from where you left off.",
+    });
+    
+    if (onCancel) {
+      onCancel();
+    }
+  };
+
+  const handleStartFresh = () => {
+    clearProgress();
+    setCurrentStep(0);
+    setOnboardingData({
+      specialty: null,
+      practiceData: {
+        practiceName: '',
+        addressLine1: '',
+        addressLine2: '',
+        city: '',
+        state: '',
+        zipCode: '',
+        phone: '',
+        email: '',
+        website: '',
+        description: '',
+        teamSize: ''
+      },
+      agentConfig: {
+        receptionistAgent: true,
+        intakeAgent: true,
+        followUpAgent: false,
+        reminderAgent: true,
+        automationLevel: 50,
+        businessHours: {
+          start: '09:00',
+          end: '17:00',
+          timezone: 'America/New_York'
+        }
+      },
+      paymentConfig: {
+        enablePayments: false,
+        subscriptionPlan: 'professional',
+        paymentMethods: {
+          creditCard: true,
+          bankTransfer: false,
+          paymentPlans: false
+        },
+        pricing: {
+          consultationFee: '',
+          followUpFee: '',
+          packageDeals: false
+        }
+      },
+      ehrConfig: {
+        enableIntegration: false,
+        selectedEHR: '',
+        syncSettings: {
+          patientData: true,
+          appointments: true,
+          clinicalNotes: false,
+          billing: false
+        },
+        apiCredentials: {
+          endpoint: '',
+          apiKey: '',
+          clientId: ''
+        }
+      },
+      teamConfig: {
+        inviteTeam: false,
+        teamMembers: [],
+        roles: []
+      },
+      templateConfig: {
+        enableAutoGeneration: true,
+        selectedTemplates: [],
+        customizationPreferences: {
+          useSpecialtyTerminology: true,
+          includeBranding: true,
+          autoTranslate: false
+        }
+      }
+    });
+    
+    toast({
+      title: "Starting fresh",
+      description: "Previous progress has been cleared.",
+    });
+  };
+
   const handleNext = () => {
     if (!validateCurrentStep()) {
       toast({
@@ -253,6 +386,12 @@ export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: Comprehens
       return;
     }
 
+    // Save progress before moving to next step
+    saveProgress({
+      currentStep: currentStep + 1,
+      formData: onboardingData,
+    });
+
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -262,7 +401,14 @@ export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: Comprehens
 
   const handlePrevious = () => {
     if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
+      const newStep = currentStep - 1;
+      setCurrentStep(newStep);
+      
+      // Save progress
+      saveProgress({
+        currentStep: newStep,
+        formData: onboardingData,
+      });
     }
   };
 
@@ -272,6 +418,13 @@ export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: Comprehens
     setIsSubmitting(true);
     try {
       await onComplete(onboardingData);
+      
+      // Mark progress as completed after successful tenant creation
+      if (progress?.id) {
+        // This will be called from the parent component after tenant creation
+        // completeProgress(createdTenantId);
+      }
+      
       toast({
         title: "Welcome to FlowIQ!",
         description: "Your practice has been successfully set up.",
@@ -352,6 +505,19 @@ export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: Comprehens
     }
   };
 
+  if (isLoadingProgress) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
+        <div className="max-w-6xl mx-auto px-4 text-center">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Sparkles className="w-8 h-8 text-blue-600 animate-spin" />
+            <h1 className="text-4xl font-bold text-gray-900">Loading your progress...</h1>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
       <div className="max-w-6xl mx-auto px-4">
@@ -359,23 +525,43 @@ export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: Comprehens
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Sparkles className="w-8 h-8 text-blue-600" />
-            <h1 className="text-4xl font-bold text-gray-900">Welcome to FlowIQ</h1>
+            <h1 className="text-4xl font-bold text-gray-900">
+              {progress ? 'Continue Your Setup' : 'Welcome to FlowIQ'}
+            </h1>
           </div>
           <p className="text-xl text-gray-600">
-            Let's get your practice set up with all the integrations and workflows you need
+            {progress ? 
+              'Pick up where you left off with your practice setup' :
+              "Let's get your practice set up with all the integrations and workflows you need"
+            }
           </p>
+          
+          {progress && (
+            <div className="mt-4 flex items-center justify-center gap-4">
+              <Button variant="outline" onClick={handleStartFresh}>
+                Start Fresh
+              </Button>
+              <Button variant="outline" onClick={handleSaveAndExit}>
+                <Save className="w-4 h-4 mr-2" />
+                Save & Exit
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Progress */}
         <Card className="mb-8">
           <CardHeader>
             <div className="flex items-center justify-between mb-4">
-              <CardTitle>Setup Progress</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                Setup Progress
+                {isSaving && <Save className="w-4 h-4 animate-pulse text-blue-600" />}
+              </CardTitle>
               <Badge variant="secondary">
                 Step {currentStep + 1} of {steps.length}
               </Badge>
             </div>
-            <Progress value={progress} className="mb-4" />
+            <Progress value={progressPercentage} className="mb-4" />
             
             {/* Steps indicator */}
             <div className="flex justify-between">
@@ -407,15 +593,19 @@ export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: Comprehens
 
         {/* Navigation */}
         <div className="flex items-center justify-between">
-          <div>
+          <div className="flex gap-2">
             {currentStep > 0 && (
               <Button variant="outline" onClick={handlePrevious}>
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Previous
               </Button>
             )}
+            <Button variant="ghost" onClick={handleSaveAndExit}>
+              <Save className="w-4 h-4 mr-2" />
+              Save & Exit
+            </Button>
             {onCancel && (
-              <Button variant="ghost" onClick={onCancel} className="ml-2">
+              <Button variant="ghost" onClick={onCancel}>
                 Cancel
               </Button>
             )}
@@ -438,6 +628,13 @@ export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: Comprehens
             )}
           </Button>
         </div>
+        
+        {isSaving && (
+          <div className="text-center mt-4 text-sm text-gray-600">
+            <Save className="w-4 h-4 inline mr-1" />
+            Saving progress...
+          </div>
+        )}
       </div>
     </div>
   );
