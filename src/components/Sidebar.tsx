@@ -156,8 +156,10 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(({ className, ...
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="flex h-8 w-full items-center justify-between px-2">
               <Avatar className="mr-2 h-8 w-8">
-                <AvatarImage src={profile?.avatar_url || ""} alt={profile?.first_name || ""} />
-                <AvatarFallback>{profile?.first_name?.slice(0, 1)}{profile?.last_name?.slice(0, 1)}</AvatarFallback>
+                <AvatarImage src="" alt={profile?.first_name || ""} />
+                <AvatarFallback>
+                  {profile?.first_name?.slice(0, 1)}{profile?.last_name?.slice(0, 1)}
+                </AvatarFallback>
               </Avatar>
               <span className="truncate text-left">{profile?.first_name} {profile?.last_name}</span>
             </Button>
