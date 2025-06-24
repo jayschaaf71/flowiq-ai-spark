@@ -1,3 +1,4 @@
+
 import { PageHeader } from "@/components/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -6,9 +7,10 @@ import { RevenueAnalytics } from "@/components/claims/RevenueAnalytics";
 import { DenialManagement } from "@/components/claims/DenialManagement";
 import { DevelopmentRoadmap } from "@/components/development/DevelopmentRoadmap";
 import { useClaimsSampleData } from "@/hooks/useClaimsSampleData";
-import { Database, TrendingUp, AlertTriangle, FileText, Map } from "lucide-react";
+import { Database, TrendingUp, AlertTriangle, FileText, Map, Brain } from "lucide-react";
 import { AIClaimsReviewEngine } from "@/components/claims/AIClaimsReviewEngine";
 import { PayerIntegration } from "@/components/claims/PayerIntegration";
+import { ClaimGenerationEngine } from "@/components/claims/ClaimGenerationEngine";
 
 const ClaimsIQ = () => {
   const { loading, createSampleData } = useClaimsSampleData();
@@ -36,8 +38,12 @@ const ClaimsIQ = () => {
         </Button>
       </div>
 
-      <Tabs defaultValue="ai-review" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6">
+      <Tabs defaultValue="generation" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-7">
+          <TabsTrigger value="generation" className="flex items-center gap-2">
+            <Brain className="w-4 h-4" />
+            Generate
+          </TabsTrigger>
           <TabsTrigger value="ai-review" className="flex items-center gap-2">
             <Database className="w-4 h-4" />
             AI Review
@@ -63,6 +69,10 @@ const ClaimsIQ = () => {
             Development
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="generation" className="space-y-6">
+          <ClaimGenerationEngine />
+        </TabsContent>
 
         <TabsContent value="ai-review" className="space-y-6">
           <AIClaimsReviewEngine />
