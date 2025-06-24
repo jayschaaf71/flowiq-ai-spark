@@ -1,169 +1,183 @@
-
-import { useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import * as React from "react"
+import { useState } from "react"
+import { useLocation, useNavigate } from "react-router-dom"
+import { cn } from "@/lib/utils"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
+import { useAuth } from "@/hooks/useAuth"
+import { useTenantConfig } from "@/utils/tenantConfig"
 import { 
-  Home, 
-  Workflow, 
-  BarChart3, 
-  Settings, 
+  LayoutDashboard, 
   Users, 
-  Zap, 
-  FileText,
-  HelpCircle,
-  ChevronLeft,
-  ChevronRight,
+  Calendar, 
+  FileText, 
+  Activity, 
+  Settings, 
+  Power,
   Brain,
-  Calendar,
-  ClipboardList,
-  Bell,
-  CreditCard,
-  Receipt,
+  Zap,
   MessageSquare,
-  Stethoscope,
-  UserPlus,
-  Building2,
-  Activity
-} from "lucide-react";
+  ShieldCheck,
+  CreditCard,
+  Play
+} from "lucide-react"
 
-export const Sidebar = () => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+interface SidebarProps extends React.HTMLAttributes<HTMLElement> {}
+
+const navigationItems = [
+  {
+    title: "Dashboard",
+    href: "/",
+    icon: LayoutDashboard,
+    description: "Overview of all AI agents"
+  },
+  {
+    title: "Schedule iQ",
+    href: "/schedule-iq",
+    icon: Calendar,
+    description: "AI-powered appointment scheduling"
+  },
+  {
+    title: "Intake iQ",
+    href: "/intake-iq",
+    icon: FileText,
+    description: "AI-driven patient intake and forms"
+  },
+  {
+    title: "Scribe iQ",
+    href: "/scribe-iq",
+    icon: Mic,
+    description: "AI medical scribe and documentation"
+  },
+  {
+    title: "Claims iQ",
+    href: "/claims-iq",
+    icon: CreditCard,
+    description: "AI claims processing and revenue cycle"
+  },
+  {
+    title: "EHR iQ",
+    href: "/ehr-iq",
+    icon: Activity,
+    description: "AI-enhanced electronic health records"
+  },
+  {
+    title: "Compliance iQ",
+    href: "/compliance-iq",
+    icon: ShieldCheck,
+    description: "HIPAA compliance and security"
+  },
+  {
+    title: "Patient Management",
+    href: "/patient-management",
+    icon: Users,
+    description: "Manage patient records and communications"
+  },
+  {
+    title: "Workflow Orchestration",
+    href: "/workflow-orchestration",
+    icon: Zap,
+    description: "Automate patient care workflows"
+  },
+  {
+    title: "Pilot Demo",
+    href: "/pilot-demo",
+    icon: Play,
+    description: "Full patient lifecycle demonstration"
+  },
+];
+
+const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(({ className, ...props }, ref) => {
+  const { user, profile, signOut } = useAuth();
+  const tenantConfig = useTenantConfig();
+  const navigate = useNavigate();
   const location = useLocation();
+  const [isExpanded, setIsExpanded] = useState(true);
 
-  const mainNavigationItems = [
-    { icon: Home, label: "Dashboard", path: "/", badge: null },
-    { icon: Brain, label: "Manager Agent", path: "/manager", badge: "AI" },
-    { icon: Workflow, label: "Workflows", path: "/workflows", badge: "12" },
-    { icon: BarChart3, label: "Analytics", path: "/analytics", badge: null },
-    { icon: Zap, label: "AI Insights", path: "/insights", badge: "3" },
-  ];
-
-  const practiceManagement = [
-    { icon: UserPlus, label: "Patients", path: "/patients", badge: null },
-    { icon: Users, label: "Team", path: "/team", badge: null },
-    { icon: Building2, label: "Practice Setup", path: "/setup", badge: null },
-  ];
-
-  const aiAgents = [
-    { icon: Calendar, label: "Schedule iQ", path: "/agents/schedule", badge: "AI" },
-    { icon: ClipboardList, label: "Intake iQ", path: "/agents/intake", badge: "AI" },
-    { icon: Bell, label: "Remind iQ", path: "/agents/remind", badge: "AI" },
-    { icon: CreditCard, label: "Billing iQ", path: "/agents/billing", badge: "AI" },
-    { icon: Receipt, label: "Claims iQ", path: "/agents/claims", badge: "AI" },
-    { icon: MessageSquare, label: "Assist iQ", path: "/agents/assist", badge: "AI" },
-    { icon: Stethoscope, label: "Scribe iQ", path: "/agents/scribe", badge: "AI" },
-  ];
-
-  const bottomItems = [
-    { icon: FileText, label: "Templates", path: "/templates" },
-    { icon: Settings, label: "Settings", path: "/settings" },
-    { icon: HelpCircle, label: "Help", path: "/help" },
-  ];
-
-  const isActive = (path: string) => location.pathname === path;
-
-  const renderNavSection = (title: string, items: any[]) => (
-    <div className="space-y-2">
-      {!isCollapsed && (
-        <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-          {title}
-        </h3>
-      )}
-      {items.map((item) => (
-        <NavLink
-          key={item.path}
-          to={item.path}
-          className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
-            isActive(item.path)
-              ? "bg-green-50 text-green-700 border border-green-200"
-              : "text-gray-700 hover:bg-gray-100"
-          }`}
-        >
-          <item.icon className="h-5 w-5 flex-shrink-0" />
-          {!isCollapsed && (
-            <>
-              <span className="font-medium">{item.label}</span>
-              {item.badge && (
-                <Badge 
-                  variant={item.badge === "AI" ? "default" : "secondary"} 
-                  className={`ml-auto text-xs ${
-                    item.badge === "AI" ? "bg-green-100 text-green-700" : ""
-                  }`}
-                >
-                  {item.badge}
-                </Badge>
-              )}
-            </>
-          )}
-        </NavLink>
-      ))}
-    </div>
-  );
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/auth", { replace: true });
+  };
 
   return (
-    <div className={`fixed left-0 top-0 h-full bg-white border-r border-gray-200 transition-all duration-300 z-10 ${
-      isCollapsed ? "w-16" : "w-64"
-    }`}>
-      <div className="flex flex-col h-full">
-        {/* Header */}
-        <div className="p-4 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            {!isCollapsed && (
-              <div className="flex items-center gap-2">
-                <div className="relative">
-                  <div className="h-8 w-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
-                    <Stethoscope className="h-4 w-4 text-white" />
-                  </div>
-                  <Activity className="h-3 w-3 text-green-600 absolute -top-1 -right-1" />
-                </div>
-                <div>
-                  <span className="font-bold text-sm">
-                    <span className="text-green-600">West County</span>
-                  </span>
-                  <p className="text-xs text-gray-600">Spine & Joint</p>
-                </div>
-              </div>
-            )}
-            
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsCollapsed(!isCollapsed)}
-              className="hover:bg-gray-100"
-            >
-              {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-            </Button>
-          </div>
+    <div
+      className={cn(
+        "flex flex-col space-y-4 border-r bg-white/50 backdrop-blur-sm shadow-sm w-64",
+        className
+      )}
+      ref={ref}
+      {...props}
+    >
+      <div className="flex items-center justify-between p-4">
+        <div className="flex items-center space-x-2">
+          <Brain className="h-6 w-6 text-blue-500" />
+          <span className="font-bold text-lg">{tenantConfig.brandName}</span>
         </div>
-
-        {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-6 overflow-y-auto">
-          {renderNavSection("Main", mainNavigationItems)}
-          {renderNavSection("Practice", practiceManagement)}
-          {renderNavSection("AI Agents", aiAgents)}
-        </nav>
-
-        {/* Bottom Navigation */}
-        <div className="p-4 border-t border-gray-200">
-          <div className="space-y-2">
-            {bottomItems.map((item) => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
-                  isActive(item.path)
-                    ? "bg-green-50 text-green-700"
-                    : "text-gray-700 hover:bg-gray-100"
-                }`}
-              >
-                <item.icon className="h-5 w-5 flex-shrink-0" />
-                {!isCollapsed && <span className="font-medium">{item.label}</span>}
-              </NavLink>
+        <Button variant="ghost" size="icon" onClick={() => setIsExpanded(!isExpanded)}>
+          <LayoutDashboard className="h-4 w-4" />
+          <span className="sr-only">Toggle Sidebar</span>
+        </Button>
+      </div>
+      <Separator />
+      <ScrollArea className="flex-1 space-y-2 p-4">
+        <div className="pb-3">
+          <h4 className="mb-1 rounded-md px-2 text-sm font-semibold tracking-tight">
+            {tenantConfig.specialty} iQ Agents
+          </h4>
+          <ul className="space-y-1">
+            {navigationItems.map((item) => (
+              <li key={item.href}>
+                <Button
+                  variant="ghost"
+                  className={cn(
+                    "justify-start px-2",
+                    location.pathname === item.href
+                      ? "bg-gray-100 text-blue-600 font-semibold"
+                      : "text-gray-700 hover:bg-gray-100"
+                  )}
+                  onClick={() => navigate(item.href)}
+                >
+                  <item.icon className="mr-2 h-4 w-4" />
+                  <span>{item.title}</span>
+                </Button>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
+      </ScrollArea>
+      <Separator />
+      <div className="p-4">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="flex h-8 w-full items-center justify-between px-2">
+              <Avatar className="mr-2 h-8 w-8">
+                <AvatarImage src={profile?.avatar_url} alt={profile?.full_name} />
+                <AvatarFallback>{profile?.full_name?.slice(0, 2).toUpperCase()}</AvatarFallback>
+              </Avatar>
+              <span className="truncate text-left">{profile?.full_name}</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" forceMount className="w-48">
+            <DropdownMenuItem onClick={() => navigate("/profile")}>
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Profile</span>
+              <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleSignOut}>
+              <Power className="mr-2 h-4 w-4" />
+              <span>Log out</span>
+              <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
-  );
-};
+  )
+})
+Sidebar.displayName = "Sidebar"
+
+export { Sidebar }
