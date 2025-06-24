@@ -220,6 +220,7 @@ export const AuthPage: React.FC = () => {
                       value={signInData.email}
                       onChange={(e) => setSignInData(prev => ({ ...prev, email: e.target.value }))}
                       placeholder="Enter your email"
+                      className="bg-white border-gray-300"
                       required
                       autoComplete="email"
                     />
@@ -234,15 +235,15 @@ export const AuthPage: React.FC = () => {
                         value={signInData.password}
                         onChange={(e) => setSignInData(prev => ({ ...prev, password: e.target.value }))}
                         placeholder="Enter your password"
+                        className="pr-10 bg-white border-gray-300"
                         required
                         autoComplete="current-password"
-                        className="pr-10"
                       />
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute right-0 top-0 h-full px-3"
+                        className="absolute right-0 top-0 h-full px-3 hover:bg-gray-100"
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -250,7 +251,7 @@ export const AuthPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={loading}>
                     {loading ? 'Signing In...' : 'Sign In Securely'}
                   </Button>
                 </form>
@@ -267,6 +268,7 @@ export const AuthPage: React.FC = () => {
                         value={signUpData.firstName}
                         onChange={(e) => setSignUpData(prev => ({ ...prev, firstName: e.target.value }))}
                         placeholder="First name"
+                        className="bg-white border-gray-300"
                         required
                         autoComplete="given-name"
                       />
@@ -279,6 +281,7 @@ export const AuthPage: React.FC = () => {
                         value={signUpData.lastName}
                         onChange={(e) => setSignUpData(prev => ({ ...prev, lastName: e.target.value }))}
                         placeholder="Last name"
+                        className="bg-white border-gray-300"
                         required
                         autoComplete="family-name"
                       />
@@ -293,6 +296,7 @@ export const AuthPage: React.FC = () => {
                       value={signUpData.email}
                       onChange={(e) => setSignUpData(prev => ({ ...prev, email: e.target.value }))}
                       placeholder="Enter your email"
+                      className="bg-white border-gray-300"
                       required
                       autoComplete="email"
                     />
@@ -304,7 +308,7 @@ export const AuthPage: React.FC = () => {
                       id="signup-role"
                       value={signUpData.role}
                       onChange={(e) => setSignUpData(prev => ({ ...prev, role: e.target.value as 'patient' | 'staff' | 'admin' }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       <option value="patient">Patient</option>
                       <option value="staff">Healthcare Staff</option>
@@ -320,15 +324,15 @@ export const AuthPage: React.FC = () => {
                         value={signUpData.password}
                         onChange={(e) => setSignUpData(prev => ({ ...prev, password: e.target.value }))}
                         placeholder="Create a strong password"
+                        className="pr-10 bg-white border-gray-300"
                         required
                         autoComplete="new-password"
-                        className="pr-10"
                       />
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute right-0 top-0 h-full px-3"
+                        className="absolute right-0 top-0 h-full px-3 hover:bg-gray-100"
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -347,12 +351,13 @@ export const AuthPage: React.FC = () => {
                       value={signUpData.confirmPassword}
                       onChange={(e) => setSignUpData(prev => ({ ...prev, confirmPassword: e.target.value }))}
                       placeholder="Confirm your password"
+                      className="bg-white border-gray-300"
                       required
                       autoComplete="new-password"
                     />
                   </div>
 
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={loading}>
                     {loading ? 'Creating Account...' : 'Create Secure Account'}
                   </Button>
                 </form>

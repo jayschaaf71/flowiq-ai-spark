@@ -156,7 +156,7 @@ export const PatientAuth = () => {
           <p className="text-gray-600">Book and manage your appointments</p>
         </div>
 
-        <Card>
+        <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="text-center">Welcome</CardTitle>
             <CardDescription className="text-center">
@@ -180,7 +180,7 @@ export const PatientAuth = () => {
                         id="signin-email"
                         type="email"
                         placeholder="your@email.com"
-                        className="pl-10"
+                        className="pl-10 bg-white border-gray-300"
                         value={signInData.email}
                         onChange={(e) => setSignInData(prev => ({ ...prev, email: e.target.value }))}
                         required
@@ -195,7 +195,7 @@ export const PatientAuth = () => {
                         id="signin-password"
                         type={showPassword ? "text" : "password"}
                         placeholder="Enter your password"
-                        className="pr-10"
+                        className="pr-10 bg-white border-gray-300"
                         value={signInData.password}
                         onChange={(e) => setSignInData(prev => ({ ...prev, password: e.target.value }))}
                         required
@@ -204,7 +204,7 @@ export const PatientAuth = () => {
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-gray-100"
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         {showPassword ? (
@@ -216,7 +216,7 @@ export const PatientAuth = () => {
                     </div>
                   </div>
 
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={loading}>
                     {loading ? "Signing In..." : "Sign In"}
                   </Button>
                 </form>
@@ -232,7 +232,7 @@ export const PatientAuth = () => {
                         <Input
                           id="signup-firstName"
                           placeholder="John"
-                          className="pl-10"
+                          className="pl-10 bg-white border-gray-300"
                           value={signUpData.firstName}
                           onChange={(e) => setSignUpData(prev => ({ ...prev, firstName: e.target.value }))}
                           required
@@ -245,6 +245,7 @@ export const PatientAuth = () => {
                       <Input
                         id="signup-lastName"
                         placeholder="Doe"
+                        className="bg-white border-gray-300"
                         value={signUpData.lastName}
                         onChange={(e) => setSignUpData(prev => ({ ...prev, lastName: e.target.value }))}
                         required
@@ -260,7 +261,7 @@ export const PatientAuth = () => {
                         id="signup-email"
                         type="email"
                         placeholder="your@email.com"
-                        className="pl-10"
+                        className="pl-10 bg-white border-gray-300"
                         value={signUpData.email}
                         onChange={(e) => setSignUpData(prev => ({ ...prev, email: e.target.value }))}
                         required
@@ -275,7 +276,7 @@ export const PatientAuth = () => {
                       <Input
                         id="signup-phone"
                         placeholder="(555) 123-4567"
-                        className="pl-10"
+                        className="pl-10 bg-white border-gray-300"
                         value={signUpData.phone}
                         onChange={(e) => setSignUpData(prev => ({ ...prev, phone: formatPhoneNumber(e.target.value) }))}
                       />
@@ -289,7 +290,7 @@ export const PatientAuth = () => {
                         id="signup-password"
                         type={showPassword ? "text" : "password"}
                         placeholder="Create a password"
-                        className="pr-10"
+                        className="pr-10 bg-white border-gray-300"
                         value={signUpData.password}
                         onChange={(e) => setSignUpData(prev => ({ ...prev, password: e.target.value }))}
                         required
@@ -298,7 +299,7 @@ export const PatientAuth = () => {
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-gray-100"
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         {showPassword ? (
@@ -316,13 +317,14 @@ export const PatientAuth = () => {
                       id="signup-confirmPassword"
                       type={showPassword ? "text" : "password"}
                       placeholder="Confirm your password"
+                      className="bg-white border-gray-300"
                       value={signUpData.confirmPassword}
                       onChange={(e) => setSignUpData(prev => ({ ...prev, confirmPassword: e.target.value }))}
                       required
                     />
                   </div>
 
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={loading}>
                     {loading ? "Creating Account..." : "Create Account"}
                   </Button>
                 </form>
