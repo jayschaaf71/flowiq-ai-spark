@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { medicalCodingService, MedicalCode, CodingResponse } from "./medicalCoding";
 import { eligibilityService } from "./eligibilityVerification";
@@ -103,16 +102,11 @@ class ClaimGenerationService {
   private async createClaimLineItems(claimId: string, codes: MedicalCode[], serviceDate: string): Promise<void> {
     const lineItems = codes.map((code, index) => ({
       claim_id: claimId,
-      line_number: index + 1,
       procedure_code: code.code,
       diagnosis_codes: [code.code], // Simplified - in reality this would be separate
-      modifier_codes: code.modifiers || [],
-      service_date: serviceDate,
-      units: 1,
-      unit_charge: this.getCodeFee(code.code),
-      total_charge: this.getCodeFee(code.code),
-      place_of_service: '11', // Office
-      ai_confidence_score: Math.round(code.confidence * 100)
+      quantity: 1,
+      unit_cost: this.getCodeFee(code.code),
+      total_cost: this.getCodeFee(code.code)
     }));
 
     const { error } = await supabase

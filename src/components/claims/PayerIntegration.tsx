@@ -67,13 +67,15 @@ export const PayerIntegration = () => {
     }
   ]);
 
-  const getStatusIcon = (status: string) => {
+  const getStatusIcon = (status: string | boolean) => {
+    if (typeof status === 'boolean') {
+      return status ? <Wifi className="w-4 h-4 text-green-600" /> : <WifiOff className="w-4 h-4 text-red-600" />;
+    }
+    
     switch (status) {
       case 'connected':
-      case true:
         return <Wifi className="w-4 h-4 text-green-600" />;
       case 'disconnected':
-      case false:
         return <WifiOff className="w-4 h-4 text-red-600" />;
       case 'testing':
         return <RefreshCw className="w-4 h-4 text-yellow-600 animate-spin" />;
