@@ -80,14 +80,14 @@ export const useClaimsSampleData = () => {
 
       if (insuranceError) throw insuranceError;
 
-      // Create sample providers/staff
+      // Create sample providers/staff - using 'dentist' instead of 'Provider'
       const sampleProviders = [
         {
           first_name: 'Dr. Emily',
           last_name: 'Chen',
           email: 'emily.chen@clinic.com',
           phone: '(555) 111-2222',
-          role: 'Provider',
+          role: 'dentist',
           specialty: 'General Dentistry'
         }
       ];
