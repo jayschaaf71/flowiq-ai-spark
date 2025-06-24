@@ -24,13 +24,14 @@ import Settings from './pages/Settings';
 import Help from './pages/Help';
 import AIInsights from './pages/AIInsights';
 import PilotDashboard from "@/pages/PilotDashboard";
+import OnboardNewTenant from './pages/OnboardNewTenant';
 import { SpecialtyProvider } from './contexts/SpecialtyContext';
 
 function App() {
   return (
     <QueryClientProvider client={new QueryClient()}>
-      <SpecialtyProvider>
-        <AuthProvider>
+      <AuthProvider>
+        <SpecialtyProvider>
           <Router>
             <Toaster />
             
@@ -40,6 +41,12 @@ function App() {
                   <Layout>
                     <ComprehensiveDashboard />
                   </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/onboard-tenant" element={
+                <ProtectedRoute>
+                  <OnboardNewTenant />
                 </ProtectedRoute>
               } />
               
@@ -189,8 +196,8 @@ function App() {
               <Route path="/pilot-dashboard" element={<PilotDashboard />} />
             </Routes>
           </Router>
-        </AuthProvider>
-      </SpecialtyProvider>
+        </SpecialtyProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
