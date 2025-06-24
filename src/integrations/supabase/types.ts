@@ -1000,6 +1000,78 @@ export type Database = {
         }
         Relationships: []
       }
+      edi_transactions: {
+        Row: {
+          acknowledgment_date: string | null
+          batch_id: string | null
+          claim_id: string
+          control_number: string | null
+          created_at: string
+          edi_content: string | null
+          edi_format: string
+          error_codes: string[] | null
+          id: string
+          payer_connection_id: string
+          response_content: string | null
+          response_date: string | null
+          status: string
+          submission_date: string
+          transaction_type: string
+          updated_at: string
+        }
+        Insert: {
+          acknowledgment_date?: string | null
+          batch_id?: string | null
+          claim_id: string
+          control_number?: string | null
+          created_at?: string
+          edi_content?: string | null
+          edi_format?: string
+          error_codes?: string[] | null
+          id?: string
+          payer_connection_id: string
+          response_content?: string | null
+          response_date?: string | null
+          status?: string
+          submission_date?: string
+          transaction_type?: string
+          updated_at?: string
+        }
+        Update: {
+          acknowledgment_date?: string | null
+          batch_id?: string | null
+          claim_id?: string
+          control_number?: string | null
+          created_at?: string
+          edi_content?: string | null
+          edi_format?: string
+          error_codes?: string[] | null
+          id?: string
+          payer_connection_id?: string
+          response_content?: string | null
+          response_date?: string | null
+          status?: string
+          submission_date?: string
+          transaction_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "edi_transactions_claim_id_fkey"
+            columns: ["claim_id"]
+            isOneToOne: false
+            referencedRelation: "claims"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "edi_transactions_payer_connection_id_fkey"
+            columns: ["payer_connection_id"]
+            isOneToOne: false
+            referencedRelation: "payer_connections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       file_attachments: {
         Row: {
           appointment_id: string | null
@@ -2041,6 +2113,95 @@ export type Database = {
             columns: ["onboarding_submission_id"]
             isOneToOne: false
             referencedRelation: "intake_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payer_connections: {
+        Row: {
+          avg_response_time: number | null
+          claims_submitted: number | null
+          configuration: Json | null
+          connection_type: string
+          created_at: string
+          endpoint_url: string | null
+          id: string
+          is_active: boolean | null
+          last_sync_at: string | null
+          payer_id: string
+          payer_name: string
+          success_rate: number | null
+          updated_at: string
+        }
+        Insert: {
+          avg_response_time?: number | null
+          claims_submitted?: number | null
+          configuration?: Json | null
+          connection_type?: string
+          created_at?: string
+          endpoint_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_sync_at?: string | null
+          payer_id: string
+          payer_name: string
+          success_rate?: number | null
+          updated_at?: string
+        }
+        Update: {
+          avg_response_time?: number | null
+          claims_submitted?: number | null
+          configuration?: Json | null
+          connection_type?: string
+          created_at?: string
+          endpoint_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_sync_at?: string | null
+          payer_id?: string
+          payer_name?: string
+          success_rate?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      payer_fee_schedules: {
+        Row: {
+          created_at: string
+          effective_date: string
+          fee_amount: number
+          id: string
+          is_active: boolean | null
+          payer_connection_id: string
+          procedure_code: string
+          termination_date: string | null
+        }
+        Insert: {
+          created_at?: string
+          effective_date: string
+          fee_amount: number
+          id?: string
+          is_active?: boolean | null
+          payer_connection_id: string
+          procedure_code: string
+          termination_date?: string | null
+        }
+        Update: {
+          created_at?: string
+          effective_date?: string
+          fee_amount?: number
+          id?: string
+          is_active?: boolean | null
+          payer_connection_id?: string
+          procedure_code?: string
+          termination_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payer_fee_schedules_payer_connection_id_fkey"
+            columns: ["payer_connection_id"]
+            isOneToOne: false
+            referencedRelation: "payer_connections"
             referencedColumns: ["id"]
           },
         ]

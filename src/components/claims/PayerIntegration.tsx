@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { usePayerConnections, useConnectionTest, useBatchClaimSubmission } from "@/hooks/usePayerIntegration";
 import { 
   Send, 
   CheckCircle, 
@@ -17,18 +18,9 @@ import {
   Settings,
   Wifi,
   WifiOff,
-  RefreshCw
+  RefreshCw,
+  Zap
 } from "lucide-react";
-
-interface PayerConnection {
-  id: string;
-  name: string;
-  status: 'connected' | 'disconnected' | 'testing';
-  lastSync: string;
-  claimsSubmitted: number;
-  successRate: number;
-  avgResponseTime: number;
-}
 
 interface ClaimSubmission {
   id: string;
@@ -41,44 +33,10 @@ interface ClaimSubmission {
 }
 
 export const PayerIntegration = () => {
-  const [payers, setPayers] = useState<PayerConnection[]>([
-    {
-      id: '1',
-      name: 'Blue Cross Blue Shield',
-      status: 'connected',
-      lastSync: '2024-01-15T10:30:00Z',
-      claimsSubmitted: 247,
-      successRate: 94.5,
-      avgResponseTime: 2.3
-    },
-    {
-      id: '2',
-      name: 'Aetna',
-      status: 'connected',
-      lastSync: '2024-01-15T09:15:00Z',
-      claimsSubmitted: 189,
-      successRate: 91.2,
-      avgResponseTime: 3.1
-    },
-    {
-      id: '3',
-      name: 'Cigna',
-      status: 'testing',
-      lastSync: '2024-01-14T16:45:00Z',
-      claimsSubmitted: 156,
-      successRate: 87.8,
-      avgResponseTime: 4.2
-    },
-    {
-      id: '4',
-      name: 'UnitedHealth',
-      status: 'disconnected',
-      lastSync: '2024-01-10T14:20:00Z',
-      claimsSubmitted: 203,
-      successRate: 89.6,
-      avgResponseTime: 5.1
-    }
-  ]);
+  const { data: payers = [], isLoading } = usePayerConnections();
+  const connectionTest = useConnectionTest();
+  const batchSubmission = useBatchClaimSubmission();
+  const { toast } = useToast();
 
   const [recentSubmissions] = useState<ClaimSubmission[]>([
     {
@@ -109,13 +67,13 @@ export const PayerIntegration = () => {
     }
   ]);
 
-  const { toast } = useToast();
-
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'connected':
+      case true:
         return <Wifi className="w-4 h-4 text-green-600" />;
       case 'disconnected':
+      case false:
         return <WifiOff className="w-4 h-4 text-red-600" />;
       case 'testing':
         return <RefreshCw className="w-4 h-4 text-yellow-600 animate-spin" />;
@@ -124,7 +82,11 @@ export const PayerIntegration = () => {
     }
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string | boolean) => {
+    if (typeof status === 'boolean') {
+      return <Badge variant={status ? "default" : "destructive"}>{status ? 'Connected' : 'Disconnected'}</Badge>;
+    }
+    
     const variants = {
       connected: "default",
       disconnected: "destructive",
@@ -137,40 +99,26 @@ export const PayerIntegration = () => {
       denied: "destructive"
     } as const;
     
-    return <Badge variant={variants[status as keyof typeof variants]}>{status}</Badge>;
+    return <Badge variant={variants[status as keyof typeof variants] || "outline"}>{status}</Badge>;
   };
 
   const testConnection = async (payerId: string) => {
-    setPayers(prev => prev.map(p => 
-      p.id === payerId ? { ...p, status: 'testing' as const } : p
-    ));
-
-    // Simulate connection test
-    setTimeout(() => {
-      setPayers(prev => prev.map(p => 
-        p.id === payerId ? { 
-          ...p, 
-          status: Math.random() > 0.2 ? 'connected' as const : 'disconnected' as const,
-          lastSync: new Date().toISOString()
-        } : p
-      ));
-
-      toast({
-        title: "Connection Test Complete",
-        description: "Payer connection has been validated",
-      });
-    }, 3000);
+    connectionTest.mutate(payerId);
   };
 
   const submitClaimsToPayer = async (payerId: string) => {
-    const payer = payers.find(p => p.id === payerId);
-    if (!payer) return;
+    // Mock implementation - in production this would select actual claims
+    const mockRequests = [
+      { claimId: 'claim-1', payerConnectionId: payerId },
+      { claimId: 'claim-2', payerConnectionId: payerId }
+    ];
 
-    toast({
-      title: "Claims Submitted",
-      description: `Batch submission to ${payer.name} initiated`,
-    });
+    batchSubmission.mutate(mockRequests);
   };
+
+  if (isLoading) {
+    return <div className="flex justify-center p-8">Loading payer connections...</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -243,23 +191,23 @@ export const PayerIntegration = () => {
           <Card key={payer.id}>
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-medium">{payer.name}</CardTitle>
-                {getStatusIcon(payer.status)}
+                <CardTitle className="text-sm font-medium">{payer.payerName}</CardTitle>
+                {getStatusIcon(payer.isActive)}
               </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Status:</span>
-                  {getStatusBadge(payer.status)}
+                  {getStatusBadge(payer.isActive)}
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Success Rate:</span>
-                  <span className="font-medium">{payer.successRate}%</span>
+                  <span className="font-medium">{payer.successRate.toFixed(1)}%</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Avg Response:</span>
-                  <span className="font-medium">{payer.avgResponseTime}s</span>
+                  <span className="font-medium">{payer.avgResponseTime.toFixed(1)}s</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Claims Sent:</span>
@@ -271,17 +219,17 @@ export const PayerIntegration = () => {
                     variant="outline" 
                     className="flex-1"
                     onClick={() => testConnection(payer.id)}
-                    disabled={payer.status === 'testing'}
+                    disabled={connectionTest.isPending}
                   >
-                    {payer.status === 'testing' ? 'Testing...' : 'Test'}
+                    {connectionTest.isPending ? <RefreshCw className="w-3 h-3 animate-spin" /> : 'Test'}
                   </Button>
                   <Button 
                     size="sm" 
                     className="flex-1"
                     onClick={() => submitClaimsToPayer(payer.id)}
-                    disabled={payer.status !== 'connected'}
+                    disabled={!payer.isActive || batchSubmission.isPending}
                   >
-                    Submit
+                    {batchSubmission.isPending ? <RefreshCw className="w-3 h-3 animate-spin" /> : 'Submit'}
                   </Button>
                 </div>
               </div>
@@ -334,7 +282,7 @@ export const PayerIntegration = () => {
             </TableBody>
           </Table>
         </CardContent>
-      </Card>
+      </div>
 
       {/* Integration Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -349,7 +297,11 @@ export const PayerIntegration = () => {
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span className="text-sm">Overall Success Rate:</span>
-                <span className="font-bold text-green-600">92.3%</span>
+                <span className="font-bold text-green-600">
+                  {payers.length > 0 
+                    ? (payers.reduce((sum, p) => sum + p.successRate, 0) / payers.length).toFixed(1)
+                    : '0'}%
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm">Claims Processed Today:</span>
@@ -374,11 +326,23 @@ export const PayerIntegration = () => {
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span className="text-sm">Avg Response Time:</span>
-                <span className="font-bold">3.2s</span>
+                <span className="font-bold">
+                  {payers.length > 0 
+                    ? (payers.reduce((sum, p) => sum + p.avgResponseTime, 0) / payers.length).toFixed(1)
+                    : '0'}s
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm">Fastest Payer:</span>
-                <span className="font-bold text-green-600">BCBS (2.1s)</span>
+                <span className="font-bold text-green-600">
+                  {payers.length > 0 
+                    ? `${payers.reduce((fastest, current) => 
+                        current.avgResponseTime < fastest.avgResponseTime ? current : fastest
+                      ).payerName.split(' ')[0]} (${payers.reduce((fastest, current) => 
+                        current.avgResponseTime < fastest.avgResponseTime ? current : fastest
+                      ).avgResponseTime.toFixed(1)}s)`
+                    : 'N/A'}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm">System Uptime:</span>
@@ -397,14 +361,29 @@ export const PayerIntegration = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <div className="p-2 bg-yellow-50 border border-yellow-200 rounded text-sm">
-                <p className="font-medium text-yellow-800">UnitedHealth Offline</p>
-                <p className="text-yellow-700">Connection lost 2 hours ago</p>
-              </div>
-              <div className="p-2 bg-blue-50 border border-blue-200 rounded text-sm">
-                <p className="font-medium text-blue-800">Cigna Testing Mode</p>
-                <p className="text-blue-700">New integration in progress</p>
-              </div>
+              {payers.filter(p => !p.isActive).map(payer => (
+                <div key={payer.id} className="p-2 bg-yellow-50 border border-yellow-200 rounded text-sm">
+                  <p className="font-medium text-yellow-800">{payer.payerName} Offline</p>
+                  <p className="text-yellow-700">Connection lost - check configuration</p>
+                </div>
+              ))}
+              
+              {payers.filter(p => p.successRate < 90).map(payer => (
+                <div key={payer.id} className="p-2 bg-red-50 border border-red-200 rounded text-sm">
+                  <p className="font-medium text-red-800">{payer.payerName} Low Success Rate</p>
+                  <p className="text-red-700">Only {payer.successRate.toFixed(1)}% success rate</p>
+                </div>
+              ))}
+
+              {payers.length > 0 && payers.every(p => p.isActive && p.successRate >= 90) && (
+                <div className="p-2 bg-green-50 border border-green-200 rounded text-sm">
+                  <p className="font-medium text-green-800 flex items-center gap-1">
+                    <CheckCircle className="w-4 h-4" />
+                    All Systems Operational
+                  </p>
+                  <p className="text-green-700">No issues detected</p>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

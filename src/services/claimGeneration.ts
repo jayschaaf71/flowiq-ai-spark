@@ -77,6 +77,9 @@ class ClaimGenerationService {
 
       if (error) throw error;
 
+      // Step 7: Create claim line items for detailed medical codes
+      await this.createClaimLineItems(claim.id, codingResponse.codes, request.serviceDate);
+
       return {
         id: claim.id,
         claimNumber,
@@ -95,6 +98,42 @@ class ClaimGenerationService {
       console.error('Claim generation error:', error);
       throw error;
     }
+  }
+
+  private async createClaimLineItems(claimId: string, codes: MedicalCode[], serviceDate: string): Promise<void> {
+    const lineItems = codes.map((code, index) => ({
+      claim_id: claimId,
+      line_number: index + 1,
+      procedure_code: code.code,
+      diagnosis_codes: [code.code], // Simplified - in reality this would be separate
+      modifier_codes: code.modifiers || [],
+      service_date: serviceDate,
+      units: 1,
+      unit_charge: this.getCodeFee(code.code),
+      total_charge: this.getCodeFee(code.code),
+      place_of_service: '11', // Office
+      ai_confidence_score: Math.round(code.confidence * 100)
+    }));
+
+    const { error } = await supabase
+      .from('claim_line_items')
+      .insert(lineItems);
+
+    if (error) {
+      console.error('Error creating claim line items:', error);
+      throw error;
+    }
+  }
+
+  private getCodeFee(code: string): number {
+    const defaultFees: Record<string, number> = {
+      '99213': 150.00,
+      '99214': 200.00,
+      'D1110': 120.00,
+      'D0120': 85.00,
+      '98940': 75.00
+    };
+    return defaultFees[code] || 100.00;
   }
 
   private async getDefaultInsuranceProvider(): Promise<string> {
@@ -124,17 +163,8 @@ class ClaimGenerationService {
   }
 
   private calculateClaimAmount(codes: MedicalCode[]): number {
-    // Get fee schedule from database or use defaults
-    const defaultFees: Record<string, number> = {
-      '99213': 150.00,
-      '99214': 200.00,
-      'D1110': 120.00,
-      'D0120': 85.00,
-      '98940': 75.00
-    };
-
     return codes.reduce((total, code) => {
-      return total + (defaultFees[code.code] || 100.00);
+      return total + this.getCodeFee(code.code);
     }, 0);
   }
 
@@ -160,7 +190,7 @@ class ClaimGenerationService {
     return results;
   }
 
-  // Get claim by ID with full details
+  // Get claim by ID with full details including line items
   async getClaimById(claimId: string): Promise<GeneratedClaim | null> {
     const { data: claim, error } = await supabase
       .from('claims')
@@ -168,7 +198,8 @@ class ClaimGenerationService {
         *,
         patients!inner(first_name, last_name),
         providers!inner(first_name, last_name),
-        insurance_providers!inner(name)
+        insurance_providers!inner(name),
+        claim_line_items(*)
       `)
       .eq('id', claimId)
       .single();
@@ -178,21 +209,35 @@ class ClaimGenerationService {
       return null;
     }
 
-    // For now, return basic claim structure
-    // In a real implementation, you'd reconstruct the codes from claim_line_items
+    // Convert line items back to medical codes
+    const codes: MedicalCode[] = (claim.claim_line_items || []).map((item: any) => ({
+      code: item.procedure_code,
+      codeType: this.determineCodeType(item.procedure_code),
+      description: `Procedure code ${item.procedure_code}`,
+      confidence: (item.ai_confidence_score || 0) / 100,
+      modifiers: item.modifier_codes || []
+    }));
+
     return {
       id: claim.id,
       claimNumber: claim.claim_number,
       patientId: claim.patient_id,
       providerId: claim.provider_id,
       serviceDate: claim.service_date,
-      codes: [], // TODO: Get from claim_line_items table
+      codes,
       totalAmount: parseFloat(claim.total_amount.toString()),
       status: claim.processing_status as 'draft' | 'ready_for_review' | 'ready_for_submission',
       confidence: (claim.ai_confidence_score || 0) / 100,
       validationErrors: [],
       validationWarnings: []
     };
+  }
+
+  private determineCodeType(code: string): 'CPT' | 'ICD-10-CM' | 'HCPCS' | 'CDT' {
+    if (code.startsWith('D')) return 'CDT';
+    if (code.startsWith('M') || code.startsWith('Z')) return 'ICD-10-CM';
+    if (code.length === 5 && /^\d+$/.test(code)) return 'CPT';
+    return 'HCPCS';
   }
 }
 
