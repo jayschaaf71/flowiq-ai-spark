@@ -27,3 +27,12 @@ export interface AvailableTemplate {
   estimated_time: string;
   templates_count: number;
 }
+
+export interface TemplateItem {
+  id: string;
+  name: string;
+  description: string;
+  icon: any;
+  estimated_time: string;
+  templates_count: number;
+}
