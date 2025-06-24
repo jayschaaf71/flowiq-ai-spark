@@ -1,214 +1,361 @@
 
 import { useState } from "react";
+import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { 
-  Stethoscope, 
-  Play, 
-  Square, 
-  Upload, 
-  FileText, 
   Mic, 
-  Battery, 
-  Wifi, 
-  WifiOff,
+  MicOff, 
+  Play, 
+  Pause, 
+  Square, 
+  FileText, 
+  Sparkles, 
   Clock,
   CheckCircle,
-  AlertTriangle,
-  Eye,
-  Edit,
-  Send,
-  Settings,
-  Activity,
-  TrendingUp,
-  Shield,
-  Database,
-  Headphones
+  Brain,
+  ArrowRight,
+  Zap
 } from "lucide-react";
 
 const ScribeIQ = () => {
-  const [activeTab, setActiveTab] = useState("dashboard");
   const [isRecording, setIsRecording] = useState(false);
-  const [deviceConnected, setDeviceConnected] = useState(true);
+  const [transcription, setTranscription] = useState("");
+  const [soapNote, setSoapNote] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [activeTab, setActiveTab] = useState("record");
   const { toast } = useToast();
 
-  // Mock data for demonstrations
-  const deviceStatus = {
-    batteryLevel: 78,
-    storageUsed: 32,
-    storageTotal: 64,
-    connectionStatus: deviceConnected ? "connected" : "disconnected",
-    lastSync: "2 minutes ago"
+  const sampleTranscription = `Patient presents with chief complaint of tooth pain in the upper right quadrant. Pain started 3 days ago, described as sharp and throbbing, worsening with cold foods. Patient reports difficulty sleeping due to pain. No fever or facial swelling noted. Medical history significant for hypertension, currently taking lisinopril. No known drug allergies. On examination, tooth #3 shows large carious lesion on mesial surface. Percussion test positive. Radiographic examination reveals periapical radiolucency consistent with abscess. Diagnosis: Acute apical abscess tooth #3. Treatment plan: Emergency endodontic therapy, antibiotic therapy with amoxicillin 500mg TID for 7 days, ibuprofen for pain management.`;
+
+  const sampleSoapNote = {
+    subjective: "Patient presents with chief complaint of severe tooth pain in upper right quadrant, onset 3 days ago. Pain described as sharp, throbbing, 8/10 severity. Worsens with cold stimuli. Difficulty sleeping. Denies fever, facial swelling.",
+    objective: "Vital signs stable. Extraoral exam: No facial asymmetry or lymphadenopathy. Intraoral exam: Tooth #3 large mesial carious lesion, tender to percussion. Radiographic findings: Periapical radiolucency consistent with abscess.",
+    assessment: "Acute apical abscess, tooth #3 (maxillary right first molar)",
+    plan: "1. Emergency endodontic therapy\n2. Amoxicillin 500mg TID x 7 days\n3. Ibuprofen 600mg q6h PRN pain\n4. Follow-up in 1 week\n5. Patient education on oral hygiene"
   };
-
-  const recentRecordings = [
-    {
-      id: "REC-001",
-      patientName: "Sarah Johnson",
-      date: "2024-01-15",
-      duration: "12:34",
-      status: "transcribing",
-      confidence: 94
-    },
-    {
-      id: "REC-002", 
-      patientName: "Mike Wilson",
-      date: "2024-01-15",
-      duration: "08:22",
-      status: "ready_for_review",
-      confidence: 97
-    },
-    {
-      id: "REC-003",
-      patientName: "Emma Davis", 
-      date: "2024-01-14",
-      duration: "15:18",
-      status: "finalized",
-      confidence: 92
-    }
-  ];
-
-  const transcriptionStats = [
-    { label: "Today's Recordings", value: "8", icon: Mic, trend: "+2 from yesterday" },
-    { label: "Avg Transcription Time", value: "3.2 min", icon: Clock, trend: "15% faster" },
-    { label: "Accuracy Rate", value: "96.8%", icon: TrendingUp, trend: "+2.1% this week" },
-    { label: "Notes Finalized", value: "23", icon: CheckCircle, trend: "18 pending review" }
-  ];
 
   const handleStartRecording = () => {
     setIsRecording(true);
     toast({
       title: "Recording Started",
-      description: "PLAUD Note is now recording patient encounter",
+      description: "AI is now listening and transcribing in real-time",
     });
   };
 
   const handleStopRecording = () => {
     setIsRecording(false);
+    setIsProcessing(true);
+    
+    // Simulate processing
+    setTimeout(() => {
+      setTranscription(sampleTranscription);
+      setIsProcessing(false);
+      toast({
+        title: "Transcription Complete",
+        description: "Audio has been processed and transcribed",
+      });
+    }, 2000);
+  };
+
+  const handleGenerateSOAP = () => {
+    setIsProcessing(true);
+    
+    // Simulate SOAP generation
+    setTimeout(() => {
+      setSoapNote(JSON.stringify(sampleSoapNote, null, 2));
+      setIsProcessing(false);
+      setActiveTab("soap");
+      toast({
+        title: "SOAP Note Generated",
+        description: "AI has structured your notes into SOAP format",
+      });
+    }, 1500);
+  };
+
+  const handleCreateClaim = () => {
     toast({
-      title: "Recording Stopped", 
-      description: "Audio saved and queued for transcription",
+      title: "Claim Created",
+      description: "SOAP note has been sent to Claims iQ for processing",
     });
   };
 
-  const getStatusBadge = (status: string) => {
-    const variants = {
-      transcribing: { variant: "secondary" as const, color: "bg-blue-100 text-blue-700" },
-      ready_for_review: { variant: "secondary" as const, color: "bg-yellow-100 text-yellow-700" },
-      finalized: { variant: "default" as const, color: "bg-green-100 text-green-700" },
-      error: { variant: "destructive" as const, color: "bg-red-100 text-red-700" }
-    };
-    
-    return (
-      <Badge variant={variants[status as keyof typeof variants]?.variant || "secondary"} 
-             className={variants[status as keyof typeof variants]?.color}>
-        {status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-      </Badge>
-    );
-  };
+  const recentSessions = [
+    { id: 1, patient: "John Smith", date: "2024-01-24", duration: "15 min", status: "completed" },
+    { id: 2, patient: "Sarah Johnson", date: "2024-01-24", duration: "22 min", status: "completed" },
+    { id: 3, patient: "Mike Wilson", date: "2024-01-23", duration: "18 min", status: "completed" },
+  ];
 
   return (
-    <div className="space-y-6">
+    <Layout>
       <PageHeader 
         title="Scribe iQ"
-        subtitle="AI-powered ambient documentation with PLAUD Note integration"
-        badge="AI Agent"
+        subtitle="AI-powered medical transcription and clinical documentation"
       />
       
-      <div className="p-6 space-y-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="device">Device Status</TabsTrigger>
-            <TabsTrigger value="transcriptions">Transcriptions</TabsTrigger>
-            <TabsTrigger value="notes">Clinical Notes</TabsTrigger>
-            <TabsTrigger value="integration">EHR Integration</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
+      <div className="space-y-6">
+        {/* Quick Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Today's Sessions</CardTitle>
+              <Mic className="h-4 w-4 text-blue-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">12</div>
+              <p className="text-xs text-muted-foreground">+3 from yesterday</p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Avg Session Time</CardTitle>
+              <Clock className="h-4 w-4 text-green-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">18m</div>
+              <p className="text-xs text-muted-foreground">-2m from last week</p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Accuracy Rate</CardTitle>
+              <CheckCircle className="h-4 w-4 text-purple-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">98.5%</div>
+              <p className="text-xs text-muted-foreground">+0.2% this month</p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Time Saved</CardTitle>
+              <Zap className="h-4 w-4 text-orange-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">4.2h</div>
+              <p className="text-xs text-muted-foreground">Per day average</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="record">Live Recording</TabsTrigger>
+            <TabsTrigger value="transcription">Transcription</TabsTrigger>
+            <TabsTrigger value="soap">SOAP Notes</TabsTrigger>
+            <TabsTrigger value="history">Session History</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="dashboard" className="space-y-6">
-            {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {transcriptionStats.map((stat, index) => (
-                <Card key={index}>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">{stat.label}</CardTitle>
-                    <stat.icon className="h-4 w-4 text-purple-600" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{stat.value}</div>
-                    <p className="text-xs text-muted-foreground">{stat.trend}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {/* Recording Control */}
+          <TabsContent value="record" className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Headphones className="w-5 h-5 text-purple-600" />
-                  PLAUD Note Recording Control
+                  <Brain className="w-5 h-5 text-blue-600" />
+                  AI-Powered Live Transcription
                 </CardTitle>
-                <CardDescription>Start and manage audio recordings for patient encounters</CardDescription>
+                <CardDescription>
+                  Start recording to capture and transcribe patient encounters in real-time
+                </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-4 h-4 rounded-full ${isRecording ? 'bg-red-500 animate-pulse' : 'bg-gray-300'}`} />
-                    <span className="font-medium">
-                      {isRecording ? 'Recording in Progress' : 'Ready to Record'}
-                    </span>
+              <CardContent className="space-y-6">
+                <div className="flex flex-col items-center space-y-4">
+                  <div className={`w-32 h-32 rounded-full flex items-center justify-center border-4 transition-all duration-300 ${
+                    isRecording 
+                      ? 'border-red-500 bg-red-50 animate-pulse' 
+                      : 'border-gray-300 bg-gray-50'
+                  }`}>
+                    {isRecording ? (
+                      <Mic className="w-16 h-16 text-red-500" />
+                    ) : (
+                      <MicOff className="w-16 h-16 text-gray-400" />
+                    )}
                   </div>
-                  <div className="flex gap-2">
+                  
+                  <div className="text-center">
+                    <p className="text-lg font-medium mb-2">
+                      {isRecording ? 'Recording in Progress' : 'Ready to Record'}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {isRecording 
+                        ? 'AI is transcribing your conversation in real-time' 
+                        : 'Click the button below to start recording'
+                      }
+                    </p>
+                  </div>
+
+                  {isRecording && (
+                    <div className="w-full max-w-md">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                        <span className="text-sm">Live transcription active</span>
+                      </div>
+                      <Progress value={65} className="w-full" />
+                      <p className="text-xs text-muted-foreground mt-1">Recording quality: Excellent</p>
+                    </div>
+                  )}
+
+                  <div className="flex gap-4">
                     {!isRecording ? (
-                      <Button onClick={handleStartRecording} className="bg-red-600 hover:bg-red-700">
-                        <Play className="w-4 h-4 mr-2" />
+                      <Button 
+                        onClick={handleStartRecording}
+                        className="bg-red-600 hover:bg-red-700"
+                        size="lg"
+                      >
+                        <Mic className="w-4 h-4 mr-2" />
                         Start Recording
                       </Button>
                     ) : (
-                      <Button onClick={handleStopRecording} variant="outline">
+                      <Button 
+                        onClick={handleStopRecording}
+                        variant="outline"
+                        size="lg"
+                      >
                         <Square className="w-4 h-4 mr-2" />
                         Stop Recording
                       </Button>
                     )}
                   </div>
                 </div>
+
+                {isProcessing && (
+                  <div className="text-center py-8">
+                    <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4" />
+                    <p className="text-sm text-muted-foreground">Processing audio and generating transcription...</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
+          </TabsContent>
 
-            {/* Recent Activity */}
+          <TabsContent value="transcription" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Recent Recordings</CardTitle>
-                <CardDescription>Latest patient encounters processed by Scribe iQ</CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Raw Transcription</CardTitle>
+                    <CardDescription>Review and edit the AI-generated transcription</CardDescription>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={handleGenerateSOAP}
+                      disabled={!transcription || isProcessing}
+                    >
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Generate SOAP
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <Textarea
+                  placeholder="Transcription will appear here after recording..."
+                  value={transcription}
+                  onChange={(e) => setTranscription(e.target.value)}
+                  className="min-h-[300px]"
+                />
+                {transcription && (
+                  <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <span className="text-sm font-medium text-green-800">
+                        Transcription confidence: 98.5%
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="soap" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>SOAP Note</CardTitle>
+                    <CardDescription>AI-structured clinical documentation</CardDescription>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm">
+                      <FileText className="w-4 h-4 mr-2" />
+                      Export
+                    </Button>
+                    <Button 
+                      size="sm"
+                      onClick={handleCreateClaim}
+                      disabled={!soapNote}
+                    >
+                      <ArrowRight className="w-4 h-4 mr-2" />
+                      Send to Claims iQ
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {soapNote ? (
+                  <div className="space-y-4">
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Brain className="w-4 h-4 text-blue-600" />
+                        <span className="font-medium text-blue-800">AI-Generated SOAP Note</span>
+                      </div>
+                      <pre className="text-sm whitespace-pre-wrap text-blue-700">
+                        {soapNote}
+                      </pre>
+                    </div>
+                    
+                    <div className="flex items-center gap-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <CheckCircle className="w-5 h-5 text-green-600" />
+                      <div>
+                        <p className="font-medium text-green-800">Ready for Claims Processing</p>
+                        <p className="text-sm text-green-700">This SOAP note is formatted for automatic claim generation</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <FileText className="w-12 h-12 mx-auto mb-4" />
+                    <p>Generate a SOAP note from your transcription to get started</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="history" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Sessions</CardTitle>
+                <CardDescription>Review your recent transcription sessions</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {recentRecordings.map((recording) => (
-                    <div key={recording.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center gap-4">
-                        <div>
-                          <p className="font-medium">{recording.patientName}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {recording.date} • {recording.duration}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm">Confidence: {recording.confidence}%</span>
-                          <Progress value={recording.confidence} className="w-16" />
-                        </div>
+                  {recentSessions.map((session) => (
+                    <div key={session.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div>
+                        <p className="font-medium">{session.patient}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {session.date} • {session.duration}
+                        </p>
                       </div>
-                      <div className="flex items-center gap-2">
-                        {getStatusBadge(recording.status)}
-                        <Button variant="ghost" size="sm">
-                          <Eye className="w-4 h-4" />
+                      <div className="flex items-center gap-3">
+                        <Badge variant="default">
+                          {session.status}
+                        </Badge>
+                        <Button variant="outline" size="sm">
+                          <FileText className="w-4 h-4 mr-2" />
+                          View
                         </Button>
                       </div>
                     </div>
@@ -217,338 +364,9 @@ const ScribeIQ = () => {
               </CardContent>
             </Card>
           </TabsContent>
-
-          <TabsContent value="device" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Stethoscope className="w-5 h-5 text-purple-600" />
-                  PLAUD Note Device Status
-                </CardTitle>
-                <CardDescription>Monitor your wearable AI voice recorder</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  {/* Connection Status */}
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      {deviceConnected ? <Wifi className="w-5 h-5 text-green-600" /> : <WifiOff className="w-5 h-5 text-red-600" />}
-                      <div>
-                        <p className="font-medium">Connection Status</p>
-                        <p className="text-sm text-muted-foreground">Last sync: {deviceStatus.lastSync}</p>
-                      </div>
-                    </div>
-                    <Badge variant={deviceConnected ? "default" : "destructive"}>
-                      {deviceStatus.connectionStatus}
-                    </Badge>
-                  </div>
-
-                  {/* Battery Level */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Battery className="w-4 h-4" />
-                        <span className="font-medium">Battery Level</span>
-                      </div>
-                      <span className="text-sm">{deviceStatus.batteryLevel}%</span>
-                    </div>
-                    <Progress value={deviceStatus.batteryLevel} className="w-full" />
-                  </div>
-
-                  {/* Storage Usage */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Database className="w-4 h-4" />
-                        <span className="font-medium">Storage Usage</span>
-                      </div>
-                      <span className="text-sm">
-                        {deviceStatus.storageUsed}GB / {deviceStatus.storageTotal}GB
-                      </span>
-                    </div>
-                    <Progress value={(deviceStatus.storageUsed / deviceStatus.storageTotal) * 100} className="w-full" />
-                  </div>
-
-                  {/* Device Actions */}
-                  <div className="flex gap-2">
-                    <Button variant="outline">
-                      <Upload className="w-4 h-4 mr-2" />
-                      Sync Device
-                    </Button>
-                    <Button variant="outline">
-                      <Settings className="w-4 h-4 mr-2" />
-                      Device Settings
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="transcriptions" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-blue-600" />
-                  Transcription Management
-                </CardTitle>
-                <CardDescription>Review and manage AI-generated transcriptions</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {/* Transcription Queue */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="p-4 border rounded-lg bg-blue-50">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Activity className="w-4 h-4 text-blue-600" />
-                        <span className="font-medium">Processing</span>
-                      </div>
-                      <div className="text-2xl font-bold text-blue-600">3</div>
-                      <p className="text-xs text-blue-600">Deepgram Nova-3 Medical</p>
-                    </div>
-                    <div className="p-4 border rounded-lg bg-yellow-50">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Eye className="w-4 h-4 text-yellow-600" />
-                        <span className="font-medium">Ready for Review</span>
-                      </div>
-                      <div className="text-2xl font-bold text-yellow-600">5</div>
-                      <p className="text-xs text-yellow-600">Awaiting provider review</p>
-                    </div>
-                    <div className="p-4 border rounded-lg bg-green-50">
-                      <div className="flex items-center gap-2 mb-2">
-                        <CheckCircle className="w-4 h-4 text-green-600" />
-                        <span className="font-medium">Completed</span>
-                      </div>
-                      <div className="text-2xl font-bold text-green-600">28</div>
-                      <p className="text-xs text-green-600">This week</p>
-                    </div>
-                  </div>
-
-                  {/* Sample Transcription Review */}
-                  <div className="border rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <h3 className="font-medium">Patient: Sarah Johnson - Routine Checkup</h3>
-                        <p className="text-sm text-muted-foreground">January 15, 2024 • 12:34 duration</p>
-                      </div>
-                      <div className="flex gap-2">
-                        <Badge className="bg-green-100 text-green-700">96% Confidence</Badge>
-                        <Button size="sm">
-                          <Edit className="w-4 h-4 mr-2" />
-                          Review
-                        </Button>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-gray-50 p-3 rounded text-sm">
-                      <p className="mb-2"><strong>Provider:</strong> Good morning, Sarah. How are you feeling today?</p>
-                      <p className="mb-2"><strong>Patient:</strong> I'm doing well, thank you. I've been having some mild headaches lately.</p>
-                      <p className="mb-2"><strong>Provider:</strong> I see. Can you tell me more about these headaches? When did they start?</p>
-                      <p className="text-muted-foreground">... transcript continues ...</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="notes" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Clinical Notes Management</CardTitle>
-                <CardDescription>Structured SOAP notes generated from transcriptions</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {/* Note Generation Pipeline */}
-                  <Alert>
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertDescription>
-                      2 clinical notes are pending your review and finalization before EHR integration.
-                    </AlertDescription>
-                  </Alert>
-
-                  {/* Sample Clinical Note */}
-                  <div className="border rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <h3 className="font-medium">SOAP Note - Sarah Johnson</h3>
-                        <p className="text-sm text-muted-foreground">Generated from transcription REC-001</p>
-                      </div>
-                      <div className="flex gap-2">
-                        <Badge variant="secondary">Draft</Badge>
-                        <Button size="sm">
-                          <Eye className="w-4 h-4 mr-2" />
-                          Review & Edit
-                        </Button>
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <h4 className="font-medium mb-2">Subjective:</h4>
-                        <p className="text-muted-foreground mb-4">Patient reports mild headaches over the past week...</p>
-                        
-                        <h4 className="font-medium mb-2">Objective:</h4>
-                        <p className="text-muted-foreground">Vital signs stable, BP 120/80...</p>
-                      </div>
-                      <div>
-                        <h4 className="font-medium mb-2">Assessment:</h4>
-                        <p className="text-muted-foreground mb-4">Tension headaches, likely stress-related...</p>
-                        
-                        <h4 className="font-medium mb-2">Plan:</h4>
-                        <p className="text-muted-foreground">Recommend stress management techniques...</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="integration" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-green-600" />
-                  EHR Integration Status
-                </CardTitle>
-                <CardDescription>HIPAA-compliant integration with electronic health records</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  {/* Integration Status */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="p-4 border rounded-lg">
-                      <div className="flex items-center gap-2 mb-2">
-                        <CheckCircle className="w-4 h-4 text-green-600" />
-                        <span className="font-medium">FlowIQ EHR Module</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-2">FHIR R4 Integration</p>
-                      <Badge variant="default">Connected</Badge>
-                    </div>
-                    <div className="p-4 border rounded-lg">
-                      <div className="flex items-center gap-2 mb-2">
-                        <AlertTriangle className="w-4 h-4 text-yellow-600" />
-                        <span className="font-medium">Legacy EHR Systems</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-2">HL7v2 Integration</p>
-                      <Badge variant="secondary">Setup Required</Badge>
-                    </div>
-                  </div>
-
-                  {/* Recent Integrations */}
-                  <div>
-                    <h3 className="font-medium mb-3">Recent EHR Transmissions</h3>
-                    <div className="space-y-2">
-                      {[
-                        { patient: "Sarah Johnson", status: "success", timestamp: "2 hours ago", ehrId: "FHIR-001" },
-                        { patient: "Mike Wilson", status: "success", timestamp: "4 hours ago", ehrId: "FHIR-002" },
-                        { patient: "Emma Davis", status: "pending", timestamp: "6 hours ago", ehrId: "FHIR-003" }
-                      ].map((transmission, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                          <div>
-                            <p className="font-medium">{transmission.patient}</p>
-                            <p className="text-sm text-muted-foreground">
-                              {transmission.timestamp} • {transmission.ehrId}
-                            </p>
-                          </div>
-                          <Badge variant={transmission.status === 'success' ? 'default' : 'secondary'}>
-                            {transmission.status}
-                          </Badge>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <Button>
-                      <Send className="w-4 h-4 mr-2" />
-                      Configure EHR
-                    </Button>
-                    <Button variant="outline">
-                      <Eye className="w-4 h-4 mr-2" />
-                      View Logs
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="settings" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="w-5 h-5 text-gray-600" />
-                  Scribe iQ Configuration
-                </CardTitle>
-                <CardDescription>Configure AI models, HIPAA compliance, and workflow preferences</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  {/* AI Model Settings */}
-                  <div>
-                    <h3 className="font-medium mb-3">AI Model Configuration</h3>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between p-3 border rounded-lg">
-                        <div>
-                          <p className="font-medium">Transcription Model</p>
-                          <p className="text-sm text-muted-foreground">Deepgram Nova-3 Medical</p>
-                        </div>
-                        <Badge variant="default">Active</Badge>
-                      </div>
-                      <div className="flex items-center justify-between p-3 border rounded-lg">
-                        <div>
-                          <p className="font-medium">Speaker Diarization</p>
-                          <p className="text-sm text-muted-foreground">Automatic speaker identification</p>
-                        </div>
-                        <Badge variant="default">Enabled</Badge>
-                      </div>
-                      <div className="flex items-center justify-between p-3 border rounded-lg">
-                        <div>
-                          <p className="font-medium">Medical Terminology Accuracy</p>
-                          <p className="text-sm text-muted-foreground">3.44% WER, 6.79% KER</p>
-                        </div>
-                        <Badge variant="default">Optimized</Badge>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* HIPAA Compliance */}
-                  <div>
-                    <h3 className="font-medium mb-3">HIPAA Compliance Status</h3>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between p-3 border rounded-lg">
-                        <div>
-                          <p className="font-medium">Data Encryption</p>
-                          <p className="text-sm text-muted-foreground">AES-256 at rest, TLS 1.2+ in transit</p>
-                        </div>
-                        <Badge variant="default">Compliant</Badge>
-                      </div>
-                      <div className="flex items-center justify-between p-3 border rounded-lg">
-                        <div>
-                          <p className="font-medium">Business Associate Agreements</p>
-                          <p className="text-sm text-muted-foreground">PLAUD.AI, Deepgram, AWS</p>
-                        </div>
-                        <Badge variant="default">Signed</Badge>
-                      </div>
-                      <div className="flex items-center justify-between p-3 border rounded-lg">
-                        <div>
-                          <p className="font-medium">Audit Logging</p>
-                          <p className="text-sm text-muted-foreground">Comprehensive PHI access tracking</p>
-                        </div>
-                        <Badge variant="default">Active</Badge>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
         </Tabs>
       </div>
-    </div>
+    </Layout>
   );
 };
 

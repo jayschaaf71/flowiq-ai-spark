@@ -9,6 +9,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useClaimsData } from "@/hooks/useClaimsData";
+import { useClaimsRealtime } from "@/hooks/useClaimsRealtime";
+import { useAIClaimsProcessing } from "@/hooks/useAIClaimsProcessing";
 import { 
   Search, 
   Filter, 
@@ -23,13 +25,17 @@ import {
 
 export const ClaimsQueue = () => {
   const { claims, loading, updateClaimStatus } = useClaimsData();
+  const { processing, processClaimWithAI, batchProcessClaims } = useAIClaimsProcessing();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+
+  // Enable real-time updates
+  useClaimsRealtime();
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'draft': return <Clock className="w-4 h-4 text-gray-500" />;
-      case 'ai_processing': return <Brain className="w-4 h-4 text-blue-500" />;
+      case 'ai_processing': return <Brain className="w-4 h-4 text-blue-500 animate-spin" />;
       case 'ready_for_review': return <CheckCircle className="w-4 h-4 text-green-500" />;
       case 'submitted': return <Send className="w-4 h-4 text-blue-600" />;
       case 'paid': return <CheckCircle className="w-4 h-4 text-green-600" />;
@@ -51,8 +57,18 @@ export const ClaimsQueue = () => {
     return <Badge variant={variants[status as keyof typeof variants] || "secondary"}>{status.replace('_', ' ')}</Badge>;
   };
 
-  const handleProcessClaim = (claimId: string) => {
-    updateClaimStatus(claimId, 'ai_processing');
+  const handleAIProcessClaim = async (claimId: string) => {
+    await processClaimWithAI(claimId);
+  };
+
+  const handleBatchProcess = async () => {
+    const draftClaims = filteredClaims
+      .filter(claim => claim.processing_status === 'draft')
+      .map(claim => claim.id);
+    
+    if (draftClaims.length > 0) {
+      await batchProcessClaims(draftClaims);
+    }
   };
 
   const handleSubmitClaim = (claimId: string) => {
@@ -65,6 +81,8 @@ export const ClaimsQueue = () => {
     const matchesStatus = statusFilter === "all" || claim.processing_status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  const draftClaimsCount = claims.filter(c => c.processing_status === 'draft').length;
 
   if (loading) {
     return (
@@ -142,10 +160,16 @@ export const ClaimsQueue = () => {
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Refresh
               </Button>
-              <Button size="sm">
-                <Brain className="w-4 h-4 mr-2" />
-                Process All
-              </Button>
+              {draftClaimsCount > 0 && (
+                <Button 
+                  size="sm" 
+                  onClick={handleBatchProcess}
+                  disabled={processing}
+                >
+                  <Brain className="w-4 h-4 mr-2" />
+                  Process All ({draftClaimsCount})
+                </Button>
+              )}
             </div>
           </div>
         </CardHeader>
@@ -198,7 +222,8 @@ export const ClaimsQueue = () => {
                         <Button 
                           variant="ghost" 
                           size="sm"
-                          onClick={() => handleProcessClaim(claim.id)}
+                          onClick={() => handleAIProcessClaim(claim.id)}
+                          disabled={processing}
                         >
                           <Brain className="w-3 h-3" />
                         </Button>
