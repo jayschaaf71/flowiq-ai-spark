@@ -7,12 +7,14 @@ import { RevenueAnalytics } from "@/components/claims/RevenueAnalytics";
 import { DenialManagement } from "@/components/claims/DenialManagement";
 import { DevelopmentRoadmap } from "@/components/development/DevelopmentRoadmap";
 import { useClaimsSampleData } from "@/hooks/useClaimsSampleData";
-import { Database, TrendingUp, AlertTriangle, FileText, Map, Brain, Zap, BarChart3 } from "lucide-react";
+import { Database, TrendingUp, AlertTriangle, FileText, Map, Brain, Zap, BarChart3, Shield, CreditCard } from "lucide-react";
 import { AIClaimsReviewEngine } from "@/components/claims/AIClaimsReviewEngine";
 import { PayerIntegration } from "@/components/claims/PayerIntegration";
 import { ClaimGenerationEngine } from "@/components/claims/ClaimGenerationEngine";
 import { EnhancedDenialManagement } from "@/components/claims/EnhancedDenialManagement";
 import { ComprehensiveRevenueAnalytics } from "@/components/claims/ComprehensiveRevenueAnalytics";
+import { PriorAuthorizationDashboard } from "@/components/claims/PriorAuthorizationDashboard";
+import { PaymentPostingDashboard } from "@/components/claims/PaymentPostingDashboard";
 
 const ClaimsIQ = () => {
   const { loading, createSampleData } = useClaimsSampleData();
@@ -41,7 +43,7 @@ const ClaimsIQ = () => {
       </div>
 
       <Tabs defaultValue="generation" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-8">
+        <TabsList className="grid w-full grid-cols-10">
           <TabsTrigger value="generation" className="flex items-center gap-2">
             <Brain className="w-4 h-4" />
             Generate
@@ -49,6 +51,14 @@ const ClaimsIQ = () => {
           <TabsTrigger value="ai-review" className="flex items-center gap-2">
             <Database className="w-4 h-4" />
             AI Review
+          </TabsTrigger>
+          <TabsTrigger value="prior-auth" className="flex items-center gap-2">
+            <Shield className="w-4 h-4" />
+            Prior Auth
+          </TabsTrigger>
+          <TabsTrigger value="payment-posting" className="flex items-center gap-2">
+            <CreditCard className="w-4 h-4" />
+            Payments
           </TabsTrigger>
           <TabsTrigger value="payer-integration" className="flex items-center gap-2">
             <FileText className="w-4 h-4" />
@@ -82,6 +92,14 @@ const ClaimsIQ = () => {
 
         <TabsContent value="ai-review" className="space-y-6">
           <AIClaimsReviewEngine />
+        </TabsContent>
+
+        <TabsContent value="prior-auth" className="space-y-6">
+          <PriorAuthorizationDashboard />
+        </TabsContent>
+
+        <TabsContent value="payment-posting" className="space-y-6">
+          <PaymentPostingDashboard />
         </TabsContent>
 
         <TabsContent value="payer-integration" className="space-y-6">
