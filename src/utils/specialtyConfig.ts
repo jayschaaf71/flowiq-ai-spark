@@ -1,5 +1,4 @@
-
-export type SpecialtyType = 'chiropractic' | 'dental_sleep' | 'med_spa' | 'concierge' | 'hrt';
+export type SpecialtyType = 'chiropractic' | 'dental_sleep' | 'dental' | 'med_spa' | 'concierge' | 'hrt';
 
 export interface SpecialtyConfig {
   id: SpecialtyType;
@@ -48,6 +47,31 @@ export const specialtyConfigs: Record<SpecialtyType, SpecialtyConfig> = {
     formTemplates: ['pain-assessment', 'injury-history', 'lifestyle-questionnaire'],
     dashboardMetrics: ['Pain Reduction', 'Range of Motion', 'Treatment Progress', 'Patient Satisfaction'],
     workflowPriorities: ['Pain Assessment', 'Treatment Planning', 'Progress Tracking']
+  },
+  dental: {
+    id: 'dental',
+    name: 'Premier Dental Practice',
+    brandName: 'Dental IQ',
+    description: 'Comprehensive dental practice management with patient care optimization and clinical workflows',
+    tagline: 'Complete Dental Care Management',
+    primaryColor: '#0EA5E9',
+    secondaryColor: '#0284C7',
+    accentColor: '#38BDF8',
+    logoUrl: '/dental-logo.svg',
+    iconUrl: '/dental-icon.svg',
+    heroImage: '/dental-hero.jpg',
+    specialtyFocus: 'General & Preventive Dentistry',
+    patientTypes: ['Routine Care', 'Preventive Care', 'Restorative Care', 'Emergency Care'],
+    commonProcedures: ['Cleanings', 'Fillings', 'Crowns', 'Root Canals', 'Extractions'],
+    billingCodes: [
+      { code: 'D0120', description: 'Periodic oral evaluation', fee: 85 },
+      { code: 'D1110', description: 'Prophylaxis - adult', fee: 95 },
+      { code: 'D2140', description: 'Amalgam restoration', fee: 165 }
+    ],
+    appointmentTypes: ['Routine Cleaning', 'Comprehensive Exam', 'Restorative Care', 'Emergency Visit'],
+    formTemplates: ['dental-history', 'oral-health-assessment', 'treatment-consent'],
+    dashboardMetrics: ['Treatment Completion', 'Hygiene Compliance', 'Patient Satisfaction', 'Preventive Care'],
+    workflowPriorities: ['Preventive Care', 'Treatment Planning', 'Patient Education']
   },
   dental_sleep: {
     id: 'dental_sleep',
