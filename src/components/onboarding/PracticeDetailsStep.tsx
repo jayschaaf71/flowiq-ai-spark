@@ -1,12 +1,10 @@
 
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Building, MapPin, Phone, Mail, Globe, Users } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface PracticeDetailsStepProps {
   practiceData: {
@@ -25,7 +23,10 @@ interface PracticeDetailsStepProps {
   onUpdatePracticeData: (data: any) => void;
 }
 
-export const PracticeDetailsStep = ({ practiceData, onUpdatePracticeData }: PracticeDetailsStepProps) => {
+export const PracticeDetailsStep: React.FC<PracticeDetailsStepProps> = ({
+  practiceData,
+  onUpdatePracticeData
+}) => {
   const handleInputChange = (field: string, value: string) => {
     onUpdatePracticeData({
       ...practiceData,
@@ -33,33 +34,27 @@ export const PracticeDetailsStep = ({ practiceData, onUpdatePracticeData }: Prac
     });
   };
 
-  const teamSizeOptions = [
-    { value: '1-5', label: '1-5 people', description: 'Small practice' },
-    { value: '6-15', label: '6-15 people', description: 'Growing practice' },
-    { value: '16-50', label: '16-50 people', description: 'Established practice' },
-    { value: '50+', label: '50+ people', description: 'Large practice/clinic' }
+  const states = [
+    'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
+    'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
+    'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
+    'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
+    'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
   ];
 
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-3xl font-bold mb-4">Tell Us About Your Practice</h2>
+        <h2 className="text-3xl font-bold mb-4">Practice Information</h2>
         <p className="text-gray-600 text-lg">
-          We'll use this information to customize your FlowIQ experience and set up your team.
+          Tell us about your practice so we can customize your setup
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Basic Information */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Building className="w-5 h-5" />
-              Practice Information
-            </CardTitle>
-            <CardDescription>
-              Basic details about your practice
-            </CardDescription>
+            <CardTitle>Basic Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
@@ -68,63 +63,55 @@ export const PracticeDetailsStep = ({ practiceData, onUpdatePracticeData }: Prac
                 id="practiceName"
                 value={practiceData.practiceName}
                 onChange={(e) => handleInputChange('practiceName', e.target.value)}
-                placeholder="e.g., Wellness Chiropractic Center"
-                className="mt-1"
+                placeholder="West County Spine & Joint"
               />
             </div>
 
             <div>
-              <Label htmlFor="description">Practice Description</Label>
-              <Textarea
-                id="description"
-                value={practiceData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
-                placeholder="Brief description of your practice and services..."
-                className="mt-1"
-                rows={3}
+              <Label htmlFor="phone">Phone Number *</Label>
+              <Input
+                id="phone"
+                value={practiceData.phone}
+                onChange={(e) => handleInputChange('phone', e.target.value)}
+                placeholder="(555) 123-4567"
               />
             </div>
 
             <div>
-              <Label>Team Size</Label>
-              <div className="grid grid-cols-2 gap-2 mt-2">
-                {teamSizeOptions.map((option) => (
-                  <Button
-                    key={option.value}
-                    variant={practiceData.teamSize === option.value ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => handleInputChange('teamSize', option.value)}
-                    className="h-auto p-3 flex flex-col items-start"
-                  >
-                    <span className="font-medium">{option.label}</span>
-                    <span className="text-xs opacity-70">{option.description}</span>
-                  </Button>
-                ))}
-              </div>
+              <Label htmlFor="email">Email Address *</Label>
+              <Input
+                id="email"
+                type="email"
+                value={practiceData.email}
+                onChange={(e) => handleInputChange('email', e.target.value)}
+                placeholder="contact@practice.com"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="website">Website</Label>
+              <Input
+                id="website"
+                value={practiceData.website}
+                onChange={(e) => handleInputChange('website', e.target.value)}
+                placeholder="https://www.practice.com"
+              />
             </div>
           </CardContent>
         </Card>
 
-        {/* Contact Information */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MapPin className="w-5 h-5" />
-              Contact Information
-            </CardTitle>
-            <CardDescription>
-              Where patients can find and reach you
-            </CardDescription>
+            <CardTitle>Location Details</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="addressLine1">Address Line 1 *</Label>
+              <Label htmlFor="addressLine1">Street Address *</Label>
               <Input
                 id="addressLine1"
                 value={practiceData.addressLine1}
                 onChange={(e) => handleInputChange('addressLine1', e.target.value)}
                 placeholder="123 Main Street"
-                className="mt-1"
               />
             </div>
 
@@ -134,8 +121,7 @@ export const PracticeDetailsStep = ({ practiceData, onUpdatePracticeData }: Prac
                 id="addressLine2"
                 value={practiceData.addressLine2}
                 onChange={(e) => handleInputChange('addressLine2', e.target.value)}
-                placeholder="Suite 100 (optional)"
-                className="mt-1"
+                placeholder="Suite 100"
               />
             </div>
 
@@ -147,18 +133,22 @@ export const PracticeDetailsStep = ({ practiceData, onUpdatePracticeData }: Prac
                   value={practiceData.city}
                   onChange={(e) => handleInputChange('city', e.target.value)}
                   placeholder="City"
-                  className="mt-1"
                 />
               </div>
               <div>
                 <Label htmlFor="state">State *</Label>
-                <Input
-                  id="state"
-                  value={practiceData.state}
-                  onChange={(e) => handleInputChange('state', e.target.value)}
-                  placeholder="State"
-                  className="mt-1"
-                />
+                <Select value={practiceData.state} onValueChange={(value) => handleInputChange('state', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="State" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {states.map((state) => (
+                      <SelectItem key={state} value={state}>
+                        {state}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -169,82 +159,42 @@ export const PracticeDetailsStep = ({ practiceData, onUpdatePracticeData }: Prac
                 value={practiceData.zipCode}
                 onChange={(e) => handleInputChange('zipCode', e.target.value)}
                 placeholder="12345"
-                className="mt-1"
               />
-            </div>
-
-            <div className="grid grid-cols-1 gap-4">
-              <div>
-                <Label htmlFor="phone" className="flex items-center gap-1">
-                  <Phone className="w-4 h-4" />
-                  Phone Number *
-                </Label>
-                <Input
-                  id="phone"
-                  value={practiceData.phone}
-                  onChange={(e) => handleInputChange('phone', e.target.value)}
-                  placeholder="(555) 123-4567"
-                  className="mt-1"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="email" className="flex items-center gap-1">
-                  <Mail className="w-4 h-4" />
-                  Email Address *
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={practiceData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                  placeholder="contact@yourpractice.com"
-                  className="mt-1"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="website" className="flex items-center gap-1">
-                  <Globe className="w-4 h-4" />
-                  Website (Optional)
-                </Label>
-                <Input
-                  id="website"
-                  value={practiceData.website}
-                  onChange={(e) => handleInputChange('website', e.target.value)}
-                  placeholder="www.yourpractice.com"
-                  className="mt-1"
-                />
-              </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Validation Summary */}
-      <Card className="bg-blue-50 border-blue-200">
-        <CardContent className="pt-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Users className="w-5 h-5 text-blue-600" />
-            <h4 className="font-medium text-blue-900">Setup Progress</h4>
+      <Card>
+        <CardHeader>
+          <CardTitle>Additional Details</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label htmlFor="teamSize">Team Size</Label>
+            <Select value={practiceData.teamSize} onValueChange={(value) => handleInputChange('teamSize', value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select team size" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1-5">1-5 people</SelectItem>
+                <SelectItem value="6-10">6-10 people</SelectItem>
+                <SelectItem value="11-25">11-25 people</SelectItem>
+                <SelectItem value="26-50">26-50 people</SelectItem>
+                <SelectItem value="50+">50+ people</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${practiceData.practiceName ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-              <span className="text-sm">Practice Name</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${practiceData.addressLine1 ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-              <span className="text-sm">Address</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${practiceData.phone ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-              <span className="text-sm">Phone</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${practiceData.email ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-              <span className="text-sm">Email</span>
-            </div>
+
+          <div>
+            <Label htmlFor="description">Practice Description</Label>
+            <Textarea
+              id="description"
+              value={practiceData.description}
+              onChange={(e) => handleInputChange('description', e.target.value)}
+              placeholder="Brief description of your practice and services..."
+              rows={3}
+            />
           </div>
         </CardContent>
       </Card>

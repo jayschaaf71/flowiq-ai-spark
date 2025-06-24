@@ -47,6 +47,8 @@ export type Database = {
       }
       advisor_profiles: {
         Row: {
+          accepting_asks: boolean | null
+          availability_notes: string | null
           avatar_url: string | null
           company: string
           created_at: string
@@ -54,13 +56,18 @@ export type Database = {
           id: string
           last_name: string
           member_since: string
+          open_to_being_mentored: boolean | null
+          open_to_mentoring: boolean | null
           position: string | null
           specialty: string | null
+          sponsored_by: string | null
           status: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          accepting_asks?: boolean | null
+          availability_notes?: string | null
           avatar_url?: string | null
           company: string
           created_at?: string
@@ -68,13 +75,18 @@ export type Database = {
           id?: string
           last_name: string
           member_since?: string
+          open_to_being_mentored?: boolean | null
+          open_to_mentoring?: boolean | null
           position?: string | null
           specialty?: string | null
+          sponsored_by?: string | null
           status?: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          accepting_asks?: boolean | null
+          availability_notes?: string | null
           avatar_url?: string | null
           company?: string
           created_at?: string
@@ -82,13 +94,24 @@ export type Database = {
           id?: string
           last_name?: string
           member_since?: string
+          open_to_being_mentored?: boolean | null
+          open_to_mentoring?: boolean | null
           position?: string | null
           specialty?: string | null
+          sponsored_by?: string | null
           status?: string
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "advisor_profiles_sponsored_by_fkey"
+            columns: ["sponsored_by"]
+            isOneToOne: false
+            referencedRelation: "advisor_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       allergies: {
         Row: {
@@ -2469,6 +2492,59 @@ export type Database = {
           template_data?: Json
         }
         Relationships: []
+      }
+      sponsorship_requests: {
+        Row: {
+          admin_notes: string | null
+          candidate_company: string | null
+          candidate_email: string
+          candidate_name: string
+          candidate_position: string | null
+          created_at: string
+          id: string
+          reason_for_nomination: string
+          reviewed_at: string | null
+          sponsor_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          candidate_company?: string | null
+          candidate_email: string
+          candidate_name: string
+          candidate_position?: string | null
+          created_at?: string
+          id?: string
+          reason_for_nomination: string
+          reviewed_at?: string | null
+          sponsor_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          candidate_company?: string | null
+          candidate_email?: string
+          candidate_name?: string
+          candidate_position?: string | null
+          created_at?: string
+          id?: string
+          reason_for_nomination?: string
+          reviewed_at?: string | null
+          sponsor_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sponsorship_requests_sponsor_id_fkey"
+            columns: ["sponsor_id"]
+            isOneToOne: false
+            referencedRelation: "advisor_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       staff_assignments: {
         Row: {
