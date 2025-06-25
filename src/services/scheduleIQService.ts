@@ -111,9 +111,6 @@ class ScheduleIQService {
 
   private async findOrCreatePatient(bookingRequest: BookingRequest): Promise<string> {
     try {
-      // For demo purposes, we'll create a mock patient ID based on the email
-      // In a real implementation, this would integrate with your user registration system
-      
       if (bookingRequest.email) {
         // Try to find existing patient by email in the patients table
         const { data: existingPatient } = await supabase
@@ -130,13 +127,34 @@ class ScheduleIQService {
       // Create a new patient record
       const [firstName, ...lastNameParts] = (bookingRequest.patientName || 'Unknown Patient').split(' ');
       const lastName = lastNameParts.join(' ') || '';
+      const patientEmail = bookingRequest.email || `patient-${Date.now()}@temp.com`;
 
-      const { data: newPatient, error } = await supabase
-        .from('patients')
+      // First create a profile record (since appointments.patient_id likely references profiles)
+      const { data: newProfile, error: profileError } = await supabase
+        .from('profiles')
         .insert({
+          email: patientEmail,
           first_name: firstName,
           last_name: lastName,
-          email: bookingRequest.email || `patient-${Date.now()}@temp.com`,
+          phone: bookingRequest.phone,
+          role: 'patient'
+        })
+        .select('id')
+        .single();
+
+      if (profileError) {
+        console.error('Error creating profile:', profileError);
+        throw new Error('Failed to create patient profile');
+      }
+
+      // Then create the corresponding patient record
+      const { data: newPatient, error: patientError } = await supabase
+        .from('patients')
+        .insert({
+          id: newProfile.id, // Use the same ID as the profile
+          first_name: firstName,
+          last_name: lastName,
+          email: patientEmail,
           phone: bookingRequest.phone,
           date_of_birth: '1990-01-01', // Default date - would be collected during intake
           is_active: true
@@ -144,12 +162,14 @@ class ScheduleIQService {
         .select('id')
         .single();
 
-      if (error) {
-        console.error('Error creating patient:', error);
-        throw new Error('Failed to create patient profile');
+      if (patientError) {
+        console.error('Error creating patient:', patientError);
+        // Clean up the profile if patient creation fails
+        await supabase.from('profiles').delete().eq('id', newProfile.id);
+        throw new Error('Failed to create patient record');
       }
 
-      return newPatient.id;
+      return newProfile.id; // Return the profile ID since that's what appointments references
     } catch (error) {
       console.error('Error finding or creating patient:', error);
       throw error;
