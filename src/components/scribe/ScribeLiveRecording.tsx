@@ -10,6 +10,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 export const ScribeLiveRecording = () => {
   const [currentTranscription, setCurrentTranscription] = useState("");
   const [transcriptionError, setTranscriptionError] = useState("");
+  
+  // Always call hooks at the top level, unconditionally
   const { 
     isGenerating, 
     generateSOAPFromTranscription 
