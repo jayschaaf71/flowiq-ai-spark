@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,7 +11,7 @@ import {
   Clock, 
   CheckCircle, 
   AlertTriangle,
-  Sync,
+  RefreshCw,
   Activity
 } from 'lucide-react';
 import { ehrIntegrationService } from '@/services/ehrIntegrationService';
@@ -161,7 +160,7 @@ export const IntegrationDashboard = () => {
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-purple-100">
-                <Sync className="w-6 h-6 text-purple-600" />
+                <RefreshCw className="w-6 h-6 text-purple-600" />
               </div>
               <div>
                 <p className="text-sm font-medium">Availability Sync</p>
@@ -209,7 +208,7 @@ export const IntegrationDashboard = () => {
               </p>
             </div>
             <Button onClick={handleEhrSync} disabled={loading || !ehrConnected}>
-              <Sync className="w-4 h-4 mr-2" />
+              <RefreshCw className="w-4 h-4 mr-2" />
               Sync Now
             </Button>
           </div>

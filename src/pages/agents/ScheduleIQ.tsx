@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -19,9 +20,10 @@ import { PreAppointmentSummaryPreview } from "@/components/schedule/PreAppointme
 import { PreAppointmentAutomation } from "@/components/schedule/PreAppointmentAutomation";
 import { PatientRiskDashboard } from "@/components/schedule/PatientRiskDashboard";
 import { ScheduleOptimizer } from "@/components/schedule/ScheduleOptimizer";
-import { useToast } from "@/hooks/use-toast";
-import { Settings, Zap, Brain, BarChart3, MessageCircle, Calendar, Users, Bell, Mail, User, Cog, TrendingUp, Database } from "lucide-react";
 import { IntegrationDashboard } from "@/components/schedule/IntegrationDashboard";
+import { AdvancedComplianceDashboard } from "@/components/compliance/AdvancedComplianceDashboard";
+import { useToast } from "@/hooks/use-toast";
+import { Settings, Zap, Brain, BarChart3, MessageCircle, Calendar, Users, Bell, Mail, User, Cog, TrendingUp, Database, Shield } from "lucide-react";
 
 const ScheduleIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -118,7 +120,7 @@ const ScheduleIQ = () => {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <div className="flex items-center justify-between">
-            <TabsList className="grid w-full grid-cols-14">
+            <TabsList className="grid w-full grid-cols-15">
               <TabsTrigger value="dashboard" className="flex items-center gap-1">
                 <Brain className="w-4 h-4" />
                 AI Dashboard
@@ -170,6 +172,10 @@ const ScheduleIQ = () => {
               <TabsTrigger value="integrations" className="flex items-center gap-1">
                 <Database className="w-4 h-4" />
                 Integrations
+              </TabsTrigger>
+              <TabsTrigger value="compliance" className="flex items-center gap-1">
+                <Shield className="w-4 h-4" />
+                HIPAA Compliance
               </TabsTrigger>
               <TabsTrigger value="settings" className="flex items-center gap-1">
                 <Settings className="w-4 h-4" />
@@ -237,6 +243,10 @@ const ScheduleIQ = () => {
 
           <TabsContent value="integrations" className="space-y-4">
             <IntegrationDashboard />
+          </TabsContent>
+
+          <TabsContent value="compliance" className="space-y-4">
+            <AdvancedComplianceDashboard />
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-4">

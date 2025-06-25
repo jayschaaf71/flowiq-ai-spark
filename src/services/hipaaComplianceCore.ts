@@ -39,12 +39,49 @@ class HIPAAComplianceCore {
     return this.aiRouter.routeAIRequest(serviceName, data, userId, requestType);
   }
 
-  // 4. Compliance Monitoring
+  // 4. Process incoming data from EHR integrations
+  async processIncomingData(data: any, source: string, connectionId: string) {
+    console.log('Processing incoming data with HIPAA compliance:', { source, connectionId });
+    
+    // Classify the data for PHI content
+    const classification = await this.classifyData(data);
+    
+    // Anonymize sensitive data if needed
+    const sanitizedData = await this.anonymizeForAI(data);
+    
+    // Log access for audit trail
+    const { logAuditAction } = await import("@/hooks/useAuditLog");
+    await logAuditAction(
+      'data_processing',
+      connectionId,
+      'HIPAA_DATA_PROCESSED',
+      null,
+      {
+        source,
+        dataClassification: classification,
+        containsPHI: classification.containsPHI,
+        timestamp: new Date().toISOString()
+      }
+    );
+
+    return {
+      sanitizedData: Array.isArray(sanitizedData) ? sanitizedData : [sanitizedData],
+      classification,
+      auditTrail: {
+        processed: true,
+        timestamp: new Date().toISOString(),
+        source,
+        connectionId
+      }
+    };
+  }
+
+  // 5. Compliance Monitoring
   async getComplianceMetrics() {
     return this.complianceMonitor.getComplianceMetrics();
   }
 
-  // 5. Breach Detection
+  // 6. Breach Detection
   async detectPotentialBreach(data: any, context: any) {
     return this.complianceMonitor.detectPotentialBreach(data, context);
   }
