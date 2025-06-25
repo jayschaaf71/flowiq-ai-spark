@@ -18,15 +18,16 @@ serve(async (req) => {
   }
 
   if (!openAIApiKey) {
+    console.error('OpenAI API key not configured');
     return new Response(
-      JSON.stringify({ error: 'OpenAI API key not configured' }),
+      JSON.stringify({ error: 'OpenAI API key not configured. Please add OPENAI_API_KEY to your Supabase Edge Function secrets.' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 
   try {
     const { message, context } = await req.json();
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    console.log('Received request:', { message, userRole: context?.userRole });
 
     // Build system prompt based on user role and context
     const systemPrompt = buildSystemPrompt(context);
@@ -34,13 +35,18 @@ serve(async (req) => {
     // Get AI response
     const aiResponse = await getAIResponse(message, systemPrompt, context);
     
-    // Parse AI response for appointment creation
-    const appointmentData = await parseAppointmentIntent(aiResponse, context, supabase);
+    // Generate contextual suggestions
+    const suggestions = generateSuggestions(context?.userRole || 'patient', message, aiResponse);
+
+    // Parse for appointment creation intent
+    const appointmentData = parseAppointmentIntent(aiResponse, context);
+
+    console.log('Sending response:', { response: aiResponse.substring(0, 100) + '...' });
 
     return new Response(
       JSON.stringify({
         response: aiResponse,
-        suggestions: generateSuggestions(context.userRole),
+        suggestions,
         appointmentData
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -49,19 +55,21 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in schedule-ai-chat:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: `AI Assistant Error: ${error.message}. Please try again or rephrase your request.` 
+      }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });
 
 function buildSystemPrompt(context: any): string {
-  const { userRole, scheduleData, userName } = context;
+  const { userRole, scheduleData, userName } = context || {};
   
   const basePrompt = `You are Schedule iQ, an AI assistant specialized in medical appointment scheduling. You have real-time access to appointment data and can help with booking, rescheduling, and schedule optimization.
 
 Current Context:
-- User: ${userName} (Role: ${userRole})
+- User: ${userName || 'User'} (Role: ${userRole || 'patient'})
 - Today's appointments: ${scheduleData?.todaysAppointments || 0}
 - Available slots today: ${scheduleData?.availableSlots || 0}
 - Total providers: ${scheduleData?.totalActiveProviders || 0}
@@ -70,8 +78,6 @@ Guidelines:
 - Be conversational and helpful
 - Always confirm appointment details before suggesting creation
 - Use real-time availability data when possible
-- For patients: Focus on finding convenient appointment times
-- For staff: Include optimization and management insights
 - Keep responses concise but informative
 - If you suggest creating an appointment, be specific about date, time, and provider`;
 
@@ -112,16 +118,16 @@ async function getAIResponse(message: string, systemPrompt: string, context: any
     }),
   });
 
-  const data = await response.json();
-  
   if (!response.ok) {
-    throw new Error(`OpenAI API error: ${data.error?.message || 'Unknown error'}`);
+    const error = await response.json();
+    throw new Error(`OpenAI API error: ${error.error?.message || 'Unknown error'}`);
   }
 
+  const data = await response.json();
   return data.choices[0].message.content;
 }
 
-async function parseAppointmentIntent(aiResponse: string, context: any, supabase: any): Promise<any> {
+function parseAppointmentIntent(aiResponse: string, context: any): any {
   // Simple intent detection - in production, this could be more sophisticated
   const appointmentKeywords = ['book', 'schedule', 'appointment', 'create'];
   const hasAppointmentIntent = appointmentKeywords.some(keyword => 
@@ -136,8 +142,8 @@ async function parseAppointmentIntent(aiResponse: string, context: any, supabase
   // In production, this would parse more sophisticated appointment details from the AI response
   return {
     shouldCreate: false, // Set to true when ready to actually create
-    patientName: context.userName,
-    email: context.userEmail,
+    patientName: context?.userName || 'Patient',
+    email: context?.userEmail,
     appointmentType: 'consultation',
     date: new Date().toISOString().split('T')[0], // Today
     time: '10:00',
@@ -146,20 +152,38 @@ async function parseAppointmentIntent(aiResponse: string, context: any, supabase
   };
 }
 
-function generateSuggestions(userRole: string): string[] {
+function generateSuggestions(userRole: string, userMessage: string, aiResponse: string): string[] {
+  const lowerMessage = userMessage.toLowerCase();
+  
   if (userRole === 'patient') {
+    if (lowerMessage.includes('book') || lowerMessage.includes('schedule')) {
+      return [
+        "Show my upcoming appointments",
+        "Find next available slot",
+        "Check provider availability",
+        "Set appointment reminders"
+      ];
+    }
     return [
-      "Show my upcoming appointments",
-      "Find next available slot",
-      "Reschedule an appointment",
-      "Set appointment reminders"
+      "Book my next appointment",
+      "Show available times",
+      "Reschedule existing appointment",
+      "View my appointment history"
     ];
   } else {
+    if (lowerMessage.includes('create') || lowerMessage.includes('book')) {
+      return [
+        "Check today's schedule",
+        "View provider availability",
+        "Create another appointment",
+        "Optimize current schedule"
+      ];
+    }
     return [
-      "Check today's schedule",
       "Create patient appointment",
-      "View provider availability",
-      "Optimize current schedule"
+      "Check provider schedules",
+      "View today's appointments",
+      "Analyze scheduling patterns"
     ];
   }
 }
