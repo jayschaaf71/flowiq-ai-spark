@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -30,6 +29,7 @@ const ScheduleIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [refreshKey, setRefreshKey] = useState(0);
   const [aiOptimizing, setAiOptimizing] = useState(false);
+  const [selectedProviderId, setSelectedProviderId] = useState<string | null>(null);
 
   const stats = {
     appointmentsToday: 24,
@@ -66,11 +66,13 @@ const ScheduleIQ = () => {
 
   const handleAiOptimize = async () => {
     setAiOptimizing(true);
-    // Simulate AI optimization process
     await new Promise(resolve => setTimeout(resolve, 3000));
     setAiOptimizing(false);
-    
-    // Refresh data after optimization
+    setRefreshKey(prev => prev + 1);
+  };
+
+  const handleSuggestionApplied = (suggestion: any) => {
+    console.log('Applied suggestion:', suggestion);
     setRefreshKey(prev => prev + 1);
   };
 
@@ -126,6 +128,14 @@ const ScheduleIQ = () => {
                 <Brain className="w-4 h-4" />
                 AI Dashboard
               </TabsTrigger>
+              <TabsTrigger value="optimizer" className="flex items-center gap-1">
+                <Zap className="w-4 h-4" />
+                AI Optimizer
+              </TabsTrigger>
+              <TabsTrigger value="suggestions" className="flex items-center gap-1">
+                <TrendingUp className="w-4 h-4" />
+                Smart Suggestions
+              </TabsTrigger>
               <TabsTrigger value="chat" className="flex items-center gap-1">
                 <MessageCircle className="w-4 h-4" />
                 AI Chat
@@ -134,13 +144,9 @@ const ScheduleIQ = () => {
                 <TrendingUp className="w-4 h-4" />
                 Risk Analysis
               </TabsTrigger>
-              <TabsTrigger value="optimizer" className="flex items-center gap-1">
-                <Zap className="w-4 h-4" />
-                Optimizer
-              </TabsTrigger>
               <TabsTrigger value="book" className="flex items-center gap-1">
                 <Calendar className="w-4 h-4" />
-                Book new appointment
+                Book Appointment
               </TabsTrigger>
               <TabsTrigger value="appointments" className="flex items-center gap-1">
                 <Users className="w-4 h-4" />
@@ -197,16 +203,24 @@ const ScheduleIQ = () => {
             />
           </TabsContent>
 
+          <TabsContent value="optimizer" className="space-y-4">
+            <ScheduleOptimizer providerId={selectedProviderId || undefined} />
+          </TabsContent>
+
+          <TabsContent value="suggestions" className="space-y-4">
+            <SmartSchedulingSuggestions 
+              appointments={[]} 
+              providerId={selectedProviderId || undefined}
+              onApplySuggestion={handleSuggestionApplied}
+            />
+          </TabsContent>
+
           <TabsContent value="chat" className="space-y-4">
             <AIScheduleChat />
           </TabsContent>
 
           <TabsContent value="risk-analysis" className="space-y-4">
             <PatientRiskDashboard showOverview={true} />
-          </TabsContent>
-
-          <TabsContent value="optimizer" className="space-y-4">
-            <ScheduleOptimizer />
           </TabsContent>
 
           <TabsContent value="book" className="space-y-4">
