@@ -3,11 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Brain, FileText, Copy, Download } from "lucide-react";
-import { useSOAPGeneration } from "@/hooks/useSOAPGeneration";
+import { useSOAPContext } from "@/contexts/SOAPContext";
 import { useToast } from "@/hooks/use-toast";
 
 export const ScribeSOAPGeneration = () => {
-  const { generatedSOAP, clearSOAP, isGenerating } = useSOAPGeneration();
+  const { generatedSOAP, clearSOAP, isGenerating } = useSOAPContext();
   const { toast } = useToast();
 
   const copyToClipboard = async () => {

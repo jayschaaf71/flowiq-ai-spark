@@ -4,23 +4,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Brain, FileText, Zap, AlertCircle } from "lucide-react";
 import { AIVoiceRecorder } from "@/components/ai/AIVoiceRecorder";
-import { useSOAPGeneration } from "@/hooks/useSOAPGeneration";
+import { useSOAPContext } from "@/contexts/SOAPContext";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export const ScribeLiveRecording = () => {
   const [currentTranscription, setCurrentTranscription] = useState("");
   const [transcriptionError, setTranscriptionError] = useState("");
   
-  // Always call hooks at the top level, unconditionally
   const { 
     isGenerating, 
     generateSOAPFromTranscription 
-  } = useSOAPGeneration();
+  } = useSOAPContext();
 
   const handleTranscriptionComplete = (transcription: string) => {
     console.log('Transcription completed:', transcription);
     setCurrentTranscription(transcription);
-    setTranscriptionError(""); // Clear any previous errors
+    setTranscriptionError("");
   };
 
   const handleTranscriptionError = (error: string) => {
@@ -39,7 +38,6 @@ export const ScribeLiveRecording = () => {
   };
 
   const handleTestTranscription = () => {
-    // Add a test transcription for development/testing
     const testTranscription = "Patient presents with chief complaint of severe headache onset 2 hours ago. Pain is located in the frontal region, described as throbbing, rated 8 out of 10. Associated with nausea but no vomiting. No visual disturbances. Patient took ibuprofen 400mg with minimal relief. No recent trauma or fever. Medical history significant for migraine headaches, last episode 3 months ago.";
     setCurrentTranscription(testTranscription);
     setTranscriptionError("");
