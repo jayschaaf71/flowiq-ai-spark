@@ -19,6 +19,7 @@ import ScheduleIQProduction from './pages/agents/ScheduleIQProduction';
 import PilotDemo from "./pages/PilotDemo";
 import { BookAppointment } from './pages/BookAppointment';
 import { RescheduleAppointment } from './pages/RescheduleAppointment';
+import PatientManagement from './pages/PatientManagement';
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ function App() {
             <Route path="/patient-auth" element={<PatientAuth />} />
             <Route path="/" element={<Layout><Dashboard /></Layout>} />
             <Route path="/patient-dashboard" element={<Layout><PatientDashboard /></Layout>} />
+            <Route path="/patient-management" element={<Layout><PatientManagement /></Layout>} />
             <Route path="/schedule" element={<Layout><ScheduleIQ /></Layout>} />
             <Route path="/schedule-iq" element={<Layout><ScheduleIQ /></Layout>} />
             <Route path="/schedule-iq-production" element={<Layout><ScheduleIQProduction /></Layout>} />
