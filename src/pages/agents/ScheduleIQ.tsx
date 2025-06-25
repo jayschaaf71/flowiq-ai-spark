@@ -123,75 +123,83 @@ const ScheduleIQ = () => {
         <ScheduleStats stats={stats} />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <div className="flex items-center justify-between">
-            <TabsList className="grid w-full grid-cols-16">
-              <TabsTrigger value="dashboard" className="flex items-center gap-1">
-                <Brain className="w-4 h-4" />
-                AI Dashboard
+          <div className="w-full">
+            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 gap-1 h-auto p-1">
+              <TabsTrigger value="dashboard" className="flex items-center gap-1 text-xs px-2 py-2">
+                <Brain className="w-3 h-3" />
+                <span className="hidden sm:inline">Dashboard</span>
               </TabsTrigger>
-              <TabsTrigger value="optimizer" className="flex items-center gap-1">
-                <Zap className="w-4 h-4" />
-                AI Optimizer
+              <TabsTrigger value="optimizer" className="flex items-center gap-1 text-xs px-2 py-2">
+                <Zap className="w-3 h-3" />
+                <span className="hidden sm:inline">Optimizer</span>
               </TabsTrigger>
-              <TabsTrigger value="suggestions" className="flex items-center gap-1">
-                <TrendingUp className="w-4 h-4" />
-                Smart Suggestions
+              <TabsTrigger value="suggestions" className="flex items-center gap-1 text-xs px-2 py-2">
+                <TrendingUp className="w-3 h-3" />
+                <span className="hidden sm:inline">Suggestions</span>
               </TabsTrigger>
-              <TabsTrigger value="chat" className="flex items-center gap-1">
-                <MessageCircle className="w-4 h-4" />
-                AI Chat
+              <TabsTrigger value="chat" className="flex items-center gap-1 text-xs px-2 py-2">
+                <MessageCircle className="w-3 h-3" />
+                <span className="hidden sm:inline">Chat</span>
               </TabsTrigger>
-              <TabsTrigger value="risk-analysis" className="flex items-center gap-1">
-                <TrendingUp className="w-4 h-4" />
-                Risk Analysis
+              <TabsTrigger value="risk-analysis" className="flex items-center gap-1 text-xs px-2 py-2">
+                <TrendingUp className="w-3 h-3" />
+                <span className="hidden sm:inline">Risk</span>
               </TabsTrigger>
-              <TabsTrigger value="book" className="flex items-center gap-1">
-                <Calendar className="w-4 h-4" />
-                Book Appointment
+              <TabsTrigger value="book" className="flex items-center gap-1 text-xs px-2 py-2">
+                <Calendar className="w-3 h-3" />
+                <span className="hidden sm:inline">Book</span>
               </TabsTrigger>
-              <TabsTrigger value="appointments" className="flex items-center gap-1">
-                <Users className="w-4 h-4" />
-                Appointments
+              <TabsTrigger value="appointments" className="flex items-center gap-1 text-xs px-2 py-2">
+                <Users className="w-3 h-3" />
+                <span className="hidden sm:inline">Appointments</span>
               </TabsTrigger>
-              <TabsTrigger value="calendar" className="flex items-center gap-1">
-                <Calendar className="w-4 h-4" />
-                Calendar
+              <TabsTrigger value="calendar" className="flex items-center gap-1 text-xs px-2 py-2">
+                <Calendar className="w-3 h-3" />
+                <span className="hidden sm:inline">Calendar</span>
               </TabsTrigger>
-              <TabsTrigger value="analytics" className="flex items-center gap-1">
-                <BarChart3 className="w-4 h-4" />
-                Analytics
+            </TabsList>
+            
+            {/* Second row of tabs */}
+            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 gap-1 h-auto p-1 mt-2">
+              <TabsTrigger value="analytics" className="flex items-center gap-1 text-xs px-2 py-2">
+                <BarChart3 className="w-3 h-3" />
+                <span className="hidden sm:inline">Analytics</span>
               </TabsTrigger>
-              <TabsTrigger value="reminders" className="flex items-center gap-1">
-                <Bell className="w-4 h-4" />
-                Reminders
+              <TabsTrigger value="reminders" className="flex items-center gap-1 text-xs px-2 py-2">
+                <Bell className="w-3 h-3" />
+                <span className="hidden sm:inline">Reminders</span>
               </TabsTrigger>
-              <TabsTrigger value="pre-summary" className="flex items-center gap-1">
-                <User className="w-4 h-4" />
-                Pre-Appt Summary
+              <TabsTrigger value="pre-summary" className="flex items-center gap-1 text-xs px-2 py-2">
+                <User className="w-3 h-3" />
+                <span className="hidden sm:inline">Pre-Summary</span>
               </TabsTrigger>
-              <TabsTrigger value="automation" className="flex items-center gap-1">
-                <Cog className="w-4 h-4" />
-                Automation
+              <TabsTrigger value="automation" className="flex items-center gap-1 text-xs px-2 py-2">
+                <Cog className="w-3 h-3" />
+                <span className="hidden sm:inline">Automation</span>
               </TabsTrigger>
-              <TabsTrigger value="daily-summary" className="flex items-center gap-1">
-                <Mail className="w-4 h-4" />
-                Daily Summary
+              <TabsTrigger value="daily-summary" className="flex items-center gap-1 text-xs px-2 py-2">
+                <Mail className="w-3 h-3" />
+                <span className="hidden sm:inline">Daily</span>
               </TabsTrigger>
-              <TabsTrigger value="integrations" className="flex items-center gap-1">
-                <Database className="w-4 h-4" />
-                Integrations
+              <TabsTrigger value="integrations" className="flex items-center gap-1 text-xs px-2 py-2">
+                <Database className="w-3 h-3" />
+                <span className="hidden sm:inline">Integrations</span>
               </TabsTrigger>
-              <TabsTrigger value="compliance" className="flex items-center gap-1">
-                <Shield className="w-4 h-4" />
-                HIPAA Compliance
+              <TabsTrigger value="compliance" className="flex items-center gap-1 text-xs px-2 py-2">
+                <Shield className="w-3 h-3" />
+                <span className="hidden sm:inline">Compliance</span>
               </TabsTrigger>
-              <TabsTrigger value="production" className="flex items-center gap-1">
-                <Server className="w-4 h-4" />
-                Production
+              <TabsTrigger value="production" className="flex items-center gap-1 text-xs px-2 py-2">
+                <Server className="w-3 h-3" />
+                <span className="hidden sm:inline">Production</span>
               </TabsTrigger>
-              <TabsTrigger value="settings" className="flex items-center gap-1">
-                <Settings className="w-4 h-4" />
-                Settings
+            </TabsList>
+            
+            {/* Third row with settings */}
+            <TabsList className="grid w-full grid-cols-1 lg:grid-cols-4 gap-1 h-auto p-1 mt-2">
+              <TabsTrigger value="settings" className="flex items-center gap-1 text-xs px-2 py-2">
+                <Settings className="w-3 h-3" />
+                <span className="hidden sm:inline">Settings</span>
               </TabsTrigger>
             </TabsList>
           </div>
