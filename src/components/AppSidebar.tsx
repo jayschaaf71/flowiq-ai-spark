@@ -3,7 +3,6 @@ import { NavLink, useLocation } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { 
   Home, 
-  Calendar, 
   Users, 
   Database, 
   BarChart3, 
@@ -19,7 +18,8 @@ import {
   Building2,
   UserPlus,
   MessageSquare,
-  Brain
+  Brain,
+  Calendar
 } from "lucide-react";
 import {
   Sidebar,
@@ -45,20 +45,21 @@ export const AppSidebar = () => {
   
   const mainNavigationItems = [
     { icon: Home, label: "Dashboard", path: "/", badge: null },
-    { icon: Calendar, label: "Schedule", path: "/schedule", badge: null },
     { icon: Users, label: "Patients", path: "/patient-management", badge: null },
     { icon: Database, label: "EHR", path: "/ehr", badge: null },
     { icon: TrendingUp, label: "Insights", path: "/insights", badge: null },
   ];
 
+  // Reordered AI agents to match patient journey flow
   const aiAgents = [
+    { icon: Calendar, label: "Schedule iQ", path: "/agents/schedule", badge: "AI" },
     { icon: ClipboardList, label: "Intake iQ", path: "/agents/intake", badge: "AI" },
     { icon: Bell, label: "Remind iQ", path: "/agents/remind", badge: "AI" },
-    { icon: CreditCard, label: "Billing iQ", path: "/agents/billing", badge: "AI" },
+    { icon: Stethoscope, label: "Scribe iQ", path: "/agents/scribe", badge: "AI" },
     { icon: Receipt, label: "Claims iQ", path: "/agents/claims", badge: "AI" },
+    { icon: CreditCard, label: "Billing iQ", path: "/agents/billing", badge: "AI" },
     { icon: MessageSquare, label: "Follow up iQ", path: "/agents/followup", badge: "AI" },
     { icon: Brain, label: "Insight iQ", path: "/agents/insight", badge: "AI" },
-    { icon: Stethoscope, label: "Scribe iQ", path: "/agents/scribe", badge: "AI" },
   ];
 
   const managementItems = [
