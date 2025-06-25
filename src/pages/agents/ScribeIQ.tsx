@@ -1,12 +1,14 @@
+
 import { useState } from "react";
 import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mic, FileText, Brain, Activity, Settings, Shield, Zap } from "lucide-react";
+import { Mic, FileText, Brain, Activity, Settings, Shield, Zap, Smartphone } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AIVoiceRecorder } from "@/components/ai/AIVoiceRecorder";
+import { PlaudIntegration } from "@/components/ai/PlaudIntegration";
 import { useSOAPGeneration } from "@/hooks/useSOAPGeneration";
 
 const ScribeIQ = () => {
@@ -50,9 +52,10 @@ const ScribeIQ = () => {
       
       <div className="space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="transcribe">AI Transcription</TabsTrigger>
+            <TabsTrigger value="transcribe">Live Recording</TabsTrigger>
+            <TabsTrigger value="plaud">Plaud Device</TabsTrigger>
             <TabsTrigger value="soap">SOAP Generation</TabsTrigger>
             <TabsTrigger value="templates">Templates</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
@@ -175,7 +178,7 @@ const ScribeIQ = () => {
                       disabled={isGenerating}
                       className="bg-purple-600 hover:bg-purple-700"
                     >
-                      <Brain className="w-4 h-4 mr-2" />
+                      <Brain className="w-4 w-4 mr-2" />
                       {isGenerating ? "Generating..." : "Generate SOAP Note"}
                     </Button>
                     <Button variant="outline">
@@ -186,6 +189,10 @@ const ScribeIQ = () => {
                 </CardContent>
               </Card>
             )}
+          </TabsContent>
+
+          <TabsContent value="plaud" className="space-y-4">
+            <PlaudIntegration />
           </TabsContent>
 
           <TabsContent value="soap" className="space-y-4">
