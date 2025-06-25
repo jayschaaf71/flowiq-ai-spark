@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { aiSchedulingService } from "./aiSchedulingService";
 import { format, addDays, parseISO, isWeekend } from "date-fns";
@@ -130,8 +129,7 @@ class ScheduleIQService {
       const patientEmail = bookingRequest.email || `patient-${Date.now()}@temp.com`;
 
       // Generate a UUID for the new profile/patient
-      const { data: uuidData } = await supabase.rpc('gen_random_uuid');
-      const newId = uuidData || crypto.randomUUID();
+      const newId = crypto.randomUUID();
 
       // First create a profile record (since appointments.patient_id likely references profiles)
       const { data: newProfile, error: profileError } = await supabase
