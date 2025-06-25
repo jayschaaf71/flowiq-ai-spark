@@ -111,41 +111,45 @@ class ScheduleIQService {
 
   private async findOrCreatePatient(bookingRequest: BookingRequest): Promise<string> {
     try {
-      // First, try to find existing patient in profiles table by email
+      // For demo purposes, we'll create a mock patient ID based on the email
+      // In a real implementation, this would integrate with your user registration system
+      
       if (bookingRequest.email) {
-        const { data: existingProfile } = await supabase
-          .from('profiles')
+        // Try to find existing patient by email in the patients table
+        const { data: existingPatient } = await supabase
+          .from('patients')
           .select('id')
           .eq('email', bookingRequest.email)
-          .single();
+          .maybeSingle();
 
-        if (existingProfile) {
-          return existingProfile.id;
+        if (existingPatient) {
+          return existingPatient.id;
         }
       }
 
-      // Create a new profile for the appointment
+      // Create a new patient record
       const [firstName, ...lastNameParts] = (bookingRequest.patientName || 'Unknown Patient').split(' ');
       const lastName = lastNameParts.join(' ') || '';
 
-      const { data: newProfile, error } = await supabase
-        .from('profiles')
+      const { data: newPatient, error } = await supabase
+        .from('patients')
         .insert({
-          email: bookingRequest.email || `patient-${Date.now()}@temp.com`,
           first_name: firstName,
           last_name: lastName,
+          email: bookingRequest.email || `patient-${Date.now()}@temp.com`,
           phone: bookingRequest.phone,
-          role: 'patient'
+          date_of_birth: '1990-01-01', // Default date - would be collected during intake
+          is_active: true
         })
         .select('id')
         .single();
 
       if (error) {
-        console.error('Error creating patient profile:', error);
+        console.error('Error creating patient:', error);
         throw new Error('Failed to create patient profile');
       }
 
-      return newProfile.id;
+      return newPatient.id;
     } catch (error) {
       console.error('Error finding or creating patient:', error);
       throw error;
