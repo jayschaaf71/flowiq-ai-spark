@@ -202,7 +202,8 @@ export class AdvancedBreachDetectionService {
     }, {} as Record<string, number>);
 
     const currentCount = actionCounts[currentAction] || 0;
-    const averageCount = Object.values(actionCounts).reduce((sum, count) => sum + count, 0) / Math.max(Object.keys(actionCounts).length, 1);
+    const totalActions = Object.values(actionCounts).reduce((sum: number, count: number) => sum + count, 0);
+    const averageCount = totalActions / Math.max(Object.keys(actionCounts).length, 1);
 
     return currentCount > averageCount * 2;
   }
