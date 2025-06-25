@@ -272,7 +272,7 @@ class ScheduleIQService {
             status: 'pending'
           });
 
-        if (this.config.reminderSettings.sms && appointment.patients?.phone) {
+        if (this.config.reminderSettings.sms && appointment.patients?.[0]?.phone) {
           await supabase
             .from('appointment_reminders')
             .insert({
