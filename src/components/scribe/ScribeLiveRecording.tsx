@@ -63,42 +63,44 @@ export const ScribeLiveRecording = () => {
         </Alert>
       )}
       
-      {currentTranscription && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Zap className="w-5 h-5 text-purple-600" />
-              AI Actions
-            </CardTitle>
-            <CardDescription>
-              Transform your transcription with AI-powered tools
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex gap-3 flex-wrap">
-              <Button 
-                onClick={handleGenerateSOAP}
-                disabled={isGenerating}
-                className="bg-purple-600 hover:bg-purple-700"
-              >
-                <Brain className="w-4 h-4 mr-2" />
-                {isGenerating ? "Generating..." : "Generate SOAP Note"}
-              </Button>
-              <Button variant="outline">
-                <FileText className="w-4 h-4 mr-2" />
-                Save Transcription
-              </Button>
-              <Button 
-                variant="outline"
-                onClick={handleTestTranscription}
-                className="bg-blue-50 hover:bg-blue-100"
-              >
-                Load Test Data
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Zap className="w-5 h-5 text-purple-600" />
+            AI Actions
+          </CardTitle>
+          <CardDescription>
+            Transform your transcription with AI-powered tools
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-3 flex-wrap">
+            {currentTranscription && (
+              <>
+                <Button 
+                  onClick={handleGenerateSOAP}
+                  disabled={isGenerating}
+                  className="bg-purple-600 hover:bg-purple-700"
+                >
+                  <Brain className="w-4 h-4 mr-2" />
+                  {isGenerating ? "Generating..." : "Generate SOAP Note"}
+                </Button>
+                <Button variant="outline">
+                  <FileText className="w-4 h-4 mr-2" />
+                  Save Transcription
+                </Button>
+              </>
+            )}
+            <Button 
+              variant="outline"
+              onClick={handleTestTranscription}
+              className="bg-blue-50 hover:bg-blue-100"
+            >
+              Load Test Data
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
