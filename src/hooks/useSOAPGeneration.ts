@@ -1,6 +1,8 @@
 
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
 interface SOAPNote {
   subjective: string;
@@ -13,34 +15,48 @@ export const useSOAPGeneration = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedSOAP, setGeneratedSOAP] = useState<SOAPNote | null>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const generateSOAPFromTranscription = async (transcription: string): Promise<SOAPNote> => {
     setIsGenerating(true);
     try {
-      // Simulate AI processing
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Mock SOAP generation based on transcription
-      const soapNote: SOAPNote = {
-        subjective: "Patient presents with chief complaint of severe tooth pain in upper right quadrant, onset 3 days ago. Pain described as sharp, throbbing, 8/10 severity. Worsens with cold stimuli. Difficulty sleeping. Denies fever, facial swelling.",
-        objective: "Vital signs stable. Extraoral exam: No facial asymmetry or lymphadenopathy. Intraoral exam: Tooth #3 large mesial carious lesion, tender to percussion. Radiographic findings: Periapical radiolucency consistent with abscess.",
-        assessment: "Acute apical abscess, tooth #3 (maxillary right first molar)",
-        plan: "1. Emergency endodontic therapy\n2. Amoxicillin 500mg TID x 7 days\n3. Ibuprofen 600mg q6h PRN pain\n4. Follow-up in 1 week\n5. Patient education on oral hygiene"
-      };
-      
+      console.log('Starting SOAP generation from transcription:', transcription.substring(0, 100) + '...');
+
+      const { data, error } = await supabase.functions.invoke('ai-soap-generation', {
+        body: {
+          transcription,
+          userId: user?.id,
+          patientContext: null // Can be enhanced later with patient-specific context
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      const soapNote = data.soapNote as SOAPNote;
       setGeneratedSOAP(soapNote);
       
       toast({
         title: "SOAP Note Generated",
-        description: "AI has structured your notes into SOAP format",
+        description: "AI has successfully structured your notes into SOAP format",
       });
       
       return soapNote;
     } catch (error) {
       console.error('Error generating SOAP note:', error);
+      
+      // Provide helpful error messages
+      let errorMessage = "Failed to generate SOAP note";
+      if (error.message?.includes('OpenAI API key')) {
+        errorMessage = "AI service not configured. Please contact administrator.";
+      } else if (error.message?.includes('network')) {
+        errorMessage = "Network error. Please try again.";
+      }
+      
       toast({
-        title: "Generation Error",
-        description: "Failed to generate SOAP note from transcription",
+        title: "Generation Error", 
+        description: errorMessage,
         variant: "destructive",
       });
       throw error;
