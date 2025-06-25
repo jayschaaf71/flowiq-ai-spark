@@ -43,7 +43,7 @@ export const ScribeLiveRecording = () => {
     const testTranscription = "Patient presents with chief complaint of severe headache onset 2 hours ago. Pain is located in the frontal region, described as throbbing, rated 8 out of 10. Associated with nausea but no vomiting. No visual disturbances. Patient took ibuprofen 400mg with minimal relief. No recent trauma or fever. Medical history significant for migraine headaches, last episode 3 months ago.";
     setCurrentTranscription(testTranscription);
     setTranscriptionError("");
-    console.log('Test transcription loaded');
+    console.log('Test transcription loaded:', testTranscription);
   };
 
   return (
@@ -52,6 +52,7 @@ export const ScribeLiveRecording = () => {
         onTranscriptionComplete={handleTranscriptionComplete}
         onTranscriptionError={handleTranscriptionError}
         placeholder="Start recording to see AI-powered transcription appear here in real-time..."
+        initialTranscription={currentTranscription}
       />
       
       {transcriptionError && (

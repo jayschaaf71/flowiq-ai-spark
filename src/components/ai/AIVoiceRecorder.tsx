@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,13 +13,15 @@ interface AIVoiceRecorderProps {
   onTranscriptionError?: (error: string) => void;
   patientId?: string;
   placeholder?: string;
+  initialTranscription?: string;
 }
 
 export const AIVoiceRecorder = ({ 
   onTranscriptionComplete, 
   onTranscriptionError,
   patientId,
-  placeholder = "AI transcription will appear here..."
+  placeholder = "AI transcription will appear here...",
+  initialTranscription = ""
 }: AIVoiceRecorderProps) => {
   const [error, setError] = useState("");
   const {
@@ -31,6 +33,14 @@ export const AIVoiceRecorder = ({
     clearRecording,
     setTranscription
   } = useAIVoiceTranscription();
+
+  // Update transcription when initialTranscription changes
+  useEffect(() => {
+    if (initialTranscription && initialTranscription !== transcription) {
+      setTranscription(initialTranscription);
+      console.log('AIVoiceRecorder: Setting initial transcription:', initialTranscription);
+    }
+  }, [initialTranscription, transcription, setTranscription]);
 
   const handleTranscriptionChange = (value: string) => {
     setTranscription(value);
