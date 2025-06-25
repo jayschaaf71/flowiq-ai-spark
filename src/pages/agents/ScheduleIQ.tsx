@@ -17,8 +17,10 @@ import { SchedulingEngine } from "@/components/schedule/SchedulingEngine";
 import { DailyProviderSummary } from "@/components/schedule/DailyProviderSummary";
 import { PreAppointmentSummaryPreview } from "@/components/schedule/PreAppointmentSummaryPreview";
 import { PreAppointmentAutomation } from "@/components/schedule/PreAppointmentAutomation";
+import { PatientRiskDashboard } from "@/components/schedule/PatientRiskDashboard";
+import { ScheduleOptimizer } from "@/components/schedule/ScheduleOptimizer";
 import { useToast } from "@/hooks/use-toast";
-import { Settings, Zap, Brain, BarChart3, MessageCircle, Calendar, Users, Bell, Mail, User, Cog } from "lucide-react";
+import { Settings, Zap, Brain, BarChart3, MessageCircle, Calendar, Users, Bell, Mail, User, Cog, TrendingUp } from "lucide-react";
 
 const ScheduleIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -82,6 +84,9 @@ const ScheduleIQ = () => {
           <Badge className="bg-blue-100 text-blue-800 border-blue-200">
             Production Ready
           </Badge>
+          <Badge className="bg-purple-100 text-purple-800 border-purple-200">
+            HIPAA Compliant
+          </Badge>
           <Button variant="outline" size="sm" onClick={handleConfigureClick}>
             <Settings className="w-4 h-4 mr-2" />
             Configure
@@ -112,7 +117,7 @@ const ScheduleIQ = () => {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <div className="flex items-center justify-between">
-            <TabsList className="grid w-full grid-cols-11">
+            <TabsList className="grid w-full grid-cols-13">
               <TabsTrigger value="dashboard" className="flex items-center gap-1">
                 <Brain className="w-4 h-4" />
                 AI Dashboard
@@ -120,6 +125,14 @@ const ScheduleIQ = () => {
               <TabsTrigger value="chat" className="flex items-center gap-1">
                 <MessageCircle className="w-4 h-4" />
                 AI Chat
+              </TabsTrigger>
+              <TabsTrigger value="risk-analysis" className="flex items-center gap-1">
+                <TrendingUp className="w-4 h-4" />
+                Risk Analysis
+              </TabsTrigger>
+              <TabsTrigger value="optimizer" className="flex items-center gap-1">
+                <Zap className="w-4 h-4" />
+                Optimizer
               </TabsTrigger>
               <TabsTrigger value="book" className="flex items-center gap-1">
                 <Calendar className="w-4 h-4" />
@@ -170,6 +183,14 @@ const ScheduleIQ = () => {
 
           <TabsContent value="chat" className="space-y-4">
             <AIScheduleChat />
+          </TabsContent>
+
+          <TabsContent value="risk-analysis" className="space-y-4">
+            <PatientRiskDashboard showOverview={true} />
+          </TabsContent>
+
+          <TabsContent value="optimizer" className="space-y-4">
+            <ScheduleOptimizer />
           </TabsContent>
 
           <TabsContent value="book" className="space-y-4">
