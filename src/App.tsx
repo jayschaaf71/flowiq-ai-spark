@@ -16,6 +16,7 @@ import ScribeIQ from './pages/agents/ScribeIQ';
 import RemindIQ from './pages/agents/RemindIQ';
 import FollowupIQ from './pages/agents/FollowupIQ';
 import InsightIQ from './pages/agents/InsightIQ';
+import BillingIQ from './pages/agents/BillingIQ';
 import ManagerAgent from './pages/ManagerAgent';
 import { EHRDashboard } from './components/ehr/EHRDashboard';
 import { WorkflowOrchestration } from './components/manager/WorkflowOrchestration';
@@ -50,6 +51,7 @@ function App() {
             <Route path="/agents/claims" element={<Layout><ClaimsIQ /></Layout>} />
             <Route path="/agents/followup" element={<Layout><FollowupIQ /></Layout>} />
             <Route path="/agents/insight" element={<Layout><InsightIQ /></Layout>} />
+            <Route path="/agents/billing" element={<Layout><BillingIQ /></Layout>} />
             <Route path="/claims-iq" element={<Layout><ClaimsIQ /></Layout>} />
             <Route path="/scribe-iq" element={<Layout><ScribeIQ /></Layout>} />
             <Route path="/manager" element={<Layout><ManagerAgent /></Layout>} />
