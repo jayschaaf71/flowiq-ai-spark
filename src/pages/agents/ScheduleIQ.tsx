@@ -20,7 +20,8 @@ import { PreAppointmentAutomation } from "@/components/schedule/PreAppointmentAu
 import { PatientRiskDashboard } from "@/components/schedule/PatientRiskDashboard";
 import { ScheduleOptimizer } from "@/components/schedule/ScheduleOptimizer";
 import { useToast } from "@/hooks/use-toast";
-import { Settings, Zap, Brain, BarChart3, MessageCircle, Calendar, Users, Bell, Mail, User, Cog, TrendingUp } from "lucide-react";
+import { Settings, Zap, Brain, BarChart3, MessageCircle, Calendar, Users, Bell, Mail, User, Cog, TrendingUp, Database } from "lucide-react";
+import { IntegrationDashboard } from "@/components/schedule/IntegrationDashboard";
 
 const ScheduleIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -117,7 +118,7 @@ const ScheduleIQ = () => {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <div className="flex items-center justify-between">
-            <TabsList className="grid w-full grid-cols-13">
+            <TabsList className="grid w-full grid-cols-14">
               <TabsTrigger value="dashboard" className="flex items-center gap-1">
                 <Brain className="w-4 h-4" />
                 AI Dashboard
@@ -165,6 +166,10 @@ const ScheduleIQ = () => {
               <TabsTrigger value="daily-summary" className="flex items-center gap-1">
                 <Mail className="w-4 h-4" />
                 Daily Summary
+              </TabsTrigger>
+              <TabsTrigger value="integrations" className="flex items-center gap-1">
+                <Database className="w-4 h-4" />
+                Integrations
               </TabsTrigger>
               <TabsTrigger value="settings" className="flex items-center gap-1">
                 <Settings className="w-4 h-4" />
@@ -228,6 +233,10 @@ const ScheduleIQ = () => {
 
           <TabsContent value="daily-summary" className="space-y-4">
             <DailyProviderSummary />
+          </TabsContent>
+
+          <TabsContent value="integrations" className="space-y-4">
+            <IntegrationDashboard />
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-4">
