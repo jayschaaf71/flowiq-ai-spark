@@ -1,132 +1,174 @@
 
+import { useState } from "react";
+import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { ClaimsQueue } from "@/components/claims/ClaimsQueue";
-import { RevenueAnalytics } from "@/components/claims/RevenueAnalytics";
-import { DenialManagement } from "@/components/claims/DenialManagement";
-import { DevelopmentRoadmap } from "@/components/development/DevelopmentRoadmap";
-import { useClaimsSampleData } from "@/hooks/useClaimsSampleData";
-import { Database, TrendingUp, AlertTriangle, FileText, Map, Brain, Zap, BarChart3, Shield, CreditCard } from "lucide-react";
-import { AIClaimsReviewEngine } from "@/components/claims/AIClaimsReviewEngine";
-import { PayerIntegration } from "@/components/claims/PayerIntegration";
-import { ClaimGenerationEngine } from "@/components/claims/ClaimGenerationEngine";
-import { EnhancedDenialManagement } from "@/components/claims/EnhancedDenialManagement";
-import { ComprehensiveRevenueAnalytics } from "@/components/claims/ComprehensiveRevenueAnalytics";
-import { PriorAuthorizationDashboard } from "@/components/claims/PriorAuthorizationDashboard";
-import { PaymentPostingDashboard } from "@/components/claims/PaymentPostingDashboard";
+import { Receipt, DollarSign, AlertTriangle, TrendingUp, Settings } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 const ClaimsIQ = () => {
-  const { loading, createSampleData } = useClaimsSampleData();
+  const [activeTab, setActiveTab] = useState("dashboard");
 
   return (
-    <div className="flex-1 space-y-6 p-6">
+    <Layout>
       <PageHeader 
         title="Claims iQ"
-        subtitle="AI-powered claims processing, denial management, and revenue cycle optimization"
-      />
+        subtitle="AI-powered insurance claims processing and management"
+      >
+        <Badge className="bg-blue-100 text-blue-700">AI Agent</Badge>
+      </PageHeader>
       
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-          <span className="text-sm text-muted-foreground">Real-time updates enabled</span>
-        </div>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={createSampleData}
-          disabled={loading}
-        >
-          <Database className="w-4 h-4 mr-2" />
-          {loading ? "Creating..." : "Add Sample Data"}
-        </Button>
+      <div className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+            <TabsTrigger value="claims">Claims Queue</TabsTrigger>
+            <TabsTrigger value="denials">Denials</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="dashboard" className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Receipt className="w-5 h-5" />
+                    Claims Processed
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">234</div>
+                  <p className="text-sm text-gray-600">This month</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <DollarSign className="w-5 h-5" />
+                    Revenue Collected
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">$45,670</div>
+                  <p className="text-sm text-gray-600">This month</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <AlertTriangle className="w-5 h-5" />
+                    Pending Claims
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">18</div>
+                  <p className="text-sm text-gray-600">Awaiting review</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5" />
+                    Success Rate
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">92%</div>
+                  <p className="text-sm text-gray-600">First-pass approval</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Claims Activity</CardTitle>
+                <CardDescription>Latest claims processing updates</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <p className="font-medium">Claim #{1000 + i}</p>
+                        <p className="text-sm text-gray-600">Blue Cross Blue Shield - $245.00</p>
+                      </div>
+                      <Badge variant="outline" className="bg-green-50 text-green-700">
+                        Approved
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="claims" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Claims Processing Queue</CardTitle>
+                <CardDescription>Manage and process insurance claims</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-12 text-muted-foreground">
+                  <Receipt className="w-12 h-12 mx-auto mb-4" />
+                  <p>Claims processing interface coming soon...</p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="denials" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Claim Denials Management</CardTitle>
+                <CardDescription>Handle denied claims and appeals</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-12 text-muted-foreground">
+                  <AlertTriangle className="w-12 h-12 mx-auto mb-4" />
+                  <p>Denial management features coming soon...</p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="analytics" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Claims Analytics</CardTitle>
+                <CardDescription>Track claims performance and trends</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-12 text-muted-foreground">
+                  <TrendingUp className="w-12 h-12 mx-auto mb-4" />
+                  <p>Analytics dashboard coming soon...</p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="settings" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Claims Settings</CardTitle>
+                <CardDescription>Configure claims processing preferences</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-12 text-muted-foreground">
+                  <Settings className="w-12 h-12 mx-auto mb-4" />
+                  <p>Settings configuration coming soon...</p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
-
-      <Tabs defaultValue="generation" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-10">
-          <TabsTrigger value="generation" className="flex items-center gap-2">
-            <Brain className="w-4 h-4" />
-            Generate
-          </TabsTrigger>
-          <TabsTrigger value="ai-review" className="flex items-center gap-2">
-            <Database className="w-4 h-4" />
-            AI Review
-          </TabsTrigger>
-          <TabsTrigger value="prior-auth" className="flex items-center gap-2">
-            <Shield className="w-4 h-4" />
-            Prior Auth
-          </TabsTrigger>
-          <TabsTrigger value="payment-posting" className="flex items-center gap-2">
-            <CreditCard className="w-4 h-4" />
-            Payments
-          </TabsTrigger>
-          <TabsTrigger value="payer-integration" className="flex items-center gap-2">
-            <FileText className="w-4 h-4" />
-            Payer Integration
-          </TabsTrigger>
-          <TabsTrigger value="enhanced-denials" className="flex items-center gap-2">
-            <Zap className="w-4 h-4" />
-            Smart Denials
-          </TabsTrigger>
-          <TabsTrigger value="comprehensive-analytics" className="flex items-center gap-2">
-            <BarChart3 className="w-4 h-4" />
-            Revenue Analytics
-          </TabsTrigger>
-          <TabsTrigger value="queue" className="flex items-center gap-2">
-            <FileText className="w-4 h-4" />
-            Claims Queue
-          </TabsTrigger>
-          <TabsTrigger value="denials" className="flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4" />
-            Denial Management
-          </TabsTrigger>
-          <TabsTrigger value="roadmap" className="flex items-center gap-2">
-            <Map className="w-4 h-4" />
-            Development
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="generation" className="space-y-6">
-          <ClaimGenerationEngine />
-        </TabsContent>
-
-        <TabsContent value="ai-review" className="space-y-6">
-          <AIClaimsReviewEngine />
-        </TabsContent>
-
-        <TabsContent value="prior-auth" className="space-y-6">
-          <PriorAuthorizationDashboard />
-        </TabsContent>
-
-        <TabsContent value="payment-posting" className="space-y-6">
-          <PaymentPostingDashboard />
-        </TabsContent>
-
-        <TabsContent value="payer-integration" className="space-y-6">
-          <PayerIntegration />
-        </TabsContent>
-
-        <TabsContent value="enhanced-denials" className="space-y-6">
-          <EnhancedDenialManagement />
-        </TabsContent>
-
-        <TabsContent value="comprehensive-analytics" className="space-y-6">
-          <ComprehensiveRevenueAnalytics />
-        </TabsContent>
-
-        <TabsContent value="queue" className="space-y-6">
-          <ClaimsQueue />
-        </TabsContent>
-
-        <TabsContent value="denials" className="space-y-6">
-          <DenialManagement />
-        </TabsContent>
-
-        <TabsContent value="roadmap" className="space-y-6">
-          <DevelopmentRoadmap />
-        </TabsContent>
-      </Tabs>
-    </div>
+    </Layout>
   );
 };
 

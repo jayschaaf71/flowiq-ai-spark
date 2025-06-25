@@ -1,250 +1,166 @@
 
 import { useState } from "react";
+import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/hooks/use-toast";
-import { EnhancedVoiceRecorder } from "@/components/scribe/EnhancedVoiceRecorder";
-import { useSOAPNotes } from "@/hooks/useSOAPNotes";
-import { 
-  Mic, 
-  FileText, 
-  Clock,
-  CheckCircle,
-  Brain,
-  ArrowRight,
-  Zap,
-  Plus
-} from "lucide-react";
+import { Mic, FileText, Brain, Activity, Settings } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 const ScribeIQ = () => {
-  const [activeTab, setActiveTab] = useState("record");
-  const [currentTranscription, setCurrentTranscription] = useState("");
-  const [currentSOAP, setCurrentSOAP] = useState<any>(null);
-  const { toast } = useToast();
-  const { soapNotes, createSOAPNote, loading } = useSOAPNotes();
-
-  const handleSaveSOAP = async () => {
-    if (!currentSOAP) return;
-    
-    try {
-      await createSOAPNote({
-        patient_id: 'temp-patient-id', // This should come from actual patient selection
-        subjective: currentSOAP.subjective,
-        objective: currentSOAP.objective,
-        assessment: currentSOAP.assessment,
-        plan: currentSOAP.plan,
-        transcription_text: currentTranscription,
-        is_ai_generated: true,
-        ai_confidence_score: 95,
-        status: 'draft',
-        visit_date: new Date().toISOString().split('T')[0]
-      });
-      
-      toast({
-        title: "SOAP Note Saved",
-        description: "Note has been saved to patient records",
-      });
-      
-      setActiveTab("history");
-    } catch (error) {
-      console.error('Error saving SOAP note:', error);
-    }
-  };
-
-  const handleCreateClaim = () => {
-    toast({
-      title: "Claim Created",
-      description: "SOAP note has been sent to Claims iQ for processing",
-    });
-  };
+  const [activeTab, setActiveTab] = useState("dashboard");
 
   return (
-    <div className="space-y-6">
+    <Layout>
       <PageHeader 
         title="Scribe iQ"
-        subtitle="AI-powered medical transcription and clinical documentation"
-      />
+        subtitle="AI-powered medical documentation and voice transcription"
+      >
+        <Badge className="bg-blue-100 text-blue-700">AI Agent</Badge>
+      </PageHeader>
       
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Today's Sessions</CardTitle>
-            <Mic className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-muted-foreground">+3 from yesterday</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Session Time</CardTitle>
-            <Clock className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">18m</div>
-            <p className="text-xs text-muted-foreground">-2m from last week</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Accuracy Rate</CardTitle>
-            <CheckCircle className="h-4 w-4 text-purple-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">98.5%</div>
-            <p className="text-xs text-muted-foreground">+0.2% this month</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Time Saved</CardTitle>
-            <Zap className="h-4 w-4 text-orange-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">4.2h</div>
-            <p className="text-xs text-muted-foreground">Per day average</p>
-          </CardContent>
-        </Card>
-      </div>
+      <div className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+            <TabsTrigger value="transcribe">Voice Transcription</TabsTrigger>
+            <TabsTrigger value="soap">SOAP Generation</TabsTrigger>
+            <TabsTrigger value="templates">Templates</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
+          </TabsList>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="record">Live Recording</TabsTrigger>
-          <TabsTrigger value="soap">SOAP Notes</TabsTrigger>
-          <TabsTrigger value="history">Note History</TabsTrigger>
-        </TabsList>
+          <TabsContent value="dashboard" className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="w-5 h-5" />
+                    Notes Generated
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">87</div>
+                  <p className="text-sm text-gray-600">This week</p>
+                </CardContent>
+              </Card>
 
-        <TabsContent value="record" className="space-y-6">
-          <EnhancedVoiceRecorder
-            onTranscriptionComplete={setCurrentTranscription}
-            onSOAPGenerated={setCurrentSOAP}
-          />
-          
-          {currentSOAP && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Mic className="w-5 h-5" />
+                    Voice Sessions
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">124</div>
+                  <p className="text-sm text-gray-600">Total recorded</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Activity className="w-5 h-5" />
+                    Accuracy Rate
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">96%</div>
+                  <p className="text-sm text-gray-600">Transcription accuracy</p>
+                </CardContent>
+              </Card>
+            </div>
+
             <Card>
               <CardHeader>
-                <CardTitle>Actions</CardTitle>
-                <CardDescription>Save or process your SOAP note</CardDescription>
+                <CardTitle>Recent Transcriptions</CardTitle>
+                <CardDescription>Latest voice-to-text sessions</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="flex gap-4">
-                  <Button onClick={handleSaveSOAP}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Save SOAP Note
-                  </Button>
-                  <Button variant="outline" onClick={handleCreateClaim}>
-                    <ArrowRight className="w-4 h-4 mr-2" />
-                    Send to Claims iQ
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
-
-        <TabsContent value="soap" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Current SOAP Note</CardTitle>
-              <CardDescription>Review your generated clinical documentation</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {currentSOAP ? (
                 <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="p-4 border rounded-lg">
-                      <h4 className="font-semibold text-sm mb-2">SUBJECTIVE</h4>
-                      <p className="text-sm text-gray-700">{currentSOAP.subjective}</p>
-                    </div>
-                    <div className="p-4 border rounded-lg">
-                      <h4 className="font-semibold text-sm mb-2">OBJECTIVE</h4>
-                      <p className="text-sm text-gray-700">{currentSOAP.objective}</p>
-                    </div>
-                    <div className="p-4 border rounded-lg">
-                      <h4 className="font-semibold text-sm mb-2">ASSESSMENT</h4>
-                      <p className="text-sm text-gray-700">{currentSOAP.assessment}</p>
-                    </div>
-                    <div className="p-4 border rounded-lg">
-                      <h4 className="font-semibold text-sm mb-2">PLAN</h4>
-                      <p className="text-sm text-gray-700 whitespace-pre-line">{currentSOAP.plan}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-                    <CheckCircle className="w-5 h-5 text-green-600" />
-                    <div>
-                      <p className="font-medium text-green-800">Ready for Claims Processing</p>
-                      <p className="text-sm text-green-700">This SOAP note is formatted for automatic claim generation</p>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-12 text-muted-foreground">
-                  <FileText className="w-12 h-12 mx-auto mb-4" />
-                  <p>Record a session and generate a SOAP note to get started</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="history" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>SOAP Note History</CardTitle>
-              <CardDescription>View your saved clinical documentation</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="text-center py-8">
-                  <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4" />
-                  <p className="text-sm text-muted-foreground">Loading SOAP notes...</p>
-                </div>
-              ) : soapNotes.length > 0 ? (
-                <div className="space-y-4">
-                  {soapNotes.map((note) => (
-                    <div key={note.id} className="flex items-center justify-between p-4 border rounded-lg">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="flex items-center justify-between p-3 border rounded-lg">
                       <div>
-                        <p className="font-medium">
-                          {note.assessment || 'Untitled Note'}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {new Date(note.created_at).toLocaleDateString()} • 
-                          Status: {note.status}
-                          {note.is_ai_generated && ' • AI Generated'}
-                        </p>
+                        <p className="font-medium">Patient Session #{i}</p>
+                        <p className="text-sm text-gray-600">SOAP note - 5 minutes</p>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <Badge variant={note.status === 'signed' ? 'default' : 'secondary'}>
-                          {note.status}
-                        </Badge>
-                        <Button variant="outline" size="sm">
-                          <FileText className="w-4 h-4 mr-2" />
-                          View
-                        </Button>
-                      </div>
+                      <Badge variant="outline">Completed</Badge>
                     </div>
                   ))}
                 </div>
-              ) : (
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="transcribe" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Mic className="w-5 h-5" />
+                  Voice Transcription
+                </CardTitle>
+                <CardDescription>Record and transcribe patient encounters</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-12">
+                  <Button size="lg" className="bg-red-600 hover:bg-red-700">
+                    <Mic className="w-5 h-5 mr-2" />
+                    Start Recording
+                  </Button>
+                  <p className="text-sm text-gray-600 mt-4">Click to begin voice transcription</p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="soap" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>AI SOAP Generation</CardTitle>
+                <CardDescription>Generate structured SOAP notes from transcriptions</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-12 text-muted-foreground">
+                  <Brain className="w-12 h-12 mx-auto mb-4" />
+                  <p>SOAP generation features coming soon...</p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="templates" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Documentation Templates</CardTitle>
+                <CardDescription>Pre-built templates for common procedures</CardDescription>
+              </CardHeader>
+              <CardContent>
                 <div className="text-center py-12 text-muted-foreground">
                   <FileText className="w-12 h-12 mx-auto mb-4" />
-                  <p>No SOAP notes found. Create your first note to get started.</p>
+                  <p>Template management coming soon...</p>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="settings" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Scribe Settings</CardTitle>
+                <CardDescription>Configure voice recognition and documentation preferences</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-12 text-muted-foreground">
+                  <Settings className="w-12 h-12 mx-auto mb-4" />
+                  <p>Settings configuration coming soon...</p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </Layout>
   );
 };
 
