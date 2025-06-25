@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, Mail, Target, Zap, BarChart3 } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Calendar, Clock, Users, Zap, Search, RefreshCw } from "lucide-react";
 
 interface AIQuickActionsProps {
   userRole: string;
@@ -9,59 +10,89 @@ interface AIQuickActionsProps {
 }
 
 export const AIQuickActions = ({ userRole, isTyping, onActionClick }: AIQuickActionsProps) => {
-  const quickAIActions = userRole === 'patient' 
-    ? [
-        { icon: Calendar, label: "Auto-Book Next Available", action: "Find the next available appointment slot with any provider and book it automatically for me, including confirmation email and reminders" },
-        { icon: Clock, label: "Schedule This Week", action: "Find and automatically book an appointment this week with any available provider, send confirmation and set up reminders" },
-        { icon: Mail, label: "Setup Reminders", action: "Help me set up appointment reminders via email or SMS for my upcoming visits" },
-        { icon: Target, label: "Book with Specific Provider", action: "Show me available providers and automatically book with my preferred choice, including all confirmations" }
-      ]
-    : [
-        { icon: Zap, label: "Auto-Book for Patient", action: "Find the next available slot and automatically create an appointment for a patient, including confirmation email and reminder setup" },
-        { icon: BarChart3, label: "Quick Patient Booking", action: "Book the next available appointment slot for a patient automatically with any provider, send confirmations and set reminders" },
-        { icon: Target, label: "Instant Appointment", action: "Create an appointment immediately with the next available provider, including automated confirmations and reminder scheduling" },
-        { icon: Mail, label: "Bulk Appointment Setup", action: "Help me set up multiple appointments automatically with confirmations and reminders for efficient scheduling" }
-      ];
+  const patientActions = [
+    {
+      icon: Calendar,
+      label: "Book Next Available",
+      action: "Find and book my next available appointment with any provider",
+      color: "bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200"
+    },
+    {
+      icon: Clock,
+      label: "Check My Appointments",
+      action: "Show me all my upcoming appointments",
+      color: "bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
+    },
+    {
+      icon: Search,
+      label: "Find Specific Time",
+      action: "Help me find an appointment for a specific date and time",
+      color: "bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200"
+    },
+    {
+      icon: RefreshCw,
+      label: "Reschedule",
+      action: "I need to reschedule an existing appointment",
+      color: "bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200"
+    }
+  ];
 
-  const roleBasedQuickActions = userRole === 'patient' 
-    ? ["Book my next available appointment automatically", "Find and schedule with any provider", "Show my upcoming appointments", "Set up reminders"]
-    : ["Book next available slot for a patient automatically", "Find and create appointment with any provider", "Check today's schedule status", "Analyze current booking patterns"];
+  const staffActions = [
+    {
+      icon: Zap,
+      label: "Auto-Book Patient",
+      action: "Create an appointment for a patient automatically using AI recommendations",
+      color: "bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200"
+    },
+    {
+      icon: Users,
+      label: "Check Provider Availability",
+      action: "Show me current provider availability and open slots",
+      color: "bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200"
+    },
+    {
+      icon: Calendar,
+      label: "Today's Schedule",
+      action: "Give me an overview of today's appointment schedule",
+      color: "bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
+    },
+    {
+      icon: Clock,
+      label: "Optimize Schedule",
+      action: "Analyze and optimize today's schedule for better efficiency",
+      color: "bg-yellow-50 hover:bg-yellow-100 text-yellow-700 border-yellow-200"
+    }
+  ];
+
+  const actions = userRole === 'patient' ? patientActions : staffActions;
 
   return (
-    <div className="space-y-3">
-      <h3 className="text-sm font-medium text-gray-700">Smart Actions (Auto-Booking + Confirmations)</h3>
-      <div className="grid grid-cols-2 gap-3">
-        {quickAIActions.map((actionItem, index) => {
-          const IconComponent = actionItem.icon;
-          return (
+    <Card>
+      <CardContent className="p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Zap className="h-4 w-4 text-purple-600" />
+          <span className="text-sm font-medium text-gray-700">
+            Quick Actions {userRole === 'patient' ? '(Patient)' : '(Staff)'}
+          </span>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          {actions.map((action, index) => (
             <Button
               key={index}
               variant="outline"
-              className="h-16 flex flex-col gap-2 text-xs hover:bg-purple-50 hover:border-purple-200"
-              onClick={() => onActionClick(actionItem.action)}
+              size="sm"
+              className={`h-auto p-3 flex flex-col items-start gap-2 text-left ${action.color}`}
+              onClick={() => onActionClick(action.action)}
               disabled={isTyping}
             >
-              <IconComponent className="h-5 w-5 text-purple-600" />
-              <span className="text-center leading-tight">{actionItem.label}</span>
+              <div className="flex items-center gap-2">
+                <action.icon className="h-4 w-4" />
+                <span className="font-medium text-xs">{action.label}</span>
+              </div>
             </Button>
-          );
-        })}
-      </div>
-
-      <div className="grid grid-cols-2 gap-2">
-        {roleBasedQuickActions.map((action) => (
-          <Button
-            key={action}
-            variant="outline"
-            size="sm"
-            className="text-xs h-8"
-            onClick={() => onActionClick(action)}
-            disabled={isTyping}
-          >
-            {action}
-          </Button>
-        ))}
-      </div>
-    </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 };

@@ -1,8 +1,7 @@
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { format } from "date-fns";
 
 interface Message {
   id: string;
@@ -13,11 +12,11 @@ interface Message {
   contextUsed?: any;
 }
 
-interface AIMessageHandlerProps {
+interface UseAIMessageHandlerProps {
   profile: any;
   scheduleContext: any;
   messages: Message[];
-  setMessages: (messages: Message[] | ((prev: Message[]) => Message[])) => void;
+  setMessages: (messages: Message[]) => void;
   onAppointmentCreated: (appointmentData: any) => Promise<any>;
   onContextRefresh: () => Promise<void>;
 }
@@ -29,95 +28,83 @@ export const useAIMessageHandler = ({
   setMessages,
   onAppointmentCreated,
   onContextRefresh
-}: AIMessageHandlerProps) => {
-  const { toast } = useToast();
+}: UseAIMessageHandlerProps) => {
   const [isTyping, setIsTyping] = useState(false);
   const [needsApiKey, setNeedsApiKey] = useState(false);
+  const { toast } = useToast();
 
-  const handleSendMessage = async (messageText: string) => {
-    if (!messageText.trim() || !profile) {
-      return;
-    }
+  const handleSendMessage = useCallback(async (inputValue: string) => {
+    if (!inputValue.trim() || isTyping) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
       type: 'user',
-      content: messageText,
+      content: inputValue,
       timestamp: new Date()
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages([...messages, userMessage]);
     setIsTyping(true);
 
     try {
-      // Refresh context before sending to AI for most current data
-      await onContextRefresh();
-
+      // Call the AI scheduling service
       const { data, error } = await supabase.functions.invoke('schedule-ai-chat', {
         body: {
-          message: messageText,
-          context: scheduleContext,
-          userProfile: profile,
-          enableAutomation: true
+          message: inputValue,
+          context: {
+            userRole: profile?.role || 'patient',
+            userEmail: profile?.email,
+            userName: `${profile?.first_name} ${profile?.last_name}`.trim(),
+            scheduleData: scheduleContext,
+            conversationHistory: messages.slice(-5) // Last 5 messages for context
+          }
         }
       });
 
       if (error) {
         if (error.message?.includes('OpenAI API key')) {
           setNeedsApiKey(true);
-          throw new Error('OpenAI API key not configured. Please add your API key to continue.');
+          throw new Error('AI service requires OpenAI API key configuration');
         }
         throw error;
       }
 
-      // Check if AI wants to create an appointment automatically
-      if (data.createAppointment) {
+      const aiResponse = data?.response || 'I apologize, but I encountered an issue processing your request.';
+      const suggestions = data?.suggestions || [];
+      const appointmentData = data?.appointmentData;
+
+      // If AI suggests creating an appointment, try to create it
+      if (appointmentData && appointmentData.shouldCreate) {
         try {
-          console.log('AI requested appointment creation with data:', data.appointmentData);
-          const appointment = await onAppointmentCreated(data.appointmentData);
-          
-          // Update the AI response to include confirmation
-          data.response += `\n\n✅ **Appointment Created Successfully!**\n\nAppointment Details:\n• Date: ${format(new Date(data.appointmentData.date), 'MMMM d, yyyy')}\n• Time: ${data.appointmentData.time}\n• Provider: ${data.appointmentData.providerName}\n• Type: ${data.appointmentData.appointmentType}\n• Confirmation sent to: ${data.appointmentData.email}\n• Reminders scheduled automatically\n\nYour appointment is now confirmed and you'll receive reminder notifications.`;
+          const appointment = await onAppointmentCreated(appointmentData);
           
           toast({
-            title: "Appointment Created!",
-            description: `Appointment scheduled for ${format(new Date(data.appointmentData.date), 'MMM d')} at ${data.appointmentData.time}`,
+            title: "Appointment Created Successfully!",
+            description: `Appointment scheduled for ${appointmentData.date} at ${appointmentData.time}`,
           });
+
+          // Refresh context after successful booking
+          await onContextRefresh();
         } catch (appointmentError) {
-          console.error('Failed to create appointment:', appointmentError);
-          
-          // Provide specific error feedback based on the error type
-          let errorMessage = `I found an available slot but encountered an error creating the appointment: ${appointmentError.message}`;
-          
-          if (appointmentError.message?.includes('Authentication required')) {
-            errorMessage = "Please make sure you are logged in to book appointments.";
-          } else if (appointmentError.message?.includes('Patient ID validation')) {
-            errorMessage = "There was an issue with your user profile. Please try refreshing the page and logging in again.";
-          }
-          
-          data.response += `\n\n❌ ${errorMessage}`;
-          
+          console.error('Error creating appointment:', appointmentError);
           toast({
             title: "Booking Failed",
-            description: appointmentError.message,
+            description: appointmentError.message || "Could not create appointment",
             variant: "destructive"
           });
         }
       }
 
-      const aiResponse: Message = {
+      const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'ai',
-        content: data.response,
+        content: aiResponse,
         timestamp: new Date(),
-        suggestions: data.suggestions || [],
-        contextUsed: {
-          ...data.contextUsed,
-          nextAvailableSlots: scheduleContext?.nextAvailableSlots || []
-        }
+        suggestions: suggestions.length > 0 ? suggestions : undefined,
+        contextUsed: scheduleContext
       };
-      
-      setMessages(prev => [...prev, aiResponse]);
+
+      setMessages([...messages, userMessage, aiMessage]);
 
     } catch (error) {
       console.error('Error sending message:', error);
@@ -125,22 +112,26 @@ export const useAIMessageHandler = ({
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'ai',
-        content: `I apologize, but I encountered an error: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`,
+        content: `I apologize, but I encountered an error: ${error.message}. Please try again or contact support if the issue persists.`,
         timestamp: new Date(),
-        suggestions: ["Try again", "Refresh the page", "Check system status"]
+        suggestions: [
+          "Try rephrasing your request",
+          "Check my current appointments",
+          "Show available time slots"
+        ]
       };
-      
-      setMessages(prev => [...prev, errorMessage]);
-      
+
+      setMessages([...messages, userMessage, errorMessage]);
+
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to send message",
-        variant: "destructive",
+        title: "AI Assistant Error",
+        description: "There was an issue processing your request. Please try again.",
+        variant: "destructive"
       });
     } finally {
       setIsTyping(false);
     }
-  };
+  }, [messages, isTyping, profile, scheduleContext, setMessages, onAppointmentCreated, onContextRefresh, toast]);
 
   return {
     handleSendMessage,
