@@ -14,6 +14,7 @@ import IntakeIQ from './pages/agents/IntakeIQ';
 import ClaimsIQ from './pages/agents/ClaimsIQ';
 import ScribeIQ from './pages/agents/ScribeIQ';
 import RemindIQ from './pages/agents/RemindIQ';
+import FollowupIQ from './pages/agents/FollowupIQ';
 import { EHRDashboard } from './components/ehr/EHRDashboard';
 import { WorkflowOrchestration } from './components/manager/WorkflowOrchestration';
 import ScheduleIQProduction from './pages/agents/ScheduleIQProduction';
@@ -45,6 +46,7 @@ function App() {
             <Route path="/agents/intake" element={<Layout><IntakeIQ /></Layout>} />
             <Route path="/agents/remind" element={<Layout><RemindIQ /></Layout>} />
             <Route path="/agents/claims" element={<Layout><ClaimsIQ /></Layout>} />
+            <Route path="/agents/followup" element={<Layout><FollowupIQ /></Layout>} />
             <Route path="/claims-iq" element={<Layout><ClaimsIQ /></Layout>} />
             <Route path="/scribe-iq" element={<Layout><ScribeIQ /></Layout>} />
             <Route path="/ehr" element={<Layout><EHRIQ /></Layout>} />
