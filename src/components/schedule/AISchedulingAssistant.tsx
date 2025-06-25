@@ -229,10 +229,15 @@ export const AISchedulingAssistant = () => {
                   size="sm"
                   onClick={() => handleInputChange('priority', priority)}
                   className={
-                    priority === 'urgent' ? 'border-red-500 text-red-600' :
-                    priority === 'high' ? 'border-orange-500 text-orange-600' :
-                    priority === 'medium' ? 'border-blue-500 text-blue-600' :
-                    'border-gray-500 text-gray-600'
+                    bookingRequest.priority === priority
+                      ? priority === 'urgent' ? 'bg-red-600 hover:bg-red-700 text-white border-red-600' :
+                        priority === 'high' ? 'bg-orange-600 hover:bg-orange-700 text-white border-orange-600' :
+                        priority === 'medium' ? 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600' :
+                        'bg-gray-600 hover:bg-gray-700 text-white border-gray-600'
+                      : priority === 'urgent' ? 'border-red-300 text-red-700 hover:bg-red-50' :
+                        priority === 'high' ? 'border-orange-300 text-orange-700 hover:bg-orange-50' :
+                        priority === 'medium' ? 'border-blue-300 text-blue-700 hover:bg-blue-50' :
+                        'border-gray-300 text-gray-700 hover:bg-gray-50'
                   }
                 >
                   {priority.charAt(0).toUpperCase() + priority.slice(1)}
