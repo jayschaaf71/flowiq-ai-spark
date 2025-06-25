@@ -103,7 +103,7 @@ export class AdvancedBreachDetectionService {
   }
 
   private calculateRiskScore(riskFactors: string[]): number {
-    const scoreMap = {
+    const scoreMap: Record<string, number> = {
       unusual_access_pattern: 2,
       bulk_data_access: 3,
       off_hours_access: 1,
@@ -175,10 +175,10 @@ export class AdvancedBreachDetectionService {
     const actionCounts = recentActivity.reduce((counts, activity) => {
       counts[activity.action] = (counts[activity.action] || 0) + 1;
       return counts;
-    }, {});
+    }, {} as Record<string, number>);
 
     const currentCount = actionCounts[currentAction] || 0;
-    const averageCount = Object.values(actionCounts).reduce((sum: number, count: number) => sum + count, 0) / Object.keys(actionCounts).length;
+    const averageCount = Object.values(actionCounts).reduce((sum, count) => sum + count, 0) / Math.max(Object.keys(actionCounts).length, 1);
 
     return currentCount > averageCount * 2;
   }
@@ -213,9 +213,13 @@ export class AdvancedBreachDetectionService {
       .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()); // Last 30 days
 
     const totalAlerts = alerts?.length || 0;
-    const criticalAlerts = alerts?.filter(alert => 
-      alert.new_values?.severity === 'critical'
-    ).length || 0;
+    const criticalAlerts = alerts?.filter(alert => {
+      if (alert.new_values && typeof alert.new_values === 'object' && alert.new_values !== null) {
+        const alertData = alert.new_values as Record<string, any>;
+        return alertData.severity === 'critical';
+      }
+      return false;
+    }).length || 0;
 
     return {
       totalAlerts,

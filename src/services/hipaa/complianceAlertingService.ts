@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface ComplianceAlert {
@@ -70,7 +69,11 @@ export class ComplianceAlertingService {
       'COMPLIANCE_ALERT_CREATED',
       null,
       {
-        ...alert,
+        alert_id: alert.id,
+        type: alert.type,
+        severity: alert.severity,
+        title: alert.title,
+        description: alert.description,
         compliance_note: `${alert.complianceStandard} compliance alert: ${alert.type}`
       }
     );
@@ -136,7 +139,13 @@ export class ComplianceAlertingService {
         table_name: 'compliance_alerts',
         record_id: alert.id,
         action: 'DASHBOARD_ALERT',
-        new_values: alert
+        new_values: {
+          alert_id: alert.id,
+          type: alert.type,
+          severity: alert.severity,
+          title: alert.title,
+          description: alert.description
+        }
       });
   }
 
@@ -239,8 +248,22 @@ export class ComplianceAlertingService {
     const activeAlerts = [];
     for (const log of data || []) {
       const isResolved = await this.isAlertResolved(log.record_id);
-      if (!isResolved && log.new_values) {
-        activeAlerts.push(log.new_values as ComplianceAlert);
+      if (!isResolved && log.new_values && typeof log.new_values === 'object') {
+        const alertData = log.new_values as Record<string, any>;
+        if (alertData.alert_id) {
+          activeAlerts.push({
+            id: alertData.alert_id,
+            type: alertData.type,
+            severity: alertData.severity,
+            title: alertData.title,
+            description: alertData.description,
+            timestamp: new Date(log.created_at),
+            resolved: false,
+            actionRequired: 'Review and resolve',
+            affectedSystems: [],
+            complianceStandard: 'HIPAA'
+          } as ComplianceAlert);
+        }
       }
     }
 

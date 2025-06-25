@@ -22,8 +22,9 @@ import { PatientRiskDashboard } from "@/components/schedule/PatientRiskDashboard
 import { ScheduleOptimizer } from "@/components/schedule/ScheduleOptimizer";
 import { IntegrationDashboard } from "@/components/schedule/IntegrationDashboard";
 import { AdvancedComplianceDashboard } from "@/components/compliance/AdvancedComplianceDashboard";
+import { ProductionDashboard } from "@/components/production/ProductionDashboard";
 import { useToast } from "@/hooks/use-toast";
-import { Settings, Zap, Brain, BarChart3, MessageCircle, Calendar, Users, Bell, Mail, User, Cog, TrendingUp, Database, Shield } from "lucide-react";
+import { Settings, Zap, Brain, BarChart3, MessageCircle, Calendar, Users, Bell, Mail, User, Cog, TrendingUp, Database, Shield, Server } from "lucide-react";
 
 const ScheduleIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -120,7 +121,7 @@ const ScheduleIQ = () => {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <div className="flex items-center justify-between">
-            <TabsList className="grid w-full grid-cols-15">
+            <TabsList className="grid w-full grid-cols-16">
               <TabsTrigger value="dashboard" className="flex items-center gap-1">
                 <Brain className="w-4 h-4" />
                 AI Dashboard
@@ -176,6 +177,10 @@ const ScheduleIQ = () => {
               <TabsTrigger value="compliance" className="flex items-center gap-1">
                 <Shield className="w-4 h-4" />
                 HIPAA Compliance
+              </TabsTrigger>
+              <TabsTrigger value="production" className="flex items-center gap-1">
+                <Server className="w-4 h-4" />
+                Production
               </TabsTrigger>
               <TabsTrigger value="settings" className="flex items-center gap-1">
                 <Settings className="w-4 h-4" />
@@ -247,6 +252,10 @@ const ScheduleIQ = () => {
 
           <TabsContent value="compliance" className="space-y-4">
             <AdvancedComplianceDashboard />
+          </TabsContent>
+
+          <TabsContent value="production" className="space-y-4">
+            <ProductionDashboard />
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-4">
