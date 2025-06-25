@@ -696,6 +696,59 @@ export type Database = {
         }
         Relationships: []
       }
+      calendar_events: {
+        Row: {
+          attendees: string[] | null
+          created_at: string | null
+          description: string | null
+          end_time: string
+          external_id: string
+          id: string
+          integration_id: string | null
+          location: string | null
+          start_time: string
+          synced_at: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          attendees?: string[] | null
+          created_at?: string | null
+          description?: string | null
+          end_time: string
+          external_id: string
+          id?: string
+          integration_id?: string | null
+          location?: string | null
+          start_time: string
+          synced_at?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          attendees?: string[] | null
+          created_at?: string | null
+          description?: string | null
+          end_time?: string
+          external_id?: string
+          id?: string
+          integration_id?: string | null
+          location?: string | null
+          start_time?: string
+          synced_at?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_events_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       claim_denials: {
         Row: {
           appeal_status: string
@@ -1105,6 +1158,36 @@ export type Database = {
           },
         ]
       }
+      email_templates: {
+        Row: {
+          body: string
+          created_at: string | null
+          id: string
+          name: string
+          subject: string
+          updated_at: string | null
+          variables: string[] | null
+        }
+        Insert: {
+          body: string
+          created_at?: string | null
+          id?: string
+          name: string
+          subject: string
+          updated_at?: string | null
+          variables?: string[] | null
+        }
+        Update: {
+          body?: string
+          created_at?: string | null
+          id?: string
+          name?: string
+          subject?: string
+          updated_at?: string | null
+          variables?: string[] | null
+        }
+        Relationships: []
+      }
       file_attachments: {
         Row: {
           appointment_id: string | null
@@ -1380,6 +1463,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      integrations: {
+        Row: {
+          created_at: string | null
+          credentials: Json | null
+          enabled: boolean
+          id: string
+          last_sync: string | null
+          name: string
+          settings: Json | null
+          status: string
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          credentials?: Json | null
+          enabled?: boolean
+          id?: string
+          last_sync?: string | null
+          name: string
+          settings?: Json | null
+          status?: string
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          credentials?: Json | null
+          enabled?: boolean
+          id?: string
+          last_sync?: string | null
+          name?: string
+          settings?: Json | null
+          status?: string
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       job_opportunities: {
         Row: {
@@ -2729,6 +2851,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      sms_templates: {
+        Row: {
+          created_at: string | null
+          id: string
+          max_length: number | null
+          message: string
+          name: string
+          updated_at: string | null
+          variables: string[] | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          max_length?: number | null
+          message: string
+          name: string
+          updated_at?: string | null
+          variables?: string[] | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          max_length?: number | null
+          message?: string
+          name?: string
+          updated_at?: string | null
+          variables?: string[] | null
+        }
+        Relationships: []
       }
       soap_note_templates: {
         Row: {

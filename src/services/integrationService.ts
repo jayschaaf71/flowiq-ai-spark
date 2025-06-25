@@ -41,14 +41,24 @@ export interface SMSTemplate {
 class IntegrationService {
   async getIntegrations(): Promise<IntegrationConfig[]> {
     try {
-      const { data, error } = await supabase
+      // Use type assertion to work around TypeScript limitations
+      const { data, error } = await (supabase as any)
         .from('integrations')
         .select('*')
         .order('name');
 
       if (error) throw error;
       
-      return data || [];
+      return (data || []).map((item: any) => ({
+        id: item.id,
+        name: item.name,
+        type: item.type,
+        enabled: item.enabled,
+        credentials: item.credentials || {},
+        settings: item.settings || {},
+        lastSync: item.last_sync,
+        status: item.status
+      }));
     } catch (error) {
       console.error('Error fetching integrations:', error);
       return [];
@@ -57,12 +67,19 @@ class IntegrationService {
 
   async updateIntegration(id: string, config: Partial<IntegrationConfig>): Promise<void> {
     try {
-      const { error } = await supabase
+      const updateData: any = {};
+      
+      if (config.enabled !== undefined) updateData.enabled = config.enabled;
+      if (config.credentials !== undefined) updateData.credentials = config.credentials;
+      if (config.settings !== undefined) updateData.settings = config.settings;
+      if (config.status !== undefined) updateData.status = config.status;
+      if (config.lastSync !== undefined) updateData.last_sync = config.lastSync;
+      
+      updateData.updated_at = new Date().toISOString();
+
+      const { error } = await (supabase as any)
         .from('integrations')
-        .update({
-          ...config,
-          updated_at: new Date().toISOString()
-        })
+        .update(updateData)
         .eq('id', id);
 
       if (error) throw error;
@@ -74,7 +91,7 @@ class IntegrationService {
 
   async testIntegration(id: string): Promise<{ success: boolean; message: string }> {
     try {
-      const { data: integration } = await supabase
+      const { data: integration } = await (supabase as any)
         .from('integrations')
         .select('*')
         .eq('id', id)
@@ -94,13 +111,13 @@ class IntegrationService {
         default:
           return { success: false, message: 'Unknown integration type' };
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error testing integration:', error);
       return { success: false, message: error.message };
     }
   }
 
-  private async testCalendarIntegration(integration: IntegrationConfig): Promise<{ success: boolean; message: string }> {
+  private async testCalendarIntegration(integration: any): Promise<{ success: boolean; message: string }> {
     // Test calendar connection
     try {
       // Simulate calendar API call
@@ -118,12 +135,12 @@ class IntegrationService {
       } else {
         return { success: false, message: 'Calendar connection failed' };
       }
-    } catch (error) {
+    } catch (error: any) {
       return { success: false, message: `Calendar test failed: ${error.message}` };
     }
   }
 
-  private async testEmailIntegration(integration: IntegrationConfig): Promise<{ success: boolean; message: string }> {
+  private async testEmailIntegration(integration: any): Promise<{ success: boolean; message: string }> {
     try {
       const { data, error } = await supabase.functions.invoke('test-email-integration', {
         body: { 
@@ -135,12 +152,12 @@ class IntegrationService {
       if (error) throw error;
       
       return { success: true, message: 'Email integration test successful' };
-    } catch (error) {
+    } catch (error: any) {
       return { success: false, message: `Email test failed: ${error.message}` };
     }
   }
 
-  private async testSMSIntegration(integration: IntegrationConfig): Promise<{ success: boolean; message: string }> {
+  private async testSMSIntegration(integration: any): Promise<{ success: boolean; message: string }> {
     try {
       const { data, error } = await supabase.functions.invoke('test-sms-integration', {
         body: { 
@@ -152,7 +169,7 @@ class IntegrationService {
       if (error) throw error;
       
       return { success: true, message: 'SMS integration test successful' };
-    } catch (error) {
+    } catch (error: any) {
       return { success: false, message: `SMS test failed: ${error.message}` };
     }
   }
@@ -203,13 +220,19 @@ class IntegrationService {
 
   async getEmailTemplates(): Promise<EmailTemplate[]> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('email_templates')
         .select('*')
         .order('name');
 
       if (error) throw error;
-      return data || [];
+      return (data || []).map((item: any) => ({
+        id: item.id,
+        name: item.name,
+        subject: item.subject,
+        body: item.body,
+        variables: item.variables || []
+      }));
     } catch (error) {
       console.error('Error fetching email templates:', error);
       return [];
@@ -233,13 +256,19 @@ class IntegrationService {
 
   async getSMSTemplates(): Promise<SMSTemplate[]> {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('sms_templates')
         .select('*')
         .order('name');
 
       if (error) throw error;
-      return data || [];
+      return (data || []).map((item: any) => ({
+        id: item.id,
+        name: item.name,
+        message: item.message,
+        variables: item.variables || [],
+        maxLength: item.max_length || 160
+      }));
     } catch (error) {
       console.error('Error fetching SMS templates:', error);
       return [];
