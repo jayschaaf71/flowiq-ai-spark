@@ -54,10 +54,13 @@ export const usePlaudIntegration = () => {
         .eq('user_id', user.id)
         .single();
 
-      if (data && !error) {
-        const plaudConfig = data.settings as PlaudConfig;
-        setConfig(plaudConfig);
-        setIsConnected(!!plaudConfig.apiKey);
+      if (data && !error && data.settings) {
+        // Type assertion with validation
+        const plaudConfig = data.settings as unknown as PlaudConfig;
+        if (plaudConfig && typeof plaudConfig === 'object' && 'apiKey' in plaudConfig) {
+          setConfig(plaudConfig);
+          setIsConnected(!!plaudConfig.apiKey);
+        }
       }
     } catch (error) {
       console.error('Failed to load Plaud configuration:', error);
@@ -74,7 +77,7 @@ export const usePlaudIntegration = () => {
         .upsert({
           user_id: user.id,
           provider: 'plaud',
-          settings: newConfig,
+          settings: newConfig as any, // Convert to Json type
           is_active: true
         });
 
@@ -328,7 +331,7 @@ export const usePlaudIntegration = () => {
 
       if (error) throw error;
 
-      const loadedRecordings: PlaudRecording[] = data.map(record => ({
+      const loadedRecordings: PlaudRecording[] = (data || []).map(record => ({
         id: record.external_id || record.id,
         filename: record.filename,
         duration: record.duration || 0,
