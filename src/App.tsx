@@ -46,6 +46,7 @@ function App() {
             <Route path="/schedule-iq" element={<Layout><ScheduleIQ /></Layout>} />
             <Route path="/schedule-iq-production" element={<Layout><ScheduleIQProduction /></Layout>} />
             <Route path="/intake-iq" element={<Layout><IntakeIQ /></Layout>} />
+            <Route path="/agents/schedule" element={<Layout><ScheduleIQ /></Layout>} />
             <Route path="/agents/intake" element={<Layout><IntakeIQ /></Layout>} />
             <Route path="/agents/remind" element={<Layout><RemindIQ /></Layout>} />
             <Route path="/agents/claims" element={<Layout><ClaimsIQ /></Layout>} />
