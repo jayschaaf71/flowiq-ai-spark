@@ -123,38 +123,19 @@ class ScheduleIQService {
         }
       }
 
-      // Create a new patient record
+      // Create a new patient record only
       const [firstName, ...lastNameParts] = (bookingRequest.patientName || 'Unknown Patient').split(' ');
       const lastName = lastNameParts.join(' ') || '';
       const patientEmail = bookingRequest.email || `patient-${Date.now()}@temp.com`;
 
-      // Generate a UUID for the new profile/patient
+      // Generate a UUID for the new patient
       const newId = crypto.randomUUID();
 
-      // First create a profile record (since appointments.patient_id likely references profiles)
-      const { data: newProfile, error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: newId,
-          email: patientEmail,
-          first_name: firstName,
-          last_name: lastName,
-          phone: bookingRequest.phone,
-          role: 'patient'
-        })
-        .select('id')
-        .single();
-
-      if (profileError) {
-        console.error('Error creating profile:', profileError);
-        throw new Error('Failed to create patient profile');
-      }
-
-      // Then create the corresponding patient record
+      // Create the patient record
       const { data: newPatient, error: patientError } = await supabase
         .from('patients')
         .insert({
-          id: newId, // Use the same ID as the profile
+          id: newId,
           first_name: firstName,
           last_name: lastName,
           email: patientEmail,
@@ -167,12 +148,10 @@ class ScheduleIQService {
 
       if (patientError) {
         console.error('Error creating patient:', patientError);
-        // Clean up the profile if patient creation fails
-        await supabase.from('profiles').delete().eq('id', newId);
         throw new Error('Failed to create patient record');
       }
 
-      return newId; // Return the profile ID since that's what appointments references
+      return newId;
     } catch (error) {
       console.error('Error finding or creating patient:', error);
       throw error;
