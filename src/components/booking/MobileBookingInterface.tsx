@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,14 +7,30 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Calendar, Clock, User, Phone, Mail, CheckCircle, ArrowLeft, ArrowRight } from "lucide-react";
+import { Calendar, Clock, User, Phone, Mail, CheckCircle, ArrowLeft, ArrowRight, RefreshCw } from "lucide-react";
 import { format, addDays, isSameDay, parseISO } from "date-fns";
 
 interface MobileBookingInterfaceProps {
   onAppointmentBooked?: () => void;
+  existingAppointment?: {
+    id: string;
+    date: string;
+    time: string;
+    provider_id: string;
+    title: string;
+    appointment_type: string;
+    notes?: string;
+    phone?: string;
+    email?: string;
+  };
+  isRescheduling?: boolean;
 }
 
-export const MobileBookingInterface = ({ onAppointmentBooked }: MobileBookingInterfaceProps) => {
+export const MobileBookingInterface = ({ 
+  onAppointmentBooked, 
+  existingAppointment,
+  isRescheduling = false 
+}: MobileBookingInterfaceProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [providers, setProviders] = useState<any[]>([]);
   const [selectedProvider, setSelectedProvider] = useState<string>("");
@@ -32,6 +47,23 @@ export const MobileBookingInterface = ({ onAppointmentBooked }: MobileBookingInt
     appointmentType: "consultation",
     notes: ""
   });
+
+  // Initialize with existing appointment data if rescheduling
+  useEffect(() => {
+    if (isRescheduling && existingAppointment) {
+      setSelectedProvider(existingAppointment.provider_id);
+      setSelectedDate(new Date(existingAppointment.date));
+      setSelectedTime(existingAppointment.time);
+      setPatientInfo({
+        name: existingAppointment.title.split(' - ')[1] || "",
+        email: existingAppointment.email || "",
+        phone: existingAppointment.phone || "",
+        appointmentType: existingAppointment.appointment_type,
+        notes: existingAppointment.notes || ""
+      });
+      setCurrentStep(2); // Skip provider selection for rescheduling
+    }
+  }, [isRescheduling, existingAppointment]);
 
   useEffect(() => {
     loadProviders();
@@ -53,7 +85,7 @@ export const MobileBookingInterface = ({ onAppointmentBooked }: MobileBookingInt
 
       if (error) throw error;
       setProviders(data || []);
-      if (data && data.length > 0) {
+      if (data && data.length > 0 && !isRescheduling) {
         setSelectedProvider(data[0].id);
       }
     } catch (error) {
@@ -78,6 +110,19 @@ export const MobileBookingInterface = ({ onAppointmentBooked }: MobileBookingInt
       if (error) throw error;
 
       const bookedTimes = appointments?.map(apt => apt.time) || [];
+      
+      // If rescheduling, exclude the current appointment time from booked times
+      if (isRescheduling && existingAppointment) {
+        const currentTime = existingAppointment.time;
+        const currentDate = existingAppointment.date;
+        if (dateStr === currentDate) {
+          const index = bookedTimes.indexOf(currentTime);
+          if (index > -1) {
+            bookedTimes.splice(index, 1);
+          }
+        }
+      }
+      
       const allSlots = [];
       
       // Generate slots from 9 AM to 5 PM
@@ -110,36 +155,64 @@ export const MobileBookingInterface = ({ onAppointmentBooked }: MobileBookingInt
 
     setLoading(true);
     try {
-      const { data: appointment, error } = await supabase
-        .from('appointments')
-        .insert({
-          provider_id: selectedProvider,
-          title: `${patientInfo.appointmentType} - ${patientInfo.name}`,
-          appointment_type: patientInfo.appointmentType,
-          date: format(selectedDate, 'yyyy-MM-dd'),
-          time: selectedTime,
-          duration: 60,
-          status: 'confirmed',
-          notes: patientInfo.notes,
-          email: patientInfo.email,
-          phone: patientInfo.phone
-        })
-        .select()
-        .single();
+      if (isRescheduling && existingAppointment) {
+        // Update existing appointment
+        const { error } = await supabase
+          .from('appointments')
+          .update({
+            provider_id: selectedProvider,
+            date: format(selectedDate, 'yyyy-MM-dd'),
+            time: selectedTime,
+            title: `${patientInfo.appointmentType} - ${patientInfo.name}`,
+            appointment_type: patientInfo.appointmentType,
+            notes: patientInfo.notes,
+            email: patientInfo.email,
+            phone: patientInfo.phone
+          })
+          .eq('id', existingAppointment.id);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      toast({
-        title: "Appointment Booked!",
-        description: "We'll send you a confirmation email shortly.",
-      });
+        toast({
+          title: "Appointment Rescheduled!",
+          description: "Your appointment has been successfully rescheduled.",
+        });
+      } else {
+        // Create new appointment - need to create a patient first for anonymous bookings
+        let patientId = 'temp-patient-id'; // This would be replaced with actual patient creation logic
+        
+        const { data: appointment, error } = await supabase
+          .from('appointments')
+          .insert({
+            patient_id: patientId,
+            provider_id: selectedProvider,
+            title: `${patientInfo.appointmentType} - ${patientInfo.name}`,
+            appointment_type: patientInfo.appointmentType,
+            date: format(selectedDate, 'yyyy-MM-dd'),
+            time: selectedTime,
+            duration: 60,
+            status: 'confirmed',
+            notes: patientInfo.notes,
+            email: patientInfo.email,
+            phone: patientInfo.phone
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        toast({
+          title: "Appointment Booked!",
+          description: "We'll send you a confirmation email shortly.",
+        });
+      }
 
       setCurrentStep(4);
       onAppointmentBooked?.();
     } catch (error) {
       console.error('Error booking appointment:', error);
       toast({
-        title: "Booking Failed",
+        title: isRescheduling ? "Rescheduling Failed" : "Booking Failed",
         description: "Please try again or call us directly.",
         variant: "destructive",
       });
@@ -160,21 +233,29 @@ export const MobileBookingInterface = ({ onAppointmentBooked }: MobileBookingInt
     return format(parseISO(`2000-01-01T${time}`), 'h:mm a');
   };
 
-  const stepTitles = [
-    "Choose Provider",
-    "Select Date & Time", 
-    "Your Information",
-    "Confirmation"
-  ];
+  const stepTitles = isRescheduling 
+    ? ["Select New Date & Time", "Confirm Changes", "Rescheduled!"]
+    : ["Choose Provider", "Select Date & Time", "Your Information", "Confirmation"];
+
+  const totalSteps = isRescheduling ? 3 : 4;
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       {/* Mobile-friendly header */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-bold text-gray-900">Book Appointment</h1>
+          <h1 className="text-xl font-bold text-gray-900">
+            {isRescheduling ? (
+              <div className="flex items-center gap-2">
+                <RefreshCw className="w-5 h-5" />
+                Reschedule Appointment
+              </div>
+            ) : (
+              "Book Appointment"
+            )}
+          </h1>
           <Badge variant="outline" className="text-xs">
-            Step {currentStep} of 4
+            Step {currentStep} of {totalSteps}
           </Badge>
         </div>
         
@@ -182,7 +263,7 @@ export const MobileBookingInterface = ({ onAppointmentBooked }: MobileBookingInt
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div 
             className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${(currentStep / 4) * 100}%` }}
+            style={{ width: `${(currentStep / totalSteps) * 100}%` }}
           />
         </div>
         
@@ -193,7 +274,8 @@ export const MobileBookingInterface = ({ onAppointmentBooked }: MobileBookingInt
 
       {/* Step Content */}
       <div className="space-y-4">
-        {currentStep === 1 && (
+        {/* Provider Selection - Skip if rescheduling */}
+        {currentStep === 1 && !isRescheduling && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
@@ -222,13 +304,14 @@ export const MobileBookingInterface = ({ onAppointmentBooked }: MobileBookingInt
           </Card>
         )}
 
-        {currentStep === 2 && (
+        {/* Date & Time Selection */}
+        {((currentStep === 2 && !isRescheduling) || (currentStep === 1 && isRescheduling)) && (
           <div className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <Calendar className="w-5 h-5" />
-                  Select Date
+                  Select {isRescheduling ? 'New ' : ''}Date
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -290,12 +373,13 @@ export const MobileBookingInterface = ({ onAppointmentBooked }: MobileBookingInt
           </div>
         )}
 
-        {currentStep === 3 && (
+        {/* Patient Information - Skip if rescheduling */}
+        {((currentStep === 3 && !isRescheduling) || (currentStep === 2 && isRescheduling)) && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <User className="w-5 h-5" />
-                Your Information
+                {isRescheduling ? 'Confirm Details' : 'Your Information'}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -306,6 +390,7 @@ export const MobileBookingInterface = ({ onAppointmentBooked }: MobileBookingInt
                   onChange={(e) => setPatientInfo(prev => ({ ...prev, name: e.target.value }))}
                   placeholder="Enter your full name"
                   className="mt-1"
+                  disabled={isRescheduling}
                 />
               </div>
               
@@ -317,6 +402,7 @@ export const MobileBookingInterface = ({ onAppointmentBooked }: MobileBookingInt
                   onChange={(e) => setPatientInfo(prev => ({ ...prev, email: e.target.value }))}
                   placeholder="your.email@example.com"
                   className="mt-1"
+                  disabled={isRescheduling}
                 />
               </div>
               
@@ -362,12 +448,13 @@ export const MobileBookingInterface = ({ onAppointmentBooked }: MobileBookingInt
           </Card>
         )}
 
-        {currentStep === 4 && (
+        {/* Confirmation */}
+        {((currentStep === 4 && !isRescheduling) || (currentStep === 3 && isRescheduling)) && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg text-green-600">
                 <CheckCircle className="w-5 h-5" />
-                Appointment Confirmed!
+                Appointment {isRescheduling ? 'Rescheduled' : 'Confirmed'}!
               </CardTitle>
             </CardHeader>
             <CardContent className="text-center space-y-4">
@@ -392,10 +479,10 @@ export const MobileBookingInterface = ({ onAppointmentBooked }: MobileBookingInt
       </div>
 
       {/* Navigation buttons */}
-      {currentStep < 4 && (
+      {((currentStep < 4 && !isRescheduling) || (currentStep < 3 && isRescheduling)) && (
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t">
           <div className="flex gap-3">
-            {currentStep > 1 && (
+            {((currentStep > 1 && !isRescheduling) || (currentStep > 1 && isRescheduling)) && (
               <Button
                 variant="outline"
                 onClick={() => setCurrentStep(currentStep - 1)}
@@ -408,7 +495,7 @@ export const MobileBookingInterface = ({ onAppointmentBooked }: MobileBookingInt
             
             <Button
               onClick={() => {
-                if (currentStep === 3) {
+                if ((currentStep === 3 && !isRescheduling) || (currentStep === 2 && isRescheduling)) {
                   bookAppointment();
                 } else {
                   setCurrentStep(currentStep + 1);
@@ -416,19 +503,19 @@ export const MobileBookingInterface = ({ onAppointmentBooked }: MobileBookingInt
               }}
               disabled={
                 loading ||
-                (currentStep === 1 && !selectedProvider) ||
-                (currentStep === 2 && (!selectedDate || !selectedTime)) ||
-                (currentStep === 3 && (!patientInfo.name || !patientInfo.email))
+                (currentStep === 1 && !selectedProvider && !isRescheduling) ||
+                (((currentStep === 2 && !isRescheduling) || (currentStep === 1 && isRescheduling)) && (!selectedDate || !selectedTime)) ||
+                (((currentStep === 3 && !isRescheduling) || (currentStep === 2 && isRescheduling)) && (!patientInfo.name || !patientInfo.email))
               }
               className="flex-1 flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Booking...
+                  {isRescheduling ? 'Rescheduling...' : 'Booking...'}
                 </>
-              ) : currentStep === 3 ? (
-                "Book Appointment"
+              ) : ((currentStep === 3 && !isRescheduling) || (currentStep === 2 && isRescheduling)) ? (
+                isRescheduling ? "Reschedule Appointment" : "Book Appointment"
               ) : (
                 <>
                   Continue

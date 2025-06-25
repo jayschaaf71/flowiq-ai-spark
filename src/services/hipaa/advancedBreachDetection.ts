@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
 export interface BreachAlert {
@@ -202,8 +203,9 @@ export class AdvancedBreachDetectionService {
     }, {} as Record<string, number>);
 
     const currentCount = actionCounts[currentAction] || 0;
-    const totalActions = Object.values(actionCounts).reduce((sum: number, count: number) => sum + count, 0);
-    const averageCount = totalActions / Math.max(Object.keys(actionCounts).length, 1);
+    const actionKeys = Object.keys(actionCounts);
+    const totalActions = actionKeys.reduce((sum, key) => sum + (actionCounts[key] || 0), 0);
+    const averageCount = totalActions / Math.max(actionKeys.length, 1);
 
     return currentCount > averageCount * 2;
   }
