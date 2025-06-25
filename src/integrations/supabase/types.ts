@@ -45,6 +45,39 @@ export type Database = {
         }
         Relationships: []
       }
+      advisor_notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          metadata: Json | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          metadata?: Json | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          metadata?: Json | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       advisor_profiles: {
         Row: {
           accepting_asks: boolean | null
@@ -1565,6 +1598,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      member_activity: {
+        Row: {
+          activity_type: string
+          created_at: string
+          description: string
+          id: string
+          metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string
+          description: string
+          id?: string
+          metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string
+          description?: string
+          id?: string
+          metadata?: Json | null
+          user_id?: string
+        }
+        Relationships: []
       }
       mentoring_relationships: {
         Row: {
