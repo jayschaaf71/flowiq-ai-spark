@@ -24,7 +24,7 @@ serve(async (req) => {
         suggestions: ['Contact support', 'Try again later']
       }),
       { 
-        status: 200, // Return 200 to avoid fetch errors on frontend
+        status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       }
     );
@@ -36,7 +36,9 @@ serve(async (req) => {
     
     console.log('Received request:', { 
       message: message?.substring(0, 100) + '...', 
-      userRole: context?.userRole 
+      userRole: context?.userRole,
+      hasContext: !!context,
+      conversationHistory: context?.conversationHistory?.length || 0
     });
 
     if (!message || !message.trim()) {
@@ -53,18 +55,95 @@ serve(async (req) => {
       );
     }
 
-    // Build system prompt based on user role and context
-    const systemPrompt = buildSystemPrompt(context);
+    // Build comprehensive conversation context
+    const conversationMessages = [];
     
-    // Get AI response with timeout
-    const aiResponse = await Promise.race([
-      getAIResponse(message, systemPrompt, context),
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Request timeout')), 25000)
-      )
-    ]);
+    // Add system prompt
+    conversationMessages.push({
+      role: 'system',
+      content: buildSystemPrompt(context)
+    });
+
+    // Add conversation history if available
+    if (context?.conversationHistory && context.conversationHistory.length > 0) {
+      // Add last few messages for context
+      const recentMessages = context.conversationHistory.slice(-4);
+      for (const msg of recentMessages) {
+        conversationMessages.push({
+          role: msg.type === 'user' ? 'user' : 'assistant',
+          content: msg.content
+        });
+      }
+    }
+
+    // Add current user message
+    conversationMessages.push({
+      role: 'user',
+      content: message
+    });
+
+    console.log('Calling OpenAI with', conversationMessages.length, 'messages');
+
+    // Call OpenAI with improved error handling
+    let aiResponse;
+    try {
+      const openAIResponse = await Promise.race([
+        fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${openAIApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'gpt-4o-mini',
+            messages: conversationMessages,
+            temperature: 0.7,
+            max_tokens: 500
+          }),
+        }),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('OpenAI request timeout')), 20000)
+        )
+      ]);
+
+      if (!openAIResponse.ok) {
+        const errorData = await openAIResponse.json().catch(() => ({}));
+        throw new Error(`OpenAI API error: ${errorData.error?.message || openAIResponse.statusText}`);
+      }
+
+      const data = await openAIResponse.json();
+      aiResponse = data.choices?.[0]?.message?.content;
+      
+      if (!aiResponse) {
+        throw new Error('No response content from OpenAI');
+      }
+
+      console.log('OpenAI response received:', aiResponse.substring(0, 100) + '...');
+      
+    } catch (error) {
+      console.error('OpenAI API error:', error);
+      
+      // Provide fallback response for common queries
+      if (message.toLowerCase().includes('date') || message.toLowerCase().includes('time')) {
+        const now = new Date();
+        aiResponse = `The current date and time is: ${now.toLocaleDateString()} at ${now.toLocaleTimeString()}. 
+
+I apologize, but I'm experiencing some technical difficulties with my AI processing. However, I can still help you with basic information like the current date and time.
+
+Is there anything specific about appointments or scheduling I can assist you with?`;
+      } else {
+        aiResponse = `I apologize, but I'm experiencing some technical difficulties right now. ${error.message?.includes('timeout') ? 'The request took too long to process.' : 'Please try rephrasing your request or try again in a moment.'}
+
+In the meantime, you can:
+• Check your current appointments manually
+• Contact our office directly for urgent matters  
+• Try a simpler request
+
+I'll be back to full functionality shortly!`;
+      }
+    }
     
-    // Generate contextual suggestions
+    // Generate suggestions based on the response and user role
     const suggestions = generateSuggestions(context?.userRole || 'patient', message, aiResponse);
 
     // Parse for appointment creation intent
@@ -76,7 +155,8 @@ serve(async (req) => {
       JSON.stringify({
         response: aiResponse,
         suggestions,
-        appointmentData
+        appointmentData,
+        timestamp: new Date().toISOString()
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
@@ -84,27 +164,26 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in schedule-ai-chat:', error);
     
-    // Return a friendly error response instead of throwing
     return new Response(
       JSON.stringify({ 
-        error: false, // Don't show as error to user
-        response: `I apologize, but I'm experiencing some technical difficulties right now. ${error.message?.includes('timeout') ? 'The request took too long to process.' : 'Please try rephrasing your request or try again in a moment.'} 
+        error: false,
+        response: `I apologize, but I'm experiencing technical difficulties. ${error.message?.includes('timeout') ? 'The request took too long to process.' : 'Please try again in a moment.'}
 
-In the meantime, you can:
-• Check your current appointments manually
-• Contact our office directly for urgent matters
-• Try a simpler request
+If you need the current date and time: ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}
 
-I'll be back to full functionality shortly!`,
+You can also:
+• Check appointments manually
+• Contact our office directly
+• Try a simpler request`,
         suggestions: [
-          "Check my appointments manually",
+          "What's today's date?",
+          "Check my appointments",
           "Contact office directly", 
-          "Try a simpler request",
-          "Try again in a moment"
+          "Try again"
         ]
       }),
       { 
-        status: 200, // Always return 200 to prevent frontend fetch errors
+        status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       }
     );
@@ -113,17 +192,23 @@ I'll be back to full functionality shortly!`,
 
 function buildSystemPrompt(context: any): string {
   const { userRole, scheduleData, userName } = context || {};
+  const currentDateTime = new Date().toLocaleString();
   
   const basePrompt = `You are Schedule iQ, an AI assistant specialized in medical appointment scheduling. You have real-time access to appointment data and can help with booking, rescheduling, and schedule optimization.
 
+IMPORTANT: Always be responsive and conversational. If a user asks for the current date/time, provide it immediately along with helpful scheduling context.
+
 Current Context:
+- Current Date/Time: ${currentDateTime}
 - User: ${userName || 'User'} (Role: ${userRole || 'patient'})
 - Today's appointments: ${scheduleData?.todaysAppointments || 0}
 - Available slots today: ${scheduleData?.availableSlots || 0}
 - Total providers: ${scheduleData?.totalActiveProviders || 0}
 
 Guidelines:
+- Always respond to user questions directly and promptly
 - Be conversational and helpful
+- If asked for date/time, provide it immediately
 - Always confirm appointment details before suggesting creation
 - Use real-time availability data when possible
 - Keep responses concise but informative
@@ -133,6 +218,7 @@ Guidelines:
     return basePrompt + `
 
 You're helping a patient with their appointments. Focus on:
+- Answering questions about current date/time when asked
 - Finding available appointment slots
 - Explaining appointment types and durations
 - Helping with rescheduling
@@ -141,6 +227,7 @@ You're helping a patient with their appointments. Focus on:
     return basePrompt + `
 
 You're helping medical staff manage schedules. Focus on:
+- Answering questions about current date/time when asked
 - Creating appointments for patients
 - Optimizing provider schedules
 - Managing waitlists and conflicts
@@ -148,40 +235,7 @@ You're helping medical staff manage schedules. Focus on:
   }
 }
 
-async function getAIResponse(message: string, systemPrompt: string, context: any): Promise<string> {
-  try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: message }
-        ],
-        temperature: 0.7,
-        max_tokens: 500
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(`OpenAI API error: ${errorData.error?.message || response.statusText}`);
-    }
-
-    const data = await response.json();
-    return data.choices?.[0]?.message?.content || 'I apologize, but I received an incomplete response. Please try again.';
-  } catch (error) {
-    console.error('OpenAI API error:', error);
-    throw error;
-  }
-}
-
 function parseAppointmentIntent(aiResponse: string, context: any): any {
-  // Simple intent detection - in production, this could be more sophisticated
   const appointmentKeywords = ['book', 'schedule', 'appointment', 'create'];
   const hasAppointmentIntent = appointmentKeywords.some(keyword => 
     aiResponse.toLowerCase().includes(keyword)
@@ -191,13 +245,12 @@ function parseAppointmentIntent(aiResponse: string, context: any): any {
     return null;
   }
 
-  // For demo purposes, return a sample appointment data structure
   return {
-    shouldCreate: false, // Set to true when ready to actually create
+    shouldCreate: false,
     patientName: context?.userName || 'Patient',
     email: context?.userEmail,
     appointmentType: 'consultation',
-    date: new Date().toISOString().split('T')[0], // Today
+    date: new Date().toISOString().split('T')[0],
     time: '10:00',
     duration: 60,
     notes: 'Scheduled via AI assistant'
@@ -206,6 +259,16 @@ function parseAppointmentIntent(aiResponse: string, context: any): any {
 
 function generateSuggestions(userRole: string, userMessage: string, aiResponse: string): string[] {
   const lowerMessage = userMessage.toLowerCase();
+  
+  // Add date/time related suggestions if relevant
+  if (lowerMessage.includes('date') || lowerMessage.includes('time')) {
+    return [
+      "Show today's schedule",
+      "Book an appointment for today",
+      "Check tomorrow's availability",
+      "View this week's appointments"
+    ];
+  }
   
   if (userRole === 'patient') {
     if (lowerMessage.includes('book') || lowerMessage.includes('schedule')) {
