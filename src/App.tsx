@@ -21,6 +21,7 @@ import { BookAppointment } from './pages/BookAppointment';
 import { RescheduleAppointment } from './pages/RescheduleAppointment';
 import PatientManagement from './pages/PatientManagement';
 import EHRIQ from './pages/agents/EHRIQ';
+import AIInsights from './pages/AIInsights';
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ function App() {
             <Route path="/scribe-iq" element={<Layout><ScribeIQ /></Layout>} />
             <Route path="/ehr" element={<Layout><EHRIQ /></Layout>} />
             <Route path="/ehr-dashboard" element={<Layout><EHRDashboard /></Layout>} />
+            <Route path="/insights" element={<Layout><AIInsights /></Layout>} />
             <Route path="/workflow-orchestration" element={<Layout><WorkflowOrchestration /></Layout>} />
             <Route path="/pilot-demo" element={<PilotDemo />} />
             <Route path="/book-appointment" element={<BookAppointment />} />
