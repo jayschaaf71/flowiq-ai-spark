@@ -64,7 +64,9 @@ export const AISchedulingAssistant = () => {
     setIsProcessing(true);
     try {
       const response = await scheduleIQService.processBookingRequest({
-        patientId: 'temp-patient-id', // In production, create or find patient
+        patientName: bookingRequest.patientName,
+        phone: bookingRequest.phone,
+        email: bookingRequest.email,
         appointmentType: bookingRequest.appointmentType,
         preferredDate: bookingRequest.preferredDate,
         preferredTime: bookingRequest.preferredTime,

@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { aiSchedulingService } from "./aiSchedulingService";
 import { format, addDays, parseISO, isWeekend } from "date-fns";
@@ -21,7 +20,10 @@ export interface ScheduleIQConfig {
 }
 
 export interface BookingRequest {
-  patientId: string;
+  patientId?: string;
+  patientName?: string;
+  phone?: string;
+  email?: string;
   providerId?: string;
   appointmentType: string;
   preferredDate?: string;
@@ -106,6 +108,50 @@ class ScheduleIQService {
     };
   }
 
+  private async findOrCreatePatient(bookingRequest: BookingRequest): Promise<string> {
+    try {
+      // First, try to find existing patient by email
+      if (bookingRequest.email) {
+        const { data: existingPatient } = await supabase
+          .from('patients')
+          .select('id')
+          .eq('email', bookingRequest.email)
+          .single();
+
+        if (existingPatient) {
+          return existingPatient.id;
+        }
+      }
+
+      // If no existing patient found, create a new one
+      const [firstName, ...lastNameParts] = (bookingRequest.patientName || 'Unknown Patient').split(' ');
+      const lastName = lastNameParts.join(' ') || '';
+
+      const { data: newPatient, error } = await supabase
+        .from('patients')
+        .insert({
+          first_name: firstName,
+          last_name: lastName,
+          email: bookingRequest.email,
+          phone: bookingRequest.phone,
+          date_of_birth: '1990-01-01', // Default - will be updated during intake
+          is_active: true
+        })
+        .select('id')
+        .single();
+
+      if (error) {
+        console.error('Error creating patient:', error);
+        throw new Error('Failed to create patient record');
+      }
+
+      return newPatient.id;
+    } catch (error) {
+      console.error('Error finding or creating patient:', error);
+      throw error;
+    }
+  }
+
   async processBookingRequest(request: BookingRequest): Promise<{
     success: boolean;
     appointmentId?: string;
@@ -113,9 +159,12 @@ class ScheduleIQService {
     message: string;
   }> {
     try {
+      // Get or create patient
+      const patientId = await this.findOrCreatePatient(request);
+
       // Get AI recommendations for best slots
       const recommendations = await aiSchedulingService.predictBestSlots(
-        request.patientId,
+        patientId,
         request.appointmentType
       );
 
@@ -125,15 +174,17 @@ class ScheduleIQService {
       if (bestSlot && bestSlot.confidence > 0.7) {
         // Auto-book the appointment
         const appointmentData = {
-          patient_id: request.patientId,
+          patient_id: patientId,
           provider_id: request.providerId,
           date: bestSlot.date,
           time: bestSlot.time,
           appointment_type: request.appointmentType,
           status: 'confirmed',
-          title: `${request.appointmentType} - Auto-booked`,
+          title: `${request.patientName || 'Patient'} - ${request.appointmentType}`,
           notes: request.notes,
-          duration: this.getDefaultDuration(request.appointmentType)
+          duration: this.getDefaultDuration(request.appointmentType),
+          phone: request.phone,
+          email: request.email
         };
 
         const { data: appointment, error } = await supabase
@@ -216,10 +267,15 @@ class ScheduleIQService {
 
       for (const entry of waitlistEntries || []) {
         const result = await this.processBookingRequest({
-          patientId: entry.id, // Using waitlist entry id as patient reference
+          patientName: entry.patient_name,
+          phone: entry.phone,
+          email: entry.email,
           providerId: entry.provider_id,
           appointmentType: entry.appointment_type,
-          priority: entry.priority as 'low' | 'medium' | 'high' | 'urgent'
+          priority: entry.priority as 'low' | 'medium' | 'high' | 'urgent',
+          preferredDate: entry.preferred_date,
+          preferredTime: entry.preferred_time,
+          notes: entry.notes
         });
 
         if (result.success) {
