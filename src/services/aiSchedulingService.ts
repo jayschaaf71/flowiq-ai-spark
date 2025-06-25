@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { format, addDays, parseISO, isWeekend, startOfWeek, endOfWeek } from "date-fns";
 
@@ -37,6 +36,15 @@ export interface ConflictResolution {
   }[];
   autoResolved: number;
   manualReviewRequired: number;
+}
+
+export interface PatientRiskScore {
+  patientId: string;
+  score: number;
+  riskLevel: 'low' | 'medium' | 'high' | 'critical';
+  factors: string[];
+  recommendations: string[];
+  lastUpdated: Date;
 }
 
 class AISchedulingService {
@@ -161,6 +169,82 @@ class AISchedulingService {
     } catch (error) {
       console.error('Error analyzing no-show risk:', error);
       return { riskScore: 0, factors: [], recommendations: [] };
+    }
+  }
+
+  async generatePatientRiskScore(patientId: string): Promise<PatientRiskScore> {
+    try {
+      // Get patient's appointment history
+      const { data: history } = await supabase
+        .from('appointments')
+        .select('*')
+        .eq('patient_id', patientId)
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      // Calculate no-show rate
+      const noShowRate = this.calculateNoShowRate(history || []);
+      
+      // Calculate base risk score (0-100)
+      let riskScore = noShowRate * 100;
+      
+      // Additional risk factors
+      const factors: string[] = [];
+      const recommendations: string[] = [];
+      
+      if (noShowRate > 0.3) {
+        factors.push('High historical no-show rate (>30%)');
+        recommendations.push('Require confirmation calls 24 hours before appointment');
+        riskScore += 10;
+      }
+      
+      if (history && history.length > 0) {
+        const recentCancellations = history.filter(apt => 
+          apt.status === 'cancelled' && 
+          new Date(apt.date) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+        ).length;
+        
+        if (recentCancellations > 2) {
+          factors.push('Multiple recent cancellations');
+          recommendations.push('Consider shorter appointment windows');
+          riskScore += 15;
+        }
+      }
+
+      // Determine risk level
+      let riskLevel: 'low' | 'medium' | 'high' | 'critical';
+      if (riskScore >= 75) riskLevel = 'critical';
+      else if (riskScore >= 50) riskLevel = 'high';
+      else if (riskScore >= 25) riskLevel = 'medium';
+      else riskLevel = 'low';
+
+      // Add default recommendations
+      if (riskLevel === 'low') {
+        recommendations.push('Continue standard reminder protocol');
+      } else {
+        recommendations.push('Send appointment reminders 48 hours and 24 hours before');
+        recommendations.push('Consider SMS reminders in addition to email');
+      }
+
+      return {
+        patientId,
+        score: Math.min(riskScore, 100),
+        riskLevel,
+        factors,
+        recommendations,
+        lastUpdated: new Date()
+      };
+    } catch (error) {
+      console.error('Error generating patient risk score:', error);
+      // Return default low-risk score on error
+      return {
+        patientId,
+        score: 15,
+        riskLevel: 'low',
+        factors: ['Unable to analyze historical data'],
+        recommendations: ['Continue standard reminder protocol'],
+        lastUpdated: new Date()
+      };
     }
   }
 

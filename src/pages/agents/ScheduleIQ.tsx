@@ -19,6 +19,7 @@ import { PreAppointmentSummaryPreview } from "@/components/schedule/PreAppointme
 import { PreAppointmentAutomation } from "@/components/schedule/PreAppointmentAutomation";
 import { PatientRiskDashboard } from "@/components/schedule/PatientRiskDashboard";
 import { ScheduleOptimizer } from "@/components/schedule/ScheduleOptimizer";
+import { SmartSchedulingSuggestions } from "@/components/schedule/SmartSchedulingSuggestions";
 import { IntegrationDashboard } from "@/components/schedule/IntegrationDashboard";
 import { AdvancedComplianceDashboard } from "@/components/compliance/AdvancedComplianceDashboard";
 import { ProductionDashboard } from "@/components/production/ProductionDashboard";
