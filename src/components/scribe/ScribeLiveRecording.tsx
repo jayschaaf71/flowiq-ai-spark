@@ -30,7 +30,9 @@ export const ScribeLiveRecording = () => {
   const handleGenerateSOAP = async () => {
     if (currentTranscription) {
       try {
+        console.log('Starting SOAP generation with transcription:', currentTranscription.substring(0, 100) + '...');
         await generateSOAPFromTranscription(currentTranscription);
+        console.log('SOAP generation completed successfully');
       } catch (error) {
         console.error('Failed to generate SOAP note:', error);
       }
@@ -41,6 +43,7 @@ export const ScribeLiveRecording = () => {
     const testTranscription = "Patient presents with chief complaint of severe headache onset 2 hours ago. Pain is located in the frontal region, described as throbbing, rated 8 out of 10. Associated with nausea but no vomiting. No visual disturbances. Patient took ibuprofen 400mg with minimal relief. No recent trauma or fever. Medical history significant for migraine headaches, last episode 3 months ago.";
     setCurrentTranscription(testTranscription);
     setTranscriptionError("");
+    console.log('Test transcription loaded');
   };
 
   return (

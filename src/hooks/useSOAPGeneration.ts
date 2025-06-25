@@ -18,23 +18,30 @@ export const useSOAPGeneration = () => {
   const { user } = useAuth();
 
   const generateSOAPFromTranscription = async (transcription: string): Promise<SOAPNote> => {
+    console.log('useSOAPGeneration: Starting generation process');
     setIsGenerating(true);
+    
     try {
-      console.log('Starting SOAP generation from transcription:', transcription.substring(0, 100) + '...');
+      console.log('useSOAPGeneration: Calling supabase function with transcription:', transcription.substring(0, 100) + '...');
 
       const { data, error } = await supabase.functions.invoke('ai-soap-generation', {
         body: {
           transcription,
           userId: user?.id,
-          patientContext: null // Can be enhanced later with patient-specific context
+          patientContext: null
         }
       });
 
+      console.log('useSOAPGeneration: Supabase function response:', { data, error });
+
       if (error) {
+        console.error('useSOAPGeneration: Supabase function error:', error);
         throw error;
       }
 
       const soapNote = data.soapNote as SOAPNote;
+      console.log('useSOAPGeneration: Parsed SOAP note:', soapNote);
+      
       setGeneratedSOAP(soapNote);
       
       toast({
@@ -44,9 +51,8 @@ export const useSOAPGeneration = () => {
       
       return soapNote;
     } catch (error) {
-      console.error('Error generating SOAP note:', error);
+      console.error('useSOAPGeneration: Error in generation process:', error);
       
-      // Provide helpful error messages
       let errorMessage = "Failed to generate SOAP note";
       if (error.message?.includes('OpenAI API key')) {
         errorMessage = "AI service not configured. Please contact administrator.";
@@ -66,8 +72,11 @@ export const useSOAPGeneration = () => {
   };
 
   const clearSOAP = () => {
+    console.log('useSOAPGeneration: Clearing SOAP note');
     setGeneratedSOAP(null);
   };
+
+  console.log('useSOAPGeneration: Current state - isGenerating:', isGenerating, 'generatedSOAP:', !!generatedSOAP);
 
   return {
     isGenerating,

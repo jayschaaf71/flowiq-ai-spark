@@ -10,6 +10,9 @@ export const ScribeSOAPGeneration = () => {
   const { generatedSOAP, clearSOAP, isGenerating } = useSOAPContext();
   const { toast } = useToast();
 
+  console.log('ScribeSOAPGeneration render - generatedSOAP:', generatedSOAP);
+  console.log('ScribeSOAPGeneration render - isGenerating:', isGenerating);
+
   const copyToClipboard = async () => {
     if (!generatedSOAP) return;
     
