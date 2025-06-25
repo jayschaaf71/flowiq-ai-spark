@@ -129,10 +129,15 @@ class ScheduleIQService {
       const lastName = lastNameParts.join(' ') || '';
       const patientEmail = bookingRequest.email || `patient-${Date.now()}@temp.com`;
 
+      // Generate a UUID for the new profile/patient
+      const { data: uuidData } = await supabase.rpc('gen_random_uuid');
+      const newId = uuidData || crypto.randomUUID();
+
       // First create a profile record (since appointments.patient_id likely references profiles)
       const { data: newProfile, error: profileError } = await supabase
         .from('profiles')
         .insert({
+          id: newId,
           email: patientEmail,
           first_name: firstName,
           last_name: lastName,
@@ -151,7 +156,7 @@ class ScheduleIQService {
       const { data: newPatient, error: patientError } = await supabase
         .from('patients')
         .insert({
-          id: newProfile.id, // Use the same ID as the profile
+          id: newId, // Use the same ID as the profile
           first_name: firstName,
           last_name: lastName,
           email: patientEmail,
@@ -165,11 +170,11 @@ class ScheduleIQService {
       if (patientError) {
         console.error('Error creating patient:', patientError);
         // Clean up the profile if patient creation fails
-        await supabase.from('profiles').delete().eq('id', newProfile.id);
+        await supabase.from('profiles').delete().eq('id', newId);
         throw new Error('Failed to create patient record');
       }
 
-      return newProfile.id; // Return the profile ID since that's what appointments references
+      return newId; // Return the profile ID since that's what appointments references
     } catch (error) {
       console.error('Error finding or creating patient:', error);
       throw error;
