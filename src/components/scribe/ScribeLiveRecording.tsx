@@ -2,19 +2,28 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Brain, FileText, Zap } from "lucide-react";
+import { Brain, FileText, Zap, AlertCircle } from "lucide-react";
 import { AIVoiceRecorder } from "@/components/ai/AIVoiceRecorder";
 import { useSOAPGeneration } from "@/hooks/useSOAPGeneration";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export const ScribeLiveRecording = () => {
   const [currentTranscription, setCurrentTranscription] = useState("");
+  const [transcriptionError, setTranscriptionError] = useState("");
   const { 
     isGenerating, 
     generateSOAPFromTranscription 
   } = useSOAPGeneration();
 
   const handleTranscriptionComplete = (transcription: string) => {
+    console.log('Transcription completed:', transcription);
     setCurrentTranscription(transcription);
+    setTranscriptionError(""); // Clear any previous errors
+  };
+
+  const handleTranscriptionError = (error: string) => {
+    console.error('Transcription error:', error);
+    setTranscriptionError(error);
   };
 
   const handleGenerateSOAP = async () => {
@@ -27,12 +36,29 @@ export const ScribeLiveRecording = () => {
     }
   };
 
+  const handleTestTranscription = () => {
+    // Add a test transcription for development/testing
+    const testTranscription = "Patient presents with chief complaint of severe headache onset 2 hours ago. Pain is located in the frontal region, described as throbbing, rated 8 out of 10. Associated with nausea but no vomiting. No visual disturbances. Patient took ibuprofen 400mg with minimal relief. No recent trauma or fever. Medical history significant for migraine headaches, last episode 3 months ago.";
+    setCurrentTranscription(testTranscription);
+    setTranscriptionError("");
+  };
+
   return (
     <div className="space-y-4">
       <AIVoiceRecorder 
         onTranscriptionComplete={handleTranscriptionComplete}
+        onTranscriptionError={handleTranscriptionError}
         placeholder="Start recording to see AI-powered transcription appear here in real-time..."
       />
+      
+      {transcriptionError && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Transcription Error: {transcriptionError}
+          </AlertDescription>
+        </Alert>
+      )}
       
       {currentTranscription && (
         <Card>
@@ -46,18 +72,25 @@ export const ScribeLiveRecording = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex gap-3">
+            <div className="flex gap-3 flex-wrap">
               <Button 
                 onClick={handleGenerateSOAP}
                 disabled={isGenerating}
                 className="bg-purple-600 hover:bg-purple-700"
               >
-                <Brain className="w-4 w-4 mr-2" />
+                <Brain className="w-4 h-4 mr-2" />
                 {isGenerating ? "Generating..." : "Generate SOAP Note"}
               </Button>
               <Button variant="outline">
                 <FileText className="w-4 h-4 mr-2" />
                 Save Transcription
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={handleTestTranscription}
+                className="bg-blue-50 hover:bg-blue-100"
+              >
+                Load Test Data
               </Button>
             </div>
           </CardContent>

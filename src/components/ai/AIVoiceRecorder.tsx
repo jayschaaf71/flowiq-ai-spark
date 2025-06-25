@@ -4,20 +4,24 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Mic, MicOff, Loader2, Brain, Shield, FileText } from "lucide-react";
+import { Mic, MicOff, Loader2, Brain, Shield, FileText, AlertCircle } from "lucide-react";
 import { useAIVoiceTranscription } from "@/hooks/useAIVoiceTranscription";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface AIVoiceRecorderProps {
   onTranscriptionComplete?: (transcription: string) => void;
+  onTranscriptionError?: (error: string) => void;
   patientId?: string;
   placeholder?: string;
 }
 
 export const AIVoiceRecorder = ({ 
   onTranscriptionComplete, 
+  onTranscriptionError,
   patientId,
   placeholder = "AI transcription will appear here..."
 }: AIVoiceRecorderProps) => {
+  const [error, setError] = useState("");
   const {
     isRecording,
     isProcessing,
@@ -33,12 +37,24 @@ export const AIVoiceRecorder = ({
     onTranscriptionComplete?.(value);
   };
 
-  const handleRecordingToggle = () => {
-    if (isRecording) {
-      stopRecording();
-    } else {
-      startRecording();
+  const handleRecordingToggle = async () => {
+    try {
+      setError(""); // Clear any previous errors
+      if (isRecording) {
+        stopRecording();
+      } else {
+        await startRecording();
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to access microphone';
+      setError(errorMessage);
+      onTranscriptionError?.(errorMessage);
     }
+  };
+
+  const handleClear = () => {
+    clearRecording();
+    setError("");
   };
 
   return (
@@ -85,7 +101,7 @@ export const AIVoiceRecorder = ({
 
           {transcription && (
             <Button
-              onClick={clearRecording}
+              onClick={handleClear}
               variant="outline"
               disabled={isRecording || isProcessing}
             >
@@ -100,6 +116,15 @@ export const AIVoiceRecorder = ({
             </Badge>
           )}
         </div>
+
+        {error && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              {error}
+            </AlertDescription>
+          </Alert>
+        )}
 
         {isRecording && (
           <div className="flex items-center gap-2 text-red-600 animate-pulse">
