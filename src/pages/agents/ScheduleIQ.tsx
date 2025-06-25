@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -30,6 +29,7 @@ import { ScheduleIQControls } from "@/components/schedule/ScheduleIQControls";
 import { RealTimeNotifications } from "@/components/schedule/RealTimeNotifications";
 import { useToast } from "@/hooks/use-toast";
 import { Settings, Zap, Brain, BarChart3, MessageCircle, Calendar, Users, Bell, Mail, User, Cog, TrendingUp, Database, Shield, Server, Activity } from "lucide-react";
+import { IntegrationSetup } from "@/components/schedule/IntegrationSetup";
 
 const ScheduleIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -318,7 +318,7 @@ const ScheduleIQ = () => {
           </TabsContent>
 
           <TabsContent value="integrations" className="space-y-4">
-            <IntegrationDashboard />
+            <IntegrationSetup />
           </TabsContent>
 
           <TabsContent value="compliance" className="space-y-4">

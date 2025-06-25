@@ -1,8 +1,12 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   Calendar, 
@@ -12,22 +16,17 @@ import {
   Settings,
   CheckCircle,
   AlertCircle,
-  RefreshCw,
   ExternalLink,
-  Database,
-  Zap,
-  Clock,
-  Users,
-  TrendingUp
+  RefreshCw,
+  Plus
 } from 'lucide-react';
 import { integrationService, IntegrationConfig } from '@/services/integrationService';
-import { IntegrationStatus } from "./IntegrationStatus";
 import { useToast } from '@/hooks/use-toast';
 
-export const IntegrationDashboard = () => {
+export const IntegrationSetup: React.FC = () => {
   const [integrations, setIntegrations] = useState<IntegrationConfig[]>([]);
   const [loading, setLoading] = useState(true);
-  const [syncing, setSyncing] = useState<string | null>(null);
+  const [testingIntegration, setTestingIntegration] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -71,28 +70,38 @@ export const IntegrationDashboard = () => {
     }
   };
 
-  const handleSyncIntegration = async (id: string) => {
+  const handleTestIntegration = async (id: string) => {
     try {
-      setSyncing(id);
-      const integration = integrations.find(int => int.id === id);
+      setTestingIntegration(id);
+      const result = await integrationService.testIntegration(id);
       
-      if (integration?.type === 'calendar') {
-        await integrationService.syncCalendarEvents(id);
-        toast({
-          title: "Sync Complete",
-          description: "Calendar events synchronized successfully"
-        });
-      }
-      
-      await loadIntegrations();
+      toast({
+        title: result.success ? "Test Successful" : "Test Failed",
+        description: result.message,
+        variant: result.success ? "default" : "destructive"
+      });
     } catch (error) {
       toast({
-        title: "Sync Failed",
-        description: "Unable to sync integration",
+        title: "Test Failed",
+        description: "Unable to test integration",
         variant: "destructive"
       });
     } finally {
-      setSyncing(null);
+      setTestingIntegration(null);
+    }
+  };
+
+  const handleOAuthConnect = async (provider: string) => {
+    try {
+      const redirectUrl = `${window.location.origin}/integrations/callback`;
+      const authUrl = await integrationService.initiateOAuthFlow(provider, redirectUrl);
+      window.location.href = authUrl;
+    } catch (error) {
+      toast({
+        title: "Connection Failed",
+        description: "Unable to initiate OAuth flow",
+        variant: "destructive"
+      });
     }
   };
 
@@ -124,12 +133,6 @@ export const IntegrationDashboard = () => {
     }
   };
 
-  const connectedIntegrations = integrations.filter(int => int.status === 'connected' && int.enabled);
-  const calendarIntegrations = integrations.filter(int => int.type === 'calendar');
-  const emailIntegrations = integrations.filter(int => int.type === 'email');
-  const smsIntegrations = integrations.filter(int => int.type === 'sms');
-  const paymentIntegrations = integrations.filter(int => int.type === 'payment');
-
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -141,28 +144,35 @@ export const IntegrationDashboard = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-semibold">Integration Dashboard</h3>
-        <p className="text-sm text-muted-foreground">
-          Manage and monitor all your external service integrations
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">Integration Setup</h2>
+          <p className="text-gray-600">Connect and configure external services</p>
+        </div>
+        <Button onClick={loadIntegrations} variant="outline" size="sm">
+          <RefreshCw className="w-4 h-4 mr-2" />
+          Refresh
+        </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          {/* Calendar Integrations */}
+      <Tabs defaultValue="calendar" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="calendar">Calendar</TabsTrigger>
+          <TabsTrigger value="email">Email</TabsTrigger>
+          <TabsTrigger value="sms">SMS</TabsTrigger>
+          <TabsTrigger value="payment">Payment</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="calendar" className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-blue-600" />
+                <Calendar className="w-5 h-5" />
                 Calendar Integrations
-                <Badge variant="outline">
-                  {calendarIntegrations.filter(int => int.enabled).length} Active
-                </Badge>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {calendarIntegrations.map(integration => (
+              {integrations.filter(int => int.type === 'calendar').map(integration => (
                 <div key={integration.id} className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex items-center gap-3">
                     {getIntegrationIcon(integration.type)}
@@ -186,39 +196,52 @@ export const IntegrationDashboard = () => {
                       checked={integration.enabled}
                       onCheckedChange={(enabled) => handleToggleIntegration(integration.id, enabled)}
                     />
-                    {integration.status === 'connected' && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleTestIntegration(integration.id)}
+                      disabled={testingIntegration === integration.id}
+                    >
+                      {testingIntegration === integration.id ? (
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                      ) : (
+                        'Test'
+                      )}
+                    </Button>
+                    {integration.status === 'disconnected' && (
                       <Button
-                        variant="outline"
                         size="sm"
-                        onClick={() => handleSyncIntegration(integration.id)}
-                        disabled={syncing === integration.id}
+                        onClick={() => handleOAuthConnect(integration.name.toLowerCase())}
                       >
-                        {syncing === integration.id ? (
-                          <RefreshCw className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <RefreshCw className="w-4 h-4" />
-                        )}
+                        <ExternalLink className="w-4 h-4 mr-1" />
+                        Connect
                       </Button>
                     )}
                   </div>
                 </div>
               ))}
+              
+              <Alert>
+                <Calendar className="h-4 w-4" />
+                <AlertDescription>
+                  Calendar integration allows automatic synchronization of appointments with your external calendar providers.
+                  This prevents double-booking and keeps all your appointments in sync.
+                </AlertDescription>
+              </Alert>
             </CardContent>
           </Card>
+        </TabsContent>
 
-          {/* Email Integrations */}
+        <TabsContent value="email" className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Mail className="w-5 h-5 text-green-600" />
+                <Mail className="w-5 h-5" />
                 Email Integrations
-                <Badge variant="outline">
-                  {emailIntegrations.filter(int => int.enabled).length} Active
-                </Badge>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {emailIntegrations.map(integration => (
+              {integrations.filter(int => int.type === 'email').map(integration => (
                 <div key={integration.id} className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex items-center gap-3">
                     {getIntegrationIcon(integration.type)}
@@ -237,25 +260,43 @@ export const IntegrationDashboard = () => {
                       checked={integration.enabled}
                       onCheckedChange={(enabled) => handleToggleIntegration(integration.id, enabled)}
                     />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleTestIntegration(integration.id)}
+                      disabled={testingIntegration === integration.id}
+                    >
+                      {testingIntegration === integration.id ? (
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                      ) : (
+                        'Test'
+                      )}
+                    </Button>
                   </div>
                 </div>
               ))}
+              
+              <Alert>
+                <Mail className="h-4 w-4" />
+                <AlertDescription>
+                  Email integration enables automated appointment confirmations, reminders, and follow-up communications.
+                  Configure your SMTP settings or use a service like SendGrid or Mailgun.
+                </AlertDescription>
+              </Alert>
             </CardContent>
           </Card>
+        </TabsContent>
 
-          {/* SMS Integrations */}
+        <TabsContent value="sms" className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <MessageSquare className="w-5 h-5 text-purple-600" />
+                <MessageSquare className="w-5 h-5" />
                 SMS Integrations
-                <Badge variant="outline">
-                  {smsIntegrations.filter(int => int.enabled).length} Active
-                </Badge>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {smsIntegrations.map(integration => (
+              {integrations.filter(int => int.type === 'sms').map(integration => (
                 <div key={integration.id} className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex items-center gap-3">
                     {getIntegrationIcon(integration.type)}
@@ -274,25 +315,43 @@ export const IntegrationDashboard = () => {
                       checked={integration.enabled}
                       onCheckedChange={(enabled) => handleToggleIntegration(integration.id, enabled)}
                     />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleTestIntegration(integration.id)}
+                      disabled={testingIntegration === integration.id}
+                    >
+                      {testingIntegration === integration.id ? (
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                      ) : (
+                        'Test'
+                      )}
+                    </Button>
                   </div>
                 </div>
               ))}
+              
+              <Alert>
+                <MessageSquare className="h-4 w-4" />
+                <AlertDescription>
+                  SMS integration provides text message reminders and confirmations with higher open rates than email.
+                  Connect with Twilio, TextMagic, or other SMS providers.
+                </AlertDescription>
+              </Alert>
             </CardContent>
           </Card>
+        </TabsContent>
 
-          {/* Payment Integrations */}
+        <TabsContent value="payment" className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <CreditCard className="w-5 h-5 text-orange-600" />
+                <CreditCard className="w-5 h-5" />
                 Payment Integrations
-                <Badge variant="outline">
-                  {paymentIntegrations.filter(int => int.enabled).length} Active
-                </Badge>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {paymentIntegrations.map(integration => (
+              {integrations.filter(int => int.type === 'payment').map(integration => (
                 <div key={integration.id} className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex items-center gap-3">
                     {getIntegrationIcon(integration.type)}
@@ -311,138 +370,33 @@ export const IntegrationDashboard = () => {
                       checked={integration.enabled}
                       onCheckedChange={(enabled) => handleToggleIntegration(integration.id, enabled)}
                     />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleTestIntegration(integration.id)}
+                      disabled={testingIntegration === integration.id}
+                    >
+                      {testingIntegration === integration.id ? (
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                      ) : (
+                        'Test'
+                      )}
+                    </Button>
                   </div>
                 </div>
               ))}
-            </CardContent>
-          </Card>
-
-          {/* Integration Health */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-blue-600" />
-                Integration Health
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">{connectedIntegrations.length}</div>
-                  <div className="text-sm text-gray-600">Connected</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">
-                    {integrations.filter(int => int.status === 'syncing').length}
-                  </div>
-                  <div className="text-sm text-gray-600">Syncing</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-red-600">
-                    {integrations.filter(int => int.status === 'error').length}
-                  </div>
-                  <div className="text-sm text-gray-600">Errors</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-gray-600">
-                    {integrations.filter(int => int.status === 'disconnected').length}
-                  </div>
-                  <div className="text-sm text-gray-600">Inactive</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-        
-        <div className="space-y-4">
-          <IntegrationStatus />
-          
-          {/* Quick Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Zap className="w-5 h-5" />
-                Quick Actions
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="w-full justify-start"
-                onClick={loadIntegrations}
-              >
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Refresh All
-              </Button>
               
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="w-full justify-start"
-                onClick={() => {
-                  calendarIntegrations.forEach(int => {
-                    if (int.status === 'connected') {
-                      handleSyncIntegration(int.id);
-                    }
-                  });
-                }}
-              >
-                <Calendar className="w-4 h-4 mr-2" />
-                Sync Calendars
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="w-full justify-start"
-              >
-                <Settings className="w-4 h-4 mr-2" />
-                Configure
-              </Button>
+              <Alert>
+                <CreditCard className="h-4 w-4" />
+                <AlertDescription>
+                  Payment integration allows patients to pay for appointments online and set up payment plans.
+                  Connect with Stripe, Square, or other payment processors.
+                </AlertDescription>
+              </Alert>
             </CardContent>
           </Card>
-
-          {/* Recent Activity */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Clock className="w-5 h-5" />
-                Recent Activity
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="text-sm space-y-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="text-gray-600">Resend email sent</span>
-                  <span className="text-xs text-gray-400 ml-auto">2m ago</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <span className="text-gray-600">Calendar sync completed</span>
-                  <span className="text-xs text-gray-400 ml-auto">5m ago</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  <span className="text-gray-600">SMS reminder sent</span>
-                  <span className="text-xs text-gray-400 ml-auto">8m ago</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* System Alerts */}
-      {integrations.some(int => int.status === 'error') && (
-        <Alert>
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Some integrations are experiencing issues. Check the status above and reconfigure if needed.
-          </AlertDescription>
-        </Alert>
-      )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
