@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -6,7 +7,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { SpecialtyProvider } from "@/contexts/SpecialtyContext";
 import Dashboard from "@/pages/Dashboard";
 import Index from "@/pages/Index";
-import ComprehensiveDashboard from "@/pages/ComprehensiveDashboard";
+import { ComprehensiveDashboard } from "@/pages/ComprehensiveDashboard";
 import ChiroIQ from "./pages/ChiroIQ";
 
 const queryClient = new QueryClient();
