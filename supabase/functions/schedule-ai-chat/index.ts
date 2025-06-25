@@ -1,18 +1,16 @@
 
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
 serve(async (req) => {
+  console.log('Edge function called with method:', req.method);
+  
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -20,20 +18,51 @@ serve(async (req) => {
   if (!openAIApiKey) {
     console.error('OpenAI API key not configured');
     return new Response(
-      JSON.stringify({ error: 'OpenAI API key not configured. Please add OPENAI_API_KEY to your Supabase Edge Function secrets.' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({ 
+        error: 'OpenAI API key not configured. Please add OPENAI_API_KEY to your Supabase Edge Function secrets.',
+        response: 'I apologize, but the AI service is not properly configured. Please contact your administrator to set up the OpenAI API key.',
+        suggestions: ['Contact support', 'Try again later']
+      }),
+      { 
+        status: 200, // Return 200 to avoid fetch errors on frontend
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
     );
   }
 
   try {
-    const { message, context } = await req.json();
-    console.log('Received request:', { message, userRole: context?.userRole });
+    const body = await req.json();
+    const { message, context } = body;
+    
+    console.log('Received request:', { 
+      message: message?.substring(0, 100) + '...', 
+      userRole: context?.userRole 
+    });
+
+    if (!message || !message.trim()) {
+      return new Response(
+        JSON.stringify({
+          error: 'Message is required',
+          response: 'Please provide a message to process.',
+          suggestions: ['Ask about appointments', 'Check availability']
+        }),
+        { 
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
 
     // Build system prompt based on user role and context
     const systemPrompt = buildSystemPrompt(context);
     
-    // Get AI response
-    const aiResponse = await getAIResponse(message, systemPrompt, context);
+    // Get AI response with timeout
+    const aiResponse = await Promise.race([
+      getAIResponse(message, systemPrompt, context),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Request timeout')), 25000)
+      )
+    ]);
     
     // Generate contextual suggestions
     const suggestions = generateSuggestions(context?.userRole || 'patient', message, aiResponse);
@@ -41,7 +70,7 @@ serve(async (req) => {
     // Parse for appointment creation intent
     const appointmentData = parseAppointmentIntent(aiResponse, context);
 
-    console.log('Sending response:', { response: aiResponse.substring(0, 100) + '...' });
+    console.log('Sending successful response');
 
     return new Response(
       JSON.stringify({
@@ -54,11 +83,30 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error in schedule-ai-chat:', error);
+    
+    // Return a friendly error response instead of throwing
     return new Response(
       JSON.stringify({ 
-        error: `AI Assistant Error: ${error.message}. Please try again or rephrase your request.` 
+        error: false, // Don't show as error to user
+        response: `I apologize, but I'm experiencing some technical difficulties right now. ${error.message?.includes('timeout') ? 'The request took too long to process.' : 'Please try rephrasing your request or try again in a moment.'} 
+
+In the meantime, you can:
+• Check your current appointments manually
+• Contact our office directly for urgent matters
+• Try a simpler request
+
+I'll be back to full functionality shortly!`,
+        suggestions: [
+          "Check my appointments manually",
+          "Contact office directly", 
+          "Try a simpler request",
+          "Try again in a moment"
+        ]
       }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { 
+        status: 200, // Always return 200 to prevent frontend fetch errors
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
     );
   }
 });
@@ -101,30 +149,35 @@ You're helping medical staff manage schedules. Focus on:
 }
 
 async function getAIResponse(message: string, systemPrompt: string, context: any): Promise<string> {
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${openAIApiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'gpt-4o-mini',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: message }
-      ],
-      temperature: 0.7,
-      max_tokens: 500
-    }),
-  });
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openAIApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: message }
+        ],
+        temperature: 0.7,
+        max_tokens: 500
+      }),
+    });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(`OpenAI API error: ${error.error?.message || 'Unknown error'}`);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`OpenAI API error: ${errorData.error?.message || response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.choices?.[0]?.message?.content || 'I apologize, but I received an incomplete response. Please try again.';
+  } catch (error) {
+    console.error('OpenAI API error:', error);
+    throw error;
   }
-
-  const data = await response.json();
-  return data.choices[0].message.content;
 }
 
 function parseAppointmentIntent(aiResponse: string, context: any): any {
@@ -139,7 +192,6 @@ function parseAppointmentIntent(aiResponse: string, context: any): any {
   }
 
   // For demo purposes, return a sample appointment data structure
-  // In production, this would parse more sophisticated appointment details from the AI response
   return {
     shouldCreate: false, // Set to true when ready to actually create
     patientName: context?.userName || 'Patient',
