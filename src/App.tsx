@@ -17,6 +17,8 @@ import { EHRDashboard } from './components/ehr/EHRDashboard';
 import { WorkflowOrchestration } from './components/manager/WorkflowOrchestration';
 import ScheduleIQProduction from './pages/agents/ScheduleIQProduction';
 import PilotDemo from "./pages/PilotDemo";
+import { BookAppointment } from './pages/BookAppointment';
+import { RescheduleAppointment } from './pages/RescheduleAppointment';
 
 const queryClient = new QueryClient();
 
@@ -31,6 +33,7 @@ function App() {
             <Route path="/patient-auth" element={<PatientAuth />} />
             <Route path="/" element={<Layout><Dashboard /></Layout>} />
             <Route path="/patient-dashboard" element={<Layout><PatientDashboard /></Layout>} />
+            <Route path="/schedule" element={<Layout><ScheduleIQ /></Layout>} />
             <Route path="/schedule-iq" element={<Layout><ScheduleIQ /></Layout>} />
             <Route path="/schedule-iq-production" element={<Layout><ScheduleIQProduction /></Layout>} />
             <Route path="/intake-iq" element={<Layout><IntakeIQ /></Layout>} />
@@ -39,6 +42,8 @@ function App() {
             <Route path="/ehr-dashboard" element={<Layout><EHRDashboard /></Layout>} />
             <Route path="/workflow-orchestration" element={<Layout><WorkflowOrchestration /></Layout>} />
             <Route path="/pilot-demo" element={<PilotDemo />} />
+            <Route path="/book-appointment" element={<BookAppointment />} />
+            <Route path="/reschedule-appointment/:appointmentId" element={<RescheduleAppointment />} />
           </Routes>
         </QueryClientProvider>
       </BrowserRouter>
