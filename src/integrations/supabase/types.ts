@@ -2581,6 +2581,111 @@ export type Database = {
         }
         Relationships: []
       }
+      schedule_iq_config: {
+        Row: {
+          ai_optimization_enabled: boolean
+          auto_booking_enabled: boolean
+          created_at: string
+          id: string
+          practice_id: string
+          reminder_settings: Json
+          updated_at: string
+          waitlist_enabled: boolean
+          working_hours: Json
+        }
+        Insert: {
+          ai_optimization_enabled?: boolean
+          auto_booking_enabled?: boolean
+          created_at?: string
+          id?: string
+          practice_id: string
+          reminder_settings?: Json
+          updated_at?: string
+          waitlist_enabled?: boolean
+          working_hours?: Json
+        }
+        Update: {
+          ai_optimization_enabled?: boolean
+          auto_booking_enabled?: boolean
+          created_at?: string
+          id?: string
+          practice_id?: string
+          reminder_settings?: Json
+          updated_at?: string
+          waitlist_enabled?: boolean
+          working_hours?: Json
+        }
+        Relationships: []
+      }
+      schedule_notifications: {
+        Row: {
+          action_required: boolean
+          created_at: string
+          id: string
+          message: string
+          notification_data: Json | null
+          priority: string
+          read: boolean
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          action_required?: boolean
+          created_at?: string
+          id?: string
+          message: string
+          notification_data?: Json | null
+          priority?: string
+          read?: boolean
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          action_required?: boolean
+          created_at?: string
+          id?: string
+          message?: string
+          notification_data?: Json | null
+          priority?: string
+          read?: boolean
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      schedule_optimizations: {
+        Row: {
+          applied_at: string
+          created_at: string
+          date: string
+          id: string
+          improvements: Json
+          provider_id: string
+          reasoning: string | null
+        }
+        Insert: {
+          applied_at?: string
+          created_at?: string
+          date: string
+          id?: string
+          improvements?: Json
+          provider_id: string
+          reasoning?: string | null
+        }
+        Update: {
+          applied_at?: string
+          created_at?: string
+          date?: string
+          id?: string
+          improvements?: Json
+          provider_id?: string
+          reasoning?: string | null
+        }
+        Relationships: []
+      }
       schedule_templates: {
         Row: {
           buffer_time: number

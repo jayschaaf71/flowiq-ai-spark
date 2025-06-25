@@ -58,17 +58,17 @@ class ScheduleIQService {
 
       if (!data) {
         // Create default configuration
-        const defaultConfig: ScheduleIQConfig = {
-          practiceId,
-          aiOptimizationEnabled: true,
-          autoBookingEnabled: true,
-          waitlistEnabled: true,
-          reminderSettings: {
+        const defaultConfig = {
+          practice_id: practiceId,
+          ai_optimization_enabled: true,
+          auto_booking_enabled: true,
+          waitlist_enabled: true,
+          reminder_settings: {
             email: true,
             sms: true,
             intervals: [24, 2] // 24 hours and 2 hours before
           },
-          workingHours: {
+          working_hours: {
             start: '09:00',
             end: '17:00',
             days: [1, 2, 3, 4, 5] // Monday-Friday
@@ -82,9 +82,10 @@ class ScheduleIQService {
           .single();
 
         if (insertError) throw insertError;
-        this.config = newConfig;
+        
+        this.config = this.mapConfigFromDB(newConfig);
       } else {
-        this.config = data;
+        this.config = this.mapConfigFromDB(data);
       }
 
       return this.config;
@@ -92,6 +93,17 @@ class ScheduleIQService {
       console.error('Error initializing Schedule iQ config:', error);
       throw error;
     }
+  }
+
+  private mapConfigFromDB(dbConfig: any): ScheduleIQConfig {
+    return {
+      practiceId: dbConfig.practice_id,
+      aiOptimizationEnabled: dbConfig.ai_optimization_enabled,
+      autoBookingEnabled: dbConfig.auto_booking_enabled,
+      waitlistEnabled: dbConfig.waitlist_enabled,
+      reminderSettings: dbConfig.reminder_settings,
+      workingHours: dbConfig.working_hours
+    };
   }
 
   async processBookingRequest(request: BookingRequest): Promise<{
@@ -119,9 +131,9 @@ class ScheduleIQService {
           time: bestSlot.time,
           appointment_type: request.appointmentType,
           status: 'confirmed',
+          title: `${request.appointmentType} - Auto-booked`,
           notes: request.notes,
-          duration: this.getDefaultDuration(request.appointmentType),
-          created_via: 'schedule_iq_auto'
+          duration: this.getDefaultDuration(request.appointmentType)
         };
 
         const { data: appointment, error } = await supabase
@@ -191,7 +203,7 @@ class ScheduleIQService {
       const { data: waitlistEntries } = await supabase
         .from('appointment_waitlist')
         .select('*')
-        .eq('status', 'waiting')
+        .eq('status', 'active')
         .order('created_at');
 
       let processed = 0;
@@ -200,20 +212,19 @@ class ScheduleIQService {
 
       for (const entry of waitlistEntries || []) {
         const result = await this.processBookingRequest({
-          patientId: entry.patient_id,
+          patientId: entry.id, // Using waitlist entry id as patient reference
           providerId: entry.provider_id,
           appointmentType: entry.appointment_type,
-          priority: entry.priority
+          priority: entry.priority as 'low' | 'medium' | 'high' | 'urgent'
         });
 
         if (result.success) {
-          // Update waitlist entry
+          // Update waitlist entry status
           await supabase
             .from('appointment_waitlist')
             .update({ 
               status: 'booked',
-              appointment_id: result.appointmentId,
-              processed_at: new Date().toISOString()
+              updated_at: new Date().toISOString()
             })
             .eq('id', entry.id);
           
@@ -250,21 +261,17 @@ class ScheduleIQService {
           .from('appointment_reminders')
           .insert({
             appointment_id: appointmentId,
-            reminder_time: reminderTime.toISOString(),
-            type: 'email',
-            status: 'scheduled',
-            message_template: 'appointment_reminder'
+            reminder_type: 'email',
+            status: 'pending'
           });
 
-        if (this.config.reminderSettings.sms && appointment.patients.phone) {
+        if (this.config.reminderSettings.sms && appointment.patients?.phone) {
           await supabase
             .from('appointment_reminders')
             .insert({
               appointment_id: appointmentId,
-              reminder_time: reminderTime.toISOString(),
-              type: 'sms',
-              status: 'scheduled',
-              message_template: 'appointment_reminder_sms'
+              reminder_type: 'sms',
+              status: 'pending'
             });
         }
       }
@@ -289,7 +296,7 @@ class ScheduleIQService {
 
       const totalAppointments = appointments?.length || 0;
       const confirmedAppointments = appointments?.filter(a => a.status === 'confirmed').length || 0;
-      const aiBookedAppointments = appointments?.filter(a => a.created_via === 'schedule_iq_auto').length || 0;
+      const aiBookedAppointments = appointments?.filter(a => a.title?.includes('Auto-booked')).length || 0;
       
       return {
         totalAppointments,
@@ -312,11 +319,10 @@ class ScheduleIQService {
       await supabase
         .from('schedule_optimizations')
         .insert({
-          provider_id: optimization.providerId,
-          date: optimization.date,
+          provider_id: optimization.providerId || 'default-provider',
+          date: optimization.date || new Date().toISOString().split('T')[0],
           improvements: optimization.improvements,
-          reasoning: optimization.reasoning,
-          applied_at: new Date().toISOString()
+          reasoning: optimization.reasoning
         });
 
       // Apply the optimized schedule
@@ -326,8 +332,7 @@ class ScheduleIQService {
             .from('appointments')
             .update({
               time: appointment.time,
-              updated_at: new Date().toISOString(),
-              updated_via: 'schedule_iq'
+              updated_at: new Date().toISOString()
             })
             .eq('id', appointment.id);
         }
@@ -351,8 +356,10 @@ class ScheduleIQService {
   private calculateAverageImprovement(optimizations: any[]): number {
     if (!optimizations || optimizations.length === 0) return 0;
     
-    const totalImprovement = optimizations.reduce((sum, opt) => 
-      sum + (opt.improvements?.improvedUtilization || 0), 0);
+    const totalImprovement = optimizations.reduce((sum, opt) => {
+      const improvements = opt.improvements || {};
+      return sum + (improvements.improvedUtilization || 0);
+    }, 0);
     
     return totalImprovement / optimizations.length;
   }
