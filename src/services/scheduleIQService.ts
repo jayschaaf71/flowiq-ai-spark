@@ -181,7 +181,11 @@ class ScheduleIQService {
       return {
         originalSchedule: optimization.originalSchedule,
         optimizedSchedule: optimization.optimizedSchedule,
-        improvements: optimization.improvements,
+        improvements: {
+          reducedWaitTime: optimization.improvements.reducedWaitTime,
+          improvedUtilization: optimization.improvements.improvedUtilization,
+          patientSatisfactionScore: optimization.improvements.patientSatisfactionIncrease || 0
+        },
         aiRecommendations: [
           optimization.reasoning,
           `Conflicts resolved: ${optimization.conflictsResolved}`,
@@ -246,7 +250,10 @@ class ScheduleIQService {
     try {
       const { data: appointment } = await supabase
         .from('appointments')
-        .select('*, patients(*)')
+        .select(`
+          *,
+          patients!inner(phone)
+        `)
         .eq('id', appointmentId)
         .single();
 
