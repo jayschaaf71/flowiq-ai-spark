@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -23,14 +24,19 @@ import { SmartSchedulingSuggestions } from "@/components/schedule/SmartSchedulin
 import { IntegrationDashboard } from "@/components/schedule/IntegrationDashboard";
 import { AdvancedComplianceDashboard } from "@/components/compliance/AdvancedComplianceDashboard";
 import { ProductionDashboard } from "@/components/production/ProductionDashboard";
+import { RealTimeCalendar } from "@/components/schedule/RealTimeCalendar";
+import { ScheduleIQDashboard } from "@/components/schedule/ScheduleIQDashboard";
+import { ScheduleIQControls } from "@/components/schedule/ScheduleIQControls";
+import { RealTimeNotifications } from "@/components/schedule/RealTimeNotifications";
 import { useToast } from "@/hooks/use-toast";
-import { Settings, Zap, Brain, BarChart3, MessageCircle, Calendar, Users, Bell, Mail, User, Cog, TrendingUp, Database, Shield, Server } from "lucide-react";
+import { Settings, Zap, Brain, BarChart3, MessageCircle, Calendar, Users, Bell, Mail, User, Cog, TrendingUp, Database, Shield, Server, Activity } from "lucide-react";
 
 const ScheduleIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [refreshKey, setRefreshKey] = useState(0);
   const [aiOptimizing, setAiOptimizing] = useState(false);
   const [selectedProviderId, setSelectedProviderId] = useState<string | null>(null);
+  const practiceId = "default-practice"; // This would come from user context
 
   const stats = {
     appointmentsToday: 24,
@@ -42,18 +48,18 @@ const ScheduleIQ = () => {
   };
 
   const recentActivity = [
-    { time: "2 min ago", action: "Scheduled appointment for Sarah Wilson", type: "booking" },
+    { time: "2 min ago", action: "AI auto-booked appointment for Sarah Wilson", type: "booking" },
     { time: "5 min ago", action: "Optimized Dr. Smith's calendar for better flow", type: "optimization" },
-    { time: "8 min ago", action: "Sent availability to 3 patients", type: "communication" },
-    { time: "12 min ago", action: "Rescheduled conflicting appointment", type: "modification" },
-    { time: "15 min ago", action: "Blocked emergency slot for urgent care", type: "emergency" }
+    { time: "8 min ago", action: "Processed 3 waitlist patients automatically", type: "waitlist" },
+    { time: "12 min ago", action: "Resolved scheduling conflict with AI", type: "conflict" },
+    { time: "15 min ago", action: "Sent smart reminders to 8 patients", type: "reminder" }
   ];
 
   const upcomingTasks = [
-    { task: "Process 5 rescheduling requests", priority: "high" as const, eta: "10 min" },
-    { task: "Optimize tomorrow's schedule", priority: "medium" as const, eta: "30 min" },
-    { task: "Send weekly availability report", priority: "low" as const, eta: "2 hours" },
-    { task: "Update provider preferences", priority: "medium" as const, eta: "1 hour" }
+    { task: "AI processing 5 rescheduling requests", priority: "high" as const, eta: "2 min" },
+    { task: "Optimize tomorrow's schedule", priority: "medium" as const, eta: "15 min" },
+    { task: "Process waitlist (12 patients)", priority: "medium" as const, eta: "5 min" },
+    { task: "Send weekly availability report", priority: "low" as const, eta: "1 hour" }
   ];
 
   const handleAppointmentBooked = () => {
@@ -62,7 +68,7 @@ const ScheduleIQ = () => {
   };
 
   const handleConfigureClick = () => {
-    setActiveTab("settings");
+    setActiveTab("controls");
   };
 
   const handleAiOptimize = async () => {
@@ -77,6 +83,16 @@ const ScheduleIQ = () => {
     setRefreshKey(prev => prev + 1);
   };
 
+  const handleTimeSlotClick = (date: Date, time: string) => {
+    console.log('Time slot clicked:', date, time);
+    setActiveTab("book");
+  };
+
+  const handleAppointmentClick = (appointment: any) => {
+    console.log('Appointment clicked:', appointment);
+    setActiveTab("appointments");
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader 
@@ -84,12 +100,14 @@ const ScheduleIQ = () => {
         subtitle="Advanced AI-powered appointment scheduling and calendar optimization agent"
       >
         <div className="flex items-center gap-2">
+          <RealTimeNotifications />
           <Badge className="bg-green-100 text-green-800 border-green-200">
             <Brain className="w-3 h-3 mr-1" />
             AI Active
           </Badge>
           <Badge className="bg-blue-100 text-blue-800 border-blue-200">
-            Production Ready
+            <Activity className="w-3 h-3 mr-1" />
+            Real-time
           </Badge>
           <Badge className="bg-purple-100 text-purple-800 border-purple-200">
             HIPAA Compliant
@@ -129,6 +147,18 @@ const ScheduleIQ = () => {
                 <Brain className="w-3 h-3" />
                 <span className="hidden sm:inline">Dashboard</span>
               </TabsTrigger>
+              <TabsTrigger value="iq-dashboard" className="flex items-center gap-1 text-xs px-2 py-2">
+                <Activity className="w-3 h-3" />
+                <span className="hidden sm:inline">iQ Center</span>
+              </TabsTrigger>
+              <TabsTrigger value="controls" className="flex items-center gap-1 text-xs px-2 py-2">
+                <Settings className="w-3 h-3" />
+                <span className="hidden sm:inline">Controls</span>
+              </TabsTrigger>
+              <TabsTrigger value="real-time" className="flex items-center gap-1 text-xs px-2 py-2">
+                <Calendar className="w-3 h-3" />
+                <span className="hidden sm:inline">Live Calendar</span>
+              </TabsTrigger>
               <TabsTrigger value="optimizer" className="flex items-center gap-1 text-xs px-2 py-2">
                 <Zap className="w-3 h-3" />
                 <span className="hidden sm:inline">Optimizer</span>
@@ -139,12 +169,16 @@ const ScheduleIQ = () => {
               </TabsTrigger>
               <TabsTrigger value="chat" className="flex items-center gap-1 text-xs px-2 py-2">
                 <MessageCircle className="w-3 h-3" />
-                <span className="hidden sm:inline">Chat</span>
+                <span className="hidden sm:inline">AI Chat</span>
               </TabsTrigger>
               <TabsTrigger value="risk-analysis" className="flex items-center gap-1 text-xs px-2 py-2">
                 <TrendingUp className="w-3 h-3" />
                 <span className="hidden sm:inline">Risk</span>
               </TabsTrigger>
+            </TabsList>
+            
+            {/* Second row of tabs */}
+            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 gap-1 h-auto p-1 mt-2">
               <TabsTrigger value="book" className="flex items-center gap-1 text-xs px-2 py-2">
                 <Calendar className="w-3 h-3" />
                 <span className="hidden sm:inline">Book</span>
@@ -157,10 +191,6 @@ const ScheduleIQ = () => {
                 <Calendar className="w-3 h-3" />
                 <span className="hidden sm:inline">Calendar</span>
               </TabsTrigger>
-            </TabsList>
-            
-            {/* Second row of tabs */}
-            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 gap-1 h-auto p-1 mt-2">
               <TabsTrigger value="analytics" className="flex items-center gap-1 text-xs px-2 py-2">
                 <BarChart3 className="w-3 h-3" />
                 <span className="hidden sm:inline">Analytics</span>
@@ -181,6 +211,10 @@ const ScheduleIQ = () => {
                 <Mail className="w-3 h-3" />
                 <span className="hidden sm:inline">Daily</span>
               </TabsTrigger>
+            </TabsList>
+            
+            {/* Third row with remaining tabs */}
+            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 gap-1 h-auto p-1 mt-2">
               <TabsTrigger value="integrations" className="flex items-center gap-1 text-xs px-2 py-2">
                 <Database className="w-3 h-3" />
                 <span className="hidden sm:inline">Integrations</span>
@@ -193,10 +227,6 @@ const ScheduleIQ = () => {
                 <Server className="w-3 h-3" />
                 <span className="hidden sm:inline">Production</span>
               </TabsTrigger>
-            </TabsList>
-            
-            {/* Third row with settings */}
-            <TabsList className="grid w-full grid-cols-1 lg:grid-cols-4 gap-1 h-auto p-1 mt-2">
               <TabsTrigger value="settings" className="flex items-center gap-1 text-xs px-2 py-2">
                 <Settings className="w-3 h-3" />
                 <span className="hidden sm:inline">Settings</span>
@@ -209,6 +239,24 @@ const ScheduleIQ = () => {
               stats={stats}
               recentActivity={recentActivity}
               upcomingTasks={upcomingTasks}
+            />
+          </TabsContent>
+
+          <TabsContent value="iq-dashboard" className="space-y-4">
+            <ScheduleIQDashboard practiceId={practiceId} />
+          </TabsContent>
+
+          <TabsContent value="controls" className="space-y-4">
+            <ScheduleIQControls 
+              practiceId={practiceId}
+              onConfigChange={() => setRefreshKey(prev => prev + 1)}
+            />
+          </TabsContent>
+
+          <TabsContent value="real-time" className="space-y-4">
+            <RealTimeCalendar 
+              onTimeSlotClick={handleTimeSlotClick}
+              onAppointmentClick={handleAppointmentClick}
             />
           </TabsContent>
 
