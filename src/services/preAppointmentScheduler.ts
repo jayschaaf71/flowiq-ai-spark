@@ -148,11 +148,21 @@ export class PreAppointmentScheduler {
   }
 
   private async markSummaryAsFailed(notificationId: string, errorMessage: string): Promise<void> {
+    // Get current retry count first
+    const { data: currentNotification } = await supabase
+      .from('notification_queue')
+      .select('retry_count')
+      .eq('id', notificationId)
+      .single();
+
+    const currentRetryCount = currentNotification?.retry_count || 0;
+
     await supabase
       .from('notification_queue')
       .update({ 
         status: 'failed',
-        retry_count: supabase.rpc('notification_queue.retry_count', { notification_id: notificationId }) + 1
+        retry_count: currentRetryCount + 1,
+        error_message: errorMessage
       })
       .eq('id', notificationId);
   }
