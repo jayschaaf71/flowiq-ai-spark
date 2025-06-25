@@ -12,8 +12,11 @@ import {
   AlertCircle,
   Brain
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export const Dashboard = () => {
+  const navigate = useNavigate();
+
   const quickStats = [
     { label: "Today's Appointments", value: "12", icon: Calendar, trend: "+8%" },
     { label: "Active Patients", value: "847", icon: Users, trend: "+15%" },
@@ -28,6 +31,11 @@ export const Dashboard = () => {
     { action: "Claims submitted", time: "15 min ago", status: "pending" }
   ];
 
+  const handleViewAllActivity = () => {
+    // For now, navigate to the manager agent which has comprehensive activity monitoring
+    navigate('/manager');
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -40,13 +48,13 @@ export const Dashboard = () => {
             AI-powered healthcare practice management overview
           </p>
         </div>
-        <Button>
+        <Button onClick={handleViewAllActivity}>
           <Activity className="w-4 h-4 mr-2" />
           View All Activity
         </Button>
       </div>
 
-      {/* Quick Stats */}
+      {/* Quick Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {quickStats.map((stat, index) => (
           <Card key={index}>
@@ -65,7 +73,7 @@ export const Dashboard = () => {
         ))}
       </div>
 
-      {/* Recent Activity */}
+      {/* Recent AI Activity */}
       <Card>
         <CardHeader>
           <CardTitle>Recent AI Activity</CardTitle>
