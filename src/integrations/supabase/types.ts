@@ -1464,6 +1464,36 @@ export type Database = {
           },
         ]
       }
+      integration_settings: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          provider: string
+          settings: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          provider: string
+          settings?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          provider?: string
+          settings?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       integrations: {
         Row: {
           created_at: string | null
@@ -3675,6 +3705,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      voice_recordings: {
+        Row: {
+          ai_summary: string | null
+          created_at: string
+          duration: number | null
+          external_id: string | null
+          filename: string
+          id: string
+          metadata: Json | null
+          processed_at: string | null
+          soap_note: Json | null
+          source: string
+          transcription: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_summary?: string | null
+          created_at?: string
+          duration?: number | null
+          external_id?: string | null
+          filename: string
+          id?: string
+          metadata?: Json | null
+          processed_at?: string | null
+          soap_note?: Json | null
+          source: string
+          transcription?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_summary?: string | null
+          created_at?: string
+          duration?: number | null
+          external_id?: string | null
+          filename?: string
+          id?: string
+          metadata?: Json | null
+          processed_at?: string | null
+          soap_note?: Json | null
+          source?: string
+          transcription?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {

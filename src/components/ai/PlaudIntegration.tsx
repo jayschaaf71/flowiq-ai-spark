@@ -17,49 +17,30 @@ import {
   Smartphone,
   Mic
 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-
-interface PlaudRecording {
-  id: string;
-  filename: string;
-  duration: number;
-  timestamp: string;
-  processed: boolean;
-  transcription?: string;
-}
+import { usePlaudIntegration } from "@/hooks/usePlaudIntegration";
 
 export const PlaudIntegration = () => {
-  const [isConnected, setIsConnected] = useState(false);
-  const [autoSync, setAutoSync] = useState(true);
-  const [recordings, setRecordings] = useState<PlaudRecording[]>([]);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const {
+    isConnected,
+    config,
+    recordings,
+    isPolling,
+    savePlaudConfig,
+    manualSync,
+    uploadRecording
+  } = usePlaudIntegration();
+
   const [apiKey, setApiKey] = useState("");
-  const { toast } = useToast();
+  const [autoSync, setAutoSync] = useState(true);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  // Simulate checking for new recordings
+  // Update local state when config changes
   useEffect(() => {
-    if (autoSync && isConnected) {
-      const interval = setInterval(checkForNewRecordings, 30000); // Check every 30 seconds
-      return () => clearInterval(interval);
+    if (config) {
+      setApiKey(config.apiKey || "");
+      setAutoSync(config.autoSync);
     }
-  }, [autoSync, isConnected]);
-
-  const checkForNewRecordings = async () => {
-    // This would call the Plaud API to check for new recordings
-    console.log("Checking for new Plaud recordings...");
-    
-    // Simulate finding new recordings
-    const mockRecording: PlaudRecording = {
-      id: `recording_${Date.now()}`,
-      filename: `patient_session_${new Date().toISOString().split('T')[0]}.mp3`,
-      duration: 1200, // 20 minutes
-      timestamp: new Date().toISOString(),
-      processed: false
-    };
-
-    // In real implementation, this would be actual API data
-    // setRecordings(prev => [...prev, mockRecording]);
-  };
+  }, [config]);
 
   const handleManualUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -68,41 +49,7 @@ export const PlaudIntegration = () => {
     setIsProcessing(true);
     
     try {
-      // Process the uploaded audio file
-      const formData = new FormData();
-      formData.append('audio', file);
-      
-      // This would call our existing AI transcription service
-      const response = await fetch('/api/transcribe-audio', {
-        method: 'POST',
-        body: formData
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        
-        const newRecording: PlaudRecording = {
-          id: `upload_${Date.now()}`,
-          filename: file.name,
-          duration: 0, // Would be detected from file
-          timestamp: new Date().toISOString(),
-          processed: true,
-          transcription: result.transcription
-        };
-
-        setRecordings(prev => [...prev, newRecording]);
-        
-        toast({
-          title: "Recording Processed",
-          description: `Successfully transcribed ${file.name}`,
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Processing Error",
-        description: "Failed to process the recording",
-        variant: "destructive",
-      });
+      await uploadRecording(file);
     } finally {
       setIsProcessing(false);
     }
@@ -110,19 +57,28 @@ export const PlaudIntegration = () => {
 
   const connectToPlaud = async () => {
     if (!apiKey) {
-      toast({
-        title: "API Key Required",
-        description: "Please enter your Plaud API key to connect",
-        variant: "destructive",
-      });
       return;
     }
 
-    setIsConnected(true);
-    toast({
-      title: "Connected to Plaud",
-      description: "Successfully connected to Plaud Cloud API",
-    });
+    const newConfig = {
+      apiKey,
+      webhookUrl: `${window.location.origin}/api/plaud/webhook`,
+      autoSync
+    };
+
+    await savePlaudConfig(newConfig);
+  };
+
+  const handleAutoSyncChange = async (checked: boolean) => {
+    setAutoSync(checked);
+    
+    if (config) {
+      const newConfig = {
+        ...config,
+        autoSync: checked
+      };
+      await savePlaudConfig(newConfig);
+    }
   };
 
   return (
@@ -164,6 +120,12 @@ export const PlaudIntegration = () => {
               <div className="flex items-center gap-2 text-green-600">
                 <CheckCircle className="w-4 h-4" />
                 <span>Connected to Plaud Cloud</span>
+                {isPolling && (
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700">
+                    <Wifi className="w-3 h-3 mr-1" />
+                    Auto-syncing
+                  </Badge>
+                )}
               </div>
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
@@ -171,12 +133,12 @@ export const PlaudIntegration = () => {
                   <Switch
                     id="auto-sync"
                     checked={autoSync}
-                    onCheckedChange={setAutoSync}
+                    onCheckedChange={handleAutoSyncChange}
                   />
                 </div>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={manualSync}>
                   <Settings className="w-4 h-4 mr-2" />
-                  Settings
+                  Manual Sync
                 </Button>
               </div>
             </div>

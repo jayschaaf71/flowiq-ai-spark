@@ -44,12 +44,14 @@ export const usePlaudIntegration = () => {
 
   const loadPlaudConfig = async () => {
     try {
-      // Load user's Plaud configuration from database
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
       const { data, error } = await supabase
         .from('integration_settings')
         .select('settings')
         .eq('provider', 'plaud')
-        .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
+        .eq('user_id', user.id)
         .single();
 
       if (data && !error) {
@@ -64,10 +66,13 @@ export const usePlaudIntegration = () => {
 
   const savePlaudConfig = async (newConfig: PlaudConfig) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const { error } = await supabase
         .from('integration_settings')
         .upsert({
-          user_id: (await supabase.auth.getUser()).data.user?.id,
+          user_id: user.id,
           provider: 'plaud',
           settings: newConfig,
           is_active: true
@@ -163,17 +168,39 @@ export const usePlaudIntegration = () => {
       reader.readAsDataURL(audioBlob);
       const base64Audio = await base64Promise;
 
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       // Send to our AI transcription service
       const { data, error } = await supabase.functions.invoke('ai-voice-transcription', {
         body: {
           audio: base64Audio,
-          userId: (await supabase.auth.getUser()).data.user?.id,
+          userId: user.id,
           source: 'plaud',
           recordingId: recording.id
         }
       });
 
       if (error) throw error;
+
+      // Store in voice_recordings table
+      const { error: dbError } = await supabase
+        .from('voice_recordings')
+        .insert({
+          user_id: user.id,
+          source: 'plaud',
+          external_id: recording.id,
+          filename: recording.filename,
+          duration: recording.duration,
+          transcription: data.transcription,
+          processed_at: new Date().toISOString(),
+          metadata: {
+            originalUrl: recording.downloadUrl,
+            plaudRecordingId: recording.id
+          }
+        });
+
+      if (dbError) throw dbError;
 
       // Add to recordings list
       const processedRecording: PlaudRecording = {
@@ -231,16 +258,33 @@ export const usePlaudIntegration = () => {
       reader.readAsDataURL(file);
       const base64Audio = await base64Promise;
 
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       // Send to AI transcription service
       const { data, error } = await supabase.functions.invoke('ai-voice-transcription', {
         body: {
           audio: base64Audio,
-          userId: (await supabase.auth.getUser()).data.user?.id,
+          userId: user.id,
           source: 'manual_upload'
         }
       });
 
       if (error) throw error;
+
+      // Store in voice_recordings table
+      const { error: dbError } = await supabase
+        .from('voice_recordings')
+        .insert({
+          user_id: user.id,
+          source: 'manual_upload',
+          filename: file.name,
+          duration: 0,
+          transcription: data.transcription,
+          processed_at: new Date().toISOString()
+        });
+
+      if (dbError) throw dbError;
 
       const newRecording: PlaudRecording = {
         id: `upload_${Date.now()}`,
@@ -270,6 +314,39 @@ export const usePlaudIntegration = () => {
       throw error;
     }
   };
+
+  const loadRecordings = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('voice_recordings')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const loadedRecordings: PlaudRecording[] = data.map(record => ({
+        id: record.external_id || record.id,
+        filename: record.filename,
+        duration: record.duration || 0,
+        timestamp: record.created_at,
+        processed: !!record.transcription,
+        transcription: record.transcription || undefined
+      }));
+
+      setRecordings(loadedRecordings);
+    } catch (error) {
+      console.error('Failed to load recordings:', error);
+    }
+  };
+
+  // Load recordings on mount
+  useEffect(() => {
+    loadRecordings();
+  }, []);
 
   return {
     isConnected,
