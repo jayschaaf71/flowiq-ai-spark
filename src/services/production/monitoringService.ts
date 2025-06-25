@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface SystemMetrics {
@@ -188,14 +187,17 @@ export class MonitoringService {
       .order('created_at', { ascending: false })
       .limit(limit);
 
-    return (data || []).map(log => ({
-      id: log.record_id,
-      timestamp: new Date(log.created_at),
-      level: log.new_values?.level || 'info',
-      service: log.new_values?.service || 'unknown',
-      message: log.new_values?.message || 'No message',
-      metadata: log.new_values?.metadata
-    }));
+    return (data || []).map(log => {
+      const newValues = log.new_values as Record<string, any> | null;
+      return {
+        id: log.record_id,
+        timestamp: new Date(log.created_at),
+        level: (newValues?.level as MonitoringEvent['level']) || 'info',
+        service: (newValues?.service as string) || 'unknown',
+        message: (newValues?.message as string) || 'No message',
+        metadata: newValues?.metadata as Record<string, any> | undefined
+      };
+    });
   }
 
   async updateAlertRule(ruleId: string, updates: Partial<AlertRule>): Promise<void> {

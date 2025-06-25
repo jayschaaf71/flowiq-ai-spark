@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface BreachAlert {
@@ -159,6 +158,31 @@ export class AdvancedBreachDetectionService {
     // via email, SMS, or security incident management system
   }
 
+  async getSecurityMetrics(): Promise<SecurityMetrics> {
+    const { data: alerts } = await supabase
+      .from('audit_logs')
+      .select('*')
+      .ilike('action', '%BREACH%')
+      .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()); // Last 30 days
+
+    const totalAlerts = alerts?.length || 0;
+    const criticalAlerts = alerts?.filter(alert => {
+      if (alert.new_values && typeof alert.new_values === 'object' && alert.new_values !== null) {
+        const alertData = alert.new_values as Record<string, any>;
+        return alertData.severity === 'critical';
+      }
+      return false;
+    }).length || 0;
+
+    return {
+      totalAlerts,
+      criticalAlerts,
+      falsePositives: Math.floor(totalAlerts * 0.1), // Estimated
+      averageResponseTime: 15, // minutes
+      riskLevel: criticalAlerts > 0 ? 'high' : totalAlerts > 10 ? 'medium' : 'low'
+    };
+  }
+
   private async getRecentUserActivity(userId: string): Promise<any[]> {
     const { data } = await supabase
       .from('audit_logs')
@@ -203,31 +227,6 @@ export class AdvancedBreachDetectionService {
   private async isUnauthorizedLocation(userId: string, currentLocation: string): Promise<boolean> {
     // In production, this would check against approved locations for the user
     return false; // Simplified for demo
-  }
-
-  async getSecurityMetrics(): Promise<SecurityMetrics> {
-    const { data: alerts } = await supabase
-      .from('audit_logs')
-      .select('*')
-      .ilike('action', '%BREACH%')
-      .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()); // Last 30 days
-
-    const totalAlerts = alerts?.length || 0;
-    const criticalAlerts = alerts?.filter(alert => {
-      if (alert.new_values && typeof alert.new_values === 'object' && alert.new_values !== null) {
-        const alertData = alert.new_values as Record<string, any>;
-        return alertData.severity === 'critical';
-      }
-      return false;
-    }).length || 0;
-
-    return {
-      totalAlerts,
-      criticalAlerts,
-      falsePositives: Math.floor(totalAlerts * 0.1), // Estimated
-      averageResponseTime: 15, // minutes
-      riskLevel: criticalAlerts > 0 ? 'high' : totalAlerts > 10 ? 'medium' : 'low'
-    };
   }
 }
 

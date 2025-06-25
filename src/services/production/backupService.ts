@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface BackupJob {
@@ -168,16 +167,19 @@ export class BackupService {
       .order('created_at', { ascending: false })
       .limit(limit);
 
-    return (data || []).map(log => ({
-      id: log.record_id,
-      type: log.new_values?.type || 'full',
-      status: log.action === 'BACKUP_COMPLETED' ? 'completed' : 'failed',
-      startTime: new Date(log.new_values?.startTime || log.created_at),
-      endTime: log.new_values?.endTime ? new Date(log.new_values.endTime) : undefined,
-      size: log.new_values?.size,
-      location: log.new_values?.location || 'unknown',
-      retentionDays: log.new_values?.retentionDays || 7
-    }));
+    return (data || []).map(log => {
+      const newValues = log.new_values as Record<string, any> | null;
+      return {
+        id: log.record_id,
+        type: (newValues?.type as BackupJob['type']) || 'full',
+        status: log.action === 'BACKUP_COMPLETED' ? 'completed' as const : 'failed' as const,
+        startTime: new Date(newValues?.startTime || log.created_at),
+        endTime: newValues?.endTime ? new Date(newValues.endTime) : undefined,
+        size: newValues?.size as number | undefined,
+        location: (newValues?.location as string) || 'unknown',
+        retentionDays: (newValues?.retentionDays as number) || 7
+      };
+    });
   }
 
   async getRecoveryPoints(limit: number = 10): Promise<RecoveryPoint[]> {
@@ -189,14 +191,17 @@ export class BackupService {
       .order('created_at', { ascending: false })
       .limit(limit);
 
-    return (data || []).map(log => ({
-      id: log.record_id,
-      timestamp: new Date(log.new_values?.timestamp || log.created_at),
-      type: log.new_values?.type || 'automatic',
-      description: log.new_values?.description || 'Recovery point',
-      dataSize: log.new_values?.dataSize || 0,
-      verificationStatus: log.new_values?.verificationStatus || 'pending'
-    }));
+    return (data || []).map(log => {
+      const newValues = log.new_values as Record<string, any> | null;
+      return {
+        id: log.record_id,
+        timestamp: new Date(newValues?.timestamp || log.created_at),
+        type: (newValues?.type as RecoveryPoint['type']) || 'automatic',
+        description: (newValues?.description as string) || 'Recovery point',
+        dataSize: (newValues?.dataSize as number) || 0,
+        verificationStatus: (newValues?.verificationStatus as RecoveryPoint['verificationStatus']) || 'pending'
+      };
+    });
   }
 
   async initiateRecovery(recoveryPointId: string): Promise<boolean> {
