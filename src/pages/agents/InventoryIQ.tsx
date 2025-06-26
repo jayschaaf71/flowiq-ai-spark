@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -46,6 +45,14 @@ export default function InventoryIQ() {
     email: "",
     phone: "",
     address: ""
+  });
+
+  const [newOrder, setNewOrder] = useState({
+    vendor: "",
+    orderType: "regular",
+    priority: "normal",
+    notes: "",
+    items: []
   });
 
   const mockInventoryItems = [
@@ -154,9 +161,21 @@ export default function InventoryIQ() {
   };
 
   const handleCreateOrder = () => {
-    toast.success("Order created successfully!");
+    if (!newOrder.vendor) {
+      toast.error("Please select a vendor");
+      return;
+    }
+    
+    console.log("Creating order:", newOrder);
+    toast.success(`Order created successfully for ${newOrder.vendor}!`);
     setIsCreateOrderOpen(false);
-    console.log("Create order clicked");
+    setNewOrder({
+      vendor: "",
+      orderType: "regular",
+      priority: "normal",
+      notes: "",
+      items: []
+    });
   };
 
   const handleAddVendor = () => {
@@ -469,7 +488,7 @@ export default function InventoryIQ() {
                       Create Order
                     </Button>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className="max-w-md">
                     <DialogHeader>
                       <DialogTitle>Create New Order</DialogTitle>
                       <DialogDescription>
@@ -478,8 +497,23 @@ export default function InventoryIQ() {
                     </DialogHeader>
                     <div className="space-y-4">
                       <div>
-                        <Label>Order Type</Label>
-                        <Select defaultValue="regular">
+                        <Label htmlFor="vendor">Vendor</Label>
+                        <Select value={newOrder.vendor} onValueChange={(value) => setNewOrder({...newOrder, vendor: value})}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a vendor" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {mockVendors.map((vendor) => (
+                              <SelectItem key={vendor.id} value={vendor.name}>
+                                {vendor.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="orderType">Order Type</Label>
+                        <Select value={newOrder.orderType} onValueChange={(value) => setNewOrder({...newOrder, orderType: value})}>
                           <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
@@ -491,8 +525,27 @@ export default function InventoryIQ() {
                         </Select>
                       </div>
                       <div>
-                        <Label>Notes</Label>
-                        <Textarea placeholder="Add any notes for this order..." />
+                        <Label htmlFor="priority">Priority</Label>
+                        <Select value={newOrder.priority} onValueChange={(value) => setNewOrder({...newOrder, priority: value})}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="low">Low</SelectItem>
+                            <SelectItem value="normal">Normal</SelectItem>
+                            <SelectItem value="high">High</SelectItem>
+                            <SelectItem value="urgent">Urgent</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="notes">Notes</Label>
+                        <Textarea 
+                          id="notes"
+                          placeholder="Add any notes for this order..." 
+                          value={newOrder.notes}
+                          onChange={(e) => setNewOrder({...newOrder, notes: e.target.value})}
+                        />
                       </div>
                       <Button onClick={handleCreateOrder} className="w-full">
                         Create Order
