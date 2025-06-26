@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,6 +6,7 @@ import { PracticeSpecialty } from './PracticeSpecialty';
 import { PracticeDetails } from './PracticeDetails';
 import { TeamConfiguration } from './TeamConfiguration';
 import { AgentConfiguration } from './AgentConfiguration';
+import { ScribeAgentConfiguration } from './ScribeAgentConfiguration';
 import { PaymentConfiguration } from './PaymentConfiguration';
 import { EHRConfiguration } from './EHRConfiguration';
 import { TemplateConfiguration } from './TemplateConfiguration';
@@ -31,6 +31,13 @@ export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: any) => {
       receptionistAgent: false,
       schedulingAgent: false,
       billingAgent: false
+    },
+    scribeConfig: {
+      enableScribeAgent: false,
+      enablePlaudIntegration: false,
+      zapierWebhookUrl: '',
+      autoSOAPGeneration: true,
+      realTimeTranscription: true
     },
     paymentConfig: {
       enablePayments: false,
@@ -66,6 +73,7 @@ export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: any) => {
     { id: 'practice', title: 'Practice Details', component: 'practice' },
     { id: 'team', title: 'Team Setup', component: 'team' },
     { id: 'agents', title: 'AI Agents', component: 'agents' },
+    { id: 'scribe', title: 'Scribe iQ Setup', component: 'scribe' },
     { id: 'payment', title: 'Payment Setup', component: 'payment' },
     { id: 'ehr', title: 'EHR Integration', component: 'ehr' },
     { id: 'templates', title: 'Templates', component: 'templates' },
@@ -160,6 +168,14 @@ export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: any) => {
           <AgentConfiguration
             agentConfig={onboardingData.agentConfig}
             onAgentConfigUpdate={(agentConfig) => updateOnboardingData({ agentConfig })}
+          />
+        );
+
+      case 'scribe':
+        return (
+          <ScribeAgentConfiguration
+            currentConfig={onboardingData.scribeConfig}
+            onConfigUpdate={(scribeConfig) => updateOnboardingData({ scribeConfig })}
           />
         );
 
