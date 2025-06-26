@@ -1,6 +1,5 @@
 
 import { useState } from "react";
-import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
 import { ClinicMetrics } from "@/components/clinic/ClinicMetrics";
 import { ProviderSummary } from "@/components/clinic/ProviderSummary";
@@ -24,7 +23,7 @@ const Index = () => {
   };
 
   return (
-    <Layout>
+    <div className="space-y-6">
       <PageHeader 
         title="Clinic Dashboard"
         subtitle={`Daily operations overview and key performance indicators${profile?.tenant_id ? ` - ${profile.tenant_id.toUpperCase()} Tenant` : ''}`}
@@ -86,7 +85,7 @@ const Index = () => {
       </Button>
 
       <AIAssistant isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
-    </Layout>
+    </div>
   );
 };
 
