@@ -1,11 +1,12 @@
-
 import { useState } from "react";
 import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Bell, MessageSquare, Calendar, TrendingUp, Settings } from "lucide-react";
+import { Bell, MessageSquare, Calendar, TrendingUp, Settings, Brain } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { MessageTemplates } from "@/components/remind/MessageTemplates";
+import { ScheduledMessages } from "@/components/remind/ScheduledMessages";
+import { RemindAutomation } from "@/components/remind/RemindAutomation";
 
 const RemindIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -21,10 +22,14 @@ const RemindIQ = () => {
       
       <div className="space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
             <TabsTrigger value="reminders">Reminders</TabsTrigger>
             <TabsTrigger value="templates">Templates</TabsTrigger>
+            <TabsTrigger value="automation">
+              <Brain className="w-4 h-4 mr-1" />
+              Automation
+            </TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
@@ -93,33 +98,15 @@ const RemindIQ = () => {
           </TabsContent>
 
           <TabsContent value="reminders" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Active Reminders</CardTitle>
-                <CardDescription>Manage scheduled appointment reminders</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12 text-muted-foreground">
-                  <Bell className="w-12 h-12 mx-auto mb-4" />
-                  <p>Reminder management features coming soon...</p>
-                </div>
-              </CardContent>
-            </Card>
+            <ScheduledMessages />
           </TabsContent>
 
           <TabsContent value="templates" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Message Templates</CardTitle>
-                <CardDescription>Customize reminder message templates</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12 text-muted-foreground">
-                  <MessageSquare className="w-12 h-12 mx-auto mb-4" />
-                  <p>Template customization coming soon...</p>
-                </div>
-              </CardContent>
-            </Card>
+            <MessageTemplates />
+          </TabsContent>
+
+          <TabsContent value="automation" className="space-y-4">
+            <RemindAutomation />
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-4">
