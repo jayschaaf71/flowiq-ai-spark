@@ -171,7 +171,7 @@ export const useVendors = () => {
     },
   });
 
-  // Create purchase order mutation
+  // Create purchase order mutation - simplified approach
   const createOrderMutation = useMutation({
     mutationFn: async (orderData: {
       vendor_id: string;
@@ -181,15 +181,20 @@ export const useVendors = () => {
     }) => {
       console.log('Creating purchase order:', orderData);
       
-      // Use a raw SQL query to insert the order, letting the trigger generate the order_number
-      const { data, error } = await supabase.rpc('create_purchase_order', {
-        p_vendor_id: orderData.vendor_id,
-        p_order_type: orderData.order_type,
-        p_priority: orderData.priority,
-        p_notes: orderData.notes || '',
-        p_status: 'draft',
-        p_total_amount: 0
-      });
+      // Insert without order_number - let trigger generate it
+      const { data, error } = await supabase
+        .from('purchase_orders')
+        .insert([{
+          vendor_id: orderData.vendor_id,
+          order_type: orderData.order_type,
+          priority: orderData.priority,
+          notes: orderData.notes || '',
+          status: 'draft',
+          total_amount: 0,
+          tenant_id: null // Will be set by RLS
+        }])
+        .select()
+        .single();
       
       if (error) {
         console.error('Error creating purchase order:', error);

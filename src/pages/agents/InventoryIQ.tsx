@@ -1,8 +1,7 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ShoppingCart, TrendingUp, Package } from "lucide-react";
+import { ShoppingCart, TrendingUp, Package, Brain } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { toast } from "sonner";
 import { InventoryStatsCards } from "@/components/inventory/InventoryStatsCards";
@@ -12,6 +11,8 @@ import { InventoryItemList } from "@/components/inventory/InventoryItemList";
 import { CreateOrderDialog } from "@/components/inventory/CreateOrderDialog";
 import { VendorManagement } from "@/components/inventory/VendorManagement";
 import { PurchaseOrdersList } from "@/components/inventory/PurchaseOrdersList";
+import { AIInventoryEngine } from "@/components/inventory/AIInventoryEngine";
+import { SmartPricingEngine } from "@/components/inventory/SmartPricingEngine";
 import { mockInventoryItems } from "@/data/inventoryMockData";
 import { useVendors, type NewVendor } from "@/hooks/useVendors";
 
@@ -179,14 +180,23 @@ export default function InventoryIQ() {
 
       <InventoryStatsCards />
 
-      <Tabs defaultValue="inventory" className="space-y-4">
+      <Tabs defaultValue="ai-insights" className="space-y-4">
         <TabsList>
+          <TabsTrigger value="ai-insights">AI Insights</TabsTrigger>
           <TabsTrigger value="inventory">Inventory</TabsTrigger>
           <TabsTrigger value="orders">Orders</TabsTrigger>
           <TabsTrigger value="vendors">Vendors</TabsTrigger>
+          <TabsTrigger value="pricing">Smart Pricing</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="ai-insights" className="space-y-4">
+          <AIInventoryEngine 
+            inventoryItems={filteredItems}
+            vendors={vendors}
+            purchaseOrders={purchaseOrders}
+          />
+        </TabsContent>
 
         <TabsContent value="inventory" className="space-y-4">
           <InventorySearchFilters
@@ -260,6 +270,13 @@ export default function InventoryIQ() {
           />
         </TabsContent>
 
+        <TabsContent value="pricing" className="space-y-4">
+          <SmartPricingEngine 
+            inventoryItems={filteredItems}
+            vendors={vendors}
+          />
+        </TabsContent>
+
         <TabsContent value="analytics" className="space-y-4">
           <Card>
             <CardHeader>
@@ -273,24 +290,6 @@ export default function InventoryIQ() {
                 <TrendingUp className="w-12 h-12 mx-auto mb-4 opacity-50" />
                 <p>Analytics dashboard coming soon</p>
                 <p className="text-sm">Track usage patterns, cost savings, and optimization opportunities</p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="settings" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Inventory Settings</CardTitle>
-              <CardDescription>
-                Configure your inventory management preferences
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-gray-500">
-                <Package className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>Settings panel coming soon</p>
-                <p className="text-sm">Configure reorder rules, vendor preferences, and automation settings</p>
               </div>
             </CardContent>
           </Card>
