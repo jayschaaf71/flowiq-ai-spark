@@ -1,6 +1,5 @@
 
 import { useState } from "react";
-import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +16,7 @@ const ScheduleIQ = () => {
   const practiceId = "default-practice"; // In production, get from auth context
 
   return (
-    <Layout>
+    <div className="space-y-6">
       <PageHeader 
         title="Schedule iQ"
         subtitle="AI-powered appointment scheduling with intelligent optimization and auto-booking"
@@ -71,7 +70,7 @@ const ScheduleIQ = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </Layout>
+    </div>
   );
 };
 
