@@ -1,277 +1,61 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useToast } from "@/hooks/use-toast";
-import { PracticeSpecialty } from './PracticeSpecialty';
-import { PracticeDetails } from './PracticeDetails';
-import { TeamConfiguration } from './TeamConfiguration';
-import { AgentConfiguration } from './AgentConfiguration';
-import { ScribeAgentConfiguration } from './ScribeAgentConfiguration';
-import { OnboardingPaymentStep } from './OnboardingPaymentStep';
-import { EHRConfiguration } from './EHRConfiguration';
-import { TemplateConfiguration } from './TemplateConfiguration';
-import { ReviewAndLaunch } from './ReviewAndLaunch';
-import { IntegrationValidationStep } from './IntegrationValidationStep';
 
-export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: any) => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [onboardingData, setOnboardingData] = useState({
-    specialty: null,
-    practiceData: {
-      practiceName: '',
-      address: '',
-      phone: '',
-      email: ''
-    },
-    teamConfig: {
-      inviteTeam: false,
-      teamMembers: []
-    },
-    agentConfig: {
-      receptionistAgent: false,
-      schedulingAgent: false,
-      billingAgent: false
-    },
-    scribeConfig: {
-      enableScribeAgent: false,
-      enablePlaudIntegration: false,
-      zapierWebhookUrl: '',
-      autoSOAPGeneration: true,
-      realTimeTranscription: true
-    },
-    paymentConfig: {
-      enablePayments: false,
-      subscriptionPlan: 'professional'
-    },
-    ehrConfig: {
-      enableIntegration: false,
-      ehrSystem: '',
-      apiEndpoint: ''
-    },
-    templateConfig: {
-      enableAutoGeneration: false,
-      customizationPreferences: {
-        includeBranding: true,
-        primaryColor: '#007BFF',
-        secondaryColor: '#6C757D',
-        logoUrl: undefined,
-        brandName: ''
-      }
-    },
-    validationResults: {
-      ehrIntegration: null,
-      paymentProcessor: null,
-      templateGeneration: null
-    }
-  });
+import React from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { OnboardingHeader } from './OnboardingHeader';
+import { OnboardingNavigation } from './OnboardingNavigation';
+import { OnboardingStepsRenderer } from './OnboardingStepsRenderer';
+import { useOnboardingFlow } from '@/hooks/useOnboardingFlow';
 
-  const { toast } = useToast();
-  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+interface ComprehensiveOnboardingFlowProps {
+  onComplete: (data: any) => void;
+  onCancel: () => void;
+}
 
-  const steps = [
-    { id: 'specialty', title: 'Practice Specialty', component: 'specialty' },
-    { id: 'practice', title: 'Practice Details', component: 'practice' },
-    { id: 'team', title: 'Team Setup', component: 'team' },
-    { id: 'agents', title: 'AI Agents', component: 'agents' },
-    { id: 'scribe', title: 'Scribe iQ Setup', component: 'scribe' },
-    { id: 'payment', title: 'Payment Setup', component: 'payment' },
-    { id: 'ehr', title: 'EHR Integration', component: 'ehr' },
-    { id: 'templates', title: 'Templates', component: 'templates' },
-    { id: 'validation', title: 'Integration Test', component: 'validation' },
-    { id: 'review', title: 'Review & Launch', component: 'review' }
-  ];
-
-  // Debounced auto-save - only saves after user stops typing for 3 seconds
-  useEffect(() => {
-    if (steps[currentStep].component !== 'review') {
-      // Clear existing timeout
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
-      
-      // Set new timeout for 3 seconds
-      saveTimeoutRef.current = setTimeout(() => {
-        saveProgress();
-      }, 3000);
-    }
-
-    // Cleanup timeout on unmount
-    return () => {
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
-    };
-  }, [onboardingData, currentStep]);
-
-  const updateOnboardingData = (updates: Partial<any>) => {
-    setOnboardingData(prevData => ({ ...prevData, ...updates }));
-  };
-
-  const nextStep = () => {
-    setCurrentStep(prevStep => Math.min(prevStep + 1, steps.length - 1));
-  };
-
-  const prevStep = () => {
-    setCurrentStep(prevStep => Math.max(prevStep - 1, 0));
-  };
-
-  const saveProgress = async () => {
-    try {
-      // Simulate API call to save progress
-      console.log('Saving onboarding progress:', onboardingData);
-      // Removed the toast notification to prevent constant popups
-    } catch (error) {
-      console.error('Error saving progress:', error);
-      toast({
-        title: "Error Saving Progress",
-        description: "There was an issue saving your progress. Please try again.",
-        variant: "destructive",
-        className: "bg-white border border-red-200" // Make toast opaque
-      });
-    }
-  };
+export const ComprehensiveOnboardingFlow: React.FC<ComprehensiveOnboardingFlowProps> = ({ 
+  onComplete, 
+  onCancel 
+}) => {
+  const {
+    currentStep,
+    onboardingData,
+    updateOnboardingData,
+    steps,
+    nextStep,
+    prevStep
+  } = useOnboardingFlow();
 
   const handleSubmit = () => {
     console.log('Submitting onboarding data:', onboardingData);
     onComplete(onboardingData);
   };
 
-  const renderStepContent = () => {
-    switch (steps[currentStep].component) {
-      case 'specialty':
-        return (
-          <PracticeSpecialty
-            specialty={onboardingData.specialty}
-            onSpecialtySelect={(specialty) => updateOnboardingData({ specialty })}
-          />
-        );
-
-      case 'practice':
-        return (
-          <PracticeDetails
-            practiceData={onboardingData.practiceData}
-            onPracticeDetailsUpdate={(practiceData) => updateOnboardingData({ practiceData })}
-          />
-        );
-
-      case 'team':
-        return (
-          <TeamConfiguration
-            specialty={onboardingData.specialty || 'chiropractic'}
-            teamConfig={onboardingData.teamConfig}
-            onTeamConfigUpdate={(teamConfig) => updateOnboardingData({ teamConfig })}
-          />
-        );
-
-      case 'agents':
-        return (
-          <AgentConfiguration
-            agentConfig={onboardingData.agentConfig}
-            onAgentConfigUpdate={(agentConfig) => updateOnboardingData({ agentConfig })}
-          />
-        );
-
-      case 'scribe':
-        return (
-          <ScribeAgentConfiguration
-            currentConfig={onboardingData.scribeConfig}
-            onConfigUpdate={(scribeConfig) => updateOnboardingData({ scribeConfig })}
-          />
-        );
-
-      case 'payment':
-        return (
-          <OnboardingPaymentStep
-            specialty={onboardingData.specialty || 'chiropractic'}
-            currentConfig={onboardingData.paymentConfig}
-            onStepComplete={(stepData) => {
-              updateOnboardingData({ paymentConfig: stepData.data });
-              nextStep();
-            }}
-            onSkipStep={() => {
-              updateOnboardingData({ 
-                paymentConfig: { 
-                  enablePayments: false, 
-                  subscriptionPlan: 'professional' 
-                }
-              });
-              nextStep();
-            }}
-          />
-        );
-
-      case 'ehr':
-        return (
-          <EHRConfiguration
-            specialty={onboardingData.specialty || 'chiropractic'}
-            ehrConfig={onboardingData.ehrConfig}
-            onEHRConfigUpdate={(ehrConfig) => updateOnboardingData({ ehrConfig })}
-          />
-        );
-
-      case 'templates':
-        return (
-          <TemplateConfiguration
-            specialty={onboardingData.specialty || 'chiropractic'}
-            templateConfig={onboardingData.templateConfig}
-            onTemplateConfigUpdate={(templateConfig) => updateOnboardingData({ templateConfig })}
-          />
-        );
-
-      case 'validation':
-        return (
-          <IntegrationValidationStep
-            onboardingData={onboardingData}
-            onValidationComplete={(results) => {
-              console.log('Integration validation results:', results);
-              updateOnboardingData({ validationResults: results });
-            }}
-            onSkip={() => {
-              console.log('Skipping integration validation');
-              nextStep();
-            }}
-          />
-        );
-
-      case 'review':
-        return (
-          <ReviewAndLaunch
-            onboardingData={onboardingData}
-            onSubmit={handleSubmit}
-            onCancel={onCancel}
-          />
-        );
-
-      default:
-        return <div>Unknown step</div>;
-    }
-  };
+  const currentStepData = steps[currentStep];
+  const isSpecialStep = currentStepData.component === 'payment' || currentStepData.component === 'review';
 
   return (
     <div className="container mx-auto mt-10 p-6">
       <Card className="shadow-md rounded-md">
-        <CardHeader className="py-4 px-6 border-b">
-          <CardTitle className="text-2xl font-semibold">{steps[currentStep].title}</CardTitle>
-          <CardDescription>{steps[currentStep].id}</CardDescription>
-        </CardHeader>
+        <OnboardingHeader
+          title={currentStepData.title}
+          description={currentStepData.id}
+        />
         <CardContent className="py-6 px-8">
-          {renderStepContent()}
-          {steps[currentStep].component !== 'payment' && steps[currentStep].component !== 'review' && (
-            <div className="flex justify-between mt-8">
-              <Button
-                variant="outline"
-                onClick={prevStep}
-                disabled={currentStep === 0}
-              >
-                Previous
-              </Button>
-              <Button
-                onClick={currentStep === steps.length - 1 ? handleSubmit : nextStep}
-              >
-                {currentStep === steps.length - 1 ? 'Complete Onboarding' : 'Next'}
-              </Button>
-            </div>
-          )}
+          <OnboardingStepsRenderer
+            currentStep={currentStepData}
+            onboardingData={onboardingData}
+            updateOnboardingData={updateOnboardingData}
+            nextStep={nextStep}
+            onSubmit={handleSubmit}
+            onCancel={onCancel}
+          />
+          <OnboardingNavigation
+            currentStep={currentStep}
+            totalSteps={steps.length}
+            onPrevious={prevStep}
+            onNext={nextStep}
+            onComplete={handleSubmit}
+            isSpecialStep={isSpecialStep}
+          />
         </CardContent>
       </Card>
     </div>
