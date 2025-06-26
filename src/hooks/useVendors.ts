@@ -171,7 +171,7 @@ export const useVendors = () => {
     },
   });
 
-  // Create purchase order mutation - simplified approach
+  // Create purchase order mutation - fixed to not include order_number
   const createOrderMutation = useMutation({
     mutationFn: async (orderData: {
       vendor_id: string;
@@ -181,10 +181,10 @@ export const useVendors = () => {
     }) => {
       console.log('Creating purchase order:', orderData);
       
-      // Insert without order_number - let trigger generate it
+      // Insert single object without order_number - let trigger generate it
       const { data, error } = await supabase
         .from('purchase_orders')
-        .insert([{
+        .insert({
           vendor_id: orderData.vendor_id,
           order_type: orderData.order_type,
           priority: orderData.priority,
@@ -192,7 +192,7 @@ export const useVendors = () => {
           status: 'draft',
           total_amount: 0,
           tenant_id: null // Will be set by RLS
-        }])
+        })
         .select()
         .single();
       
