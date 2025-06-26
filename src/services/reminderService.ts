@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { addHours, addMinutes } from 'date-fns';
 
@@ -55,7 +54,7 @@ export class ReminderService {
           scheduledFor = addHours(appointmentDateTime, -24);
       }
 
-      // Replace template variables - fix the patient data access
+      // Fix patient data access - appointment.patients is the actual patient object
       const patientName = appointment.patients ? 
         `${appointment.patients.first_name || ''} ${appointment.patients.last_name || ''}`.trim() : 
         'Patient';

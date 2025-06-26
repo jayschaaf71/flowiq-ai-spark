@@ -19,7 +19,8 @@ import {
   UserPlus,
   MessageSquare,
   Brain,
-  Calendar
+  Calendar,
+  Package
 } from "lucide-react";
 import {
   Sidebar,
@@ -50,7 +51,7 @@ export const AppSidebar = () => {
     { icon: TrendingUp, label: "Insights", path: "/insights", badge: null },
   ];
 
-  // Reordered AI agents to match patient journey flow
+  // Reordered AI agents to match patient journey flow, with new Inventory IQ
   const aiAgents = [
     { icon: Calendar, label: "Schedule iQ", path: "/agents/schedule", badge: "AI" },
     { icon: ClipboardList, label: "Intake iQ", path: "/agents/intake", badge: "AI" },
@@ -58,6 +59,7 @@ export const AppSidebar = () => {
     { icon: Stethoscope, label: "Scribe iQ", path: "/agents/scribe", badge: "AI" },
     { icon: Receipt, label: "Claims iQ", path: "/agents/claims", badge: "AI" },
     { icon: CreditCard, label: "Billing iQ", path: "/agents/billing", badge: "AI" },
+    { icon: Package, label: "Inventory iQ", path: "/agents/inventory", badge: "AI" },
     { icon: MessageSquare, label: "Follow up iQ", path: "/agents/followup", badge: "AI" },
     { icon: Brain, label: "Insight iQ", path: "/agents/insight", badge: "AI" },
   ];
