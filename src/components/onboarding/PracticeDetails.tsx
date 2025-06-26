@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { OnboardingFieldHelp } from './OnboardingFieldHelp';
+import { validatePracticeDetails } from '@/utils/onboardingValidation';
 
 interface PracticeData {
   practiceName: string;
@@ -23,11 +24,45 @@ export const PracticeDetails: React.FC<PracticeDetailsProps> = ({
   practiceData,
   onPracticeDetailsUpdate
 }) => {
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+
   const handleInputChange = (field: keyof PracticeData, value: string) => {
-    onPracticeDetailsUpdate({
+    const updatedData = {
       ...practiceData,
       [field]: value
-    });
+    };
+    
+    onPracticeDetailsUpdate(updatedData);
+    
+    // Clear error when user starts typing
+    if (fieldErrors[field]) {
+      setFieldErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
+  };
+
+  const handleBlur = (field: string) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+    
+    // Validate the specific field
+    const validation = validatePracticeDetails(practiceData);
+    const fieldError = validation.errors.find(error => error.field === field);
+    
+    if (fieldError) {
+      setFieldErrors(prev => ({ ...prev, [field]: fieldError.message }));
+    }
+  };
+
+  const getFieldClassName = (field: string) => {
+    const baseClass = "transition-all duration-200 focus:ring-2 focus:ring-blue-500";
+    if (fieldErrors[field] && touched[field]) {
+      return `${baseClass} border-red-300 focus:border-red-500 focus:ring-red-200`;
+    }
+    return baseClass;
   };
 
   return (
@@ -57,9 +92,15 @@ export const PracticeDetails: React.FC<PracticeDetailsProps> = ({
                 id="practiceName"
                 value={practiceData.practiceName}
                 onChange={(e) => handleInputChange('practiceName', e.target.value)}
+                onBlur={() => handleBlur('practiceName')}
                 placeholder="e.g., Smith Family Chiropractic"
-                className="transition-all duration-200 focus:ring-2 focus:ring-blue-500"
+                className={getFieldClassName('practiceName')}
               />
+              {fieldErrors.practiceName && touched.practiceName && (
+                <p className="text-sm text-red-600 flex items-center gap-1">
+                  {fieldErrors.practiceName}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -72,9 +113,15 @@ export const PracticeDetails: React.FC<PracticeDetailsProps> = ({
                 type="email"
                 value={practiceData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
+                onBlur={() => handleBlur('email')}
                 placeholder="info@yourpractice.com"
-                className="transition-all duration-200 focus:ring-2 focus:ring-blue-500"
+                className={getFieldClassName('email')}
               />
+              {fieldErrors.email && touched.email && (
+                <p className="text-sm text-red-600 flex items-center gap-1">
+                  {fieldErrors.email}
+                </p>
+              )}
             </div>
           </div>
 
@@ -88,9 +135,15 @@ export const PracticeDetails: React.FC<PracticeDetailsProps> = ({
                 id="phone"
                 value={practiceData.phone}
                 onChange={(e) => handleInputChange('phone', e.target.value)}
+                onBlur={() => handleBlur('phone')}
                 placeholder="(555) 123-4567"
-                className="transition-all duration-200 focus:ring-2 focus:ring-blue-500"
+                className={getFieldClassName('phone')}
               />
+              {fieldErrors.phone && touched.phone && (
+                <p className="text-sm text-red-600 flex items-center gap-1">
+                  {fieldErrors.phone}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -102,8 +155,9 @@ export const PracticeDetails: React.FC<PracticeDetailsProps> = ({
                 id="address"
                 value={practiceData.address}
                 onChange={(e) => handleInputChange('address', e.target.value)}
+                onBlur={() => handleBlur('address')}
                 placeholder="123 Main St, City, State 12345"
-                className="transition-all duration-200 focus:ring-2 focus:ring-blue-500"
+                className={getFieldClassName('address')}
               />
             </div>
           </div>

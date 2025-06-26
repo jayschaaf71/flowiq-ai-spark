@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { OnboardingHeader } from './OnboardingHeader';
@@ -7,7 +8,10 @@ import { OnboardingLoadingState } from './OnboardingLoadingState';
 import { OnboardingSuccessState } from './OnboardingSuccessState';
 import { OnboardingStepGuide } from './OnboardingStepGuide';
 import { OnboardingProgressSidebar } from './OnboardingProgressSidebar';
+import { OnboardingValidationAlert } from './OnboardingValidationAlert';
+import { OnboardingErrorBoundary } from './OnboardingErrorBoundary';
 import { useOnboardingFlow } from '@/hooks/useOnboardingFlow';
+import { useOnboardingValidation } from '@/hooks/useOnboardingValidation';
 import { useToast } from '@/hooks/use-toast';
 
 interface ComprehensiveOnboardingFlowProps {
@@ -32,16 +36,42 @@ export const ComprehensiveOnboardingFlow: React.FC<ComprehensiveOnboardingFlowPr
     prevStep
   } = useOnboardingFlow();
 
+  const currentStepData = steps[currentStep];
+  const { validation, validateCurrentStep, canProceed } = useOnboardingValidation(
+    currentStepData.component, 
+    onboardingData
+  );
+
+  const handleNext = () => {
+    const result = validateCurrentStep();
+    if (result.isValid) {
+      nextStep();
+    } else {
+      toast({
+        title: "Please fix the issues below",
+        description: "Some required information is missing or invalid.",
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleSubmit = async () => {
+    const finalValidation = validateCurrentStep();
+    if (!finalValidation.isValid) {
+      toast({
+        title: "Please complete all required fields",
+        description: "Some information is missing before we can complete your setup.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
-      // Add a small delay for better UX
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
       setShowSuccess(true);
       
-      // Show success for a moment before completing
       setTimeout(() => {
         console.log('Submitting onboarding data:', onboardingData);
         onComplete(onboardingData);
@@ -58,110 +88,106 @@ export const ComprehensiveOnboardingFlow: React.FC<ComprehensiveOnboardingFlowPr
     }
   };
 
-  const canProceed = () => {
-    const currentStepData = steps[currentStep];
-    
-    // Basic validation for key steps
-    switch (currentStepData.component) {
-      case 'specialty':
-        return !!onboardingData.specialty;
-      case 'practice':
-        return !!(onboardingData.practiceData.practiceName && 
-                 onboardingData.practiceData.email);
-      default:
-        return true;
-    }
-  };
-
-  const currentStepData = steps[currentStep];
   const isSpecialStep = currentStepData.component === 'payment' || currentStepData.component === 'review';
 
   if (isSubmitting || showSuccess) {
     return (
-      <div className="container mx-auto mt-10 p-6">
-        <Card className="shadow-lg rounded-lg border-0">
-          <CardContent className="py-16">
-            {!showSuccess ? (
-              <OnboardingLoadingState 
-                message="Setting up your FlowIQ practice..."
-                showProgress={true}
-                progress={85}
-              />
-            ) : (
-              <OnboardingSuccessState
-                title="🎉 Welcome to FlowIQ!"
-                message="Your practice is now ready. Let's get you started with your new intelligent workflow system."
-                showAnimation={true}
-              />
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      <OnboardingErrorBoundary onRetry={() => setIsSubmitting(false)}>
+        <div className="container mx-auto mt-10 p-6">
+          <Card className="shadow-lg rounded-lg border-0">
+            <CardContent className="py-16">
+              {!showSuccess ? (
+                <OnboardingLoadingState 
+                  message="Setting up your FlowIQ practice..."
+                  showProgress={true}
+                  progress={85}
+                />
+              ) : (
+                <OnboardingSuccessState
+                  title="🎉 Welcome to FlowIQ!"
+                  message="Your practice is now ready. Let's get you started with your new intelligent workflow system."
+                  showAnimation={true}
+                />
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </OnboardingErrorBoundary>
     );
   }
 
   return (
-    <div className="container mx-auto mt-10 p-6 animate-fade-in">
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Progress Sidebar - Hidden on mobile */}
-        <div className="hidden lg:block">
-          <OnboardingProgressSidebar
-            currentStep={currentStep}
-            steps={steps}
-            onboardingData={onboardingData}
-          />
-        </div>
-
-        {/* Main Content */}
-        <div className="lg:col-span-3">
-          <Card className="shadow-lg rounded-lg border-0 overflow-hidden">
-            <OnboardingHeader
-              title={currentStepData.title}
-              description={getStepDescription(currentStepData.component)}
+    <OnboardingErrorBoundary>
+      <div className="container mx-auto mt-10 p-6 animate-fade-in">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Progress Sidebar - Hidden on mobile */}
+          <div className="hidden lg:block">
+            <OnboardingProgressSidebar
               currentStep={currentStep}
-              totalSteps={steps.length}
-              showProgress={true}
+              steps={steps}
+              onboardingData={onboardingData}
             />
-            <CardContent className="py-8 px-8">
-              <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                {/* Step Guide */}
-                <div className="xl:col-span-1 order-2 xl:order-1">
-                  <OnboardingStepGuide 
-                    step={currentStepData.component}
-                    specialty={onboardingData.specialty}
-                  />
-                </div>
+          </div>
 
-                {/* Main Form */}
-                <div className="xl:col-span-2 order-1 xl:order-2">
-                  <div className="min-h-[500px]">
-                    <OnboardingStepsRenderer
-                      currentStep={currentStepData}
-                      onboardingData={onboardingData}
-                      updateOnboardingData={updateOnboardingData}
-                      nextStep={nextStep}
-                      onSubmit={handleSubmit}
-                      onCancel={onCancel}
-                    />
-                  </div>
-                </div>
-              </div>
-              
-              <OnboardingNavigation
+          {/* Main Content */}
+          <div className="lg:col-span-3">
+            <Card className="shadow-lg rounded-lg border-0 overflow-hidden">
+              <OnboardingHeader
+                title={currentStepData.title}
+                description={getStepDescription(currentStepData.component)}
                 currentStep={currentStep}
                 totalSteps={steps.length}
-                onPrevious={prevStep}
-                onNext={nextStep}
-                onComplete={handleSubmit}
-                isSpecialStep={isSpecialStep}
-                isLoading={isSubmitting}
-                canProceed={canProceed()}
+                showProgress={true}
               />
-            </CardContent>
-          </Card>
+              <CardContent className="py-8 px-8">
+                {/* Validation Alerts */}
+                <OnboardingValidationAlert 
+                  errors={validation.errors}
+                  warnings={validation.warnings}
+                  className="mb-6"
+                />
+
+                <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                  {/* Step Guide */}
+                  <div className="xl:col-span-1 order-2 xl:order-1">
+                    <OnboardingStepGuide 
+                      step={currentStepData.component}
+                      specialty={onboardingData.specialty}
+                    />
+                  </div>
+
+                  {/* Main Form */}
+                  <div className="xl:col-span-2 order-1 xl:order-2">
+                    <div className="min-h-[500px]">
+                      <OnboardingStepsRenderer
+                        currentStep={currentStepData}
+                        onboardingData={onboardingData}
+                        updateOnboardingData={updateOnboardingData}
+                        nextStep={handleNext}
+                        onSubmit={handleSubmit}
+                        onCancel={onCancel}
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                <OnboardingNavigation
+                  currentStep={currentStep}
+                  totalSteps={steps.length}
+                  onPrevious={prevStep}
+                  onNext={handleNext}
+                  onComplete={handleSubmit}
+                  isSpecialStep={isSpecialStep}
+                  isLoading={isSubmitting}
+                  canProceed={canProceed}
+                  hasValidationErrors={validation.errors.length > 0}
+                />
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
-    </div>
+    </OnboardingErrorBoundary>
   );
 };
 
