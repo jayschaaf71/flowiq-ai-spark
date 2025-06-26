@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -492,21 +493,21 @@ export default function InventoryIQ() {
                       Create Order
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="max-w-md">
+                  <DialogContent className="sm:max-w-md bg-white">
                     <DialogHeader>
-                      <DialogTitle>Create New Order</DialogTitle>
-                      <DialogDescription>
+                      <DialogTitle className="text-gray-900">Create New Order</DialogTitle>
+                      <DialogDescription className="text-gray-600">
                         Create a new order for inventory items
                       </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
                       <div>
-                        <Label htmlFor="vendor">Vendor</Label>
+                        <Label htmlFor="vendor" className="text-gray-700">Vendor</Label>
                         <Select value={newOrder.vendor} onValueChange={(value) => setNewOrder({...newOrder, vendor: value})}>
-                          <SelectTrigger>
+                          <SelectTrigger className="mt-1">
                             <SelectValue placeholder="Select a vendor" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="bg-white">
                             {mockVendors.map((vendor) => (
                               <SelectItem key={vendor.id} value={vendor.name}>
                                 {vendor.name}
@@ -516,12 +517,12 @@ export default function InventoryIQ() {
                         </Select>
                       </div>
                       <div>
-                        <Label htmlFor="orderType">Order Type</Label>
+                        <Label htmlFor="orderType" className="text-gray-700">Order Type</Label>
                         <Select value={newOrder.orderType} onValueChange={(value) => setNewOrder({...newOrder, orderType: value})}>
-                          <SelectTrigger>
+                          <SelectTrigger className="mt-1">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="bg-white">
                             <SelectItem value="regular">Regular Order</SelectItem>
                             <SelectItem value="emergency">Emergency Order</SelectItem>
                             <SelectItem value="bulk">Bulk Order</SelectItem>
@@ -529,12 +530,12 @@ export default function InventoryIQ() {
                         </Select>
                       </div>
                       <div>
-                        <Label htmlFor="priority">Priority</Label>
+                        <Label htmlFor="priority" className="text-gray-700">Priority</Label>
                         <Select value={newOrder.priority} onValueChange={(value) => setNewOrder({...newOrder, priority: value})}>
-                          <SelectTrigger>
+                          <SelectTrigger className="mt-1">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="bg-white">
                             <SelectItem value="low">Low</SelectItem>
                             <SelectItem value="normal">Normal</SelectItem>
                             <SelectItem value="high">High</SelectItem>
@@ -543,12 +544,13 @@ export default function InventoryIQ() {
                         </Select>
                       </div>
                       <div>
-                        <Label htmlFor="notes">Notes</Label>
+                        <Label htmlFor="notes" className="text-gray-700">Notes</Label>
                         <Textarea 
                           id="notes"
                           placeholder="Add any notes for this order..." 
                           value={newOrder.notes}
                           onChange={(e) => setNewOrder({...newOrder, notes: e.target.value})}
+                          className="mt-1"
                         />
                       </div>
                       <Button onClick={handleCreateOrder} className="w-full">
