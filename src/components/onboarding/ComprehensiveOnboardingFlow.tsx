@@ -1,10 +1,13 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { OnboardingHeader } from './OnboardingHeader';
 import { OnboardingNavigation } from './OnboardingNavigation';
 import { OnboardingStepsRenderer } from './OnboardingStepsRenderer';
+import { OnboardingLoadingState } from './OnboardingLoadingState';
+import { OnboardingSuccessState } from './OnboardingSuccessState';
 import { useOnboardingFlow } from '@/hooks/useOnboardingFlow';
+import { useToast } from '@/hooks/use-toast';
 
 interface ComprehensiveOnboardingFlowProps {
   onComplete: (data: any) => void;
@@ -15,6 +18,10 @@ export const ComprehensiveOnboardingFlow: React.FC<ComprehensiveOnboardingFlowPr
   onComplete, 
   onCancel 
 }) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const { toast } = useToast();
+
   const {
     currentStep,
     onboardingData,
@@ -24,30 +31,96 @@ export const ComprehensiveOnboardingFlow: React.FC<ComprehensiveOnboardingFlowPr
     prevStep
   } = useOnboardingFlow();
 
-  const handleSubmit = () => {
-    console.log('Submitting onboarding data:', onboardingData);
-    onComplete(onboardingData);
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    
+    try {
+      // Add a small delay for better UX
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setShowSuccess(true);
+      
+      // Show success for a moment before completing
+      setTimeout(() => {
+        console.log('Submitting onboarding data:', onboardingData);
+        onComplete(onboardingData);
+      }, 2000);
+      
+    } catch (error) {
+      console.error('Onboarding submission error:', error);
+      toast({
+        title: "Setup Error",
+        description: "There was an issue completing your setup. Please try again.",
+        variant: "destructive"
+      });
+      setIsSubmitting(false);
+    }
+  };
+
+  const canProceed = () => {
+    const currentStepData = steps[currentStep];
+    
+    // Basic validation for key steps
+    switch (currentStepData.component) {
+      case 'specialty':
+        return !!onboardingData.specialty;
+      case 'practice':
+        return !!(onboardingData.practiceData.practiceName && 
+                 onboardingData.practiceData.email);
+      default:
+        return true;
+    }
   };
 
   const currentStepData = steps[currentStep];
   const isSpecialStep = currentStepData.component === 'payment' || currentStepData.component === 'review';
 
+  if (isSubmitting || showSuccess) {
+    return (
+      <div className="container mx-auto mt-10 p-6">
+        <Card className="shadow-lg rounded-lg border-0">
+          <CardContent className="py-16">
+            {!showSuccess ? (
+              <OnboardingLoadingState 
+                message="Setting up your FlowIQ practice..."
+                showProgress={true}
+                progress={85}
+              />
+            ) : (
+              <OnboardingSuccessState
+                title="🎉 Welcome to FlowIQ!"
+                message="Your practice is now ready. Let's get you started with your new intelligent workflow system."
+                showAnimation={true}
+              />
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
-    <div className="container mx-auto mt-10 p-6">
-      <Card className="shadow-md rounded-md">
+    <div className="container mx-auto mt-10 p-6 animate-fade-in">
+      <Card className="shadow-lg rounded-lg border-0 overflow-hidden">
         <OnboardingHeader
           title={currentStepData.title}
-          description={currentStepData.id}
+          description={getStepDescription(currentStepData.component)}
+          currentStep={currentStep}
+          totalSteps={steps.length}
+          showProgress={true}
         />
-        <CardContent className="py-6 px-8">
-          <OnboardingStepsRenderer
-            currentStep={currentStepData}
-            onboardingData={onboardingData}
-            updateOnboardingData={updateOnboardingData}
-            nextStep={nextStep}
-            onSubmit={handleSubmit}
-            onCancel={onCancel}
-          />
+        <CardContent className="py-8 px-8">
+          <div className="min-h-[500px]">
+            <OnboardingStepsRenderer
+              currentStep={currentStepData}
+              onboardingData={onboardingData}
+              updateOnboardingData={updateOnboardingData}
+              nextStep={nextStep}
+              onSubmit={handleSubmit}
+              onCancel={onCancel}
+            />
+          </div>
+          
           <OnboardingNavigation
             currentStep={currentStep}
             totalSteps={steps.length}
@@ -55,9 +128,29 @@ export const ComprehensiveOnboardingFlow: React.FC<ComprehensiveOnboardingFlowPr
             onNext={nextStep}
             onComplete={handleSubmit}
             isSpecialStep={isSpecialStep}
+            isLoading={isSubmitting}
+            canProceed={canProceed()}
           />
         </CardContent>
       </Card>
     </div>
   );
+};
+
+const getStepDescription = (component: string): string => {
+  const descriptions = {
+    specialty: "Tell us about your practice type so we can customize FlowIQ for your needs",
+    practice: "Let's set up your practice information and contact details",
+    team: "Add your team members and assign roles for collaborative workflows",
+    agents: "Configure AI agents to automate your practice operations",
+    scribe: "Set up intelligent documentation and transcription features",
+    payment: "Enable secure payment processing for seamless transactions",
+    ehr: "Connect your existing EHR system for unified patient records",
+    templates: "Generate custom forms and templates for your specialty",
+    validation: "Test your integrations to ensure everything works perfectly",
+    review: "Review your configuration and launch your FlowIQ practice"
+  };
+  
+  return descriptions[component as keyof typeof descriptions] || 
+         "Configure this aspect of your FlowIQ practice";
 };
