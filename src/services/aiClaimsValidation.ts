@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 export interface ValidationResult {
@@ -201,8 +200,9 @@ class AIClaimsValidationService {
       });
     }
 
-    // Mock NPI validation
-    if (provider && (!provider.npi || provider.npi.length !== 10)) {
+    // Handle NPI validation - check if npi exists in provider data or providerInfo
+    const npiNumber = claimData.providerInfo.npi || provider?.npi || null;
+    if (provider && (!npiNumber || npiNumber.toString().length !== 10)) {
       issues.push({
         field: 'provider_npi',
         issue: 'Invalid or missing NPI number',
