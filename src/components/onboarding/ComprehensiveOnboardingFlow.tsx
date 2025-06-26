@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { OnboardingHeader } from './OnboardingHeader';
@@ -6,6 +5,8 @@ import { OnboardingNavigation } from './OnboardingNavigation';
 import { OnboardingStepsRenderer } from './OnboardingStepsRenderer';
 import { OnboardingLoadingState } from './OnboardingLoadingState';
 import { OnboardingSuccessState } from './OnboardingSuccessState';
+import { OnboardingStepGuide } from './OnboardingStepGuide';
+import { OnboardingProgressSidebar } from './OnboardingProgressSidebar';
 import { useOnboardingFlow } from '@/hooks/useOnboardingFlow';
 import { useToast } from '@/hooks/use-toast';
 
@@ -101,38 +102,65 @@ export const ComprehensiveOnboardingFlow: React.FC<ComprehensiveOnboardingFlowPr
 
   return (
     <div className="container mx-auto mt-10 p-6 animate-fade-in">
-      <Card className="shadow-lg rounded-lg border-0 overflow-hidden">
-        <OnboardingHeader
-          title={currentStepData.title}
-          description={getStepDescription(currentStepData.component)}
-          currentStep={currentStep}
-          totalSteps={steps.length}
-          showProgress={true}
-        />
-        <CardContent className="py-8 px-8">
-          <div className="min-h-[500px]">
-            <OnboardingStepsRenderer
-              currentStep={currentStepData}
-              onboardingData={onboardingData}
-              updateOnboardingData={updateOnboardingData}
-              nextStep={nextStep}
-              onSubmit={handleSubmit}
-              onCancel={onCancel}
-            />
-          </div>
-          
-          <OnboardingNavigation
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Progress Sidebar - Hidden on mobile */}
+        <div className="hidden lg:block">
+          <OnboardingProgressSidebar
             currentStep={currentStep}
-            totalSteps={steps.length}
-            onPrevious={prevStep}
-            onNext={nextStep}
-            onComplete={handleSubmit}
-            isSpecialStep={isSpecialStep}
-            isLoading={isSubmitting}
-            canProceed={canProceed()}
+            steps={steps}
+            onboardingData={onboardingData}
           />
-        </CardContent>
-      </Card>
+        </div>
+
+        {/* Main Content */}
+        <div className="lg:col-span-3">
+          <Card className="shadow-lg rounded-lg border-0 overflow-hidden">
+            <OnboardingHeader
+              title={currentStepData.title}
+              description={getStepDescription(currentStepData.component)}
+              currentStep={currentStep}
+              totalSteps={steps.length}
+              showProgress={true}
+            />
+            <CardContent className="py-8 px-8">
+              <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                {/* Step Guide */}
+                <div className="xl:col-span-1 order-2 xl:order-1">
+                  <OnboardingStepGuide 
+                    step={currentStepData.component}
+                    specialty={onboardingData.specialty}
+                  />
+                </div>
+
+                {/* Main Form */}
+                <div className="xl:col-span-2 order-1 xl:order-2">
+                  <div className="min-h-[500px]">
+                    <OnboardingStepsRenderer
+                      currentStep={currentStepData}
+                      onboardingData={onboardingData}
+                      updateOnboardingData={updateOnboardingData}
+                      nextStep={nextStep}
+                      onSubmit={handleSubmit}
+                      onCancel={onCancel}
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <OnboardingNavigation
+                currentStep={currentStep}
+                totalSteps={steps.length}
+                onPrevious={prevStep}
+                onNext={nextStep}
+                onComplete={handleSubmit}
+                isSpecialStep={isSpecialStep}
+                isLoading={isSubmitting}
+                canProceed={canProceed()}
+              />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 };
