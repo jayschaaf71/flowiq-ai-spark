@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -28,7 +27,7 @@ interface PaymentSetupStepProps {
   };
 }
 
-export const PaymentSetupStep: React.FC<PaymentSetupStepStepProps> = ({
+export const PaymentSetupStep: React.FC<PaymentSetupStepProps> = ({
   specialty,
   onComplete,
   onSkip,
