@@ -76,13 +76,36 @@ serve(async (req) => {
         throw new Error('Failed to find active Plaud integrations');
       }
 
+      // If no active integrations found, create a response but don't try to store in DB
       if (!userConfigs || userConfigs.length === 0) {
-        console.log('No active Plaud integrations found, creating test entry');
-        // For testing purposes, we'll still process but log it differently
+        console.log('No active Plaud integrations found - webhook received but no user to associate with');
+        
+        return new Response(
+          JSON.stringify({ 
+            success: true, 
+            message: 'Webhook received successfully, but no active Plaud integrations found',
+            recordingId: recordingData.id,
+            source: recordingData.source,
+            note: 'Recording will be processed when a user sets up Plaud integration'
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
 
-      // Use the first active integration or create a test user entry
-      const flowiqUserId = userConfigs?.[0]?.user_id || '00000000-0000-0000-0000-000000000000';
+      // Use the first active integration
+      const flowiqUserId = userConfigs[0].user_id;
+      
+      // Verify the user exists before proceeding
+      const { data: userExists, error: userError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', flowiqUserId)
+        .single();
+
+      if (userError || !userExists) {
+        console.error('User not found in profiles table:', flowiqUserId);
+        throw new Error('Associated user not found in system');
+      }
       
       // If we have a transcript, process it for SOAP generation
       if (recordingData.transcript && recordingData.transcript.length > 10) {
