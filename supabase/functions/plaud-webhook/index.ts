@@ -20,119 +20,134 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
     if (req.method === 'POST') {
-      // Handle webhook from Plaud Cloud when new recording is available
+      // Handle webhook from Zapier/Plaud
       const webhook = await req.json();
       
-      console.log('Plaud webhook received:', webhook);
+      console.log('Plaud/Zapier webhook received:', webhook);
       
-      // Real Plaud webhook structure
-      const { 
-        event_type,
-        recording: {
-          id: recordingId,
-          filename,
-          duration,
-          created_at,
-          download_url,
-          device_id,
-          user_id: plaudUserId
-        }
-      } = webhook;
-
-      if (event_type !== 'recording.created') {
-        return new Response(JSON.stringify({ message: 'Event ignored' }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
+      // Handle both direct Plaud webhooks and Zapier-formatted data
+      let recordingData;
+      
+      if (webhook.recording_id || webhook.filename || webhook.transcript) {
+        // This is Zapier-formatted data
+        recordingData = {
+          id: webhook.recording_id || `zapier_${Date.now()}`,
+          filename: webhook.filename || 'Unknown Recording',
+          transcript: webhook.transcript || '',
+          created_at: webhook.created_at || new Date().toISOString(),
+          duration: webhook.duration || 0,
+          source: 'zapier'
+        };
+      } else if (webhook.event_type === 'recording.created' && webhook.recording) {
+        // This is a direct Plaud Cloud webhook
+        const { recording } = webhook;
+        recordingData = {
+          id: recording.id,
+          filename: recording.filename,
+          transcript: recording.transcript || '',
+          created_at: recording.created_at,
+          duration: recording.duration,
+          download_url: recording.download_url,
+          source: 'plaud_direct'
+        };
+      } else {
+        // Handle test webhooks or simple data
+        recordingData = {
+          id: `test_${Date.now()}`,
+          filename: webhook.title || webhook.filename || 'Test Recording',
+          transcript: webhook.transcript || webhook.message || 'Test transcript',
+          created_at: new Date().toISOString(),
+          duration: 0,
+          source: 'test'
+        };
       }
 
-      // Find the FlowIQ user associated with this Plaud device
-      const { data: userConfig, error: configError } = await supabase
+      console.log('Processed recording data:', recordingData);
+
+      // Find active Plaud integrations to determine which user to associate this with
+      const { data: userConfigs, error: configError } = await supabase
         .from('integration_settings')
         .select('user_id, settings')
         .eq('provider', 'plaud')
         .eq('is_active', true);
 
-      if (configError || !userConfig || userConfig.length === 0) {
-        throw new Error('No active Plaud integration found');
+      if (configError) {
+        console.error('Error fetching user configs:', configError);
+        throw new Error('Failed to find active Plaud integrations');
       }
 
-      // Find matching user (you might need to store device_id mapping)
-      const flowiqUserId = userConfig[0].user_id;
-      const plaudConfig = userConfig[0].settings;
-      
-      // Download the audio file from Plaud Cloud
-      const audioResponse = await fetch(download_url, {
-        headers: { 
-          'Authorization': `Bearer ${plaudConfig.apiKey}`,
-          'X-API-Version': '2024-01'
-        }
-      });
-      
-      if (!audioResponse.ok) {
-        throw new Error('Failed to download recording from Plaud Cloud');
+      if (!userConfigs || userConfigs.length === 0) {
+        console.log('No active Plaud integrations found, creating test entry');
+        // For testing purposes, we'll still process but log it differently
       }
+
+      // Use the first active integration or create a test user entry
+      const flowiqUserId = userConfigs?.[0]?.user_id || '00000000-0000-0000-0000-000000000000';
       
-      const audioBlob = await audioResponse.blob();
-      const audioBuffer = await audioBlob.arrayBuffer();
-      const base64Audio = btoa(String.fromCharCode(...new Uint8Array(audioBuffer)));
-      
-      // Send to our AI transcription service
-      const transcriptionResponse = await fetch(`${supabaseUrl}/functions/v1/ai-voice-transcription`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${supabaseServiceKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          audio: base64Audio,
-          userId: flowiqUserId,
-          source: 'plaud',
-          metadata: {
-            recordingId,
-            filename,
-            duration,
-            deviceId: device_id,
-            originalUrl: download_url
+      // If we have a transcript, process it for SOAP generation
+      if (recordingData.transcript && recordingData.transcript.length > 10) {
+        try {
+          // Call our AI transcription service for SOAP generation
+          const transcriptionResponse = await supabase.functions.invoke('ai-voice-transcription', {
+            body: {
+              transcription: recordingData.transcript,
+              userId: flowiqUserId,
+              source: recordingData.source,
+              metadata: {
+                recordingId: recordingData.id,
+                filename: recordingData.filename,
+                duration: recordingData.duration,
+                originalTimestamp: recordingData.created_at
+              }
+            }
+          });
+
+          if (transcriptionResponse.error) {
+            console.error('AI transcription service error:', transcriptionResponse.error);
+          } else {
+            console.log('AI transcription service success:', transcriptionResponse.data);
           }
-        })
-      });
-      
-      if (!transcriptionResponse.ok) {
-        throw new Error('Failed to transcribe audio');
+        } catch (aiError) {
+          console.error('Failed to call AI transcription service:', aiError);
+          // Continue processing even if AI service fails
+        }
       }
-      
-      const transcriptionResult = await transcriptionResponse.json();
       
       // Store the processed recording in our database
       const { error: dbError } = await supabase
         .from('voice_recordings')
         .insert({
           user_id: flowiqUserId,
-          source: 'plaud',
-          external_id: recordingId,
-          filename: filename,
-          duration: duration,
-          transcription: transcriptionResult.transcription,
+          source: recordingData.source,
+          external_id: recordingData.id,
+          filename: recordingData.filename,
+          duration: recordingData.duration || 0,
+          transcription: recordingData.transcript,
           processed_at: new Date().toISOString(),
           metadata: {
-            originalUrl: download_url,
-            plaudRecordingId: recordingId,
-            deviceId: device_id,
-            plaudUserId: plaudUserId
+            originalTimestamp: recordingData.created_at,
+            webhookSource: recordingData.source,
+            zapierProcessed: true
           }
         });
       
       if (dbError) {
-        throw dbError;
+        console.error('Database error:', dbError);
+        // Don't throw error for duplicate entries
+        if (!dbError.message.includes('duplicate')) {
+          throw dbError;
+        }
       }
       
-      console.log(`Successfully processed recording ${recordingId} for user ${flowiqUserId}`);
+      console.log(`Successfully processed recording ${recordingData.id} from ${recordingData.source}`);
       
       return new Response(
         JSON.stringify({ 
           success: true, 
-          recordingId,
-          transcriptionLength: transcriptionResult.transcription.length 
+          recordingId: recordingData.id,
+          source: recordingData.source,
+          transcriptionLength: recordingData.transcript?.length || 0,
+          message: 'Recording processed successfully'
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -143,7 +158,8 @@ serve(async (req) => {
         JSON.stringify({ 
           status: 'healthy',
           timestamp: new Date().toISOString(),
-          service: 'plaud-webhook'
+          service: 'plaud-webhook',
+          message: 'Webhook is ready to receive Plaud/Zapier data'
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -154,7 +170,11 @@ serve(async (req) => {
   } catch (error) {
     console.error('Plaud webhook error:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        success: false,
+        timestamp: new Date().toISOString()
+      }),
       {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
