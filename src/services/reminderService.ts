@@ -55,8 +55,8 @@ export class ReminderService {
           scheduledFor = addHours(appointmentDateTime, -24);
       }
 
-      // Access patient data correctly - patients is an object, not an array
-      const patient = appointment.patients;
+      // Access patient data correctly - patients is an array, get the first element
+      const patient = Array.isArray(appointment.patients) ? appointment.patients[0] : appointment.patients;
       const patientName = patient ? 
         `${patient.first_name || ''} ${patient.last_name || ''}`.trim() : 
         'Patient';
