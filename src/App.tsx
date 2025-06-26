@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import { ThemeProvider } from "next-themes";
+import { AuthProvider } from "./contexts/AuthProvider";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import PatientManagement from "./pages/PatientManagement";
@@ -56,57 +57,59 @@ function App() {
       <ThemeProvider attribute="class" defaultTheme="light">
         <TooltipProvider>
           <Toaster />
-          <BrowserRouter>
-            <Routes>
-              {/* Public Routes */}
-              <Route path="/patient" element={<PatientLanding />} />
-              <Route path="/patient/auth" element={<PatientAuth />} />
-              <Route path="/patient/dashboard" element={<PatientDashboard />} />
-              <Route path="/book-appointment" element={<BookAppointment />} />
-              <Route path="/reschedule/:appointmentId" element={<RescheduleAppointment />} />
-              <Route path="/accept-invitation" element={<AcceptInvitation />} />
-              <Route path="/onboard-tenant" element={<OnboardNewTenant />} />
-              <Route path="/tenant-onboarding" element={<TenantOnboarding />} />
-              <Route path="/pilot-demo" element={<PilotDemo />} />
-              
-              {/* Protected Routes */}
-              <Route path="/" element={<Layout><Index /></Layout>} />
-              <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
-              <Route path="/comprehensive" element={<Layout><ComprehensiveDashboard /></Layout>} />
-              <Route path="/pilot" element={<Layout><PilotDashboard /></Layout>} />
-              <Route path="/chiro-iq" element={<Layout><ChiroIQ /></Layout>} />
-              <Route path="/patient-management" element={<Layout><PatientManagement /></Layout>} />
-              <Route path="/ehr" element={<Layout><EHR /></Layout>} />
-              <Route path="/analytics" element={<Layout><Analytics /></Layout>} />
-              <Route path="/insights" element={<Layout><Insights /></Layout>} />
-              <Route path="/ai-insights" element={<Layout><AIInsights /></Layout>} />
-              <Route path="/manager" element={<Layout><ManagerAgent /></Layout>} />
-              <Route path="/workflows" element={<Layout><Workflows /></Layout>} />
-              <Route path="/templates" element={<Layout><Templates /></Layout>} />
-              <Route path="/team" element={<Layout><Team /></Layout>} />
-              <Route path="/setup" element={<Layout><PracticeSetup /></Layout>} />
-              <Route path="/tenant-admin" element={<Layout><TenantAdmin /></Layout>} />
-              <Route path="/settings" element={<Layout><Settings /></Layout>} />
-              <Route path="/help" element={<Layout><Help /></Layout>} />
-              
-              {/* Agent Routes */}
-              <Route path="/agents/schedule" element={<Layout><ScheduleIQ /></Layout>} />
-              <Route path="/agents/schedule-production" element={<Layout><ScheduleIQProduction /></Layout>} />
-              <Route path="/agents/intake" element={<Layout><IntakeIQ /></Layout>} />
-              <Route path="/agents/remind" element={<Layout><RemindIQ /></Layout>} />
-              <Route path="/agents/scribe" element={<Layout><ScribeIQ /></Layout>} />
-              <Route path="/agents/claims" element={<Layout><ClaimsIQ /></Layout>} />
-              <Route path="/agents/billing" element={<Layout><BillingIQ /></Layout>} />
-              <Route path="/agents/inventory" element={<Layout><InventoryIQ /></Layout>} />
-              <Route path="/agents/followup" element={<Layout><FollowupIQ /></Layout>} />
-              <Route path="/agents/insight" element={<Layout><InsightIQ /></Layout>} />
-              <Route path="/agents/assist" element={<Layout><AssistIQ /></Layout>} />
-              <Route path="/agents/ehr" element={<Layout><EHRIQ /></Layout>} />
-              
-              {/* 404 Route */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
+          <AuthProvider>
+            <BrowserRouter>
+              <Routes>
+                {/* Public Routes */}
+                <Route path="/patient" element={<PatientLanding />} />
+                <Route path="/patient/auth" element={<PatientAuth />} />
+                <Route path="/patient/dashboard" element={<PatientDashboard />} />
+                <Route path="/book-appointment" element={<BookAppointment />} />
+                <Route path="/reschedule/:appointmentId" element={<RescheduleAppointment />} />
+                <Route path="/accept-invitation" element={<AcceptInvitation />} />
+                <Route path="/onboard-tenant" element={<OnboardNewTenant />} />
+                <Route path="/tenant-onboarding" element={<TenantOnboarding />} />
+                <Route path="/pilot-demo" element={<PilotDemo />} />
+                
+                {/* Protected Routes */}
+                <Route path="/" element={<Layout><Index /></Layout>} />
+                <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
+                <Route path="/comprehensive" element={<Layout><ComprehensiveDashboard /></Layout>} />
+                <Route path="/pilot" element={<Layout><PilotDashboard /></Layout>} />
+                <Route path="/chiro-iq" element={<Layout><ChiroIQ /></Layout>} />
+                <Route path="/patient-management" element={<Layout><PatientManagement /></Layout>} />
+                <Route path="/ehr" element={<Layout><EHR /></Layout>} />
+                <Route path="/analytics" element={<Layout><Analytics /></Layout>} />
+                <Route path="/insights" element={<Layout><Insights /></Layout>} />
+                <Route path="/ai-insights" element={<Layout><AIInsights /></Layout>} />
+                <Route path="/manager" element={<Layout><ManagerAgent /></Layout>} />
+                <Route path="/workflows" element={<Layout><Workflows /></Layout>} />
+                <Route path="/templates" element={<Layout><Templates /></Layout>} />
+                <Route path="/team" element={<Layout><Team /></Layout>} />
+                <Route path="/setup" element={<Layout><PracticeSetup /></Layout>} />
+                <Route path="/tenant-admin" element={<Layout><TenantAdmin /></Layout>} />
+                <Route path="/settings" element={<Layout><Settings /></Layout>} />
+                <Route path="/help" element={<Layout><Help /></Layout>} />
+                
+                {/* Agent Routes */}
+                <Route path="/agents/schedule" element={<Layout><ScheduleIQ /></Layout>} />
+                <Route path="/agents/schedule-production" element={<Layout><ScheduleIQProduction /></Layout>} />
+                <Route path="/agents/intake" element={<Layout><IntakeIQ /></Layout>} />
+                <Route path="/agents/remind" element={<Layout><RemindIQ /></Layout>} />
+                <Route path="/agents/scribe" element={<Layout><ScribeIQ /></Layout>} />
+                <Route path="/agents/claims" element={<Layout><ClaimsIQ /></Layout>} />
+                <Route path="/agents/billing" element={<Layout><BillingIQ /></Layout>} />
+                <Route path="/agents/inventory" element={<Layout><InventoryIQ /></Layout>} />
+                <Route path="/agents/followup" element={<Layout><FollowupIQ /></Layout>} />
+                <Route path="/agents/insight" element={<Layout><InsightIQ /></Layout>} />
+                <Route path="/agents/assist" element={<Layout><AssistIQ /></Layout>} />
+                <Route path="/agents/ehr" element={<Layout><EHRIQ /></Layout>} />
+                
+                {/* 404 Route */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </AuthProvider>
         </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>
