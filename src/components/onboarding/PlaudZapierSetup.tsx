@@ -112,23 +112,50 @@ export const PlaudZapierSetup: React.FC<PlaudZapierSetupProps> = ({
         return (
           <div className="space-y-6">
             <div>
-              <h3 className="text-lg font-semibold mb-4">Step 1: Connect Plaud to Zapier</h3>
+              <h3 className="text-lg font-semibold mb-4">Step 1: Create Your Zapier Automation</h3>
+              
               <div className="space-y-4">
-                <div className="border rounded-lg p-4 bg-gray-50">
-                  <ol className="space-y-3 text-sm">
-                    <li className="flex items-start gap-2">
-                      <Badge className="bg-blue-100 text-blue-800 text-xs">1</Badge>
-                      <span>Open your Plaud app and go to <strong>Settings → Integrations</strong></span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Badge className="bg-blue-100 text-blue-800 text-xs">2</Badge>
-                      <span>Find <strong>Zapier</strong> and click <strong>"Connect"</strong></span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Badge className="bg-blue-100 text-blue-800 text-xs">3</Badge>
-                      <span>Follow the prompts to authorize Zapier to access your Plaud recordings</span>
-                    </li>
-                  </ol>
+                <Alert className="border-green-200 bg-green-50">
+                  <ExternalLink className="h-4 w-4 text-green-600" />
+                  <AlertDescription className="text-green-800">
+                    <strong>Go to Zapier and create a new Zap with:</strong>
+                    <br />• <strong>Trigger:</strong> Plaud → "New Recording"
+                    <br />• <strong>Action:</strong> Webhooks by Zapier → "POST"
+                  </AlertDescription>
+                </Alert>
+
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                    FlowIQ Webhook URL (copy this into your Zapier webhook action):
+                  </Label>
+                  <div className="flex gap-2">
+                    <Input
+                      value={flowiqWebhookUrl}
+                      readOnly
+                      className="font-mono text-sm bg-white"
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => copyToClipboard(flowiqWebhookUrl)}
+                      className="px-3"
+                    >
+                      <Copy className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <p className="text-xs text-gray-600 mt-2">
+                    Use this URL as the webhook endpoint in your Zapier action step
+                  </p>
+                </div>
+
+                <div className="border rounded-lg p-4 bg-yellow-50 border-yellow-200">
+                  <h4 className="font-medium text-yellow-800 mb-2">Webhook Configuration:</h4>
+                  <ul className="text-sm text-yellow-700 space-y-1">
+                    <li>• <strong>Method:</strong> POST</li>
+                    <li>• <strong>URL:</strong> Use the FlowIQ webhook URL above</li>
+                    <li>• <strong>Payload Type:</strong> JSON (not form or raw)</li>
+                    <li>• <strong>Data:</strong> Map Plaud fields (recording_id, filename, download_url, etc.)</li>
+                  </ul>
                 </div>
                 
                 <div className="flex justify-between">
@@ -136,7 +163,7 @@ export const PlaudZapierSetup: React.FC<PlaudZapierSetupProps> = ({
                     Back
                   </Button>
                   <Button onClick={() => setStep(3)}>
-                    Plaud Connected <ArrowRight className="w-4 h-4 ml-2" />
+                    Zapier Configured <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </div>
               </div>
@@ -148,52 +175,31 @@ export const PlaudZapierSetup: React.FC<PlaudZapierSetupProps> = ({
         return (
           <div className="space-y-6">
             <div>
-              <h3 className="text-lg font-semibold mb-4">Step 2: Create Zapier Automation</h3>
+              <h3 className="text-lg font-semibold mb-4">Step 2: Get Your Zapier Webhook URL</h3>
               
               <div className="space-y-4">
-                <Alert className="border-yellow-200 bg-yellow-50">
-                  <ExternalLink className="h-4 w-4 text-yellow-600" />
-                  <AlertDescription className="text-yellow-800">
-                    <strong>Create a new Zap in Zapier:</strong>
-                    <br />• <strong>Trigger:</strong> Plaud → "New Recording"
-                    <br />• <strong>Action:</strong> Webhooks → "POST" to the URL below
+                <Alert className="border-blue-200 bg-blue-50">
+                  <Zap className="h-4 w-4 text-blue-600" />
+                  <AlertDescription className="text-blue-800">
+                    <strong>In your Zapier webhook trigger step:</strong>
+                    <br />Copy the "Webhook URL" that Zapier provides and paste it below.
+                    <br />This allows us to test the connection.
                   </AlertDescription>
                 </Alert>
 
                 <div>
-                  <Label htmlFor="webhook-url" className="text-sm font-medium">
-                    FlowIQ Webhook URL (copy this into Zapier):
-                  </Label>
-                  <div className="flex gap-2 mt-1">
-                    <Input
-                      id="webhook-url"
-                      value={flowiqWebhookUrl}
-                      readOnly
-                      className="font-mono text-xs"
-                    />
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => copyToClipboard(flowiqWebhookUrl)}
-                    >
-                      <Copy className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-
-                <div>
                   <Label htmlFor="zapier-webhook" className="text-sm font-medium">
-                    Your Zapier Webhook URL (from your Zap):
+                    Your Zapier Webhook URL:
                   </Label>
                   <Input
                     id="zapier-webhook"
                     value={zapierWebhookUrl}
                     onChange={(e) => setZapierWebhookUrl(e.target.value)}
                     placeholder="https://hooks.zapier.com/hooks/catch/..."
-                    className="mt-1 font-mono text-xs"
+                    className="mt-1 font-mono text-sm"
                   />
                   <p className="text-xs text-gray-600 mt-1">
-                    Get this from your Zapier webhook trigger step
+                    This is the webhook URL from your Zapier trigger step
                   </p>
                 </div>
 
