@@ -181,14 +181,18 @@ export const useVendors = () => {
     }) => {
       console.log('Creating purchase order:', orderData);
       
+      // Don't include order_number - let the database trigger generate it
       const { data, error } = await supabase
         .from('purchase_orders')
-        .insert([{
-          ...orderData,
+        .insert({
+          vendor_id: orderData.vendor_id,
+          order_type: orderData.order_type,
+          priority: orderData.priority,
+          notes: orderData.notes,
           status: 'draft',
           total_amount: 0,
           tenant_id: null // Will be set by RLS
-        }])
+        })
         .select()
         .single();
       

@@ -13,7 +13,7 @@ import { CreateOrderDialog } from "@/components/inventory/CreateOrderDialog";
 import { VendorManagement } from "@/components/inventory/VendorManagement";
 import { PurchaseOrdersList } from "@/components/inventory/PurchaseOrdersList";
 import { mockInventoryItems } from "@/data/inventoryMockData";
-import { useVendors } from "@/hooks/useVendors";
+import { useVendors, type NewVendor } from "@/hooks/useVendors";
 
 export default function InventoryIQ() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -47,7 +47,7 @@ export default function InventoryIQ() {
     lastPrice: ""
   });
 
-  const [newVendor, setNewVendor] = useState({
+  const [newVendor, setNewVendor] = useState<NewVendor>({
     name: "",
     email: "",
     phone: "",

@@ -2298,6 +2298,39 @@ export type Database = {
           },
         ]
       }
+      onboarding_steps: {
+        Row: {
+          completed_steps: number[] | null
+          created_at: string
+          current_step: number
+          id: string
+          step_data: Json | null
+          updated_at: string
+          user_id: string
+          user_type: Database["public"]["Enums"]["user_type"]
+        }
+        Insert: {
+          completed_steps?: number[] | null
+          created_at?: string
+          current_step?: number
+          id?: string
+          step_data?: Json | null
+          updated_at?: string
+          user_id: string
+          user_type: Database["public"]["Enums"]["user_type"]
+        }
+        Update: {
+          completed_steps?: number[] | null
+          created_at?: string
+          current_step?: number
+          id?: string
+          step_data?: Json | null
+          updated_at?: string
+          user_id?: string
+          user_type?: Database["public"]["Enums"]["user_type"]
+        }
+        Relationships: []
+      }
       patient_insurance: {
         Row: {
           copay_amount: number | null
@@ -4002,6 +4035,105 @@ export type Database = {
           },
         ]
       }
+      user_profiles: {
+        Row: {
+          budget_range: string | null
+          company: string
+          company_size: Database["public"]["Enums"]["company_size"] | null
+          company_stage: Database["public"]["Enums"]["company_stage"] | null
+          created_at: string
+          current_challenges: string[] | null
+          decision_timeline: string | null
+          email: string
+          first_name: string
+          funding_raised: string | null
+          goals: string | null
+          id: string
+          industry: string | null
+          key_challenges: string[] | null
+          last_name: string
+          linkedin_url: string | null
+          marketing_consent: boolean | null
+          onboarding_completed: boolean | null
+          onboarding_completed_at: string | null
+          phone: string | null
+          position: string
+          referral_source: string | null
+          revenue_model: string | null
+          specializations: string[] | null
+          target_market: string | null
+          team_size: number | null
+          updated_at: string
+          user_id: string
+          user_type: Database["public"]["Enums"]["user_type"]
+          website_url: string | null
+        }
+        Insert: {
+          budget_range?: string | null
+          company: string
+          company_size?: Database["public"]["Enums"]["company_size"] | null
+          company_stage?: Database["public"]["Enums"]["company_stage"] | null
+          created_at?: string
+          current_challenges?: string[] | null
+          decision_timeline?: string | null
+          email: string
+          first_name: string
+          funding_raised?: string | null
+          goals?: string | null
+          id?: string
+          industry?: string | null
+          key_challenges?: string[] | null
+          last_name: string
+          linkedin_url?: string | null
+          marketing_consent?: boolean | null
+          onboarding_completed?: boolean | null
+          onboarding_completed_at?: string | null
+          phone?: string | null
+          position: string
+          referral_source?: string | null
+          revenue_model?: string | null
+          specializations?: string[] | null
+          target_market?: string | null
+          team_size?: number | null
+          updated_at?: string
+          user_id: string
+          user_type: Database["public"]["Enums"]["user_type"]
+          website_url?: string | null
+        }
+        Update: {
+          budget_range?: string | null
+          company?: string
+          company_size?: Database["public"]["Enums"]["company_size"] | null
+          company_stage?: Database["public"]["Enums"]["company_stage"] | null
+          created_at?: string
+          current_challenges?: string[] | null
+          decision_timeline?: string | null
+          email?: string
+          first_name?: string
+          funding_raised?: string | null
+          goals?: string | null
+          id?: string
+          industry?: string | null
+          key_challenges?: string[] | null
+          last_name?: string
+          linkedin_url?: string | null
+          marketing_consent?: boolean | null
+          onboarding_completed?: boolean | null
+          onboarding_completed_at?: string | null
+          phone?: string | null
+          position?: string
+          referral_source?: string | null
+          revenue_model?: string | null
+          specializations?: string[] | null
+          target_market?: string | null
+          team_size?: number | null
+          updated_at?: string
+          user_id?: string
+          user_type?: Database["public"]["Enums"]["user_type"]
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       vendor_items: {
         Row: {
           created_at: string
@@ -4267,12 +4399,22 @@ export type Database = {
       }
     }
     Enums: {
+      company_size: "startup" | "small" | "medium" | "large" | "enterprise"
+      company_stage:
+        | "pre_seed"
+        | "seed"
+        | "series_a"
+        | "series_b"
+        | "series_c_plus"
+        | "growth"
+        | "public"
       user_role:
         | "platform_admin"
         | "tenant_admin"
         | "practice_manager"
         | "staff"
         | "patient"
+      user_type: "practitioner" | "startup"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -4388,6 +4530,16 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      company_size: ["startup", "small", "medium", "large", "enterprise"],
+      company_stage: [
+        "pre_seed",
+        "seed",
+        "series_a",
+        "series_b",
+        "series_c_plus",
+        "growth",
+        "public",
+      ],
       user_role: [
         "platform_admin",
         "tenant_admin",
@@ -4395,6 +4547,7 @@ export const Constants = {
         "staff",
         "patient",
       ],
+      user_type: ["practitioner", "startup"],
     },
   },
 } as const
