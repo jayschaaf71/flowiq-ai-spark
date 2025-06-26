@@ -200,13 +200,13 @@ class AIClaimsValidationService {
       });
     }
 
-    // Handle NPI validation - check if npi exists in provider data or providerInfo
-    const npiNumber = claimData.providerInfo.npi || provider?.npi || null;
+    // Handle NPI validation - check if npi exists in providerInfo first, then provider data
+    const npiNumber = claimData.providerInfo?.npi || (provider as any)?.npi || null;
     if (provider && (!npiNumber || npiNumber.toString().length !== 10)) {
       issues.push({
         field: 'provider_npi',
         issue: 'Invalid or missing NPI number',
-        severity: 'high',
+        severity: 'medium',
         suggestedFix: 'Update provider NPI information'
       });
     }
