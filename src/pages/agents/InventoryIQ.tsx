@@ -5,6 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   Package, 
   AlertTriangle, 
@@ -16,10 +20,33 @@ import {
   Filter
 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
+import { toast } from "sonner";
 
 export default function InventoryIQ() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
+  const [isAddItemOpen, setIsAddItemOpen] = useState(false);
+  const [isAddVendorOpen, setIsAddVendorOpen] = useState(false);
+  const [isCreateOrderOpen, setIsCreateOrderOpen] = useState(false);
+  
+  // Form states
+  const [newItem, setNewItem] = useState({
+    name: "",
+    sku: "",
+    category: "clinical",
+    currentStock: "",
+    reorderPoint: "",
+    maxQuantity: "",
+    vendor: "",
+    lastPrice: ""
+  });
+
+  const [newVendor, setNewVendor] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    address: ""
+  });
 
   const mockInventoryItems = [
     {
@@ -89,6 +116,70 @@ export default function InventoryIQ() {
       itemsCount: 0
     }
   ];
+
+  const handleAddItem = () => {
+    console.log("Adding new item:", newItem);
+    toast.success("Item added successfully!");
+    setIsAddItemOpen(false);
+    setNewItem({
+      name: "",
+      sku: "",
+      category: "clinical",
+      currentStock: "",
+      reorderPoint: "",
+      maxQuantity: "",
+      vendor: "",
+      lastPrice: ""
+    });
+  };
+
+  const handleScanBarcode = () => {
+    toast.info("Barcode scanner feature coming soon!");
+    console.log("Barcode scan initiated");
+  };
+
+  const handleReorderNow = (itemName: string) => {
+    toast.success(`Reorder initiated for ${itemName}`);
+    console.log("Reorder now clicked for:", itemName);
+  };
+
+  const handleSuggestReorder = (itemName: string) => {
+    toast.info(`Reorder suggestion created for ${itemName}`);
+    console.log("Suggest reorder clicked for:", itemName);
+  };
+
+  const handleEditItem = (itemId: string) => {
+    toast.info("Edit item functionality coming soon!");
+    console.log("Edit item clicked for ID:", itemId);
+  };
+
+  const handleCreateOrder = () => {
+    toast.success("Order created successfully!");
+    setIsCreateOrderOpen(false);
+    console.log("Create order clicked");
+  };
+
+  const handleAddVendor = () => {
+    console.log("Adding new vendor:", newVendor);
+    toast.success("Vendor added successfully!");
+    setIsAddVendorOpen(false);
+    setNewVendor({
+      name: "",
+      email: "",
+      phone: "",
+      address: ""
+    });
+  };
+
+  const handleSyncVendor = (vendorName: string) => {
+    toast.success(`${vendorName} synced successfully!`);
+    console.log("Sync vendor clicked for:", vendorName);
+  };
+
+  const handleVendorSettings = (vendorName: string) => {
+    toast.info("Vendor settings coming soon!");
+    console.log("Vendor settings clicked for:", vendorName);
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -195,21 +286,94 @@ export default function InventoryIQ() {
                 className="pl-10"
               />
             </div>
-            <select
-              value={filterCategory}
-              onChange={(e) => setFilterCategory(e.target.value)}
-              className="px-3 py-2 border rounded-md"
-            >
-              <option value="all">All Categories</option>
-              <option value="clinical">Clinical</option>
-              <option value="office">Office</option>
-              <option value="retail">Retail</option>
-            </select>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Item
-            </Button>
-            <Button variant="outline">
+            <Select value={filterCategory} onValueChange={setFilterCategory}>
+              <SelectTrigger className="w-48">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                <SelectItem value="clinical">Clinical</SelectItem>
+                <SelectItem value="office">Office</SelectItem>
+                <SelectItem value="retail">Retail</SelectItem>
+              </SelectContent>
+            </Select>
+            
+            <Dialog open={isAddItemOpen} onOpenChange={setIsAddItemOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Item
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add New Item</DialogTitle>
+                  <DialogDescription>
+                    Add a new item to your inventory
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="name">Item Name</Label>
+                    <Input
+                      id="name"
+                      value={newItem.name}
+                      onChange={(e) => setNewItem({...newItem, name: e.target.value})}
+                      placeholder="Enter item name"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="sku">SKU</Label>
+                    <Input
+                      id="sku"
+                      value={newItem.sku}
+                      onChange={(e) => setNewItem({...newItem, sku: e.target.value})}
+                      placeholder="Enter SKU"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="category">Category</Label>
+                    <Select value={newItem.category} onValueChange={(value) => setNewItem({...newItem, category: value})}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="clinical">Clinical</SelectItem>
+                        <SelectItem value="office">Office</SelectItem>
+                        <SelectItem value="retail">Retail</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="currentStock">Current Stock</Label>
+                      <Input
+                        id="currentStock"
+                        type="number"
+                        value={newItem.currentStock}
+                        onChange={(e) => setNewItem({...newItem, currentStock: e.target.value})}
+                        placeholder="0"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="reorderPoint">Reorder Point</Label>
+                      <Input
+                        id="reorderPoint"
+                        type="number"
+                        value={newItem.reorderPoint}
+                        onChange={(e) => setNewItem({...newItem, reorderPoint: e.target.value})}
+                        placeholder="0"
+                      />
+                    </div>
+                  </div>
+                  <Button onClick={handleAddItem} className="w-full">
+                    Add Item
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+            
+            <Button variant="outline" onClick={handleScanBarcode}>
               <Barcode className="w-4 h-4 mr-2" />
               Scan
             </Button>
@@ -253,16 +417,29 @@ export default function InventoryIQ() {
                     
                     <div className="flex gap-2">
                       {item.status === "critical" && (
-                        <Button size="sm" className="bg-red-600 hover:bg-red-700">
+                        <Button 
+                          size="sm" 
+                          className="bg-red-600 hover:bg-red-700"
+                          onClick={() => handleReorderNow(item.name)}
+                        >
                           Reorder Now
                         </Button>
                       )}
                       {item.status === "low" && (
-                        <Button size="sm" variant="outline" className="border-yellow-500 text-yellow-600">
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="border-yellow-500 text-yellow-600"
+                          onClick={() => handleSuggestReorder(item.name)}
+                        >
                           Suggest Reorder
                         </Button>
                       )}
-                      <Button size="sm" variant="outline">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleEditItem(item.id)}
+                      >
                         Edit
                       </Button>
                     </div>
@@ -285,10 +462,44 @@ export default function InventoryIQ() {
               <div className="text-center py-8 text-gray-500">
                 <ShoppingCart className="w-12 h-12 mx-auto mb-4 opacity-50" />
                 <p>No recent orders found</p>
-                <Button className="mt-4">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create Order
-                </Button>
+                <Dialog open={isCreateOrderOpen} onOpenChange={setIsCreateOrderOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="mt-4">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create Order
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Create New Order</DialogTitle>
+                      <DialogDescription>
+                        Create a new order for inventory items
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div>
+                        <Label>Order Type</Label>
+                        <Select defaultValue="regular">
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="regular">Regular Order</SelectItem>
+                            <SelectItem value="emergency">Emergency Order</SelectItem>
+                            <SelectItem value="bulk">Bulk Order</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label>Notes</Label>
+                        <Textarea placeholder="Add any notes for this order..." />
+                      </div>
+                      <Button onClick={handleCreateOrder} className="w-full">
+                        Create Order
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </div>
             </CardContent>
           </Card>
@@ -297,10 +508,55 @@ export default function InventoryIQ() {
         <TabsContent value="vendors" className="space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">Connected Vendors</h3>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Vendor
-            </Button>
+            <Dialog open={isAddVendorOpen} onOpenChange={setIsAddVendorOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Vendor
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add New Vendor</DialogTitle>
+                  <DialogDescription>
+                    Add a new vendor to your system
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="vendorName">Vendor Name</Label>
+                    <Input
+                      id="vendorName"
+                      value={newVendor.name}
+                      onChange={(e) => setNewVendor({...newVendor, name: e.target.value})}
+                      placeholder="Enter vendor name"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="vendorEmail">Email</Label>
+                    <Input
+                      id="vendorEmail"
+                      type="email"
+                      value={newVendor.email}
+                      onChange={(e) => setNewVendor({...newVendor, email: e.target.value})}
+                      placeholder="vendor@example.com"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="vendorPhone">Phone</Label>
+                    <Input
+                      id="vendorPhone"
+                      value={newVendor.phone}
+                      onChange={(e) => setNewVendor({...newVendor, phone: e.target.value})}
+                      placeholder="(555) 123-4567"
+                    />
+                  </div>
+                  <Button onClick={handleAddVendor} className="w-full">
+                    Add Vendor
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -331,10 +587,19 @@ export default function InventoryIQ() {
                   </div>
                   
                   <div className="flex gap-2 mt-4">
-                    <Button size="sm" variant="outline" className="flex-1">
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="flex-1"
+                      onClick={() => handleSyncVendor(vendor.name)}
+                    >
                       Sync Now
                     </Button>
-                    <Button size="sm" variant="outline">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => handleVendorSettings(vendor.name)}
+                    >
                       Settings
                     </Button>
                   </div>
