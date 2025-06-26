@@ -60,7 +60,7 @@ export const AdminCommunicationDashboard: React.FC<AdminCommunicationDashboardPr
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-purple-600">
-                {submissions.filter(s => s.currentAssignment).length}
+                {submissions.filter(s => s.status === 'assigned').length}
               </div>
               <div className="text-sm text-gray-600">Assigned Cases</div>
             </div>

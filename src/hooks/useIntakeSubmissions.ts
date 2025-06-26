@@ -93,11 +93,32 @@ export const useIntakeSubmissions = () => {
     },
   });
 
+  // Create wrapper functions with the expected signatures
+  const assignStaff = (submissionId: string, staffId: string, staffName: string) => {
+    assignStaffMutation.mutate({ submissionId, staffId });
+  };
+
+  const sendCommunication = (
+    submissionId: string,
+    templateId: string,
+    recipient: string,
+    patientName: string,
+    customMessage?: string,
+    type?: 'email' | 'sms'
+  ) => {
+    sendCommunicationMutation.mutate({
+      submissionId,
+      type: type || 'email',
+      recipient,
+      message: customMessage || `Message for ${patientName}`
+    });
+  };
+
   return {
     submissions,
     isLoading: loading,
-    assignStaff: assignStaffMutation.mutate,
-    sendCommunication: sendCommunicationMutation.mutate,
+    assignStaff,
+    sendCommunication,
     updateStatus: updateStatusMutation.mutate,
     isAssigning: assignStaffMutation.isPending,
     isSendingCommunication: sendCommunicationMutation.isPending,
