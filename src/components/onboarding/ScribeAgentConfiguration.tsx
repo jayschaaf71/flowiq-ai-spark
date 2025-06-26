@@ -12,7 +12,9 @@ import {
   FileText, 
   Smartphone, 
   Zap,
-  Shield
+  Shield,
+  ArrowRight,
+  CheckCircle
 } from 'lucide-react';
 import { PlaudZapierSetup } from './PlaudZapierSetup';
 
@@ -49,6 +51,10 @@ export const ScribeAgentConfiguration: React.FC<ScribeAgentConfigurationProps> =
     setShowPlaudSetup(false);
   };
 
+  const handleEnableScribeAgent = () => {
+    updateConfig({ enableScribeAgent: true });
+  };
+
   if (showPlaudSetup) {
     return (
       <PlaudZapierSetup
@@ -58,27 +64,101 @@ export const ScribeAgentConfiguration: React.FC<ScribeAgentConfigurationProps> =
     );
   }
 
+  // Show getting started view when Scribe Agent is not enabled
+  if (!config.enableScribeAgent) {
+    return (
+      <div className="space-y-6">
+        <Card className="border-purple-200">
+          <CardHeader className="text-center pb-4">
+            <div className="mx-auto w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4">
+              <Brain className="w-8 h-8 text-purple-600" />
+            </div>
+            <CardTitle className="text-2xl">Enable Scribe iQ Agent</CardTitle>
+            <CardDescription className="text-lg">
+              AI-powered medical documentation that transforms voice recordings into professional SOAP notes
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Benefits Overview */}
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-lg">
+                <Smartphone className="w-6 h-6 text-blue-600 mt-1" />
+                <div>
+                  <h4 className="font-semibold text-blue-900">Plaud Device Integration</h4>
+                  <p className="text-sm text-blue-700">Automatically process recordings from your Plaud device via Zapier</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3 p-4 bg-green-50 rounded-lg">
+                <FileText className="w-6 h-6 text-green-600 mt-1" />
+                <div>
+                  <h4 className="font-semibold text-green-900">Auto SOAP Generation</h4>
+                  <p className="text-sm text-green-700">Transform conversations into structured medical documentation</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3 p-4 bg-red-50 rounded-lg">
+                <Mic className="w-6 h-6 text-red-600 mt-1" />
+                <div>
+                  <h4 className="font-semibold text-red-900">Real-time Transcription</h4>
+                  <p className="text-sm text-red-700">Live transcription during patient encounters</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3 p-4 bg-purple-50 rounded-lg">
+                <Shield className="w-6 h-6 text-purple-600 mt-1" />
+                <div>
+                  <h4 className="font-semibold text-purple-900">HIPAA Compliant</h4>
+                  <p className="text-sm text-purple-700">Secure processing with full HIPAA compliance</p>
+                </div>
+              </div>
+            </div>
+
+            <Alert className="border-purple-200 bg-purple-50">
+              <Zap className="h-4 w-4 text-purple-600" />
+              <AlertDescription className="text-purple-800">
+                <strong>How it works:</strong> Record patient encounters with your Plaud device → Zapier automatically sends recordings to FlowIQ → AI generates SOAP notes → You review and approve
+              </AlertDescription>
+            </Alert>
+
+            <div className="flex justify-center">
+              <Button 
+                onClick={handleEnableScribeAgent}
+                size="lg"
+                className="px-8"
+              >
+                Enable Scribe iQ Agent
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Show configuration view when Scribe Agent is enabled
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Brain className="w-6 h-6 text-purple-600" />
+            <CheckCircle className="w-6 h-6 text-green-600" />
             Scribe iQ Agent Configuration
           </CardTitle>
           <CardDescription>
-            Set up AI-powered medical documentation and voice transcription
+            Configure AI-powered medical documentation and voice transcription
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Enable Scribe Agent */}
-          <div className="flex items-center justify-between p-4 border rounded-lg">
+          <div className="flex items-center justify-between p-4 border rounded-lg bg-green-50 border-green-200">
             <div className="flex items-center gap-3">
-              <Brain className="w-5 h-5 text-purple-600" />
+              <Brain className="w-5 h-5 text-green-600" />
               <div>
-                <Label className="text-base font-medium">Enable Scribe iQ Agent</Label>
-                <p className="text-sm text-gray-600">
-                  AI-powered medical documentation and SOAP note generation
+                <Label className="text-base font-medium text-green-900">Scribe iQ Agent Enabled</Label>
+                <p className="text-sm text-green-700">
+                  AI-powered medical documentation is active
                 </p>
               </div>
             </div>
@@ -88,114 +168,108 @@ export const ScribeAgentConfiguration: React.FC<ScribeAgentConfigurationProps> =
             />
           </div>
 
-          {config.enableScribeAgent && (
-            <>
-              {/* Plaud Integration */}
-              <div className="border rounded-lg p-4 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Smartphone className="w-5 h-5 text-blue-600" />
-                    <div>
-                      <Label className="text-base font-medium">Plaud Device Integration</Label>
-                      <p className="text-sm text-gray-600">
-                        Automatic transcription from Plaud recordings via Zapier
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {config.enablePlaudIntegration && (
-                      <Badge className="bg-green-100 text-green-700">
-                        <Zap className="w-3 h-3 mr-1" />
-                        Connected
-                      </Badge>
-                    )}
-                    <Switch
-                      checked={config.enablePlaudIntegration}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setShowPlaudSetup(true);
-                        } else {
-                          updateConfig({ 
-                            enablePlaudIntegration: false,
-                            zapierWebhookUrl: ''
-                          });
-                        }
-                      }}
-                    />
-                  </div>
+          {/* Plaud Integration */}
+          <div className="border rounded-lg p-4 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Smartphone className="w-5 h-5 text-blue-600" />
+                <div>
+                  <Label className="text-base font-medium">Plaud Device Integration</Label>
+                  <p className="text-sm text-gray-600">
+                    Automatic transcription from Plaud recordings via Zapier
+                  </p>
                 </div>
-
+              </div>
+              <div className="flex items-center gap-2">
                 {config.enablePlaudIntegration && (
-                  <Alert className="border-blue-200 bg-blue-50">
-                    <Shield className="h-4 w-4 text-blue-600" />
-                    <AlertDescription className="text-blue-800">
-                      <strong>Automatic Workflow Active:</strong> Plaud recordings will automatically generate SOAP notes via Zapier integration.
-                    </AlertDescription>
-                  </Alert>
+                  <Badge className="bg-green-100 text-green-700">
+                    <Zap className="w-3 h-3 mr-1" />
+                    Connected
+                  </Badge>
                 )}
-
-                {!config.enablePlaudIntegration && (
-                  <Button 
-                    variant="outline" 
-                    onClick={() => setShowPlaudSetup(true)}
-                    className="w-full"
-                  >
-                    <Smartphone className="w-4 h-4 mr-2" />
-                    Set Up Plaud Integration
-                  </Button>
-                )}
+                <Switch
+                  checked={config.enablePlaudIntegration}
+                  onCheckedChange={(checked) => {
+                    if (checked) {
+                      setShowPlaudSetup(true);
+                    } else {
+                      updateConfig({ 
+                        enablePlaudIntegration: false,
+                        zapierWebhookUrl: ''
+                      });
+                    }
+                  }}
+                />
               </div>
+            </div>
 
-              {/* Additional Scribe Features */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <FileText className="w-4 h-4 text-green-600" />
-                    <div>
-                      <Label className="text-sm font-medium">Auto SOAP Generation</Label>
-                      <p className="text-xs text-gray-600">Automatically generate SOAP notes from transcriptions</p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={config.autoSOAPGeneration}
-                    onCheckedChange={(checked) => updateConfig({ autoSOAPGeneration: checked })}
-                  />
-                </div>
+            {config.enablePlaudIntegration && (
+              <Alert className="border-blue-200 bg-blue-50">
+                <Shield className="h-4 w-4 text-blue-600" />
+                <AlertDescription className="text-blue-800">
+                  <strong>Automatic Workflow Active:</strong> Plaud recordings will automatically generate SOAP notes via Zapier integration.
+                </AlertDescription>
+              </Alert>
+            )}
 
-                <div className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Mic className="w-4 h-4 text-red-600" />
-                    <div>
-                      <Label className="text-sm font-medium">Real-time Transcription</Label>
-                      <p className="text-xs text-gray-600">Live transcription during patient encounters</p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={config.realTimeTranscription}
-                    onCheckedChange={(checked) => updateConfig({ realTimeTranscription: checked })}
-                  />
+            {!config.enablePlaudIntegration && (
+              <Button 
+                variant="outline" 
+                onClick={() => setShowPlaudSetup(true)}
+                className="w-full"
+              >
+                <Smartphone className="w-4 h-4 mr-2" />
+                Set Up Plaud Integration
+              </Button>
+            )}
+          </div>
+
+          {/* Additional Scribe Features */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-3 border rounded-lg">
+              <div className="flex items-center gap-3">
+                <FileText className="w-4 h-4 text-green-600" />
+                <div>
+                  <Label className="text-sm font-medium">Auto SOAP Generation</Label>
+                  <p className="text-xs text-gray-600">Automatically generate SOAP notes from transcriptions</p>
                 </div>
               </div>
-            </>
-          )}
+              <Switch
+                checked={config.autoSOAPGeneration}
+                onCheckedChange={(checked) => updateConfig({ autoSOAPGeneration: checked })}
+              />
+            </div>
+
+            <div className="flex items-center justify-between p-3 border rounded-lg">
+              <div className="flex items-center gap-3">
+                <Mic className="w-4 h-4 text-red-600" />
+                <div>
+                  <Label className="text-sm font-medium">Real-time Transcription</Label>
+                  <p className="text-xs text-gray-600">Live transcription during patient encounters</p>
+                </div>
+              </div>
+              <Switch
+                checked={config.realTimeTranscription}
+                onCheckedChange={(checked) => updateConfig({ realTimeTranscription: checked })}
+              />
+            </div>
+          </div>
         </CardContent>
       </Card>
 
-      {config.enableScribeAgent && (
-        <Alert className="border-purple-200 bg-purple-50">
-          <Brain className="h-4 w-4 text-purple-600" />
-          <AlertDescription className="text-purple-800">
-            <strong>Scribe iQ Features Enabled:</strong>
-            <ul className="mt-2 space-y-1 text-sm">
-              <li>• AI-powered medical transcription</li>
-              <li>• Automatic SOAP note generation</li>
-              <li>• HIPAA-compliant processing</li>
-              {config.enablePlaudIntegration && <li>• Automatic Plaud device integration</li>}
-              {config.realTimeTranscription && <li>• Real-time transcription capabilities</li>}
-            </ul>
-          </AlertDescription>
-        </Alert>
-      )}
+      <Alert className="border-purple-200 bg-purple-50">
+        <Brain className="h-4 w-4 text-purple-600" />
+        <AlertDescription className="text-purple-800">
+          <strong>Scribe iQ Features Enabled:</strong>
+          <ul className="mt-2 space-y-1 text-sm">
+            <li>• AI-powered medical transcription</li>
+            <li>• Automatic SOAP note generation</li>
+            <li>• HIPAA-compliant processing</li>
+            {config.enablePlaudIntegration && <li>• Automatic Plaud device integration</li>}
+            {config.realTimeTranscription && <li>• Real-time transcription capabilities</li>}
+          </ul>
+        </AlertDescription>
+      </Alert>
     </div>
   );
 };
