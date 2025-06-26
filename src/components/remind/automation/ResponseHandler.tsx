@@ -5,13 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
+import { AIResponseClassifier } from "./AIResponseClassifier";
 import { 
   MessageSquare, 
   CheckCircle, 
   XCircle, 
   Clock, 
   RefreshCw,
-  Brain
+  Brain,
+  TrendingUp
 } from "lucide-react";
 
 interface IncomingResponse {
@@ -179,6 +181,9 @@ export const ResponseHandler = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* AI Response Classifier Component */}
+      <AIResponseClassifier />
 
       {/* Responses List */}
       <Card>

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
+import { SmartTimingEngine } from "./SmartTimingEngine";
 import { 
   Clock, 
   TrendingUp, 
@@ -116,39 +117,8 @@ export const SmartScheduler = () => {
         </Card>
       </div>
 
-      {/* Optimal Times */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Optimal Send Times</CardTitle>
-          <CardDescription>
-            AI-identified best times for different patient segments
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {optimalTimes.map((time, index) => (
-              <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex items-center gap-3">
-                  <Clock className="w-5 h-5 text-blue-600" />
-                  <div>
-                    <p className="font-medium">
-                      {time.hour}:00 - {time.patientType}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Optimal time for this patient segment
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge className="bg-green-100 text-green-700">
-                    {time.successRate}% success rate
-                  </Badge>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Smart Timing Engine Component */}
+      <SmartTimingEngine />
 
       {/* Actions */}
       <Card>

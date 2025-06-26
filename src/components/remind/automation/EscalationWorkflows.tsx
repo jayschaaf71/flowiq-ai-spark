@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { EscalationRuleBuilder } from "./EscalationRuleBuilder";
 import { 
   AlertTriangle, 
   Users, 
@@ -174,41 +175,8 @@ export const EscalationWorkflows = () => {
         </Card>
       </div>
 
-      {/* Escalation Rules */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Escalation Rules</CardTitle>
-          <CardDescription>
-            Configure automated workflows for different scenarios
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {rules.map((rule) => (
-              <div key={rule.id} className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex items-center gap-3">
-                  {getActionIcon(rule.action)}
-                  <div>
-                    <p className="font-medium">{rule.name}</p>
-                    <p className="text-sm text-gray-600">
-                      Trigger after {rule.timeDelay} hours of {rule.trigger.replace('_', ' ')}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant={rule.isActive ? "default" : "secondary"}>
-                    {rule.isActive ? "Active" : "Inactive"}
-                  </Badge>
-                  <Switch
-                    checked={rule.isActive}
-                    onCheckedChange={() => toggleRule(rule.id)}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Escalation Rule Builder Component */}
+      <EscalationRuleBuilder />
 
       {/* Active Cases */}
       <Card>
