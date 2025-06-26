@@ -20,18 +20,56 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
     if (req.method === 'POST') {
-      // Handle webhook from Plaud when new recording is available
+      // Handle webhook from Plaud Cloud when new recording is available
       const webhook = await req.json();
       
       console.log('Plaud webhook received:', webhook);
       
-      // Process the new recording
-      const { recordingId, userId, downloadUrl, filename, duration } = webhook;
+      // Real Plaud webhook structure
+      const { 
+        event_type,
+        recording: {
+          id: recordingId,
+          filename,
+          duration,
+          created_at,
+          download_url,
+          device_id,
+          user_id: plaudUserId
+        }
+      } = webhook;
+
+      if (event_type !== 'recording.created') {
+        return new Response(JSON.stringify({ message: 'Event ignored' }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
+      // Find the FlowIQ user associated with this Plaud device
+      const { data: userConfig, error: configError } = await supabase
+        .from('integration_settings')
+        .select('user_id, settings')
+        .eq('provider', 'plaud')
+        .eq('is_active', true);
+
+      if (configError || !userConfig || userConfig.length === 0) {
+        throw new Error('No active Plaud integration found');
+      }
+
+      // Find matching user (you might need to store device_id mapping)
+      const flowiqUserId = userConfig[0].user_id;
+      const plaudConfig = userConfig[0].settings;
       
-      // Download the audio file
-      const audioResponse = await fetch(downloadUrl);
+      // Download the audio file from Plaud Cloud
+      const audioResponse = await fetch(download_url, {
+        headers: { 
+          'Authorization': `Bearer ${plaudConfig.apiKey}`,
+          'X-API-Version': '2024-01'
+        }
+      });
+      
       if (!audioResponse.ok) {
-        throw new Error('Failed to download recording from Plaud');
+        throw new Error('Failed to download recording from Plaud Cloud');
       }
       
       const audioBlob = await audioResponse.blob();
@@ -47,13 +85,14 @@ serve(async (req) => {
         },
         body: JSON.stringify({
           audio: base64Audio,
-          userId: userId,
+          userId: flowiqUserId,
           source: 'plaud',
           metadata: {
             recordingId,
             filename,
             duration,
-            originalUrl: downloadUrl
+            deviceId: device_id,
+            originalUrl: download_url
           }
         })
       });
@@ -68,7 +107,7 @@ serve(async (req) => {
       const { error: dbError } = await supabase
         .from('voice_recordings')
         .insert({
-          user_id: userId,
+          user_id: flowiqUserId,
           source: 'plaud',
           external_id: recordingId,
           filename: filename,
@@ -76,8 +115,10 @@ serve(async (req) => {
           transcription: transcriptionResult.transcription,
           processed_at: new Date().toISOString(),
           metadata: {
-            originalUrl: downloadUrl,
-            plaudRecordingId: recordingId
+            originalUrl: download_url,
+            plaudRecordingId: recordingId,
+            deviceId: device_id,
+            plaudUserId: plaudUserId
           }
         });
       
@@ -85,8 +126,7 @@ serve(async (req) => {
         throw dbError;
       }
       
-      // Optionally trigger notification to user
-      // You could send a real-time notification here
+      console.log(`Successfully processed recording ${recordingId} for user ${flowiqUserId}`);
       
       return new Response(
         JSON.stringify({ 
@@ -98,36 +138,13 @@ serve(async (req) => {
       );
       
     } else if (req.method === 'GET') {
-      // Handle polling requests from frontend
-      const url = new URL(req.url);
-      const userId = url.searchParams.get('userId');
-      const since = url.searchParams.get('since');
-      
-      if (!userId) {
-        throw new Error('userId parameter required');
-      }
-      
-      // Get recent recordings for the user
-      let query = supabase
-        .from('voice_recordings')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('source', 'plaud')
-        .order('created_at', { ascending: false })
-        .limit(50);
-      
-      if (since) {
-        query = query.gt('created_at', since);
-      }
-      
-      const { data: recordings, error } = await query;
-      
-      if (error) {
-        throw error;
-      }
-      
+      // Health check endpoint
       return new Response(
-        JSON.stringify({ recordings: recordings || [] }),
+        JSON.stringify({ 
+          status: 'healthy',
+          timestamp: new Date().toISOString(),
+          service: 'plaud-webhook'
+        }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }

@@ -41,24 +41,36 @@ export const usePlaudSync = (config: PlaudConfig | null, isConnected: boolean) =
     if (!config?.apiKey) return [];
 
     try {
-      // Call Plaud API to get new recordings
-      const response = await fetch('/api/plaud/recordings', {
+      // Use actual Plaud Cloud API endpoint
+      const response = await fetch('https://api.plaud.ai/v1/recordings', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${config.apiKey}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'X-API-Version': '2024-01'
         }
       });
 
-      if (!response.ok) throw new Error('Failed to fetch recordings');
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Invalid API key. Please check your Plaud Cloud credentials.');
+        }
+        throw new Error(`Plaud API error: ${response.status} ${response.statusText}`);
+      }
 
-      const newRecordings = await response.json();
+      const data = await response.json();
+      const recordings = data.recordings || [];
       const processedRecordings: PlaudRecording[] = [];
       
       // Process new recordings through our AI transcription
-      for (const recording of newRecordings) {
-        const processed = await processNewRecording(recording, config);
-        processedRecordings.push(processed);
+      for (const recording of recordings) {
+        // Check if we've already processed this recording
+        const isNewRecording = !recording.processed_by_flowiq;
+        
+        if (isNewRecording) {
+          const processed = await processNewRecording(recording, config);
+          processedRecordings.push(processed);
+        }
       }
 
       return processedRecordings;

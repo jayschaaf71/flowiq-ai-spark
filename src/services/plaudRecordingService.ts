@@ -1,15 +1,28 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { PlaudRecording, PlaudConfig } from '@/types/plaud';
 
 export const processNewRecording = async (recording: any, config: PlaudConfig): Promise<PlaudRecording> => {
   try {
-    // Download audio file from Plaud
-    const audioResponse = await fetch(recording.downloadUrl, {
-      headers: { 'Authorization': `Bearer ${config.apiKey}` }
+    // Real Plaud API structure
+    const { 
+      id, 
+      filename, 
+      duration, 
+      created_at, 
+      download_url,
+      file_size,
+      device_id 
+    } = recording;
+
+    // Download audio file from Plaud Cloud
+    const audioResponse = await fetch(download_url, {
+      headers: { 
+        'Authorization': `Bearer ${config.apiKey}`,
+        'X-API-Version': '2024-01'
+      }
     });
 
-    if (!audioResponse.ok) throw new Error('Failed to download recording');
+    if (!audioResponse.ok) throw new Error('Failed to download recording from Plaud Cloud');
 
     const audioBlob = await audioResponse.blob();
     
@@ -33,7 +46,12 @@ export const processNewRecording = async (recording: any, config: PlaudConfig): 
         audio: base64Audio,
         userId: user.id,
         source: 'plaud',
-        recordingId: recording.id
+        recordingId: id,
+        metadata: {
+          device_id,
+          file_size,
+          original_filename: filename
+        }
       }
     });
 
@@ -45,24 +63,29 @@ export const processNewRecording = async (recording: any, config: PlaudConfig): 
       .insert({
         user_id: user.id,
         source: 'plaud',
-        external_id: recording.id,
-        filename: recording.filename,
-        duration: recording.duration,
+        external_id: id,
+        filename: filename,
+        duration: duration,
         transcription: data.transcription,
         processed_at: new Date().toISOString(),
         metadata: {
-          originalUrl: recording.downloadUrl,
-          plaudRecordingId: recording.id
+          originalUrl: download_url,
+          plaudRecordingId: id,
+          deviceId: device_id,
+          fileSize: file_size
         }
       });
 
     if (dbError) throw dbError;
 
+    // Mark as processed in Plaud Cloud (if their API supports it)
+    await markRecordingAsProcessed(id, config.apiKey);
+
     return {
-      id: recording.id,
-      filename: recording.filename,
-      duration: recording.duration,
-      timestamp: recording.timestamp,
+      id: id,
+      filename: filename,
+      duration: duration,
+      timestamp: created_at,
       processed: true,
       transcription: data.transcription
     };
@@ -74,9 +97,29 @@ export const processNewRecording = async (recording: any, config: PlaudConfig): 
       id: recording.id,
       filename: recording.filename,
       duration: recording.duration,
-      timestamp: recording.timestamp,
+      timestamp: recording.created_at || recording.timestamp,
       processed: false
     };
+  }
+};
+
+const markRecordingAsProcessed = async (recordingId: string, apiKey: string) => {
+  try {
+    await fetch(`https://api.plaud.ai/v1/recordings/${recordingId}/metadata`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        'X-API-Version': '2024-01'
+      },
+      body: JSON.stringify({
+        processed_by_flowiq: true,
+        processed_at: new Date().toISOString()
+      })
+    });
+  } catch (error) {
+    console.log('Could not mark recording as processed:', error);
+    // This is optional, so we don't throw
   }
 };
 

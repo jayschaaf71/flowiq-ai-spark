@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,6 +32,7 @@ export const PlaudIntegration = () => {
   const [apiKey, setApiKey] = useState("");
   const [autoSync, setAutoSync] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
 
   // Update local state when config changes
   useEffect(() => {
@@ -57,16 +57,35 @@ export const PlaudIntegration = () => {
 
   const connectToPlaud = async () => {
     if (!apiKey) {
+      setConnectionError("Please enter your Plaud Cloud API key");
       return;
     }
 
-    const newConfig = {
-      apiKey,
-      webhookUrl: `${window.location.origin}/api/plaud/webhook`,
-      autoSync
-    };
+    setConnectionError(null);
+    
+    try {
+      // Test the API key by making a simple request
+      const testResponse = await fetch('https://api.plaud.ai/v1/user/profile', {
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'X-API-Version': '2024-01'
+        }
+      });
 
-    await savePlaudConfig(newConfig);
+      if (!testResponse.ok) {
+        throw new Error('Invalid API key or connection failed');
+      }
+
+      const newConfig = {
+        apiKey,
+        webhookUrl: `https://jzusvsbkprwkjhhozaup.supabase.co/functions/v1/plaud-webhook`,
+        autoSync
+      };
+
+      await savePlaudConfig(newConfig);
+    } catch (error) {
+      setConnectionError(error instanceof Error ? error.message : 'Connection failed');
+    }
   };
 
   const handleAutoSyncChange = async (checked: boolean) => {
@@ -101,7 +120,7 @@ export const PlaudIntegration = () => {
           {!isConnected ? (
             <div className="space-y-4">
               <div>
-                <Label htmlFor="plaud-api-key">Plaud API Key</Label>
+                <Label htmlFor="plaud-api-key">Plaud Cloud API Key</Label>
                 <Input
                   id="plaud-api-key"
                   type="password"
@@ -109,6 +128,9 @@ export const PlaudIntegration = () => {
                   onChange={(e) => setApiKey(e.target.value)}
                   placeholder="Enter your Plaud Cloud API key"
                 />
+                {connectionError && (
+                  <p className="text-sm text-red-600 mt-1">{connectionError}</p>
+                )}
               </div>
               <Button onClick={connectToPlaud} disabled={!apiKey}>
                 <Cloud className="w-4 h-4 mr-2" />
@@ -116,30 +138,43 @@ export const PlaudIntegration = () => {
               </Button>
             </div>
           ) : (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-green-600">
-                <CheckCircle className="w-4 h-4" />
-                <span>Connected to Plaud Cloud</span>
-                {isPolling && (
-                  <Badge variant="outline" className="bg-blue-50 text-blue-700">
-                    <Wifi className="w-3 h-3 mr-1" />
-                    Auto-syncing
-                  </Badge>
-                )}
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <Label htmlFor="auto-sync">Auto-sync recordings</Label>
-                  <Switch
-                    id="auto-sync"
-                    checked={autoSync}
-                    onCheckedChange={handleAutoSyncChange}
-                  />
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-green-600">
+                  <CheckCircle className="w-4 h-4" />
+                  <span>Connected to Plaud Cloud</span>
+                  {isPolling && (
+                    <Badge variant="outline" className="bg-blue-50 text-blue-700">
+                      <Wifi className="w-3 h-3 mr-1" />
+                      Auto-syncing
+                    </Badge>
+                  )}
                 </div>
-                <Button variant="outline" size="sm" onClick={manualSync}>
-                  <Settings className="w-4 h-4 mr-2" />
-                  Manual Sync
-                </Button>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="auto-sync">Auto-sync recordings</Label>
+                    <Switch
+                      id="auto-sync"
+                      checked={autoSync}
+                      onCheckedChange={handleAutoSyncChange}
+                    />
+                  </div>
+                  <Button variant="outline" size="sm" onClick={manualSync}>
+                    <Settings className="w-4 h-4 mr-2" />
+                    Manual Sync
+                  </Button>
+                </div>
+              </div>
+              
+              {/* Webhook URL Info */}
+              <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <p className="text-sm font-medium text-blue-900 mb-1">Webhook URL</p>
+                <p className="text-xs text-blue-700 font-mono break-all">
+                  https://jzusvsbkprwkjhhozaup.supabase.co/functions/v1/plaud-webhook
+                </p>
+                <p className="text-xs text-blue-600 mt-1">
+                  Configure this URL in your Plaud Cloud dashboard for automatic sync
+                </p>
               </div>
             </div>
           )}
