@@ -1,6 +1,5 @@
 
 import { useState } from "react";
-import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -17,8 +16,8 @@ const ScribeIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
 
   return (
-    <Layout>
-      <SOAPProvider>
+    <SOAPProvider>
+      <div className="space-y-6">
         <PageHeader 
           title="Scribe iQ"
           subtitle="AI-powered medical documentation and voice transcription with HIPAA compliance"
@@ -68,8 +67,8 @@ const ScribeIQ = () => {
             </TabsContent>
           </Tabs>
         </div>
-      </SOAPProvider>
-    </Layout>
+      </div>
+    </SOAPProvider>
   );
 };
 

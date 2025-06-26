@@ -1,6 +1,5 @@
 
 import { useState } from "react";
-import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +16,7 @@ const ClaimsIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
 
   return (
-    <Layout>
+    <div className="space-y-6">
       <PageHeader 
         title="Claims iQ"
         subtitle="AI-powered claims processing with intelligent validation and revenue optimization"
@@ -105,7 +104,7 @@ const ClaimsIQ = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </Layout>
+    </div>
   );
 };
 

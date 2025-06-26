@@ -1,5 +1,4 @@
 
-import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ClipboardList, Brain } from "lucide-react";
@@ -7,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 
 const IntakeIQ = () => {
   return (
-    <Layout>
+    <div className="space-y-6">
       <PageHeader 
         title="Intake iQ"
         subtitle="AI-driven patient intake and form processing"
@@ -34,7 +33,7 @@ const IntakeIQ = () => {
           </CardContent>
         </Card>
       </div>
-    </Layout>
+    </div>
   );
 };
 
