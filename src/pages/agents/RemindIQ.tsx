@@ -1,7 +1,9 @@
+
 import { useState } from "react";
 import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bell, MessageSquare, Calendar, TrendingUp, Settings, Brain } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { MessageTemplates } from "@/components/remind/MessageTemplates";
