@@ -42,7 +42,7 @@ const availableAgents = [
   },
   {
     id: 'remind-iq',
-    name: 'Remind iQ',
+    name: 'Reminders iQ',
     description: 'Automated appointment reminders and follow-up communications',
     icon: Bell,
     benefits: ['Reduces no-shows by 40%', 'Customizable reminder templates', 'Multi-channel messaging'],

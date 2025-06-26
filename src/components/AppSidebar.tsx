@@ -55,7 +55,7 @@ export const AppSidebar = () => {
   const aiAgents = [
     { icon: Calendar, label: "Schedule iQ", path: "/agents/schedule", badge: "AI" },
     { icon: ClipboardList, label: "Intake iQ", path: "/agents/intake", badge: "AI" },
-    { icon: Bell, label: "Remind iQ", path: "/agents/remind", badge: "AI" },
+    { icon: Bell, label: "Reminders iQ", path: "/agents/remind", badge: "AI" },
     { icon: Stethoscope, label: "Scribe iQ", path: "/agents/scribe", badge: "AI" },
     { icon: Receipt, label: "Claims iQ", path: "/agents/claims", badge: "AI" },
     { icon: CreditCard, label: "Billing iQ", path: "/agents/billing", badge: "AI" },

@@ -15,7 +15,7 @@ const RemindIQ = () => {
   return (
     <div className="space-y-6">
       <PageHeader 
-        title="Remind iQ"
+        title="Reminders iQ"
         subtitle="AI-powered appointment reminders and patient notifications"
       >
         <Badge className="bg-blue-100 text-blue-700">AI Agent</Badge>
