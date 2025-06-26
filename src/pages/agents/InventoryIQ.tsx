@@ -324,39 +324,41 @@ export default function InventoryIQ() {
                   Add Item
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="sm:max-w-md bg-white">
                 <DialogHeader>
-                  <DialogTitle>Add New Item</DialogTitle>
-                  <DialogDescription>
+                  <DialogTitle className="text-gray-900">Add New Item</DialogTitle>
+                  <DialogDescription className="text-gray-600">
                     Add a new item to your inventory
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="name">Item Name</Label>
+                    <Label htmlFor="name" className="text-gray-700">Item Name</Label>
                     <Input
                       id="name"
                       value={newItem.name}
                       onChange={(e) => setNewItem({...newItem, name: e.target.value})}
                       placeholder="Enter item name"
+                      className="mt-1"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="sku">SKU</Label>
+                    <Label htmlFor="sku" className="text-gray-700">SKU</Label>
                     <Input
                       id="sku"
                       value={newItem.sku}
                       onChange={(e) => setNewItem({...newItem, sku: e.target.value})}
                       placeholder="Enter SKU"
+                      className="mt-1"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="category">Category</Label>
+                    <Label htmlFor="category" className="text-gray-700">Category</Label>
                     <Select value={newItem.category} onValueChange={(value) => setNewItem({...newItem, category: value})}>
-                      <SelectTrigger>
+                      <SelectTrigger className="mt-1">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white">
                         <SelectItem value="clinical">Clinical</SelectItem>
                         <SelectItem value="office">Office</SelectItem>
                         <SelectItem value="retail">Retail</SelectItem>
@@ -365,23 +367,25 @@ export default function InventoryIQ() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="currentStock">Current Stock</Label>
+                      <Label htmlFor="currentStock" className="text-gray-700">Current Stock</Label>
                       <Input
                         id="currentStock"
                         type="number"
                         value={newItem.currentStock}
                         onChange={(e) => setNewItem({...newItem, currentStock: e.target.value})}
                         placeholder="0"
+                        className="mt-1"
                       />
                     </div>
                     <div>
-                      <Label htmlFor="reorderPoint">Reorder Point</Label>
+                      <Label htmlFor="reorderPoint" className="text-gray-700">Reorder Point</Label>
                       <Input
                         id="reorderPoint"
                         type="number"
                         value={newItem.reorderPoint}
                         onChange={(e) => setNewItem({...newItem, reorderPoint: e.target.value})}
                         placeholder="0"
+                        className="mt-1"
                       />
                     </div>
                   </div>
