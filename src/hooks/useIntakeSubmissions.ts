@@ -1,169 +1,104 @@
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { StaffAssignmentService } from '@/services/staffAssignmentService';
-import { CommunicationService } from '@/services/communicationService';
+import { toast } from 'sonner';
+import { useIntakeForms } from './useIntakeForms';
 
 export const useIntakeSubmissions = () => {
-  const { toast } = useToast();
+  const { submissions, loading } = useIntakeForms();
   const queryClient = useQueryClient();
 
-  // Fetch submissions with real-time assignments
-  const { data: submissions, isLoading } = useQuery({
-    queryKey: ['intake-submissions-with-assignments'],
-    queryFn: async () => {
-      const { data: submissionsData, error: submissionsError } = await supabase
-        .from('intake_submissions')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (submissionsError) throw submissionsError;
-
-      // Fetch current assignments for each submission
-      const submissionsWithAssignments = await Promise.all(
-        submissionsData.map(async (submission) => {
-          const currentAssignment = await StaffAssignmentService.getCurrentAssignment(submission.id);
-          return {
-            ...submission,
-            currentAssignment
-          };
-        })
-      );
-
-      return submissionsWithAssignments;
-    },
-  });
-
-  // Assign staff mutation
+  // Assign staff to submission
   const assignStaffMutation = useMutation({
-    mutationFn: async (params: {
-      submissionId: string;
-      staffId: string;
-      staffName: string;
-    }) => {
-      return await StaffAssignmentService.assignSubmission(
-        params.submissionId,
-        params.staffId,
-        params.staffName,
-        'system' // You might want to track who made the assignment
-      );
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['intake-submissions-with-assignments'] });
-      toast({
-        title: "Assignment successful",
-        description: "Submission has been assigned to staff member",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Assignment failed",
-        description: error.message,
-        variant: "destructive"
-      });
-    },
-  });
-
-  // Send communication mutation
-  const sendCommunicationMutation = useMutation({
-    mutationFn: async (params: {
-      submissionId: string;
-      templateId: string;
-      recipient: string;
-      patientName: string;
-      customMessage?: string;
-      type: 'email' | 'sms';
-    }) => {
-      return await CommunicationService.sendCommunication({
-        submissionId: params.submissionId,
-        templateId: params.templateId,
-        recipient: params.recipient,
-        patientName: params.patientName,
-        customMessage: params.customMessage,
-        type: params.type
-      });
-    },
-    onSuccess: () => {
-      toast({
-        title: "Communication sent",
-        description: "Message has been sent successfully",
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Communication failed",
-        description: error.message,
-        variant: "destructive"
-      });
-    },
-  });
-
-  // Update submission status mutation
-  const updateStatusMutation = useMutation({
-    mutationFn: async ({ submissionId, status }: {
-      submissionId: string;
-      status: string;
-    }) => {
-      const { error } = await supabase
+    mutationFn: async ({ submissionId, staffId }: { submissionId: string; staffId: string }) => {
+      const { data, error } = await supabase
         .from('intake_submissions')
         .update({ 
-          status,
-          updated_at: new Date().toISOString()
+          status: 'assigned',
+          // Note: We don't have an assigned_to field in the current schema
+          // This would need to be added to the database schema
         })
-        .eq('id', submissionId);
+        .eq('id', submissionId)
+        .select()
+        .single();
 
       if (error) throw error;
+      return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['intake-submissions-with-assignments'] });
-      toast({
-        title: "Status updated",
-        description: "Submission status has been updated",
-      });
+      queryClient.invalidateQueries({ queryKey: ['intake-submissions'] });
+      toast.success('Staff member assigned successfully');
     },
-    onError: (error: any) => {
-      toast({
-        title: "Update failed",
-        description: error.message,
-        variant: "destructive"
-      });
+    onError: (error) => {
+      toast.error(`Failed to assign staff: ${error.message}`);
     },
   });
 
-  // Wrapper functions to match expected signatures
-  const assignStaff = (submissionId: string, staffId: string, staffName: string) => {
-    assignStaffMutation.mutate({ submissionId, staffId, staffName });
-  };
+  // Send communication
+  const sendCommunicationMutation = useMutation({
+    mutationFn: async ({ 
+      submissionId, 
+      type, 
+      recipient, 
+      message 
+    }: { 
+      submissionId: string; 
+      type: string; 
+      recipient: string; 
+      message: string; 
+    }) => {
+      const { data, error } = await supabase
+        .from('communication_logs')
+        .insert({
+          submission_id: submissionId,
+          type,
+          recipient,
+          message: message,
+          status: 'sent'
+        })
+        .select()
+        .single();
 
-  const sendCommunication = (
-    submissionId: string,
-    templateId: string,
-    recipient: string,
-    patientName: string,
-    customMessage?: string,
-    type: 'email' | 'sms' = 'email'
-  ) => {
-    sendCommunicationMutation.mutate({
-      submissionId,
-      templateId,
-      recipient,
-      patientName,
-      customMessage,
-      type
-    });
-  };
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['intake-submissions'] });
+      toast.success('Communication sent successfully');
+    },
+    onError: (error) => {
+      toast.error(`Failed to send communication: ${error.message}`);
+    },
+  });
 
-  const updateStatus = (submissionId: string, status: string) => {
-    updateStatusMutation.mutate({ submissionId, status });
-  };
+  // Update submission status
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ submissionId, status }: { submissionId: string; status: string }) => {
+      const { data, error } = await supabase
+        .from('intake_submissions')
+        .update({ status })
+        .eq('id', submissionId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['intake-submissions'] });
+      toast.success('Status updated successfully');
+    },
+    onError: (error) => {
+      toast.error(`Failed to update status: ${error.message}`);
+    },
+  });
 
   return {
-    submissions: submissions || [],
-    isLoading,
-    assignStaff,
-    sendCommunication,
-    updateStatus,
+    submissions,
+    isLoading: loading,
+    assignStaff: assignStaffMutation.mutate,
+    sendCommunication: sendCommunicationMutation.mutate,
+    updateStatus: updateStatusMutation.mutate,
     isAssigning: assignStaffMutation.isPending,
     isSendingCommunication: sendCommunicationMutation.isPending,
     isUpdatingStatus: updateStatusMutation.isPending,

@@ -1,38 +1,79 @@
 
+import { useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ClipboardList, Brain } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { IntakeDashboard } from "@/components/intake/IntakeDashboard";
+import { EnhancedIntakeDashboard } from "@/components/intake/EnhancedIntakeDashboard";
+import { StaffIntakeDashboard } from "@/components/intake/StaffIntakeDashboard";
+import { PatientRegistration } from "@/components/intake/PatientRegistration";
+import { FormBuilder } from "@/components/intake/FormBuilder";
+import { FormSubmissionsList } from "@/components/intake/FormSubmissionsList";
+import { IntakeAnalyticsDashboard } from "@/components/intake/IntakeAnalyticsDashboard";
+import { EnhancedAnalyticsDashboard } from "@/components/intake/EnhancedAnalyticsDashboard";
+import { useIntakeForms } from "@/hooks/useIntakeForms";
 
 const IntakeIQ = () => {
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const { forms, submissions, loading } = useIntakeForms();
+
+  // Listen for tab change events from dashboard buttons
+  useState(() => {
+    const handleTabChange = (event: CustomEvent) => {
+      setActiveTab(event.detail);
+    };
+
+    window.addEventListener('changeIntakeTab', handleTabChange as EventListener);
+    return () => {
+      window.removeEventListener('changeIntakeTab', handleTabChange as EventListener);
+    };
+  });
+
   return (
     <div className="space-y-6">
       <PageHeader 
         title="Intake iQ"
         subtitle="AI-driven patient intake and form processing"
+        badge="AI"
       />
       
-      <div className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ClipboardList className="w-5 h-5" />
-              AI Intake Assistant
-              <Badge className="bg-blue-100 text-blue-700">AI</Badge>
-            </CardTitle>
-            <CardDescription>
-              Intelligent patient intake forms with automated processing
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-8 text-gray-500">
-              <Brain className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p className="text-lg font-medium mb-2">Intake iQ Coming Soon</p>
-              <p className="text-sm">AI-powered intake features will be available here</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+          <TabsTrigger value="patient-intake">Patient Intake</TabsTrigger>
+          <TabsTrigger value="staff-dashboard">Staff View</TabsTrigger>
+          <TabsTrigger value="builder">Form Builder</TabsTrigger>
+          <TabsTrigger value="submissions">Submissions</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="dashboard" className="space-y-4">
+          <EnhancedIntakeDashboard />
+        </TabsContent>
+
+        <TabsContent value="patient-intake" className="space-y-4">
+          <PatientRegistration />
+        </TabsContent>
+
+        <TabsContent value="staff-dashboard" className="space-y-4">
+          <StaffIntakeDashboard />
+        </TabsContent>
+
+        <TabsContent value="builder" className="space-y-4">
+          <FormBuilder />
+        </TabsContent>
+
+        <TabsContent value="submissions" className="space-y-4">
+          <FormSubmissionsList 
+            submissions={submissions}
+            onViewSubmission={(submission) => console.log('View submission:', submission)}
+            showActions={true}
+          />
+        </TabsContent>
+
+        <TabsContent value="analytics" className="space-y-4">
+          <EnhancedAnalyticsDashboard />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
