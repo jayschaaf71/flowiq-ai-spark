@@ -17,18 +17,39 @@ export interface MessageTemplate {
   created_by?: string;
 }
 
+// Mock data for development until tables are created
+const mockTemplates: MessageTemplate[] = [
+  {
+    id: '1',
+    name: '24-hour Appointment Reminder',
+    type: 'sms',
+    content: 'Hi {{patientName}}, this is a reminder of your appointment tomorrow at {{appointmentTime}}. Reply CONFIRM if you will be there.',
+    variables: ['patientName', 'appointmentTime', 'appointmentDate'],
+    category: 'appointment',
+    is_active: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: '2',
+    name: 'Appointment Confirmation Email',
+    type: 'email',
+    subject: 'Appointment Confirmation - {{appointmentDate}}',
+    content: 'Dear {{patientName}},\n\nThis email confirms your appointment on {{appointmentDate}} at {{appointmentTime}}.\n\nPlease arrive 15 minutes early.\n\nBest regards,\nYour Healthcare Team',
+    variables: ['patientName', 'appointmentDate', 'appointmentTime'],
+    category: 'appointment',
+    is_active: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  }
+];
+
 export const useMessageTemplates = () => {
   return useQuery({
     queryKey: ['message_templates'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('message_templates')
-        .select('*')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return data as MessageTemplate[];
+      // Return mock data for now
+      return mockTemplates.filter(template => template.is_active);
     },
   });
 };
@@ -39,14 +60,16 @@ export const useCreateMessageTemplate = () => {
 
   return useMutation({
     mutationFn: async (template: Omit<MessageTemplate, 'id' | 'created_at' | 'updated_at'>) => {
-      const { data, error } = await supabase
-        .from('message_templates')
-        .insert(template)
-        .select()
-        .single();
+      // Mock creation for now
+      const newTemplate = {
+        ...template,
+        id: Math.random().toString(36).substr(2, 9),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
       
-      if (error) throw error;
-      return data;
+      console.log('Mock template created:', newTemplate);
+      return newTemplate;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['message_templates'] });
@@ -71,15 +94,10 @@ export const useUpdateMessageTemplate = () => {
 
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<MessageTemplate> & { id: string }) => {
-      const { data, error } = await supabase
-        .from('message_templates')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+      // Mock update for now
+      const updatedTemplate = { id, ...updates, updated_at: new Date().toISOString() };
+      console.log('Mock template updated:', updatedTemplate);
+      return updatedTemplate;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['message_templates'] });
@@ -104,12 +122,9 @@ export const useDeleteMessageTemplate = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('message_templates')
-        .update({ is_active: false })
-        .eq('id', id);
-      
-      if (error) throw error;
+      // Mock deletion for now
+      console.log('Mock template deleted:', id);
+      return { id };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['message_templates'] });
