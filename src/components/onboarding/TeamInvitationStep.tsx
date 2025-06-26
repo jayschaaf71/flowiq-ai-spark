@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, UserPlus, Mail } from "lucide-react";
+import { Trash2, UserPlus, Mail, Check } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import { SpecialtyType } from '@/utils/specialtyConfig';
 
 interface TeamMember {
@@ -15,6 +16,8 @@ interface TeamMember {
   name: string;
   email: string;
   role: string;
+  invitationSent?: boolean;
+  invitationStatus?: 'pending' | 'sent' | 'failed';
 }
 
 interface TeamInvitationStepProps {
@@ -33,16 +36,23 @@ export const TeamInvitationStep: React.FC<TeamInvitationStepProps> = ({
   onUpdateTeamConfig
 }) => {
   const [newMember, setNewMember] = useState({ name: '', email: '', role: '' });
+  const [sendingInvitations, setSendingInvitations] = useState<Record<string, boolean>>({});
+  const { toast } = useToast();
 
   const defaultRoles = [
     'Admin',
     'Provider',
-    'Nurse',
+    'Nurse',  
     'Medical Assistant',
     'Receptionist',
     'Billing Specialist',
     'Office Manager'
   ];
+
+  const isValidEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
   const handleToggleInviteTeam = (enabled: boolean) => {
     onUpdateTeamConfig({
@@ -52,26 +62,166 @@ export const TeamInvitationStep: React.FC<TeamInvitationStepProps> = ({
   };
 
   const handleAddMember = () => {
-    if (newMember.name && newMember.email && newMember.role) {
-      const member: TeamMember = {
-        id: Date.now().toString(),
-        ...newMember
-      };
+    if (!newMember.name.trim()) {
+      toast({
+        title: "Name Required",
+        description: "Please enter the team member's name.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!newMember.email.trim()) {
+      toast({
+        title: "Email Required", 
+        description: "Please enter the team member's email address.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!isValidEmail(newMember.email)) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!newMember.role) {
+      toast({
+        title: "Role Required",
+        description: "Please select a role for the team member.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Check for duplicate email
+    const emailExists = teamConfig.teamMembers.some(member => 
+      member.email.toLowerCase() === newMember.email.toLowerCase()
+    );
+
+    if (emailExists) {
+      toast({
+        title: "Duplicate Email",
+        description: "A team member with this email address already exists.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const member: TeamMember = {
+      id: Date.now().toString(),
+      name: newMember.name.trim(),
+      email: newMember.email.trim().toLowerCase(),
+      role: newMember.role,
+      invitationSent: false,
+      invitationStatus: 'pending'
+    };
+    
+    onUpdateTeamConfig({
+      ...teamConfig,
+      teamMembers: [...teamConfig.teamMembers, member]
+    });
+    
+    setNewMember({ name: '', email: '', role: '' });
+    
+    toast({
+      title: "Team Member Added",
+      description: `${member.name} has been added to your team.`,
+    });
+  };
+
+  const handleSendInvitation = async (memberId: string) => {
+    const member = teamConfig.teamMembers.find(m => m.id === memberId);
+    if (!member) return;
+
+    setSendingInvitations(prev => ({ ...prev, [memberId]: true }));
+
+    try {
+      // Update member status to indicate invitation is being sent
+      const updatedMembers = teamConfig.teamMembers.map(m => 
+        m.id === memberId 
+          ? { ...m, invitationStatus: 'pending' as const }
+          : m
+      );
       
       onUpdateTeamConfig({
         ...teamConfig,
-        teamMembers: [...teamConfig.teamMembers, member]
+        teamMembers: updatedMembers
       });
+
+      // Simulate invitation sending (this will be handled by the main onboarding completion)
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Update member status to sent
+      const finalMembers = teamConfig.teamMembers.map(m => 
+        m.id === memberId 
+          ? { ...m, invitationSent: true, invitationStatus: 'sent' as const }
+          : m
+      );
       
-      setNewMember({ name: '', email: '', role: '' });
+      onUpdateTeamConfig({
+        ...teamConfig,
+        teamMembers: finalMembers
+      });
+
+      toast({
+        title: "Invitation Queued",
+        description: `Invitation for ${member.name} will be sent when you complete onboarding.`,
+      });
+
+    } catch (error) {
+      console.error('Error preparing invitation:', error);
+      
+      // Update member status to failed
+      const failedMembers = teamConfig.teamMembers.map(m => 
+        m.id === memberId 
+          ? { ...m, invitationStatus: 'failed' as const }
+          : m
+      );
+      
+      onUpdateTeamConfig({
+        ...teamConfig,
+        teamMembers: failedMembers
+      });
+
+      toast({
+        title: "Error",
+        description: `Failed to queue invitation for ${member.name}.`,
+        variant: "destructive"
+      });
+    } finally {
+      setSendingInvitations(prev => ({ ...prev, [memberId]: false }));
     }
   };
 
   const handleRemoveMember = (id: string) => {
+    const member = teamConfig.teamMembers.find(m => m.id === id);
     onUpdateTeamConfig({
       ...teamConfig,
       teamMembers: teamConfig.teamMembers.filter(member => member.id !== id)
     });
+    
+    if (member) {
+      toast({
+        title: "Team Member Removed",
+        description: `${member.name} has been removed from your team.`,
+      });
+    }
+  };
+
+  const getStatusBadge = (member: TeamMember) => {
+    switch (member.invitationStatus) {
+      case 'sent':
+        return <Badge className="bg-green-100 text-green-700"><Check className="w-3 h-3 mr-1" />Queued</Badge>;
+      case 'failed':
+        return <Badge variant="destructive">Failed</Badge>;
+      default:
+        return <Badge variant="secondary">Pending</Badge>;
+    }
   };
 
   return (
@@ -101,7 +251,7 @@ export const TeamInvitationStep: React.FC<TeamInvitationStepProps> = ({
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
               <div>
-                <Label htmlFor="name">Full Name</Label>
+                <Label htmlFor="name">Full Name *</Label>
                 <Input
                   id="name"
                   value={newMember.name}
@@ -110,7 +260,7 @@ export const TeamInvitationStep: React.FC<TeamInvitationStepProps> = ({
                 />
               </div>
               <div>
-                <Label htmlFor="email">Email Address</Label>
+                <Label htmlFor="email">Email Address *</Label>
                 <Input
                   id="email"
                   type="email"
@@ -120,7 +270,7 @@ export const TeamInvitationStep: React.FC<TeamInvitationStepProps> = ({
                 />
               </div>
               <div>
-                <Label htmlFor="role">Role</Label>
+                <Label htmlFor="role">Role *</Label>
                 <div className="flex gap-2">
                   <Select value={newMember.role} onValueChange={(value) => setNewMember({...newMember, role: value})}>
                     <SelectTrigger>
@@ -152,12 +302,20 @@ export const TeamInvitationStep: React.FC<TeamInvitationStepProps> = ({
                         <p className="text-sm text-gray-600">{member.email}</p>
                       </div>
                       <Badge variant="secondary">{member.role}</Badge>
+                      {getStatusBadge(member)}
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm">
-                        <Mail className="w-4 h-4 mr-2" />
-                        Invite
-                      </Button>
+                      {!member.invitationSent && (
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleSendInvitation(member.id)}
+                          disabled={sendingInvitations[member.id]}
+                        >
+                          <Mail className="w-4 h-4 mr-2" />
+                          {sendingInvitations[member.id] ? 'Queueing...' : 'Queue Invite'}
+                        </Button>
+                      )}
                       <Button 
                         variant="outline" 
                         size="sm"

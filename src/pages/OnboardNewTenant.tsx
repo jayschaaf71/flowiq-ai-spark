@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { ComprehensiveOnboardingFlow } from '@/components/onboarding/ComprehensiveOnboardingFlow';
 import { useTenantManagement } from '@/hooks/useTenantManagement';
 import { useOnboardingProgress } from '@/hooks/useOnboardingProgress';
-import { useTeamInvitations } from '@/hooks/useTeamInvitations';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -61,41 +60,74 @@ const OnboardNewTenant = () => {
 
       // Send team invitations if any
       if (onboardingData.teamConfig.inviteTeam && onboardingData.teamConfig.teamMembers.length > 0) {
+        console.log('Processing team invitations for', onboardingData.teamConfig.teamMembers.length, 'members');
+        
+        let invitationsSent = 0;
+        let invitationsFailed = 0;
+
         for (const member of onboardingData.teamConfig.teamMembers) {
           try {
-            const { error } = await supabase
+            // Parse the member name into first and last name
+            const nameParts = member.name.trim().split(' ');
+            const firstName = nameParts[0] || '';
+            const lastName = nameParts.slice(1).join(' ') || '';
+
+            // Create invitation record
+            const { data: invitationData, error: invitationError } = await supabase
               .from('team_invitations')
               .insert([{
                 tenant_id: (createdTenant as any).id,
                 invited_by: user?.id,
                 email: member.email,
-                first_name: member.firstName,
-                last_name: member.lastName,
+                first_name: firstName,
+                last_name: lastName,
                 role: member.role,
-                department: member.department,
-                personal_message: member.personalMessage,
-              }]);
+              }])
+              .select()
+              .single();
 
-            if (!error) {
-              // Send invitation email
-              await supabase.functions.invoke('send-team-invitation', {
-                body: {
-                  invitation: {
-                    email: member.email,
-                    first_name: member.firstName,
-                    last_name: member.lastName,
-                    role: member.role,
-                    department: member.department,
-                    personal_message: member.personalMessage,
-                    tenant_id: (createdTenant as any).id,
-                  },
-                  inviterName: `${user?.user_metadata?.first_name || ''} ${user?.user_metadata?.last_name || ''}`.trim() || onboardingData.practiceData.practiceName
-                }
-              });
+            if (invitationError) {
+              console.error('Error creating invitation record:', invitationError);
+              invitationsFailed++;
+              continue;
             }
+
+            // Send invitation email
+            const { error: emailError } = await supabase.functions.invoke('send-team-invitation', {
+              body: {
+                invitation: invitationData,
+                inviterName: `${user?.user_metadata?.first_name || ''} ${user?.user_metadata?.last_name || ''}`.trim() || onboardingData.practiceData.practiceName
+              }
+            });
+
+            if (emailError) {
+              console.error('Error sending team invitation email:', emailError);
+              invitationsFailed++;
+            } else {
+              invitationsSent++;
+              console.log('Successfully sent invitation to:', member.email);
+            }
+
           } catch (error) {
-            console.error('Error sending team invitation:', error);
+            console.error('Error processing team invitation for', member.email, ':', error);
+            invitationsFailed++;
           }
+        }
+
+        // Show summary of invitations
+        if (invitationsSent > 0) {
+          toast({
+            title: "Team Invitations Sent",
+            description: `Successfully sent ${invitationsSent} team invitation${invitationsSent !== 1 ? 's' : ''}.`,
+          });
+        }
+
+        if (invitationsFailed > 0) {
+          toast({
+            title: "Some Invitations Failed",
+            description: `${invitationsFailed} invitation${invitationsFailed !== 1 ? 's' : ''} could not be sent. You can resend them from team settings.`,
+            variant: "destructive"
+          });
         }
       }
 
