@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { EHRIntegrationStep } from './EHRIntegrationStep';
+import { EnhancedEHRIntegrationStep } from './ehr/EnhancedEHRIntegrationStep';
 import { SpecialtyType } from '@/utils/specialtyConfig';
 
 interface EHRConfigurationProps {
@@ -18,7 +18,7 @@ export const EHRConfiguration: React.FC<EHRConfigurationProps> = ({
   ehrConfig, 
   onEHRConfigUpdate 
 }) => {
-  // Transform the data structure to match what EHRIntegrationStep expects
+  // Transform the data structure to match what EnhancedEHRIntegrationStep expects
   const transformedConfig = {
     enableIntegration: ehrConfig.enableIntegration,
     selectedEHR: ehrConfig.ehrSystem,
@@ -39,14 +39,14 @@ export const EHRConfiguration: React.FC<EHRConfigurationProps> = ({
     // Transform back to the expected format
     const transformedBack = {
       enableIntegration: updatedConfig.enableIntegration,
-      ehrSystem: updatedConfig.selectedEHR,
-      apiEndpoint: updatedConfig.apiCredentials.endpoint
+      ehrSystem: updatedConfig.selectedEHR || '',
+      apiEndpoint: updatedConfig.apiCredentials?.endpoint || ''
     };
     onEHRConfigUpdate(transformedBack);
   };
 
   return (
-    <EHRIntegrationStep
+    <EnhancedEHRIntegrationStep
       specialty={specialty}
       ehrConfig={transformedConfig}
       onUpdateEHRConfig={handleUpdate}
