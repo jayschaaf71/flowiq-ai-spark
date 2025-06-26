@@ -1,97 +1,64 @@
+
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Clock } from "lucide-react";
 import { MessageFilters } from "./scheduled/MessageFilters";
 import { MessageStats } from "./scheduled/MessageStats";
 import { MessageCard } from "./scheduled/MessageCard";
-
-interface ScheduledMessage {
-  id: string;
-  type: "sms" | "email";
-  recipient: string;
-  recipientCount?: number;
-  subject?: string;
-  message: string;
-  scheduledFor: string;
-  status: "scheduled" | "sent" | "failed" | "cancelled";
-  campaign?: string;
-  createdAt: string;
-}
-
-const defaultMessages: ScheduledMessage[] = [
-  {
-    id: "1",
-    type: "sms",
-    recipient: "John Smith",
-    message: "Hi John, this is a reminder of your appointment tomorrow at 2:00 PM with Dr. Johnson.",
-    scheduledFor: "2024-01-16T13:00:00",
-    status: "scheduled",
-    campaign: "24hr Appointment Reminders",
-    createdAt: "2024-01-15T10:30:00"
-  },
-  {
-    id: "2",
-    type: "email",
-    recipient: "Wellness Group",
-    recipientCount: 156,
-    subject: "Monthly Wellness Newsletter",
-    message: "Dear patients, here are your personalized wellness tips for this month...",
-    scheduledFor: "2024-01-20T09:00:00",
-    status: "scheduled",
-    campaign: "Wellness Check-ins",
-    createdAt: "2024-01-15T14:20:00"
-  },
-  {
-    id: "3",
-    type: "sms",
-    recipient: "Sarah Wilson",
-    message: "Your lab results are ready. Please call our office to schedule a follow-up appointment.",
-    scheduledFor: "2024-01-15T16:00:00",
-    status: "sent",
-    createdAt: "2024-01-15T08:15:00"
-  },
-  {
-    id: "4",
-    type: "email",
-    recipient: "Mike Davis",
-    subject: "Insurance Verification Required",
-    message: "We need to verify your insurance information before your upcoming appointment...",
-    scheduledFor: "2024-01-17T10:00:00",
-    status: "scheduled",
-    createdAt: "2024-01-15T11:45:00"
-  }
-];
+import { useScheduledReminders, useSendReminderNow, useCancelReminder } from "@/hooks/useScheduledReminders";
 
 export const ScheduledMessages = () => {
   const [filter, setFilter] = useState("all");
-  const [messages, setMessages] = useState(defaultMessages);
+  
+  const { data: reminders = [], isLoading, refetch } = useScheduledReminders(filter);
+  const sendNow = useSendReminderNow();
+  const cancelReminder = useCancelReminder();
 
-  const cancelMessage = (messageId: string) => {
-    setMessages(prev => prev.map(msg => 
-      msg.id === messageId 
-        ? { ...msg, status: "cancelled" as const }
-        : msg
-    ));
+  const handleSendNow = async (reminderId: string) => {
+    try {
+      await sendNow.mutateAsync(reminderId);
+      refetch();
+    } catch (error) {
+      console.error('Failed to send reminder:', error);
+    }
   };
 
-  const sendNow = (messageId: string) => {
-    setMessages(prev => prev.map(msg => 
-      msg.id === messageId 
-        ? { ...msg, status: "sent" as const }
-        : msg
-    ));
+  const handleCancel = async (reminderId: string) => {
+    try {
+      await cancelReminder.mutateAsync(reminderId);
+      refetch();
+    } catch (error) {
+      console.error('Failed to cancel reminder:', error);
+    }
   };
 
-  const filteredMessages = messages.filter(message => {
-    if (filter === "all") return true;
-    return message.status === filter;
-  });
+  // Convert database reminders to component format
+  const messages = reminders.map(reminder => ({
+    id: reminder.id,
+    type: reminder.recipient_email ? "email" as const : "sms" as const,
+    recipient: reminder.recipient_email || reminder.recipient_phone || 'Unknown',
+    subject: reminder.recipient_email ? 'Appointment Reminder' : undefined,
+    message: reminder.message_content,
+    scheduledFor: reminder.scheduled_for,
+    status: reminder.delivery_status as "scheduled" | "sent" | "failed" | "cancelled",
+    createdAt: reminder.created_at
+  }));
 
   const upcomingCount = messages.filter(m => m.status === "scheduled").length;
   const sentToday = messages.filter(m => 
     m.status === "sent" && 
     new Date(m.scheduledFor).toDateString() === new Date().toDateString()
   ).length;
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center">Loading scheduled messages...</div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -104,17 +71,18 @@ export const ScheduledMessages = () => {
       />
 
       <div className="space-y-4">
-        {filteredMessages.map((message) => (
+        {messages.map((message) => (
           <MessageCard
             key={message.id}
             message={message}
-            onSendNow={sendNow}
-            onCancel={cancelMessage}
+            onSendNow={handleSendNow}
+            onCancel={handleCancel}
+            isLoading={sendNow.isPending || cancelReminder.isPending}
           />
         ))}
       </div>
 
-      {filteredMessages.length === 0 && (
+      {messages.length === 0 && (
         <Card>
           <CardContent className="text-center py-12">
             <Clock className="w-12 h-12 mx-auto text-gray-400 mb-4" />
