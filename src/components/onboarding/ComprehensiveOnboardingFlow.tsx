@@ -7,7 +7,7 @@ import { PracticeDetails } from './PracticeDetails';
 import { TeamConfiguration } from './TeamConfiguration';
 import { AgentConfiguration } from './AgentConfiguration';
 import { ScribeAgentConfiguration } from './ScribeAgentConfiguration';
-import { PaymentConfiguration } from './PaymentConfiguration';
+import { OnboardingPaymentStep } from './OnboardingPaymentStep';
 import { EHRConfiguration } from './EHRConfiguration';
 import { TemplateConfiguration } from './TemplateConfiguration';
 import { ReviewAndLaunch } from './ReviewAndLaunch';
@@ -181,10 +181,22 @@ export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: any) => {
 
       case 'payment':
         return (
-          <PaymentConfiguration
+          <OnboardingPaymentStep
             specialty={onboardingData.specialty || 'chiropractic'}
-            paymentConfig={onboardingData.paymentConfig}
-            onPaymentConfigUpdate={(paymentConfig) => updateOnboardingData({ paymentConfig })}
+            currentConfig={onboardingData.paymentConfig}
+            onStepComplete={(stepData) => {
+              updateOnboardingData({ paymentConfig: stepData.data });
+              nextStep();
+            }}
+            onSkipStep={() => {
+              updateOnboardingData({ 
+                paymentConfig: { 
+                  enablePayments: false, 
+                  subscriptionPlan: 'professional' 
+                }
+              });
+              nextStep();
+            }}
           />
         );
 
@@ -244,20 +256,22 @@ export const ComprehensiveOnboardingFlow = ({ onComplete, onCancel }: any) => {
         </CardHeader>
         <CardContent className="py-6 px-8">
           {renderStepContent()}
-          <div className="flex justify-between mt-8">
-            <Button
-              variant="outline"
-              onClick={prevStep}
-              disabled={currentStep === 0}
-            >
-              Previous
-            </Button>
-            <Button
-              onClick={currentStep === steps.length - 1 ? handleSubmit : nextStep}
-            >
-              {currentStep === steps.length - 1 ? 'Complete Onboarding' : 'Next'}
-            </Button>
-          </div>
+          {steps[currentStep].component !== 'payment' && steps[currentStep].component !== 'review' && (
+            <div className="flex justify-between mt-8">
+              <Button
+                variant="outline"
+                onClick={prevStep}
+                disabled={currentStep === 0}
+              >
+                Previous
+              </Button>
+              <Button
+                onClick={currentStep === steps.length - 1 ? handleSubmit : nextStep}
+              >
+                {currentStep === steps.length - 1 ? 'Complete Onboarding' : 'Next'}
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
