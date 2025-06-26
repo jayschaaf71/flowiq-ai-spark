@@ -1058,33 +1058,113 @@ export type Database = {
       }
       demo_requests: {
         Row: {
+          assigned_to: string | null
           company: string
           created_at: string
+          demo_status: string | null
           email: string
+          follow_up_sequence_step: number | null
           id: string
+          last_follow_up_sent: string | null
+          lead_score: number | null
           name: string
+          notes: string | null
+          priority_level: string | null
           role: string
+          scheduled_demo_date: string | null
           status: string | null
         }
         Insert: {
+          assigned_to?: string | null
           company: string
           created_at?: string
+          demo_status?: string | null
           email: string
+          follow_up_sequence_step?: number | null
           id?: string
+          last_follow_up_sent?: string | null
+          lead_score?: number | null
           name: string
+          notes?: string | null
+          priority_level?: string | null
           role: string
+          scheduled_demo_date?: string | null
           status?: string | null
         }
         Update: {
+          assigned_to?: string | null
           company?: string
           created_at?: string
+          demo_status?: string | null
           email?: string
+          follow_up_sequence_step?: number | null
           id?: string
+          last_follow_up_sent?: string | null
+          lead_score?: number | null
           name?: string
+          notes?: string | null
+          priority_level?: string | null
           role?: string
+          scheduled_demo_date?: string | null
           status?: string | null
         }
         Relationships: []
+      }
+      demo_schedules: {
+        Row: {
+          assigned_sales_rep: string | null
+          calendar_event_id: string | null
+          created_at: string | null
+          demo_request_id: string | null
+          duration_minutes: number | null
+          id: string
+          meeting_link: string | null
+          reminder_sent: boolean | null
+          sales_rep_email: string | null
+          sales_rep_name: string | null
+          scheduled_date: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          assigned_sales_rep?: string | null
+          calendar_event_id?: string | null
+          created_at?: string | null
+          demo_request_id?: string | null
+          duration_minutes?: number | null
+          id?: string
+          meeting_link?: string | null
+          reminder_sent?: boolean | null
+          sales_rep_email?: string | null
+          sales_rep_name?: string | null
+          scheduled_date: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          assigned_sales_rep?: string | null
+          calendar_event_id?: string | null
+          created_at?: string | null
+          demo_request_id?: string | null
+          duration_minutes?: number | null
+          id?: string
+          meeting_link?: string | null
+          reminder_sent?: boolean | null
+          sales_rep_email?: string | null
+          sales_rep_name?: string | null
+          scheduled_date?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demo_schedules_demo_request_id_fkey"
+            columns: ["demo_request_id"]
+            isOneToOne: false
+            referencedRelation: "demo_requests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       edi_transactions: {
         Row: {
@@ -1258,6 +1338,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      follow_up_sequences: {
+        Row: {
+          created_at: string | null
+          delay_hours: number
+          email_body: string
+          email_subject: string
+          email_template_id: string | null
+          id: string
+          is_active: boolean | null
+          sequence_name: string
+          step_number: number
+        }
+        Insert: {
+          created_at?: string | null
+          delay_hours: number
+          email_body: string
+          email_subject: string
+          email_template_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          sequence_name: string
+          step_number: number
+        }
+        Update: {
+          created_at?: string | null
+          delay_hours?: number
+          email_body?: string
+          email_subject?: string
+          email_template_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          sequence_name?: string
+          step_number?: number
+        }
+        Relationships: []
       }
       insurance_providers: {
         Row: {
@@ -1600,6 +1716,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      lead_scoring_rules: {
+        Row: {
+          created_at: string | null
+          field_name: string
+          field_value: string
+          id: string
+          is_active: boolean | null
+          score_points: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          field_name: string
+          field_value: string
+          id?: string
+          is_active?: boolean | null
+          score_points?: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          field_name?: string
+          field_value?: string
+          id?: string
+          is_active?: boolean | null
+          score_points?: number
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       medical_codes: {
         Row: {
@@ -2625,6 +2771,115 @@ export type Database = {
         }
         Relationships: []
       }
+      purchase_order_items: {
+        Row: {
+          created_at: string
+          id: string
+          item_name: string
+          purchase_order_id: string
+          quantity: number
+          received_quantity: number | null
+          total_price: number | null
+          unit_price: number | null
+          vendor_sku: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_name: string
+          purchase_order_id: string
+          quantity: number
+          received_quantity?: number | null
+          total_price?: number | null
+          unit_price?: number | null
+          vendor_sku?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_name?: string
+          purchase_order_id?: string
+          quantity?: number
+          received_quantity?: number | null
+          total_price?: number | null
+          unit_price?: number | null
+          vendor_sku?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_order_items_purchase_order_id_fkey"
+            columns: ["purchase_order_id"]
+            isOneToOne: false
+            referencedRelation: "purchase_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      purchase_orders: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          created_by: string | null
+          expected_delivery_date: string | null
+          id: string
+          notes: string | null
+          order_date: string | null
+          order_number: string
+          order_type: string
+          priority: string
+          status: string
+          tenant_id: string | null
+          total_amount: number | null
+          updated_at: string
+          vendor_id: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          expected_delivery_date?: string | null
+          id?: string
+          notes?: string | null
+          order_date?: string | null
+          order_number: string
+          order_type?: string
+          priority?: string
+          status?: string
+          tenant_id?: string | null
+          total_amount?: number | null
+          updated_at?: string
+          vendor_id: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          expected_delivery_date?: string | null
+          id?: string
+          notes?: string | null
+          order_date?: string | null
+          order_number?: string
+          order_type?: string
+          priority?: string
+          status?: string
+          tenant_id?: string | null
+          total_amount?: number | null
+          updated_at?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_orders_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       recurring_appointments: {
         Row: {
           appointment_type: string
@@ -2732,6 +2987,47 @@ export type Database = {
           total_collections?: number
         }
         Relationships: []
+      }
+      sales_notifications: {
+        Row: {
+          created_at: string | null
+          demo_request_id: string | null
+          error_message: string | null
+          id: string
+          notification_type: string
+          recipient_email: string
+          sent_at: string | null
+          status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          demo_request_id?: string | null
+          error_message?: string | null
+          id?: string
+          notification_type: string
+          recipient_email: string
+          sent_at?: string | null
+          status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          demo_request_id?: string | null
+          error_message?: string | null
+          id?: string
+          notification_type?: string
+          recipient_email?: string
+          sent_at?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_notifications_demo_request_id_fkey"
+            columns: ["demo_request_id"]
+            isOneToOne: false
+            referencedRelation: "demo_requests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       schedule_iq_config: {
         Row: {
@@ -3706,6 +4002,137 @@ export type Database = {
           },
         ]
       }
+      vendor_items: {
+        Row: {
+          created_at: string
+          id: string
+          is_available: boolean | null
+          item_name: string
+          last_updated: string | null
+          lead_time_days: number | null
+          minimum_order_quantity: number | null
+          tenant_id: string | null
+          vendor_id: string
+          vendor_price: number | null
+          vendor_sku: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_available?: boolean | null
+          item_name: string
+          last_updated?: string | null
+          lead_time_days?: number | null
+          minimum_order_quantity?: number | null
+          tenant_id?: string | null
+          vendor_id: string
+          vendor_price?: number | null
+          vendor_sku?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_available?: boolean | null
+          item_name?: string
+          last_updated?: string | null
+          lead_time_days?: number | null
+          minimum_order_quantity?: number | null
+          tenant_id?: string | null
+          vendor_id?: string
+          vendor_price?: number | null
+          vendor_sku?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_items_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vendors: {
+        Row: {
+          address_line1: string | null
+          address_line2: string | null
+          city: string | null
+          contact_person: string | null
+          created_at: string
+          created_by: string | null
+          email: string | null
+          id: string
+          integration_config: Json | null
+          integration_status: string | null
+          is_active: boolean
+          items_count: number | null
+          last_sync_date: string | null
+          name: string
+          payment_terms: string | null
+          phone: string | null
+          state: string | null
+          status: string
+          tax_id: string | null
+          tenant_id: string | null
+          updated_at: string
+          vendor_number: string | null
+          website: string | null
+          zip_code: string | null
+        }
+        Insert: {
+          address_line1?: string | null
+          address_line2?: string | null
+          city?: string | null
+          contact_person?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          integration_config?: Json | null
+          integration_status?: string | null
+          is_active?: boolean
+          items_count?: number | null
+          last_sync_date?: string | null
+          name: string
+          payment_terms?: string | null
+          phone?: string | null
+          state?: string | null
+          status?: string
+          tax_id?: string | null
+          tenant_id?: string | null
+          updated_at?: string
+          vendor_number?: string | null
+          website?: string | null
+          zip_code?: string | null
+        }
+        Update: {
+          address_line1?: string | null
+          address_line2?: string | null
+          city?: string | null
+          contact_person?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          integration_config?: Json | null
+          integration_status?: string | null
+          is_active?: boolean
+          items_count?: number | null
+          last_sync_date?: string | null
+          name?: string
+          payment_terms?: string | null
+          phone?: string | null
+          state?: string | null
+          status?: string
+          tax_id?: string | null
+          tenant_id?: string | null
+          updated_at?: string
+          vendor_number?: string | null
+          website?: string | null
+          zip_code?: string | null
+        }
+        Relationships: []
+      }
       voice_recordings: {
         Row: {
           ai_summary: string | null
@@ -3810,6 +4237,18 @@ export type Database = {
       }
     }
     Functions: {
+      calculate_lead_score: {
+        Args: { p_role: string; p_company: string; p_email: string }
+        Returns: number
+      }
+      generate_purchase_order_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      generate_vendor_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_user_primary_tenant: {
         Args: { user_uuid: string }
         Returns: string

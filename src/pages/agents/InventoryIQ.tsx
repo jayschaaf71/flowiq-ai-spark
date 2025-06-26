@@ -11,7 +11,9 @@ import { AddItemDialog } from "@/components/inventory/AddItemDialog";
 import { InventoryItemList } from "@/components/inventory/InventoryItemList";
 import { CreateOrderDialog } from "@/components/inventory/CreateOrderDialog";
 import { VendorManagement } from "@/components/inventory/VendorManagement";
-import { mockInventoryItems, mockVendors } from "@/data/inventoryMockData";
+import { PurchaseOrdersList } from "@/components/inventory/PurchaseOrdersList";
+import { mockInventoryItems } from "@/data/inventoryMockData";
+import { useVendors } from "@/hooks/useVendors";
 
 export default function InventoryIQ() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -20,6 +22,19 @@ export default function InventoryIQ() {
   const [isAddVendorOpen, setIsAddVendorOpen] = useState(false);
   const [isCreateOrderOpen, setIsCreateOrderOpen] = useState(false);
   
+  // Use the vendors hook
+  const {
+    vendors,
+    purchaseOrders,
+    vendorsLoading,
+    ordersLoading,
+    addVendor,
+    createOrder,
+    syncVendor,
+    isAddingVendor,
+    isCreatingOrder
+  } = useVendors();
+
   // Form states
   const [newItem, setNewItem] = useState({
     name: "",
@@ -36,15 +51,18 @@ export default function InventoryIQ() {
     name: "",
     email: "",
     phone: "",
-    address: ""
+    address_line1: "",
+    city: "",
+    state: "",
+    zip_code: "",
+    contact_person: ""
   });
 
   const [newOrder, setNewOrder] = useState({
-    vendor: "",
-    orderType: "regular",
+    vendor_id: "",
+    order_type: "regular",
     priority: "normal",
-    notes: "",
-    items: []
+    notes: ""
   });
 
   const handleAddItem = () => {
@@ -84,43 +102,64 @@ export default function InventoryIQ() {
   };
 
   const handleCreateOrder = () => {
-    if (!newOrder.vendor) {
+    if (!newOrder.vendor_id) {
       toast.error("Please select a vendor");
       return;
     }
     
-    console.log("Creating order:", newOrder);
-    toast.success(`Order created successfully for ${newOrder.vendor}!`);
+    createOrder({
+      vendor_id: newOrder.vendor_id,
+      order_type: newOrder.order_type,
+      priority: newOrder.priority,
+      notes: newOrder.notes
+    });
+    
     setIsCreateOrderOpen(false);
     setNewOrder({
-      vendor: "",
-      orderType: "regular",
+      vendor_id: "",
+      order_type: "regular",
       priority: "normal",
-      notes: "",
-      items: []
+      notes: ""
     });
   };
 
   const handleAddVendor = () => {
-    console.log("Adding new vendor:", newVendor);
-    toast.success("Vendor added successfully!");
+    if (!newVendor.name || !newVendor.email) {
+      toast.error("Please fill in required fields");
+      return;
+    }
+    
+    addVendor(newVendor);
     setIsAddVendorOpen(false);
     setNewVendor({
       name: "",
       email: "",
       phone: "",
-      address: ""
+      address_line1: "",
+      city: "",
+      state: "",
+      zip_code: "",
+      contact_person: ""
     });
   };
 
-  const handleSyncVendor = (vendorName: string) => {
-    toast.success(`${vendorName} synced successfully!`);
-    console.log("Sync vendor clicked for:", vendorName);
+  const handleSyncVendor = (vendorId: string) => {
+    syncVendor(vendorId);
   };
 
-  const handleVendorSettings = (vendorName: string) => {
+  const handleVendorSettings = (vendorId: string) => {
     toast.info("Vendor settings coming soon!");
-    console.log("Vendor settings clicked for:", vendorName);
+    console.log("Vendor settings clicked for:", vendorId);
+  };
+
+  const handleViewOrder = (orderId: string) => {
+    toast.info("Order details view coming soon!");
+    console.log("View order clicked for:", orderId);
+  };
+
+  const handleEditOrder = (orderId: string) => {
+    toast.info("Edit order functionality coming soon!");
+    console.log("Edit order clicked for:", orderId);
   };
 
   const filteredItems = mockInventoryItems.filter(item => {
@@ -178,31 +217,37 @@ export default function InventoryIQ() {
         <TabsContent value="orders" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Recent Orders</CardTitle>
-              <CardDescription>
-                Track your recent and pending orders
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-gray-500">
-                <ShoppingCart className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>No recent orders found</p>
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle>Purchase Orders</CardTitle>
+                  <CardDescription>
+                    Track your recent and pending orders
+                  </CardDescription>
+                </div>
                 <CreateOrderDialog
                   isOpen={isCreateOrderOpen}
                   onOpenChange={setIsCreateOrderOpen}
                   newOrder={newOrder}
                   setNewOrder={setNewOrder}
-                  vendors={mockVendors}
+                  vendors={vendors}
                   onCreateOrder={handleCreateOrder}
+                  isCreatingOrder={isCreatingOrder}
                 />
               </div>
+            </CardHeader>
+            <CardContent>
+              <PurchaseOrdersList
+                orders={purchaseOrders}
+                onViewOrder={handleViewOrder}
+                onEditOrder={handleEditOrder}
+              />
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="vendors" className="space-y-4">
           <VendorManagement
-            vendors={mockVendors}
+            vendors={vendors}
             isAddVendorOpen={isAddVendorOpen}
             setIsAddVendorOpen={setIsAddVendorOpen}
             newVendor={newVendor}
@@ -210,6 +255,8 @@ export default function InventoryIQ() {
             onAddVendor={handleAddVendor}
             onSyncVendor={handleSyncVendor}
             onVendorSettings={handleVendorSettings}
+            isAddingVendor={isAddingVendor}
+            vendorsLoading={vendorsLoading}
           />
         </TabsContent>
 

@@ -4,22 +4,20 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 
 interface NewOrder {
-  vendor: string;
-  orderType: string;
+  vendor_id: string;
+  order_type: string;
   priority: string;
   notes: string;
-  items: any[];
 }
 
 interface Vendor {
   id: string;
   name: string;
+  vendor_number: string;
   status: string;
-  lastSync: string;
-  itemsCount: number;
 }
 
 interface CreateOrderDialogProps {
@@ -29,6 +27,7 @@ interface CreateOrderDialogProps {
   setNewOrder: (order: NewOrder) => void;
   vendors: Vendor[];
   onCreateOrder: () => void;
+  isCreatingOrder?: boolean;
 }
 
 export const CreateOrderDialog = ({
@@ -37,13 +36,20 @@ export const CreateOrderDialog = ({
   newOrder,
   setNewOrder,
   vendors,
-  onCreateOrder
+  onCreateOrder,
+  isCreatingOrder = false
 }: CreateOrderDialogProps) => {
+  const activeVendors = vendors.filter(vendor => vendor.status === 'active');
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
-        <Button className="mt-4">
-          <Plus className="w-4 h-4 mr-2" />
+        <Button className="mt-4" disabled={isCreatingOrder}>
+          {isCreatingOrder ? (
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+          ) : (
+            <Plus className="w-4 h-4 mr-2" />
+          )}
           Create Order
         </Button>
       </DialogTrigger>
@@ -51,28 +57,41 @@ export const CreateOrderDialog = ({
         <DialogHeader>
           <DialogTitle className="text-gray-900">Create New Order</DialogTitle>
           <DialogDescription className="text-gray-600">
-            Create a new order for inventory items
+            Create a new purchase order for inventory items
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div>
             <Label htmlFor="vendor" className="text-gray-700">Vendor</Label>
-            <Select value={newOrder.vendor} onValueChange={(value) => setNewOrder({...newOrder, vendor: value})}>
+            <Select 
+              value={newOrder.vendor_id} 
+              onValueChange={(value) => setNewOrder({...newOrder, vendor_id: value})}
+            >
               <SelectTrigger className="mt-1">
                 <SelectValue placeholder="Select a vendor" />
               </SelectTrigger>
               <SelectContent className="bg-white">
-                {vendors.map((vendor) => (
-                  <SelectItem key={vendor.id} value={vendor.name}>
-                    {vendor.name}
+                {activeVendors.length > 0 ? (
+                  activeVendors.map((vendor) => (
+                    <SelectItem key={vendor.id} value={vendor.id}>
+                      {vendor.name} ({vendor.vendor_number})
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="" disabled>
+                    No active vendors available
                   </SelectItem>
-                ))}
+                )}
               </SelectContent>
             </Select>
           </div>
+          
           <div>
             <Label htmlFor="orderType" className="text-gray-700">Order Type</Label>
-            <Select value={newOrder.orderType} onValueChange={(value) => setNewOrder({...newOrder, orderType: value})}>
+            <Select 
+              value={newOrder.order_type} 
+              onValueChange={(value) => setNewOrder({...newOrder, order_type: value})}
+            >
               <SelectTrigger className="mt-1">
                 <SelectValue />
               </SelectTrigger>
@@ -83,9 +102,13 @@ export const CreateOrderDialog = ({
               </SelectContent>
             </Select>
           </div>
+          
           <div>
             <Label htmlFor="priority" className="text-gray-700">Priority</Label>
-            <Select value={newOrder.priority} onValueChange={(value) => setNewOrder({...newOrder, priority: value})}>
+            <Select 
+              value={newOrder.priority} 
+              onValueChange={(value) => setNewOrder({...newOrder, priority: value})}
+            >
               <SelectTrigger className="mt-1">
                 <SelectValue />
               </SelectTrigger>
@@ -97,6 +120,7 @@ export const CreateOrderDialog = ({
               </SelectContent>
             </Select>
           </div>
+          
           <div>
             <Label htmlFor="notes" className="text-gray-700">Notes</Label>
             <Textarea 
@@ -107,8 +131,20 @@ export const CreateOrderDialog = ({
               className="mt-1"
             />
           </div>
-          <Button onClick={onCreateOrder} className="w-full">
-            Create Order
+          
+          <Button 
+            onClick={onCreateOrder} 
+            className="w-full"
+            disabled={isCreatingOrder || !newOrder.vendor_id}
+          >
+            {isCreatingOrder ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Creating Order...
+              </>
+            ) : (
+              "Create Order"
+            )}
           </Button>
         </div>
       </DialogContent>
