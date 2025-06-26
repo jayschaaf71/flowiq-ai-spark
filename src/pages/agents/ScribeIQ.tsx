@@ -1,9 +1,9 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Shield } from "lucide-react";
+import { Shield, Smartphone } from "lucide-react";
 import { PlaudIntegration } from "@/components/ai/PlaudIntegration";
 import { ScribeDashboardTab } from "@/components/scribe/ScribeDashboardTab";
 import { ScribeLiveRecording } from "@/components/scribe/ScribeLiveRecording";
@@ -11,9 +11,23 @@ import { ScribeSOAPGeneration } from "@/components/scribe/ScribeSOAPGeneration";
 import { ScribeTemplatesTab } from "@/components/scribe/ScribeTemplatesTab";
 import { ScribeSettingsTab } from "@/components/scribe/ScribeSettingsTab";
 import { SOAPProvider } from "@/contexts/SOAPContext";
+import { usePlaudIntegration } from "@/hooks/usePlaudIntegration";
 
 const ScribeIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
+  const { isConnected } = usePlaudIntegration();
+
+  // Listen for tab change events from dashboard buttons
+  useEffect(() => {
+    const handleTabChange = (event: CustomEvent) => {
+      setActiveTab(event.detail);
+    };
+
+    window.addEventListener('changeScribeTab', handleTabChange as EventListener);
+    return () => {
+      window.removeEventListener('changeScribeTab', handleTabChange as EventListener);
+    };
+  }, []);
 
   return (
     <SOAPProvider>
@@ -28,6 +42,12 @@ const ScribeIQ = () => {
               <Shield className="w-3 h-3 mr-1" />
               HIPAA Compliant
             </Badge>
+            {isConnected && (
+              <Badge className="bg-purple-100 text-purple-700">
+                <Smartphone className="w-3 h-3 mr-1" />
+                Plaud Connected
+              </Badge>
+            )}
           </div>
         </PageHeader>
         
@@ -35,8 +55,11 @@ const ScribeIQ = () => {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
             <TabsList className="grid w-full grid-cols-6">
               <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+              <TabsTrigger value="plaud">
+                <Smartphone className="w-4 h-4 mr-1" />
+                Plaud Device
+              </TabsTrigger>
               <TabsTrigger value="transcribe">Live Recording</TabsTrigger>
-              <TabsTrigger value="plaud">Plaud Device</TabsTrigger>
               <TabsTrigger value="soap">SOAP Generation</TabsTrigger>
               <TabsTrigger value="templates">Templates</TabsTrigger>
               <TabsTrigger value="settings">Settings</TabsTrigger>
@@ -46,12 +69,12 @@ const ScribeIQ = () => {
               <ScribeDashboardTab />
             </TabsContent>
 
-            <TabsContent value="transcribe">
-              <ScribeLiveRecording />
-            </TabsContent>
-
             <TabsContent value="plaud">
               <PlaudIntegration />
+            </TabsContent>
+
+            <TabsContent value="transcribe">
+              <ScribeLiveRecording />
             </TabsContent>
 
             <TabsContent value="soap">
