@@ -95,16 +95,23 @@ serve(async (req) => {
       // Use the first active integration
       const flowiqUserId = userConfigs[0].user_id;
       
-      // Verify the user exists before proceeding
-      const { data: userExists, error: userError } = await supabase
+      // Verify the user exists in both auth.users and profiles tables
+      const { data: authUser, error: authError } = await supabase.auth.admin.getUserById(flowiqUserId);
+      
+      if (authError || !authUser.user) {
+        console.error('User not found in auth.users table:', flowiqUserId);
+        throw new Error('Associated user not found in authentication system');
+      }
+
+      const { data: profileUser, error: profileError } = await supabase
         .from('profiles')
         .select('id')
         .eq('id', flowiqUserId)
         .single();
 
-      if (userError || !userExists) {
+      if (profileError || !profileUser) {
         console.error('User not found in profiles table:', flowiqUserId);
-        throw new Error('Associated user not found in system');
+        throw new Error('Associated user profile not found in system');
       }
       
       // If we have a transcript, process it for SOAP generation
