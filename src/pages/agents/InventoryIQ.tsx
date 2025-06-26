@@ -119,7 +119,7 @@ export default function InventoryIQ() {
     <div className="space-y-6">
       <PageHeader
         title="Inventory iQ"
-        description="AI-powered inventory management for your practice"
+        subtitle="AI-powered inventory management for your practice"
         badge="AI"
       />
 

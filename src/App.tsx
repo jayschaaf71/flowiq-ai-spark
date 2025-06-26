@@ -20,7 +20,7 @@ import ManagerAgent from "./pages/ManagerAgent";
 import Workflows from "./pages/Workflows";
 import Templates from "./pages/Templates";
 import NotFound from "./pages/NotFound";
-import ComprehensiveDashboard from "./pages/ComprehensiveDashboard";
+import { ComprehensiveDashboard } from "./pages/ComprehensiveDashboard";
 import ChiroIQ from "./pages/ChiroIQ";
 import AIInsights from "./pages/AIInsights";
 import PilotDemo from "./pages/PilotDemo";
