@@ -35,6 +35,11 @@ export const AppointmentManager = ({ onAppointmentUpdate }: AppointmentManagerPr
     }
   };
 
+  const handleSendReminder = async (appointmentId: string) => {
+    console.log('Sending reminder for appointment:', appointmentId);
+    await sendReminder(appointmentId);
+  };
+
   const todayAppointments = appointments.filter(apt => isToday(parseISO(apt.date)));
   const upcomingAppointments = appointments.filter(apt => !isToday(parseISO(apt.date)));
 
@@ -59,7 +64,7 @@ export const AppointmentManager = ({ onAppointmentUpdate }: AppointmentManagerPr
         emptyMessage="No appointments today"
         userRole="staff"
         onStatusUpdate={handleStatusUpdate}
-        onSendReminder={sendReminder}
+        onSendReminder={handleSendReminder}
         loading={loading}
         isToday={true}
       />
@@ -72,7 +77,7 @@ export const AppointmentManager = ({ onAppointmentUpdate }: AppointmentManagerPr
         emptyMessage="No upcoming appointments"
         userRole="staff"
         onStatusUpdate={handleStatusUpdate}
-        onSendReminder={sendReminder}
+        onSendReminder={handleSendReminder}
         loading={loading}
         isToday={false}
       />

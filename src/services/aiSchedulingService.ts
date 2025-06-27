@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { format, addDays, parseISO, isWeekend } from "date-fns";
 
@@ -22,6 +21,31 @@ export interface ScheduleOptimization {
   };
   conflictsResolved: number;
   reasoning: string;
+}
+
+export interface ConflictResolution {
+  conflicts: Array<{
+    id: string;
+    type: string;
+    description: string;
+    severity: 'low' | 'medium' | 'high';
+  }>;
+  resolutions: Array<{
+    conflictId: string;
+    resolution: string;
+    alternativeSlots: string[];
+  }>;
+  autoResolved: number;
+  manualReviewRequired: number;
+}
+
+export interface PatientRiskScore {
+  patientId: string;
+  score: number;
+  riskLevel: 'low' | 'medium' | 'high' | 'critical';
+  factors: string[];
+  recommendations: string[];
+  lastUpdated: Date;
 }
 
 class AISchedulingService {
@@ -80,6 +104,74 @@ class AISchedulingService {
       };
     } catch (error) {
       console.error('Error optimizing provider schedule:', error);
+      throw error;
+    }
+  }
+
+  async detectAndResolveConflicts(date: string): Promise<ConflictResolution> {
+    try {
+      // Get all appointments for the date
+      const { data: appointments } = await supabase
+        .from('appointments')
+        .select('*')
+        .eq('date', date)
+        .order('time');
+
+      const conflicts = this.detectConflicts(appointments || []);
+      const resolutions = this.generateResolutions(conflicts);
+      
+      return {
+        conflicts: conflicts.map((conflict, index) => ({
+          id: `conflict_${index + 1}`,
+          type: 'double_booking',
+          description: `Overlapping appointments detected at ${conflict.time}`,
+          severity: 'high' as const
+        })),
+        resolutions: resolutions.map((resolution, index) => ({
+          conflictId: `conflict_${index + 1}`,
+          resolution: resolution.solution,
+          alternativeSlots: resolution.alternatives
+        })),
+        autoResolved: 0,
+        manualReviewRequired: conflicts.length
+      };
+    } catch (error) {
+      console.error('Error detecting conflicts:', error);
+      throw error;
+    }
+  }
+
+  async generatePatientRiskScore(patientId: string): Promise<PatientRiskScore> {
+    try {
+      // Get patient data
+      const { data: patient } = await supabase
+        .from('patients')
+        .select('*')
+        .eq('id', patientId)
+        .single();
+
+      // Get appointment history
+      const { data: appointments } = await supabase
+        .from('appointments')
+        .select('*')
+        .eq('patient_id', patientId)
+        .order('created_at', { ascending: false });
+
+      // Calculate risk score based on various factors
+      const riskFactors = this.analyzeRiskFactors(patient, appointments || []);
+      const score = this.calculateRiskScore(riskFactors);
+      const riskLevel = this.determineRiskLevel(score);
+      
+      return {
+        patientId,
+        score,
+        riskLevel,
+        factors: riskFactors.factors,
+        recommendations: riskFactors.recommendations,
+        lastUpdated: new Date()
+      };
+    } catch (error) {
+      console.error('Error generating patient risk score:', error);
       throw error;
     }
   }
@@ -173,6 +265,72 @@ class AISchedulingService {
     }
     
     return scoredSlots;
+  }
+
+  private detectConflicts(appointments: any[]) {
+    const conflicts = [];
+    
+    for (let i = 0; i < appointments.length - 1; i++) {
+      for (let j = i + 1; j < appointments.length; j++) {
+        const apt1 = appointments[i];
+        const apt2 = appointments[j];
+        
+        // Check for time overlap
+        if (apt1.time === apt2.time) {
+          conflicts.push({
+            time: apt1.time,
+            appointments: [apt1, apt2]
+          });
+        }
+      }
+    }
+    
+    return conflicts;
+  }
+
+  private generateResolutions(conflicts: any[]) {
+    return conflicts.map((conflict, index) => ({
+      solution: `Move one appointment to alternative time slot`,
+      alternatives: [`${conflict.time.split(':')[0]}:30`, `${parseInt(conflict.time.split(':')[0]) + 1}:00`]
+    }));
+  }
+
+  private analyzeRiskFactors(patient: any, appointments: any[]) {
+    const factors = [];
+    const recommendations = [];
+    
+    // Analyze no-show history
+    const noShows = appointments.filter(apt => apt.status === 'no-show').length;
+    if (noShows > 2) {
+      factors.push('High no-show history');
+      recommendations.push('Send additional reminders');
+    }
+    
+    // Analyze late cancellations
+    const lateCancellations = appointments.filter(apt => apt.status === 'cancelled').length;
+    if (lateCancellations > 3) {
+      factors.push('Frequent late cancellations');
+      recommendations.push('Require confirmation closer to appointment');
+    }
+    
+    // Default factors if none found
+    if (factors.length === 0) {
+      factors.push('Standard risk profile');
+      recommendations.push('Continue regular scheduling');
+    }
+    
+    return { factors, recommendations };
+  }
+
+  private calculateRiskScore(riskFactors: any): number {
+    return Math.min(riskFactors.factors.length * 25, 100);
+  }
+
+  private determineRiskLevel(score: number): 'low' | 'medium' | 'high' | 'critical' {
+    if (score >= 75) return 'critical';
+    if (score >= 50) return 'high';
+    if (score >= 25) return 'medium';
+    return 'low';
   }
 
   private async optimizeSchedule(appointments: any[]): Promise<any[]> {
