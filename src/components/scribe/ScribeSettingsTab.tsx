@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Settings, 
   Brain, 
@@ -15,38 +16,47 @@ import {
   Shield, 
   Volume2,
   Clock,
-  Zap
+  Zap,
+  Save,
+  RefreshCw
 } from "lucide-react";
-import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
+import { useScribeSettings } from "@/hooks/useScribeSettings";
 
 export const ScribeSettingsTab = () => {
-  const [settings, setSettings] = useState({
-    autoSOAPGeneration: true,
-    realTimeTranscription: true,
-    saveRecordings: true,
-    hipaaCompliance: true,
-    transcriptionLanguage: "en",
-    aiModel: "gpt-4",
-    confidenceThreshold: 85,
-    autoSave: true,
-    recordingQuality: "high",
-    zapierIntegration: true
-  });
+  const {
+    settings,
+    isLoading,
+    isSaving,
+    updateSetting,
+    saveSettings,
+    resetToDefaults
+  } = useScribeSettings();
 
-  const { toast } = useToast();
-
-  const updateSetting = (key: string, value: any) => {
-    setSettings(prev => ({ ...prev, [key]: value }));
+  const handleSaveSettings = () => {
+    saveSettings(settings);
   };
 
-  const saveSettings = () => {
-    // In a real app, this would save to the backend
-    toast({
-      title: "Settings Saved",
-      description: "Your Scribe iQ preferences have been updated",
-    });
+  const handleResetToDefaults = () => {
+    resetToDefaults();
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-64" />
+            <Skeleton className="h-4 w-96" />
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-20 w-full" />
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -205,7 +215,7 @@ export const ScribeSettingsTab = () => {
               </div>
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className="bg-orange-50 text-orange-700">
-                  Active
+                  {settings.zapierIntegration ? 'Active' : 'Inactive'}
                 </Badge>
                 <Switch
                   checked={settings.zapierIntegration}
@@ -224,8 +234,31 @@ export const ScribeSettingsTab = () => {
           </Alert>
 
           <div className="flex justify-end gap-2 pt-4 border-t">
-            <Button variant="outline">Reset to Defaults</Button>
-            <Button onClick={saveSettings}>Save Settings</Button>
+            <Button 
+              variant="outline" 
+              onClick={handleResetToDefaults}
+              disabled={isSaving}
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Reset to Defaults
+            </Button>
+            <Button 
+              onClick={handleSaveSettings}
+              disabled={isSaving}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {isSaving ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4 mr-2" />
+                  Save Settings
+                </>
+              )}
+            </Button>
           </div>
         </CardContent>
       </Card>

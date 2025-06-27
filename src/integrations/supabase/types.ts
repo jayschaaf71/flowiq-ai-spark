@@ -3211,6 +3211,30 @@ export type Database = {
           },
         ]
       }
+      scribe_settings: {
+        Row: {
+          created_at: string
+          id: string
+          settings: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          settings?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          settings?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       sms_templates: {
         Row: {
           created_at: string | null
@@ -4396,6 +4420,10 @@ export type Database = {
       get_user_tenant_role: {
         Args: { user_uuid: string; tenant_uuid: string }
         Returns: Database["public"]["Enums"]["user_role"]
+      }
+      upsert_scribe_settings: {
+        Args: { user_uuid: string; settings_data: Json }
+        Returns: string
       }
     }
     Enums: {
