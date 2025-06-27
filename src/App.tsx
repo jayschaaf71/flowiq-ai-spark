@@ -9,6 +9,7 @@ import { AuthProvider } from "./contexts/AuthProvider";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import PatientManagement from "./pages/PatientManagement";
+import Schedule from "./pages/Schedule";
 import EHR from "./pages/EHR";
 import Settings from "./pages/Settings";
 import Help from "./pages/Help";
@@ -78,6 +79,7 @@ function App() {
                 <Route path="/pilot" element={<Layout><PilotDashboard /></Layout>} />
                 <Route path="/chiro-iq" element={<Layout><ChiroIQ /></Layout>} />
                 <Route path="/patient-management" element={<Layout><PatientManagement /></Layout>} />
+                <Route path="/schedule" element={<Layout><Schedule /></Layout>} />
                 <Route path="/ehr" element={<Layout><EHR /></Layout>} />
                 <Route path="/analytics" element={<Layout><Analytics /></Layout>} />
                 <Route path="/insights" element={<Layout><Insights /></Layout>} />

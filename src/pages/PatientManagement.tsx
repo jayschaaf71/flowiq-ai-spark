@@ -1,5 +1,4 @@
 
-import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Plus, Search } from "lucide-react";
@@ -7,7 +6,7 @@ import { Button } from "@/components/ui/button";
 
 const PatientManagement = () => {
   return (
-    <Layout>
+    <>
       <PageHeader 
         title="Patient Management"
         subtitle="Manage patient records, communications, and care coordination"
@@ -46,7 +45,7 @@ const PatientManagement = () => {
           </CardContent>
         </Card>
       </div>
-    </Layout>
+    </>
   );
 };
 
