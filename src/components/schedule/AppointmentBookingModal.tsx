@@ -10,6 +10,7 @@ import { Calendar, Clock, User, Phone, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { format, parseISO } from "date-fns";
+import { useAuth } from "@/hooks/useAuth";
 
 interface AppointmentBookingModalProps {
   isOpen: boolean;
@@ -41,6 +42,7 @@ export const AppointmentBookingModal = ({
   });
 
   const { toast } = useToast();
+  const { user } = useAuth();
 
   useEffect(() => {
     if (isOpen) {
@@ -86,13 +88,52 @@ export const AppointmentBookingModal = ({
       return;
     }
 
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "You must be logged in to book appointments",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
     console.log('Starting appointment booking with data:', formData);
 
     try {
-      // Create appointment directly - simplified approach
+      // First, check if we have a profile for the current user
+      let { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError && profileError.code === 'PGRST116') {
+        // Profile doesn't exist, create one
+        const { data: newProfile, error: createProfileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: user.id,
+            email: formData.email,
+            first_name: formData.patientName.split(' ')[0] || '',
+            last_name: formData.patientName.split(' ').slice(1).join(' ') || ''
+          })
+          .select()
+          .single();
+
+        if (createProfileError) {
+          console.error('Profile creation error:', createProfileError);
+          throw createProfileError;
+        }
+        profile = newProfile;
+      } else if (profileError) {
+        console.error('Profile fetch error:', profileError);
+        throw profileError;
+      }
+
+      // Create appointment using the user's profile ID
       const appointmentData = {
-        patient_id: crypto.randomUUID(), // Generate a UUID for patient_id
+        patient_id: user.id, // Use the authenticated user's ID
         provider_id: formData.providerId || null,
         date: formData.date,
         time: formData.time,
@@ -105,7 +146,7 @@ export const AppointmentBookingModal = ({
         notes: formData.notes
       };
 
-      console.log('Creating appointment with simplified data:', appointmentData);
+      console.log('Creating appointment with data:', appointmentData);
 
       const { data: appointment, error: appointmentError } = await supabase
         .from('appointments')
