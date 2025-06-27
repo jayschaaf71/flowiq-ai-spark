@@ -5,6 +5,11 @@ export interface SpecialtyConfig {
   id: SpecialtyType;
   name: string;
   description: string;
+  tagline: string;
+  brandName: string;
+  primaryColor: string;
+  secondaryColor: string;
+  accentColor: string;
   defaultAgents: string[];
   requiredIntegrations: string[];
   templateCategories: string[];
@@ -16,6 +21,11 @@ export const specialtyConfigs: Record<SpecialtyType, SpecialtyConfig> = {
     id: 'chiropractic',
     name: 'Chiropractic Care',
     description: 'Comprehensive spine and musculoskeletal health management',
+    tagline: 'Optimizing spinal health and mobility',
+    brandName: 'ChiroIQ',
+    primaryColor: '#16a34a',
+    secondaryColor: '#22c55e', 
+    accentColor: '#dcfce7',
     defaultAgents: ['receptionist', 'scribe', 'reminder'],
     requiredIntegrations: ['ehr', 'scheduling'],
     templateCategories: ['intake', 'soap', 'treatment-plans'],
@@ -25,6 +35,11 @@ export const specialtyConfigs: Record<SpecialtyType, SpecialtyConfig> = {
     id: 'dental-sleep',
     name: 'Dental Sleep Medicine',
     description: 'Sleep apnea treatment and oral appliance therapy',
+    tagline: 'Restoring quality sleep through dental solutions',
+    brandName: 'SleepIQ',
+    primaryColor: '#3b82f6',
+    secondaryColor: '#60a5fa',
+    accentColor: '#dbeafe',
     defaultAgents: ['receptionist', 'follow-up', 'billing'],
     requiredIntegrations: ['ehr', 'dme-billing'],
     templateCategories: ['sleep-study', 'appliance-fitting', 'follow-up'],
@@ -34,6 +49,11 @@ export const specialtyConfigs: Record<SpecialtyType, SpecialtyConfig> = {
     id: 'med-spa',
     name: 'Medical Spa',
     description: 'Aesthetic treatments and wellness services',
+    tagline: 'Enhancing natural beauty and wellness',
+    brandName: 'AestheticIQ',
+    primaryColor: '#ec4899',
+    secondaryColor: '#f472b6',
+    accentColor: '#fce7f3',
     defaultAgents: ['receptionist', 'marketing', 'follow-up'],
     requiredIntegrations: ['pos', 'marketing'],
     templateCategories: ['consultation', 'treatment', 'aftercare'],
@@ -43,6 +63,11 @@ export const specialtyConfigs: Record<SpecialtyType, SpecialtyConfig> = {
     id: 'concierge',
     name: 'Concierge Medicine',
     description: 'Personalized primary care and wellness',
+    tagline: 'Premium healthcare with personalized attention',
+    brandName: 'ConciergeIQ',
+    primaryColor: '#7c3aed',
+    secondaryColor: '#8b5cf6',
+    accentColor: '#ede9fe',
     defaultAgents: ['receptionist', 'care-coordinator', 'wellness'],
     requiredIntegrations: ['ehr', 'telehealth'],
     templateCategories: ['wellness', 'executive-physical', 'house-call'],
@@ -52,6 +77,11 @@ export const specialtyConfigs: Record<SpecialtyType, SpecialtyConfig> = {
     id: 'hrt',
     name: 'Hormone Replacement Therapy',
     description: 'Hormone optimization and anti-aging medicine',
+    tagline: 'Optimizing hormonal health and vitality',
+    brandName: 'HormoneIQ',
+    primaryColor: '#dc2626',
+    secondaryColor: '#ef4444',
+    accentColor: '#fee2e2',
     defaultAgents: ['receptionist', 'lab-coordinator', 'follow-up'],
     requiredIntegrations: ['ehr', 'lab', 'compounding-pharmacy'],
     templateCategories: ['hormone-assessment', 'lab-review', 'adjustment'],

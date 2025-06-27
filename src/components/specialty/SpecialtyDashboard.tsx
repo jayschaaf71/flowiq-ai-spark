@@ -12,9 +12,9 @@ export const SpecialtyDashboard = () => {
   switch (currentSpecialty) {
     case 'chiropractic':
       return <ChiropracticDashboard />;
-    case 'dental_sleep':
+    case 'dental-sleep':
       return <DentalSleepDashboard />;
-    case 'med_spa':
+    case 'med-spa':
       return <MedSpaDashboard />;
     case 'concierge':
       return <ConciergeDashboard />;
