@@ -2,26 +2,57 @@
 import { useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, Users, BarChart3 } from "lucide-react";
+import { Calendar, Clock, Users, BarChart3, Plus } from "lucide-react";
 import { AppointmentManager } from "@/components/schedule/AppointmentManager";
 import { RealTimeCalendar } from "@/components/schedule/RealTimeCalendar";
 import { EnhancedCalendarView } from "@/components/schedule/EnhancedCalendarView";
 import { ScheduleAnalytics } from "@/components/schedule/ScheduleAnalytics";
+import { AppointmentBookingModal } from "@/components/schedule/AppointmentBookingModal";
+import { AppointmentDetailsModal } from "@/components/schedule/AppointmentDetailsModal";
 
 const Schedule = () => {
   const [activeTab, setActiveTab] = useState("calendar");
   const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [bookingModalOpen, setBookingModalOpen] = useState(false);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  const [selectedTime, setSelectedTime] = useState<string | undefined>();
 
   const handleTimeSlotClick = (date: Date, time: string) => {
     console.log("Time slot clicked:", date, time);
-    // TODO: Open appointment booking modal
+    setSelectedDate(date);
+    setSelectedTime(time);
+    setBookingModalOpen(true);
   };
 
   const handleAppointmentClick = (appointment: any) => {
     console.log("Appointment clicked:", appointment);
     setSelectedAppointment(appointment);
-    // TODO: Open appointment details modal
+    setDetailsModalOpen(true);
+  };
+
+  const handleQuickBook = () => {
+    setSelectedDate(new Date());
+    setSelectedTime(undefined);
+    setBookingModalOpen(true);
+  };
+
+  const handleAppointmentBooked = (appointment: any) => {
+    console.log("New appointment booked:", appointment);
+    // The calendar will automatically refresh due to real-time updates
+  };
+
+  const handleAppointmentUpdated = (appointment: any) => {
+    console.log("Appointment updated:", appointment);
+    setSelectedAppointment(appointment);
+    // The calendar will automatically refresh due to real-time updates
+  };
+
+  const handleAppointmentDeleted = (appointmentId: string) => {
+    console.log("Appointment deleted:", appointmentId);
+    // The calendar will automatically refresh due to real-time updates
   };
 
   return (
@@ -30,14 +61,20 @@ const Schedule = () => {
         title="Schedule Management"
         subtitle="Manage appointments, view today's schedule, and optimize patient flow"
       >
-        <div className="flex gap-2">
-          <Badge className="bg-blue-100 text-blue-700">
-            <Calendar className="w-3 h-3 mr-1" />
-            Live Calendar
-          </Badge>
-          <Badge className="bg-green-100 text-green-700">
-            Real-time Updates
-          </Badge>
+        <div className="flex items-center gap-3">
+          <Button onClick={handleQuickBook} className="flex items-center gap-2">
+            <Plus className="w-4 h-4" />
+            Quick Book
+          </Button>
+          <div className="flex gap-2">
+            <Badge className="bg-blue-100 text-blue-700">
+              <Calendar className="w-3 h-3 mr-1" />
+              Live Calendar
+            </Badge>
+            <Badge className="bg-green-100 text-green-700">
+              Real-time Updates
+            </Badge>
+          </div>
         </div>
       </PageHeader>
       
@@ -80,6 +117,24 @@ const Schedule = () => {
           <ScheduleAnalytics />
         </TabsContent>
       </Tabs>
+
+      {/* Appointment Booking Modal */}
+      <AppointmentBookingModal
+        isOpen={bookingModalOpen}
+        onClose={() => setBookingModalOpen(false)}
+        selectedDate={selectedDate}
+        selectedTime={selectedTime}
+        onAppointmentBooked={handleAppointmentBooked}
+      />
+
+      {/* Appointment Details Modal */}
+      <AppointmentDetailsModal
+        isOpen={detailsModalOpen}
+        onClose={() => setDetailsModalOpen(false)}
+        appointment={selectedAppointment}
+        onAppointmentUpdated={handleAppointmentUpdated}
+        onAppointmentDeleted={handleAppointmentDeleted}
+      />
     </div>
   );
 };
