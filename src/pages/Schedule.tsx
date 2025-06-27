@@ -1,11 +1,10 @@
 
-import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
 import { AppointmentManager } from "@/components/schedule/AppointmentManager";
 
 const Schedule = () => {
   return (
-    <Layout>
+    <div className="space-y-6">
       <PageHeader 
         title="Schedule Management"
         subtitle="Manage appointments, view today's schedule, and optimize patient flow"
@@ -14,7 +13,7 @@ const Schedule = () => {
       <div className="space-y-6">
         <AppointmentManager />
       </div>
-    </Layout>
+    </div>
   );
 };
 
