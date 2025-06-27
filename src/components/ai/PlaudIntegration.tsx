@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   Upload, 
   Cloud, 
@@ -14,33 +16,64 @@ import {
   Clock, 
   Settings,
   Smartphone,
-  Mic
+  Mic,
+  Zap,
+  Copy,
+  ExternalLink,
+  AlertCircle
 } from "lucide-react";
 import { usePlaudIntegration } from "@/hooks/usePlaudIntegration";
+import { useToast } from "@/hooks/use-toast";
 
 export const PlaudIntegration = () => {
   const {
     isConnected,
     config,
     recordings,
-    isPolling,
     savePlaudConfig,
     manualSync,
     uploadRecording
   } = usePlaudIntegration();
 
-  const [apiKey, setApiKey] = useState("");
-  const [autoSync, setAutoSync] = useState(true);
+  const [zapierWebhookUrl, setZapierWebhookUrl] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
+  const { toast } = useToast();
 
-  // Update local state when config changes
+  // Our webhook URL for Zapier
+  const flowiqWebhookUrl = "https://jzusvsbkprwkjhhozaup.supabase.co/functions/v1/plaud-webhook";
+
   useEffect(() => {
     if (config) {
-      setApiKey(config.apiKey || "");
-      setAutoSync(config.autoSync);
+      setZapierWebhookUrl(config.webhookUrl || "");
     }
   }, [config]);
+
+  const handleZapierSetup = async () => {
+    if (!zapierWebhookUrl) {
+      setConnectionError("Please enter your Zapier webhook URL");
+      return;
+    }
+
+    setConnectionError(null);
+    
+    try {
+      const newConfig = {
+        apiKey: "", // Not needed for Zapier
+        webhookUrl: zapierWebhookUrl,
+        autoSync: true
+      };
+
+      await savePlaudConfig(newConfig);
+      
+      toast({
+        title: "Zapier Integration Connected",
+        description: "Your Plaud device is now connected via Zapier",
+      });
+    } catch (error) {
+      setConnectionError(error instanceof Error ? error.message : 'Connection failed');
+    }
+  };
 
   const handleManualUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -55,127 +88,118 @@ export const PlaudIntegration = () => {
     }
   };
 
-  const connectToPlaud = async () => {
-    if (!apiKey) {
-      setConnectionError("Please enter your Plaud Cloud API key");
-      return;
-    }
-
-    setConnectionError(null);
-    
+  const copyWebhookUrl = async () => {
     try {
-      // Test the API key by making a simple request
-      const testResponse = await fetch('https://api.plaud.ai/v1/user/profile', {
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'X-API-Version': '2024-01'
-        }
+      await navigator.clipboard.writeText(flowiqWebhookUrl);
+      toast({
+        title: "Copied to Clipboard",
+        description: "FlowIQ webhook URL has been copied",
       });
-
-      if (!testResponse.ok) {
-        throw new Error('Invalid API key or connection failed');
-      }
-
-      const newConfig = {
-        apiKey,
-        webhookUrl: `https://jzusvsbkprwkjhhozaup.supabase.co/functions/v1/plaud-webhook`,
-        autoSync
-      };
-
-      await savePlaudConfig(newConfig);
     } catch (error) {
-      setConnectionError(error instanceof Error ? error.message : 'Connection failed');
-    }
-  };
-
-  const handleAutoSyncChange = async (checked: boolean) => {
-    setAutoSync(checked);
-    
-    if (config) {
-      const newConfig = {
-        ...config,
-        autoSync: checked
-      };
-      await savePlaudConfig(newConfig);
+      toast({
+        title: "Copy Failed",
+        description: "Unable to copy to clipboard",
+        variant: "destructive",
+      });
     }
   };
 
   return (
     <div className="space-y-6">
-      {/* Connection Status */}
+      {/* Zapier Integration Setup */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Smartphone className="w-5 h-5" />
-            Plaud Device Integration
+            <Zap className="w-5 h-5 text-orange-500" />
+            Plaud + Zapier Integration
             <Badge variant={isConnected ? "default" : "secondary"}>
-              {isConnected ? "Connected" : "Disconnected"}
+              {isConnected ? "Connected" : "Setup Required"}
             </Badge>
           </CardTitle>
           <CardDescription>
-            Seamlessly integrate with your Plaud recording device for automatic voice transcription
+            Connect your Plaud device to FlowIQ using Zapier automation for seamless voice transcription
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {!isConnected ? (
             <div className="space-y-4">
-              <div>
-                <Label htmlFor="plaud-api-key">Plaud Cloud API Key</Label>
+              <Alert className="border-blue-200 bg-blue-50">
+                <Zap className="h-4 w-4 text-blue-600" />
+                <AlertDescription className="text-blue-800">
+                  <strong>Setup Instructions:</strong>
+                  <ol className="mt-2 ml-4 list-decimal space-y-1 text-sm">
+                    <li>Copy the FlowIQ webhook URL below</li>
+                    <li>Create a new Zap in Zapier with "Webhooks by Zapier" as trigger</li>
+                    <li>Use "Catch Hook" and paste our webhook URL</li>
+                    <li>Connect your Plaud device as the action step</li>
+                    <li>Paste your Zapier webhook URL below to complete setup</li>
+                  </ol>
+                </AlertDescription>
+              </Alert>
+
+              <div className="space-y-2">
+                <Label>FlowIQ Webhook URL (Copy this to your Zap)</Label>
+                <div className="flex gap-2">
+                  <Input 
+                    value={flowiqWebhookUrl} 
+                    readOnly 
+                    className="font-mono text-sm"
+                  />
+                  <Button onClick={copyWebhookUrl} variant="outline" size="sm">
+                    <Copy className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="zapier-webhook">Your Zapier Webhook URL</Label>
                 <Input
-                  id="plaud-api-key"
-                  type="password"
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  placeholder="Enter your Plaud Cloud API key"
+                  id="zapier-webhook"
+                  value={zapierWebhookUrl}
+                  onChange={(e) => setZapierWebhookUrl(e.target.value)}
+                  placeholder="https://hooks.zapier.com/hooks/catch/..."
                 />
                 {connectionError && (
-                  <p className="text-sm text-red-600 mt-1">{connectionError}</p>
+                  <p className="text-sm text-red-600">{connectionError}</p>
                 )}
               </div>
-              <Button onClick={connectToPlaud} disabled={!apiKey}>
-                <Cloud className="w-4 h-4 mr-2" />
-                Connect to Plaud Cloud
-              </Button>
+
+              <div className="flex gap-2">
+                <Button onClick={handleZapierSetup} disabled={!zapierWebhookUrl}>
+                  <Zap className="w-4 h-4 mr-2" />
+                  Connect Zapier Integration
+                </Button>
+                <Button variant="outline" asChild>
+                  <a href="https://zapier.com/apps/plaud/integrations" target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    Zapier Plaud Apps
+                  </a>
+                </Button>
+              </div>
             </div>
           ) : (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-green-600">
                   <CheckCircle className="w-4 h-4" />
-                  <span>Connected to Plaud Cloud</span>
-                  {isPolling && (
-                    <Badge variant="outline" className="bg-blue-50 text-blue-700">
-                      <Wifi className="w-3 h-3 mr-1" />
-                      Auto-syncing
-                    </Badge>
-                  )}
+                  <span>Connected via Zapier</span>
+                  <Badge variant="outline" className="bg-orange-50 text-orange-700">
+                    <Zap className="w-3 h-3 mr-1" />
+                    Zapier Active
+                  </Badge>
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor="auto-sync">Auto-sync recordings</Label>
-                    <Switch
-                      id="auto-sync"
-                      checked={autoSync}
-                      onCheckedChange={handleAutoSyncChange}
-                    />
-                  </div>
-                  <Button variant="outline" size="sm" onClick={manualSync}>
-                    <Settings className="w-4 h-4 mr-2" />
-                    Manual Sync
-                  </Button>
-                </div>
+                <Button variant="outline" size="sm" onClick={manualSync}>
+                  <Settings className="w-4 h-4 mr-2" />
+                  Test Connection
+                </Button>
               </div>
               
-              {/* Webhook URL Info */}
-              <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                <p className="text-sm font-medium text-blue-900 mb-1">Webhook URL</p>
-                <p className="text-xs text-blue-700 font-mono break-all">
-                  https://jzusvsbkprwkjhhozaup.supabase.co/functions/v1/plaud-webhook
-                </p>
-                <p className="text-xs text-blue-600 mt-1">
-                  Configure this URL in your Plaud Cloud dashboard for automatic sync
-                </p>
-              </div>
+              <Alert className="border-green-200 bg-green-50">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <AlertDescription className="text-green-800">
+                  <strong>Zapier Integration Active:</strong> Your Plaud recordings will automatically be sent to FlowIQ and processed into SOAP notes.
+                </AlertDescription>
+              </Alert>
             </div>
           )}
         </CardContent>
@@ -186,10 +210,10 @@ export const PlaudIntegration = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Upload className="w-5 h-5" />
-            Manual Upload
+            Manual Upload & Testing
           </CardTitle>
           <CardDescription>
-            Upload recordings directly from your Plaud device or mobile app
+            Upload recordings directly for testing or backup processing
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -206,7 +230,7 @@ export const PlaudIntegration = () => {
               <label htmlFor="file-upload" className="cursor-pointer">
                 <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
                 <p className="text-sm text-gray-600">
-                  {isProcessing ? "Processing..." : "Click to upload audio file or drag and drop"}
+                  {isProcessing ? "Processing..." : "Click to upload audio file"}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
                   Supports MP3, WAV, M4A formats
@@ -218,7 +242,7 @@ export const PlaudIntegration = () => {
               <div className="space-y-2">
                 <Progress value={65} />
                 <p className="text-sm text-center text-gray-600">
-                  AI is processing your recording...
+                  AI is processing your recording and generating SOAP notes...
                 </p>
               </div>
             )}
@@ -229,39 +253,44 @@ export const PlaudIntegration = () => {
       {/* Recent Recordings */}
       <Card>
         <CardHeader>
-          <CardTitle>Recent Recordings</CardTitle>
+          <CardTitle>Recent Recordings & SOAP Notes</CardTitle>
           <CardDescription>
-            Recordings from your Plaud device with AI transcription status
+            Voice recordings processed with AI-generated medical documentation
           </CardDescription>
         </CardHeader>
         <CardContent>
           {recordings.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
               <Mic className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p>No recordings yet</p>
-              <p className="text-sm">Recordings will appear here automatically when synced</p>
+              <p className="font-medium">No recordings yet</p>
+              <p className="text-sm">Upload a test file or make a recording with your Plaud device</p>
             </div>
           ) : (
             <div className="space-y-3">
               {recordings.map((recording) => (
-                <div key={recording.id} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div>
+                <div key={recording.id} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex-1">
                     <p className="font-medium">{recording.filename}</p>
                     <p className="text-sm text-gray-600">
                       {new Date(recording.timestamp).toLocaleString()}
                       {recording.duration > 0 && ` • ${Math.floor(recording.duration / 60)}m ${recording.duration % 60}s`}
                     </p>
+                    {recording.transcription && (
+                      <p className="text-xs text-gray-500 mt-1 truncate max-w-md">
+                        "{recording.transcription.substring(0, 100)}..."
+                      </p>
+                    )}
                   </div>
                   <div className="flex items-center gap-2">
                     {recording.processed ? (
                       <Badge className="bg-green-100 text-green-700">
                         <CheckCircle className="w-3 h-3 mr-1" />
-                        Transcribed
+                        SOAP Generated
                       </Badge>
                     ) : (
                       <Badge variant="outline">
                         <Clock className="w-3 h-3 mr-1" />
-                        Pending
+                        Processing
                       </Badge>
                     )}
                     <Button variant="outline" size="sm">
@@ -272,38 +301,6 @@ export const PlaudIntegration = () => {
               ))}
             </div>
           )}
-        </CardContent>
-      </Card>
-
-      {/* Integration Instructions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Setup Instructions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-start gap-3">
-              <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-medium">1</div>
-              <div>
-                <p className="font-medium">Connect your Plaud device</p>
-                <p className="text-sm text-gray-600">Download the Plaud mobile app and connect your device</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-medium">2</div>
-              <div>
-                <p className="font-medium">Get your API key</p>
-                <p className="text-sm text-gray-600">Obtain API credentials from your Plaud Cloud account</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-medium">3</div>
-              <div>
-                <p className="font-medium">Enable auto-sync</p>
-                <p className="text-sm text-gray-600">Recordings will automatically transfer and be transcribed</p>
-              </div>
-            </div>
-          </div>
         </CardContent>
       </Card>
     </div>
