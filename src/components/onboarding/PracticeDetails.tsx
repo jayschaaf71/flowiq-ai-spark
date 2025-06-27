@@ -232,36 +232,47 @@ export const PracticeDetails: React.FC<PracticeDetailsProps> = ({
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-4">
               <div>
-                <Label htmlFor="startTime" className="flex items-center gap-2">
+                <Label className="flex items-center gap-2 mb-3">
                   <Clock className="w-4 h-4" />
                   Business Hours
                 </Label>
-                <div className="flex gap-2 items-center">
-                  <Input
-                    id="startTime"
-                    type="time"
-                    value={formData.businessHours?.start || '09:00'}
-                    onChange={(e) => handleInputChange('businessHours', {
-                      ...formData.businessHours,
-                      start: e.target.value
-                    })}
-                  />
-                  <span className="text-gray-500">to</span>
-                  <Input
-                    type="time"
-                    value={formData.businessHours?.end || '17:00'}
-                    onChange={(e) => handleInputChange('businessHours', {
-                      ...formData.businessHours,
-                      end: e.target.value
-                    })}
-                  />
+                <div className="flex items-center gap-3">
+                  <div className="flex-1">
+                    <Label htmlFor="startTime" className="text-sm text-gray-600">Start Time</Label>
+                    <Input
+                      id="startTime"
+                      type="time"
+                      value={formData.businessHours?.start || '09:00'}
+                      onChange={(e) => handleInputChange('businessHours', {
+                        ...formData.businessHours,
+                        start: e.target.value
+                      })}
+                      className="mt-1"
+                    />
+                  </div>
+                  <div className="flex items-center justify-center pt-6">
+                    <span className="text-gray-500 text-sm">to</span>
+                  </div>
+                  <div className="flex-1">
+                    <Label htmlFor="endTime" className="text-sm text-gray-600">End Time</Label>
+                    <Input
+                      id="endTime"
+                      type="time"
+                      value={formData.businessHours?.end || '17:00'}
+                      onChange={(e) => handleInputChange('businessHours', {
+                        ...formData.businessHours,
+                        end: e.target.value
+                      })}
+                      className="mt-1"
+                    />
+                  </div>
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="teamSize" className="flex items-center gap-2">
+                <Label htmlFor="teamSize" className="flex items-center gap-2 mb-2">
                   <Users className="w-4 h-4" />
                   Team Size
                 </Label>
@@ -272,7 +283,11 @@ export const PracticeDetails: React.FC<PracticeDetailsProps> = ({
                   max="100"
                   value={formData.teamSize || 1}
                   onChange={(e) => handleInputChange('teamSize', parseInt(e.target.value) || 1)}
+                  className="w-full"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  Number of team members in your practice
+                </p>
               </div>
             </div>
           </CardContent>
