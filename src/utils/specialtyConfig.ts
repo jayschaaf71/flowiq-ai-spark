@@ -26,7 +26,7 @@ export const specialtyConfigs: Record<SpecialtyType, SpecialtyConfig> = {
     primaryColor: '#16a34a',
     secondaryColor: '#22c55e', 
     accentColor: '#dcfce7',
-    defaultAgents: ['receptionist', 'scribe', 'reminder'],
+    defaultAgents: ['schedule-iq', 'intake-iq', 'remind-iq'],
     requiredIntegrations: ['ehr', 'scheduling'],
     templateCategories: ['intake', 'soap', 'treatment-plans'],
     workflowTemplates: ['new-patient', 'follow-up', 'treatment-series']
@@ -40,7 +40,7 @@ export const specialtyConfigs: Record<SpecialtyType, SpecialtyConfig> = {
     primaryColor: '#3b82f6',
     secondaryColor: '#60a5fa',
     accentColor: '#dbeafe',
-    defaultAgents: ['receptionist', 'follow-up', 'billing'],
+    defaultAgents: ['schedule-iq', 'intake-iq', 'billing-iq'],
     requiredIntegrations: ['ehr', 'dme-billing'],
     templateCategories: ['sleep-study', 'appliance-fitting', 'follow-up'],
     workflowTemplates: ['sleep-consult', 'appliance-delivery', 'maintenance']
@@ -54,7 +54,7 @@ export const specialtyConfigs: Record<SpecialtyType, SpecialtyConfig> = {
     primaryColor: '#ec4899',
     secondaryColor: '#f472b6',
     accentColor: '#fce7f3',
-    defaultAgents: ['receptionist', 'marketing', 'follow-up'],
+    defaultAgents: ['schedule-iq', 'remind-iq', 'assist-iq'],
     requiredIntegrations: ['pos', 'marketing'],
     templateCategories: ['consultation', 'treatment', 'aftercare'],
     workflowTemplates: ['aesthetic-consult', 'treatment-series', 'maintenance']
@@ -68,7 +68,7 @@ export const specialtyConfigs: Record<SpecialtyType, SpecialtyConfig> = {
     primaryColor: '#7c3aed',
     secondaryColor: '#8b5cf6',
     accentColor: '#ede9fe',
-    defaultAgents: ['receptionist', 'care-coordinator', 'wellness'],
+    defaultAgents: ['schedule-iq', 'intake-iq', 'assist-iq'],
     requiredIntegrations: ['ehr', 'telehealth'],
     templateCategories: ['wellness', 'executive-physical', 'house-call'],
     workflowTemplates: ['membership-onboard', 'annual-physical', 'urgent-care']
@@ -82,7 +82,7 @@ export const specialtyConfigs: Record<SpecialtyType, SpecialtyConfig> = {
     primaryColor: '#dc2626',
     secondaryColor: '#ef4444',
     accentColor: '#fee2e2',
-    defaultAgents: ['receptionist', 'lab-coordinator', 'follow-up'],
+    defaultAgents: ['schedule-iq', 'intake-iq', 'remind-iq'],
     requiredIntegrations: ['ehr', 'lab', 'compounding-pharmacy'],
     templateCategories: ['hormone-assessment', 'lab-review', 'adjustment'],
     workflowTemplates: ['initial-consult', 'lab-follow-up', 'optimization']

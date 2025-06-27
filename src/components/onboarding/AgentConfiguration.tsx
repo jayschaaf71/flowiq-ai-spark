@@ -5,9 +5,19 @@ import { SpecialtyType } from '@/utils/specialtyConfig';
 
 interface AgentConfigurationProps {
   agentConfig: {
-    receptionistAgent: boolean;
-    schedulingAgent: boolean;
-    billingAgent: boolean;
+    'schedule-iq'?: boolean;
+    'intake-iq'?: boolean;
+    'remind-iq'?: boolean;
+    'billing-iq'?: boolean;
+    'claims-iq'?: boolean;
+    'assist-iq'?: boolean;
+    'scribe-iq'?: boolean;
+    automationLevel?: number;
+    businessHours?: {
+      start: string;
+      end: string;
+      timezone: string;
+    };
   };
   onAgentConfigUpdate: (config: any) => void;
 }
@@ -18,12 +28,15 @@ export const AgentConfiguration: React.FC<AgentConfigurationProps> = ({
 }) => {
   // Transform the data structure to match what AIAgentConfigurationStep expects
   const transformedConfig = {
-    receptionistAgent: agentConfig.receptionistAgent,
-    intakeAgent: false, // Default value since it's not in the original config
-    followUpAgent: false, // Default value since it's not in the original config
-    reminderAgent: false, // Default value since it's not in the original config
-    automationLevel: 50, // Default automation level
-    businessHours: {
+    'schedule-iq': agentConfig['schedule-iq'] || false,
+    'intake-iq': agentConfig['intake-iq'] || false,
+    'remind-iq': agentConfig['remind-iq'] || false,
+    'billing-iq': agentConfig['billing-iq'] || false,
+    'claims-iq': agentConfig['claims-iq'] || false,
+    'assist-iq': agentConfig['assist-iq'] || false,
+    'scribe-iq': agentConfig['scribe-iq'] || false,
+    automationLevel: agentConfig.automationLevel || 50,
+    businessHours: agentConfig.businessHours || {
       start: '9:00',
       end: '17:00',
       timezone: 'America/New_York'
@@ -31,13 +44,7 @@ export const AgentConfiguration: React.FC<AgentConfigurationProps> = ({
   };
 
   const handleUpdate = (updatedConfig: any) => {
-    // Transform back to the expected format
-    const transformedBack = {
-      receptionistAgent: updatedConfig.receptionistAgent,
-      schedulingAgent: updatedConfig.reminderAgent, // Map reminder to scheduling
-      billingAgent: updatedConfig.intakeAgent // Map intake to billing for now
-    };
-    onAgentConfigUpdate(transformedBack);
+    onAgentConfigUpdate(updatedConfig);
   };
 
   // Default to chiropractic specialty for now
