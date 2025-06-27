@@ -5,6 +5,7 @@ import { OnboardingData } from './useOnboardingFlow';
 interface ValidationError {
   field: string;
   message: string;
+  type: 'error' | 'warning';
 }
 
 interface ValidationResult {
@@ -30,7 +31,8 @@ export const useOnboardingValidation = (stepComponent: string, data: OnboardingD
         if (!data.specialty) {
           errors.push({
             field: 'specialty',
-            message: 'Please select your practice specialty'
+            message: 'Please select your practice specialty',
+            type: 'error'
           });
         }
         break;
@@ -38,7 +40,8 @@ export const useOnboardingValidation = (stepComponent: string, data: OnboardingD
         if (!data.practiceData?.practiceName) {
           errors.push({
             field: 'practiceName',
-            message: 'Practice name is required'
+            message: 'Practice name is required',
+            type: 'error'
           });
         }
         break;

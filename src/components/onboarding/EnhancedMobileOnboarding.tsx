@@ -66,7 +66,7 @@ export const EnhancedMobileOnboarding: React.FC<EnhancedMobileOnboardingProps> =
         onComplete={handleComplete}
         canProceed={true}
         isLoading={false}
-        completionPercentage={onboardingData.completionPercentage || 0}
+        completionPercentage={Math.round((currentStep / (steps.length - 1)) * 100)}
         completedSteps={completedSteps}
         showMenu={showMobileMenu}
         onMenuToggle={() => setShowMobileMenu(!showMobileMenu)}

@@ -11,6 +11,7 @@ import { TemplateConfiguration } from './TemplateConfiguration';
 import { ReviewAndLaunch } from './ReviewAndLaunch';
 import { IntegrationValidationStep } from './IntegrationValidationStep';
 import { OnboardingData } from '@/hooks/useOnboardingFlow';
+import { SpecialtyType } from '@/utils/specialtyConfig';
 
 interface OnboardingStepsRendererProps {
   currentStep: {
@@ -31,11 +32,13 @@ export const OnboardingStepsRenderer: React.FC<OnboardingStepsRendererProps> = (
   onSubmit,
   onCancel
 }) => {
+  const defaultSpecialty: SpecialtyType = 'chiropractic';
+
   switch (currentStep.component) {
     case 'specialty':
       return (
         <PracticeSpecialty
-          specialty={onboardingData.specialty}
+          specialty={onboardingData.specialty || null}
           onSpecialtySelect={(specialty) => updateOnboardingData({ specialty })}
         />
       );
@@ -51,7 +54,7 @@ export const OnboardingStepsRenderer: React.FC<OnboardingStepsRendererProps> = (
     case 'team':
       return (
         <TeamConfiguration
-          specialty={onboardingData.specialty || 'chiropractic'}
+          specialty={onboardingData.specialty || defaultSpecialty}
           teamConfig={onboardingData.teamConfig}
           onTeamConfigUpdate={(teamConfig) => updateOnboardingData({ teamConfig })}
         />
@@ -60,7 +63,7 @@ export const OnboardingStepsRenderer: React.FC<OnboardingStepsRendererProps> = (
     case 'agents':
       return (
         <AgentConfiguration
-          agentConfig={onboardingData.agentConfig}
+          agentConfig={onboardingData.agentConfig || { receptionistAgent: false, schedulingAgent: false, billingAgent: false }}
           onAgentConfigUpdate={(agentConfig) => updateOnboardingData({ agentConfig })}
         />
       );
@@ -76,7 +79,7 @@ export const OnboardingStepsRenderer: React.FC<OnboardingStepsRendererProps> = (
     case 'payment':
       return (
         <OnboardingPaymentStep
-          specialty={onboardingData.specialty || 'chiropractic'}
+          specialty={onboardingData.specialty || defaultSpecialty}
           currentConfig={onboardingData.paymentConfig}
           onStepComplete={(stepData) => {
             updateOnboardingData({ paymentConfig: stepData.data });
@@ -97,8 +100,8 @@ export const OnboardingStepsRenderer: React.FC<OnboardingStepsRendererProps> = (
     case 'ehr':
       return (
         <EHRConfiguration
-          specialty={onboardingData.specialty || 'chiropractic'}
-          ehrConfig={onboardingData.ehrConfig}
+          specialty={onboardingData.specialty || defaultSpecialty}
+          ehrConfig={onboardingData.ehrConfig || { enableIntegration: false, ehrSystem: '', apiEndpoint: '' }}
           onEHRConfigUpdate={(ehrConfig) => updateOnboardingData({ ehrConfig })}
         />
       );
@@ -106,7 +109,7 @@ export const OnboardingStepsRenderer: React.FC<OnboardingStepsRendererProps> = (
     case 'templates':
       return (
         <TemplateConfiguration
-          specialty={onboardingData.specialty || 'chiropractic'}
+          specialty={onboardingData.specialty || defaultSpecialty}
           templateConfig={onboardingData.templateConfig}
           onTemplateConfigUpdate={(templateConfig) => updateOnboardingData({ templateConfig })}
         />

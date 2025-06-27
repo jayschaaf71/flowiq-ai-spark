@@ -2,7 +2,7 @@
 import { useState } from 'react';
 
 export interface OnboardingData {
-  specialty?: string;
+  specialty?: 'chiropractic' | 'dental-sleep' | 'med-spa' | 'concierge' | 'hrt';
   practiceData?: any;
   teamConfig?: any;
   agentConfig?: any;
@@ -12,6 +12,7 @@ export interface OnboardingData {
   templateConfig?: any;
   completionPercentage?: number;
   skippedSteps?: string[];
+  validationResults?: any;
 }
 
 export interface OnboardingStep {
