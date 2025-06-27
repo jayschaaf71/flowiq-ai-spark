@@ -15,7 +15,10 @@ export const ResponsiveOnboardingWrapper: React.FC<ResponsiveOnboardingWrapperPr
 }) => {
   const isMobile = useIsMobile();
 
+  console.log('ResponsiveOnboardingWrapper rendering:', { isMobile });
+
   if (isMobile) {
+    console.log('Using mobile onboarding');
     return (
       <EnhancedMobileOnboarding
         onComplete={onComplete}
@@ -24,6 +27,7 @@ export const ResponsiveOnboardingWrapper: React.FC<ResponsiveOnboardingWrapperPr
     );
   }
 
+  console.log('Using comprehensive onboarding');
   return (
     <ComprehensiveOnboardingFlow
       onComplete={onComplete}

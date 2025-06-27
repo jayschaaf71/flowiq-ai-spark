@@ -1,49 +1,64 @@
 
-import { useState, useEffect } from 'react';
-import { getStepValidation, ValidationResult } from '@/utils/onboardingValidation';
-import { OnboardingData } from '@/hooks/useOnboardingFlow';
+import { useState, useCallback } from 'react';
+import { OnboardingData } from './useOnboardingFlow';
 
-export const useOnboardingValidation = (currentStep: string, onboardingData: OnboardingData) => {
+interface ValidationError {
+  field: string;
+  message: string;
+}
+
+interface ValidationResult {
+  isValid: boolean;
+  errors: ValidationError[];
+  warnings: ValidationError[];
+}
+
+export const useOnboardingValidation = (stepComponent: string, data: OnboardingData) => {
   const [validation, setValidation] = useState<ValidationResult>({
     isValid: true,
     errors: [],
     warnings: []
   });
-  const [isValidating, setIsValidating] = useState(false);
 
-  const validateCurrentStep = () => {
-    setIsValidating(true);
-    
-    try {
-      const result = getStepValidation(currentStep, onboardingData);
-      setValidation(result);
-      return result;
-    } catch (error) {
-      console.error('Validation error:', error);
-      setValidation({
-        isValid: false,
-        errors: [{ field: 'general', message: 'Validation failed. Please try again.', type: 'error' }],
-        warnings: []
-      });
-      return { isValid: false, errors: [], warnings: [] };
-    } finally {
-      setIsValidating(false);
+  const validateCurrentStep = useCallback((): ValidationResult => {
+    const errors: ValidationError[] = [];
+    const warnings: ValidationError[] = [];
+
+    // Basic validation logic
+    switch (stepComponent) {
+      case 'specialty':
+        if (!data.specialty) {
+          errors.push({
+            field: 'specialty',
+            message: 'Please select your practice specialty'
+          });
+        }
+        break;
+      case 'practice':
+        if (!data.practiceData?.practiceName) {
+          errors.push({
+            field: 'practiceName',
+            message: 'Practice name is required'
+          });
+        }
+        break;
     }
-  };
 
-  // Validate when step or data changes
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      validateCurrentStep();
-    }, 500); // Debounce validation
+    const result = {
+      isValid: errors.length === 0,
+      errors,
+      warnings
+    };
 
-    return () => clearTimeout(timeoutId);
-  }, [currentStep, onboardingData]);
+    setValidation(result);
+    return result;
+  }, [stepComponent, data]);
+
+  const canProceed = validation.isValid;
 
   return {
     validation,
-    isValidating,
     validateCurrentStep,
-    canProceed: validation.isValid
+    canProceed
   };
 };

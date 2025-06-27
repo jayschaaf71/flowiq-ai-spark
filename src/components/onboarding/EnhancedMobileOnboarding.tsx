@@ -27,11 +27,14 @@ export const EnhancedMobileOnboarding: React.FC<EnhancedMobileOnboardingProps> =
     setCurrentStep
   } = useOnboardingFlow();
 
+  console.log('EnhancedMobileOnboarding rendering:', { isMobile, currentStep, stepsLength: steps.length });
+
   const completedSteps = new Set<number>();
   const currentStepData = steps[currentStep];
 
   // If not mobile, use the comprehensive flow
   if (!isMobile) {
+    console.log('Rendering comprehensive flow for desktop');
     return (
       <ComprehensiveOnboardingFlow
         onComplete={onComplete}
@@ -49,6 +52,8 @@ export const EnhancedMobileOnboarding: React.FC<EnhancedMobileOnboardingProps> =
     onComplete(onboardingData);
   };
 
+  console.log('Rendering mobile flow');
+
   return (
     <>
       <MobileOnboardingFlow
@@ -59,16 +64,25 @@ export const EnhancedMobileOnboarding: React.FC<EnhancedMobileOnboardingProps> =
         onNext={nextStep}
         onPrevious={prevStep}
         onComplete={handleComplete}
-        canProceed={true} // This would come from validation
+        canProceed={true}
         isLoading={false}
         completionPercentage={onboardingData.completionPercentage || 0}
         completedSteps={completedSteps}
         showMenu={showMobileMenu}
         onMenuToggle={() => setShowMobileMenu(!showMobileMenu)}
       >
-        {/* Step content would be rendered here */}
-        <div className="min-h-[300px] flex items-center justify-center text-gray-500">
-          Content for {currentStepData.component} step
+        <div className="min-h-[300px] flex items-center justify-center">
+          <div className="text-center p-6">
+            <h3 className="text-lg font-semibold mb-2">{currentStepData.title}</h3>
+            <p className="text-gray-600 mb-4">
+              {getStepDescription(currentStepData.component)}
+            </p>
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <p className="text-sm text-blue-800">
+                Step {currentStep + 1} of {steps.length} - {currentStepData.component}
+              </p>
+            </div>
+          </div>
         </div>
       </MobileOnboardingFlow>
 
