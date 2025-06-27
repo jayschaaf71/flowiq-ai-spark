@@ -20,7 +20,9 @@ import {
   MessageSquare,
   Brain,
   Calendar,
-  Package
+  Package,
+  CheckSquare,
+  Clock
 } from "lucide-react";
 import {
   Sidebar,
@@ -49,6 +51,13 @@ export const AppSidebar = () => {
     { icon: Users, label: "Patients", path: "/patient-management", badge: null },
     { icon: Database, label: "EHR", path: "/ehr", badge: null },
     { icon: TrendingUp, label: "Insights", path: "/insights", badge: null },
+  ];
+
+  // Clinical Operations - NEW SECTION
+  const clinicalOperations = [
+    { icon: CheckSquare, label: "Patient Check-In", path: "/checkin", badge: "New" },
+    { icon: Bell, label: "Notifications", path: "/notifications", badge: "New" },
+    { icon: Clock, label: "Provider Scheduling", path: "/provider-scheduling", badge: "New" },
   ];
 
   // Reordered AI agents to match patient journey flow, with new Inventory IQ
@@ -91,10 +100,11 @@ export const AppSidebar = () => {
                   <span>{item.label}</span>
                   {item.badge && (
                     <Badge 
-                      variant={item.badge === "AI" ? "default" : item.badge === "Enterprise" ? "secondary" : "secondary"} 
+                      variant={item.badge === "AI" ? "default" : item.badge === "Enterprise" ? "secondary" : item.badge === "New" ? "destructive" : "secondary"} 
                       className={`ml-auto text-xs ${
                         item.badge === "AI" ? "bg-blue-100 text-blue-700" : 
-                        item.badge === "Enterprise" ? "bg-purple-100 text-purple-700" : ""
+                        item.badge === "Enterprise" ? "bg-purple-100 text-purple-700" : 
+                        item.badge === "New" ? "bg-green-100 text-green-700" : ""
                       }`}
                     >
                       {item.badge}
@@ -134,6 +144,7 @@ export const AppSidebar = () => {
       
       <SidebarContent>
         {renderNavSection("Main", mainNavigationItems)}
+        {renderNavSection("Clinical Operations", clinicalOperations)}
         {renderNavSection("AI Assistants", aiAgents)}
         {renderNavSection("Management", managementItems)}
       </SidebarContent>

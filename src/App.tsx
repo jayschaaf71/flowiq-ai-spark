@@ -36,6 +36,11 @@ import AcceptInvitation from "./pages/AcceptInvitation";
 import TenantOnboarding from "./pages/TenantOnboarding";
 import OnboardNewTenant from "./pages/OnboardNewTenant";
 
+// New pages
+import CheckIn from "./pages/CheckIn";
+import Notifications from "./pages/Notifications";
+import ProviderScheduling from "./pages/ProviderScheduling";
+
 // Agent Pages
 import ScheduleIQ from "./pages/agents/ScheduleIQ";
 import ScheduleIQProduction from "./pages/agents/ScheduleIQProduction";
@@ -92,6 +97,11 @@ function App() {
                 <Route path="/tenant-admin" element={<Layout><TenantAdmin /></Layout>} />
                 <Route path="/settings" element={<Layout><Settings /></Layout>} />
                 <Route path="/help" element={<Layout><Help /></Layout>} />
+                
+                {/* New Feature Routes */}
+                <Route path="/checkin" element={<Layout><CheckIn /></Layout>} />
+                <Route path="/notifications" element={<Layout><Notifications /></Layout>} />
+                <Route path="/provider-scheduling" element={<Layout><ProviderScheduling /></Layout>} />
                 
                 {/* Agent Routes */}
                 <Route path="/agents/schedule" element={<Layout><ScheduleIQ /></Layout>} />
