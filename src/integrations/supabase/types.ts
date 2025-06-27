@@ -3216,6 +3216,45 @@ export type Database = {
         }
         Relationships: []
       }
+      research_activities: {
+        Row: {
+          activity_type: string
+          completed_at: string | null
+          created_at: string | null
+          error_message: string | null
+          id: string
+          metadata: Json | null
+          results_count: number | null
+          source_url: string | null
+          started_at: string | null
+          status: string
+        }
+        Insert: {
+          activity_type: string
+          completed_at?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          results_count?: number | null
+          source_url?: string | null
+          started_at?: string | null
+          status?: string
+        }
+        Update: {
+          activity_type?: string
+          completed_at?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          results_count?: number | null
+          source_url?: string | null
+          started_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       revenue_metrics: {
         Row: {
           average_days_in_ar: number
@@ -3729,6 +3768,141 @@ export type Database = {
           name?: string
           specialty?: string
           template_data?: Json
+        }
+        Relationships: []
+      }
+      solution_updates: {
+        Row: {
+          confidence_score: number | null
+          created_at: string | null
+          field_name: string
+          id: string
+          is_approved: boolean | null
+          new_value: string | null
+          old_value: string | null
+          research_activity_id: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          solution_id: string | null
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string | null
+          field_name: string
+          id?: string
+          is_approved?: boolean | null
+          new_value?: string | null
+          old_value?: string | null
+          research_activity_id?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          solution_id?: string | null
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string | null
+          field_name?: string
+          id?: string
+          is_approved?: boolean | null
+          new_value?: string | null
+          old_value?: string | null
+          research_activity_id?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          solution_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "solution_updates_research_activity_id_fkey"
+            columns: ["research_activity_id"]
+            isOneToOne: false
+            referencedRelation: "research_activities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "solution_updates_solution_id_fkey"
+            columns: ["solution_id"]
+            isOneToOne: false
+            referencedRelation: "solutions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      solutions: {
+        Row: {
+          category: string
+          certifications: string[] | null
+          client_size: string[] | null
+          company: string
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string | null
+          description: string
+          employee_count: string | null
+          founded_year: number | null
+          funding_stage: string | null
+          id: string
+          implementation_time: string | null
+          is_active: boolean | null
+          key_features: string[] | null
+          last_updated: string | null
+          logo_url: string | null
+          match_score: number | null
+          name: string
+          pricing: string | null
+          region: string | null
+          updated_at: string | null
+          website_url: string | null
+        }
+        Insert: {
+          category: string
+          certifications?: string[] | null
+          client_size?: string[] | null
+          company: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          description: string
+          employee_count?: string | null
+          founded_year?: number | null
+          funding_stage?: string | null
+          id?: string
+          implementation_time?: string | null
+          is_active?: boolean | null
+          key_features?: string[] | null
+          last_updated?: string | null
+          logo_url?: string | null
+          match_score?: number | null
+          name: string
+          pricing?: string | null
+          region?: string | null
+          updated_at?: string | null
+          website_url?: string | null
+        }
+        Update: {
+          category?: string
+          certifications?: string[] | null
+          client_size?: string[] | null
+          company?: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          description?: string
+          employee_count?: string | null
+          founded_year?: number | null
+          funding_stage?: string | null
+          id?: string
+          implementation_time?: string | null
+          is_active?: boolean | null
+          key_features?: string[] | null
+          last_updated?: string | null
+          logo_url?: string | null
+          match_score?: number | null
+          name?: string
+          pricing?: string | null
+          region?: string | null
+          updated_at?: string | null
+          website_url?: string | null
         }
         Relationships: []
       }
