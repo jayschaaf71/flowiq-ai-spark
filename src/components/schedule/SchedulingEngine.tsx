@@ -38,13 +38,13 @@ export const SchedulingEngine = ({ onAppointmentBooked }: SchedulingEngineProps)
   useEffect(() => {
     loadProviders();
     
-    // Pre-fill user data if available
+    // Pre-fill user data if available - fix phone property access
     if (profile) {
       setPatientInfo(prev => ({
         ...prev,
         name: `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || prev.name,
         email: profile.email || prev.email,
-        phone: profile.phone || prev.phone
+        phone: (profile as any).phone || prev.phone // Type assertion to access phone if it exists
       }));
     }
   }, [profile]);

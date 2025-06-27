@@ -54,13 +54,13 @@ export const AppointmentBookingModal = ({
         setFormData(prev => ({ ...prev, time: selectedTime }));
       }
       
-      // Pre-fill user data if available
+      // Pre-fill user data if available - fix phone property access
       if (profile) {
         setFormData(prev => ({
           ...prev,
           patientName: `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || prev.patientName,
           email: profile.email || prev.email,
-          phone: profile.phone || prev.phone
+          phone: (profile as any).phone || prev.phone // Type assertion to access phone if it exists
         }));
       }
     }
