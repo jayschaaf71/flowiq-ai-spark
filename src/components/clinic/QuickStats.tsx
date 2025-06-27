@@ -36,7 +36,7 @@ export const QuickStats = () => {
       description: "8% above target",
       icon: DollarSign,
       trend: "+8%",
-      onClick: () => navigate("/agents/claims-iq")
+      onClick: () => navigate("/agents/claims")
     },
     { 
       title: "Avg. Wait Time", 
