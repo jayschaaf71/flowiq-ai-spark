@@ -2264,6 +2264,42 @@ export type Database = {
           },
         ]
       }
+      notification_templates: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          message_template: string
+          name: string
+          subject: string | null
+          type: string
+          updated_at: string
+          variables: string[] | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          message_template: string
+          name: string
+          subject?: string | null
+          type: string
+          updated_at?: string
+          variables?: string[] | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          message_template?: string
+          name?: string
+          subject?: string | null
+          type?: string
+          updated_at?: string
+          variables?: string[] | null
+        }
+        Relationships: []
+      }
       onboarding_progress: {
         Row: {
           completed_at: string | null
@@ -2340,6 +2376,80 @@ export type Database = {
           user_type?: Database["public"]["Enums"]["user_type"]
         }
         Relationships: []
+      }
+      patient_checkins: {
+        Row: {
+          appointment_id: string
+          check_in_method: string
+          checked_in_at: string
+          checked_in_by: string | null
+          copay_amount: number | null
+          copay_collected: boolean
+          created_at: string
+          forms_completed: boolean
+          id: string
+          insurance_verified: boolean
+          notes: string | null
+          patient_id: string
+        }
+        Insert: {
+          appointment_id: string
+          check_in_method?: string
+          checked_in_at?: string
+          checked_in_by?: string | null
+          copay_amount?: number | null
+          copay_collected?: boolean
+          created_at?: string
+          forms_completed?: boolean
+          id?: string
+          insurance_verified?: boolean
+          notes?: string | null
+          patient_id: string
+        }
+        Update: {
+          appointment_id?: string
+          check_in_method?: string
+          checked_in_at?: string
+          checked_in_by?: string | null
+          copay_amount?: number | null
+          copay_collected?: boolean
+          created_at?: string
+          forms_completed?: boolean
+          id?: string
+          insurance_verified?: boolean
+          notes?: string | null
+          patient_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_checkins_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_checkins_checked_in_by_fkey"
+            columns: ["checked_in_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_checkins_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patient_onboarding_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_checkins_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       patient_insurance: {
         Row: {
@@ -2785,6 +2895,116 @@ export type Database = {
         }
         Relationships: []
       }
+      provider_schedules: {
+        Row: {
+          break_end_time: string | null
+          break_start_time: string | null
+          created_at: string
+          day_of_week: number
+          effective_date: string
+          end_date: string | null
+          end_time: string
+          id: string
+          is_available: boolean
+          provider_id: string
+          start_time: string
+          updated_at: string
+        }
+        Insert: {
+          break_end_time?: string | null
+          break_start_time?: string | null
+          created_at?: string
+          day_of_week: number
+          effective_date?: string
+          end_date?: string | null
+          end_time: string
+          id?: string
+          is_available?: boolean
+          provider_id: string
+          start_time: string
+          updated_at?: string
+        }
+        Update: {
+          break_end_time?: string | null
+          break_start_time?: string | null
+          created_at?: string
+          day_of_week?: number
+          effective_date?: string
+          end_date?: string | null
+          end_time?: string
+          id?: string
+          is_available?: boolean
+          provider_id?: string
+          start_time?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_schedules_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_time_off: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          end_date: string
+          end_time: string | null
+          id: string
+          is_approved: boolean
+          provider_id: string
+          reason: string | null
+          start_date: string
+          start_time: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          end_date: string
+          end_time?: string | null
+          id?: string
+          is_approved?: boolean
+          provider_id: string
+          reason?: string | null
+          start_date: string
+          start_time?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          end_date?: string
+          end_time?: string | null
+          id?: string
+          is_approved?: boolean
+          provider_id?: string
+          reason?: string | null
+          start_date?: string
+          start_time?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_time_off_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_time_off_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       providers: {
         Row: {
           created_at: string
@@ -3227,6 +3447,63 @@ export type Database = {
             columns: ["provider_id"]
             isOneToOne: false
             referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scheduled_notifications: {
+        Row: {
+          appointment_id: string
+          created_at: string
+          error_message: string | null
+          id: string
+          recipient_email: string | null
+          recipient_phone: string | null
+          retry_count: number
+          scheduled_for: string
+          sent_at: string | null
+          status: string
+          template_id: string
+        }
+        Insert: {
+          appointment_id: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          recipient_email?: string | null
+          recipient_phone?: string | null
+          retry_count?: number
+          scheduled_for: string
+          sent_at?: string | null
+          status?: string
+          template_id: string
+        }
+        Update: {
+          appointment_id?: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          recipient_email?: string | null
+          recipient_phone?: string | null
+          retry_count?: number
+          scheduled_for?: string
+          sent_at?: string | null
+          status?: string
+          template_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scheduled_notifications_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scheduled_notifications_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "notification_templates"
             referencedColumns: ["id"]
           },
         ]
