@@ -1,419 +1,243 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Brain, 
-  Calendar, 
-  Users, 
-  TrendingUp, 
-  Clock, 
-  CheckCircle, 
-  AlertCircle, 
-  Zap,
-  BarChart3,
-  Settings,
-  RefreshCw
-} from 'lucide-react';
-import { scheduleIQService } from '@/services/scheduleIQService';
+import { Button } from '@/components/ui/button';
+import { Brain, Calendar, Clock, Users, TrendingUp, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { format, subDays } from 'date-fns';
+import { scheduleIQService } from '@/services/scheduleIQService';
 
 interface ScheduleIQDashboardProps {
   practiceId: string;
 }
 
 export const ScheduleIQDashboard: React.FC<ScheduleIQDashboardProps> = ({ practiceId }) => {
+  const { toast } = useToast();
+  const [config, setConfig] = useState<any>(null);
   const [analytics, setAnalytics] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [optimizing, setOptimizing] = useState(false);
-  const [waitlistStatus, setWaitlistStatus] = useState<any>(null);
-  const { toast } = useToast();
 
   useEffect(() => {
-    loadAnalytics();
-    initializeScheduleIQ();
+    loadDashboardData();
   }, [practiceId]);
 
-  const initializeScheduleIQ = async () => {
-    try {
-      await scheduleIQService.initializeConfig(practiceId);
-      toast({
-        title: "Schedule iQ Ready",
-        description: "AI-powered scheduling is now active",
-      });
-    } catch (error) {
-      console.error('Error initializing Schedule iQ:', error);
-      toast({
-        title: "Initialization Error",
-        description: "Failed to initialize Schedule iQ",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const loadAnalytics = async () => {
+  const loadDashboardData = async () => {
     try {
       setLoading(true);
-      const dateRange = {
-        start: format(subDays(new Date(), 30), 'yyyy-MM-dd'),
-        end: format(new Date(), 'yyyy-MM-dd')
-      };
       
-      const data = await scheduleIQService.getAnalytics(dateRange);
-      setAnalytics(data);
+      // Initialize configuration
+      const configData = await scheduleIQService.initializeConfig(practiceId);
+      setConfig(configData);
+
+      // Load analytics for last 30 days
+      const endDate = new Date().toISOString().split('T')[0];
+      const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      
+      const analyticsData = await scheduleIQService.getAnalytics({ start: startDate, end: endDate });
+      setAnalytics(analyticsData);
+
     } catch (error) {
-      console.error('Error loading analytics:', error);
+      console.error('Error loading dashboard data:', error);
       toast({
-        title: "Analytics Error",
-        description: "Failed to load Schedule iQ analytics",
-        variant: "destructive"
+        title: "Error",
+        description: "Failed to load Schedule iQ dashboard",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const runOptimization = async () => {
-    try {
-      setOptimizing(true);
-      
-      // Run optimization for today's schedule
-      const today = format(new Date(), 'yyyy-MM-dd');
-      const optimization = await scheduleIQService.optimizeSchedule('default-provider', today);
-      
-      toast({
-        title: "Schedule Optimized",
-        description: `Utilization improved by ${optimization.improvements.improvedUtilization}%`,
-      });
-      
-      await loadAnalytics();
-    } catch (error) {
-      console.error('Error running optimization:', error);
-      toast({
-        title: "Optimization Error",
-        description: "Failed to optimize schedule",
-        variant: "destructive"
-      });
-    } finally {
-      setOptimizing(false);
-    }
-  };
-
-  const processWaitlist = async () => {
+  const handleProcessWaitlist = async () => {
     try {
       const result = await scheduleIQService.manageWaitlist();
-      setWaitlistStatus(result);
-      
       toast({
         title: "Waitlist Processed",
-        description: `${result.booked} appointments booked from waitlist`,
+        description: `${result.booked} appointments booked from ${result.processed} waitlist entries`,
       });
+      loadDashboardData(); // Refresh data
     } catch (error) {
       console.error('Error processing waitlist:', error);
       toast({
-        title: "Waitlist Error",
+        title: "Error",
         description: "Failed to process waitlist",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i} className="animate-pulse">
+              <CardContent className="p-6">
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-8 bg-gray-200 rounded w-1/2"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* AI Status Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Brain className="w-8 h-8 text-purple-600" />
+          <Brain className="h-8 w-8 text-blue-600" />
           <div>
-            <h1 className="text-2xl font-bold">Schedule iQ Dashboard</h1>
-            <p className="text-gray-600">AI-powered scheduling intelligence</p>
+            <h2 className="text-2xl font-bold">Schedule iQ Dashboard</h2>
+            <p className="text-gray-600">AI-powered scheduling automation</p>
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={loadAnalytics}>
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Refresh
-          </Button>
-          <Button onClick={runOptimization} disabled={optimizing}>
-            {optimizing ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                Optimizing...
-              </>
-            ) : (
-              <>
-                <Zap className="w-4 h-4 mr-2" />
-                Optimize Now
-              </>
-            )}
-          </Button>
+          <Badge className={`${config?.aiOptimizationEnabled ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
+            <CheckCircle className="w-3 h-3 mr-1" />
+            AI Optimization: {config?.aiOptimizationEnabled ? 'ON' : 'OFF'}
+          </Badge>
+          <Badge className={`${config?.autoBookingEnabled ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'}`}>
+            <Calendar className="w-3 h-3 mr-1" />
+            Auto-Booking: {config?.autoBookingEnabled ? 'ON' : 'OFF'}
+          </Badge>
         </div>
       </div>
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              Total Appointments
-            </CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Appointments</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{analytics?.totalAppointments || 0}</div>
-            <p className="text-sm text-gray-600">Last 30 days</p>
+            <p className="text-xs text-muted-foreground">Last 30 days</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Brain className="w-4 h-4" />
-              AI Auto-Booked
-            </CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">AI Bookings</CardTitle>
+            <Brain className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-600">{analytics?.aiBookedAppointments || 0}</div>
-            <p className="text-sm text-gray-600">{analytics?.aiBookingRate?.toFixed(1) || 0}% of total</p>
+            <div className="text-2xl font-bold">{analytics?.aiBookedAppointments || 0}</div>
+            <p className="text-xs text-muted-foreground">
+              {analytics?.aiBookingRate?.toFixed(1) || 0}% of total
+            </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <CheckCircle className="w-4 h-4" />
-              Confirmation Rate
-            </CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Confirmation Rate</CardTitle>
+            <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{analytics?.confirmationRate?.toFixed(1) || 0}%</div>
-            <Progress value={analytics?.confirmationRate || 0} className="mt-2" />
+            <div className="text-2xl font-bold">{analytics?.confirmationRate?.toFixed(1) || 0}%</div>
+            <p className="text-xs text-muted-foreground">
+              {analytics?.confirmedAppointments || 0} confirmed
+            </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <TrendingUp className="w-4 h-4" />
-              Optimizations
-            </CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Optimizations</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{analytics?.optimizationsApplied || 0}</div>
-            <p className="text-sm text-gray-600">
-              Avg {analytics?.averageUtilizationImprovement?.toFixed(1) || 0}% improvement
+            <div className="text-2xl font-bold">{analytics?.optimizationsApplied || 0}</div>
+            <p className="text-xs text-muted-foreground">
+              +{analytics?.averageUtilizationImprovement?.toFixed(1) || 0}% efficiency
             </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* AI Status Alert */}
-      <Alert>
-        <Brain className="h-4 w-4" />
-        <AlertDescription>
-          Schedule iQ is actively learning from your appointment patterns and optimizing bookings in real-time. 
-          AI confidence: <Badge className="ml-1 bg-green-100 text-green-700">High</Badge>
-        </AlertDescription>
-      </Alert>
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              Waitlist Management
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-gray-600">
+              Process waitlist entries and automatically book available appointments
+            </p>
+            <Button onClick={handleProcessWaitlist} className="w-full">
+              Process Waitlist
+            </Button>
+          </CardContent>
+        </Card>
 
-      {/* Detailed Tabs */}
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="optimization">Optimization</TabsTrigger>
-          <TabsTrigger value="waitlist">Waitlist</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-        </TabsList>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Clock className="h-5 w-5" />
+              Schedule Optimization
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-gray-600">
+              AI analyzes and optimizes schedules to reduce wait times and improve efficiency
+            </p>
+            <Button variant="outline" className="w-full">
+              View Optimization History
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
 
-        <TabsContent value="overview" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>AI Booking Performance</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span>Auto-booking Success Rate</span>
-                  <span className="font-semibold">{analytics?.aiBookingRate?.toFixed(1) || 0}%</span>
+      {/* Configuration Status */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Current Configuration</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <h4 className="font-medium mb-2">AI Features</h4>
+              <div className="space-y-1 text-sm">
+                <div className="flex justify-between">
+                  <span>Optimization</span>
+                  <Badge variant={config?.aiOptimizationEnabled ? "default" : "secondary"}>
+                    {config?.aiOptimizationEnabled ? "Enabled" : "Disabled"}
+                  </Badge>
                 </div>
-                <Progress value={analytics?.aiBookingRate || 0} />
-                
-                <div className="flex items-center justify-between">
-                  <span>Patient Satisfaction</span>
-                  <span className="font-semibold">94.2%</span>
+                <div className="flex justify-between">
+                  <span>Auto-Booking</span>
+                  <Badge variant={config?.autoBookingEnabled ? "default" : "secondary"}>
+                    {config?.autoBookingEnabled ? "Enabled" : "Disabled"}
+                  </Badge>
                 </div>
-                <Progress value={94.2} />
-                
-                <div className="flex items-center justify-between">
-                  <span>Schedule Efficiency</span>
-                  <span className="font-semibold">87.5%</span>
+                <div className="flex justify-between">
+                  <span>Waitlist</span>
+                  <Badge variant={config?.waitlistEnabled ? "default" : "secondary"}>
+                    {config?.waitlistEnabled ? "Enabled" : "Disabled"}
+                  </Badge>
                 </div>
-                <Progress value={87.5} />
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent AI Actions</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 p-2 bg-green-50 rounded">
-                    <CheckCircle className="w-4 h-4 text-green-600" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">Auto-booked appointment</p>
-                      <p className="text-xs text-gray-600">2 minutes ago</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 p-2 bg-blue-50 rounded">
-                    <Zap className="w-4 h-4 text-blue-600" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">Optimized schedule</p>
-                      <p className="text-xs text-gray-600">15 minutes ago</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 p-2 bg-purple-50 rounded">
-                    <Users className="w-4 h-4 text-purple-600" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">Processed waitlist</p>
-                      <p className="text-xs text-gray-600">1 hour ago</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
+            <div>
+              <h4 className="font-medium mb-2">Working Hours</h4>
+              <div className="text-sm">
+                <p>{config?.workingHours?.start} - {config?.workingHours?.end}</p>
+                <p className="text-gray-600">
+                  {config?.workingHours?.days?.length || 0} days per week
+                </p>
+              </div>
+            </div>
           </div>
-        </TabsContent>
-
-        <TabsContent value="optimization">
-          <Card>
-            <CardHeader>
-              <CardTitle>Schedule Optimization</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-medium">AI Schedule Optimizer</h3>
-                  <p className="text-sm text-gray-600">Automatically optimize provider schedules for maximum efficiency</p>
-                </div>
-                <Button onClick={runOptimization} disabled={optimizing}>
-                  {optimizing ? 'Running...' : 'Run Optimization'}
-                </Button>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <TrendingUp className="w-8 h-8 text-green-600 mx-auto mb-2" />
-                  <div className="text-xl font-bold">15.2%</div>
-                  <div className="text-sm text-gray-600">Avg Utilization Gain</div>
-                </div>
-                <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <Clock className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                  <div className="text-xl font-bold">12 min</div>
-                  <div className="text-sm text-gray-600">Reduced Wait Time</div>
-                </div>
-                <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <CheckCircle className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-                  <div className="text-xl font-bold">98.1%</div>
-                  <div className="text-sm text-gray-600">Optimization Success</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="waitlist">
-          <Card>
-            <CardHeader>
-              <CardTitle>Smart Waitlist Management</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-medium">AI Waitlist Processor</h3>
-                  <p className="text-sm text-gray-600">Automatically book patients from waitlist when slots become available</p>
-                </div>
-                <Button onClick={processWaitlist}>
-                  Process Waitlist
-                </Button>
-              </div>
-              
-              {waitlistStatus && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                  <div className="text-center p-4 bg-blue-50 rounded-lg">
-                    <Users className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                    <div className="text-xl font-bold">{waitlistStatus.processed}</div>
-                    <div className="text-sm text-gray-600">Processed</div>
-                  </div>
-                  <div className="text-center p-4 bg-green-50 rounded-lg">
-                    <CheckCircle className="w-8 h-8 text-green-600 mx-auto mb-2" />
-                    <div className="text-xl font-bold">{waitlistStatus.booked}</div>
-                    <div className="text-sm text-gray-600">Booked</div>
-                  </div>
-                  <div className="text-center p-4 bg-yellow-50 rounded-lg">
-                    <Clock className="w-8 h-8 text-yellow-600 mx-auto mb-2" />
-                    <div className="text-xl font-bold">{waitlistStatus.pending}</div>
-                    <div className="text-sm text-gray-600">Still Pending</div>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="analytics">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Booking Trends</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-48 flex items-center justify-center text-gray-500">
-                  <BarChart3 className="w-12 h-12" />
-                  <span className="ml-2">Chart visualization would be here</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Performance Metrics</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex justify-between">
-                  <span>Average Booking Time</span>
-                  <span className="font-semibold">2.3 minutes</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>No-Show Rate</span>
-                  <span className="font-semibold">4.2%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Cancellation Rate</span>
-                  <span className="font-semibold">8.1%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>AI Prediction Accuracy</span>
-                  <span className="font-semibold">92.5%</span>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-      </Tabs>
+        </CardContent>
+      </Card>
     </div>
   );
 };
