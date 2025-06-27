@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, CheckCircle, Loader2, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, Loader2, AlertTriangle, Skip } from 'lucide-react';
 
 interface OnboardingNavigationProps {
   currentStep: number;
@@ -13,6 +13,7 @@ interface OnboardingNavigationProps {
   isLoading?: boolean;
   canProceed?: boolean;
   hasValidationErrors?: boolean;
+  onShowSkipOptions?: () => void;
 }
 
 export const OnboardingNavigation: React.FC<OnboardingNavigationProps> = ({
@@ -24,7 +25,8 @@ export const OnboardingNavigation: React.FC<OnboardingNavigationProps> = ({
   isSpecialStep = false,
   isLoading = false,
   canProceed = true,
-  hasValidationErrors = false
+  hasValidationErrors = false,
+  onShowSkipOptions
 }) => {
   const isLastStep = currentStep === totalSteps - 1;
   const isFirstStep = currentStep === 0;
@@ -54,6 +56,18 @@ export const OnboardingNavigation: React.FC<OnboardingNavigationProps> = ({
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </Button>
+          
+          {onShowSkipOptions && (
+            <Button
+              variant="ghost"
+              onClick={onShowSkipOptions}
+              disabled={isLoading}
+              className="text-gray-600 hover:text-gray-800"
+            >
+              <Skip className="w-4 h-4 mr-2" />
+              Skip this step
+            </Button>
+          )}
           
           {hasValidationErrors && (
             <div className="flex items-center text-red-600 text-sm">

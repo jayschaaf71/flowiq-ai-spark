@@ -10,6 +10,7 @@ import { OnboardingStepGuide } from './OnboardingStepGuide';
 import { OnboardingProgressSidebar } from './OnboardingProgressSidebar';
 import { OnboardingValidationAlert } from './OnboardingValidationAlert';
 import { OnboardingErrorBoundary } from './OnboardingErrorBoundary';
+import { OnboardingSkipHandler } from './OnboardingSkipHandler';
 import { useOnboardingFlow } from '@/hooks/useOnboardingFlow';
 import { useOnboardingValidation } from '@/hooks/useOnboardingValidation';
 import { useToast } from '@/hooks/use-toast';
@@ -25,6 +26,7 @@ export const ComprehensiveOnboardingFlow: React.FC<ComprehensiveOnboardingFlowPr
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showSkipOptions, setShowSkipOptions] = useState(false);
   const { toast } = useToast();
 
   const {
@@ -33,7 +35,8 @@ export const ComprehensiveOnboardingFlow: React.FC<ComprehensiveOnboardingFlowPr
     updateOnboardingData,
     steps,
     nextStep,
-    prevStep
+    prevStep,
+    skipStep
   } = useOnboardingFlow();
 
   const currentStepData = steps[currentStep];
@@ -46,6 +49,7 @@ export const ComprehensiveOnboardingFlow: React.FC<ComprehensiveOnboardingFlowPr
     const result = validateCurrentStep();
     if (result.isValid) {
       nextStep();
+      setShowSkipOptions(false);
     } else {
       toast({
         title: "Please fix the issues below",
@@ -53,6 +57,24 @@ export const ComprehensiveOnboardingFlow: React.FC<ComprehensiveOnboardingFlowPr
         variant: "destructive"
       });
     }
+  };
+
+  const handleSkip = (option: any) => {
+    skipStep(currentStepData.id, option.title);
+    nextStep();
+    setShowSkipOptions(false);
+  };
+
+  const handleShowSkipOptions = () => {
+    if (currentStepData.required) {
+      toast({
+        title: "This step is required",
+        description: "Please complete the required fields to continue.",
+        variant: "destructive"
+      });
+      return;
+    }
+    setShowSkipOptions(true);
   };
 
   const handleSubmit = async () => {
@@ -69,7 +91,8 @@ export const ComprehensiveOnboardingFlow: React.FC<ComprehensiveOnboardingFlowPr
     setIsSubmitting(true);
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Simulate submission delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
       setShowSuccess(true);
       
       setTimeout(() => {
@@ -100,7 +123,7 @@ export const ComprehensiveOnboardingFlow: React.FC<ComprehensiveOnboardingFlowPr
                 <OnboardingLoadingState 
                   message="Setting up your FlowIQ practice..."
                   showProgress={true}
-                  progress={85}
+                  progress={onboardingData.completionPercentage || 85}
                 />
               ) : (
                 <OnboardingSuccessState
@@ -138,6 +161,8 @@ export const ComprehensiveOnboardingFlow: React.FC<ComprehensiveOnboardingFlowPr
                 currentStep={currentStep}
                 totalSteps={steps.length}
                 showProgress={true}
+                completionPercentage={onboardingData.completionPercentage}
+                onShowSkipOptions={!currentStepData.required ? handleShowSkipOptions : undefined}
               />
               <CardContent className="py-8 px-8">
                 {/* Validation Alerts */}
@@ -147,41 +172,54 @@ export const ComprehensiveOnboardingFlow: React.FC<ComprehensiveOnboardingFlowPr
                   className="mb-6"
                 />
 
-                <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                  {/* Step Guide */}
-                  <div className="xl:col-span-1 order-2 xl:order-1">
-                    <OnboardingStepGuide 
-                      step={currentStepData.component}
-                      specialty={onboardingData.specialty}
-                    />
-                  </div>
-
-                  {/* Main Form */}
-                  <div className="xl:col-span-2 order-1 xl:order-2">
-                    <div className="min-h-[500px]">
-                      <OnboardingStepsRenderer
-                        currentStep={currentStepData}
-                        onboardingData={onboardingData}
-                        updateOnboardingData={updateOnboardingData}
-                        nextStep={handleNext}
-                        onSubmit={handleSubmit}
-                        onCancel={onCancel}
+                {!showSkipOptions ? (
+                  <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                    {/* Step Guide */}
+                    <div className="xl:col-span-1 order-2 xl:order-1">
+                      <OnboardingStepGuide 
+                        step={currentStepData.component}
+                        specialty={onboardingData.specialty}
                       />
                     </div>
+
+                    {/* Main Form */}
+                    <div className="xl:col-span-2 order-1 xl:order-2">
+                      <div className="min-h-[500px]">
+                        <OnboardingStepsRenderer
+                          currentStep={currentStepData}
+                          onboardingData={onboardingData}
+                          updateOnboardingData={updateOnboardingData}
+                          nextStep={handleNext}
+                          onSubmit={handleSubmit}
+                          onCancel={onCancel}
+                        />
+                      </div>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="max-w-2xl mx-auto">
+                    <OnboardingSkipHandler
+                      step={currentStepData.component}
+                      onSkip={handleSkip}
+                      onContinue={() => setShowSkipOptions(false)}
+                    />
+                  </div>
+                )}
                 
-                <OnboardingNavigation
-                  currentStep={currentStep}
-                  totalSteps={steps.length}
-                  onPrevious={prevStep}
-                  onNext={handleNext}
-                  onComplete={handleSubmit}
-                  isSpecialStep={isSpecialStep}
-                  isLoading={isSubmitting}
-                  canProceed={canProceed}
-                  hasValidationErrors={validation.errors.length > 0}
-                />
+                {!showSkipOptions && (
+                  <OnboardingNavigation
+                    currentStep={currentStep}
+                    totalSteps={steps.length}
+                    onPrevious={prevStep}
+                    onNext={handleNext}
+                    onComplete={handleSubmit}
+                    isSpecialStep={isSpecialStep}
+                    isLoading={isSubmitting}
+                    canProceed={canProceed}
+                    hasValidationErrors={validation.errors.length > 0}
+                    onShowSkipOptions={!currentStepData.required ? handleShowSkipOptions : undefined}
+                  />
+                )}
               </CardContent>
             </Card>
           </div>
