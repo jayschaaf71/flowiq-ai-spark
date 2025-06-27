@@ -3,8 +3,8 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, User, Phone, Plus } from "lucide-react";
-import { format, addDays, startOfWeek, isSameDay } from "date-fns";
+import { Calendar, Clock, User, Phone, Plus, Edit, Trash2 } from "lucide-react";
+import { format, addDays, startOfWeek, isSameDay, isToday } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 
 interface TimeSlot {
@@ -23,6 +23,7 @@ export const RealTimeCalendar = ({ onTimeSlotClick, onAppointmentClick }: RealTi
   const [appointments, setAppointments] = useState<any[]>([]);
   const [availableSlots, setAvailableSlots] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hoveredSlot, setHoveredSlot] = useState<string | null>(null);
 
   const timeSlots = [
     '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
@@ -120,17 +121,21 @@ export const RealTimeCalendar = ({ onTimeSlotClick, onAppointmentClick }: RealTi
     switch (status.type) {
       case 'appointment':
         const statusColors = {
-          confirmed: 'bg-green-100 border-green-300 text-green-800',
-          pending: 'bg-yellow-100 border-yellow-300 text-yellow-800',
-          cancelled: 'bg-red-100 border-red-300 text-red-800',
-          completed: 'bg-blue-100 border-blue-300 text-blue-800'
+          confirmed: 'bg-green-100 border-green-300 text-green-800 hover:bg-green-200',
+          pending: 'bg-yellow-100 border-yellow-300 text-yellow-800 hover:bg-yellow-200',
+          cancelled: 'bg-red-100 border-red-300 text-red-800 hover:bg-red-200',
+          completed: 'bg-blue-100 border-blue-300 text-blue-800 hover:bg-blue-200'
         };
-        return statusColors[status.data.status as keyof typeof statusColors] || 'bg-gray-100 border-gray-300';
+        return statusColors[status.data.status as keyof typeof statusColors] || 'bg-gray-100 border-gray-300 hover:bg-gray-200';
       case 'available':
-        return 'bg-green-50 border-green-200 hover:bg-green-100 cursor-pointer';
+        return 'bg-green-50 border-green-200 hover:bg-green-100 cursor-pointer border-2 border-dashed';
       default:
         return 'bg-gray-50 border-gray-200';
     }
+  };
+
+  const getSlotId = (date: Date, time: string) => {
+    return `${format(date, 'yyyy-MM-dd')}-${time}`;
   };
 
   return (
@@ -140,6 +145,9 @@ export const RealTimeCalendar = ({ onTimeSlotClick, onAppointmentClick }: RealTi
           <CardTitle className="flex items-center gap-2">
             <Calendar className="w-5 h-5" />
             Live Schedule - Week of {format(currentWeek, 'MMM d, yyyy')}
+            <Badge className="bg-green-100 text-green-700 ml-2">
+              Real-time Updates
+            </Badge>
           </CardTitle>
           <div className="flex gap-2">
             <Button 
@@ -165,6 +173,26 @@ export const RealTimeCalendar = ({ onTimeSlotClick, onAppointmentClick }: RealTi
             </Button>
           </div>
         </div>
+        
+        {/* Legend */}
+        <div className="flex gap-4 text-xs">
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 bg-green-100 border border-green-300 rounded"></div>
+            <span>Confirmed</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 bg-yellow-100 border border-yellow-300 rounded"></div>
+            <span>Pending</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 bg-green-50 border-2 border-green-200 border-dashed rounded"></div>
+            <span>Available</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 bg-blue-100 border border-blue-300 rounded"></div>
+            <span>Completed</span>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         {loading ? (
@@ -175,13 +203,15 @@ export const RealTimeCalendar = ({ onTimeSlotClick, onAppointmentClick }: RealTi
           <div className="overflow-x-auto">
             <div className="grid grid-cols-8 gap-1 min-w-[800px]">
               {/* Header row */}
-              <div className="p-2 font-medium">Time</div>
+              <div className="p-2 font-medium text-center bg-gray-50 rounded">Time</div>
               {weekDays.map(day => (
-                <div key={day.toISOString()} className="p-2 text-center">
+                <div key={day.toISOString()} className={`p-2 text-center rounded ${
+                  isToday(day) ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50'
+                }`}>
                   <div className="font-medium">{format(day, 'EEE')}</div>
                   <div className="text-sm text-gray-500">{format(day, 'MMM d')}</div>
-                  {isSameDay(day, new Date()) && (
-                    <Badge variant="secondary" className="text-xs mt-1">Today</Badge>
+                  {isToday(day) && (
+                    <Badge variant="default" className="text-xs mt-1 bg-blue-600">Today</Badge>
                   )}
                 </div>
               ))}
@@ -189,15 +219,22 @@ export const RealTimeCalendar = ({ onTimeSlotClick, onAppointmentClick }: RealTi
               {/* Time slots */}
               {timeSlots.map(time => (
                 <React.Fragment key={time}>
-                  <div className="p-2 text-sm font-medium text-gray-600 border-r">
+                  <div className="p-2 text-sm font-medium text-gray-600 border-r bg-gray-50 rounded">
                     {time}
                   </div>
                   {weekDays.map(day => {
                     const status = getSlotStatus(day, time);
+                    const slotId = getSlotId(day, time);
+                    const isHovered = hoveredSlot === slotId;
+                    
                     return (
                       <div
-                        key={`${day.toISOString()}-${time}`}
-                        className={`p-1 border rounded text-xs min-h-[60px] ${getStatusColor(status)}`}
+                        key={slotId}
+                        className={`p-1 border rounded text-xs min-h-[70px] transition-all duration-200 ${getStatusColor(status)} ${
+                          isHovered && status.type === 'available' ? 'scale-105 shadow-md' : ''
+                        }`}
+                        onMouseEnter={() => setHoveredSlot(slotId)}
+                        onMouseLeave={() => setHoveredSlot(null)}
                         onClick={() => {
                           if (status.type === 'available') {
                             onTimeSlotClick(day, time);
@@ -209,12 +246,12 @@ export const RealTimeCalendar = ({ onTimeSlotClick, onAppointmentClick }: RealTi
                         {status.type === 'appointment' && (
                           <div className="space-y-1">
                             <div className="font-medium truncate">{status.data.title}</div>
-                            <div className="flex items-center gap-1 text-xs">
+                            <div className="flex items-center gap-1 text-xs opacity-75">
                               <Clock className="w-3 h-3" />
                               {status.data.duration}min
                             </div>
                             {status.data.phone && (
-                              <div className="flex items-center gap-1 text-xs">
+                              <div className="flex items-center gap-1 text-xs opacity-75">
                                 <Phone className="w-3 h-3" />
                                 {status.data.phone.slice(-4)}
                               </div>
@@ -225,8 +262,15 @@ export const RealTimeCalendar = ({ onTimeSlotClick, onAppointmentClick }: RealTi
                           </div>
                         )}
                         {status.type === 'available' && (
-                          <div className="flex items-center justify-center h-full">
-                            <Plus className="w-4 h-4 text-green-600" />
+                          <div className="flex flex-col items-center justify-center h-full">
+                            <Plus className={`w-6 h-6 text-green-600 transition-all duration-200 ${
+                              isHovered ? 'scale-125' : ''
+                            }`} />
+                            {isHovered && (
+                              <span className="text-xs text-green-700 font-medium mt-1">
+                                Book Appointment
+                              </span>
+                            )}
                           </div>
                         )}
                       </div>

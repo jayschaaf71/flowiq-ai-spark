@@ -6,6 +6,8 @@ import { ProviderSummary } from "@/components/clinic/ProviderSummary";
 import { RecentActivity } from "@/components/clinic/RecentActivity";
 import { QuickStats } from "@/components/clinic/QuickStats";
 import { ComplianceMonitor } from "@/components/compliance/ComplianceMonitor";
+import { CalendarWidget } from "@/components/dashboard/CalendarWidget";
+import { MiniCalendar } from "@/components/dashboard/MiniCalendar";
 import { AIAssistant } from "@/components/AIAssistant";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,6 +57,16 @@ const Index = () => {
       <div className="space-y-6">
         {/* Quick Stats Overview - Now Clickable */}
         <QuickStats />
+
+        {/* Calendar Section - New prominent placement */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <CalendarWidget />
+          </div>
+          <div>
+            <MiniCalendar />
+          </div>
+        </div>
 
         {/* Testing & Setup Section */}
         <Card>
