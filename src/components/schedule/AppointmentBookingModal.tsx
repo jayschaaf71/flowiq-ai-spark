@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -71,6 +70,52 @@ export const AppointmentBookingModal = ({
     }
   };
 
+  const createOrFindPatient = async (patientData: any) => {
+    console.log('Creating or finding patient with data:', patientData);
+    
+    // First, try to find existing patient by email
+    const { data: existingPatient } = await supabase
+      .from('patients')
+      .select('id')
+      .eq('email', patientData.email)
+      .maybeSingle();
+
+    if (existingPatient) {
+      console.log('Found existing patient:', existingPatient.id);
+      return existingPatient.id;
+    }
+
+    // Create new patient
+    const nameParts = patientData.patientName.trim().split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+
+    const newPatientData = {
+      first_name: firstName,
+      last_name: lastName,
+      email: patientData.email,
+      phone: patientData.phone || null,
+      date_of_birth: '1990-01-01', // Default date, should be collected in a real app
+      gender: 'not_specified'
+    };
+
+    console.log('Creating new patient:', newPatientData);
+
+    const { data: newPatient, error: patientError } = await supabase
+      .from('patients')
+      .insert(newPatientData)
+      .select('id')
+      .single();
+
+    if (patientError) {
+      console.error('Patient creation error:', patientError);
+      throw patientError;
+    }
+
+    console.log('Created new patient with ID:', newPatient.id);
+    return newPatient.id;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.patientName || !formData.email || !formData.providerId) {
@@ -86,10 +131,16 @@ export const AppointmentBookingModal = ({
     try {
       console.log('Starting appointment booking process...');
       
-      // Create appointment directly without creating a patient first
-      // Use a default patient_id since RLS is blocking patient creation
+      // Create or find patient first
+      const patientId = await createOrFindPatient({
+        patientName: formData.patientName,
+        email: formData.email,
+        phone: formData.phone
+      });
+
+      // Create appointment with the patient ID
       const appointmentData = {
-        patient_id: '00000000-0000-0000-0000-000000000000', // Default patient ID
+        patient_id: patientId,
         provider_id: formData.providerId,
         date: formData.date,
         time: formData.time,
