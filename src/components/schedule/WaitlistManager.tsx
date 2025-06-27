@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -45,10 +44,11 @@ export const WaitlistManager: React.FC = () => {
 
       if (error) throw error;
       
-      // Type the data properly to ensure priority is correct
+      // Type the data properly to ensure both priority and status are correct
       const typedData: WaitlistEntry[] = (data || []).map(entry => ({
         ...entry,
-        priority: (entry.priority as 'low' | 'medium' | 'high') || 'medium'
+        priority: (entry.priority as 'low' | 'medium' | 'high') || 'medium',
+        status: (entry.status as 'active' | 'contacted' | 'scheduled' | 'expired') || 'active'
       }));
       
       setWaitlist(typedData);
