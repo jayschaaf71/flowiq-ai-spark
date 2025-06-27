@@ -15,7 +15,6 @@ import { PlaudDeviceStatus } from "./PlaudDeviceStatus";
 
 export const ScribeDashboardTab = () => {
   const handleNavigateToPlaud = () => {
-    // Trigger tab change event
     window.dispatchEvent(new CustomEvent('changeScribeTab', { detail: 'plaud' }));
   };
 
@@ -23,11 +22,22 @@ export const ScribeDashboardTab = () => {
     window.dispatchEvent(new CustomEvent('changeScribeTab', { detail: 'transcribe' }));
   };
 
+  const handleNavigateToSOAP = () => {
+    window.dispatchEvent(new CustomEvent('changeScribeTab', { detail: 'soap' }));
+  };
+
+  const handleNavigateToSettings = () => {
+    window.dispatchEvent(new CustomEvent('changeScribeTab', { detail: 'settings' }));
+  };
+
   return (
     <div className="space-y-6">
-      {/* Stats Overview */}
+      {/* Stats Overview - Now Clickable */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-md transition-shadow duration-200 hover:border-blue-300"
+          onClick={handleNavigateToSOAP}
+        >
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
               <FileText className="w-4 h-4" />
@@ -37,10 +47,14 @@ export const ScribeDashboardTab = () => {
           <CardContent>
             <div className="text-2xl font-bold text-blue-600">24</div>
             <p className="text-sm text-gray-600">Generated today</p>
+            <p className="text-xs text-blue-600 mt-1 opacity-75">Click to view SOAP generation</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-md transition-shadow duration-200 hover:border-green-300"
+          onClick={handleNavigateToLive}
+        >
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
               <Mic className="w-4 h-4" />
@@ -50,10 +64,14 @@ export const ScribeDashboardTab = () => {
           <CardContent>
             <div className="text-2xl font-bold text-green-600">18</div>
             <p className="text-sm text-gray-600">Processed today</p>
+            <p className="text-xs text-green-600 mt-1 opacity-75">Click to start recording</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-md transition-shadow duration-200 hover:border-purple-300"
+          onClick={handleNavigateToSettings}
+        >
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
               <Clock className="w-4 h-4" />
@@ -63,10 +81,14 @@ export const ScribeDashboardTab = () => {
           <CardContent>
             <div className="text-2xl font-bold text-purple-600">2.3s</div>
             <p className="text-sm text-gray-600">Per recording</p>
+            <p className="text-xs text-purple-600 mt-1 opacity-75">Click to adjust settings</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-md transition-shadow duration-200 hover:border-orange-300"
+          onClick={handleNavigateToSettings}
+        >
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
               <TrendingUp className="w-4 h-4" />
@@ -76,6 +98,7 @@ export const ScribeDashboardTab = () => {
           <CardContent>
             <div className="text-2xl font-bold text-orange-600">98.7%</div>
             <p className="text-sm text-gray-600">Transcription rate</p>
+            <p className="text-xs text-orange-600 mt-1 opacity-75">Click to view settings</p>
           </CardContent>
         </Card>
       </div>
