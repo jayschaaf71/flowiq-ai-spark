@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -60,72 +61,22 @@ export const AppointmentBookingModal = ({
         .select('*')
         .eq('is_active', true);
 
-      if (error) throw error;
-      setProviders(data || []);
-      if (data && data.length > 0 && !formData.providerId) {
-        setFormData(prev => ({ ...prev, providerId: data[0].id }));
+      if (error) {
+        console.error('Error loading providers:', error);
+      } else {
+        setProviders(data || []);
+        if (data && data.length > 0 && !formData.providerId) {
+          setFormData(prev => ({ ...prev, providerId: data[0].id }));
+        }
       }
     } catch (error) {
       console.error('Error loading providers:', error);
     }
   };
 
-  const createOrFindPatient = async (patientData: any) => {
-    console.log('Creating or finding patient with data:', patientData);
-    
-    try {
-      // First, try to find existing patient by email
-      const { data: existingPatient } = await supabase
-        .from('patients')
-        .select('id')
-        .eq('email', patientData.email)
-        .maybeSingle();
-
-      if (existingPatient) {
-        console.log('Found existing patient:', existingPatient.id);
-        return existingPatient.id;
-      }
-
-      // Create new patient with simplified approach
-      const nameParts = patientData.patientName.trim().split(' ');
-      const firstName = nameParts[0] || '';
-      const lastName = nameParts.slice(1).join(' ') || '';
-
-      const newPatientData = {
-        first_name: firstName,
-        last_name: lastName,
-        email: patientData.email,
-        phone: patientData.phone || null,
-        date_of_birth: '1990-01-01', // Default date
-        gender: 'not_specified'
-      };
-
-      console.log('Creating new patient:', newPatientData);
-
-      const { data: newPatient, error: patientError } = await supabase
-        .from('patients')
-        .insert(newPatientData)
-        .select('id')
-        .single();
-
-      if (patientError) {
-        console.error('Patient creation error:', patientError);
-        // If patient creation fails due to RLS or other issues, 
-        // let's try a different approach - create appointment without patient_id
-        console.log('Patient creation failed, will create appointment with temporary patient info');
-        return null; // We'll handle this in the appointment creation
-      }
-
-      console.log('Created new patient with ID:', newPatient.id);
-      return newPatient.id;
-    } catch (error) {
-      console.error('Error in createOrFindPatient:', error);
-      return null;
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (!formData.patientName || !formData.email) {
       toast({
         title: "Missing Information",
@@ -136,19 +87,12 @@ export const AppointmentBookingModal = ({
     }
 
     setLoading(true);
-    try {
-      console.log('Starting appointment booking process...');
-      
-      // Try to create or find patient
-      const patientId = await createOrFindPatient({
-        patientName: formData.patientName,
-        email: formData.email,
-        phone: formData.phone
-      });
+    console.log('Starting appointment booking with data:', formData);
 
-      // Create appointment - if no patient ID, we'll create it without one and add patient info directly
+    try {
+      // Create appointment directly - simplified approach
       const appointmentData = {
-        patient_id: patientId || '00000000-0000-0000-0000-000000000000', // Use default UUID if no patient created
+        patient_id: crypto.randomUUID(), // Generate a UUID for patient_id
         provider_id: formData.providerId || null,
         date: formData.date,
         time: formData.time,
@@ -161,7 +105,7 @@ export const AppointmentBookingModal = ({
         notes: formData.notes
       };
 
-      console.log('Creating appointment with data:', appointmentData);
+      console.log('Creating appointment with simplified data:', appointmentData);
 
       const { data: appointment, error: appointmentError } = await supabase
         .from('appointments')
@@ -197,11 +141,11 @@ export const AppointmentBookingModal = ({
         time: '09:00'
       });
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error booking appointment:', error);
       toast({
         title: "Booking Failed",
-        description: `There was an error booking the appointment. Please try again.`,
+        description: error.message || "There was an error booking the appointment. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -293,21 +237,23 @@ export const AppointmentBookingModal = ({
               Appointment Details
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="provider">Provider</Label>
-                <Select value={formData.providerId} onValueChange={(value) => setFormData(prev => ({ ...prev, providerId: value }))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select provider (optional)" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {providers.map((provider) => (
-                      <SelectItem key={provider.id} value={provider.id}>
-                        {provider.first_name} {provider.last_name} - {provider.specialty}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              {providers.length > 0 && (
+                <div>
+                  <Label htmlFor="provider">Provider</Label>
+                  <Select value={formData.providerId} onValueChange={(value) => setFormData(prev => ({ ...prev, providerId: value }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select provider (optional)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {providers.map((provider) => (
+                        <SelectItem key={provider.id} value={provider.id}>
+                          {provider.first_name} {provider.last_name} - {provider.specialty}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <div>
                 <Label htmlFor="appointmentType">Appointment Type</Label>
                 <Select value={formData.appointmentType} onValueChange={(value) => setFormData(prev => ({ ...prev, appointmentType: value }))}>
