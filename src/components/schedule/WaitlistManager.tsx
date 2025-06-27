@@ -44,7 +44,14 @@ export const WaitlistManager: React.FC = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setWaitlist(data || []);
+      
+      // Type the data properly to ensure priority is correct
+      const typedData: WaitlistEntry[] = (data || []).map(entry => ({
+        ...entry,
+        priority: (entry.priority as 'low' | 'medium' | 'high') || 'medium'
+      }));
+      
+      setWaitlist(typedData);
     } catch (error) {
       console.error('Error loading waitlist:', error);
       toast({
