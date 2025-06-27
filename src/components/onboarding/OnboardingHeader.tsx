@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Skip } from 'lucide-react';
+import { SkipForward } from 'lucide-react';
 
 interface OnboardingHeaderProps {
   title: string;
@@ -43,7 +42,7 @@ export const OnboardingHeader: React.FC<OnboardingHeaderProps> = ({
             onClick={onShowSkipOptions}
             className="text-gray-500 hover:text-gray-700"
           >
-            <Skip className="w-4 h-4 mr-2" />
+            <SkipForward className="w-4 h-4 mr-2" />
             Skip
           </Button>
         )}

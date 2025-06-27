@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, CheckCircle, Loader2, AlertTriangle, Skip } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, Loader2, AlertTriangle, SkipForward } from 'lucide-react';
 
 interface OnboardingNavigationProps {
   currentStep: number;
@@ -64,7 +63,7 @@ export const OnboardingNavigation: React.FC<OnboardingNavigationProps> = ({
               disabled={isLoading}
               className="text-gray-600 hover:text-gray-800"
             >
-              <Skip className="w-4 h-4 mr-2" />
+              <SkipForward className="w-4 h-4 mr-2" />
               Skip this step
             </Button>
           )}

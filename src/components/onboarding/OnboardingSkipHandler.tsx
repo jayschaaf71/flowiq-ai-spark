@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skip, Clock, AlertCircle } from 'lucide-react';
+import { SkipForward, Clock, AlertCircle } from 'lucide-react';
 
 interface SkipOption {
   id: string;
@@ -90,7 +89,7 @@ export const OnboardingSkipHandler: React.FC<OnboardingSkipHandlerProps> = ({
     <Card className={`border-dashed border-gray-300 ${className}`}>
       <CardHeader className="text-center pb-4">
         <div className="flex justify-center mb-3">
-          <Skip className="w-8 h-8 text-gray-400" />
+          <SkipForward className="w-8 h-8 text-gray-400" />
         </div>
         <CardTitle className="text-lg text-gray-700">Want to skip this step?</CardTitle>
         <CardDescription>
@@ -113,7 +112,7 @@ export const OnboardingSkipHandler: React.FC<OnboardingSkipHandlerProps> = ({
                 ) : option.recommended ? (
                   <AlertCircle className="w-4 h-4 text-green-500" />
                 ) : (
-                  <Skip className="w-4 h-4 text-gray-500" />
+                  <SkipForward className="w-4 h-4 text-gray-500" />
                 )}
               </div>
               <div>
