@@ -466,6 +466,7 @@ export type Database = {
           notes: string | null
           patient_id: string
           phone: string | null
+          profile_id: string | null
           provider_id: string | null
           status: string
           time: string
@@ -482,6 +483,7 @@ export type Database = {
           notes?: string | null
           patient_id: string
           phone?: string | null
+          profile_id?: string | null
           provider_id?: string | null
           status?: string
           time: string
@@ -498,6 +500,7 @@ export type Database = {
           notes?: string | null
           patient_id?: string
           phone?: string | null
+          profile_id?: string | null
           provider_id?: string | null
           status?: string
           time?: string
@@ -508,6 +511,13 @@ export type Database = {
           {
             foreignKeyName: "appointments_patient_id_fkey"
             columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_profile_id_fkey"
+            columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -2477,6 +2487,7 @@ export type Database = {
           patient_number: string
           phone: string | null
           preferred_language: string | null
+          profile_id: string | null
           state: string | null
           updated_at: string
           updated_by: string | null
@@ -2506,6 +2517,7 @@ export type Database = {
           patient_number?: string
           phone?: string | null
           preferred_language?: string | null
+          profile_id?: string | null
           state?: string | null
           updated_at?: string
           updated_by?: string | null
@@ -2535,6 +2547,7 @@ export type Database = {
           patient_number?: string
           phone?: string | null
           preferred_language?: string | null
+          profile_id?: string | null
           state?: string | null
           updated_at?: string
           updated_by?: string | null
@@ -2546,6 +2559,13 @@ export type Database = {
             columns: ["onboarding_submission_id"]
             isOneToOne: false
             referencedRelation: "intake_submissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patients_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -4402,6 +4422,10 @@ export type Database = {
         Returns: string
       }
       generate_vendor_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: string
       }

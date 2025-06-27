@@ -13,17 +13,48 @@ export const useAppointmentCreation = (user: any, profile: any) => {
       console.log('User:', user);
       console.log('Profile:', profile);
       
-      // Ensure we have a valid patient_id - use user ID if no specific patient ID provided
-      const patientId = appointmentData.patientId || user?.id;
-      
-      if (!patientId) {
-        console.error('No patient ID available');
+      if (!user?.id) {
+        console.error('No user ID available');
         throw new Error('User authentication required for appointment creation');
       }
 
-      console.log('Using patient ID:', patientId);
+      console.log('Using user ID:', user.id);
       
-      // Create the appointment with simplified error handling
+      // Check if user has a patient record, create one if needed
+      let patientId = null;
+      
+      const { data: existingPatient, error: patientCheckError } = await supabase
+        .from('patients')
+        .select('id')
+        .eq('profile_id', user.id)
+        .single();
+
+      if (patientCheckError && patientCheckError.code === 'PGRST116') {
+        // Create patient record linked to user profile
+        const { data: newPatient, error: createPatientError } = await supabase
+          .from('patients')
+          .insert({
+            profile_id: user.id,
+            first_name: profile?.first_name || appointmentData.patientName?.split(' ')[0] || 'Patient',
+            last_name: profile?.last_name || appointmentData.patientName?.split(' ').slice(1).join(' ') || '',
+            email: appointmentData.email || profile?.email,
+            phone: appointmentData.phone || profile?.phone,
+            date_of_birth: '1990-01-01' // Default, should be updated during intake
+          })
+          .select()
+          .single();
+
+        if (createPatientError) {
+          console.error('Patient creation error:', createPatientError);
+          throw new Error(`Failed to create patient record: ${createPatientError.message}`);
+        }
+        
+        patientId = newPatient.id;
+      } else if (!patientCheckError) {
+        patientId = existingPatient.id;
+      }
+
+      // Create the appointment with both profile_id and patient_id
       const appointmentPayload = {
         title: appointmentData.patientName || profile?.first_name + ' ' + profile?.last_name || 'AI Scheduled Appointment',
         appointment_type: appointmentData.appointmentType || 'consultation',
@@ -34,7 +65,8 @@ export const useAppointmentCreation = (user: any, profile: any) => {
         phone: appointmentData.phone || profile?.phone,
         email: appointmentData.email || profile?.email,
         status: 'confirmed',
-        patient_id: patientId,
+        profile_id: user.id, // Direct link to user profile
+        patient_id: patientId, // Link to patient record if exists
         provider_id: appointmentData.providerId
       };
 
@@ -102,4 +134,3 @@ export const useAppointmentCreation = (user: any, profile: any) => {
     createAppointmentAutomatically
   };
 };
-

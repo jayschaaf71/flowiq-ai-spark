@@ -41,10 +41,10 @@ export const AppointmentBookingModal = ({
   });
 
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
 
   useEffect(() => {
-    console.log('Modal opened, user:', user);
+    console.log('Modal opened, user:', user, 'profile:', profile);
     if (isOpen) {
       checkAuthAndLoadData();
       if (selectedDate) {
@@ -53,8 +53,18 @@ export const AppointmentBookingModal = ({
       if (selectedTime) {
         setFormData(prev => ({ ...prev, time: selectedTime }));
       }
+      
+      // Pre-fill user data if available
+      if (profile) {
+        setFormData(prev => ({
+          ...prev,
+          patientName: `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || prev.patientName,
+          email: profile.email || prev.email,
+          phone: profile.phone || prev.phone
+        }));
+      }
     }
-  }, [isOpen, selectedDate, selectedTime, user]);
+  }, [isOpen, selectedDate, selectedTime, user, profile]);
 
   const checkAuthAndLoadData = async () => {
     // Check current session
@@ -126,54 +136,58 @@ export const AppointmentBookingModal = ({
     console.log('Session user:', session.user);
 
     try {
-      // First, let's check if a patient record exists for this user
-      let patientId = session.user.id;
+      let patientId = null;
       
-      console.log('Checking for existing patient record...');
-      const { data: existingPatient, error: patientCheckError } = await supabase
-        .from('patients')
-        .select('id')
-        .eq('id', session.user.id)
-        .single();
-
-      if (patientCheckError && patientCheckError.code === 'PGRST116') {
-        // Patient doesn't exist, create one
-        console.log('Creating new patient record...');
-        const nameParts = formData.patientName.split(' ');
-        const firstName = nameParts[0] || '';
-        const lastName = nameParts.slice(1).join(' ') || '';
+      // If user is authenticated, check if they have a patient record
+      if (session.user.id) {
+        console.log('Checking for existing patient record for user:', session.user.id);
         
-        const { data: newPatient, error: createPatientError } = await supabase
+        const { data: existingPatient, error: patientCheckError } = await supabase
           .from('patients')
-          .insert({
-            id: session.user.id,
-            first_name: firstName,
-            last_name: lastName,
-            email: formData.email,
-            phone: formData.phone,
-            date_of_birth: '1990-01-01' // Default date, should be collected properly
-          })
-          .select()
+          .select('id')
+          .eq('profile_id', session.user.id)
           .single();
 
-        if (createPatientError) {
-          console.error('Patient creation error:', createPatientError);
-          throw new Error(`Failed to create patient record: ${createPatientError.message}`);
+        if (patientCheckError && patientCheckError.code === 'PGRST116') {
+          // Patient doesn't exist, create one linked to the user's profile
+          console.log('Creating new patient record linked to profile...');
+          const nameParts = formData.patientName.split(' ');
+          const firstName = nameParts[0] || '';
+          const lastName = nameParts.slice(1).join(' ') || '';
+          
+          const { data: newPatient, error: createPatientError } = await supabase
+            .from('patients')
+            .insert({
+              profile_id: session.user.id, // Link to the user's profile
+              first_name: firstName,
+              last_name: lastName,
+              email: formData.email,
+              phone: formData.phone,
+              date_of_birth: '1990-01-01' // Default date, should be collected properly later
+            })
+            .select()
+            .single();
+
+          if (createPatientError) {
+            console.error('Patient creation error:', createPatientError);
+            throw new Error(`Failed to create patient record: ${createPatientError.message}`);
+          }
+          
+          console.log('Created patient:', newPatient);
+          patientId = newPatient.id;
+        } else if (patientCheckError) {
+          console.error('Patient check error:', patientCheckError);
+          throw new Error(`Database error: ${patientCheckError.message}`);
+        } else {
+          console.log('Using existing patient:', existingPatient);
+          patientId = existingPatient.id;
         }
-        
-        console.log('Created patient:', newPatient);
-        patientId = newPatient.id;
-      } else if (patientCheckError) {
-        console.error('Patient check error:', patientCheckError);
-        throw new Error(`Database error: ${patientCheckError.message}`);
-      } else {
-        console.log('Using existing patient:', existingPatient);
-        patientId = existingPatient.id;
       }
 
-      // Now create the appointment
+      // Create the appointment with both profile_id and patient_id for maximum compatibility
       const appointmentData = {
-        patient_id: patientId,
+        profile_id: session.user.id, // Direct link to user profile
+        patient_id: patientId, // Link to patient record if exists
         provider_id: formData.providerId || null,
         date: formData.date,
         time: formData.time,

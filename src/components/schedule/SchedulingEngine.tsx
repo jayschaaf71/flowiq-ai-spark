@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,6 +6,7 @@ import { Calendar, Clock, User, MapPin, Phone, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { format, addDays, parseISO, isSameDay } from "date-fns";
+import { useAuth } from "@/hooks/useAuth";
 
 interface TimeSlot {
   time: string;
@@ -33,10 +33,21 @@ export const SchedulingEngine = ({ onAppointmentBooked }: SchedulingEngineProps)
     appointmentType: 'consultation'
   });
   const { toast } = useToast();
+  const { user, profile } = useAuth();
 
   useEffect(() => {
     loadProviders();
-  }, []);
+    
+    // Pre-fill user data if available
+    if (profile) {
+      setPatientInfo(prev => ({
+        ...prev,
+        name: `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || prev.name,
+        email: profile.email || prev.email,
+        phone: profile.phone || prev.phone
+      }));
+    }
+  }, [profile]);
 
   useEffect(() => {
     if (selectedDate) {
@@ -128,26 +139,35 @@ export const SchedulingEngine = ({ onAppointmentBooked }: SchedulingEngineProps)
       return;
     }
 
+    if (!user?.id) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to book appointments",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
     try {
-      // First, try to find existing patient
-      let patientId;
-      const { data: existingPatient } = await supabase
+      // Check if user has a patient record, create one if needed
+      let patientId = null;
+      
+      const { data: existingPatient, error: patientCheckError } = await supabase
         .from('patients')
         .select('id')
-        .eq('email', patientInfo.email)
+        .eq('profile_id', user.id)
         .single();
 
-      if (existingPatient) {
-        patientId = existingPatient.id;
-      } else {
-        // Create new patient
+      if (patientCheckError && patientCheckError.code === 'PGRST116') {
+        // Create new patient linked to user profile
         const [firstName, ...lastNameParts] = patientInfo.name.split(' ');
         const lastName = lastNameParts.join(' ') || '';
         
         const { data: newPatient, error: patientError } = await supabase
           .from('patients')
           .insert({
+            profile_id: user.id,
             first_name: firstName,
             last_name: lastName,
             email: patientInfo.email,
@@ -159,13 +179,16 @@ export const SchedulingEngine = ({ onAppointmentBooked }: SchedulingEngineProps)
 
         if (patientError) throw patientError;
         patientId = newPatient.id;
+      } else if (!patientCheckError) {
+        patientId = existingPatient.id;
       }
 
-      // Create appointment
+      // Create appointment with both profile_id and patient_id
       const { data: appointment, error: appointmentError } = await supabase
         .from('appointments')
         .insert({
-          patient_id: patientId,
+          profile_id: user.id, // Direct link to user profile
+          patient_id: patientId, // Link to patient record if exists
           provider_id: selectedProvider,
           date: format(selectedDate, 'yyyy-MM-dd'),
           time: selectedSlot,
