@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -45,8 +44,9 @@ export const AppointmentBookingModal = ({
   const { user } = useAuth();
 
   useEffect(() => {
+    console.log('Modal opened, user:', user);
     if (isOpen) {
-      loadProviders();
+      checkAuthAndLoadData();
       if (selectedDate) {
         setFormData(prev => ({ ...prev, date: format(selectedDate, 'yyyy-MM-dd') }));
       }
@@ -54,7 +54,24 @@ export const AppointmentBookingModal = ({
         setFormData(prev => ({ ...prev, time: selectedTime }));
       }
     }
-  }, [isOpen, selectedDate, selectedTime]);
+  }, [isOpen, selectedDate, selectedTime, user]);
+
+  const checkAuthAndLoadData = async () => {
+    // Check current session
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    console.log('Current session:', session, 'Error:', sessionError);
+    
+    if (!session) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to book appointments",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    loadProviders();
+  };
 
   const loadProviders = async () => {
     try {
@@ -66,6 +83,7 @@ export const AppointmentBookingModal = ({
       if (error) {
         console.error('Error loading providers:', error);
       } else {
+        console.log('Loaded providers:', data);
         setProviders(data || []);
         if (data && data.length > 0 && !formData.providerId) {
           setFormData(prev => ({ ...prev, providerId: data[0].id }));
@@ -79,6 +97,8 @@ export const AppointmentBookingModal = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('Form submitted with data:', formData);
+    
     if (!formData.patientName || !formData.email) {
       toast({
         title: "Missing Information",
@@ -88,52 +108,72 @@ export const AppointmentBookingModal = ({
       return;
     }
 
-    if (!user) {
+    // Check session again before booking
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (!session || !session.user) {
+      console.log('No session found:', session, sessionError);
       toast({
         title: "Authentication Required",
-        description: "You must be logged in to book appointments",
+        description: "Please log in to book appointments",
         variant: "destructive",
       });
       return;
     }
 
     setLoading(true);
-    console.log('Starting appointment booking with data:', formData);
+    console.log('Starting appointment booking...');
+    console.log('Session user:', session.user);
 
     try {
-      // First, check if we have a profile for the current user
-      let { data: profile, error: profileError } = await supabase
-        .from('profiles')
+      // First, let's check if a patient record exists for this user
+      let patientId = session.user.id;
+      
+      console.log('Checking for existing patient record...');
+      const { data: existingPatient, error: patientCheckError } = await supabase
+        .from('patients')
         .select('id')
-        .eq('id', user.id)
+        .eq('id', session.user.id)
         .single();
 
-      if (profileError && profileError.code === 'PGRST116') {
-        // Profile doesn't exist, create one
-        const { data: newProfile, error: createProfileError } = await supabase
-          .from('profiles')
+      if (patientCheckError && patientCheckError.code === 'PGRST116') {
+        // Patient doesn't exist, create one
+        console.log('Creating new patient record...');
+        const nameParts = formData.patientName.split(' ');
+        const firstName = nameParts[0] || '';
+        const lastName = nameParts.slice(1).join(' ') || '';
+        
+        const { data: newPatient, error: createPatientError } = await supabase
+          .from('patients')
           .insert({
-            id: user.id,
+            id: session.user.id,
+            first_name: firstName,
+            last_name: lastName,
             email: formData.email,
-            first_name: formData.patientName.split(' ')[0] || '',
-            last_name: formData.patientName.split(' ').slice(1).join(' ') || ''
+            phone: formData.phone,
+            date_of_birth: '1990-01-01' // Default date, should be collected properly
           })
           .select()
           .single();
 
-        if (createProfileError) {
-          console.error('Profile creation error:', createProfileError);
-          throw createProfileError;
+        if (createPatientError) {
+          console.error('Patient creation error:', createPatientError);
+          throw new Error(`Failed to create patient record: ${createPatientError.message}`);
         }
-        profile = newProfile;
-      } else if (profileError) {
-        console.error('Profile fetch error:', profileError);
-        throw profileError;
+        
+        console.log('Created patient:', newPatient);
+        patientId = newPatient.id;
+      } else if (patientCheckError) {
+        console.error('Patient check error:', patientCheckError);
+        throw new Error(`Database error: ${patientCheckError.message}`);
+      } else {
+        console.log('Using existing patient:', existingPatient);
+        patientId = existingPatient.id;
       }
 
-      // Create appointment using the user's profile ID
+      // Now create the appointment
       const appointmentData = {
-        patient_id: user.id, // Use the authenticated user's ID
+        patient_id: patientId,
         provider_id: formData.providerId || null,
         date: formData.date,
         time: formData.time,
@@ -156,7 +196,7 @@ export const AppointmentBookingModal = ({
 
       if (appointmentError) {
         console.error('Appointment creation error:', appointmentError);
-        throw appointmentError;
+        throw new Error(`Failed to create appointment: ${appointmentError.message}`);
       }
 
       console.log('Appointment created successfully:', appointment);
