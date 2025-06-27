@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, User, Phone, Plus, Edit, Trash2 } from "lucide-react";
+import { Calendar, Clock, User, Phone, Plus } from "lucide-react";
 import { format, addDays, startOfWeek, isSameDay, isToday } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -130,12 +130,21 @@ export const RealTimeCalendar = ({ onTimeSlotClick, onAppointmentClick }: RealTi
       case 'available':
         return 'bg-green-50 border-green-200 hover:bg-green-100 cursor-pointer border-2 border-dashed';
       default:
-        return 'bg-gray-50 border-gray-200';
+        return 'bg-gray-50 border-gray-200 hover:bg-gray-100 cursor-pointer';
     }
   };
 
   const getSlotId = (date: Date, time: string) => {
     return `${format(date, 'yyyy-MM-dd')}-${time}`;
+  };
+
+  const handleSlotClick = (date: Date, time: string, status: any) => {
+    if (status.type === 'appointment') {
+      onAppointmentClick(status.data);
+    } else {
+      // Allow booking on any empty slot (available or unavailable)
+      onTimeSlotClick(date, time);
+    }
   };
 
   return (
@@ -192,6 +201,10 @@ export const RealTimeCalendar = ({ onTimeSlotClick, onAppointmentClick }: RealTi
             <div className="w-3 h-3 bg-blue-100 border border-blue-300 rounded"></div>
             <span>Completed</span>
           </div>
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 bg-gray-50 border border-gray-200 rounded"></div>
+            <span>Click to Book</span>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -231,17 +244,11 @@ export const RealTimeCalendar = ({ onTimeSlotClick, onAppointmentClick }: RealTi
                       <div
                         key={slotId}
                         className={`p-1 border rounded text-xs min-h-[70px] transition-all duration-200 ${getStatusColor(status)} ${
-                          isHovered && status.type === 'available' ? 'scale-105 shadow-md' : ''
+                          isHovered ? 'scale-105 shadow-md' : ''
                         }`}
                         onMouseEnter={() => setHoveredSlot(slotId)}
                         onMouseLeave={() => setHoveredSlot(null)}
-                        onClick={() => {
-                          if (status.type === 'available') {
-                            onTimeSlotClick(day, time);
-                          } else if (status.type === 'appointment') {
-                            onAppointmentClick(status.data);
-                          }
-                        }}
+                        onClick={() => handleSlotClick(day, time, status)}
                       >
                         {status.type === 'appointment' && (
                           <div className="space-y-1">
@@ -269,6 +276,18 @@ export const RealTimeCalendar = ({ onTimeSlotClick, onAppointmentClick }: RealTi
                             {isHovered && (
                               <span className="text-xs text-green-700 font-medium mt-1">
                                 Book Appointment
+                              </span>
+                            )}
+                          </div>
+                        )}
+                        {status.type === 'unavailable' && (
+                          <div className="flex flex-col items-center justify-center h-full">
+                            <Plus className={`w-4 h-4 text-gray-400 transition-all duration-200 ${
+                              isHovered ? 'scale-110 text-blue-500' : ''
+                            }`} />
+                            {isHovered && (
+                              <span className="text-xs text-blue-600 font-medium mt-1">
+                                Book Here
                               </span>
                             )}
                           </div>
