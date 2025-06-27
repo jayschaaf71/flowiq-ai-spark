@@ -54,8 +54,19 @@ export const useScribeSettings = () => {
         .eq('user_id', user.id)
         .single();
 
-      if (data && !error) {
-        setSettings({ ...defaultSettings, ...data.settings });
+      if (data && !error && data.settings) {
+        // Safely merge settings with proper type handling
+        const savedSettings = data.settings as Record<string, any>;
+        const mergedSettings = { ...defaultSettings };
+        
+        // Only override defaults with saved values that exist
+        Object.keys(defaultSettings).forEach(key => {
+          if (savedSettings[key] !== undefined) {
+            (mergedSettings as any)[key] = savedSettings[key];
+          }
+        });
+        
+        setSettings(mergedSettings);
       } else if (error && error.code !== 'PGRST116') {
         // PGRST116 is "no rows returned", which is fine for first-time users
         console.error('Error loading settings:', error);
@@ -80,9 +91,12 @@ export const useScribeSettings = () => {
         throw new Error('User not authenticated');
       }
 
+      // Convert settings to a plain object that matches Supabase Json type
+      const settingsData = JSON.parse(JSON.stringify(newSettings));
+
       const { error } = await supabase.rpc('upsert_scribe_settings', {
         user_uuid: user.id,
-        settings_data: newSettings
+        settings_data: settingsData
       });
 
       if (error) throw error;
