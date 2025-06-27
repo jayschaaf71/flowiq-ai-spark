@@ -1,231 +1,163 @@
 
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Slider } from "@/components/ui/slider";
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
+import { Slider } from '@/components/ui/slider';
+import { Badge } from '@/components/ui/badge';
 import { 
   Bot, 
-  MessageSquare, 
+  MessageCircle, 
   Calendar, 
-  Phone, 
-  Mail, 
   FileText,
+  Bell,
   Settings,
   Zap,
-  Clock,
-  Shield
-} from "lucide-react";
-import { SpecialtyType, specialtyConfigs } from '@/utils/specialtyConfig';
+  CheckCircle
+} from 'lucide-react';
+import { SpecialtyType, getSpecialtyConfig } from '@/utils/specialtyConfig';
+
+interface AgentConfig {
+  receptionistAgent: boolean;
+  intakeAgent: boolean;
+  followUpAgent: boolean;
+  reminderAgent: boolean;
+  automationLevel: number;
+  businessHours: {
+    start: string;
+    end: string;
+    timezone: string;
+  };
+}
 
 interface AIAgentConfigurationStepProps {
   specialty: SpecialtyType;
-  agentConfig: {
-    receptionistAgent: boolean;
-    intakeAgent: boolean;
-    followUpAgent: boolean;
-    reminderAgent: boolean;
-    automationLevel: number;
-    businessHours: {
-      start: string;
-      end: string;
-      timezone: string;
-    };
-  };
-  onUpdateAgentConfig: (config: any) => void;
+  agentConfig: AgentConfig;
+  onUpdateAgentConfig: (config: AgentConfig) => void;
 }
 
-export const AIAgentConfigurationStep = ({ 
-  specialty, 
-  agentConfig, 
-  onUpdateAgentConfig 
-}: AIAgentConfigurationStepProps) => {
-  const specialtyConfig = specialtyConfigs[specialty];
+const agentTypes = [
+  {
+    id: 'receptionistAgent',
+    name: 'Receptionist Agent',
+    description: 'Handles phone calls, scheduling, and basic patient inquiries',
+    icon: MessageCircle,
+    color: 'blue',
+    features: ['24/7 Phone Coverage', 'Appointment Scheduling', 'Basic Q&A', 'Call Routing']
+  },
+  {
+    id: 'intakeAgent',
+    name: 'Intake Agent',
+    description: 'Manages new patient onboarding and form completion',
+    icon: FileText,
+    color: 'green',
+    features: ['Form Pre-population', 'Document Collection', 'Insurance Verification', 'Welcome Sequences']
+  },
+  {
+    id: 'followUpAgent',
+    name: 'Follow-up Agent',
+    description: 'Automates post-appointment care and patient engagement',
+    icon: Bell,
+    color: 'purple',
+    features: ['Post-care Instructions', 'Satisfaction Surveys', 'Recovery Check-ins', 'Outcome Tracking']
+  },
+  {
+    id: 'reminderAgent',
+    name: 'Reminder Agent',
+    description: 'Sends appointment reminders and medication alerts',
+    icon: Calendar,
+    color: 'orange',
+    features: ['Appointment Reminders', 'Medication Alerts', 'Preventive Care', 'Custom Notifications']
+  }
+];
 
-  const aiAgents = [
-    {
-      id: 'receptionistAgent',
-      name: 'AI Receptionist',
-      icon: Phone,
-      description: 'Handles appointment scheduling, basic inquiries, and phone calls',
-      features: ['24/7 availability', 'Appointment booking', 'FAQ responses', 'Call screening'],
-      specialty: `Trained specifically for ${specialtyConfig.brandName.toLowerCase()} practices`
-    },
-    {
-      id: 'intakeAgent',
-      name: 'Intake Processor',
-      icon: FileText,
-      description: 'Processes patient intake forms and extracts key information',
-      features: ['Form processing', 'Data extraction', 'Alert generation', 'Workflow automation'],
-      specialty: `Understands ${specialtyConfig.brandName.toLowerCase()}-specific forms and terminology`
-    },
-    {
-      id: 'followUpAgent',
-      name: 'Follow-up Assistant',
-      icon: MessageSquare,
-      description: 'Manages post-appointment follow-ups and patient communication',
-      features: ['Automated follow-ups', 'Treatment reminders', 'Satisfaction surveys', 'Care coordination'],
-      specialty: `Personalized for ${specialtyConfig.brandName.toLowerCase()} patient journeys`
-    },
-    {
-      id: 'reminderAgent',
-      name: 'Reminder System',
-      icon: Clock,
-      description: 'Sends appointment reminders and treatment notifications',
-      features: ['SMS/Email reminders', 'Custom timing', 'Automated rescheduling', 'No-show reduction'],
-      specialty: `Optimized for ${specialtyConfig.brandName.toLowerCase()} appointment patterns`
+export const AIAgentConfigurationStep: React.FC<AIAgentConfigurationStepProps> = ({
+  specialty,
+  agentConfig,
+  onUpdateAgentConfig
+}) => {
+  const [config, setConfig] = useState<AgentConfig>(agentConfig);
+  const specialtyConfig = getSpecialtyConfig(specialty);
+
+  const updateConfig = (updates: Partial<AgentConfig>) => {
+    const newConfig = { ...config, ...updates };
+    setConfig(newConfig);
+    onUpdateAgentConfig(newConfig);
+  };
+
+  const toggleAgent = (agentId: keyof AgentConfig) => {
+    if (typeof config[agentId] === 'boolean') {
+      updateConfig({ [agentId]: !config[agentId] });
     }
-  ];
-
-  const handleAgentToggle = (agentId: string, enabled: boolean) => {
-    onUpdateAgentConfig({
-      ...agentConfig,
-      [agentId]: enabled
-    });
   };
 
-  const handleAutomationLevelChange = (value: number[]) => {
-    onUpdateAgentConfig({
-      ...agentConfig,
-      automationLevel: value[0]
-    });
-  };
-
-  const getAutomationDescription = (level: number) => {
-    if (level <= 25) return "Conservative - Minimal automation, maximum human oversight";
-    if (level <= 50) return "Balanced - Moderate automation with staff approval";
-    if (level <= 75) return "Proactive - High automation with exception handling";
-    return "Autonomous - Maximum automation with smart decision making";
-  };
-
-  const enabledAgents = Object.values(agentConfig).filter(v => typeof v === 'boolean' && v).length;
+  const enabledAgents = agentTypes.filter(agent => 
+    config[agent.id as keyof AgentConfig] === true
+  );
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
-        <h2 className="text-3xl font-bold mb-4">Configure Your AI Agents</h2>
-        <p className="text-gray-600 text-lg">
-          Choose which AI agents to activate for your {specialtyConfig.brandName.toLowerCase()} practice.
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-bold mb-2">Configure your AI agents</h2>
+        <p className="text-gray-600">
+          Select which AI agents will help automate your {specialtyConfig.name.toLowerCase()} practice
         </p>
       </div>
 
-      {/* Automation Level */}
-      <Card className="border-2" style={{ borderColor: specialtyConfig.primaryColor + '20' }}>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Settings className="w-5 h-5" style={{ color: specialtyConfig.primaryColor }} />
-            Automation Level
-          </CardTitle>
-          <CardDescription>
-            How much should your AI agents automate vs. requiring staff approval?
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Conservative</span>
-              <span className="text-sm font-medium">Autonomous</span>
-            </div>
-            <Slider
-              value={[agentConfig.automationLevel]}
-              onValueChange={handleAutomationLevelChange}
-              max={100}
-              step={25}
-              className="w-full"
-            />
-            <div className="text-center">
-              <Badge 
-                variant="secondary"
-                style={{ 
-                  backgroundColor: specialtyConfig.primaryColor + '15',
-                  color: specialtyConfig.primaryColor 
-                }}
-              >
-                {agentConfig.automationLevel}% Automation
-              </Badge>
-              <p className="text-sm text-gray-600 mt-2">
-                {getAutomationDescription(agentConfig.automationLevel)}
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* AI Agents */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {aiAgents.map((agent) => {
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {agentTypes.map((agent) => {
           const Icon = agent.icon;
-          const isEnabled = agentConfig[agent.id as keyof typeof agentConfig] as boolean;
+          const isEnabled = config[agent.id as keyof AgentConfig] === true;
+          const isRecommended = specialtyConfig.defaultAgents.includes(agent.id.replace('Agent', ''));
           
           return (
-            <Card 
+            <Card
               key={agent.id}
-              className={`transition-all duration-200 ${
+              className={`cursor-pointer transition-all duration-200 ${
                 isEnabled 
-                  ? 'shadow-lg' 
-                  : 'border hover:border-gray-300'
+                  ? 'border-blue-500 bg-blue-50 shadow-md' 
+                  : 'border-gray-200 hover:border-gray-300'
               }`}
-              style={{
-                borderWidth: isEnabled ? '2px' : '1px',
-                borderColor: isEnabled ? specialtyConfig.primaryColor : undefined,
-                backgroundColor: isEnabled ? specialtyConfig.primaryColor + '05' : undefined
-              }}
+              onClick={() => toggleAgent(agent.id as keyof AgentConfig)}
             >
-              <CardHeader>
+              <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div 
-                      className="p-2 rounded-lg"
-                      style={{ 
-                        backgroundColor: isEnabled ? specialtyConfig.primaryColor : '#f3f4f6',
-                        color: isEnabled ? 'white' : '#6b7280'
-                      }}
-                    >
-                      <Icon className="w-5 h-5" />
+                    <div className={`p-2 rounded-lg bg-${agent.color}-100`}>
+                      <Icon className={`w-5 h-5 text-${agent.color}-600`} />
                     </div>
                     <div>
                       <CardTitle className="text-lg">{agent.name}</CardTitle>
+                      <div className="flex gap-2 mt-1">
+                        {isRecommended && (
+                          <Badge variant="secondary" className="text-xs">
+                            Recommended
+                          </Badge>
+                        )}
+                        {isEnabled && (
+                          <Badge className="text-xs bg-green-100 text-green-800">
+                            Active
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <Switch
                     checked={isEnabled}
-                    onCheckedChange={(checked) => handleAgentToggle(agent.id, checked)}
+                    onCheckedChange={() => toggleAgent(agent.id as keyof AgentConfig)}
                   />
                 </div>
-                <CardDescription className="text-sm">
-                  {agent.description}
-                </CardDescription>
               </CardHeader>
-              
-              <CardContent className="space-y-4">
-                <div>
-                  <p className="font-medium text-sm mb-2">Key Features:</p>
-                  <ul className="space-y-1">
-                    {agent.features.map((feature, index) => (
-                      <li key={index} className="flex items-center text-sm">
-                        <div 
-                          className="w-1.5 h-1.5 rounded-full mr-2" 
-                          style={{ backgroundColor: specialtyConfig.primaryColor }}
-                        ></div>
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                
-                <div className="pt-2 border-t">
-                  <Badge 
-                    variant="secondary" 
-                    className="text-xs"
-                    style={{ 
-                      backgroundColor: specialtyConfig.primaryColor + '15',
-                      color: specialtyConfig.primaryColor 
-                    }}
-                  >
-                    <Bot className="w-3 h-3 mr-1" />
-                    {agent.specialty}
-                  </Badge>
+              <CardContent>
+                <p className="text-gray-600 mb-3 text-sm">
+                  {agent.description}
+                </p>
+                <div className="space-y-1">
+                  {agent.features.map((feature, index) => (
+                    <div key={index} className="flex items-center gap-2 text-xs text-gray-600">
+                      <CheckCircle className="w-3 h-3 text-green-500" />
+                      {feature}
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
@@ -233,29 +165,94 @@ export const AIAgentConfigurationStep = ({
         })}
       </div>
 
-      {/* Configuration Summary */}
-      <Card className="bg-green-50 border-green-200">
-        <CardContent className="pt-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Shield className="w-5 h-5 text-green-600" />
-            <h4 className="font-medium text-green-900">AI Configuration Summary</h4>
+      {enabledAgents.length > 0 && (
+        <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Settings className="w-5 h-5" />
+              Automation Settings
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-sm font-medium">Automation Level</label>
+                <Badge variant="outline">{config.automationLevel}%</Badge>
+              </div>
+              <Slider
+                value={[config.automationLevel]}
+                onValueChange={(value) => updateConfig({ automationLevel: value[0] })}
+                max={100}
+                step={10}
+                className="w-full"
+              />
+              <div className="flex justify-between text-xs text-gray-500 mt-1">
+                <span>Conservative</span>
+                <span>Balanced</span>
+                <span>Aggressive</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="text-sm font-medium">Business Hours Start</label>
+                <input
+                  type="time"
+                  value={config.businessHours.start}
+                  onChange={(e) => updateConfig({
+                    businessHours: { ...config.businessHours, start: e.target.value }
+                  })}
+                  className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Business Hours End</label>
+                <input
+                  type="time"
+                  value={config.businessHours.end}
+                  onChange={(e) => updateConfig({
+                    businessHours: { ...config.businessHours, end: e.target.value }
+                  })}
+                  className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Timezone</label>
+                <select
+                  value={config.businessHours.timezone}
+                  onChange={(e) => updateConfig({
+                    businessHours: { ...config.businessHours, timezone: e.target.value }
+                  })}
+                  className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                >
+                  <option value="America/New_York">Eastern Time</option>
+                  <option value="America/Chicago">Central Time</option>
+                  <option value="America/Denver">Mountain Time</option>
+                  <option value="America/Los_Angeles">Pacific Time</option>
+                </select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+        <div className="flex items-start gap-3">
+          <Zap className="w-5 h-5 text-yellow-600 mt-0.5" />
+          <div>
+            <h4 className="font-medium text-yellow-900">AI Agent Benefits</h4>
+            <p className="text-sm text-yellow-800 mb-2">
+              Your selected agents will work 24/7 to:
+            </p>
+            <ul className="text-sm text-yellow-700 space-y-1">
+              <li>• Reduce administrative workload by up to 60%</li>
+              <li>• Improve patient satisfaction with instant responses</li>
+              <li>• Increase appointment booking rates</li>
+              <li>• Ensure consistent follow-up care</li>
+            </ul>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-700">{enabledAgents}</div>
-              <div className="text-sm text-green-600">AI Agents Enabled</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-700">{agentConfig.automationLevel}%</div>
-              <div className="text-sm text-green-600">Automation Level</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-700">24/7</div>
-              <div className="text-sm text-green-600">AI Availability</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };

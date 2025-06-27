@@ -1,22 +1,39 @@
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { OnboardingFieldHelp } from './OnboardingFieldHelp';
-import { validatePracticeDetails } from '@/utils/onboardingValidation';
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { 
+  Building2, 
+  Mail, 
+  Phone, 
+  MapPin, 
+  Globe, 
+  Users,
+  Clock,
+  AlertCircle
+} from 'lucide-react';
 
 interface PracticeData {
   practiceName: string;
-  address: string;
-  phone: string;
   email: string;
+  phone: string;
+  address: string;
+  website?: string;
   description?: string;
+  businessHours?: {
+    start: string;
+    end: string;
+  };
+  teamSize?: number;
 }
 
 interface PracticeDetailsProps {
-  practiceData: PracticeData;
+  practiceData: PracticeData | undefined;
   onPracticeDetailsUpdate: (data: PracticeData) => void;
 }
 
@@ -24,166 +41,261 @@ export const PracticeDetails: React.FC<PracticeDetailsProps> = ({
   practiceData,
   onPracticeDetailsUpdate
 }) => {
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [formData, setFormData] = useState<PracticeData>({
+    practiceName: practiceData?.practiceName || '',
+    email: practiceData?.email || '',
+    phone: practiceData?.phone || '',
+    address: practiceData?.address || '',
+    website: practiceData?.website || '',
+    description: practiceData?.description || '',
+    businessHours: practiceData?.businessHours || { start: '09:00', end: '17:00' },
+    teamSize: practiceData?.teamSize || 1
+  });
 
-  const handleInputChange = (field: keyof PracticeData, value: string) => {
-    const updatedData = {
-      ...practiceData,
-      [field]: value
-    };
-    
-    onPracticeDetailsUpdate(updatedData);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const handleInputChange = (field: keyof PracticeData, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
     
     // Clear error when user starts typing
-    if (fieldErrors[field]) {
-      setFieldErrors(prev => {
-        const newErrors = { ...prev };
-        delete newErrors[field];
-        return newErrors;
-      });
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
     }
+    
+    // Update parent component
+    const updatedData = { ...formData, [field]: value };
+    onPracticeDetailsUpdate(updatedData);
   };
 
-  const handleBlur = (field: string) => {
-    setTouched(prev => ({ ...prev, [field]: true }));
-    
-    // Validate the specific field
-    const validation = validatePracticeDetails(practiceData);
-    const fieldError = validation.errors.find(error => error.field === field);
-    
-    if (fieldError) {
-      setFieldErrors(prev => ({ ...prev, [field]: fieldError.message }));
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.practiceName.trim()) {
+      newErrors.practiceName = 'Practice name is required';
     }
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email address is required';
+    } else if (!isValidEmail(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone number is required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  const getFieldClassName = (field: string) => {
-    const baseClass = "transition-all duration-200 focus:ring-2 focus:ring-blue-500";
-    if (fieldErrors[field] && touched[field]) {
-      return `${baseClass} border-red-300 focus:border-red-500 focus:ring-red-200`;
-    }
-    return baseClass;
+  const isValidEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const completionPercentage = () => {
+    const requiredFields = ['practiceName', 'email', 'phone'];
+    const optionalFields = ['address', 'website', 'description'];
+    
+    const requiredCompleted = requiredFields.filter(field => 
+      formData[field as keyof PracticeData] && String(formData[field as keyof PracticeData]).trim()
+    ).length;
+    
+    const optionalCompleted = optionalFields.filter(field => 
+      formData[field as keyof PracticeData] && String(formData[field as keyof PracticeData]).trim()
+    ).length;
+    
+    return Math.round(((requiredCompleted / requiredFields.length) * 70) + ((optionalCompleted / optionalFields.length) * 30));
   };
 
   return (
     <div className="space-y-6">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold mb-2">Practice Information</h2>
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-bold mb-2">Tell us about your practice</h2>
         <p className="text-gray-600">
-          This information will be used across your forms and patient communications
+          This information helps us customize FlowIQ and set up your AI agents
         </p>
+        <Badge variant="outline" className="mt-2">
+          {completionPercentage()}% Complete
+        </Badge>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            Basic Information
-            <span className="text-red-500">*</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Left Column - Basic Information */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Building2 className="w-5 h-5" />
+              Basic Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
               <Label htmlFor="practiceName" className="flex items-center gap-2">
                 Practice Name <span className="text-red-500">*</span>
-                <OnboardingFieldHelp field="practiceName" />
               </Label>
               <Input
                 id="practiceName"
-                value={practiceData.practiceName}
+                value={formData.practiceName}
                 onChange={(e) => handleInputChange('practiceName', e.target.value)}
-                onBlur={() => handleBlur('practiceName')}
                 placeholder="e.g., Smith Family Chiropractic"
-                className={getFieldClassName('practiceName')}
+                className={errors.practiceName ? 'border-red-500' : ''}
               />
-              {fieldErrors.practiceName && touched.practiceName && (
-                <p className="text-sm text-red-600 flex items-center gap-1">
-                  {fieldErrors.practiceName}
-                </p>
+              {errors.practiceName && (
+                <p className="text-sm text-red-600 mt-1">{errors.practiceName}</p>
               )}
             </div>
 
-            <div className="space-y-2">
+            <div>
               <Label htmlFor="email" className="flex items-center gap-2">
+                <Mail className="w-4 h-4" />
                 Email Address <span className="text-red-500">*</span>
-                <OnboardingFieldHelp field="email" />
               </Label>
               <Input
                 id="email"
                 type="email"
-                value={practiceData.email}
+                value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
-                onBlur={() => handleBlur('email')}
                 placeholder="info@yourpractice.com"
-                className={getFieldClassName('email')}
+                className={errors.email ? 'border-red-500' : ''}
               />
-              {fieldErrors.email && touched.email && (
-                <p className="text-sm text-red-600 flex items-center gap-1">
-                  {fieldErrors.email}
-                </p>
+              {errors.email && (
+                <p className="text-sm text-red-600 mt-1">{errors.email}</p>
               )}
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
+            <div>
               <Label htmlFor="phone" className="flex items-center gap-2">
-                Phone Number
-                <OnboardingFieldHelp field="phone" />
+                <Phone className="w-4 h-4" />
+                Phone Number <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="phone"
-                value={practiceData.phone}
+                type="tel"
+                value={formData.phone}
                 onChange={(e) => handleInputChange('phone', e.target.value)}
-                onBlur={() => handleBlur('phone')}
                 placeholder="(555) 123-4567"
-                className={getFieldClassName('phone')}
+                className={errors.phone ? 'border-red-500' : ''}
               />
-              {fieldErrors.phone && touched.phone && (
-                <p className="text-sm text-red-600 flex items-center gap-1">
-                  {fieldErrors.phone}
-                </p>
+              {errors.phone && (
+                <p className="text-sm text-red-600 mt-1">{errors.phone}</p>
               )}
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="address" className="flex items-center gap-2">
-                Practice Address
-                <OnboardingFieldHelp field="address" />
+            <div>
+              <Label htmlFor="website" className="flex items-center gap-2">
+                <Globe className="w-4 h-4" />
+                Website (Optional)
               </Label>
               <Input
-                id="address"
-                value={practiceData.address}
-                onChange={(e) => handleInputChange('address', e.target.value)}
-                onBlur={() => handleBlur('address')}
-                placeholder="123 Main St, City, State 12345"
-                className={getFieldClassName('address')}
+                id="website"
+                type="url"
+                value={formData.website}
+                onChange={(e) => handleInputChange('website', e.target.value)}
+                placeholder="https://yourpractice.com"
               />
             </div>
-          </div>
+          </CardContent>
+        </Card>
 
-          <div className="space-y-2">
-            <Label htmlFor="description">
-              Practice Description <span className="text-sm text-gray-500">(Optional)</span>
-            </Label>
-            <Textarea
-              id="description"
-              value={practiceData.description || ''}
-              onChange={(e) => handleInputChange('description', e.target.value)}
-              placeholder="Brief description of your practice and services..."
-              rows={3}
-              className="transition-all duration-200 focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-        </CardContent>
-      </Card>
+        {/* Right Column - Additional Details */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MapPin className="w-5 h-5" />
+              Practice Details
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="address">Practice Address</Label>
+              <Textarea
+                id="address"
+                value={formData.address}
+                onChange={(e) => handleInputChange('address', e.target.value)}
+                placeholder="123 Main Street, City, State 12345"
+                rows={3}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Used for patient directions and local search optimization
+              </p>
+            </div>
+
+            <div>
+              <Label htmlFor="description">Practice Description</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => handleInputChange('description', e.target.value)}
+                placeholder="Brief description of your practice and services..."
+                rows={3}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="startTime" className="flex items-center gap-2">
+                  <Clock className="w-4 h-4" />
+                  Business Hours
+                </Label>
+                <div className="flex gap-2 items-center">
+                  <Input
+                    id="startTime"
+                    type="time"
+                    value={formData.businessHours?.start || '09:00'}
+                    onChange={(e) => handleInputChange('businessHours', {
+                      ...formData.businessHours,
+                      start: e.target.value
+                    })}
+                  />
+                  <span className="text-gray-500">to</span>
+                  <Input
+                    type="time"
+                    value={formData.businessHours?.end || '17:00'}
+                    onChange={(e) => handleInputChange('businessHours', {
+                      ...formData.businessHours,
+                      end: e.target.value
+                    })}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="teamSize" className="flex items-center gap-2">
+                  <Users className="w-4 h-4" />
+                  Team Size
+                </Label>
+                <Input
+                  id="teamSize"
+                  type="number"
+                  min="1"
+                  max="100"
+                  value={formData.teamSize || 1}
+                  onChange={(e) => handleInputChange('teamSize', parseInt(e.target.value) || 1)}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {Object.keys(errors).length > 0 && (
+        <Alert variant="destructive">
+          <AlertCircle className="w-4 h-4" />
+          <AlertDescription>
+            Please fix the errors above to continue.
+          </AlertDescription>
+        </Alert>
+      )}
 
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h4 className="font-medium text-blue-900 mb-2">💡 Pro Tip</h4>
-        <p className="text-sm text-blue-800">
-          Use your official business information as it appears on your professional licenses. 
-          This ensures consistency across all patient communications and legal documents.
-        </p>
+        <h3 className="font-medium text-blue-900 mb-2">Why do we need this information?</h3>
+        <ul className="text-sm text-blue-800 space-y-1">
+          <li>• <strong>Practice Details:</strong> Personalizes patient communications and branding</li>
+          <li>• <strong>Contact Info:</strong> Enables automated reminders and notifications</li>
+          <li>• <strong>Business Hours:</strong> Optimizes scheduling and AI agent availability</li>
+          <li>• <strong>Team Size:</strong> Configures user management and workflow templates</li>
+        </ul>
       </div>
     </div>
   );
