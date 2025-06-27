@@ -130,10 +130,8 @@ export const AIAgentConfigurationStep: React.FC<AIAgentConfigurationStepProps> =
     onUpdateAgentConfig(newConfig);
   };
 
-  const toggleAgent = (agentId: keyof AgentConfig) => {
-    if (typeof config[agentId] === 'boolean') {
-      updateConfig({ [agentId]: !config[agentId] });
-    }
+  const toggleAgent = (agentId: keyof Omit<AgentConfig, 'automationLevel' | 'businessHours'>) => {
+    updateConfig({ [agentId]: !config[agentId] });
   };
 
   const enabledAgents = agentTypes.filter(agent => 
@@ -144,7 +142,7 @@ export const AIAgentConfigurationStep: React.FC<AIAgentConfigurationStepProps> =
     const recommendedAgents = agentTypes
       .filter(agent => agent.recommended)
       .reduce((acc, agent) => {
-        acc[agent.id as keyof AgentConfig] = true;
+        (acc as any)[agent.id] = true;
         return acc;
       }, {} as Partial<AgentConfig>);
     
@@ -184,7 +182,7 @@ export const AIAgentConfigurationStep: React.FC<AIAgentConfigurationStepProps> =
                   ? 'border-blue-500 bg-blue-50 shadow-md' 
                   : 'border-gray-200 hover:border-gray-300'
               }`}
-              onClick={() => toggleAgent(agent.id as keyof AgentConfig)}
+              onClick={() => toggleAgent(agent.id as keyof Omit<AgentConfig, 'automationLevel' | 'businessHours'>)}
             >
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
@@ -213,7 +211,7 @@ export const AIAgentConfigurationStep: React.FC<AIAgentConfigurationStepProps> =
                   </div>
                   <Switch
                     checked={isEnabled}
-                    onCheckedChange={() => toggleAgent(agent.id as keyof AgentConfig)}
+                    onCheckedChange={() => toggleAgent(agent.id as keyof Omit<AgentConfig, 'automationLevel' | 'businessHours'>)}
                   />
                 </div>
               </CardHeader>
