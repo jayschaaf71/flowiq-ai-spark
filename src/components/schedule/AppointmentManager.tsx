@@ -37,7 +37,10 @@ export const AppointmentManager = ({ onAppointmentUpdate }: AppointmentManagerPr
 
   const handleSendReminder = async (appointmentId: string) => {
     console.log('Sending reminder for appointment:', appointmentId);
-    await sendReminder(appointmentId);
+    const appointment = appointments.find(apt => apt.id === appointmentId);
+    if (appointment) {
+      await sendReminder(appointment);
+    }
   };
 
   const todayAppointments = appointments.filter(apt => isToday(parseISO(apt.date)));

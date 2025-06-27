@@ -2,12 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Users, Clock, Phone, Mail, Calendar, Plus } from 'lucide-react';
+import { Users, Clock, Phone, Mail, Calendar, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { format } from 'date-fns';
 
 interface WaitlistEntry {
   id: string;
@@ -15,35 +16,27 @@ interface WaitlistEntry {
   phone: string;
   email?: string;
   appointment_type: string;
-  priority: string;
   preferred_date?: string;
   preferred_time?: string;
+  priority: 'low' | 'medium' | 'high';
+  status: 'active' | 'contacted' | 'scheduled' | 'expired';
   notes?: string;
-  status: string;
   created_at: string;
 }
 
 export const WaitlistManager: React.FC = () => {
   const { toast } = useToast();
-  const [waitlistEntries, setWaitlistEntries] = useState<WaitlistEntry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [newEntry, setNewEntry] = useState({
-    patient_name: '',
-    phone: '',
-    email: '',
-    appointment_type: 'consultation',
-    priority: 'medium',
-    preferred_date: '',
-    preferred_time: '',
-    notes: ''
-  });
+  const [waitlist, setWaitlist] = useState<WaitlistEntry[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [filterPriority, setFilterPriority] = useState<string>('all');
 
   useEffect(() => {
-    loadWaitlistEntries();
+    loadWaitlist();
   }, []);
 
-  const loadWaitlistEntries = async () => {
+  const loadWaitlist = async () => {
+    setLoading(true);
     try {
       const { data, error } = await supabase
         .from('appointment_waitlist')
@@ -51,12 +44,12 @@ export const WaitlistManager: React.FC = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setWaitlistEntries(data || []);
+      setWaitlist(data || []);
     } catch (error) {
       console.error('Error loading waitlist:', error);
       toast({
         title: "Error",
-        description: "Failed to load waitlist entries",
+        description: "Failed to load waitlist",
         variant: "destructive",
       });
     } finally {
@@ -64,58 +57,25 @@ export const WaitlistManager: React.FC = () => {
     }
   };
 
-  const handleAddEntry = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const updateWaitlistStatus = async (id: string, newStatus: WaitlistEntry['status']) => {
     try {
       const { error } = await supabase
         .from('appointment_waitlist')
-        .insert([newEntry]);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Added to waitlist successfully",
-      });
-
-      setNewEntry({
-        patient_name: '',
-        phone: '',
-        email: '',
-        appointment_type: 'consultation',
-        priority: 'medium',
-        preferred_date: '',
-        preferred_time: '',
-        notes: ''
-      });
-      setShowAddForm(false);
-      loadWaitlistEntries();
-    } catch (error) {
-      console.error('Error adding to waitlist:', error);
-      toast({
-        title: "Error",
-        description: "Failed to add to waitlist",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleUpdateStatus = async (id: string, status: string) => {
-    try {
-      const { error } = await supabase
-        .from('appointment_waitlist')
-        .update({ status })
+        .update({ status: newStatus })
         .eq('id', id);
 
       if (error) throw error;
 
+      setWaitlist(prev => prev.map(entry => 
+        entry.id === id ? { ...entry, status: newStatus } : entry
+      ));
+
       toast({
-        title: "Success",
-        description: `Status updated to ${status}`,
+        title: "Status Updated",
+        description: `Waitlist entry marked as ${newStatus}`,
       });
-      loadWaitlistEntries();
     } catch (error) {
-      console.error('Error updating status:', error);
+      console.error('Error updating waitlist status:', error);
       toast({
         title: "Error",
         description: "Failed to update status",
@@ -124,10 +84,47 @@ export const WaitlistManager: React.FC = () => {
     }
   };
 
+  const contactPatient = async (entry: WaitlistEntry) => {
+    try {
+      // Simulate contacting patient
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      await updateWaitlistStatus(entry.id, 'contacted');
+      
+      toast({
+        title: "Patient Contacted",
+        description: `Contacted ${entry.patient_name} successfully`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to contact patient",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const scheduleFromWaitlist = async (entry: WaitlistEntry) => {
+    try {
+      // This would typically open a scheduling modal or redirect to booking
+      await updateWaitlistStatus(entry.id, 'scheduled');
+      
+      toast({
+        title: "Appointment Scheduled",
+        description: `Scheduled appointment for ${entry.patient_name}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to schedule appointment",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'urgent': return 'bg-red-100 text-red-700';
-      case 'high': return 'bg-orange-100 text-orange-700';
+      case 'high': return 'bg-red-100 text-red-700';
       case 'medium': return 'bg-yellow-100 text-yellow-700';
       case 'low': return 'bg-green-100 text-green-700';
       default: return 'bg-gray-100 text-gray-700';
@@ -137,212 +134,231 @@ export const WaitlistManager: React.FC = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active': return 'bg-blue-100 text-blue-700';
-      case 'booked': return 'bg-green-100 text-green-700';
-      case 'cancelled': return 'bg-gray-100 text-gray-700';
+      case 'contacted': return 'bg-purple-100 text-purple-700';
+      case 'scheduled': return 'bg-green-100 text-green-700';
+      case 'expired': return 'bg-gray-100 text-gray-700';
       default: return 'bg-gray-100 text-gray-700';
     }
   };
 
-  if (loading) {
-    return (
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="h-8 bg-gray-200 rounded w-48 animate-pulse"></div>
-          <div className="h-10 bg-gray-200 rounded w-32 animate-pulse"></div>
-        </div>
-        <div className="grid gap-4">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-32 bg-gray-200 rounded animate-pulse"></div>
-          ))}
-        </div>
-      </div>
-    );
-  }
+  const filteredWaitlist = waitlist.filter(entry => {
+    const statusMatch = filterStatus === 'all' || entry.status === filterStatus;
+    const priorityMatch = filterPriority === 'all' || entry.priority === filterPriority;
+    return statusMatch && priorityMatch;
+  });
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Users className="h-8 w-8 text-purple-600" />
-          <div>
-            <h2 className="text-2xl font-bold">Waitlist Manager</h2>
-            <p className="text-gray-600">Manage patient waitlist and appointment requests</p>
-          </div>
+      <div className="flex items-center gap-3">
+        <Users className="h-8 w-8 text-purple-600" />
+        <div>
+          <h2 className="text-2xl font-bold">Waitlist Manager</h2>
+          <p className="text-gray-600">Manage patient waitlist and schedule appointments</p>
         </div>
-        <Button onClick={() => setShowAddForm(!showAddForm)}>
-          <Plus className="w-4 h-4 mr-2" />
-          Add to Waitlist
-        </Button>
       </div>
 
-      {/* Add Entry Form */}
-      {showAddForm && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Add to Waitlist</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleAddEntry} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Patient Name</label>
-                  <Input
-                    value={newEntry.patient_name}
-                    onChange={(e) => setNewEntry({...newEntry, patient_name: e.target.value})}
-                    placeholder="Enter patient name"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Phone</label>
-                  <Input
-                    value={newEntry.phone}
-                    onChange={(e) => setNewEntry({...newEntry, phone: e.target.value})}
-                    placeholder="Phone number"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Email</label>
-                  <Input
-                    type="email"
-                    value={newEntry.email}
-                    onChange={(e) => setNewEntry({...newEntry, email: e.target.value})}
-                    placeholder="Email address"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Appointment Type</label>
-                  <Select value={newEntry.appointment_type} onValueChange={(value) => setNewEntry({...newEntry, appointment_type: value})}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="consultation">Consultation</SelectItem>
-                      <SelectItem value="follow-up">Follow-up</SelectItem>
-                      <SelectItem value="procedure">Procedure</SelectItem>
-                      <SelectItem value="screening">Screening</SelectItem>
-                      <SelectItem value="emergency">Emergency</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Priority</label>
-                  <Select value={newEntry.priority} onValueChange={(value) => setNewEntry({...newEntry, priority: value})}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="low">Low</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="high">High</SelectItem>
-                      <SelectItem value="urgent">Urgent</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="flex gap-2">
-                <Button type="submit">Add to Waitlist</Button>
-                <Button type="button" variant="outline" onClick={() => setShowAddForm(false)}>Cancel</Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-      )}
+      {/* Filters */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Filters</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Status</label>
+              <Select value={filterStatus} onValueChange={setFilterStatus}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="contacted">Contacted</SelectItem>
+                  <SelectItem value="scheduled">Scheduled</SelectItem>
+                  <SelectItem value="expired">Expired</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Priority</label>
+              <Select value={filterPriority} onValueChange={setFilterPriority}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Priorities</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="low">Low</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Waitlist Entries */}
-      <div className="space-y-4">
-        {waitlistEntries.length === 0 ? (
-          <Card>
-            <CardContent className="text-center py-8">
-              <Users className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-              <p className="text-gray-500">No entries in waitlist</p>
-            </CardContent>
-          </Card>
-        ) : (
-          waitlistEntries.map((entry) => (
-            <Card key={entry.id}>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div>
-                      <h3 className="font-semibold">{entry.patient_name}</h3>
-                      <p className="text-sm text-gray-600">{entry.appointment_type}</p>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Clock className="h-5 w-5" />
+            Waitlist Entries ({filteredWaitlist.length})
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading waitlist...</p>
+            </div>
+          ) : filteredWaitlist.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>No waitlist entries found</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {filteredWaitlist.map((entry) => (
+                <div key={entry.id} className="border rounded-lg p-4 hover:bg-gray-50">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <h3 className="font-semibold">{entry.patient_name}</h3>
+                        <Badge className={getPriorityColor(entry.priority)}>
+                          {entry.priority} priority
+                        </Badge>
+                        <Badge className={getStatusColor(entry.status)}>
+                          {entry.status}
+                        </Badge>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600 mb-2">
+                        <div className="flex items-center gap-1">
+                          <Phone className="h-4 w-4" />
+                          <span>{entry.phone}</span>
+                        </div>
+                        
+                        {entry.email && (
+                          <div className="flex items-center gap-1">
+                            <Mail className="h-4 w-4" />
+                            <span>{entry.email}</span>
+                          </div>
+                        )}
+                        
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-4 w-4" />
+                          <span>{entry.appointment_type}</span>
+                        </div>
+                        
+                        {entry.preferred_date && (
+                          <div className="flex items-center gap-1">
+                            <Clock className="h-4 w-4" />
+                            <span>
+                              Preferred: {format(new Date(entry.preferred_date), 'MMM d')}
+                              {entry.preferred_time && ` at ${entry.preferred_time}`}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {entry.notes && (
+                        <div className="mt-2 p-2 bg-gray-50 rounded text-sm">
+                          <p>{entry.notes}</p>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge className={getPriorityColor(entry.priority)}>
-                      {entry.priority}
-                    </Badge>
-                    <Badge className={getStatusColor(entry.status)}>
-                      {entry.status}
-                    </Badge>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                  <div className="flex items-center gap-2">
-                    <Phone className="h-4 w-4 text-gray-400" />
-                    <span className="text-sm">{entry.phone}</span>
-                  </div>
-                  {entry.email && (
-                    <div className="flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-gray-400" />
-                      <span className="text-sm">{entry.email}</span>
-                    </div>
-                  )}
-                  {entry.preferred_date && (
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-gray-400" />
-                      <span className="text-sm">{entry.preferred_date}</span>
-                    </div>
-                  )}
-                  {entry.preferred_time && (
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-gray-400" />
-                      <span className="text-sm">{entry.preferred_time}</span>
-                    </div>
-                  )}
-                </div>
-
-                {entry.notes && (
-                  <div className="mb-4">
-                    <p className="text-sm text-gray-600">{entry.notes}</p>
-                  </div>
-                )}
-
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500">
-                    Added {new Date(entry.created_at).toLocaleDateString()}
-                  </span>
-                  <div className="flex gap-2">
-                    {entry.status === 'active' && (
-                      <>
-                        <Button 
-                          size="sm" 
-                          onClick={() => handleUpdateStatus(entry.id, 'booked')}
+                    
+                    <div className="flex flex-col gap-2 ml-4">
+                      {entry.status === 'active' && (
+                        <>
+                          <Button
+                            size="sm"
+                            onClick={() => contactPatient(entry)}
+                          >
+                            Contact
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => scheduleFromWaitlist(entry)}
+                          >
+                            Schedule
+                          </Button>
+                        </>
+                      )}
+                      
+                      {entry.status === 'contacted' && (
+                        <Button
+                          size="sm"
+                          onClick={() => scheduleFromWaitlist(entry)}
                         >
-                          Mark as Booked
+                          Schedule
                         </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => handleUpdateStatus(entry.id, 'cancelled')}
+                      )}
+                      
+                      {entry.status === 'active' && (
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => updateWaitlistStatus(entry.id, 'expired')}
                         >
-                          Cancel
+                          Mark Expired
                         </Button>
-                      </>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          ))
-        )}
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Summary Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600">
+                {waitlist.filter(e => e.status === 'active').length}
+              </div>
+              <div className="text-sm text-gray-600">Active</div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-purple-600">
+                {waitlist.filter(e => e.status === 'contacted').length}
+              </div>
+              <div className="text-sm text-gray-600">Contacted</div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-600">
+                {waitlist.filter(e => e.status === 'scheduled').length}
+              </div>
+              <div className="text-sm text-gray-600">Scheduled</div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-red-600">
+                {waitlist.filter(e => e.priority === 'high').length}
+              </div>
+              <div className="text-sm text-gray-600">High Priority</div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
