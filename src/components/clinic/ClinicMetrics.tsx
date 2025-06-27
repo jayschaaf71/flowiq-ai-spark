@@ -1,83 +1,93 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, TrendingDown, DollarSign, Users, Calendar, Clock, AlertTriangle, CheckCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { 
+  TrendingUp, 
+  TrendingDown, 
+  Calendar, 
+  Users, 
+  DollarSign,
+  FileText,
+  Clock,
+  Activity,
+  ArrowRight
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export const ClinicMetrics = () => {
+  const navigate = useNavigate();
+
   const metrics = [
     {
-      title: "Daily Revenue",
-      value: "$4,280",
+      title: "Patient Volume",
+      value: "1,247",
       change: "+12%",
       trend: "up",
-      icon: DollarSign,
-      description: "Revenue today vs yesterday"
-    },
-    {
-      title: "Appointments Today",
-      value: "32",
-      change: "+5",
-      trend: "up",
-      icon: Calendar,
-      description: "Scheduled appointments"
-    },
-    {
-      title: "Patient Flow",
-      value: "28",
-      change: "+3",
-      trend: "up",
+      description: "Active patients this month",
       icon: Users,
-      description: "Patients seen today"
+      onClick: () => navigate("/patient-management")
     },
     {
-      title: "Avg Wait Time",
-      value: "8 min",
-      change: "-2 min",
-      trend: "up",
-      icon: Clock,
-      description: "Average patient wait time"
-    },
-    {
-      title: "No-Shows",
-      value: "3",
-      change: "-1",
-      trend: "up",
-      icon: AlertTriangle,
-      description: "Missed appointments today"
-    },
-    {
-      title: "Completion Rate",
+      title: "Appointment Efficiency",
       value: "94%",
-      change: "+2%",
+      change: "+3%",
       trend: "up",
-      icon: CheckCircle,
-      description: "Treatment completion rate"
+      description: "On-time appointment rate",
+      icon: Clock,
+      onClick: () => navigate("/schedule")
+    },
+    {
+      title: "Revenue Growth",
+      value: "$45,230",
+      change: "+8%",
+      trend: "up",
+      description: "Monthly recurring revenue",
+      icon: DollarSign,
+      onClick: () => navigate("/agents/claims-iq")
+    },
+    {
+      title: "Claims Processing",
+      value: "98.2%",
+      change: "-0.5%",
+      trend: "down",
+      description: "Claims approval rate",
+      icon: FileText,
+      onClick: () => navigate("/agents/claims-iq")
     }
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {metrics.map((metric, index) => (
-        <Card key={index} className="hover:shadow-md transition-shadow">
+        <Card 
+          key={index}
+          className="cursor-pointer hover:shadow-md transition-shadow duration-200 hover:border-blue-300"
+          onClick={metric.onClick}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              {metric.title}
-            </CardTitle>
-            <metric.icon className="h-4 w-4 text-gray-400" />
+            <CardTitle className="text-sm font-medium">{metric.title}</CardTitle>
+            <metric.icon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{metric.value}</div>
-            <div className="flex items-center space-x-2 text-xs text-gray-600">
-              {metric.trend === "up" ? (
-                <TrendingUp className="h-3 w-3 text-emerald-500" />
-              ) : (
-                <TrendingDown className="h-3 w-3 text-red-500" />
-              )}
-              <span className={metric.trend === "up" ? "text-emerald-600" : "text-red-600"}>
+            <div className="flex items-center justify-between mt-1">
+              <div className={`flex items-center gap-1 text-xs ${
+                metric.trend === 'up' ? 'text-green-600' : 'text-red-600'
+              }`}>
+                {metric.trend === 'up' ? (
+                  <TrendingUp className="w-3 h-3" />
+                ) : (
+                  <TrendingDown className="w-3 h-3" />
+                )}
                 {metric.change}
-              </span>
-              <span>vs yesterday</span>
+              </div>
+              <Badge variant="outline" className="text-xs">
+                {metric.trend === 'up' ? 'Improving' : 'Needs Attention'}
+              </Badge>
             </div>
-            <p className="text-xs text-gray-500 mt-1">{metric.description}</p>
+            <p className="text-xs text-muted-foreground mt-2">{metric.description}</p>
+            <p className="text-xs text-blue-600 mt-1 opacity-75">Click to view details</p>
           </CardContent>
         </Card>
       ))}

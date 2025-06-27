@@ -22,15 +22,38 @@ const Index = () => {
     navigate('/onboard-tenant');
   };
 
+  const handleAIAgentsClick = () => {
+    navigate('/agents/scribe-iq');
+  };
+
+  const handleAnalyticsClick = () => {
+    navigate('/analytics');
+  };
+
   return (
     <div className="space-y-6">
-      <PageHeader 
-        title="Clinic Dashboard"
-        subtitle={`Daily operations overview and key performance indicators${profile?.tenant_id ? ` - ${profile.tenant_id.toUpperCase()} Tenant` : ''}`}
-      />
+      <div className="flex items-center justify-between">
+        <PageHeader 
+          title="Clinic Dashboard"
+          subtitle={`Daily operations overview and key performance indicators${profile?.tenant_id ? ` - ${profile.tenant_id.toUpperCase()} Tenant` : ''}`}
+        />
+        <div className="flex gap-2">
+          <Button 
+            onClick={handleAIAgentsClick}
+            variant="outline"
+          >
+            AI Agents
+          </Button>
+          <Button 
+            onClick={handleAnalyticsClick}
+          >
+            View Analytics
+          </Button>
+        </div>
+      </div>
       
       <div className="space-y-6">
-        {/* Quick Stats Overview */}
+        {/* Quick Stats Overview - Now Clickable */}
         <QuickStats />
 
         {/* Testing & Setup Section */}
@@ -44,20 +67,36 @@ const Index = () => {
               Access setup flows and testing tools
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex gap-4">
             <Button 
               onClick={handleOnboardingClick}
-              className="w-full sm:w-auto"
+              className="flex-1"
               variant="outline"
             >
               Go Through Onboarding Flow
             </Button>
+            <Button 
+              onClick={() => navigate('/agents')}
+              className="flex-1"
+              variant="outline"
+            >
+              Configure AI Agents
+            </Button>
           </CardContent>
         </Card>
         
-        {/* Key Performance Indicators */}
+        {/* Key Performance Indicators - Now Clickable */}
         <div>
-          <h2 className="text-xl font-semibold mb-4">Key Performance Indicators</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">Key Performance Indicators</h2>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => navigate('/analytics')}
+            >
+              View Detailed Analytics
+            </Button>
+          </div>
           <ClinicMetrics />
         </div>
 
@@ -71,7 +110,7 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Recent Activity */}
+        {/* Recent Activity - Now Clickable */}
         <RecentActivity />
       </div>
 
