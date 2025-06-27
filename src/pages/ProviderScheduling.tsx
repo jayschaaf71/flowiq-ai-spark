@@ -1,8 +1,8 @@
 
 import { ProviderScheduling } from "@/components/scheduling/ProviderScheduling";
 
-const ProviderScheduling = () => {
+const ProviderSchedulingPage = () => {
   return <ProviderScheduling />;
 };
 
-export default ProviderScheduling;
+export default ProviderSchedulingPage;
