@@ -1,8 +1,9 @@
 
 import { useState } from 'react';
+import { SpecialtyType } from '@/utils/specialtyConfig';
 
 export interface OnboardingData {
-  specialty?: 'chiropractic' | 'dental-sleep' | 'med-spa' | 'concierge' | 'hrt';
+  specialty?: SpecialtyType;
   practiceData?: any;
   teamConfig?: any;
   agentConfig?: any;

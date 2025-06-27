@@ -5,6 +5,7 @@ import { MobileOnboardingFlow } from './MobileOnboardingFlow';
 import { MobileStepMenu } from './MobileStepMenu';
 import { ComprehensiveOnboardingFlow } from './ComprehensiveOnboardingFlow';
 import { useOnboardingFlow } from '@/hooks/useOnboardingFlow';
+import { OnboardingStepsRenderer } from './OnboardingStepsRenderer';
 
 interface EnhancedMobileOnboardingProps {
   onComplete: (data: any) => void;
@@ -21,13 +22,19 @@ export const EnhancedMobileOnboarding: React.FC<EnhancedMobileOnboardingProps> =
   const {
     currentStep,
     onboardingData,
+    updateOnboardingData,
     steps,
     nextStep,
     prevStep,
     setCurrentStep
   } = useOnboardingFlow();
 
-  console.log('EnhancedMobileOnboarding rendering:', { isMobile, currentStep, stepsLength: steps.length });
+  console.log('EnhancedMobileOnboarding rendering:', { 
+    isMobile, 
+    currentStep, 
+    stepsLength: steps.length,
+    onboardingData 
+  });
 
   const completedSteps = new Set<number>();
   const currentStepData = steps[currentStep];
@@ -44,15 +51,27 @@ export const EnhancedMobileOnboarding: React.FC<EnhancedMobileOnboardingProps> =
   }
 
   const handleStepSelect = (stepIndex: number) => {
+    console.log('Selecting step:', stepIndex);
     setCurrentStep(stepIndex);
     setShowMobileMenu(false);
   };
 
   const handleComplete = () => {
+    console.log('Completing onboarding with data:', onboardingData);
     onComplete(onboardingData);
   };
 
-  console.log('Rendering mobile flow');
+  const handleNext = () => {
+    console.log('Moving to next step from:', currentStep);
+    nextStep();
+  };
+
+  const handlePrevious = () => {
+    console.log('Moving to previous step from:', currentStep);
+    prevStep();
+  };
+
+  console.log('Rendering mobile flow with step:', currentStepData);
 
   return (
     <>
@@ -61,8 +80,8 @@ export const EnhancedMobileOnboarding: React.FC<EnhancedMobileOnboardingProps> =
         totalSteps={steps.length}
         stepTitle={currentStepData.title}
         stepDescription={getStepDescription(currentStepData.component)}
-        onNext={nextStep}
-        onPrevious={prevStep}
+        onNext={handleNext}
+        onPrevious={handlePrevious}
         onComplete={handleComplete}
         canProceed={true}
         isLoading={false}
@@ -71,18 +90,15 @@ export const EnhancedMobileOnboarding: React.FC<EnhancedMobileOnboardingProps> =
         showMenu={showMobileMenu}
         onMenuToggle={() => setShowMobileMenu(!showMobileMenu)}
       >
-        <div className="min-h-[300px] flex items-center justify-center">
-          <div className="text-center p-6">
-            <h3 className="text-lg font-semibold mb-2">{currentStepData.title}</h3>
-            <p className="text-gray-600 mb-4">
-              {getStepDescription(currentStepData.component)}
-            </p>
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <p className="text-sm text-blue-800">
-                Step {currentStep + 1} of {steps.length} - {currentStepData.component}
-              </p>
-            </div>
-          </div>
+        <div className="min-h-[400px]">
+          <OnboardingStepsRenderer
+            currentStep={currentStepData}
+            onboardingData={onboardingData}
+            updateOnboardingData={updateOnboardingData}
+            nextStep={handleNext}
+            onSubmit={handleComplete}
+            onCancel={onCancel}
+          />
         </div>
       </MobileOnboardingFlow>
 

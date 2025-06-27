@@ -17,19 +17,9 @@ export const ResponsiveOnboardingWrapper: React.FC<ResponsiveOnboardingWrapperPr
 
   console.log('ResponsiveOnboardingWrapper rendering:', { isMobile });
 
-  if (isMobile) {
-    console.log('Using mobile onboarding');
-    return (
-      <EnhancedMobileOnboarding
-        onComplete={onComplete}
-        onCancel={onCancel}
-      />
-    );
-  }
-
-  console.log('Using comprehensive onboarding');
+  // Always render the enhanced mobile onboarding for now since it handles both mobile and desktop
   return (
-    <ComprehensiveOnboardingFlow
+    <EnhancedMobileOnboarding
       onComplete={onComplete}
       onCancel={onCancel}
     />

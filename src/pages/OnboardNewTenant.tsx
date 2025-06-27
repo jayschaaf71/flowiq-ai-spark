@@ -8,6 +8,8 @@ const OnboardNewTenant = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  console.log('OnboardNewTenant page rendering');
+
   const handleOnboardingComplete = (data: any) => {
     console.log('Tenant onboarding completed:', data);
     toast({
@@ -18,6 +20,7 @@ const OnboardNewTenant = () => {
   };
 
   const handleCancel = () => {
+    console.log('Onboarding cancelled');
     navigate('/');
   };
 
