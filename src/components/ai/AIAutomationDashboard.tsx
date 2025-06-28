@@ -13,7 +13,7 @@ import {
   Calendar,
   MessageSquare,
   BarChart3,
-  Robot,
+  Bot,
   Clock,
   Target,
   Activity
@@ -105,7 +105,7 @@ export const AIAutomationDashboard: React.FC = () => {
       case 'documentation': return BarChart3;
       case 'billing': return Target;
       case 'analytics': return TrendingUp;
-      default: return Robot;
+      default: return Bot;
     }
   };
 
@@ -174,7 +174,7 @@ export const AIAutomationDashboard: React.FC = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Robot className="h-5 w-5" />
+            <Bot className="h-5 w-5" />
             Active AI Automations
           </CardTitle>
           <CardDescription>
