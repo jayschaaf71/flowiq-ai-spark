@@ -12,6 +12,7 @@ import { RealTimeActivityFeed } from "@/components/dashboard/RealTimeActivityFee
 import { SmartInsightsWidget } from "@/components/dashboard/SmartInsightsWidget";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useRealtimeDashboard } from "@/hooks/useRealtimeDashboard";
+import { BarChart3 } from "@heroicons/react/24/outline";
 
 const Index = () => {
   const { isLoading } = useDashboardData();
@@ -42,6 +43,23 @@ const Index = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <RealTimeActivityFeed />
           <SmartInsightsWidget />
+        </div>
+        
+        {/* Advanced Analytics Link */}
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6 border border-blue-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Advanced Analytics</h3>
+              <p className="text-gray-600">Get comprehensive insights with detailed analytics dashboards</p>
+            </div>
+            <a 
+              href="/advanced-analytics"
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <BarChart3 className="w-4 h-4 mr-2" />
+              View Analytics
+            </a>
+          </div>
         </div>
         
         <PracticeAreasSection />
