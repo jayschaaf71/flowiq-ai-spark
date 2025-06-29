@@ -99,19 +99,21 @@ export const AppSidebar = () => {
 
   const renderNavSection = (title: string, items: any[]) => (
     <SidebarGroup key={title}>
-      <SidebarGroupLabel>{title}</SidebarGroupLabel>
+      <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+        {title}
+      </SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.path}>
-              <SidebarMenuButton asChild isActive={isActive(item.path)}>
-                <NavLink to={item.path} className="flex items-center gap-2">
-                  <item.icon className="h-4 w-4" />
-                  <span>{item.label}</span>
+              <SidebarMenuButton asChild isActive={isActive(item.path)} className="hover:bg-gray-50">
+                <NavLink to={item.path} className="flex items-center gap-3 px-3 py-2 rounded-md transition-colors">
+                  <item.icon className="h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">{item.label}</span>
                   {item.badge && (
                     <Badge 
                       variant={item.badge === "AI" ? "default" : item.badge === "Enterprise" ? "secondary" : item.badge === "New" ? "destructive" : "secondary"} 
-                      className={`ml-auto text-xs ${
+                      className={`ml-auto text-xs flex-shrink-0 ${
                         item.badge === "AI" ? "bg-blue-100 text-blue-700" : 
                         item.badge === "Enterprise" ? "bg-purple-100 text-purple-700" : 
                         item.badge === "New" ? "bg-green-100 text-green-700" : ""
@@ -130,20 +132,20 @@ export const AppSidebar = () => {
   );
 
   return (
-    <Sidebar variant="inset">
-      <SidebarHeader>
+    <Sidebar variant="inset" className="border-r border-gray-200">
+      <SidebarHeader className="border-b border-gray-200 bg-white">
         <div className="flex items-center gap-3 px-4 py-3">
           {state === "expanded" && (
-            <div className="flex flex-col">
+            <div className="flex flex-col min-w-0">
               <div className="flex items-center gap-1">
                 <span className="font-bold text-lg text-blue-600">Flow</span>
                 <span className="font-bold text-lg text-gray-800">iQ</span>
               </div>
-              <p className="text-xs text-gray-500 leading-tight">
+              <p className="text-xs text-gray-500 leading-tight truncate">
                 {tenantConfig.tagline}
               </p>
               {primaryTenant && (
-                <p className="text-xs text-blue-600 font-medium mt-1">
+                <p className="text-xs text-blue-600 font-medium mt-1 truncate">
                   {primaryTenant.tenant.brand_name}
                 </p>
               )}
@@ -152,27 +154,31 @@ export const AppSidebar = () => {
         </div>
       </SidebarHeader>
       
-      <SidebarContent>
-        {renderNavSection("Main", mainNavigationItems)}
-        {renderNavSection("Clinical Operations", clinicalOperations)}
-        {renderNavSection("Practice Areas", practiceAreas)}
-        {renderNavSection("AI Assistants", aiAgents)}
-        {renderNavSection("Management", managementItems)}
+      <SidebarContent className="bg-white">
+        <div className="px-2 py-2 space-y-4">
+          {renderNavSection("Main", mainNavigationItems)}
+          {renderNavSection("Clinical Operations", clinicalOperations)}
+          {renderNavSection("Practice Areas", practiceAreas)}
+          {renderNavSection("AI Assistants", aiAgents)}
+          {renderNavSection("Management", managementItems)}
+        </div>
       </SidebarContent>
 
-      <SidebarFooter>
-        <SidebarMenu>
-          {bottomItems.map((item) => (
-            <SidebarMenuItem key={item.path}>
-              <SidebarMenuButton asChild isActive={isActive(item.path)}>
-                <NavLink to={item.path} className="flex items-center gap-2">
-                  <item.icon className="h-4 w-4" />
-                  <span>{item.label}</span>
-                </NavLink>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
+      <SidebarFooter className="border-t border-gray-200 bg-white">
+        <div className="px-2 py-2">
+          <SidebarMenu>
+            {bottomItems.map((item) => (
+              <SidebarMenuItem key={item.path}>
+                <SidebarMenuButton asChild isActive={isActive(item.path)} className="hover:bg-gray-50">
+                  <NavLink to={item.path} className="flex items-center gap-3 px-3 py-2 rounded-md transition-colors">
+                    <item.icon className="h-4 w-4 flex-shrink-0" />
+                    <span className="truncate">{item.label}</span>
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </div>
       </SidebarFooter>
     </Sidebar>
   );
