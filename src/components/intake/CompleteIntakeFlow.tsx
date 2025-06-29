@@ -7,12 +7,12 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import { useCurrentTenant } from '@/utils/enhancedTenantConfig';
-import { PatientInfoStep } from './PatientInfoStep';
-import { MedicalHistoryStep } from './MedicalHistoryStep';
-import { InsuranceStep } from './InsuranceStep';
+import { PatientInfoStep } from './steps/PatientInfoStep';
+import { MedicalHistoryStep } from './steps/MedicalHistoryStep';
+import { InsuranceStep } from './steps/InsuranceStep';
 import { SymptomAssessmentWrapper } from './SymptomAssessmentWrapper';
-import { PhotoVerificationStep } from './PhotoVerificationStep';
-import { ConfirmationStep } from './ConfirmationStep';
+import { PhotoVerificationStep } from './steps/PhotoVerificationStep';
+import { ConfirmationStep } from './steps/ConfirmationStep';
 import { AutomatedReminderService } from '@/services/automatedReminderService';
 import { ProviderNotificationService } from '@/services/providerNotificationService';
 import { PatientStatusService } from '@/services/patientStatusService';
@@ -234,8 +234,38 @@ export const CompleteIntakeFlow: React.FC = () => {
 
   const handleFinalSubmit = async (finalData: any) => {
     try {
+      // First, get or create a default form to reference
+      const { data: defaultForm, error: formError } = await supabase
+        .from('intake_forms')
+        .select('id')
+        .eq('is_active', true)
+        .limit(1)
+        .single();
+
+      let formId = defaultForm?.id;
+
+      // If no form exists, create a default one
+      if (!formId) {
+        const { data: newForm, error: newFormError } = await supabase
+          .from('intake_forms')
+          .insert({
+            title: 'Complete Patient Intake',
+            description: 'Comprehensive patient intake form',
+            form_fields: []
+          })
+          .select('id')
+          .single();
+
+        if (newFormError) {
+          console.error('Error creating default form:', newFormError);
+          return;
+        }
+        formId = newForm.id;
+      }
+
       // Create intake submission record
       const submissionData = {
+        form_id: formId,
         patient_id: patientId,
         patient_name: `${formData.firstName} ${formData.lastName}`,
         patient_email: formData.email,
@@ -386,7 +416,7 @@ export const CompleteIntakeFlow: React.FC = () => {
             </div>
             <div className="text-left">
               <h1 className="text-2xl font-bold text-gray-900">
-                {currentTenant?.brand_name || 'HealthCare'} Intake
+                {currentTenant?.brandName || 'HealthCare'} Intake
               </h1>
               <p className="text-gray-600">Complete your pre-visit information</p>
             </div>

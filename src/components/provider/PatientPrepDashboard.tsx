@@ -101,8 +101,18 @@ export const PatientPrepDashboard: React.FC<PatientPrepDashboardProps> = ({ appo
         .eq('patient_id', patient.id)
         .eq('status', 'active');
 
-      // Extract symptom assessment from intake data
-      const symptomAssessment = intakeSubmission?.form_data?.symptom_assessment || null;
+      // Extract symptom assessment from intake data - properly cast JSON
+      let symptomAssessment = null;
+      if (intakeSubmission?.form_data) {
+        try {
+          const formData = typeof intakeSubmission.form_data === 'string' 
+            ? JSON.parse(intakeSubmission.form_data)
+            : intakeSubmission.form_data;
+          symptomAssessment = formData?.symptom_assessment || formData?.symptomAssessment || null;
+        } catch (error) {
+          console.error('Error parsing form data:', error);
+        }
+      }
 
       setPrepData({
         appointment,

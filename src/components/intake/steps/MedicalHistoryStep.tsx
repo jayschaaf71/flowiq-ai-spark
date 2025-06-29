@@ -1,203 +1,255 @@
 
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { AlertCircle } from "lucide-react";
-import { PatientData } from "@/types/patient-onboarding";
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent } from '@/components/ui/card';
+import { Plus, X } from 'lucide-react';
 
 interface MedicalHistoryStepProps {
-  patientData: PatientData;
-  setPatientData: (data: PatientData | ((prev: PatientData) => PatientData)) => void;
+  initialData: any;
+  onComplete: (data: any) => void;
+  onSkip: () => void;
 }
 
-export const MedicalHistoryStep = ({ patientData, setPatientData }: MedicalHistoryStepProps) => {
-  const addToList = (field: keyof PatientData['medicalHistory'], value: string) => {
-    if (value.trim()) {
-      setPatientData(prev => ({
-        ...prev,
-        medicalHistory: {
-          ...prev.medicalHistory,
-          [field]: [...prev.medicalHistory[field], value.trim()]
-        }
-      }));
-    }
+export const MedicalHistoryStep: React.FC<MedicalHistoryStepProps> = ({ initialData, onComplete, onSkip }) => {
+  const [medicalHistory, setMedicalHistory] = useState(initialData.medicalHistory || []);
+  const [medications, setMedications] = useState(initialData.medications || []);
+  const [allergies, setAllergies] = useState(initialData.allergies || []);
+
+  const addMedicalCondition = () => {
+    setMedicalHistory([...medicalHistory, { condition: '', date: '', notes: '' }]);
   };
 
-  const removeFromList = (field: keyof PatientData['medicalHistory'], index: number) => {
-    setPatientData(prev => ({
-      ...prev,
-      medicalHistory: {
-        ...prev.medicalHistory,
-        [field]: prev.medicalHistory[field].filter((_, i) => i !== index)
-      }
-    }));
+  const updateMedicalCondition = (index: number, field: string, value: string) => {
+    const updated = [...medicalHistory];
+    updated[index] = { ...updated[index], [field]: value };
+    setMedicalHistory(updated);
+  };
+
+  const removeMedicalCondition = (index: number) => {
+    setMedicalHistory(medicalHistory.filter((_: any, i: number) => i !== index));
+  };
+
+  const addMedication = () => {
+    setMedications([...medications, { name: '', dosage: '', frequency: '' }]);
+  };
+
+  const updateMedication = (index: number, field: string, value: string) => {
+    const updated = [...medications];
+    updated[index] = { ...updated[index], [field]: value };
+    setMedications(updated);
+  };
+
+  const removeMedication = (index: number) => {
+    setMedications(medications.filter((_: any, i: number) => i !== index));
+  };
+
+  const addAllergy = () => {
+    setAllergies([...allergies, { allergen: '', reaction: '', severity: '' }]);
+  };
+
+  const updateAllergy = (index: number, field: string, value: string) => {
+    const updated = [...allergies];
+    updated[index] = { ...updated[index], [field]: value };
+    setAllergies(updated);
+  };
+
+  const removeAllergy = (index: number) => {
+    setAllergies(allergies.filter((_: any, i: number) => i !== index));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onComplete({ medicalHistory, medications, allergies });
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2 mb-4">
-        <AlertCircle className="w-5 h-5 text-blue-600" />
-        <h3 className="text-lg font-semibold">Medical History</h3>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Medical History */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold">Medical History</h3>
+            <Button type="button" variant="outline" size="sm" onClick={addMedicalCondition}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Condition
+            </Button>
+          </div>
+          {medicalHistory.length === 0 ? (
+            <p className="text-gray-500 text-center py-4">No medical conditions added yet</p>
+          ) : (
+            <div className="space-y-4">
+              {medicalHistory.map((condition: any, index: number) => (
+                <div key={index} className="border rounded-lg p-4 relative">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute top-2 right-2"
+                    onClick={() => removeMedicalCondition(index)}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label>Condition</Label>
+                      <Input
+                        value={condition.condition}
+                        onChange={(e) => updateMedicalCondition(index, 'condition', e.target.value)}
+                        placeholder="e.g., Hypertension"
+                      />
+                    </div>
+                    <div>
+                      <Label>Date Diagnosed</Label>
+                      <Input
+                        type="date"
+                        value={condition.date}
+                        onChange={(e) => updateMedicalCondition(index, 'date', e.target.value)}
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <Label>Notes</Label>
+                      <Textarea
+                        value={condition.notes}
+                        onChange={(e) => updateMedicalCondition(index, 'notes', e.target.value)}
+                        placeholder="Additional information about this condition"
+                        rows={2}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Current Medications */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold">Current Medications</h3>
+            <Button type="button" variant="outline" size="sm" onClick={addMedication}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Medication
+            </Button>
+          </div>
+          {medications.length === 0 ? (
+            <p className="text-gray-500 text-center py-4">No medications added yet</p>
+          ) : (
+            <div className="space-y-4">
+              {medications.map((medication: any, index: number) => (
+                <div key={index} className="border rounded-lg p-4 relative">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute top-2 right-2"
+                    onClick={() => removeMedication(index)}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <Label>Medication Name</Label>
+                      <Input
+                        value={medication.name}
+                        onChange={(e) => updateMedication(index, 'name', e.target.value)}
+                        placeholder="e.g., Lisinopril"
+                      />
+                    </div>
+                    <div>
+                      <Label>Dosage</Label>
+                      <Input
+                        value={medication.dosage}
+                        onChange={(e) => updateMedication(index, 'dosage', e.target.value)}
+                        placeholder="e.g., 10mg"
+                      />
+                    </div>
+                    <div>
+                      <Label>Frequency</Label>
+                      <Input
+                        value={medication.frequency}
+                        onChange={(e) => updateMedication(index, 'frequency', e.target.value)}
+                        placeholder="e.g., Once daily"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Allergies */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold">Allergies</h3>
+            <Button type="button" variant="outline" size="sm" onClick={addAllergy}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Allergy
+            </Button>
+          </div>
+          {allergies.length === 0 ? (
+            <p className="text-gray-500 text-center py-4">No allergies added yet</p>
+          ) : (
+            <div className="space-y-4">
+              {allergies.map((allergy: any, index: number) => (
+                <div key={index} className="border rounded-lg p-4 relative">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute top-2 right-2"
+                    onClick={() => removeAllergy(index)}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <Label>Allergen</Label>
+                      <Input
+                        value={allergy.allergen}
+                        onChange={(e) => updateAllergy(index, 'allergen', e.target.value)}
+                        placeholder="e.g., Penicillin"
+                      />
+                    </div>
+                    <div>
+                      <Label>Reaction</Label>
+                      <Input
+                        value={allergy.reaction}
+                        onChange={(e) => updateAllergy(index, 'reaction', e.target.value)}
+                        placeholder="e.g., Rash"
+                      />
+                    </div>
+                    <div>
+                      <Label>Severity</Label>
+                      <Input
+                        value={allergy.severity}
+                        onChange={(e) => updateAllergy(index, 'severity', e.target.value)}
+                        placeholder="e.g., Mild, Moderate, Severe"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <div className="flex justify-between">
+        <Button type="button" variant="outline" onClick={onSkip}>
+          Skip This Step
+        </Button>
+        <Button type="submit" size="lg">
+          Continue to Insurance
+        </Button>
       </div>
-      
-      <div className="space-y-6">
-        {/* Allergies */}
-        <div>
-          <Label>Allergies</Label>
-          <div className="flex gap-2 mt-1">
-            <Input
-              placeholder="Add allergy"
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  addToList('allergies', e.currentTarget.value);
-                  e.currentTarget.value = '';
-                }
-              }}
-            />
-            <Button
-              type="button"
-              onClick={(e) => {
-                const input = e.currentTarget.previousElementSibling as HTMLInputElement;
-                addToList('allergies', input.value);
-                input.value = '';
-              }}
-            >
-              Add
-            </Button>
-          </div>
-          <div className="flex flex-wrap gap-2 mt-2">
-            {patientData.medicalHistory.allergies.map((allergy, index) => (
-              <Badge key={index} variant="secondary">
-                {allergy}
-                <button
-                  onClick={() => removeFromList('allergies', index)}
-                  className="ml-2 text-red-600 hover:text-red-800"
-                >
-                  ×
-                </button>
-              </Badge>
-            ))}
-          </div>
-        </div>
-
-        {/* Current Medications */}
-        <div>
-          <Label>Current Medications</Label>
-          <div className="flex gap-2 mt-1">
-            <Input
-              placeholder="Add medication"
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  addToList('medications', e.currentTarget.value);
-                  e.currentTarget.value = '';
-                }
-              }}
-            />
-            <Button
-              type="button"
-              onClick={(e) => {
-                const input = e.currentTarget.previousElementSibling as HTMLInputElement;
-                addToList('medications', input.value);
-                input.value = '';
-              }}
-            >
-              Add
-            </Button>
-          </div>
-          <div className="flex flex-wrap gap-2 mt-2">
-            {patientData.medicalHistory.medications.map((medication, index) => (
-              <Badge key={index} variant="secondary">
-                {medication}
-                <button
-                  onClick={() => removeFromList('medications', index)}
-                  className="ml-2 text-red-600 hover:text-red-800"
-                >
-                  ×
-                </button>
-              </Badge>
-            ))}
-          </div>
-        </div>
-
-        {/* Medical Conditions */}
-        <div>
-          <Label>Medical Conditions</Label>
-          <div className="flex gap-2 mt-1">
-            <Input
-              placeholder="Add condition"
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  addToList('conditions', e.currentTarget.value);
-                  e.currentTarget.value = '';
-                }
-              }}
-            />
-            <Button
-              type="button"
-              onClick={(e) => {
-                const input = e.currentTarget.previousElementSibling as HTMLInputElement;
-                addToList('conditions', input.value);
-                input.value = '';
-              }}
-            >
-              Add
-            </Button>
-          </div>
-          <div className="flex flex-wrap gap-2 mt-2">
-            {patientData.medicalHistory.conditions.map((condition, index) => (
-              <Badge key={index} variant="secondary">
-                {condition}
-                <button
-                  onClick={() => removeFromList('conditions', index)}
-                  className="ml-2 text-red-600 hover:text-red-800"
-                >
-                  ×
-                </button>
-              </Badge>
-            ))}
-          </div>
-        </div>
-
-        {/* Previous Surgeries */}
-        <div>
-          <Label>Previous Surgeries</Label>
-          <div className="flex gap-2 mt-1">
-            <Input
-              placeholder="Add surgery"
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  addToList('surgeries', e.currentTarget.value);
-                  e.currentTarget.value = '';
-                }
-              }}
-            />
-            <Button
-              type="button"
-              onClick={(e) => {
-                const input = e.currentTarget.previousElementSibling as HTMLInputElement;
-                addToList('surgeries', input.value);
-                input.value = '';
-              }}
-            >
-              Add
-            </Button>
-          </div>
-          <div className="flex flex-wrap gap-2 mt-2">
-            {patientData.medicalHistory.surgeries.map((surgery, index) => (
-              <Badge key={index} variant="secondary">
-                {surgery}
-                <button
-                  onClick={() => removeFromList('surgeries', index)}
-                  className="ml-2 text-red-600 hover:text-red-800"
-                >
-                  ×
-                </button>
-              </Badge>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
+    </form>
   );
 };
