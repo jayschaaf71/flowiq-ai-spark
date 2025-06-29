@@ -40,6 +40,9 @@ import OnboardNewTenant from "./pages/OnboardNewTenant";
 import CheckIn from "./pages/CheckIn";
 import Notifications from "./pages/Notifications";
 import ProviderScheduling from "./pages/ProviderScheduling";
+import { FinancialManagementPage } from "./pages/FinancialManagementPage";
+import { PatientExperiencePage } from "./pages/PatientExperiencePage";
+import { ComplianceSecurityPage } from "./pages/ComplianceSecurityPage";
 
 // Agent Pages
 import ScheduleIQ from "./pages/agents/ScheduleIQ";
@@ -102,6 +105,9 @@ function App() {
                 <Route path="/checkin" element={<Layout><CheckIn /></Layout>} />
                 <Route path="/notifications" element={<Layout><Notifications /></Layout>} />
                 <Route path="/provider-scheduling" element={<Layout><ProviderScheduling /></Layout>} />
+                <Route path="/financial" element={<Layout><FinancialManagementPage /></Layout>} />
+                <Route path="/patient-experience" element={<Layout><PatientExperiencePage /></Layout>} />
+                <Route path="/compliance" element={<Layout><ComplianceSecurityPage /></Layout>} />
                 
                 {/* Agent Routes */}
                 <Route path="/agents/schedule" element={<Layout><ScheduleIQ /></Layout>} />

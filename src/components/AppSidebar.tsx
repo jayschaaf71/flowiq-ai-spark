@@ -22,7 +22,10 @@ import {
   Calendar,
   Package,
   CheckSquare,
-  Clock
+  Clock,
+  DollarSign,
+  Heart,
+  Shield
 } from "lucide-react";
 import {
   Sidebar,
@@ -53,14 +56,21 @@ export const AppSidebar = () => {
     { icon: TrendingUp, label: "Insights", path: "/insights", badge: null },
   ];
 
-  // Clinical Operations - NEW SECTION
+  // Clinical Operations
   const clinicalOperations = [
     { icon: CheckSquare, label: "Patient Check-In", path: "/checkin", badge: "New" },
     { icon: Bell, label: "Notifications", path: "/notifications", badge: "New" },
     { icon: Clock, label: "Provider Scheduling", path: "/provider-scheduling", badge: "New" },
   ];
 
-  // Reordered AI agents to match patient journey flow, with new Inventory IQ
+  // Major Practice Areas - NEW SECTION
+  const practiceAreas = [
+    { icon: DollarSign, label: "Financial Management", path: "/financial", badge: "New" },
+    { icon: Heart, label: "Patient Experience", path: "/patient-experience", badge: "New" },
+    { icon: Shield, label: "Compliance & Security", path: "/compliance", badge: "New" },
+  ];
+
+  // AI agents organized by patient journey flow
   const aiAgents = [
     { icon: Calendar, label: "Schedule iQ", path: "/agents/schedule", badge: "AI" },
     { icon: ClipboardList, label: "Intake iQ", path: "/agents/intake", badge: "AI" },
@@ -145,6 +155,7 @@ export const AppSidebar = () => {
       <SidebarContent>
         {renderNavSection("Main", mainNavigationItems)}
         {renderNavSection("Clinical Operations", clinicalOperations)}
+        {renderNavSection("Practice Areas", practiceAreas)}
         {renderNavSection("AI Assistants", aiAgents)}
         {renderNavSection("Management", managementItems)}
       </SidebarContent>
