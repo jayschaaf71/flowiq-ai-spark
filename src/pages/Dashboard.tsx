@@ -10,7 +10,11 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
-  Brain
+  Brain,
+  DollarSign,
+  Heart,
+  Shield,
+  ArrowRight
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -24,6 +28,33 @@ export const Dashboard = () => {
     { label: "Efficiency Score", value: "94%", icon: TrendingUp, trend: "+5%" }
   ];
 
+  const practiceAreas = [
+    {
+      title: "Financial Management",
+      description: "Revenue cycle, claims, and payment processing",
+      icon: DollarSign,
+      color: "text-green-600",
+      path: "/financial",
+      metrics: ["$47K collected today", "91% auto-post rate", "18.2 days A/R"]
+    },
+    {
+      title: "Patient Experience",
+      description: "Satisfaction tracking and patient portal",
+      icon: Heart,
+      color: "text-pink-600",
+      path: "/patient-experience",
+      metrics: ["4.8/5 satisfaction", "89% portal usage", "2.3 min response time"]
+    },
+    {
+      title: "Compliance & Security",
+      description: "HIPAA compliance and security monitoring",
+      icon: Shield,
+      color: "text-blue-600",
+      path: "/compliance",
+      metrics: ["98% HIPAA score", "94% security audit", "100% data backup"]
+    }
+  ];
+
   const recentActivity = [
     { action: "Patient check-in automated", time: "2 min ago", status: "success" },
     { action: "SOAP note generated", time: "5 min ago", status: "success" },
@@ -32,7 +63,6 @@ export const Dashboard = () => {
   ];
 
   const handleViewAllActivity = () => {
-    // For now, navigate to the manager agent which has comprehensive activity monitoring
     navigate('/manager');
   };
 
@@ -68,6 +98,38 @@ export const Dashboard = () => {
                 <TrendingUp className="w-3 h-3" />
                 {stat.trend} from last week
               </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Practice Areas */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {practiceAreas.map((area, index) => (
+          <Card key={index} className="cursor-pointer hover:shadow-md transition-shadow duration-200">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <area.icon className={`w-5 h-5 ${area.color}`} />
+                {area.title}
+              </CardTitle>
+              <CardDescription>{area.description}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2 mb-4">
+                {area.metrics.map((metric, idx) => (
+                  <div key={idx} className="text-sm text-gray-600">
+                    • {metric}
+                  </div>
+                ))}
+              </div>
+              <Button 
+                onClick={() => navigate(area.path)}
+                className="w-full"
+                variant="outline"
+              >
+                View Details
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
             </CardContent>
           </Card>
         ))}
