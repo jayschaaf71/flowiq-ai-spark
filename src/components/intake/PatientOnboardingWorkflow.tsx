@@ -104,6 +104,15 @@ export const PatientOnboardingWorkflow = ({ onComplete, onCancel }: PatientOnboa
     }
   };
 
+  const handleStepComplete = (stepData: any) => {
+    setPatientData(prev => ({ ...prev, ...stepData }));
+    nextStep();
+  };
+
+  const handleStepSkip = () => {
+    nextStep();
+  };
+
   const renderStep = () => {
     switch (currentStep) {
       case 1:
@@ -111,9 +120,21 @@ export const PatientOnboardingWorkflow = ({ onComplete, onCancel }: PatientOnboa
       case 2:
         return <AddressEmergencyStep patientData={patientData} setPatientData={setPatientData} />;
       case 3:
-        return <InsuranceStep patientData={patientData} setPatientData={setPatientData} />;
+        return (
+          <InsuranceStep 
+            initialData={patientData} 
+            onComplete={handleStepComplete}
+            onSkip={handleStepSkip}
+          />
+        );
       case 4:
-        return <MedicalHistoryStep patientData={patientData} setPatientData={setPatientData} />;
+        return (
+          <MedicalHistoryStep 
+            initialData={patientData} 
+            onComplete={handleStepComplete}
+            onSkip={handleStepSkip}
+          />
+        );
       case 5:
         return <ConsentStep patientData={patientData} setPatientData={setPatientData} />;
       default:
