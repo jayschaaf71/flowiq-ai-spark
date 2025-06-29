@@ -1,156 +1,213 @@
 
-import { useState, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from './useAuth';
-import { useToast } from './use-toast';
+import { useState, useCallback, useEffect } from 'react';
 
-interface OnboardingProgress {
+interface OnboardingStep {
   id: string;
-  user_id: string;
-  tenant_id?: string;
-  current_step: number;
-  form_data: any;
-  is_completed: boolean;
-  completed_at?: string;
+  title: string;
+  description?: string;
+  estimatedTime?: string;
+  isRequired?: boolean;
+  validationFn?: (data: any) => boolean | string;
 }
 
-export const useOnboardingProgress = () => {
-  const { user } = useAuth();
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
+interface OnboardingProgressState {
+  currentStepIndex: number;
+  completedSteps: Set<number>;
+  stepData: Record<string, any>;
+  errors: Record<string, string>;
+  isComplete: boolean;
+}
 
-  // Fetch existing progress
-  const { data: progress, isLoading } = useQuery({
-    queryKey: ['onboarding-progress', user?.id],
-    queryFn: async () => {
-      if (!user) return null;
-      
-      const { data, error } = await supabase
-        .from('onboarding_progress')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('is_completed', false)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (error) throw error;
-      return data as OnboardingProgress | null;
-    },
-    enabled: !!user,
+export const useOnboardingProgress = (steps: OnboardingStep[], autoSave = true) => {
+  const [state, setState] = useState<OnboardingProgressState>({
+    currentStepIndex: 0,
+    completedSteps: new Set(),
+    stepData: {},
+    errors: {},
+    isComplete: false
   });
 
-  // Save progress mutation
-  const saveProgressMutation = useMutation({
-    mutationFn: async ({ 
-      currentStep, 
-      formData, 
-      tenantId 
-    }: { 
-      currentStep: number; 
-      formData: any; 
-      tenantId?: string;
-    }) => {
-      if (!user) throw new Error('User not authenticated');
+  const storageKey = 'onboarding_progress';
 
-      const progressData = {
-        user_id: user.id,
-        current_step: currentStep,
-        form_data: formData,
-        tenant_id: tenantId,
-        updated_at: new Date().toISOString()
-      };
-
-      if (progress?.id) {
-        // Update existing progress
-        const { data, error } = await supabase
-          .from('onboarding_progress')
-          .update(progressData)
-          .eq('id', progress.id)
-          .select()
-          .single();
-        
-        if (error) throw error;
-        return data;
-      } else {
-        // Create new progress entry
-        const { data, error } = await supabase
-          .from('onboarding_progress')
-          .insert([progressData])
-          .select()
-          .single();
-        
-        if (error) throw error;
-        return data;
+  // Load saved progress on mount
+  useEffect(() => {
+    if (autoSave) {
+      try {
+        const saved = localStorage.getItem(storageKey);
+        if (saved) {
+          const parsedState = JSON.parse(saved);
+          setState(prev => ({
+            ...prev,
+            ...parsedState,
+            completedSteps: new Set(parsedState.completedSteps || [])
+          }));
+        }
+      } catch (error) {
+        console.error('Failed to load onboarding progress:', error);
       }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['onboarding-progress'] });
-    },
-    onError: (error) => {
-      console.error('Error saving progress:', error);
-      toast({
-        title: 'Error saving progress',
-        description: 'Your progress could not be saved. Please try again.',
-        variant: 'destructive'
-      });
-    },
-  });
+    }
+  }, [autoSave]);
 
-  // Complete progress mutation
-  const completeProgressMutation = useMutation({
-    mutationFn: async (tenantId: string) => {
-      if (!user || !progress?.id) throw new Error('No progress to complete');
+  // Save progress when state changes
+  useEffect(() => {
+    if (autoSave) {
+      try {
+        const stateToSave = {
+          ...state,
+          completedSteps: Array.from(state.completedSteps)
+        };
+        localStorage.setItem(storageKey, JSON.stringify(stateToSave));
+      } catch (error) {
+        console.error('Failed to save onboarding progress:', error);
+      }
+    }
+  }, [state, autoSave]);
 
-      const { data, error } = await supabase
-        .from('onboarding_progress')
-        .update({
-          is_completed: true,
-          completed_at: new Date().toISOString(),
-          tenant_id: tenantId
-        })
-        .eq('id', progress.id)
-        .select()
-        .single();
+  const validateStep = useCallback((stepIndex: number, data: any): boolean | string => {
+    const step = steps[stepIndex];
+    if (!step) return true;
 
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['onboarding-progress'] });
-      toast({
-        title: 'Onboarding completed!',
-        description: 'Your setup has been saved successfully.',
-      });
-    },
-  });
+    if (step.validationFn) {
+      return step.validationFn(data);
+    }
 
-  // Clear progress (for starting fresh)
-  const clearProgressMutation = useMutation({
-    mutationFn: async () => {
-      if (!progress?.id) return;
+    // Basic validation for required steps
+    if (step.isRequired && (!data || Object.keys(data).length === 0)) {
+      return `${step.title} is required`;
+    }
 
-      const { error } = await supabase
-        .from('onboarding_progress')
-        .delete()
-        .eq('id', progress.id);
+    return true;
+  }, [steps]);
 
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['onboarding-progress'] });
-    },
-  });
+  const updateStepData = useCallback((stepId: string, data: any) => {
+    setState(prev => ({
+      ...prev,
+      stepData: {
+        ...prev.stepData,
+        [stepId]: data
+      }
+    }));
+  }, []);
+
+  const completeStep = useCallback((stepIndex: number, data?: any) => {
+    const step = steps[stepIndex];
+    if (!step) return false;
+
+    // Validate step data
+    const validation = validateStep(stepIndex, data);
+    if (validation !== true) {
+      setState(prev => ({
+        ...prev,
+        errors: {
+          ...prev.errors,
+          [step.id]: typeof validation === 'string' ? validation : 'Validation failed'
+        }
+      }));
+      return false;
+    }
+
+    // Clear any existing errors
+    setState(prev => {
+      const newErrors = { ...prev.errors };
+      delete newErrors[step.id];
+
+      return {
+        ...prev,
+        completedSteps: new Set([...prev.completedSteps, stepIndex]),
+        stepData: data ? { ...prev.stepData, [step.id]: data } : prev.stepData,
+        errors: newErrors
+      };
+    });
+
+    return true;
+  }, [steps, validateStep]);
+
+  const goToStep = useCallback((stepIndex: number) => {
+    if (stepIndex >= 0 && stepIndex < steps.length) {
+      setState(prev => ({
+        ...prev,
+        currentStepIndex: stepIndex
+      }));
+    }
+  }, [steps.length]);
+
+  const nextStep = useCallback(() => {
+    setState(prev => {
+      const nextIndex = Math.min(prev.currentStepIndex + 1, steps.length - 1);
+      const isComplete = nextIndex === steps.length - 1 && prev.completedSteps.has(nextIndex);
+      
+      return {
+        ...prev,
+        currentStepIndex: nextIndex,
+        isComplete
+      };
+    });
+  }, [steps.length]);
+
+  const previousStep = useCallback(() => {
+    setState(prev => ({
+      ...prev,
+      currentStepIndex: Math.max(prev.currentStepIndex - 1, 0)
+    }));
+  }, []);
+
+  const resetProgress = useCallback(() => {
+    setState({
+      currentStepIndex: 0,
+      completedSteps: new Set(),
+      stepData: {},
+      errors: {},
+      isComplete: false
+    });
+
+    if (autoSave) {
+      localStorage.removeItem(storageKey);
+    }
+  }, [autoSave]);
+
+  const getStepProgress = useCallback(() => {
+    const totalSteps = steps.length;
+    const completedCount = state.completedSteps.size;
+    return {
+      current: state.currentStepIndex + 1,
+      total: totalSteps,
+      completed: completedCount,
+      percentage: Math.round(((state.currentStepIndex + 1) / totalSteps) * 100)
+    };
+  }, [steps.length, state.currentStepIndex, state.completedSteps.size]);
+
+  const canProceed = useCallback(() => {
+    const currentStep = steps[state.currentStepIndex];
+    if (!currentStep) return false;
+
+    const hasError = !!state.errors[currentStep.id];
+    const isCompleted = state.completedSteps.has(state.currentStepIndex);
+    
+    return !hasError && (isCompleted || !currentStep.isRequired);
+  }, [steps, state.currentStepIndex, state.errors, state.completedSteps]);
 
   return {
-    progress,
-    isLoading,
-    saveProgress: saveProgressMutation.mutate,
-    isSaving: saveProgressMutation.isPending,
-    completeProgress: completeProgressMutation.mutate,
-    isCompleting: completeProgressMutation.isPending,
-    clearProgress: clearProgressMutation.mutate,
-    isClearing: clearProgressMutation.isPending,
+    // State
+    currentStepIndex: state.currentStepIndex,
+    completedSteps: state.completedSteps,
+    stepData: state.stepData,
+    errors: state.errors,
+    isComplete: state.isComplete,
+    
+    // Current step info
+    currentStep: steps[state.currentStepIndex],
+    
+    // Actions
+    updateStepData,
+    completeStep,
+    goToStep,
+    nextStep,
+    previousStep,
+    resetProgress,
+    
+    // Helpers
+    getStepProgress,
+    canProceed,
+    validateStep
   };
 };

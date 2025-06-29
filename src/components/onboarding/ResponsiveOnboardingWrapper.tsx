@@ -1,25 +1,37 @@
 
 import React from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { EnhancedMobileOnboarding } from './EnhancedMobileOnboarding';
+import { StreamlinedPatientOnboarding } from './StreamlinedPatientOnboarding';
 import { ComprehensiveOnboardingFlow } from './ComprehensiveOnboardingFlow';
 
 interface ResponsiveOnboardingWrapperProps {
   onComplete: (data: any) => void;
   onCancel: () => void;
+  variant?: 'patient' | 'practice';
 }
 
 export const ResponsiveOnboardingWrapper: React.FC<ResponsiveOnboardingWrapperProps> = ({
   onComplete,
-  onCancel
+  onCancel,
+  variant = 'patient'
 }) => {
   const isMobile = useIsMobile();
 
-  console.log('ResponsiveOnboardingWrapper rendering:', { isMobile });
+  console.log('ResponsiveOnboardingWrapper rendering:', { isMobile, variant });
 
-  // Always render the enhanced mobile onboarding for now since it handles both mobile and desktop
+  // For patient onboarding, use the streamlined flow
+  if (variant === 'patient') {
+    return (
+      <StreamlinedPatientOnboarding
+        onComplete={onComplete}
+        onCancel={onCancel}
+      />
+    );
+  }
+
+  // For practice setup, use the comprehensive flow
   return (
-    <EnhancedMobileOnboarding
+    <ComprehensiveOnboardingFlow
       onComplete={onComplete}
       onCancel={onCancel}
     />
