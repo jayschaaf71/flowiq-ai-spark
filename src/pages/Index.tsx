@@ -107,6 +107,23 @@ const Index = () => {
             </div>
           </div>
         </div>
+
+        {/* Booking Widget Integration */}
+        <div className="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-lg p-6 border border-orange-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Website Integration</h3>
+              <p className="text-gray-600">Embeddable booking widget for your practice website</p>
+            </div>
+            <a 
+              href="/booking-widget"
+              className="inline-flex items-center px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              Get Widget Code
+            </a>
+          </div>
+        </div>
         
         <PracticeAreasSection />
         <CalendarSection />

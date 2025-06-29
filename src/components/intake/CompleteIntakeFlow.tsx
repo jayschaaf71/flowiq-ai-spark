@@ -1,10 +1,10 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { SymptomAssessmentWrapper } from './SymptomAssessmentWrapper';
 import { 
   CheckCircle,
   Clock,
@@ -17,7 +17,8 @@ import {
   Phone,
   Mail,
   Calendar,
-  Smartphone
+  Smartphone,
+  Activity
 } from 'lucide-react';
 
 interface IntakeStep {
@@ -66,10 +67,10 @@ export const CompleteIntakeFlow: React.FC = () => {
       id: 'symptoms',
       title: 'Current Symptoms',
       description: 'Describe your reason for today\'s visit',
-      icon: FileText,
+      icon: Activity,
       required: true,
       completed: false,
-      estimatedTime: '3 min'
+      estimatedTime: '4 min'
     },
     {
       id: 'emergency-contact',
@@ -273,6 +274,16 @@ export const CompleteIntakeFlow: React.FC = () => {
 
   function renderStepContent(stepId: string) {
     switch (stepId) {
+      case 'symptoms':
+        return (
+          <SymptomAssessmentWrapper
+            onComplete={(data) => {
+              console.log('Symptom assessment completed:', data);
+              // Here you would save the symptom data
+            }}
+          />
+        );
+      
       case 'personal':
         return (
           <div className="space-y-4">
@@ -314,25 +325,6 @@ export const CompleteIntakeFlow: React.FC = () => {
               placeholder="Previous surgeries or major medical conditions..."
               className="w-full p-3 border rounded-lg h-24"
             />
-          </div>
-        );
-      
-      case 'symptoms':
-        return (
-          <div className="space-y-4">
-            <textarea
-              placeholder="Briefly describe your symptoms or reason for today's visit..."
-              className="w-full p-3 border rounded-lg h-32"
-            />
-            <div>
-              <label className="block text-sm font-medium mb-2">Pain Level (0-10)</label>
-              <input
-                type="range"
-                min="0"
-                max="10"
-                className="w-full"
-              />
-            </div>
           </div>
         );
       

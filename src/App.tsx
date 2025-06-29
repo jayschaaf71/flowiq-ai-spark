@@ -15,6 +15,7 @@ import { AnalyticsProvider } from '@/contexts/AnalyticsContext';
 import { PatientPortal } from '@/pages/PatientPortal';
 import { ProviderMobile } from '@/pages/ProviderMobile';
 import { CompleteIntakeFlow } from '@/components/intake/CompleteIntakeFlow';
+import { BookingWidgetDemo } from '@/pages/BookingWidgetDemo';
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ function App() {
                 <Route path="/patient-portal" element={<PatientPortal />} />
                 <Route path="/provider-mobile" element={<ProviderMobile />} />
                 <Route path="/complete-intake" element={<CompleteIntakeFlow />} />
+                <Route path="/booking-widget" element={<BookingWidgetDemo />} />
                 <Route path="/schedule" element={<Schedule />} />
                 <Route path="/ehr" element={<EHR />} />
                 <Route path="/settings" element={<Settings />} />
