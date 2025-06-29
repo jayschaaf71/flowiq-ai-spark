@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Dashboard } from './pages/Dashboard';
@@ -16,6 +17,7 @@ import { PatientPortal } from '@/pages/PatientPortal';
 import { ProviderMobile } from '@/pages/ProviderMobile';
 import { CompleteIntakeFlow } from '@/components/intake/CompleteIntakeFlow';
 import { BookingWidgetDemo } from '@/pages/BookingWidgetDemo';
+import { PatientPrepPage } from '@/pages/PatientPrepPage';
 
 const queryClient = new QueryClient();
 
@@ -34,6 +36,7 @@ function App() {
                 <Route path="/compliance" element={<ComplianceSecurityPage />} />
                 <Route path="/patient-portal" element={<PatientPortal />} />
                 <Route path="/provider-mobile" element={<ProviderMobile />} />
+                <Route path="/provider/patient-prep/:appointmentId" element={<PatientPrepPage />} />
                 <Route path="/complete-intake" element={<CompleteIntakeFlow />} />
                 <Route path="/booking-widget" element={<BookingWidgetDemo />} />
                 <Route path="/schedule" element={<Schedule />} />

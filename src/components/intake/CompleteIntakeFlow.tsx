@@ -1,361 +1,465 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { SymptomAssessmentWrapper } from './SymptomAssessmentWrapper';
-import { 
-  CheckCircle,
-  Clock,
-  User,
-  FileText,
-  CreditCard,
-  Camera,
-  Shield,
-  Heart,
-  Phone,
-  Mail,
-  Calendar,
-  Smartphone,
-  Activity
-} from 'lucide-react';
 
-interface IntakeStep {
-  id: string;
-  title: string;
-  description: string;
-  icon: React.ComponentType<any>;
-  required: boolean;
-  completed: boolean;
-  estimatedTime: string;
-}
+import React, { useState, useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { supabase } from '@/integrations/supabase/client';
+import { useCurrentTenant } from '@/utils/enhancedTenantConfig';
+import { PatientInfoStep } from './PatientInfoStep';
+import { MedicalHistoryStep } from './MedicalHistoryStep';
+import { InsuranceStep } from './InsuranceStep';
+import { SymptomAssessmentWrapper } from './SymptomAssessmentWrapper';
+import { PhotoVerificationStep } from './PhotoVerificationStep';
+import { ConfirmationStep } from './ConfirmationStep';
+import { AutomatedReminderService } from '@/services/automatedReminderService';
+import { ProviderNotificationService } from '@/services/providerNotificationService';
+import { PatientStatusService } from '@/services/patientStatusService';
+import { User, Shield, Heart, Camera, CheckCircle, Calendar } from 'lucide-react';
 
 export const CompleteIntakeFlow: React.FC = () => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [completedSteps, setCompletedSteps] = useState<string[]>([]);
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const currentTenant = useCurrentTenant();
+  
+  // Get pre-filled data from URL params (from booking widget)
+  const initialData = {
+    appointmentType: searchParams.get('type') || '',
+    appointmentDate: searchParams.get('date') || '',
+    appointmentTime: searchParams.get('time') || '',
+    firstName: searchParams.get('firstName') || '',
+    lastName: searchParams.get('lastName') || '',
+    phone: searchParams.get('phone') || '',
+    email: searchParams.get('email') || '',
+    source: searchParams.get('source') || ''
+  };
 
-  const intakeSteps: IntakeStep[] = [
-    {
-      id: 'personal',
-      title: 'Personal Information',
-      description: 'Basic details and contact information',
+  const [currentStep, setCurrentStep] = useState(1);
+  const [formData, setFormData] = useState({
+    // Patient Info
+    firstName: initialData.firstName,
+    lastName: initialData.lastName,
+    dateOfBirth: '',
+    gender: '',
+    phone: initialData.phone,
+    email: initialData.email,
+    address: {
+      line1: '',
+      line2: '',
+      city: '',
+      state: '',
+      zipCode: ''
+    },
+    emergencyContact: {
+      name: '',
+      phone: '',
+      relationship: ''
+    },
+    
+    // Medical History
+    medicalHistory: [],
+    medications: [],
+    allergies: [],
+    
+    // Insurance
+    insurance: {
+      provider: '',
+      policyNumber: '',
+      groupNumber: '',
+      subscriberName: '',
+      relationship: 'self'
+    },
+    
+    // Symptom Assessment
+    symptomAssessment: null,
+    
+    // Photo Verification
+    photoId: null,
+    
+    // Appointment Details
+    appointmentType: initialData.appointmentType,
+    appointmentDate: initialData.appointmentDate,
+    appointmentTime: initialData.appointmentTime,
+    source: initialData.source
+  });
+
+  const [patientId, setPatientId] = useState<string | null>(null);
+  const [appointmentId, setAppointmentId] = useState<string | null>(null);
+
+  const steps = [
+    { 
+      number: 1, 
+      title: 'Personal Information', 
       icon: User,
-      required: true,
-      completed: false,
-      estimatedTime: '2 min'
+      description: 'Basic contact and demographic information'
     },
-    {
-      id: 'medical-history',
-      title: 'Medical History',
-      description: 'Previous conditions, surgeries, and medications',
+    { 
+      number: 2, 
+      title: 'Medical History', 
       icon: Heart,
-      required: true,
-      completed: false,
-      estimatedTime: '5 min'
+      description: 'Previous conditions, medications, and allergies'
     },
-    {
-      id: 'insurance',
-      title: 'Insurance Information',
-      description: 'Upload insurance cards and verify coverage',
-      icon: CreditCard,
-      required: true,
-      completed: false,
-      estimatedTime: '3 min'
-    },
-    {
-      id: 'symptoms',
-      title: 'Current Symptoms',
-      description: 'Describe your reason for today\'s visit',
-      icon: Activity,
-      required: true,
-      completed: false,
-      estimatedTime: '4 min'
-    },
-    {
-      id: 'emergency-contact',
-      title: 'Emergency Contact',
-      description: 'Someone we can contact in case of emergency',
-      icon: Phone,
-      required: true,
-      completed: false,
-      estimatedTime: '2 min'
-    },
-    {
-      id: 'consent',
-      title: 'Consent & Agreements',
-      description: 'Review and sign required forms',
+    { 
+      number: 3, 
+      title: 'Insurance', 
       icon: Shield,
-      required: true,
-      completed: false,
-      estimatedTime: '3 min'
+      description: 'Insurance coverage and policy details'
     },
-    {
-      id: 'photo-id',
-      title: 'Photo ID Verification',
-      description: 'Take a photo of your ID for verification',
+    { 
+      number: 4, 
+      title: 'Symptom Assessment', 
+      icon: Heart,
+      description: 'Current symptoms and concerns'
+    },
+    { 
+      number: 5, 
+      title: 'Photo Verification', 
       icon: Camera,
-      required: true,
-      completed: false,
-      estimatedTime: '1 min'
+      description: 'Identity verification (optional)'
     },
-    {
-      id: 'appointment-prep',
-      title: 'Appointment Preparation',
-      description: 'Final instructions and check-in confirmation',
-      icon: Calendar,
-      required: true,
-      completed: false,
-      estimatedTime: '2 min'
+    { 
+      number: 6, 
+      title: 'Confirmation', 
+      icon: CheckCircle,
+      description: 'Review and submit your information'
     }
   ];
 
-  const totalSteps = intakeSteps.length;
-  const completedCount = completedSteps.length;
-  const progressPercentage = (completedCount / totalSteps) * 100;
-  const totalEstimatedTime = intakeSteps.reduce((acc, step) => {
-    const minutes = parseInt(step.estimatedTime);
-    return acc + minutes;
-  }, 0);
-
-  const handleStepComplete = (stepId: string) => {
-    if (!completedSteps.includes(stepId)) {
-      setCompletedSteps([...completedSteps, stepId]);
+  useEffect(() => {
+    // Update progress in real-time
+    if (patientId && appointmentId) {
+      const progress = Math.round((currentStep / steps.length) * 100);
+      PatientStatusService.updateIntakeProgress(
+        patientId, 
+        appointmentId, 
+        steps[currentStep - 1]?.title || 'Unknown Step', 
+        progress
+      );
     }
-    
+  }, [currentStep, patientId, appointmentId]);
+
+  const handleStepComplete = async (stepData: any) => {
+    const updatedFormData = { ...formData, ...stepData };
+    setFormData(updatedFormData);
+
+    // Create patient record on first step if needed
+    if (currentStep === 1 && !patientId) {
+      await createPatientAndAppointment(updatedFormData);
+    }
+
+    // Update symptom assessment status
+    if (currentStep === 4 && stepData.symptomAssessment) {
+      if (patientId && appointmentId) {
+        await PatientStatusService.updateSymptomAssessment(patientId, appointmentId, true);
+      }
+    }
+
     // Move to next step
-    const nextIncompleteStep = intakeSteps.findIndex(
-      step => !completedSteps.includes(step.id) && step.id !== stepId
-    );
-    
-    if (nextIncompleteStep !== -1) {
-      setCurrentStep(nextIncompleteStep);
+    if (currentStep < steps.length) {
+      setCurrentStep(currentStep + 1);
     }
   };
 
-  const currentStepData = intakeSteps[currentStep];
+  const createPatientAndAppointment = async (data: any) => {
+    try {
+      // Create patient record
+      const { data: patient, error: patientError } = await supabase
+        .from('patients')
+        .insert({
+          first_name: data.firstName,
+          last_name: data.lastName,
+          date_of_birth: data.dateOfBirth,
+          gender: data.gender,
+          phone: data.phone,
+          email: data.email,
+          address_line1: data.address.line1,
+          address_line2: data.address.line2,
+          city: data.address.city,
+          state: data.address.state,
+          zip_code: data.address.zipCode,
+          emergency_contact_name: data.emergencyContact.name,
+          emergency_contact_phone: data.emergencyContact.phone,
+          emergency_contact_relationship: data.emergencyContact.relationship
+        })
+        .select()
+        .single();
+
+      if (patientError) {
+        console.error('Error creating patient:', patientError);
+        return;
+      }
+
+      setPatientId(patient.id);
+
+      // Create appointment if we have appointment details
+      if (data.appointmentDate && data.appointmentTime) {
+        const { data: appointment, error: appointmentError } = await supabase
+          .from('appointments')
+          .insert({
+            patient_id: patient.id,
+            date: data.appointmentDate,
+            time: data.appointmentTime,
+            title: `${data.appointmentType} - ${data.firstName} ${data.lastName}`,
+            appointment_type: data.appointmentType,
+            status: 'pending',
+            phone: data.phone,
+            email: data.email
+          })
+          .select()
+          .single();
+
+        if (appointmentError) {
+          console.error('Error creating appointment:', appointmentError);
+          return;
+        }
+
+        setAppointmentId(appointment.id);
+
+        // Schedule automated reminders
+        await AutomatedReminderService.scheduleAppointmentReminders(appointment.id);
+
+        // Update appointment status
+        await PatientStatusService.updateAppointmentStatus(
+          patient.id,
+          appointment.id,
+          'intake_started',
+          'Patient has started the intake process'
+        );
+      }
+    } catch (error) {
+      console.error('Error in createPatientAndAppointment:', error);
+    }
+  };
+
+  const handleFinalSubmit = async (finalData: any) => {
+    try {
+      // Create intake submission record
+      const submissionData = {
+        patient_id: patientId,
+        patient_name: `${formData.firstName} ${formData.lastName}`,
+        patient_email: formData.email,
+        patient_phone: formData.phone,
+        form_data: { ...formData, ...finalData },
+        status: 'completed',
+        ai_summary: generateAISummary({ ...formData, ...finalData }),
+        priority_level: determinePriorityLevel({ ...formData, ...finalData })
+      };
+
+      const { data: submission, error: submissionError } = await supabase
+        .from('intake_submissions')
+        .insert(submissionData)
+        .select()
+        .single();
+
+      if (submissionError) {
+        console.error('Error creating intake submission:', submissionError);
+        return;
+      }
+
+      // Update appointment status
+      if (patientId && appointmentId) {
+        await PatientStatusService.updateAppointmentStatus(
+          patientId,
+          appointmentId,
+          'intake_completed',
+          'Patient has completed the intake process'
+        );
+
+        // Notify provider that intake is completed
+        await ProviderNotificationService.notifyIntakeCompleted(
+          appointmentId,
+          patientId,
+          'provider-1' // In real app, get this from appointment data
+        );
+
+        // Send confirmation instructions to patient
+        await AutomatedReminderService.scheduleReminder({
+          appointmentId,
+          patientId,
+          recipientEmail: formData.email,
+          recipientPhone: formData.phone,
+          reminderType: 'instructions',
+          hoursBeforeAppointment: 0
+        });
+      }
+
+      // Navigate to confirmation page
+      setCurrentStep(steps.length);
+    } catch (error) {
+      console.error('Error in handleFinalSubmit:', error);
+    }
+  };
+
+  const generateAISummary = (data: any) => {
+    // Simple summary generation - in real app this would use AI
+    const parts = [];
+    
+    if (data.symptomAssessment?.primaryComplaint) {
+      parts.push(`Chief Complaint: ${data.symptomAssessment.primaryComplaint}`);
+    }
+    
+    if (data.symptomAssessment?.painLevel) {
+      parts.push(`Pain Level: ${data.symptomAssessment.painLevel}/10`);
+    }
+    
+    if (data.medicalHistory?.length > 0) {
+      parts.push(`Medical History: ${data.medicalHistory.length} conditions`);
+    }
+    
+    if (data.medications?.length > 0) {
+      parts.push(`Current Medications: ${data.medications.length}`);
+    }
+    
+    return parts.join(' | ') || 'Standard intake completed';
+  };
+
+  const determinePriorityLevel = (data: any) => {
+    // Simple priority determination
+    if (data.symptomAssessment?.painLevel >= 8) return 'high';
+    if (data.symptomAssessment?.painLevel >= 5) return 'medium';
+    return 'normal';
+  };
+
+  const renderCurrentStep = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <PatientInfoStep
+            initialData={formData}
+            onComplete={handleStepComplete}
+          />
+        );
+      case 2:
+        return (
+          <MedicalHistoryStep
+            initialData={formData}
+            onComplete={handleStepComplete}
+            onSkip={() => handleStepComplete({})}
+          />
+        );
+      case 3:
+        return (
+          <InsuranceStep
+            initialData={formData}
+            onComplete={handleStepComplete}
+            onSkip={() => handleStepComplete({})}
+          />
+        );
+      case 4:
+        return (
+          <SymptomAssessmentWrapper
+            onComplete={(data) => handleStepComplete({ symptomAssessment: data })}
+            onSkip={() => handleStepComplete({})}
+          />
+        );
+      case 5:
+        return (
+          <PhotoVerificationStep
+            onComplete={(data) => handleStepComplete({ photoId: data })}
+            onSkip={() => handleStepComplete({})}
+          />
+        );
+      case 6:
+        return (
+          <ConfirmationStep
+            formData={formData}
+            onSubmit={handleFinalSubmit}
+            onBack={() => setCurrentStep(currentStep - 1)}
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
+  const progress = Math.round((currentStep / steps.length) * 100);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b px-4 py-3 sticky top-0 z-10">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Smartphone className="w-5 h-5 text-blue-600" />
-            <h1 className="font-semibold text-lg">Complete Your Intake</h1>
-          </div>
-          <Badge variant="outline">
-            {completedCount} of {totalSteps}
-          </Badge>
-        </div>
-        
-        <div className="mt-3">
-          <Progress value={progressPercentage} className="h-2" />
-          <div className="flex justify-between text-xs text-gray-500 mt-1">
-            <span>{Math.round(progressPercentage)}% complete</span>
-            <span>~{totalEstimatedTime - (completedCount * 2)} min remaining</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Welcome Message */}
-      {completedCount === 0 && (
-        <div className="p-4">
-          <Alert className="border-blue-200 bg-blue-50">
-            <Smartphone className="w-4 h-4" />
-            <AlertDescription className="text-blue-800">
-              Complete your intake before your appointment to save time at the clinic. 
-              Your information is secure and HIPAA compliant.
-            </AlertDescription>
-          </Alert>
-        </div>
-      )}
-
-      {/* Step Overview */}
-      <div className="p-4">
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <currentStepData.icon className="w-5 h-5 text-blue-600" />
-              {currentStepData.title}
-            </CardTitle>
-            <CardDescription>
-              {currentStepData.description} • {currentStepData.estimatedTime}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {renderStepContent(currentStepData.id)}
-            
-            <div className="mt-6">
-              <Button 
-                onClick={() => handleStepComplete(currentStepData.id)}
-                className="w-full"
-              >
-                {completedCount === totalSteps - 1 ? 'Complete Intake' : 'Continue'}
-              </Button>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
+      <div className="container mx-auto px-4 py-6 max-w-4xl">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-green-600 rounded-full flex items-center justify-center">
+              <Heart className="w-6 h-6 text-white" />
             </div>
-          </CardContent>
-        </Card>
+            <div className="text-left">
+              <h1 className="text-2xl font-bold text-gray-900">
+                {currentTenant?.brand_name || 'HealthCare'} Intake
+              </h1>
+              <p className="text-gray-600">Complete your pre-visit information</p>
+            </div>
+          </div>
+          
+          {formData.appointmentDate && (
+            <div className="flex items-center justify-center gap-2 text-sm text-gray-600 bg-blue-50 rounded-lg p-3 max-w-md mx-auto">
+              <Calendar className="w-4 h-4" />
+              <span>
+                Appointment: {formData.appointmentType} on {formData.appointmentDate} at {formData.appointmentTime}
+              </span>
+            </div>
+          )}
+        </div>
 
-        {/* Progress Steps */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Your Progress</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {intakeSteps.map((step, index) => {
-                const isCompleted = completedSteps.includes(step.id);
-                const isCurrent = index === currentStep;
+        {/* Progress Bar */}
+        <Card className="mb-6">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">
+                Step {currentStep} of {steps.length}: {steps[currentStep - 1]?.title}
+              </h2>
+              <Badge variant="outline">{progress}% Complete</Badge>
+            </div>
+            
+            <Progress value={progress} className="mb-4" />
+            
+            <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+              {steps.map((step) => {
+                const Icon = step.icon;
+                const isCompleted = step.number < currentStep;
+                const isCurrent = step.number === currentStep;
                 
                 return (
-                  <div 
-                    key={step.id}
-                    className={`flex items-center gap-3 p-3 rounded-lg border ${
-                      isCurrent ? 'border-blue-200 bg-blue-50' : 
-                      isCompleted ? 'border-green-200 bg-green-50' : 
-                      'border-gray-200'
+                  <div
+                    key={step.number}
+                    className={`flex flex-col items-center text-center p-2 rounded-lg transition-colors ${
+                      isCompleted
+                        ? 'bg-green-100 text-green-800'
+                        : isCurrent
+                        ? 'bg-blue-100 text-blue-800'
+                        : 'bg-gray-100 text-gray-500'
                     }`}
                   >
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                      isCompleted ? 'bg-green-500 text-white' :
-                      isCurrent ? 'bg-blue-500 text-white' :
-                      'bg-gray-200 text-gray-500'
-                    }`}>
-                      {isCompleted ? (
-                        <CheckCircle className="w-4 h-4" />
-                      ) : (
-                        <step.icon className="w-4 h-4" />
-                      )}
-                    </div>
-                    
-                    <div className="flex-1">
-                      <h4 className={`font-medium ${isCurrent ? 'text-blue-900' : ''}`}>
-                        {step.title}
-                      </h4>
-                      <p className="text-sm text-gray-600">{step.estimatedTime}</p>
-                    </div>
-                    
-                    {step.required && (
-                      <Badge variant="outline" className="text-xs">
-                        Required
-                      </Badge>
-                    )}
+                    <Icon className="w-5 h-5 mb-1" />
+                    <span className="text-xs font-medium">{step.title}</span>
                   </div>
                 );
               })}
             </div>
           </CardContent>
         </Card>
-      </div>
 
-      {/* Completion Status */}
-      {completedCount === totalSteps && (
-        <div className="p-4">
-          <Card className="border-green-200 bg-green-50">
-            <CardContent className="p-6 text-center">
-              <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-green-900 mb-2">
-                Intake Complete!
-              </h3>
-              <p className="text-green-800 mb-4">
-                You're all set for your appointment. No additional paperwork needed at the clinic.
-              </p>
-              <Button className="w-full">
-                <Calendar className="w-4 h-4 mr-2" />
-                View Appointment Details
-              </Button>
-            </CardContent>
-          </Card>
+        {/* Current Step Content */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              {React.createElement(steps[currentStep - 1]?.icon || User, { className: "w-5 h-5" })}
+              {steps[currentStep - 1]?.title}
+            </CardTitle>
+            <p className="text-gray-600">{steps[currentStep - 1]?.description}</p>
+          </CardHeader>
+          <CardContent>
+            {renderCurrentStep()}
+          </CardContent>
+        </Card>
+
+        {/* Footer */}
+        <div className="text-center mt-8 text-sm text-gray-500">
+          <p>🔒 Your information is secure and HIPAA compliant</p>
+          <p className="mt-1">Questions? Call us at (555) 123-4567</p>
         </div>
-      )}
+      </div>
     </div>
   );
-
-  function renderStepContent(stepId: string) {
-    switch (stepId) {
-      case 'symptoms':
-        return (
-          <SymptomAssessmentWrapper
-            onComplete={(data) => {
-              console.log('Symptom assessment completed:', data);
-              // Here you would save the symptom data
-            }}
-          />
-        );
-      
-      case 'personal':
-        return (
-          <div className="space-y-4">
-            <input
-              type="text"
-              placeholder="Full Name"
-              className="w-full p-3 border rounded-lg"
-            />
-            <input
-              type="email"
-              placeholder="Email Address"
-              className="w-full p-3 border rounded-lg"
-            />
-            <input
-              type="tel"
-              placeholder="Phone Number"
-              className="w-full p-3 border rounded-lg"
-            />
-            <input
-              type="date"
-              placeholder="Date of Birth"
-              className="w-full p-3 border rounded-lg"
-            />
-          </div>
-        );
-      
-      case 'medical-history':
-        return (
-          <div className="space-y-4">
-            <textarea
-              placeholder="List any current medications..."
-              className="w-full p-3 border rounded-lg h-24"
-            />
-            <textarea
-              placeholder="Known allergies..."
-              className="w-full p-3 border rounded-lg h-24"
-            />
-            <textarea
-              placeholder="Previous surgeries or major medical conditions..."
-              className="w-full p-3 border rounded-lg h-24"
-            />
-          </div>
-        );
-      
-      case 'insurance':
-        return (
-          <div className="space-y-4">
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-              <Camera className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-              <p className="text-gray-600 mb-2">Take a photo of your insurance card</p>
-              <Button variant="outline">
-                <Camera className="w-4 h-4 mr-2" />
-                Upload Front
-              </Button>
-            </div>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-              <Camera className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-              <p className="text-gray-600 mb-2">Back of insurance card</p>
-              <Button variant="outline">
-                <Camera className="w-4 h-4 mr-2" />
-                Upload Back
-              </Button>
-            </div>
-          </div>
-        );
-      
-      default:
-        return (
-          <div className="text-center py-8">
-            <p className="text-gray-600">Step content will be loaded here</p>
-          </div>
-        );
-    }
-  }
 };

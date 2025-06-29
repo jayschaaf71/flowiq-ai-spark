@@ -2572,6 +2572,58 @@ export type Database = {
           },
         ]
       }
+      patient_status_updates: {
+        Row: {
+          appointment_id: string | null
+          created_at: string
+          id: string
+          message: string | null
+          patient_id: string
+          status_type: string
+          status_value: string
+        }
+        Insert: {
+          appointment_id?: string | null
+          created_at?: string
+          id?: string
+          message?: string | null
+          patient_id: string
+          status_type: string
+          status_value: string
+        }
+        Update: {
+          appointment_id?: string | null
+          created_at?: string
+          id?: string
+          message?: string | null
+          patient_id?: string
+          status_type?: string
+          status_value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_status_updates_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_status_updates_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patient_onboarding_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_status_updates_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       patients: {
         Row: {
           address_line1: string | null
@@ -2894,6 +2946,70 @@ export type Database = {
           provider_id?: string
         }
         Relationships: []
+      }
+      provider_notifications: {
+        Row: {
+          action_url: string | null
+          appointment_id: string | null
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          notification_type: string
+          patient_id: string | null
+          provider_id: string
+          read_at: string | null
+          title: string
+        }
+        Insert: {
+          action_url?: string | null
+          appointment_id?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          notification_type: string
+          patient_id?: string | null
+          provider_id: string
+          read_at?: string | null
+          title: string
+        }
+        Update: {
+          action_url?: string | null
+          appointment_id?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          notification_type?: string
+          patient_id?: string | null
+          provider_id?: string
+          read_at?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_notifications_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_notifications_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patient_onboarding_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_notifications_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       provider_schedules: {
         Row: {
@@ -3540,6 +3656,83 @@ export type Database = {
           },
           {
             foreignKeyName: "scheduled_notifications_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "notification_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scheduled_reminders: {
+        Row: {
+          appointment_id: string
+          created_at: string
+          delivery_status: string
+          error_message: string | null
+          id: string
+          message_content: string
+          patient_id: string
+          recipient_email: string | null
+          recipient_phone: string | null
+          retry_count: number
+          scheduled_for: string
+          sent_at: string | null
+          template_id: string | null
+        }
+        Insert: {
+          appointment_id: string
+          created_at?: string
+          delivery_status?: string
+          error_message?: string | null
+          id?: string
+          message_content: string
+          patient_id: string
+          recipient_email?: string | null
+          recipient_phone?: string | null
+          retry_count?: number
+          scheduled_for: string
+          sent_at?: string | null
+          template_id?: string | null
+        }
+        Update: {
+          appointment_id?: string
+          created_at?: string
+          delivery_status?: string
+          error_message?: string | null
+          id?: string
+          message_content?: string
+          patient_id?: string
+          recipient_email?: string | null
+          recipient_phone?: string | null
+          retry_count?: number
+          scheduled_for?: string
+          sent_at?: string | null
+          template_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scheduled_reminders_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scheduled_reminders_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patient_onboarding_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scheduled_reminders_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scheduled_reminders_template_id_fkey"
             columns: ["template_id"]
             isOneToOne: false
             referencedRelation: "notification_templates"
