@@ -1,4 +1,5 @@
 
+
 import { DataClassificationService } from './hipaa/dataClassification';
 import { DataAnonymizationService } from './hipaa/dataAnonymization';
 import { AIServiceConfigManager } from './hipaa/aiServiceConfig';
@@ -52,10 +53,9 @@ class HIPAAComplianceCore {
     // Log access for audit trail
     const { logAuditAction } = await import("@/hooks/useAuditLog");
     await logAuditAction(
+      'HIPAA_DATA_PROCESSED',
       'data_processing',
       connectionId,
-      'HIPAA_DATA_PROCESSED',
-      null,
       {
         source,
         dataClassification: classification,
@@ -88,3 +88,4 @@ class HIPAAComplianceCore {
 }
 
 export const hipaaComplianceCore = new HIPAAComplianceCore();
+
