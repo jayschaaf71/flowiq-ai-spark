@@ -1,127 +1,116 @@
 
-import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useEnhancedAuth } from "@/hooks/useEnhancedAuth";
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
-  Shield, 
   Users, 
+  Shield, 
   Key, 
   Lock, 
-  Eye, 
-  Settings, 
-  CheckCircle, 
-  AlertTriangle,
-  UserCheck,
-  UserX
-} from "lucide-react";
+  UserCheck, 
+  UserX, 
+  Settings,
+  Eye,
+  Edit,
+  Trash2
+} from 'lucide-react';
 
-interface AccessRule {
+interface UserRole {
   id: string;
-  resource: string;
-  role: string;
-  permissions: string[];
-  status: 'active' | 'inactive';
-}
-
-interface UserAccess {
-  id: string;
+  name: string;
   email: string;
   role: string;
+  permissions: string[];
   lastAccess: string;
   status: 'active' | 'inactive' | 'suspended';
-  permissions: string[];
 }
 
-export const AccessControlManager = () => {
-  const { user, primaryTenant } = useEnhancedAuth();
+interface Permission {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  riskLevel: 'low' | 'medium' | 'high';
+}
 
-  const [accessRules] = useState<AccessRule[]>([
+export const AccessControlManager: React.FC = () => {
+  const [users] = useState<UserRole[]>([
     {
       id: '1',
-      resource: 'Patient Records',
-      role: 'Provider',
-      permissions: ['read', 'write', 'delete'],
+      name: 'Dr. Sarah Johnson',
+      email: 'sarah.johnson@clinic.com',
+      role: 'Physician',
+      permissions: ['read_phi', 'write_phi', 'prescribe_medication', 'view_reports'],
+      lastAccess: '2024-01-15T10:30:00Z',
       status: 'active'
     },
     {
       id: '2',
-      resource: 'Patient Records',
+      name: 'Mike Chen',
+      email: 'mike.chen@clinic.com',
       role: 'Nurse',
-      permissions: ['read', 'write'],
+      permissions: ['read_phi', 'update_vitals', 'schedule_appointments'],
+      lastAccess: '2024-01-15T09:15:00Z',
       status: 'active'
     },
     {
       id: '3',
-      resource: 'Patient Records',
-      role: 'Receptionist',
-      permissions: ['read'],
+      name: 'Lisa Rodriguez',
+      email: 'lisa.rodriguez@clinic.com',
+      role: 'Administrator',
+      permissions: ['read_phi', 'manage_users', 'view_reports', 'system_admin'],
+      lastAccess: '2024-01-14T16:45:00Z',
       status: 'active'
+    }
+  ]);
+
+  const [permissions] = useState<Permission[]>([
+    {
+      id: '1',
+      name: 'read_phi',
+      description: 'View patient health information',
+      category: 'PHI Access',
+      riskLevel: 'high'
+    },
+    {
+      id: '2',
+      name: 'write_phi',
+      description: 'Create and modify patient records',
+      category: 'PHI Access',
+      riskLevel: 'high'
+    },
+    {
+      id: '3',
+      name: 'prescribe_medication',
+      description: 'Prescribe medications to patients',
+      category: 'Clinical',
+      riskLevel: 'high'
     },
     {
       id: '4',
-      resource: 'Financial Data',
-      role: 'Billing Manager',
-      permissions: ['read', 'write'],
-      status: 'active'
+      name: 'schedule_appointments',
+      description: 'Schedule and manage patient appointments',
+      category: 'Administrative',
+      riskLevel: 'low'
     },
     {
       id: '5',
-      resource: 'System Admin',
-      role: 'Administrator',
-      permissions: ['read', 'write', 'delete', 'admin'],
-      status: 'active'
-    }
-  ]);
-
-  const [userAccess] = useState<UserAccess[]>([
-    {
-      id: '1',
-      email: 'dr.smith@clinic.com',
-      role: 'Provider',
-      lastAccess: '2024-01-15 14:30',
-      status: 'active',
-      permissions: ['read', 'write', 'delete']
+      name: 'view_reports',
+      description: 'Access system reports and analytics',
+      category: 'Reporting',
+      riskLevel: 'medium'
     },
     {
-      id: '2',
-      email: 'nurse.jones@clinic.com',
-      role: 'Nurse',
-      lastAccess: '2024-01-15 13:45',
-      status: 'active',
-      permissions: ['read', 'write']
-    },
-    {
-      id: '3',
-      email: 'reception@clinic.com',
-      role: 'Receptionist',
-      lastAccess: '2024-01-15 12:15',
-      status: 'active',
-      permissions: ['read']
+      id: '6',
+      name: 'manage_users',
+      description: 'Create and manage user accounts',
+      category: 'Administration',
+      riskLevel: 'high'
     }
   ]);
-
-  const getPermissionBadge = (permission: string) => {
-    const variants = {
-      read: 'bg-blue-100 text-blue-700',
-      write: 'bg-green-100 text-green-700',
-      delete: 'bg-red-100 text-red-700',
-      admin: 'bg-purple-100 text-purple-700'
-    };
-    
-    return (
-      <Badge 
-        variant="outline" 
-        className={variants[permission as keyof typeof variants] || 'bg-gray-100 text-gray-700'}
-      >
-        {permission}
-      </Badge>
-    );
-  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -136,257 +125,207 @@ export const AccessControlManager = () => {
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'active':
-        return <UserCheck className="w-4 h-4 text-green-600" />;
-      case 'suspended':
-        return <UserX className="w-4 h-4 text-red-600" />;
+  const getRiskBadge = (riskLevel: string) => {
+    switch (riskLevel) {
+      case 'high':
+        return <Badge variant="destructive">High Risk</Badge>;
+      case 'medium':
+        return <Badge className="bg-yellow-100 text-yellow-700">Medium Risk</Badge>;
+      case 'low':
+        return <Badge className="bg-green-100 text-green-700">Low Risk</Badge>;
       default:
-        return <Users className="w-4 h-4 text-gray-400" />;
+        return <Badge variant="outline">Unknown</Badge>;
     }
   };
 
-  const securityMetrics = [
-    { label: 'Active Users', value: userAccess.filter(u => u.status === 'active').length, icon: Users },
-    { label: 'Access Rules', value: accessRules.filter(r => r.status === 'active').length, icon: Shield },
-    { label: 'Failed Logins (24h)', value: 0, icon: AlertTriangle },
-    { label: 'Permission Changes', value: 2, icon: Key }
-  ];
-
   return (
     <div className="space-y-6">
-      {/* Security Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {securityMetrics.map((metric, index) => (
-          <Card key={index}>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">{metric.label}</p>
-                  <p className="text-2xl font-bold">{metric.value}</p>
-                </div>
-                <metric.icon className="w-6 h-6 text-blue-600" />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">Access Control Management</h2>
+          <p className="text-gray-600">Manage user roles, permissions, and access controls</p>
+        </div>
+        <Button className="flex items-center gap-2">
+          <Users className="w-4 h-4" />
+          Add User
+        </Button>
       </div>
 
-      <Tabs defaultValue="users" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="users">User Access</TabsTrigger>
-          <TabsTrigger value="roles">Role Permissions</TabsTrigger>
-          <TabsTrigger value="security">Security Policies</TabsTrigger>
-        </TabsList>
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <Users className="w-5 h-5 text-blue-600" />
+              <div>
+                <p className="text-sm text-gray-600">Total Users</p>
+                <p className="text-xl font-bold">{users.length}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        <TabsContent value="users">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="w-5 h-5" />
-                User Access Management
-              </CardTitle>
-              <CardDescription>
-                Manage user access and permissions for {primaryTenant?.tenant.brand_name}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>User</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Permissions</TableHead>
-                    <TableHead>Last Access</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {userAccess.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {getStatusIcon(user.status)}
-                          {user.email}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{user.role}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-1 flex-wrap">
-                          {user.permissions.map((permission) => (
-                            <span key={permission}>
-                              {getPermissionBadge(permission)}
-                            </span>
-                          ))}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-sm text-gray-600">
-                        {user.lastAccess}
-                      </TableCell>
-                      <TableCell>
-                        {getStatusBadge(user.status)}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          <Button variant="ghost" size="sm">
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            <Settings className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <UserCheck className="w-5 h-5 text-green-600" />
+              <div>
+                <p className="text-sm text-gray-600">Active Users</p>
+                <p className="text-xl font-bold">{users.filter(u => u.status === 'active').length}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        <TabsContent value="roles">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="w-5 h-5" />
-                Role-Based Access Control
-              </CardTitle>
-              <CardDescription>
-                Configure permissions for different user roles
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Resource</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Permissions</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {accessRules.map((rule) => (
-                    <TableRow key={rule.id}>
-                      <TableCell className="font-medium">{rule.resource}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{rule.role}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-1 flex-wrap">
-                          {rule.permissions.map((permission) => (
-                            <span key={permission}>
-                              {getPermissionBadge(permission)}
-                            </span>
-                          ))}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {getStatusBadge(rule.status)}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          <Button variant="ghost" size="sm">
-                            <Settings className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <Key className="w-5 h-5 text-purple-600" />
+              <div>
+                <p className="text-sm text-gray-600">Permissions</p>
+                <p className="text-xl font-bold">{permissions.length}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        <TabsContent value="security">
-          <div className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Lock className="w-5 h-5" />
-                  Security Policies
-                </CardTitle>
-                <CardDescription>
-                  Active security policies and controls
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-3">
-                      <h4 className="font-medium">Authentication Policies</h4>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between p-2 border rounded">
-                          <span className="text-sm">Multi-Factor Authentication</span>
-                          <div className="flex items-center gap-2">
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                            <Badge className="bg-green-100 text-green-700">Enabled</Badge>
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between p-2 border rounded">
-                          <span className="text-sm">Session Timeout (30 min)</span>
-                          <div className="flex items-center gap-2">
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                            <Badge className="bg-green-100 text-green-700">Active</Badge>
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between p-2 border rounded">
-                          <span className="text-sm">Password Complexity</span>
-                          <div className="flex items-center gap-2">
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                            <Badge className="bg-green-100 text-green-700">Enforced</Badge>
-                          </div>
-                        </div>
-                      </div>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2">
+              <Shield className="w-5 h-5 text-orange-600" />
+              <div>
+                <p className="text-sm text-gray-600">High Risk Perms</p>
+                <p className="text-xl font-bold">{permissions.filter(p => p.riskLevel === 'high').length}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* User Management */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="w-5 h-5" />
+            User Access Management
+          </CardTitle>
+          <CardDescription>
+            Manage user roles and permissions for HIPAA compliance
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>User</TableHead>
+                <TableHead>Role</TableHead>
+                <TableHead>Permissions</TableHead>
+                <TableHead>Last Access</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {users.map((user) => (
+                <TableRow key={user.id}>
+                  <TableCell>
+                    <div>
+                      <div className="font-medium">{user.name}</div>
+                      <div className="text-sm text-gray-600">{user.email}</div>
                     </div>
-                    
-                    <div className="space-y-3">
-                      <h4 className="font-medium">Access Controls</h4>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between p-2 border rounded">
-                          <span className="text-sm">Row-Level Security</span>
-                          <div className="flex items-center gap-2">
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                            <Badge className="bg-green-100 text-green-700">Active</Badge>
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between p-2 border rounded">
-                          <span className="text-sm">Role-Based Access</span>
-                          <div className="flex items-center gap-2">
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                            <Badge className="bg-green-100 text-green-700">Active</Badge>
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between p-2 border rounded">
-                          <span className="text-sm">API Rate Limiting</span>
-                          <div className="flex items-center gap-2">
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                            <Badge className="bg-green-100 text-green-700">Active</Badge>
-                          </div>
-                        </div>
-                      </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline">{user.role}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {user.permissions.slice(0, 2).map((perm) => (
+                        <Badge key={perm} variant="secondary" className="text-xs">
+                          {perm}
+                        </Badge>
+                      ))}
+                      {user.permissions.length > 2 && (
+                        <Badge variant="secondary" className="text-xs">
+                          +{user.permissions.length - 2} more
+                        </Badge>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-sm">
+                    {new Date(user.lastAccess).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>
+                    {getStatusBadge(user.status)}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Button variant="ghost" size="sm">
+                        <Eye className="w-4 h-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm">
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm">
+                        <Settings className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      {/* Permissions Management */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Key className="w-5 h-5" />
+            Permission Management
+          </CardTitle>
+          <CardDescription>
+            Configure system permissions and access levels
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {permissions.map((permission) => (
+              <div key={permission.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="flex items-center gap-3">
+                  <Lock className="w-5 h-5 text-gray-400" />
+                  <div>
+                    <h4 className="font-medium">{permission.name}</h4>
+                    <p className="text-sm text-gray-600">{permission.description}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge variant="outline" className="text-xs">{permission.category}</Badge>
+                      {getRiskBadge(permission.riskLevel)}
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-
-            <Alert>
-              <Shield className="h-4 w-4" />
-              <AlertDescription>
-                All access controls are automatically enforced and logged for HIPAA compliance. 
-                Any changes to user permissions are immediately reflected across all systems and recorded in the audit trail.
-              </AlertDescription>
-            </Alert>
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" size="sm">
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                  <Button variant="ghost" size="sm">
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
           </div>
-        </TabsContent>
-      </Tabs>
+        </CardContent>
+      </Card>
+
+      {/* Security Alerts */}
+      <Alert>
+        <Shield className="h-4 w-4" />
+        <AlertDescription>
+          <strong>Security Notice:</strong> All user access is monitored and logged for HIPAA compliance. 
+          Unauthorized access attempts are automatically flagged and investigated.
+        </AlertDescription>
+      </Alert>
     </div>
   );
 };

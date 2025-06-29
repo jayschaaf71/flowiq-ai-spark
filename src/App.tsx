@@ -11,6 +11,7 @@ import { AuthProvider } from './contexts/AuthProvider';
 import { DashboardProvider } from './contexts/DashboardContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AdvancedAnalytics } from '@/pages/AdvancedAnalytics';
+import { ComplianceSecurityPage } from '@/pages/ComplianceSecurityPage';
 import { AnalyticsProvider } from '@/contexts/AnalyticsContext';
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ function App() {
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/analytics" element={<Analytics />} />
                 <Route path="/advanced-analytics" element={<AdvancedAnalytics />} />
+                <Route path="/compliance" element={<ComplianceSecurityPage />} />
                 <Route path="/schedule" element={<Schedule />} />
                 <Route path="/ehr" element={<EHR />} />
                 <Route path="/settings" element={<Settings />} />
