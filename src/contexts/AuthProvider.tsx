@@ -1,7 +1,9 @@
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuthState } from '@/hooks/useAuthState';
+import { useToast } from '@/hooks/use-toast';
 
 interface Profile {
   id: string;
@@ -34,87 +36,79 @@ export const useAuth = () => {
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, session, loading } = useAuthState();
+  const { toast } = useToast();
+  
+  // Mock profile for now - in production this would come from Supabase
+  const profile: Profile | null = user ? {
+    id: user.id,
+    email: user.email || '',
+    first_name: user.user_metadata?.first_name,
+    last_name: user.user_metadata?.last_name,
+    role: user.user_metadata?.role || 'patient',
+    tenant_id: user.user_metadata?.tenant_id
+  } : null;
 
   const refreshProfile = async () => {
-    if (session?.user) {
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', session.user.id)
-        .single();
+    // In production, this would fetch from profiles table
+    console.log('Profile refresh requested for user:', user?.id);
+  };
+
+  const signIn = async (email: string, password: string) => {
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
       
-      if (profileData) {
-        setProfile(profileData);
+      if (error) {
+        console.error('Sign in error:', error);
       }
+      
+      return { error };
+    } catch (error) {
+      console.error('Unexpected sign in error:', error);
+      return { error };
     }
   };
 
-  useEffect(() => {
-    // Get initial session
-    const getInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        await refreshProfile();
-      }
-      
-      setLoading(false);
-    };
-
-    getInitialSession();
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        await refreshProfile();
-      } else {
-        setProfile(null);
-      }
-      
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { error };
-  };
-
   const signUp = async (email: string, password: string, firstName?: string, lastName?: string, role?: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/`,
-        data: {
-          first_name: firstName,
-          last_name: lastName,
-          role: role || 'patient'
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            first_name: firstName,
+            last_name: lastName,
+            role: role || 'patient'
+          }
         }
+      });
+      
+      if (error) {
+        console.error('Sign up error:', error);
       }
-    });
-    return { error };
+      
+      return { error };
+    } catch (error) {
+      console.error('Unexpected sign up error:', error);
+      return { error };
+    }
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setProfile(null);
-    setSession(null);
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error('Sign out error:', error);
+      toast({
+        title: "Sign Out Error",
+        description: "There was an issue signing you out. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const value = {

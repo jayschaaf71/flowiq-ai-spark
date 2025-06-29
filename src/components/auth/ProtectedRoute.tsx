@@ -2,8 +2,9 @@
 import React, { useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { AuthPage } from './AuthPage';
+import { AuthLoadingState } from './AuthLoadingState';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Shield, AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 interface ProtectedRouteProps {
@@ -20,7 +21,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const location = useLocation();
 
   useEffect(() => {
-    // If user is authenticated and has a profile, check if they need to be redirected
+    // Only redirect after loading is complete and we have user data
     if (!loading && user && profile) {
       console.log('ProtectedRoute: User authenticated with role:', profile.role, 'at path:', location.pathname);
       
@@ -40,33 +41,19 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     }
   }, [user, profile, loading, navigate, location.pathname, requiredRole]);
 
+  // Show loading state while checking authentication
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center space-y-4">
-          <Shield className="h-12 w-12 text-blue-600 mx-auto animate-pulse" />
-          <div className="text-lg font-medium">Verifying secure access...</div>
-          <div className="text-sm text-gray-600">Please wait while we authenticate your session</div>
-        </div>
-      </div>
-    );
+    return <AuthLoadingState message="Verifying secure access..." />;
   }
 
+  // Show auth page if not authenticated
   if (!user) {
     return <AuthPage />;
   }
 
-  // If we have a user but no profile yet, show loading
+  // Show loading if we have user but no profile yet
   if (user && !profile) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center space-y-4">
-          <Shield className="h-12 w-12 text-blue-600 mx-auto animate-pulse" />
-          <div className="text-lg font-medium">Setting up your profile...</div>
-          <div className="text-sm text-gray-600">Please wait while we complete your setup</div>
-        </div>
-      </div>
-    );
+    return <AuthLoadingState message="Setting up your profile..." />;
   }
 
   // HIPAA Compliance: Role-based access control
