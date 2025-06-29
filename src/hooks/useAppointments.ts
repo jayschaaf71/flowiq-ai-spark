@@ -1,9 +1,9 @@
 
-import { useState, useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from './useAuth';
 
-interface Appointment {
+export interface Appointment {
   id: string;
   title: string;
   appointment_type: string;
@@ -20,129 +20,33 @@ interface Appointment {
 }
 
 export const useAppointments = () => {
-  const { toast } = useToast();
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
 
-  useEffect(() => {
-    loadAppointments();
-  }, []);
+  const { data: appointments = [], isLoading: loading, error } = useQuery({
+    queryKey: ['appointments', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
 
-  const loadAppointments = async () => {
-    setLoading(true);
-    try {
-      console.log('Loading appointments with simplified policies...');
-      
       const { data, error } = await supabase
         .from('appointments')
         .select('*')
+        .eq('patient_id', user.id)
         .order('date', { ascending: true })
         .order('time', { ascending: true });
 
       if (error) {
-        console.error("Database error:", error);
+        console.error('Error fetching appointments:', error);
         throw error;
       }
 
-      console.log('Appointments loaded successfully:', data?.length || 0);
-      
-      if (!data) {
-        setAppointments([]);
-        return;
-      }
-
-      // Type cast the appointments data to match our interface
-      const typedAppointments = data.map(appointment => ({
-        ...appointment,
-        status: appointment.status as "confirmed" | "pending" | "cancelled" | "completed" | "no-show"
-      }));
-
-      setAppointments(typedAppointments);
-      
-    } catch (error: any) {
-      console.error("Error loading appointments:", error);
-      
-      toast({
-        title: "Error loading appointments",
-        description: error.message || "Failed to load appointments",
-        variant: "destructive",
-      });
-      
-      setAppointments([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const updateAppointmentStatus = async (appointmentId: string, newStatus: Appointment['status']) => {
-    setLoading(true);
-    try {
-      console.log('Updating appointment status:', appointmentId, newStatus);
-      
-      const { error } = await supabase
-        .from('appointments')
-        .update({ status: newStatus })
-        .eq('id', appointmentId);
-
-      if (error) {
-        console.error('Error updating appointment:', error);
-        throw error;
-      }
-
-      // Update local state
-      setAppointments(prev => prev.map(apt => 
-        apt.id === appointmentId 
-          ? { ...apt, status: newStatus }
-          : apt
-      ));
-      
-      toast({
-        title: "Appointment Updated",
-        description: `Status changed to ${newStatus}`,
-      });
-
-      return appointments.find(apt => apt.id === appointmentId);
-    } catch (error: any) {
-      console.error("Error updating appointment:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update appointment",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const sendReminder = async (appointment: Appointment) => {
-    setLoading(true);
-    try {
-      console.log('Sending reminder for appointment:', appointment.id);
-      
-      // Simulate sending SMS/Email reminder
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      toast({
-        title: "Reminder Sent",
-        description: `Reminder sent for appointment on ${appointment.date}`,
-      });
-    } catch (error) {
-      console.error('Error sending reminder:', error);
-      toast({
-        title: "Error",
-        description: "Failed to send reminder",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+      return data as Appointment[];
+    },
+    enabled: !!user?.id,
+  });
 
   return {
     appointments,
     loading,
-    loadAppointments,
-    updateAppointmentStatus,
-    sendReminder
+    error
   };
 };
