@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { HIPAAComplianceDashboard } from '@/components/compliance/HIPAAComplianceDashboard';
+import { UnifiedComplianceDashboard } from '@/components/compliance/UnifiedComplianceDashboard';
 import { ComplianceAnalytics } from '@/components/analytics/ComplianceAnalytics';
 import { SecurityAuditTrail } from '@/components/security/SecurityAuditTrail';
 import { DataEncryptionManager } from '@/components/security/DataEncryptionManager';
@@ -10,17 +10,17 @@ import { AccessControlManager } from '@/components/security/AccessControlManager
 export const ComplianceSecurityPage: React.FC = () => {
   return (
     <div className="container mx-auto p-6">
-      <Tabs defaultValue="hipaa" className="space-y-6">
+      <Tabs defaultValue="dashboard" className="space-y-6">
         <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="hipaa">HIPAA Compliance</TabsTrigger>
-          <TabsTrigger value="analytics">Compliance Analytics</TabsTrigger>
+          <TabsTrigger value="dashboard">Compliance Dashboard</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="audit">Audit Trail</TabsTrigger>
           <TabsTrigger value="encryption">Data Security</TabsTrigger>
           <TabsTrigger value="access">Access Control</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="hipaa" className="space-y-6">
-          <HIPAAComplianceDashboard />
+        <TabsContent value="dashboard" className="space-y-6">
+          <UnifiedComplianceDashboard />
         </TabsContent>
         
         <TabsContent value="analytics" className="space-y-6">
