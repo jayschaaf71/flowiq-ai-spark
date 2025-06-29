@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -18,7 +17,7 @@ interface EncryptionStatus {
 export const DataEncryptionManager = () => {
   const [encryptionConfig, setEncryptionConfig] = useState({
     requireEncryption: true,
-    encryptionLevel: 'advanced' as const,
+    encryptionLevel: 'advanced' as 'advanced' | 'basic' | 'military',
     keyRotationDays: 90,
     auditEncryptedAccess: true
   });
