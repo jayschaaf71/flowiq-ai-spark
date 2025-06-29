@@ -22,7 +22,7 @@ interface EnhancedPatientDetailProps {
 }
 
 export const EnhancedPatientDetail = ({ patientId }: EnhancedPatientDetailProps) => {
-  const { data: patient, isLoading, error } = usePatientOnboardingData(patientId);
+  const { data: patient, loading: isLoading, error } = usePatientOnboardingData(patientId);
 
   const calculateAge = (dateOfBirth: string) => {
     const today = new Date();

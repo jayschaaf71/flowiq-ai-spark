@@ -41,6 +41,7 @@ export const useDashboardData = () => {
   return {
     data,
     loading,
+    isLoading: loading, // Add isLoading alias
     error: null
   };
 };

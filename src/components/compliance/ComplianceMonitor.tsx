@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Shield, AlertTriangle, CheckCircle, Activity, Lock, Eye } from "lucide-react";
@@ -6,7 +5,7 @@ import { useComplianceMetrics } from "@/hooks/useAuditLog";
 import { useEnhancedAuth } from "@/hooks/useEnhancedAuth";
 
 export const ComplianceMonitor = () => {
-  const { data: complianceData, isLoading } = useComplianceMetrics();
+  const { data: complianceData, loading: isLoading } = useComplianceMetrics();
   const { primaryTenant, user } = useEnhancedAuth();
 
   if (isLoading) {

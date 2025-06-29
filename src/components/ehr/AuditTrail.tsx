@@ -21,7 +21,7 @@ interface AuditTrailProps {
 }
 
 export const AuditTrail = ({ tableName, recordId }: AuditTrailProps) => {
-  const { data: auditLogs = [], isLoading } = useAuditLogs(tableName, recordId);
+  const { data: auditLogs = [], loading: isLoading } = useAuditLogs(tableName, recordId);
 
   const getActionIcon = (action: string) => {
     switch (action) {
