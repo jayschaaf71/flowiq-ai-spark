@@ -12,8 +12,7 @@ import { RealTimeActivityFeed } from "@/components/dashboard/RealTimeActivityFee
 import { SmartInsightsWidget } from "@/components/dashboard/SmartInsightsWidget";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useRealtimeDashboard } from "@/hooks/useRealtimeDashboard";
-import { BarChart3 } from "lucide-react";
-import { Smartphone } from "lucide-react";
+import { BarChart3, Smartphone, User, FileText } from "lucide-react";
 
 const Index = () => {
   const { isLoading } = useDashboardData();
@@ -63,20 +62,49 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Mobile Patient Experience Link */}
-        <div className="bg-gradient-to-r from-green-50 to-teal-50 rounded-lg p-6 border border-green-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">Mobile Patient Experience</h3>
-              <p className="text-gray-600">Streamlined mobile interface for patient booking and portal access</p>
+        {/* Mobile Experiences */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Patient Mobile Experience */}
+          <div className="bg-gradient-to-r from-green-50 to-teal-50 rounded-lg p-6 border border-green-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Patient Mobile Portal</h3>
+                <p className="text-gray-600">Complete intake, booking, and portal access</p>
+              </div>
+              <div className="flex flex-col gap-2">
+                <a 
+                  href="/patient-portal"
+                  className="inline-flex items-center px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
+                >
+                  <Smartphone className="w-4 h-4 mr-2" />
+                  Portal
+                </a>
+                <a 
+                  href="/complete-intake"
+                  className="inline-flex items-center px-3 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors text-sm"
+                >
+                  <FileText className="w-4 h-4 mr-2" />
+                  Intake
+                </a>
+              </div>
             </div>
-            <a 
-              href="/patient-portal"
-              className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-            >
-              <Smartphone className="w-4 h-4 mr-2" />
-              Patient Portal
-            </a>
+          </div>
+
+          {/* Provider Mobile Experience */}
+          <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-6 border border-purple-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">Provider Mobile Portal</h3>
+                <p className="text-gray-600">Mobile-optimized provider tools and quick access</p>
+              </div>
+              <a 
+                href="/provider-mobile"
+                className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                <User className="w-4 h-4 mr-2" />
+                Provider Portal
+              </a>
+            </div>
           </div>
         </div>
         

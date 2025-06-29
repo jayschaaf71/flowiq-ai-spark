@@ -13,6 +13,8 @@ import { AdvancedAnalytics } from '@/pages/AdvancedAnalytics';
 import { ComplianceSecurityPage } from '@/pages/ComplianceSecurityPage';
 import { AnalyticsProvider } from '@/contexts/AnalyticsContext';
 import { PatientPortal } from '@/pages/PatientPortal';
+import { ProviderMobile } from '@/pages/ProviderMobile';
+import { CompleteIntakeFlow } from '@/components/intake/CompleteIntakeFlow';
 
 const queryClient = new QueryClient();
 
@@ -30,6 +32,8 @@ function App() {
                 <Route path="/advanced-analytics" element={<AdvancedAnalytics />} />
                 <Route path="/compliance" element={<ComplianceSecurityPage />} />
                 <Route path="/patient-portal" element={<PatientPortal />} />
+                <Route path="/provider-mobile" element={<ProviderMobile />} />
+                <Route path="/complete-intake" element={<CompleteIntakeFlow />} />
                 <Route path="/schedule" element={<Schedule />} />
                 <Route path="/ehr" element={<EHR />} />
                 <Route path="/settings" element={<Settings />} />
