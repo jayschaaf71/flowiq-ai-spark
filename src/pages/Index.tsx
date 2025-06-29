@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { ClinicMetrics } from "@/components/clinic/ClinicMetrics";
@@ -17,11 +16,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { MessageSquare, Settings, TrendingUp, Users, Calendar as CalendarIcon } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { useDashboard } from "@/contexts/DashboardContext";
+import { useDashboardData } from "@/hooks/useDashboardData";
+import { useRealtimeDashboard } from "@/hooks/useRealtimeDashboard";
 
 const Index = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const { profile } = useAuth();
   const navigate = useNavigate();
+  const { state } = useDashboard();
+  const { financialMetrics, patientMetrics, complianceMetrics, recentActivity, isLoading } = useDashboardData();
+  
+  // Set up real-time updates
+  useRealtimeDashboard();
 
   const handleOnboardingClick = () => {
     navigate('/onboard-tenant');
@@ -42,12 +49,23 @@ const Index = () => {
     { label: "Financial", icon: TrendingUp, path: "/financial", color: "bg-green-50 text-green-700" }
   ];
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <PageHeader 
           title="Clinic Dashboard"
-          subtitle={`Daily operations overview and key performance indicators${profile?.tenant_id ? ` - ${profile.tenant_id.toUpperCase()} Tenant` : ''}`}
+          subtitle={`Daily operations overview and key performance indicators${profile?.tenant_id ? ` - ${profile.tenant_id.toUpperCase()} Tenant` : ''} - Active Module: ${state.activeModule}`}
         />
         <div className="flex gap-2">
           <Button 
@@ -91,7 +109,7 @@ const Index = () => {
           </CardContent>
         </Card>
 
-        {/* New Practice Areas Widgets */}
+        {/* New Practice Areas Widgets - Now with real data */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <FinancialSummaryWidget />
           <PatientExperienceWidget />
@@ -162,7 +180,7 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Recent Activity - Now Clickable */}
+        {/* Recent Activity - Now with real-time data */}
         <RecentActivity />
       </div>
 
