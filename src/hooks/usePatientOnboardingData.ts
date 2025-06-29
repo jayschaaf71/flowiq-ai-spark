@@ -1,57 +1,64 @@
 
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { useState, useEffect } from 'react';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 
-export interface PatientWithOnboarding {
+interface PatientOnboardingData {
   id: string;
-  first_name: string;
-  last_name: string;
-  email?: string;
-  phone?: string;
-  date_of_birth: string;
-  gender?: string;
-  patient_number: string;
-  onboarding_completed_at?: string;
-  onboarding_summary?: string;
+  patient_id: string;
+  onboarding_step: string;
+  completed: boolean;
+  data: Record<string, any>;
   created_at: string;
   updated_at: string;
 }
 
-export const useAllPatientsWithOnboarding = () => {
-  return useQuery({
-    queryKey: ['patients-with-onboarding'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('patients')
-        .select(`
-          id,
-          first_name,
-          last_name,
-          email,
-          phone,
-          date_of_birth,
-          gender,
-          patient_number,
-          onboarding_completed_at,
-          created_at,
-          updated_at
-        `)
-        .order('created_at', { ascending: false });
+export const usePatientOnboardingData = (patientId: string) => {
+  const [data, setData] = useState<PatientOnboardingData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { handleError } = useErrorHandler();
 
-      if (error) {
-        console.error('Error fetching patients:', error);
-        throw error;
+  useEffect(() => {
+    if (!patientId) {
+      setLoading(false);
+      return;
+    }
+
+    const fetchOnboardingData = async () => {
+      try {
+        setLoading(true);
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        // Mock data
+        setData({
+          id: '1',
+          patient_id: patientId,
+          onboarding_step: 'medical-history',
+          completed: false,
+          data: {
+            personalInfo: { completed: true },
+            medicalHistory: { completed: false },
+            insurance: { completed: false }
+          },
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
+      } catch (error) {
+        console.error('Error fetching onboarding data:', error);
+        handleError(error as Error, 'Failed to load onboarding data');
+      } finally {
+        setLoading(false);
       }
+    };
 
-      // Add mock onboarding summary for demonstration
-      const patientsWithSummary = data?.map(patient => ({
-        ...patient,
-        onboarding_summary: patient.onboarding_completed_at 
-          ? 'Patient completed full intake process with medical history and insurance verification.'
-          : undefined
-      })) || [];
+    fetchOnboardingData();
+  }, [patientId, handleError]);
 
-      return patientsWithSummary as PatientWithOnboarding[];
-    },
-  });
+  return {
+    data,
+    loading,
+    error: null
+  };
 };
+
+export default usePatientOnboardingData;

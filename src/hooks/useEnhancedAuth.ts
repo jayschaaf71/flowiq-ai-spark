@@ -6,6 +6,22 @@ import { supabase } from '@/integrations/supabase/client';
 export interface UserRole {
   role: string;
   tenant_id: string;
+  tenant: {
+    id: string;
+    name: string;
+    brand_name: string;
+    specialty: string;
+  };
+}
+
+export interface PrimaryTenant {
+  tenant_id: string;
+  tenant: {
+    id: string;
+    name: string;
+    brand_name: string;
+    specialty: string;
+  };
 }
 
 export const useEnhancedAuth = () => {
@@ -31,7 +47,13 @@ export const useEnhancedAuth = () => {
         if (profile?.role) {
           mockRoles.push({
             role: profile.role,
-            tenant_id: profile.tenant_id || 'default'
+            tenant_id: profile.tenant_id || 'default',
+            tenant: {
+              id: profile.tenant_id || 'default',
+              name: 'Default Practice',
+              brand_name: 'FlowIQ Practice',
+              specialty: 'Chiropractic Care'
+            }
           });
         }
 
@@ -72,12 +94,20 @@ export const useEnhancedAuth = () => {
 
   const isPlatformAdmin = userRoles.some(role => role.role === 'platform_admin');
 
+  // Get primary tenant (first one in the list)
+  const primaryTenant: PrimaryTenant | null = userRoles.length > 0 ? {
+    tenant_id: userRoles[0].tenant_id,
+    tenant: userRoles[0].tenant
+  } : null;
+
   return {
+    user,
     userRoles,
     rolesLoading,
     rolesError,
     hasMinimumRole,
     canAccessTenant,
-    isPlatformAdmin
+    isPlatformAdmin,
+    primaryTenant
   };
 };
