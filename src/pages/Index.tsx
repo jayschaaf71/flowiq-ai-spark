@@ -1,4 +1,3 @@
-
 import { QuickStats } from "@/components/clinic/QuickStats";
 import { RecentActivity } from "@/components/clinic/RecentActivity";
 import { EnhancedDashboardHeader } from "@/components/dashboard/EnhancedDashboardHeader";
@@ -14,6 +13,7 @@ import { SmartInsightsWidget } from "@/components/dashboard/SmartInsightsWidget"
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useRealtimeDashboard } from "@/hooks/useRealtimeDashboard";
 import { BarChart3 } from "lucide-react";
+import { Smartphone } from "lucide-react";
 
 const Index = () => {
   const { isLoading } = useDashboardData();
@@ -59,6 +59,23 @@ const Index = () => {
             >
               <BarChart3 className="w-4 h-4 mr-2" />
               View Analytics
+            </a>
+          </div>
+        </div>
+
+        {/* Mobile Patient Experience Link */}
+        <div className="bg-gradient-to-r from-green-50 to-teal-50 rounded-lg p-6 border border-green-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Mobile Patient Experience</h3>
+              <p className="text-gray-600">Streamlined mobile interface for patient booking and portal access</p>
+            </div>
+            <a 
+              href="/patient-portal"
+              className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            >
+              <Smartphone className="w-4 h-4 mr-2" />
+              Patient Portal
             </a>
           </div>
         </div>

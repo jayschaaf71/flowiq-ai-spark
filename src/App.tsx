@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Dashboard } from './pages/Dashboard';
@@ -13,6 +12,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AdvancedAnalytics } from '@/pages/AdvancedAnalytics';
 import { ComplianceSecurityPage } from '@/pages/ComplianceSecurityPage';
 import { AnalyticsProvider } from '@/contexts/AnalyticsContext';
+import { PatientPortal } from '@/pages/PatientPortal';
 
 const queryClient = new QueryClient();
 
@@ -29,6 +29,7 @@ function App() {
                 <Route path="/analytics" element={<Analytics />} />
                 <Route path="/advanced-analytics" element={<AdvancedAnalytics />} />
                 <Route path="/compliance" element={<ComplianceSecurityPage />} />
+                <Route path="/patient-portal" element={<PatientPortal />} />
                 <Route path="/schedule" element={<Schedule />} />
                 <Route path="/ehr" element={<EHR />} />
                 <Route path="/settings" element={<Settings />} />
