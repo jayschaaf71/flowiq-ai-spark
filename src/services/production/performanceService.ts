@@ -1,4 +1,3 @@
-
 export interface PerformanceMetrics {
   pageLoadTime: number;
   timeToFirstByte: number;
@@ -128,10 +127,9 @@ export class PerformanceService {
   private async logPerformanceMetrics(): Promise<void> {
     const { logAuditAction } = await import("@/hooks/useAuditLog");
     await logAuditAction(
+      'METRICS_COLLECTED',
       'performance_metrics',
       'performance',
-      'METRICS_COLLECTED',
-      null,
       {
         ...this.metrics,
         timestamp: new Date().toISOString(),
@@ -166,10 +164,9 @@ export class PerformanceService {
     if (issues.length > 0) {
       const { logAuditAction } = await import("@/hooks/useAuditLog");
       await logAuditAction(
+        'PERFORMANCE_ISSUES_DETECTED',
         'performance_issues',
         'analyzer',
-        'PERFORMANCE_ISSUES_DETECTED',
-        null,
         {
           issues,
           metrics: this.metrics,
@@ -217,10 +214,9 @@ export class PerformanceService {
       
       const { logAuditAction } = await import("@/hooks/useAuditLog");
       await logAuditAction(
+        'OPTIMIZATION_IMPLEMENTED',
         'performance_optimizations',
         ruleId,
-        'OPTIMIZATION_IMPLEMENTED',
-        null,
         {
           ruleId,
           ruleName: rule.name,

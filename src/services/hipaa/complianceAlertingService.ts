@@ -64,10 +64,9 @@ export class ComplianceAlertingService {
     // Log the compliance alert
     const { logAuditAction } = await import("@/hooks/useAuditLog");
     await logAuditAction(
+      'COMPLIANCE_ALERT_CREATED',
       'compliance_alerts',
       alert.id,
-      'COMPLIANCE_ALERT_CREATED',
-      null,
       {
         alert_id: alert.id,
         type: alert.type,
@@ -209,10 +208,9 @@ export class ComplianceAlertingService {
     // Log escalation
     const { logAuditAction } = await import("@/hooks/useAuditLog");
     await logAuditAction(
+      'COMPLIANCE_ALERT_ESCALATED',
       'compliance_alerts',
       alert.id,
-      'COMPLIANCE_ALERT_ESCALATED',
-      null,
       {
         escalatedTo: contacts,
         originalSeverity: alert.severity,
@@ -224,10 +222,9 @@ export class ComplianceAlertingService {
   async resolveAlert(alertId: string, resolvedBy: string, resolution: string): Promise<void> {
     const { logAuditAction } = await import("@/hooks/useAuditLog");
     await logAuditAction(
+      'COMPLIANCE_ALERT_RESOLVED',
       'compliance_alerts',
       alertId,
-      'COMPLIANCE_ALERT_RESOLVED',
-      null,
       {
         resolvedBy,
         resolution,
@@ -275,10 +272,9 @@ export class ComplianceAlertingService {
     
     const { logAuditAction } = await import("@/hooks/useAuditLog");
     await logAuditAction(
+      'CONFIG_UPDATED',
       'system_config',
       'compliance_alerting',
-      'CONFIG_UPDATED',
-      null,
       {
         newConfig: this.alertingConfig,
         updatedAt: new Date().toISOString()

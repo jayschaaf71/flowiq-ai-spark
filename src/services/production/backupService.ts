@@ -63,10 +63,9 @@ export class BackupService {
     // Log backup initiation
     const { logAuditAction } = await import("@/hooks/useAuditLog");
     await logAuditAction(
+      'BACKUP_INITIATED',
       'backup_jobs',
       backup.id,
-      'BACKUP_INITIATED',
-      null,
       {
         ...backup,
         startTime: backup.startTime.toISOString()
@@ -88,10 +87,9 @@ export class BackupService {
 
     const { logAuditAction } = await import("@/hooks/useAuditLog");
     await logAuditAction(
+      backup.status === 'completed' ? 'BACKUP_COMPLETED' : 'BACKUP_FAILED',
       'backup_jobs',
       backup.id,
-      backup.status === 'completed' ? 'BACKUP_COMPLETED' : 'BACKUP_FAILED',
-      null,
       {
         ...backup,
         endTime: backup.endTime.toISOString(),
@@ -116,10 +114,9 @@ export class BackupService {
 
     const { logAuditAction } = await import("@/hooks/useAuditLog");
     await logAuditAction(
+      'RECOVERY_POINT_CREATED',
       'recovery_points',
       recoveryPoint.id,
-      'RECOVERY_POINT_CREATED',
-      null,
       {
         ...recoveryPoint,
         timestamp: recoveryPoint.timestamp.toISOString()
@@ -137,10 +134,9 @@ export class BackupService {
     
     const { logAuditAction } = await import("@/hooks/useAuditLog");
     await logAuditAction(
+      'RECOVERY_POINT_VERIFIED',
       'recovery_points',
       recoveryPointId,
-      'RECOVERY_POINT_VERIFIED',
-      null,
       {
         recoveryPointId,
         verificationStatus: status,
@@ -207,10 +203,9 @@ export class BackupService {
   async initiateRecovery(recoveryPointId: string): Promise<boolean> {
     const { logAuditAction } = await import("@/hooks/useAuditLog");
     await logAuditAction(
+      'RECOVERY_INITIATED',
       'disaster_recovery',
       recoveryPointId,
-      'RECOVERY_INITIATED',
-      null,
       {
         recoveryPointId,
         initiatedAt: new Date().toISOString(),
@@ -223,10 +218,9 @@ export class BackupService {
       setTimeout(() => {
         const success = Math.random() > 0.1;
         logAuditAction(
+          success ? 'RECOVERY_COMPLETED' : 'RECOVERY_FAILED',
           'disaster_recovery',
           recoveryPointId,
-          success ? 'RECOVERY_COMPLETED' : 'RECOVERY_FAILED',
-          null,
           {
             recoveryPointId,
             completedAt: new Date().toISOString(),
@@ -247,10 +241,9 @@ export class BackupService {
     
     const { logAuditAction } = await import("@/hooks/useAuditLog");
     await logAuditAction(
+      'DR_PLAN_UPDATED',
       'disaster_recovery',
       'dr_plan',
-      'DR_PLAN_UPDATED',
-      null,
       {
         newPlan: this.drPlan,
         updatedAt: new Date().toISOString()
@@ -261,10 +254,9 @@ export class BackupService {
   async scheduleAutomaticBackups(): Promise<void> {
     const { logAuditAction } = await import("@/hooks/useAuditLog");
     await logAuditAction(
+      'AUTO_BACKUP_SCHEDULED',
       'backup_jobs',
       'scheduler',
-      'AUTO_BACKUP_SCHEDULED',
-      null,
       {
         frequency: this.drPlan.backupFrequency,
         scheduledAt: new Date().toISOString()

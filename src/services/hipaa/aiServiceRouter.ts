@@ -1,4 +1,3 @@
-
 import { AIServiceEndpoint, PHIDataClassification } from './types';
 import { DataClassificationService } from './dataClassification';
 import { DataAnonymizationService } from './dataAnonymization';
@@ -70,10 +69,9 @@ export class AIServiceRouter {
     serviceName: string
   ) {
     await logAuditAction(
+      `HIPAA_${action}`,
       'ai_hipaa_access',
       userId,
-      `HIPAA_${action}`,
-      null,
       {
         containsPHI: classification.containsPHI,
         sensitivityLevel: classification.sensitivityLevel,

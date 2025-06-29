@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface EncryptedField {
@@ -89,10 +88,9 @@ export class EncryptedDataStorageService {
     // Store encryption metadata for audit purposes
     const { logAuditAction } = await import("@/hooks/useAuditLog");
     await logAuditAction(
+      'FIELD_ENCRYPTED',
       'encryption_metadata',
       'system',
-      'FIELD_ENCRYPTED',
-      null,
       {
         fieldName,
         keyId: encrypted.keyId,
@@ -119,10 +117,9 @@ export class EncryptedDataStorageService {
     // Log key rotation event
     const { logAuditAction } = await import("@/hooks/useAuditLog");
     await logAuditAction(
+      'KEY_ROTATION',
       'encryption_keys',
       'system',
-      'KEY_ROTATION',
-      null,
       {
         rotatedAt: new Date().toISOString(),
         reason: 'Scheduled key rotation for HIPAA compliance'

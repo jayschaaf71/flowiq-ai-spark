@@ -1,4 +1,3 @@
-
 export interface TestSuite {
   id: string;
   name: string;
@@ -205,10 +204,9 @@ export class TestingService {
     // Log test run initiation
     const { logAuditAction } = await import("@/hooks/useAuditLog");
     await logAuditAction(
+      'TEST_RUN_STARTED',
       'test_runs',
       'all-tests',
-      'TEST_RUN_STARTED',
-      null,
       {
         suites: this.testSuites.map(s => s.name),
         startedAt: new Date().toISOString()
@@ -251,10 +249,9 @@ export class TestingService {
     
     // Log test completion
     await logAuditAction(
+      'TEST_RUN_COMPLETED',
       'test_runs',
       'all-tests',
-      'TEST_RUN_COMPLETED',
-      null,
       {
         ...result,
         duration: Date.now() - startTime,
@@ -273,10 +270,9 @@ export class TestingService {
 
     const { logAuditAction } = await import("@/hooks/useAuditLog");
     await logAuditAction(
+      'TEST_SUITE_STARTED',
       'test_runs',
       suiteId,
-      'TEST_SUITE_STARTED',
-      null,
       {
         suiteName: suite.name,
         suiteType: suite.type,
@@ -297,10 +293,9 @@ export class TestingService {
     suite.duration = suite.tests.reduce((sum, test) => sum + test.duration, 0);
 
     await logAuditAction(
+      'TEST_SUITE_COMPLETED',
       'test_runs',
       suiteId,
-      'TEST_SUITE_COMPLETED',
-      null,
       {
         suiteName: suite.name,
         status: suite.status,
@@ -381,10 +376,9 @@ ${this.getFailedTests().map(test => `
     // Log report generation
     const { logAuditAction } = await import("@/hooks/useAuditLog");
     await logAuditAction(
+      'TEST_REPORT_GENERATED',
       'test_reports',
       'report',
-      'TEST_REPORT_GENERATED',
-      null,
       {
         timestamp,
         totalTests: results.totalTests,

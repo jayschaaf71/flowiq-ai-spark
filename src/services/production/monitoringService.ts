@@ -145,10 +145,9 @@ export class MonitoringService {
   private async logMetrics(): Promise<void> {
     const { logAuditAction } = await import("@/hooks/useAuditLog");
     await logAuditAction(
+      'METRICS_COLLECTED',
       'system_metrics',
       'monitoring',
-      'METRICS_COLLECTED',
-      null,
       {
         ...this.metrics,
         timestamp: new Date().toISOString()
@@ -159,10 +158,9 @@ export class MonitoringService {
   private async logEvent(event: MonitoringEvent): Promise<void> {
     const { logAuditAction } = await import("@/hooks/useAuditLog");
     await logAuditAction(
+      'MONITORING_EVENT',
       'monitoring_events',
       event.id,
-      'MONITORING_EVENT',
-      null,
       {
         ...event,
         timestamp: event.timestamp.toISOString()
@@ -207,10 +205,9 @@ export class MonitoringService {
       
       const { logAuditAction } = await import("@/hooks/useAuditLog");
       await logAuditAction(
+        'ALERT_RULE_UPDATED',
         'alert_rules',
         ruleId,
-        'ALERT_RULE_UPDATED',
-        null,
         {
           ruleId,
           updates,

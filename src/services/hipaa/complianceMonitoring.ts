@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { isAuditLogMetadata } from './types';
 
@@ -64,10 +63,9 @@ export class ComplianceMonitoringService {
   private async logSecurityEvent(eventType: string, details: any) {
     const { logAuditAction } = await import("@/hooks/useAuditLog");
     await logAuditAction(
+      eventType,
       'security_events',
       'system',
-      eventType,
-      null,
       {
         ...details,
         severity: 'high',

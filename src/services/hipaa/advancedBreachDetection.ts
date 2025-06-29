@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface BreachAlert {
@@ -134,10 +133,9 @@ export class AdvancedBreachDetectionService {
     // Log the breach alert
     const { logAuditAction } = await import("@/hooks/useAuditLog");
     await logAuditAction(
+      'BREACH_ALERT_CREATED',
       'security_alerts',
       alert.id,
-      'BREACH_ALERT_CREATED',
-      null,
       {
         ...alert,
         compliance_note: 'HIPAA security breach alert generated'
@@ -230,6 +228,23 @@ export class AdvancedBreachDetectionService {
   private async isUnauthorizedLocation(userId: string, currentLocation: string): Promise<boolean> {
     // In production, this would check against approved locations for the user
     return false; // Simplified for demo
+  }
+
+  private async escalateAlert(alert: BreachAlert, contacts: string[]): Promise<void> {
+    console.log('Escalating compliance alert:', alert.id, 'to:', contacts);
+    
+    // Log escalation
+    const { logAuditAction } = await import("@/hooks/useAuditLog");
+    await logAuditAction(
+      'COMPLIANCE_ALERT_ESCALATED',
+      'compliance_alerts',
+      alert.id,
+      {
+        escalatedTo: contacts,
+        originalSeverity: alert.severity,
+        escalationTime: new Date().toISOString()
+      }
+    );
   }
 }
 
