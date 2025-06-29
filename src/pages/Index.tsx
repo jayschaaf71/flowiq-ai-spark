@@ -1,3 +1,4 @@
+
 import { QuickStats } from "@/components/clinic/QuickStats";
 import { RecentActivity } from "@/components/clinic/RecentActivity";
 import { EnhancedDashboardHeader } from "@/components/dashboard/EnhancedDashboardHeader";
@@ -12,7 +13,7 @@ import { RealTimeActivityFeed } from "@/components/dashboard/RealTimeActivityFee
 import { SmartInsightsWidget } from "@/components/dashboard/SmartInsightsWidget";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useRealtimeDashboard } from "@/hooks/useRealtimeDashboard";
-import { BarChart3 } from "@heroicons/react/24/outline";
+import { BarChart3 } from "lucide-react";
 
 const Index = () => {
   const { isLoading } = useDashboardData();
