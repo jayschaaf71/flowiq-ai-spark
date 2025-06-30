@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthProvider';
@@ -35,19 +34,29 @@ export const useAuditLog = () => {
   return { logActivity };
 };
 
-// Export additional hooks that other components expect
-export const useAuditLogs = () => {
+// Updated hook that accepts optional filters
+export const useAuditLogs = (tableName?: string, recordId?: string) => {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchAuditLogs = async () => {
       try {
-        const { data: logs, error } = await supabase
+        let query = supabase
           .from('audit_logs')
           .select('*')
           .order('created_at', { ascending: false })
           .limit(100);
+
+        // Apply filters if provided
+        if (tableName) {
+          query = query.eq('table_name', tableName);
+        }
+        if (recordId) {
+          query = query.eq('record_id', recordId);
+        }
+
+        const { data: logs, error } = await query;
 
         if (error) throw error;
         setData(logs || []);
@@ -60,7 +69,7 @@ export const useAuditLogs = () => {
     };
 
     fetchAuditLogs();
-  }, []);
+  }, [tableName, recordId]);
 
   return { data, loading };
 };
