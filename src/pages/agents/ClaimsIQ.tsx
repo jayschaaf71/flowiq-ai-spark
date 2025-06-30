@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,6 +10,7 @@ import { ComplianceMonitor } from "@/components/claims/ComplianceMonitor";
 import { RevenueAnalytics } from "@/components/claims/RevenueAnalytics";
 import { DenialManagement } from "@/components/claims/DenialManagement";
 import { Brain, DollarSign, Shield, Send, Settings, Zap } from "lucide-react";
+import { AIClaimsReviewEngine } from "@/components/claims/AIClaimsReviewEngine";
 
 const ClaimsIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -49,17 +49,17 @@ const ClaimsIQ = () => {
               <DollarSign className="w-4 h-4 mr-2" />
               Dashboard
             </TabsTrigger>
-            <TabsTrigger value="validation">
+            <TabsTrigger value="ai-review">
               <Brain className="w-4 h-4 mr-2" />
-              AI Validation
+              AI Review
+            </TabsTrigger>
+            <TabsTrigger value="validation">
+              <Shield className="w-4 h-4 mr-2" />
+              Validation
             </TabsTrigger>
             <TabsTrigger value="payers">
               <Send className="w-4 h-4 mr-2" />
-              Payer Integration
-            </TabsTrigger>
-            <TabsTrigger value="compliance">
-              <Shield className="w-4 h-4 mr-2" />
-              Compliance
+              Payers
             </TabsTrigger>
             <TabsTrigger value="denials">Denials</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
@@ -67,6 +67,10 @@ const ClaimsIQ = () => {
 
           <TabsContent value="dashboard">
             <ClaimsDashboard />
+          </TabsContent>
+
+          <TabsContent value="ai-review">
+            <AIClaimsReviewEngine />
           </TabsContent>
 
           <TabsContent value="validation">
@@ -89,10 +93,6 @@ const ClaimsIQ = () => {
 
           <TabsContent value="payers">
             <PayerIntegration />
-          </TabsContent>
-
-          <TabsContent value="compliance">
-            <ComplianceMonitor />
           </TabsContent>
 
           <TabsContent value="denials">
