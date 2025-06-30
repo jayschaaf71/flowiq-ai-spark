@@ -1176,6 +1176,84 @@ export type Database = {
           },
         ]
       }
+      denial_analytics: {
+        Row: {
+          auto_correctable_count: number
+          auto_correction_success_rate: number
+          created_at: string
+          denial_trends: Json | null
+          id: string
+          period_end: string
+          period_start: string
+          top_denial_reasons: Json | null
+          total_denials: number
+          total_denied_amount: number
+        }
+        Insert: {
+          auto_correctable_count?: number
+          auto_correction_success_rate?: number
+          created_at?: string
+          denial_trends?: Json | null
+          id?: string
+          period_end: string
+          period_start: string
+          top_denial_reasons?: Json | null
+          total_denials?: number
+          total_denied_amount?: number
+        }
+        Update: {
+          auto_correctable_count?: number
+          auto_correction_success_rate?: number
+          created_at?: string
+          denial_trends?: Json | null
+          id?: string
+          period_end?: string
+          period_start?: string
+          top_denial_reasons?: Json | null
+          total_denials?: number
+          total_denied_amount?: number
+        }
+        Relationships: []
+      }
+      denial_patterns: {
+        Row: {
+          auto_correctable: boolean
+          category: string
+          correction_rules: Json | null
+          created_at: string
+          denial_code: string
+          description: string
+          frequency: number
+          id: string
+          success_rate: number
+          updated_at: string
+        }
+        Insert: {
+          auto_correctable?: boolean
+          category: string
+          correction_rules?: Json | null
+          created_at?: string
+          denial_code: string
+          description: string
+          frequency?: number
+          id?: string
+          success_rate?: number
+          updated_at?: string
+        }
+        Update: {
+          auto_correctable?: boolean
+          category?: string
+          correction_rules?: Json | null
+          created_at?: string
+          denial_code?: string
+          description?: string
+          frequency?: number
+          id?: string
+          success_rate?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       edi_transactions: {
         Row: {
           acknowledgment_date: string | null
@@ -1754,6 +1832,36 @@ export type Database = {
           is_active?: boolean | null
           score_points?: number
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      leads: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          lead_source: string
+          status: string
+          updated_at: string
+          user_type: Database["public"]["Enums"]["user_type"]
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          lead_source?: string
+          status?: string
+          updated_at?: string
+          user_type: Database["public"]["Enums"]["user_type"]
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          lead_source?: string
+          status?: string
+          updated_at?: string
+          user_type?: Database["public"]["Enums"]["user_type"]
         }
         Relationships: []
       }
@@ -5110,7 +5218,7 @@ export type Database = {
         | "practice_manager"
         | "staff"
         | "patient"
-      user_type: "practitioner" | "startup"
+      user_type: "practitioner" | "startup" | "advisory"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -5243,7 +5351,7 @@ export const Constants = {
         "staff",
         "patient",
       ],
-      user_type: ["practitioner", "startup"],
+      user_type: ["practitioner", "startup", "advisory"],
     },
   },
 } as const

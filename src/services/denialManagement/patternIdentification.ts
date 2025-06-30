@@ -18,7 +18,8 @@ export class PatternIdentificationService {
           parameters: { field: 'provider_npi' },
           successRate: 95
         }],
-        category: 'coding'
+        category: 'coding',
+        successRate: 92.5
       },
       {
         id: '2',
@@ -33,7 +34,8 @@ export class PatternIdentificationService {
           parameters: { required_field: 'primary_diagnosis' },
           successRate: 87
         }],
-        category: 'documentation'
+        category: 'documentation',
+        successRate: 87.3
       }
     ];
 

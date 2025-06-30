@@ -4,17 +4,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
+import { EnhancedDenialManagement } from "./EnhancedDenialManagement";
 import { 
   AlertTriangle, 
   RefreshCw, 
   Send, 
   Eye, 
   FileText, 
-  TrendingDown,
   CheckCircle,
-  Clock
+  Clock,
+  Zap
 } from "lucide-react";
 
 interface Denial {
@@ -32,6 +32,7 @@ interface Denial {
 }
 
 export const DenialManagement = () => {
+  const [activeTab, setActiveTab] = useState("enhanced");
   const [denials, setDenials] = useState<Denial[]>([
     {
       id: "DN-001",
@@ -131,172 +132,188 @@ export const DenialManagement = () => {
 
   return (
     <div className="space-y-6">
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {denialStats.map((stat, index) => (
-          <Card key={index}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{stat.label}</CardTitle>
-              <stat.icon className={`h-4 w-4 ${stat.color}`} />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <Tabs defaultValue="active" className="space-y-4">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList>
-          <TabsTrigger value="active">Active Denials</TabsTrigger>
-          <TabsTrigger value="patterns">Denial Patterns</TabsTrigger>
-          <TabsTrigger value="appeals">Appeals Tracking</TabsTrigger>
+          <TabsTrigger value="enhanced">
+            <Zap className="w-4 h-4 mr-2" />
+            AI-Powered
+          </TabsTrigger>
+          <TabsTrigger value="traditional">Traditional View</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="active" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Active Denials</CardTitle>
-                  <CardDescription>Review and process denied claims</CardDescription>
-                </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm">
-                    <Eye className="w-4 h-4 mr-2" />
-                    Review All
-                  </Button>
-                  <Button size="sm">
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Auto-Process
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {denials.map((denial) => (
-                  <div key={denial.id} className="border rounded-lg p-4">
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-medium">{denial.patient}</h3>
-                          {getPriorityBadge(denial.priority)}
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          Claim {denial.claimId} • ${denial.amount.toFixed(2)} • {denial.payer}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {getStatusBadge(denial.status)}
-                      </div>
-                    </div>
+        <TabsContent value="enhanced">
+          <EnhancedDenialManagement />
+        </TabsContent>
 
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-3">
-                      <div className="flex items-center gap-2 mb-1">
-                        <AlertTriangle className="w-4 h-4 text-red-600" />
-                        <span className="font-medium text-red-800">
-                          {denial.denialReason} (Code: {denial.denialCode})
-                        </span>
-                      </div>
-                      <p className="text-sm text-red-700">
-                        Received: {denial.dateReceived}
-                      </p>
-                    </div>
+        <TabsContent value="traditional">
+          {/* Stats Overview */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {denialStats.map((stat, index) => (
+              <Card key={index}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">{stat.label}</CardTitle>
+                  <stat.icon className={`h-4 w-4 ${stat.color}`} />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{stat.value}</div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
 
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
-                      <div className="flex items-center gap-2 mb-1">
-                        <CheckCircle className="w-4 h-4 text-blue-600" />
-                        <span className="font-medium text-blue-800">AI Recommendation</span>
-                      </div>
-                      <p className="text-sm text-blue-700">{denial.aiRecommendation}</p>
-                    </div>
+          <Tabs defaultValue="active" className="space-y-4">
+            <TabsList>
+              <TabsTrigger value="active">Active Denials</TabsTrigger>
+              <TabsTrigger value="patterns">Denial Patterns</TabsTrigger>
+              <TabsTrigger value="appeals">Appeals Tracking</TabsTrigger>
+            </TabsList>
 
+            <TabsContent value="active" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>Active Denials</CardTitle>
+                      <CardDescription>Review and process denied claims</CardDescription>
+                    </div>
                     <div className="flex gap-2">
-                      <Button 
-                        size="sm"
-                        onClick={() => handleProcessDenial(denial.id)}
-                        disabled={denial.status !== 'new'}
-                      >
+                      <Button variant="outline" size="sm">
+                        <Eye className="w-4 h-4 mr-2" />
+                        Review All
+                      </Button>
+                      <Button size="sm">
                         <RefreshCw className="w-4 h-4 mr-2" />
-                        Auto-Correct
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleAppealDenial(denial.id)}
-                      >
-                        <Send className="w-4 h-4 mr-2" />
-                        Appeal
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        <Eye className="w-4 h-4 mr-2" />
-                        Review
+                        Auto-Process
                       </Button>
                     </div>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {denials.map((denial) => (
+                      <div key={denial.id} className="border rounded-lg p-4">
+                        <div className="flex items-start justify-between mb-3">
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="font-medium">{denial.patient}</h3>
+                              {getPriorityBadge(denial.priority)}
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              Claim {denial.claimId} • ${denial.amount.toFixed(2)} • {denial.payer}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {getStatusBadge(denial.status)}
+                          </div>
+                        </div>
 
-        <TabsContent value="patterns" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingDown className="w-5 h-5 text-orange-600" />
-                Denial Pattern Analysis
-              </CardTitle>
-              <CardDescription>
-                Identify recurring denial reasons and prevention opportunities
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <h3 className="font-medium">Common Denial Reasons</h3>
-                {commonDenialReasons.map((item, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="font-medium">{item.reason}</p>
-                        {item.autoFix && (
-                          <Badge variant="outline" className="text-xs bg-green-50 text-green-700">
-                            Auto-Fixable
-                          </Badge>
-                        )}
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-3">
+                          <div className="flex items-center gap-2 mb-1">
+                            <AlertTriangle className="w-4 h-4 text-red-600" />
+                            <span className="font-medium text-red-800">
+                              {denial.denialReason} (Code: {denial.denialCode})
+                            </span>
+                          </div>
+                          <p className="text-sm text-red-700">
+                            Received: {denial.dateReceived}
+                          </p>
+                        </div>
+
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
+                          <div className="flex items-center gap-2 mb-1">
+                            <CheckCircle className="w-4 h-4 text-blue-600" />
+                            <span className="font-medium text-blue-800">AI Recommendation</span>
+                          </div>
+                          <p className="text-sm text-blue-700">{denial.aiRecommendation}</p>
+                        </div>
+
+                        <div className="flex gap-2">
+                          <Button 
+                            size="sm"
+                            onClick={() => handleProcessDenial(denial.id)}
+                            disabled={denial.status !== 'new'}
+                          >
+                            <RefreshCw className="w-4 h-4 mr-2" />
+                            Auto-Correct
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleAppealDenial(denial.id)}
+                          >
+                            <Send className="w-4 h-4 mr-2" />
+                            Appeal
+                          </Button>
+                          <Button variant="outline" size="sm">
+                            <Eye className="w-4 h-4 mr-2" />
+                            Review
+                          </Button>
+                        </div>
                       </div>
-                      <p className="text-sm text-muted-foreground">{item.count} occurrences this month</p>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <Badge variant={item.trend.startsWith('-') ? 'default' : 'destructive'}>
-                        {item.trend}
-                      </Badge>
-                      <Button variant="outline" size="sm">
-                        <Eye className="w-4 h-4 mr-2" />
-                        Analyze
-                      </Button>
-                    </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-        <TabsContent value="appeals" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Appeals Tracking</CardTitle>
-              <CardDescription>Monitor the status of submitted appeals</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-12 text-muted-foreground">
-                <FileText className="w-12 h-12 mx-auto mb-4" />
-                <p>Appeals tracking dashboard coming soon...</p>
-              </div>
-            </CardContent>
-          </Card>
+            <TabsContent value="patterns" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <AlertTriangle className="w-5 h-5 text-orange-600" />
+                    Denial Pattern Analysis
+                  </CardTitle>
+                  <CardDescription>
+                    Identify recurring denial reasons and prevention opportunities
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <h3 className="font-medium">Common Denial Reasons</h3>
+                    {commonDenialReasons.map((item, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <p className="font-medium">{item.reason}</p>
+                            {item.autoFix && (
+                              <Badge variant="outline" className="text-xs bg-green-50 text-green-700">
+                                Auto-Fixable
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-sm text-muted-foreground">{item.count} occurrences this month</p>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <Badge variant={item.trend.startsWith('-') ? 'default' : 'destructive'}>
+                            {item.trend}
+                          </Badge>
+                          <Button variant="outline" size="sm">
+                            <Eye className="w-4 h-4 mr-2" />
+                            Analyze
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="appeals" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Appeals Tracking</CardTitle>
+                  <CardDescription>Monitor the status of submitted appeals</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-12 text-muted-foreground">
+                    <FileText className="w-12 h-12 mx-auto mb-4" />
+                    <p>Appeals tracking dashboard coming soon...</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </TabsContent>
       </Tabs>
     </div>
