@@ -1,35 +1,68 @@
 
-import { ValidationResult, ValidationIssue, ClaimValidationData } from "./types";
+import { ValidationCheck, ClaimValidationData, ValidationIssue } from './types';
 
-export class ServiceDateValidator {
-  async validate(claimData: ClaimValidationData): Promise<ValidationResult> {
+export class ServiceDateValidator implements ValidationCheck {
+  async validate(data: ClaimValidationData): Promise<{ issues: ValidationIssue[]; confidence: number }> {
     const issues: ValidationIssue[] = [];
-    const serviceDate = new Date(claimData.serviceDate);
+    const serviceDate = new Date(data.serviceDate);
     const today = new Date();
-    const daysDiff = Math.floor((today.getTime() - serviceDate.getTime()) / (1000 * 60 * 60 * 24));
 
+    // Check if service date is in the future
     if (serviceDate > today) {
       issues.push({
-        field: 'service_date',
+        field: 'serviceDate',
         issue: 'Service date is in the future',
         severity: 'critical',
-        suggestedFix: 'Correct the service date'
-      });
-    } else if (daysDiff > 365) {
-      issues.push({
-        field: 'service_date',
-        issue: 'Service date is over 1 year old',
-        severity: 'medium',
-        suggestedFix: 'Verify if claim is still valid for submission'
+        suggestion: 'Verify service date - claims cannot be submitted for future services'
       });
     }
 
-    return {
-      isValid: issues.filter(i => i.severity === 'critical').length === 0,
-      confidence: 98,
-      issues,
-      suggestions: [],
-      aiAnalysis: ''
-    };
+    // Check if service date is too old (timely filing)
+    const daysSinceService = Math.floor((today.getTime() - serviceDate.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (daysSinceService > 365) {
+      issues.push({
+        field: 'serviceDate',
+        issue: 'Service date exceeds timely filing limits',
+        severity: 'high',
+        suggestion: 'Most insurers require claims within 12 months of service date'
+      });
+    } else if (daysSinceService > 90) {
+      issues.push({
+        field: 'serviceDate',
+        issue: 'Service date approaching timely filing limits',
+        severity: 'medium',
+        suggestion: 'Submit claim promptly to avoid timely filing denials'
+      });
+    }
+
+    // Validate service date format
+    if (isNaN(serviceDate.getTime())) {
+      issues.push({
+        field: 'serviceDate',
+        issue: 'Invalid service date format',
+        severity: 'critical',
+        suggestion: 'Provide service date in valid YYYY-MM-DD format'
+      });
+    }
+
+    // Check for weekend services with certain codes
+    const isWeekend = serviceDate.getDay() === 0 || serviceDate.getDay() === 6;
+    if (isWeekend) {
+      const routineCodes = ['99213', '99214', '99381', '99391'];
+      const hasRoutineCodes = data.billingCodes.some(code => routineCodes.includes(code.code));
+      
+      if (hasRoutineCodes) {
+        issues.push({
+          field: 'serviceDate',
+          issue: 'Routine office visit codes on weekend date',
+          severity: 'low',
+          suggestion: 'Verify weekend service or consider urgent care codes if applicable'
+        });
+      }
+    }
+
+    const confidence = issues.length === 0 ? 92 : Math.max(75 - (issues.length * 10), 40);
+    return { issues, confidence };
   }
 }

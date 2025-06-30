@@ -1,50 +1,101 @@
 
-import { supabase } from "@/integrations/supabase/client";
-import { ValidationResult, ValidationIssue, ClaimValidationData } from "./types";
+import { ValidationCheck, ClaimValidationData, ValidationIssue } from './types';
 
-export class PatientEligibilityValidator {
-  async validate(claimData: ClaimValidationData): Promise<ValidationResult> {
+export class PatientEligibilityValidator implements ValidationCheck {
+  async validate(data: ClaimValidationData): Promise<{ issues: ValidationIssue[]; confidence: number }> {
     const issues: ValidationIssue[] = [];
-    
-    // Check patient insurance coverage
-    const { data: patientInsurance } = await supabase
-      .from('patient_insurance')
-      .select('*')
-      .eq('patient_id', claimData.patientInfo.id)
-      .eq('is_active', true);
 
-    if (!patientInsurance || patientInsurance.length === 0) {
+    // Check patient information completeness
+    if (!data.patientInfo.firstName || !data.patientInfo.lastName) {
       issues.push({
-        field: 'patient_eligibility',
-        issue: 'No active insurance found for patient',
+        field: 'patientInfo',
+        issue: 'Incomplete patient name information',
         severity: 'critical',
-        suggestedFix: 'Verify patient insurance status'
+        suggestion: 'Ensure both first and last names are provided'
+      });
+    }
+
+    if (!data.patientInfo.dateOfBirth) {
+      issues.push({
+        field: 'patientInfo',
+        issue: 'Missing patient date of birth',
+        severity: 'high',
+        suggestion: 'Date of birth is required for claim processing'
+      });
+    }
+
+    // Validate insurance information
+    if (!data.patientInfo.insuranceInfo) {
+      issues.push({
+        field: 'insurance',
+        issue: 'No insurance information provided',
+        severity: 'critical',
+        suggestion: 'Verify patient insurance coverage before submitting claim'
       });
     } else {
-      // Check if service date falls within coverage period
-      const serviceDate = new Date(claimData.serviceDate);
-      const activeCoverage = patientInsurance.find(ins => {
-        const effectiveDate = new Date(ins.effective_date);
-        const expirationDate = ins.expiration_date ? new Date(ins.expiration_date) : new Date('2099-12-31');
-        return serviceDate >= effectiveDate && serviceDate <= expirationDate;
-      });
-
-      if (!activeCoverage) {
+      if (!data.patientInfo.insuranceInfo.policyNumber) {
         issues.push({
-          field: 'coverage_period',
-          issue: 'Service date outside of insurance coverage period',
+          field: 'insurance',
+          issue: 'Missing insurance policy number',
           severity: 'high',
-          suggestedFix: 'Verify coverage dates or update insurance information'
+          suggestion: 'Policy number is required for claim submission'
+        });
+      }
+
+      // Check for insurance-provider mismatch
+      if (data.patientInfo.insuranceInfo.provider !== data.insuranceInfo.name) {
+        issues.push({
+          field: 'insurance',
+          issue: 'Insurance provider mismatch between patient record and claim',
+          severity: 'medium',
+          suggestion: 'Verify patient current insurance provider'
         });
       }
     }
 
-    return {
-      isValid: issues.filter(i => i.severity === 'critical').length === 0,
-      confidence: 90,
-      issues,
-      suggestions: [],
-      aiAnalysis: ''
-    };
+    // Age validation for certain procedures
+    const patientAge = this.calculateAge(data.patientInfo.dateOfBirth);
+    const ageIssues = this.validateAgeForCodes(patientAge, data.billingCodes);
+    issues.push(...ageIssues);
+
+    const confidence = issues.length === 0 ? 90 : Math.max(70 - (issues.length * 15), 30);
+    return { issues, confidence };
+  }
+
+  private calculateAge(dateOfBirth: string): number {
+    const today = new Date();
+    const birthDate = new Date(dateOfBirth);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    return age;
+  }
+
+  private validateAgeForCodes(age: number, codes: any[]): ValidationIssue[] {
+    const issues: ValidationIssue[] = [];
+    
+    const ageRestrictedCodes = [
+      { codes: ['99381', '99391'], minAge: 18, maxAge: 39, description: 'Adult preventive care (18-39)' },
+      { codes: ['99384', '99394'], minAge: 40, maxAge: 64, description: 'Adult preventive care (40-64)' },
+      { codes: ['99385', '99395'], minAge: 65, maxAge: 999, description: 'Senior preventive care (65+)' }
+    ];
+
+    codes.forEach(code => {
+      const restriction = ageRestrictedCodes.find(r => r.codes.includes(code.code));
+      if (restriction && (age < restriction.minAge || age > restriction.maxAge)) {
+        issues.push({
+          field: 'billingCodes',
+          issue: `Code ${code.code} not appropriate for patient age ${age}`,
+          severity: 'high',
+          suggestion: `Use age-appropriate code for ${restriction.description}`
+        });
+      }
+    });
+
+    return issues;
   }
 }

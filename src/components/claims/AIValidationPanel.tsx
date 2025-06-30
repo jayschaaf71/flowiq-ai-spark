@@ -27,13 +27,34 @@ export const AIValidationPanel = ({ claimData, onValidationComplete }: AIValidat
     try {
       const result = await aiClaimsValidationService.validateClaim({
         claimNumber: claimData.claim_number,
-        patientInfo: claimData.patients,
-        providerInfo: claimData.providers, 
-        insuranceInfo: claimData.insurance_providers,
+        patientInfo: {
+          id: claimData.patients.id,
+          firstName: claimData.patients.first_name,
+          lastName: claimData.patients.last_name,
+          dateOfBirth: claimData.patients.date_of_birth || '1990-01-01',
+          insuranceInfo: {
+            provider: claimData.insurance_providers.name,
+            policyNumber: 'POL123456', // Mock data
+            groupNumber: 'GRP789'
+          }
+        },
+        providerInfo: {
+          id: claimData.providers.id,
+          firstName: claimData.providers.first_name,
+          lastName: claimData.providers.last_name,
+          npi: claimData.providers.npi,
+          specialty: 'Family Medicine'
+        },
+        insuranceInfo: {
+          name: claimData.insurance_providers.name,
+          id: claimData.insurance_providers.id
+        },
         serviceDate: claimData.service_date,
-        billingCodes: [{ code: 'CPT-99213' }], // Mock billing codes
+        billingCodes: [
+          { code: 'CPT-99213', codeType: 'CPT', description: 'Office visit', amount: 150 }
+        ],
         totalAmount: claimData.total_amount,
-        diagnosis: 'Sample diagnosis'
+        diagnosis: 'Essential hypertension'
       });
 
       setValidationResult(result);
