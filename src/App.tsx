@@ -21,6 +21,7 @@ import { PatientPrepPage } from '@/pages/PatientPrepPage';
 import { TenantWrapper } from '@/components/wrappers';
 import { AuthPage } from '@/components/auth/AuthPage';
 import { PatientDashboard } from '@/pages/PatientDashboard';
+import AuthTesting from '@/pages/AuthTesting';
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<AuthPage />} />
+                <Route path="/auth-testing" element={<AuthTesting />} />
                 <Route path="/patient-dashboard" element={<PatientDashboard />} />
                 <Route path="/dashboard" element={
                   <TenantWrapper>

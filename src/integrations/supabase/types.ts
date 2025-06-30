@@ -5615,6 +5615,25 @@ export type Database = {
         Args: { "": unknown }
         Returns: unknown
       }
+      search_solutions_semantic: {
+        Args: { search_query: string; similarity_threshold?: number }
+        Returns: {
+          id: string
+          name: string
+          company: string
+          category: string
+          description: string
+          website_url: string
+          logo_url: string
+          pricing: string
+          implementation_time: string
+          key_features: string[]
+          certifications: string[]
+          client_size: string[]
+          region: string
+          similarity: number
+        }[]
+      }
       set_limit: {
         Args: { "": number }
         Returns: number
