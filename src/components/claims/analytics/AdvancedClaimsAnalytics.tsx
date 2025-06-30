@@ -126,7 +126,7 @@ export const AdvancedClaimsAnalytics = () => {
 
   const statusData = Object.entries(statusDistribution).map(([status, count]) => ({
     name: status.charAt(0).toUpperCase() + status.slice(1),
-    value: count,
+    value: count as number,
     color: statusColors[status as keyof typeof statusColors] || '#6B7280'
   }));
 

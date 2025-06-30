@@ -15,7 +15,10 @@ import { AdvancedComplianceDashboard } from "@/components/compliance/AdvancedCom
 import { AIClaimsReviewEngine } from "@/components/claims/AIClaimsReviewEngine";
 import { AdvancedClaimsAnalytics } from "@/components/claims/analytics/AdvancedClaimsAnalytics";
 import { RealTimeClaimTracker } from "@/components/claims/tracking/RealTimeClaimTracker";
-import { Brain, DollarSign, Shield, Send, Settings, Zap, CheckCircle, Lock, BarChart3, Activity } from "lucide-react";
+import { RevenueOptimizationEngine } from "@/components/claims/RevenueOptimizationEngine";
+import { AdvancedReportingSystem } from "@/components/claims/AdvancedReportingSystem";
+import { EDIManagementSystem } from "@/components/claims/EDIManagementSystem";
+import { Brain, DollarSign, Shield, Send, Settings, Zap, CheckCircle, Lock, BarChart3, Activity, Target, FileText, Network } from "lucide-react";
 
 const ClaimsIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -57,7 +60,7 @@ const ClaimsIQ = () => {
       
       <div className="space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-10">
+          <TabsList className="grid w-full grid-cols-12">
             <TabsTrigger value="dashboard">
               <DollarSign className="w-4 h-4 mr-2" />
               Dashboard
@@ -92,6 +95,18 @@ const ClaimsIQ = () => {
             </TabsTrigger>
             <TabsTrigger value="denials">Denials</TabsTrigger>
             <TabsTrigger value="revenue">Revenue</TabsTrigger>
+            <TabsTrigger value="optimization">
+              <Target className="w-4 h-4 mr-2" />
+              Optimization
+            </TabsTrigger>
+            <TabsTrigger value="reports">
+              <FileText className="w-4 h-4 mr-2" />
+              Reports
+            </TabsTrigger>
+            <TabsTrigger value="edi">
+              <Network className="w-4 h-4 mr-2" />
+              EDI
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard">
@@ -151,6 +166,18 @@ const ClaimsIQ = () => {
 
           <TabsContent value="revenue">
             <RevenueAnalytics />
+          </TabsContent>
+
+          <TabsContent value="optimization">
+            <RevenueOptimizationEngine />
+          </TabsContent>
+
+          <TabsContent value="reports">
+            <AdvancedReportingSystem />
+          </TabsContent>
+
+          <TabsContent value="edi">
+            <EDIManagementSystem />
           </TabsContent>
         </Tabs>
       </div>
