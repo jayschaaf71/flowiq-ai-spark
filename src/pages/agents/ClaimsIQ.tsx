@@ -11,7 +11,8 @@ import { ComplianceMonitor } from "@/components/claims/ComplianceMonitor";
 import { RevenueAnalytics } from "@/components/claims/RevenueAnalytics";
 import { DenialManagement } from "@/components/claims/DenialManagement";
 import { EligibilityVerificationPanel } from "@/components/claims/EligibilityVerificationPanel";
-import { Brain, DollarSign, Shield, Send, Settings, Zap, CheckCircle } from "lucide-react";
+import { AdvancedComplianceDashboard } from "@/components/compliance/AdvancedComplianceDashboard";
+import { Brain, DollarSign, Shield, Send, Settings, Zap, CheckCircle, Lock } from "lucide-react";
 import { AIClaimsReviewEngine } from "@/components/claims/AIClaimsReviewEngine";
 
 const ClaimsIQ = () => {
@@ -21,7 +22,7 @@ const ClaimsIQ = () => {
     <div className="space-y-6">
       <PageHeader 
         title="Claims iQ"
-        subtitle="AI-powered claims processing with intelligent validation and revenue optimization"
+        subtitle="AI-powered claims processing with intelligent validation, compliance monitoring, and revenue optimization"
       >
         <div className="flex gap-2">
           <Badge className="bg-blue-100 text-blue-700">AI Agent</Badge>
@@ -32,6 +33,10 @@ const ClaimsIQ = () => {
           <Badge className="bg-purple-100 text-purple-700">
             <Shield className="w-3 h-3 mr-1" />
             HIPAA Compliant
+          </Badge>
+          <Badge className="bg-orange-100 text-orange-700">
+            <Lock className="w-3 h-3 mr-1" />
+            Advanced Compliance
           </Badge>
           <Button variant="outline" size="sm">
             <Settings className="w-4 h-4 mr-2" />
@@ -46,7 +51,7 @@ const ClaimsIQ = () => {
       
       <div className="space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-7">
+          <TabsList className="grid w-full grid-cols-8">
             <TabsTrigger value="dashboard">
               <DollarSign className="w-4 h-4 mr-2" />
               Dashboard
@@ -66,6 +71,10 @@ const ClaimsIQ = () => {
             <TabsTrigger value="payers">
               <Send className="w-4 h-4 mr-2" />
               Payers
+            </TabsTrigger>
+            <TabsTrigger value="compliance">
+              <Lock className="w-4 h-4 mr-2" />
+              Compliance
             </TabsTrigger>
             <TabsTrigger value="denials">Denials</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
@@ -108,6 +117,10 @@ const ClaimsIQ = () => {
 
           <TabsContent value="payers">
             <PayerIntegration />
+          </TabsContent>
+
+          <TabsContent value="compliance">
+            <AdvancedComplianceDashboard />
           </TabsContent>
 
           <TabsContent value="denials">
