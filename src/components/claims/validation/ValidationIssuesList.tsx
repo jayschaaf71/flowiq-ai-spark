@@ -54,9 +54,9 @@ export const ValidationIssuesList = ({ issues }: ValidationIssuesListProps) => {
                   {getSeverityBadge(issue.severity)}
                 </div>
                 <p className="text-sm text-gray-700 mb-2">{issue.issue}</p>
-                {issue.suggestedFix && (
+                {issue.suggestion && (
                   <p className="text-sm text-blue-600">
-                    <strong>Suggested Fix:</strong> {issue.suggestedFix}
+                    <strong>Suggestion:</strong> {issue.suggestion}
                   </p>
                 )}
               </div>
