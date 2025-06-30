@@ -1,92 +1,32 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { useCurrentTenant } from '@/utils/enhancedTenantConfig';
 import { Badge } from '@/components/ui/badge';
-import { Building2, ChevronDown, Check, Loader2 } from 'lucide-react';
-import { useEnhancedAuth } from '@/hooks/useEnhancedAuth';
-import { useTenantSwitching } from '@/hooks/useTenantSwitching';
+import { Building2, Loader2 } from 'lucide-react';
 
 export const TenantSwitcher: React.FC = () => {
-  const { userRoles, primaryTenant } = useEnhancedAuth();
-  const { switchTenant, isSwitching } = useTenantSwitching();
+  const { currentTenant, loading } = useCurrentTenant();
 
-  if (!userRoles || userRoles.length <= 1) {
-    return null; // Don't show switcher if user only has access to one tenant
+  if (loading) {
+    return (
+      <div className="flex items-center gap-2">
+        <Loader2 className="h-4 w-4 animate-spin" />
+        <span className="text-sm text-gray-600">Loading...</span>
+      </div>
+    );
   }
 
-  const getRoleColor = (role: string) => {
-    switch (role) {
-      case 'platform_admin': return 'bg-purple-100 text-purple-800';
-      case 'tenant_admin': return 'bg-red-100 text-red-800';
-      case 'practice_manager': return 'bg-blue-100 text-blue-800';
-      case 'staff': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const handleTenantSwitch = (tenantId: string) => {
-    if (tenantId !== primaryTenant?.tenant_id) {
-      switchTenant(tenantId);
-    }
-  };
+  if (!currentTenant) {
+    return null;
+  }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="flex items-center gap-2" disabled={isSwitching}>
-          {isSwitching ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : (
-            <Building2 className="w-4 h-4" />
-          )}
-          <span className="truncate max-w-32">
-            {primaryTenant?.tenant.brand_name || 'Select Tenant'}
-          </span>
-          <ChevronDown className="w-4 h-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-64">
-        <DropdownMenuLabel>Switch Tenant</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        {userRoles.map((userRole) => (
-          <DropdownMenuItem
-            key={userRole.tenant_id}
-            onClick={() => handleTenantSwitch(userRole.tenant_id)}
-            className="flex items-center justify-between p-3"
-            disabled={isSwitching}
-          >
-            <div className="flex flex-col flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="font-medium truncate">
-                  {userRole.tenant.brand_name}
-                </span>
-                {primaryTenant?.tenant_id === userRole.tenant_id && (
-                  <Check className="w-4 h-4 text-green-600" />
-                )}
-              </div>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-xs text-gray-500">
-                  {userRole.tenant.specialty}
-                </span>
-                <Badge 
-                  variant="secondary" 
-                  className={`text-xs ${getRoleColor(userRole.role)}`}
-                >
-                  {userRole.role.replace('_', ' ')}
-                </Badge>
-              </div>
-            </div>
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div className="flex items-center gap-2">
+      <Building2 className="h-4 w-4 text-gray-600" />
+      <span className="text-sm font-medium">{currentTenant.brand_name}</span>
+      <Badge variant="outline" className="text-xs">
+        {currentTenant.specialty.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+      </Badge>
+    </div>
   );
 };
