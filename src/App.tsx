@@ -18,6 +18,7 @@ import { ProviderMobile } from '@/pages/ProviderMobile';
 import { CompleteIntakeFlow } from '@/components/intake/CompleteIntakeFlow';
 import { BookingWidgetDemo } from '@/pages/BookingWidgetDemo';
 import { PatientPrepPage } from '@/pages/PatientPrepPage';
+import { TenantWrapper } from '@/components/wrappers';
 
 const queryClient = new QueryClient();
 
@@ -30,18 +31,54 @@ function App() {
             <QueryClientProvider client={queryClient}>
               <Routes>
                 <Route path="/" element={<Index />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/analytics" element={<Analytics />} />
-                <Route path="/advanced-analytics" element={<AdvancedAnalytics />} />
-                <Route path="/compliance" element={<ComplianceSecurityPage />} />
+                <Route path="/dashboard" element={
+                  <TenantWrapper>
+                    <Dashboard />
+                  </TenantWrapper>
+                } />
+                <Route path="/analytics" element={
+                  <TenantWrapper>
+                    <Analytics />
+                  </TenantWrapper>
+                } />
+                <Route path="/advanced-analytics" element={
+                  <TenantWrapper>
+                    <AdvancedAnalytics />
+                  </TenantWrapper>
+                } />
+                <Route path="/compliance" element={
+                  <TenantWrapper>
+                    <ComplianceSecurityPage />
+                  </TenantWrapper>
+                } />
                 <Route path="/patient-portal" element={<PatientPortal />} />
-                <Route path="/provider-mobile" element={<ProviderMobile />} />
-                <Route path="/provider/patient-prep/:appointmentId" element={<PatientPrepPage />} />
+                <Route path="/provider-mobile" element={
+                  <TenantWrapper>
+                    <ProviderMobile />
+                  </TenantWrapper>
+                } />
+                <Route path="/provider/patient-prep/:appointmentId" element={
+                  <TenantWrapper>
+                    <PatientPrepPage />
+                  </TenantWrapper>
+                } />
                 <Route path="/complete-intake" element={<CompleteIntakeFlow />} />
                 <Route path="/booking-widget" element={<BookingWidgetDemo />} />
-                <Route path="/schedule" element={<Schedule />} />
-                <Route path="/ehr" element={<EHR />} />
-                <Route path="/settings" element={<Settings />} />
+                <Route path="/schedule" element={
+                  <TenantWrapper>
+                    <Schedule />
+                  </TenantWrapper>
+                } />
+                <Route path="/ehr" element={
+                  <TenantWrapper>
+                    <EHR />
+                  </TenantWrapper>
+                } />
+                <Route path="/settings" element={
+                  <TenantWrapper>
+                    <Settings />
+                  </TenantWrapper>
+                } />
               </Routes>
             </QueryClientProvider>
           </AnalyticsProvider>

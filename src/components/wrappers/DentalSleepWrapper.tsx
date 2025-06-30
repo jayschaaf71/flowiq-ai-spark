@@ -3,20 +3,20 @@ import React from 'react';
 import { SpecialtyProvider } from '@/contexts/SpecialtyContext';
 import { TenantProtectedRoute } from '@/components/auth/TenantProtectedRoute';
 
-interface DentalWrapperProps {
+interface DentalSleepWrapperProps {
   children: React.ReactNode;
 }
 
-export const DentalWrapper: React.FC<DentalWrapperProps> = ({ children }) => {
+export const DentalSleepWrapper: React.FC<DentalSleepWrapperProps> = ({ children }) => {
   return (
-    <TenantProtectedRoute requiredRole="patient" allowPatients={true}>
+    <TenantProtectedRoute requiredRole="staff">
       <SpecialtyProvider>
-        <div className="dental-theme">
+        <div className="dental-sleep-theme">
           <style>{`
-            .dental-theme {
-              --primary-color: #3b82f6;
-              --secondary-color: #60a5fa;
-              --accent-color: #dbeafe;
+            .dental-sleep-theme {
+              --primary-color: #8b5cf6;
+              --secondary-color: #a78bfa;
+              --accent-color: #ede9fe;
             }
           `}</style>
           {children}

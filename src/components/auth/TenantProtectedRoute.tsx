@@ -9,13 +9,15 @@ interface TenantProtectedRouteProps {
   requiredRole?: string;
   tenantId?: string;
   fallback?: React.ReactNode;
+  allowPatients?: boolean;
 }
 
 export const TenantProtectedRoute: React.FC<TenantProtectedRouteProps> = ({
   children,
   requiredRole = 'staff',
   tenantId,
-  fallback
+  fallback,
+  allowPatients = false
 }) => {
   const { rolesLoading, hasMinimumRole, canAccessTenant, userRoles, isPlatformAdmin, rolesError } = useEnhancedAuth();
 
@@ -61,7 +63,7 @@ export const TenantProtectedRoute: React.FC<TenantProtectedRouteProps> = ({
     return <>{children}</>;
   }
 
-  // If no tenant is specified and user has any tenant access with the required role, allow access
+  // If no tenant is specified and user has any tenant access, allow access for staff+
   if (!tenantId && userRoles.length > 0) {
     const hasRequiredRoleInAnyTenant = userRoles.some(role => {
       const roleHierarchy = {
@@ -74,6 +76,11 @@ export const TenantProtectedRoute: React.FC<TenantProtectedRouteProps> = ({
       
       const userLevel = roleHierarchy[role.role as keyof typeof roleHierarchy] || 0;
       const requiredLevel = roleHierarchy[requiredRole as keyof typeof roleHierarchy] || 0;
+      
+      // If allowPatients is true, allow patient role access
+      if (allowPatients && role.role === 'patient') {
+        return true;
+      }
       
       return userLevel >= requiredLevel;
     });

@@ -3,6 +3,7 @@ import React from 'react';
 import { useCurrentTenant } from '@/utils/enhancedTenantConfig';
 import { ChiropracticWrapper } from './ChiropracticWrapper';
 import { DentalWrapper } from './DentalWrapper';
+import { DentalSleepWrapper } from './DentalSleepWrapper';
 
 interface TenantWrapperProps {
   children: React.ReactNode;
@@ -16,16 +17,21 @@ export const TenantWrapper: React.FC<TenantWrapperProps> = ({ children }) => {
     return <ChiropracticWrapper>{children}</ChiropracticWrapper>;
   }
 
-  // Route to appropriate specialty wrapper based on tenant specialty
-  switch (currentTenant.specialty?.toLowerCase()) {
-    case 'chiropractic care':
+  // Normalize specialty string and route to appropriate wrapper
+  const specialty = currentTenant.specialty?.toLowerCase().replace(/\s+/g, '-');
+  
+  switch (specialty) {
+    case 'chiropractic-care':
     case 'chiropractic':
       return <ChiropracticWrapper>{children}</ChiropracticWrapper>;
     
-    case 'dental care':
+    case 'dental-care':
     case 'dental':
-    case 'dental-sleep':
       return <DentalWrapper>{children}</DentalWrapper>;
+    
+    case 'dental-sleep-medicine':
+    case 'dental-sleep':
+      return <DentalSleepWrapper>{children}</DentalSleepWrapper>;
     
     default:
       return <ChiropracticWrapper>{children}</ChiropracticWrapper>;
