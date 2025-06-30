@@ -19,6 +19,8 @@ import { CompleteIntakeFlow } from '@/components/intake/CompleteIntakeFlow';
 import { BookingWidgetDemo } from '@/pages/BookingWidgetDemo';
 import { PatientPrepPage } from '@/pages/PatientPrepPage';
 import { TenantWrapper } from '@/components/wrappers';
+import { AuthPage } from '@/components/auth/AuthPage';
+import { PatientDashboard } from '@/pages/PatientDashboard';
 
 const queryClient = new QueryClient();
 
@@ -31,6 +33,8 @@ function App() {
             <QueryClientProvider client={queryClient}>
               <Routes>
                 <Route path="/" element={<Index />} />
+                <Route path="/auth" element={<AuthPage />} />
+                <Route path="/patient-dashboard" element={<PatientDashboard />} />
                 <Route path="/dashboard" element={
                   <TenantWrapper>
                     <Dashboard />

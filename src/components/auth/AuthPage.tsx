@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { Shield, Lock, Eye, EyeOff, AlertTriangle } from 'lucide-react';
-import { useTenantConfig } from '@/utils/tenantConfig';
+import { useCurrentTenant } from '@/utils/enhancedTenantConfig';
 import { useNavigate, Navigate } from 'react-router-dom';
 
 export const AuthPage: React.FC = () => {
@@ -34,7 +35,7 @@ export const AuthPage: React.FC = () => {
 
   const { signIn, signUp, user, profile } = useAuth();
   const { toast } = useToast();
-  const tenantConfig = useTenantConfig();
+  const { currentTenant } = useCurrentTenant();
   const navigate = useNavigate();
 
   // Redirect authenticated users
@@ -181,8 +182,8 @@ export const AuthPage: React.FC = () => {
       <div className="max-w-md w-full space-y-6">
         {/* FlowIQ Branding Header */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">{tenantConfig.brandName}</h1>
-          <p className="text-blue-600 font-medium mt-1">{tenantConfig.tagline}</p>
+          <h1 className="text-3xl font-bold text-gray-900">{currentTenant?.brand_name || 'FlowIQ'}</h1>
+          <p className="text-blue-600 font-medium mt-1">{currentTenant?.tagline || 'The AI Business Operating System'}</p>
           <p className="text-gray-600 mt-2">Secure & HIPAA Compliant Access</p>
         </div>
 
@@ -389,7 +390,7 @@ export const AuthPage: React.FC = () => {
             All access attempts are logged. Unauthorized access is prohibited and may result in legal action.
           </p>
           <div className="pt-2 text-blue-600">
-            <span className="font-medium">Powered by {tenantConfig.brandName}</span>
+            <span className="font-medium">Powered by {currentTenant?.brand_name || 'FlowIQ'}</span>
           </div>
         </div>
       </div>

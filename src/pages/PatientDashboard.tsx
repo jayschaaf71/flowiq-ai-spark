@@ -1,312 +1,196 @@
 
-import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@/hooks/useAuth";
-import { useAppointments } from "@/hooks/useAppointments";
-import { Navigate, useNavigate } from "react-router-dom";
+import React from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { useAuth } from '@/hooks/useAuth';
+import { useCurrentTenant } from '@/utils/enhancedTenantConfig';
 import { 
   Calendar, 
   Clock, 
+  FileText, 
+  Heart, 
   User, 
-  Phone, 
-  Mail, 
-  Plus,
-  LogOut,
   Bell,
   Settings,
-  CheckCircle,
-  XCircle,
-  AlertTriangle
-} from "lucide-react";
-import { format, isToday, isTomorrow, isPast } from "date-fns";
+  LogOut,
+  Phone,
+  Mail
+} from 'lucide-react';
 
-interface Appointment {
-  id: string;
-  title: string;
-  appointment_type: string;
-  date: string;
-  time: string;
-  duration: number;
-  status: "confirmed" | "pending" | "cancelled" | "completed" | "no-show";
-  notes?: string;
-  phone?: string;
-  email?: string;
-  created_at: string;
-  patient_id: string;
-  provider_id?: string;
-}
-
-export const PatientDashboard = () => {
+export const PatientDashboard: React.FC = () => {
   const { user, profile, signOut } = useAuth();
-  const { appointments, loading } = useAppointments();
-  const navigate = useNavigate();
-
-  // Redirect if not authenticated
-  if (!user) {
-    return <Navigate to="/patient-auth" replace />;
-  }
+  const { currentTenant } = useCurrentTenant();
 
   const handleSignOut = async () => {
     await signOut();
-    navigate("/");
   };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "confirmed": return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case "pending": return <Clock className="h-4 w-4 text-yellow-600" />;
-      case "cancelled": return <XCircle className="h-4 w-4 text-red-600" />;
-      case "completed": return <CheckCircle className="h-4 w-4 text-blue-600" />;
-      case "no-show": return <AlertTriangle className="h-4 w-4 text-gray-600" />;
-      default: return <Clock className="h-4 w-4 text-gray-600" />;
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "confirmed": return "bg-green-100 text-green-700 border-green-200";
-      case "pending": return "bg-yellow-100 text-yellow-700 border-yellow-200";
-      case "cancelled": return "bg-red-100 text-red-700 border-red-200";
-      case "completed": return "bg-blue-100 text-blue-700 border-blue-200";
-      case "no-show": return "bg-gray-100 text-gray-700 border-gray-200";
-      default: return "bg-gray-100 text-gray-700 border-gray-200";
-    }
-  };
-
-  const getDateLabel = (dateStr: string) => {
-    const date = new Date(dateStr);
-    if (isToday(date)) return "Today";
-    if (isTomorrow(date)) return "Tomorrow";
-    return format(date, "EEEE, MMMM d, yyyy");
-  };
-
-  const upcomingAppointments = appointments.filter(apt => 
-    !isPast(new Date(`${apt.date} ${apt.time}`)) && apt.status !== 'cancelled'
-  );
-
-  const pastAppointments = appointments.filter(apt => 
-    isPast(new Date(`${apt.date} ${apt.time}`)) || apt.status === 'completed'
-  );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-3">
-              <Calendar className="h-8 w-8 text-blue-600" />
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center space-x-4">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-green-600 rounded-full flex items-center justify-center">
+                <Heart className="w-6 h-6 text-white" />
+              </div>
               <div>
-                <h1 className="text-lg font-semibold text-gray-900">Patient Portal</h1>
-                <p className="text-sm text-gray-600">
-                  Welcome back, {profile?.first_name}!
-                </p>
+                <h1 className="text-xl font-bold text-gray-900">
+                  {currentTenant?.brand_name || 'FlowIQ'} Patient Portal
+                </h1>
+                <p className="text-sm text-gray-600">Welcome back, {profile?.first_name || 'Patient'}</p>
               </div>
             </div>
-            
-            <div className="flex items-center gap-2">
+            <div className="flex items-center space-x-4">
               <Button variant="outline" size="sm">
-                <Bell className="h-4 w-4 mr-2" />
+                <Bell className="w-4 h-4 mr-2" />
                 Notifications
               </Button>
               <Button variant="outline" size="sm">
-                <Settings className="h-4 w-4 mr-2" />
+                <Settings className="w-4 h-4 mr-2" />
                 Settings
               </Button>
               <Button variant="outline" size="sm" onClick={handleSignOut}>
-                <LogOut className="h-4 w-4 mr-2" />
+                <LogOut className="w-4 h-4 mr-2" />
                 Sign Out
               </Button>
             </div>
           </div>
         </div>
-      </header>
+      </div>
 
+      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Quick Actions */}
+        {/* Welcome Section */}
         <div className="mb-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-              <CardDescription>
-                Manage your appointments and health records
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Button 
-                  onClick={() => navigate("/book-appointment")}
-                  className="h-16 text-left justify-start"
-                >
-                  <Plus className="h-6 w-6 mr-3" />
-                  <div>
-                    <div className="font-medium">Book Appointment</div>
-                    <div className="text-sm opacity-75">Schedule a new visit</div>
-                  </div>
-                </Button>
-                
-                <Button variant="outline" className="h-16 text-left justify-start">
-                  <Calendar className="h-6 w-6 mr-3" />
-                  <div>
-                    <div className="font-medium">View Calendar</div>
-                    <div className="text-sm opacity-75">See all appointments</div>
-                  </div>
-                </Button>
-                
-                <Button variant="outline" className="h-16 text-left justify-start">
-                  <User className="h-6 w-6 mr-3" />
-                  <div>
-                    <div className="font-medium">Update Profile</div>
-                    <div className="text-sm opacity-75">Edit your information</div>
-                  </div>
-                </Button>
-              </div>
+          <div className="bg-gradient-to-r from-blue-600 to-green-600 rounded-lg p-6 text-white">
+            <h2 className="text-2xl font-bold mb-2">
+              Welcome to your health dashboard, {profile?.first_name}!
+            </h2>
+            <p className="text-blue-100">
+              Manage your appointments, view your health records, and stay connected with your care team.
+            </p>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <Card className="cursor-pointer hover:shadow-md transition-shadow">
+            <CardContent className="p-6 text-center">
+              <Calendar className="w-8 h-8 text-blue-600 mx-auto mb-3" />
+              <h3 className="font-semibold text-gray-900 mb-1">Book Appointment</h3>
+              <p className="text-sm text-gray-600">Schedule your next visit</p>
+            </CardContent>
+          </Card>
+
+          <Card className="cursor-pointer hover:shadow-md transition-shadow">
+            <CardContent className="p-6 text-center">
+              <FileText className="w-8 h-8 text-green-600 mx-auto mb-3" />
+              <h3 className="font-semibold text-gray-900 mb-1">Health Records</h3>
+              <p className="text-sm text-gray-600">View your medical history</p>
+            </CardContent>
+          </Card>
+
+          <Card className="cursor-pointer hover:shadow-md transition-shadow">
+            <CardContent className="p-6 text-center">
+              <Heart className="w-8 h-8 text-red-600 mx-auto mb-3" />
+              <h3 className="font-semibold text-gray-900 mb-1">Health Tracker</h3>
+              <p className="text-sm text-gray-600">Monitor your wellness</p>
+            </CardContent>
+          </Card>
+
+          <Card className="cursor-pointer hover:shadow-md transition-shadow">
+            <CardContent className="p-6 text-center">
+              <Mail className="w-8 h-8 text-purple-600 mx-auto mb-3" />
+              <h3 className="font-semibold text-gray-900 mb-1">Messages</h3>
+              <p className="text-sm text-gray-600">Communicate with providers</p>
             </CardContent>
           </Card>
         </div>
 
+        {/* Main Dashboard Content */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Upcoming Appointments */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
+                <Calendar className="w-5 h-5 text-blue-600" />
                 Upcoming Appointments
               </CardTitle>
-              <CardDescription>
-                {upcomingAppointments.length} scheduled appointment{upcomingAppointments.length !== 1 ? 's' : ''}
-              </CardDescription>
+              <CardDescription>Your scheduled visits and checkups</CardDescription>
             </CardHeader>
             <CardContent>
-              {loading ? (
-                <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                  <p className="text-gray-600 mt-2">Loading appointments...</p>
-                </div>
-              ) : upcomingAppointments.length === 0 ? (
-                <div className="text-center py-8">
-                  <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600 mb-4">No upcoming appointments</p>
-                  <Button onClick={() => navigate("/book-appointment")}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Book Your First Appointment
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {upcomingAppointments.map((appointment) => (
-                    <div key={appointment.id} className="border rounded-lg p-4 hover:bg-gray-50">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="font-medium">{appointment.title}</h3>
-                            <Badge className={getStatusColor(appointment.status)}>
-                              {getStatusIcon(appointment.status)}
-                              <span className="ml-1">{appointment.status}</span>
-                            </Badge>
-                          </div>
-                          
-                          <div className="space-y-1 text-sm text-gray-600">
-                            <div className="flex items-center gap-2">
-                              <Calendar className="h-4 w-4" />
-                              {getDateLabel(appointment.date)}
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Clock className="h-4 w-4" />
-                              {appointment.time} ({appointment.duration} minutes)
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <User className="h-4 w-4" />
-                              {appointment.appointment_type}
-                            </div>
-                          </div>
-                          
-                          {appointment.notes && (
-                            <p className="text-sm text-gray-600 mt-2 italic">
-                              {appointment.notes}
-                            </p>
-                          )}
-                        </div>
-                        
-                        <div className="flex flex-col gap-2 ml-4">
-                          {appointment.status === 'pending' && (
-                            <Badge variant="outline" className="text-yellow-600">
-                              Awaiting Confirmation
-                            </Badge>
-                          )}
-                          {appointment.status === 'confirmed' && (
-                            <Badge variant="outline" className="text-green-600">
-                              Confirmed
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
+                  <div>
+                    <p className="font-medium text-gray-900">Regular Checkup</p>
+                    <p className="text-sm text-gray-600">Dr. Smith • General Medicine</p>
+                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                      <span className="flex items-center gap-1">
+                        <Calendar className="w-4 h-4" />
+                        March 15, 2024
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-4 h-4" />
+                        2:00 PM
+                      </span>
                     </div>
-                  ))}
+                  </div>
+                  <Badge className="bg-blue-600">Confirmed</Badge>
                 </div>
-              )}
+
+                <div className="text-center py-8 text-gray-500">
+                  <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                  <p>No other appointments scheduled</p>
+                  <Button className="mt-3" size="sm">Schedule Appointment</Button>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
-          {/* Recent History */}
+          {/* Health Summary */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Clock className="h-5 w-5" />
-                Recent History
+                <Heart className="w-5 h-5 text-red-600" />
+                Health Summary
               </CardTitle>
-              <CardDescription>
-                Your past appointments and visits
-              </CardDescription>
+              <CardDescription>Overview of your recent health metrics</CardDescription>
             </CardHeader>
             <CardContent>
-              {pastAppointments.length === 0 ? (
-                <div className="text-center py-8">
-                  <Clock className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">No appointment history yet</p>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+                  <div>
+                    <p className="font-medium text-gray-900">Last Visit</p>
+                    <p className="text-sm text-gray-600">February 28, 2024</p>
+                  </div>
+                  <Badge variant="outline" className="text-green-700 border-green-700">
+                    Excellent
+                  </Badge>
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  {pastAppointments.slice(0, 5).map((appointment) => (
-                    <div key={appointment.id} className="border rounded-lg p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="font-medium">{appointment.title}</h3>
-                            <Badge className={getStatusColor(appointment.status)}>
-                              {getStatusIcon(appointment.status)}
-                              <span className="ml-1">{appointment.status}</span>
-                            </Badge>
-                          </div>
-                          
-                          <div className="space-y-1 text-sm text-gray-600">
-                            <div className="flex items-center gap-2">
-                              <Calendar className="h-4 w-4" />
-                              {format(new Date(appointment.date), "MMMM d, yyyy")}
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Clock className="h-4 w-4" />
-                              {appointment.time}
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <User className="h-4 w-4" />
-                              {appointment.appointment_type}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                  
-                  {pastAppointments.length > 5 && (
-                    <Button variant="outline" className="w-full">
-                      View All History
-                    </Button>
-                  )}
+
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div>
+                    <p className="font-medium text-gray-900">Active Medications</p>
+                    <p className="text-sm text-gray-600">2 prescriptions</p>
+                  </div>
+                  <Badge variant="outline">
+                    View Details
+                  </Badge>
                 </div>
-              )}
+
+                <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-lg">
+                  <div>
+                    <p className="font-medium text-gray-900">Preventive Care</p>
+                    <p className="text-sm text-gray-600">Annual physical due</p>
+                  </div>
+                  <Badge variant="outline" className="text-yellow-700 border-yellow-700">
+                    Due Soon
+                  </Badge>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -314,34 +198,26 @@ export const PatientDashboard = () => {
         {/* Contact Information */}
         <Card className="mt-8">
           <CardHeader>
-            <CardTitle>Contact Information</CardTitle>
-            <CardDescription>
-              Need help? Get in touch with our office
-            </CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              <Phone className="w-5 h-5 text-blue-600" />
+              Contact Your Care Team
+            </CardTitle>
+            <CardDescription>Get in touch with your healthcare providers</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="flex items-center gap-3">
-                <Phone className="h-5 w-5 text-blue-600" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="flex items-center gap-4 p-4 bg-blue-50 rounded-lg">
+                <Phone className="w-6 h-6 text-blue-600" />
                 <div>
-                  <p className="font-medium">Phone</p>
+                  <p className="font-medium text-gray-900">Call Office</p>
                   <p className="text-sm text-gray-600">(555) 123-4567</p>
                 </div>
               </div>
-              
-              <div className="flex items-center gap-3">
-                <Mail className="h-5 w-5 text-blue-600" />
+              <div className="flex items-center gap-4 p-4 bg-green-50 rounded-lg">
+                <Mail className="w-6 h-6 text-green-600" />
                 <div>
-                  <p className="font-medium">Email</p>
-                  <p className="text-sm text-gray-600">info@clinic.com</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-3">
-                <Clock className="h-5 w-5 text-blue-600" />
-                <div>
-                  <p className="font-medium">Hours</p>
-                  <p className="text-sm text-gray-600">Mon-Fri 9AM-5PM</p>
+                  <p className="font-medium text-gray-900">Secure Message</p>
+                  <p className="text-sm text-gray-600">Send a message to your provider</p>
                 </div>
               </div>
             </div>
