@@ -10,7 +10,7 @@ interface TenantWrapperProps {
 }
 
 export const TenantWrapper: React.FC<TenantWrapperProps> = ({ children }) => {
-  const currentTenant = useCurrentTenant();
+  const { currentTenant } = useCurrentTenant();
 
   // Default fallback if no tenant is detected
   if (!currentTenant) {
@@ -18,7 +18,7 @@ export const TenantWrapper: React.FC<TenantWrapperProps> = ({ children }) => {
   }
 
   // Normalize specialty string and route to appropriate wrapper
-  const specialty = currentTenant.specialty?.toLowerCase().replace(/\s+/g, '-');
+  const specialty = currentTenant?.specialty?.toLowerCase().replace(/\s+/g, '-');
   
   switch (specialty) {
     case 'chiropractic-care':

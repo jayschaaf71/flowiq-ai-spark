@@ -21,7 +21,7 @@ import { User, Shield, Heart, Camera, CheckCircle, Calendar } from 'lucide-react
 export const CompleteIntakeFlow: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const currentTenant = useCurrentTenant();
+  const { currentTenant } = useCurrentTenant();
   
   // Get pre-filled data from URL params (from booking widget)
   const initialData = {
@@ -416,7 +416,7 @@ export const CompleteIntakeFlow: React.FC = () => {
             </div>
             <div className="text-left">
               <h1 className="text-2xl font-bold text-gray-900">
-                {currentTenant?.brandName || 'HealthCare'} Intake
+                {currentTenant?.brand_name || 'HealthCare'} Intake
               </h1>
               <p className="text-gray-600">Complete your pre-visit information</p>
             </div>

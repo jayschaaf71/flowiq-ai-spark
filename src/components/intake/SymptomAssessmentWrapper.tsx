@@ -13,7 +13,7 @@ export const SymptomAssessmentWrapper: React.FC<SymptomAssessmentWrapperProps> =
   onComplete,
   onSkip
 }) => {
-  const currentTenant = useCurrentTenant();
+  const { currentTenant } = useCurrentTenant();
   
   const specialty = currentTenant?.specialty?.toLowerCase() || 'chiropractic';
   

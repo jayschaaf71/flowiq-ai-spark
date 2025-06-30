@@ -4,6 +4,7 @@ import { useCurrentTenant, getSpecialtyTheme } from '@/utils/enhancedTenantConfi
 
 interface SpecialtyContextType {
   specialty: string;
+  currentSpecialty: string; // Add alias
   theme: {
     primaryColor: string;
     secondaryColor: string;
@@ -11,6 +12,7 @@ interface SpecialtyContextType {
     theme: string;
   };
   tenantConfig: any;
+  config: any; // Add alias for compatibility
 }
 
 const SpecialtyContext = createContext<SpecialtyContextType | undefined>(undefined);
@@ -35,8 +37,10 @@ export const SpecialtyProvider: React.FC<SpecialtyProviderProps> = ({ children }
 
   const value: SpecialtyContextType = {
     specialty,
+    currentSpecialty: specialty, // Add alias
     theme,
-    tenantConfig: currentTenant
+    tenantConfig: currentTenant,
+    config: currentTenant // Add alias for compatibility
   };
 
   return (

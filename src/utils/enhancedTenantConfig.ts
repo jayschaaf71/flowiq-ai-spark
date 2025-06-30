@@ -7,6 +7,7 @@ export interface TenantConfig {
   id: string;
   name: string;
   brand_name: string;
+  brandName: string; // Add alias for compatibility
   specialty: string;
   primary_color: string;
   secondary_color: string;
@@ -19,6 +20,7 @@ const DEFAULT_TENANT: TenantConfig = {
   id: 'default',
   name: 'FlowIQ Demo',
   brand_name: 'FlowIQ',
+  brandName: 'FlowIQ',
   specialty: 'chiropractic-care',
   primary_color: '#16a34a',
   secondary_color: '#22c55e',
@@ -35,7 +37,8 @@ export const useCurrentTenant = () => {
       try {
         // If no user, use default tenant
         if (!user || !profile) {
-          setCurrentTenant(DEFAULT_TENANT);
+          const tenant = { ...DEFAULT_TENANT, brandName: DEFAULT_TENANT.brand_name };
+          setCurrentTenant(tenant);
           setLoading(false);
           return;
         }
@@ -43,7 +46,8 @@ export const useCurrentTenant = () => {
         // Try to get tenant from user's profile
         const tenantId = profile.tenant_id;
         if (!tenantId) {
-          setCurrentTenant(DEFAULT_TENANT);
+          const tenant = { ...DEFAULT_TENANT, brandName: DEFAULT_TENANT.brand_name };
+          setCurrentTenant(tenant);
           setLoading(false);
           return;
         }
@@ -57,12 +61,14 @@ export const useCurrentTenant = () => {
 
         if (error || !tenant) {
           console.log('Using default tenant configuration');
-          setCurrentTenant(DEFAULT_TENANT);
+          const defaultTenant = { ...DEFAULT_TENANT, brandName: DEFAULT_TENANT.brand_name };
+          setCurrentTenant(defaultTenant);
         } else {
           setCurrentTenant({
             id: tenant.id,
             name: tenant.name,
             brand_name: tenant.brand_name,
+            brandName: tenant.brand_name, // Add alias
             specialty: tenant.specialty,
             primary_color: tenant.primary_color,
             secondary_color: tenant.secondary_color,
@@ -72,7 +78,8 @@ export const useCurrentTenant = () => {
         }
       } catch (error) {
         console.error('Error fetching tenant:', error);
-        setCurrentTenant(DEFAULT_TENANT);
+        const tenant = { ...DEFAULT_TENANT, brandName: DEFAULT_TENANT.brand_name };
+        setCurrentTenant(tenant);
       } finally {
         setLoading(false);
       }
@@ -82,6 +89,12 @@ export const useCurrentTenant = () => {
   }, [user, profile]);
 
   return { currentTenant, loading };
+};
+
+// Add useTenantConfig export that AppSidebar expects
+export const useTenantConfig = () => {
+  const { currentTenant } = useCurrentTenant();
+  return currentTenant || DEFAULT_TENANT;
 };
 
 // Specialty mapping for consistent theming
