@@ -217,7 +217,7 @@ export const IntelligentClaimsAnalyzer = ({
                     key={claim.id}
                     className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 cursor-pointer"
                     onClick={() => {
-                      const claimData = {
+                      const claimData: ClaimValidationData = {
                         claimNumber: claim.claim_number,
                         patientInfo: {
                           id: claim.patient_id,
@@ -243,7 +243,12 @@ export const IntelligentClaimsAnalyzer = ({
                         },
                         serviceDate: claim.service_date,
                         billingCodes: [
-                          { code: '99213', codeType: 'CPT', description: 'Office visit', amount: 150 }
+                          { 
+                            code: '99213', 
+                            codeType: 'CPT' as const, 
+                            description: 'Office visit', 
+                            amount: 150 
+                          }
                         ],
                         totalAmount: claim.total_amount,
                         diagnosis: 'Essential hypertension'
