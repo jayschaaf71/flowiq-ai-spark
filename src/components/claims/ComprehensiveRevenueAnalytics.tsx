@@ -10,6 +10,7 @@ import { ProviderPerformanceTab } from "./revenue/ProviderPerformanceTab";
 import { PayerPerformanceTab } from "./revenue/PayerPerformanceTab";
 import { ServiceRevenueTab } from "./revenue/ServiceRevenueTab";
 import { RevenueForecastTab } from "./revenue/RevenueForecastTab";
+import { useClaimsRealtime } from "@/hooks/useClaimsRealtime";
 
 export const ComprehensiveRevenueAnalytics = () => {
   const [metrics, setMetrics] = useState<RevenueMetrics | null>(null);
@@ -20,6 +21,9 @@ export const ComprehensiveRevenueAnalytics = () => {
     end: new Date().toISOString().split('T')[0]
   });
   const { toast } = useToast();
+
+  // Set up real-time updates for revenue metrics
+  useClaimsRealtime();
 
   useEffect(() => {
     loadAnalytics();
@@ -48,7 +52,7 @@ export const ComprehensiveRevenueAnalytics = () => {
   };
 
   if (loading) {
-    return <div className="flex justify-center p-8">Loading revenue analytics...</div>;
+    return <div className="flex justify-center p-8">Loading comprehensive revenue analytics...</div>;
   }
 
   return (

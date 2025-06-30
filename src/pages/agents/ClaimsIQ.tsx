@@ -12,8 +12,10 @@ import { RevenueAnalytics } from "@/components/claims/RevenueAnalytics";
 import { DenialManagement } from "@/components/claims/DenialManagement";
 import { EligibilityVerificationPanel } from "@/components/claims/EligibilityVerificationPanel";
 import { AdvancedComplianceDashboard } from "@/components/compliance/AdvancedComplianceDashboard";
-import { Brain, DollarSign, Shield, Send, Settings, Zap, CheckCircle, Lock } from "lucide-react";
 import { AIClaimsReviewEngine } from "@/components/claims/AIClaimsReviewEngine";
+import { AdvancedClaimsAnalytics } from "@/components/claims/analytics/AdvancedClaimsAnalytics";
+import { RealTimeClaimTracker } from "@/components/claims/tracking/RealTimeClaimTracker";
+import { Brain, DollarSign, Shield, Send, Settings, Zap, CheckCircle, Lock, BarChart3, Activity } from "lucide-react";
 
 const ClaimsIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -38,6 +40,10 @@ const ClaimsIQ = () => {
             <Lock className="w-3 h-3 mr-1" />
             Advanced Compliance
           </Badge>
+          <Badge className="bg-red-100 text-red-700">
+            <Activity className="w-3 h-3 mr-1" />
+            Real-time Tracking
+          </Badge>
           <Button variant="outline" size="sm">
             <Settings className="w-4 h-4 mr-2" />
             Settings
@@ -51,7 +57,7 @@ const ClaimsIQ = () => {
       
       <div className="space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-8">
+          <TabsList className="grid w-full grid-cols-10">
             <TabsTrigger value="dashboard">
               <DollarSign className="w-4 h-4 mr-2" />
               Dashboard
@@ -59,6 +65,14 @@ const ClaimsIQ = () => {
             <TabsTrigger value="ai-review">
               <Brain className="w-4 h-4 mr-2" />
               AI Review
+            </TabsTrigger>
+            <TabsTrigger value="tracking">
+              <Activity className="w-4 h-4 mr-2" />
+              Real-time
+            </TabsTrigger>
+            <TabsTrigger value="analytics">
+              <BarChart3 className="w-4 h-4 mr-2" />
+              Analytics
             </TabsTrigger>
             <TabsTrigger value="validation">
               <Shield className="w-4 h-4 mr-2" />
@@ -77,7 +91,7 @@ const ClaimsIQ = () => {
               Compliance
             </TabsTrigger>
             <TabsTrigger value="denials">Denials</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="revenue">Revenue</TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard">
@@ -86,6 +100,14 @@ const ClaimsIQ = () => {
 
           <TabsContent value="ai-review">
             <AIClaimsReviewEngine />
+          </TabsContent>
+
+          <TabsContent value="tracking">
+            <RealTimeClaimTracker />
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <AdvancedClaimsAnalytics />
           </TabsContent>
 
           <TabsContent value="validation">
@@ -127,7 +149,7 @@ const ClaimsIQ = () => {
             <DenialManagement />
           </TabsContent>
 
-          <TabsContent value="analytics">
+          <TabsContent value="revenue">
             <RevenueAnalytics />
           </TabsContent>
         </Tabs>
