@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { payerIntegrationService, PayerConnection, ClaimSubmissionRequest } from '@/services/payerIntegration';
+import { payerIntegrationService, PayerConnection, ClaimSubmissionRequest, EligibilityRequest } from '@/services/payerIntegration';
 import { useToast } from '@/hooks/use-toast';
 
 export const usePayerConnections = () => {
@@ -74,6 +74,31 @@ export const useBatchClaimSubmission = () => {
   });
 };
 
+export const useEligibilityCheck = () => {
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: (request: EligibilityRequest) => 
+      payerIntegrationService.checkEligibility(request),
+    onSuccess: (data) => {
+      toast({
+        title: data.isEligible ? "Patient Eligible" : "Eligibility Issue",
+        description: data.isEligible 
+          ? `Coverage: ${data.coverageDetails.coveragePercentage}% after ${data.coverageDetails.copayAmount ? `$${data.coverageDetails.copayAmount} copay` : 'deductible'}`
+          : data.errors?.[0] || "Patient not eligible for coverage",
+        variant: data.isEligible ? "default" : "destructive",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Eligibility Check Failed",
+        description: error.message || "Unable to verify eligibility",
+        variant: "destructive",
+      });
+    },
+  });
+};
+
 export const useConnectionTest = () => {
   const { toast } = useToast();
 
@@ -103,4 +128,33 @@ export const useClaimTransactions = (claimId: string) => {
     queryFn: () => payerIntegrationService.getClaimTransactions(claimId),
     enabled: !!claimId,
   });
+};
+
+export const useRealTimeTransactionStatus = (transactionId: string) => {
+  const [transaction, setTransaction] = useState(null);
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (!transactionId) return;
+
+    const pollStatus = async () => {
+      try {
+        const updated = await payerIntegrationService.pollTransactionStatus(transactionId);
+        if (updated) {
+          setTransaction(updated);
+          queryClient.invalidateQueries({ queryKey: ['claim-transactions'] });
+        }
+      } catch (error) {
+        console.error('Error polling transaction status:', error);
+      }
+    };
+
+    // Poll every 30 seconds
+    const interval = setInterval(pollStatus, 30000);
+    pollStatus(); // Initial call
+
+    return () => clearInterval(interval);
+  }, [transactionId, queryClient]);
+
+  return transaction;
 };

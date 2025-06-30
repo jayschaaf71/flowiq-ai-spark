@@ -47,6 +47,27 @@ export interface ClaimSubmissionResponse {
   errors?: string[];
 }
 
+export interface EligibilityRequest {
+  patientId: string;
+  payerConnectionId: string;
+  serviceDate: string;
+  procedureCodes: string[];
+}
+
+export interface EligibilityResponse {
+  isEligible: boolean;
+  coverageDetails: {
+    deductible: number;
+    deductibleMet: number;
+    copayAmount?: number;
+    coveragePercentage: number;
+  };
+  authorizationRequired: boolean;
+  effectiveDate?: string;
+  terminationDate?: string;
+  errors?: string[];
+}
+
 class PayerIntegrationService {
   // Get all active payer connections
   async getPayerConnections(): Promise<PayerConnection[]> {
@@ -133,7 +154,7 @@ class PayerIntegrationService {
         throw transactionError;
       }
 
-      // Submit to payer (mock implementation)
+      // Submit to payer (simulate API call)
       const submissionResult = await this.submitToPayerEndpoint(
         payerConnection,
         ediContent,
@@ -200,6 +221,34 @@ class PayerIntegrationService {
         };
       }
     });
+  }
+
+  // Check eligibility
+  async checkEligibility(request: EligibilityRequest): Promise<EligibilityResponse> {
+    const payerConnection = await this.getPayerConnection(request.payerConnectionId);
+    if (!payerConnection) {
+      throw new Error('Payer connection not found');
+    }
+
+    // Simulate eligibility check
+    await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 1000));
+
+    // Mock eligibility response
+    const isEligible = Math.random() > 0.1; // 90% eligible
+    
+    return {
+      isEligible,
+      coverageDetails: {
+        deductible: 1000,
+        deductibleMet: Math.floor(Math.random() * 800),
+        copayAmount: isEligible ? 25 : undefined,
+        coveragePercentage: isEligible ? 80 : 0
+      },
+      authorizationRequired: Math.random() > 0.7,
+      effectiveDate: '2024-01-01',
+      terminationDate: '2024-12-31',
+      errors: isEligible ? [] : ['Patient not found in payer system']
+    };
   }
 
   // Get EDI transaction status
@@ -273,6 +322,30 @@ class PayerIntegrationService {
     }
   }
 
+  // Real-time status polling
+  async pollTransactionStatus(transactionId: string): Promise<EDITransaction | null> {
+    const transaction = await this.getTransactionStatus(transactionId);
+    if (!transaction) return null;
+
+    // Simulate status progression
+    if (transaction.status === 'submitted' && Math.random() > 0.7) {
+      const newStatus = Math.random() > 0.5 ? 'acknowledged' : 'processed';
+      
+      await supabase
+        .from('edi_transactions')
+        .update({
+          status: newStatus,
+          acknowledgment_date: newStatus === 'acknowledged' ? new Date().toISOString() : transaction.acknowledgmentDate,
+          response_date: newStatus === 'processed' ? new Date().toISOString() : transaction.responseDate
+        })
+        .eq('id', transactionId);
+
+      return await this.getTransactionStatus(transactionId);
+    }
+
+    return transaction;
+  }
+
   // Private helper methods
   private mapPayerConnection(data: any): PayerConnection {
     return {
@@ -315,7 +388,6 @@ class PayerIntegrationService {
 
   private async generateEDIContent(claim: any, payerConnection: PayerConnection): Promise<string> {
     // Simplified EDI generation for demo
-    // In production, this would generate proper X12 837 format
     return `ISA*00*          *00*          *ZZ*SENDER_ID      *ZZ*${payerConnection.payerId}*${new Date().toISOString().slice(0, 6)}*${new Date().toTimeString().slice(0, 4)}*^*00501*${this.generateControlNumber()}*0*P*:~
 GS*HC*SENDER_ID*${payerConnection.payerId}*${new Date().toISOString().slice(0, 8)}*${new Date().toTimeString().slice(0, 4)}*1*X*005010X222A1~
 ST*837*0001*005010X222A1~
@@ -341,23 +413,21 @@ IEA*1*${this.generateControlNumber()}~`;
     ediContent: string,
     controlNumber: string
   ): Promise<{ success: boolean; response: string; errors?: string[] }> {
-    // Mock implementation - in production this would make actual HTTP requests
-    // to payer endpoints or submit to clearinghouse
-    
+    // Mock implementation - simulate real payer API calls
     return new Promise((resolve) => {
       setTimeout(() => {
-        const success = Math.random() > 0.05; // 95% success rate for demo
+        const success = Math.random() > 0.05; // 95% success rate
         
         if (success) {
           resolve({
             success: true,
-            response: `ACK: ${controlNumber} - Claim received and accepted for processing`
+            response: `ACK: ${controlNumber} - Claim received and queued for processing`
           });
         } else {
           resolve({
             success: false,
             response: `REJ: ${controlNumber} - Claim rejected`,
-            errors: ['Invalid provider NPI', 'Missing required field']
+            errors: ['Invalid provider NPI', 'Missing required diagnosis code']
           });
         }
       }, Math.random() * 3000 + 1000); // 1-4 second delay
