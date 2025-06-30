@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { usePayerConnections, useEligibilityCheck } from "@/hooks/usePayerIntegration";
-import { CheckCircle, XCircle, Shield, CreditCard, Clock, AlertTriangle } from "lucide-react";
+import { CheckCircle, XCircle, Shield, Clock, AlertTriangle } from "lucide-react";
 
 interface EligibilityVerificationPanelProps {
   patientId?: string;

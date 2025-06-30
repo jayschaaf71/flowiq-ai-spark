@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,7 +10,8 @@ import { AIValidationPanel } from "@/components/claims/AIValidationPanel";
 import { ComplianceMonitor } from "@/components/claims/ComplianceMonitor";
 import { RevenueAnalytics } from "@/components/claims/RevenueAnalytics";
 import { DenialManagement } from "@/components/claims/DenialManagement";
-import { Brain, DollarSign, Shield, Send, Settings, Zap } from "lucide-react";
+import { EligibilityVerificationPanel } from "@/components/claims/EligibilityVerificationPanel";
+import { Brain, DollarSign, Shield, Send, Settings, Zap, CheckCircle } from "lucide-react";
 import { AIClaimsReviewEngine } from "@/components/claims/AIClaimsReviewEngine";
 
 const ClaimsIQ = () => {
@@ -44,7 +46,7 @@ const ClaimsIQ = () => {
       
       <div className="space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="dashboard">
               <DollarSign className="w-4 h-4 mr-2" />
               Dashboard
@@ -56,6 +58,10 @@ const ClaimsIQ = () => {
             <TabsTrigger value="validation">
               <Shield className="w-4 h-4 mr-2" />
               Validation
+            </TabsTrigger>
+            <TabsTrigger value="eligibility">
+              <CheckCircle className="w-4 h-4 mr-2" />
+              Eligibility
             </TabsTrigger>
             <TabsTrigger value="payers">
               <Send className="w-4 h-4 mr-2" />
@@ -89,6 +95,15 @@ const ClaimsIQ = () => {
                 }}
               />
             </div>
+          </TabsContent>
+
+          <TabsContent value="eligibility">
+            <EligibilityVerificationPanel 
+              patientId="patient-1"
+              onEligibilityVerified={(result) => {
+                console.log("Eligibility verified:", result);
+              }}
+            />
           </TabsContent>
 
           <TabsContent value="payers">
