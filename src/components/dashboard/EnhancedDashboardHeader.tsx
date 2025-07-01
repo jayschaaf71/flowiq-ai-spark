@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -13,9 +12,13 @@ import {
   Users
 } from 'lucide-react';
 import { useDashboard } from '@/contexts/DashboardContext';
+import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 export const EnhancedDashboardHeader: React.FC = () => {
   const { state, addNotification } = useDashboard();
+  const { toast } = useToast();
+  const navigate = useNavigate();
   const unreadNotifications = state.notifications.filter(n => !n.isRead).length;
 
   const handleRefresh = () => {
@@ -24,6 +27,22 @@ export const EnhancedDashboardHeader: React.FC = () => {
       title: 'Dashboard Refreshed',
       message: 'All data has been updated with the latest information'
     });
+  };
+
+  const handleNotifications = () => {
+    toast({
+      title: "Notifications",
+      description: `You have ${unreadNotifications} unread notifications`,
+    });
+  };
+
+  const handleSettings = () => {
+    toast({
+      title: "Settings",
+      description: "Opening dashboard settings...",
+    });
+    // You could navigate to a settings page here if it exists
+    // navigate('/settings');
   };
 
   return (
@@ -61,6 +80,7 @@ export const EnhancedDashboardHeader: React.FC = () => {
             <Button
               variant="outline" 
               size="sm"
+              onClick={handleNotifications}
               className="relative flex items-center gap-2"
             >
               <Bell className="w-4 h-4" />
@@ -72,7 +92,11 @@ export const EnhancedDashboardHeader: React.FC = () => {
               )}
             </Button>
 
-            <Button variant="outline" size="sm">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={handleSettings}
+            >
               <Settings className="w-4 h-4 mr-2" />
               Settings
             </Button>
