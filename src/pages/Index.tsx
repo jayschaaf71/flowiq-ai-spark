@@ -20,21 +20,47 @@ import { useCurrentTenant } from "@/utils/enhancedTenantConfig";
 
 const Index = () => {
   const navigate = useNavigate();
-  const { user, profile } = useAuth();
+  const { user, profile, loading } = useAuth();
   const { currentTenant } = useCurrentTenant();
 
   const handleGetStarted = () => {
+    console.log("Get Started clicked", { user, profile });
     if (user) {
       // Redirect authenticated users to their appropriate dashboard
       if (profile?.role === 'patient') {
+        console.log("Navigating to patient dashboard");
         navigate('/patient-dashboard');
       } else {
+        console.log("Navigating to main dashboard");
         navigate('/dashboard');
       }
     } else {
+      console.log("Navigating to auth page");
       navigate('/auth');
     }
   };
+
+  const handleViewDemo = () => {
+    console.log("View Demo clicked");
+    navigate('/dental-sleep-demo');
+  };
+
+  const handleSignIn = () => {
+    console.log("Sign In clicked");
+    navigate('/auth');
+  };
+
+  // Show loading state while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   const features = [
     {
@@ -137,7 +163,7 @@ const Index = () => {
                   variant="outline" 
                   size="lg" 
                   className="px-8 py-3 text-lg border-blue-600 text-blue-600 hover:bg-blue-50"
-                  onClick={() => navigate('/dental-sleep-demo')}
+                  onClick={handleViewDemo}
                 >
                   <Moon className="mr-2 w-5 h-5" />
                   View Demo
@@ -148,7 +174,7 @@ const Index = () => {
                     variant="outline" 
                     size="lg" 
                     className="px-8 py-3 text-lg"
-                    onClick={() => navigate('/auth')}
+                    onClick={handleSignIn}
                   >
                     <LogIn className="mr-2 w-5 h-5" />
                     Sign In
