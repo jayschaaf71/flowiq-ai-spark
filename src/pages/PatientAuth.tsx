@@ -33,6 +33,9 @@ export const PatientAuth = () => {
     role: "patient"
   });
 
+  // Debug log to see current signup data
+  console.log("Current signUpData:", signUpData);
+
   // Redirect if already authenticated
   if (user) {
     return <Navigate to="/patient-dashboard" replace />;
@@ -80,7 +83,7 @@ export const PatientAuth = () => {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log("Sign up data:", signUpData); // Debug log
+    console.log("Sign up form submitted with data:", signUpData);
     
     if (!signUpData.firstName || !signUpData.lastName || !signUpData.email || !signUpData.password) {
       toast({
@@ -169,19 +172,9 @@ export const PatientAuth = () => {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin" className="space-y-4">
-              <TabsList className="grid w-full grid-cols-2 bg-white border border-gray-200">
-                <TabsTrigger 
-                  value="signin" 
-                  className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=inactive]:bg-gray-50 data-[state=inactive]:text-gray-700 border-r border-gray-200"
-                >
-                  Sign In
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="signup"
-                  className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=inactive]:bg-gray-50 data-[state=inactive]:text-gray-700"
-                >
-                  Sign Up
-                </TabsTrigger>
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="signin">Sign In</TabsTrigger>
+                <TabsTrigger value="signup">Sign Up</TabsTrigger>
               </TabsList>
 
               <TabsContent value="signin">
@@ -194,7 +187,7 @@ export const PatientAuth = () => {
                         id="signin-email"
                         type="email"
                         placeholder="your@email.com"
-                        className="pl-10 bg-white border-gray-300"
+                        className="pl-10"
                         value={signInData.email}
                         onChange={(e) => setSignInData(prev => ({ ...prev, email: e.target.value }))}
                         required
@@ -209,7 +202,7 @@ export const PatientAuth = () => {
                         id="signin-password"
                         type={showPassword ? "text" : "password"}
                         placeholder="Enter your password"
-                        className="pr-10 bg-white border-gray-300"
+                        className="pr-10"
                         value={signInData.password}
                         onChange={(e) => setSignInData(prev => ({ ...prev, password: e.target.value }))}
                         required
@@ -218,19 +211,19 @@ export const PatientAuth = () => {
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-gray-100"
+                        className="absolute right-0 top-0 h-full px-3 py-2"
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         {showPassword ? (
-                          <EyeOff className="h-4 w-4 text-gray-400" />
+                          <EyeOff className="h-4 w-4" />
                         ) : (
-                          <Eye className="h-4 w-4 text-gray-400" />
+                          <Eye className="h-4 w-4" />
                         )}
                       </Button>
                     </div>
                   </div>
 
-                  <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={loading}>
+                  <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? "Signing In..." : "Sign In"}
                   </Button>
                 </form>
@@ -240,13 +233,13 @@ export const PatientAuth = () => {
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="signup-firstName">First Name</Label>
+                      <Label htmlFor="signup-firstName">First Name *</Label>
                       <div className="relative">
                         <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                         <Input
                           id="signup-firstName"
                           placeholder="John"
-                          className="pl-10 bg-white border-gray-300"
+                          className="pl-10"
                           value={signUpData.firstName}
                           onChange={(e) => setSignUpData(prev => ({ ...prev, firstName: e.target.value }))}
                           required
@@ -255,11 +248,10 @@ export const PatientAuth = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="signup-lastName">Last Name</Label>
+                      <Label htmlFor="signup-lastName">Last Name *</Label>
                       <Input
                         id="signup-lastName"
                         placeholder="Doe"
-                        className="bg-white border-gray-300"
                         value={signUpData.lastName}
                         onChange={(e) => setSignUpData(prev => ({ ...prev, lastName: e.target.value }))}
                         required
@@ -268,14 +260,14 @@ export const PatientAuth = () => {
                   </div>
 
                   <div>
-                    <Label htmlFor="signup-email">Email</Label>
+                    <Label htmlFor="signup-email">Email *</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
                         id="signup-email"
                         type="email"
                         placeholder="your@email.com"
-                        className="pl-10 bg-white border-gray-300"
+                        className="pl-10"
                         value={signUpData.email}
                         onChange={(e) => setSignUpData(prev => ({ ...prev, email: e.target.value }))}
                         required
@@ -290,7 +282,7 @@ export const PatientAuth = () => {
                       <Input
                         id="signup-phone"
                         placeholder="(555) 123-4567"
-                        className="pl-10 bg-white border-gray-300"
+                        className="pl-10"
                         value={signUpData.phone}
                         onChange={(e) => setSignUpData(prev => ({ ...prev, phone: formatPhoneNumber(e.target.value) }))}
                       />
@@ -299,8 +291,14 @@ export const PatientAuth = () => {
 
                   <div>
                     <Label htmlFor="signup-role">Account Type</Label>
-                    <Select value={signUpData.role} onValueChange={(value) => setSignUpData(prev => ({ ...prev, role: value }))}>
-                      <SelectTrigger className="bg-white border-gray-300">
+                    <Select 
+                      value={signUpData.role} 
+                      onValueChange={(value) => {
+                        console.log("Role selected:", value);
+                        setSignUpData(prev => ({ ...prev, role: value }));
+                      }}
+                    >
+                      <SelectTrigger>
                         <SelectValue placeholder="Select account type" />
                       </SelectTrigger>
                       <SelectContent>
@@ -312,13 +310,13 @@ export const PatientAuth = () => {
                   </div>
 
                   <div>
-                    <Label htmlFor="signup-password">Password</Label>
+                    <Label htmlFor="signup-password">Password *</Label>
                     <div className="relative">
                       <Input
                         id="signup-password"
                         type={showPassword ? "text" : "password"}
                         placeholder="Create a password"
-                        className="pr-10 bg-white border-gray-300"
+                        className="pr-10"
                         value={signUpData.password}
                         onChange={(e) => setSignUpData(prev => ({ ...prev, password: e.target.value }))}
                         required
@@ -327,32 +325,31 @@ export const PatientAuth = () => {
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-gray-100"
+                        className="absolute right-0 top-0 h-full px-3 py-2"
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         {showPassword ? (
-                          <EyeOff className="h-4 w-4 text-gray-400" />
+                          <EyeOff className="h-4 w-4" />
                         ) : (
-                          <Eye className="h-4 w-4 text-gray-400" />
+                          <Eye className="h-4 w-4" />
                         )}
                       </Button>
                     </div>
                   </div>
 
                   <div>
-                    <Label htmlFor="signup-confirmPassword">Confirm Password</Label>
+                    <Label htmlFor="signup-confirmPassword">Confirm Password *</Label>
                     <Input
                       id="signup-confirmPassword"
                       type={showPassword ? "text" : "password"}
                       placeholder="Confirm your password"
-                      className="bg-white border-gray-300"
                       value={signUpData.confirmPassword}
                       onChange={(e) => setSignUpData(prev => ({ ...prev, confirmPassword: e.target.value }))}
                       required
                     />
                   </div>
 
-                  <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={loading}>
+                  <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? "Creating Account..." : "Create Account"}
                   </Button>
                 </form>
