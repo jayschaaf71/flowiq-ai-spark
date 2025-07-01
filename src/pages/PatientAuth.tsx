@@ -1,9 +1,11 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Navigate } from "react-router-dom";
@@ -28,7 +30,7 @@ export const PatientAuth = () => {
     phone: "",
     password: "",
     confirmPassword: "",
-    role: "patient" // Add role field with default
+    role: "patient"
   });
 
   // Redirect if already authenticated
@@ -75,8 +77,10 @@ export const PatientAuth = () => {
     }
   };
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormForm) => {
     e.preventDefault();
+    
+    console.log("Sign up data:", signUpData); // Debug log
     
     if (!signUpData.firstName || !signUpData.lastName || !signUpData.email || !signUpData.password) {
       toast({
@@ -112,7 +116,7 @@ export const PatientAuth = () => {
         signUpData.password, 
         signUpData.firstName, 
         signUpData.lastName,
-        signUpData.role // Pass the selected role
+        signUpData.role
       );
       
       if (error) {
@@ -295,16 +299,16 @@ export const PatientAuth = () => {
 
                   <div>
                     <Label htmlFor="signup-role">Account Type</Label>
-                    <select
-                      id="signup-role"
-                      className="w-full h-10 px-3 py-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      value={signUpData.role}
-                      onChange={(e) => setSignUpData(prev => ({ ...prev, role: e.target.value }))}
-                    >
-                      <option value="patient">Patient</option>
-                      <option value="staff">Staff</option>
-                      <option value="admin">Administrator</option>
-                    </select>
+                    <Select value={signUpData.role} onValueChange={(value) => setSignUpData(prev => ({ ...prev, role: value }))}>
+                      <SelectTrigger className="bg-white border-gray-300">
+                        <SelectValue placeholder="Select account type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="patient">Patient</SelectItem>
+                        <SelectItem value="staff">Staff</SelectItem>
+                        <SelectItem value="admin">Administrator</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <div>
