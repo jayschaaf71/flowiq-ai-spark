@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Dashboard } from './pages/Dashboard';
@@ -24,6 +23,7 @@ import { PatientDashboard } from '@/pages/PatientDashboard';
 import AuthTesting from '@/pages/AuthTesting';
 import DentalSleepDemo from '@/pages/DentalSleepDemo';
 import { FinancialManagementPage } from '@/pages/FinancialManagementPage';
+import { PatientExperiencePage } from '@/pages/PatientExperiencePage';
 
 const queryClient = new QueryClient();
 
@@ -52,6 +52,11 @@ function App() {
                 <Route path="/financial" element={
                   <TenantWrapper>
                     <FinancialManagementPage />
+                  </TenantWrapper>
+                } />
+                <Route path="/patient-experience" element={
+                  <TenantWrapper>
+                    <PatientExperiencePage />
                   </TenantWrapper>
                 } />
                 <Route path="/analytics" element={
