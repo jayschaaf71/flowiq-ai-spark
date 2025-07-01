@@ -27,7 +27,8 @@ export const PatientAuth = () => {
     email: "",
     phone: "",
     password: "",
-    confirmPassword: ""
+    confirmPassword: "",
+    role: "patient" // Add role field with default
   });
 
   // Redirect if already authenticated
@@ -111,7 +112,7 @@ export const PatientAuth = () => {
         signUpData.password, 
         signUpData.firstName, 
         signUpData.lastName,
-        'patient'
+        signUpData.role // Pass the selected role
       );
       
       if (error) {
@@ -151,8 +152,8 @@ export const PatientAuth = () => {
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <Calendar className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-          <h1 className="text-3xl font-bold text-gray-900">Patient Portal</h1>
-          <p className="text-gray-600">Book and manage your appointments</p>
+          <h1 className="text-3xl font-bold text-gray-900">FlowIQ Portal</h1>
+          <p className="text-gray-600">Sign in or create your account</p>
         </div>
 
         <Card className="shadow-lg">
@@ -290,6 +291,20 @@ export const PatientAuth = () => {
                         onChange={(e) => setSignUpData(prev => ({ ...prev, phone: formatPhoneNumber(e.target.value) }))}
                       />
                     </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="signup-role">Account Type</Label>
+                    <select
+                      id="signup-role"
+                      className="w-full h-10 px-3 py-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      value={signUpData.role}
+                      onChange={(e) => setSignUpData(prev => ({ ...prev, role: e.target.value }))}
+                    >
+                      <option value="patient">Patient</option>
+                      <option value="staff">Staff</option>
+                      <option value="admin">Administrator</option>
+                    </select>
                   </div>
 
                   <div>
