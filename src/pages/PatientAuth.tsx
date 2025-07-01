@@ -77,7 +77,7 @@ export const PatientAuth = () => {
     }
   };
 
-  const handleSignUp = async (e: React.FormForm) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     
     console.log("Sign up data:", signUpData); // Debug log
