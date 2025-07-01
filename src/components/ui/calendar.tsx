@@ -22,6 +22,10 @@ function Calendar({
         month: "space-y-4",
         caption: "flex justify-center pt-1 relative items-center",
         caption_label: "text-sm font-medium",
+        caption_dropdowns: "flex justify-center gap-1",
+        dropdown_month: cn(buttonVariants({ variant: "outline" }), "h-8 px-3 text-xs"),
+        dropdown_year: cn(buttonVariants({ variant: "outline" }), "h-8 px-3 text-xs"),
+        dropdown: "absolute z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
         nav: "space-x-1 flex items-center",
         nav_button: cn(
           buttonVariants({ variant: "outline" }),
