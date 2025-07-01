@@ -12,7 +12,7 @@ import { Navigate } from "react-router-dom";
 import { Calendar, User, Mail, Phone, Eye, EyeOff } from "lucide-react";
 
 export const AuthPage = () => {
-  const { signUp, signIn, user } = useAuth();
+  const { signUp, signIn, user, profile } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -36,8 +36,11 @@ export const AuthPage = () => {
   console.log("AuthPage - Current signUpData:", signUpData);
 
   // Redirect if already authenticated
-  if (user) {
-    return <Navigate to="/patient-dashboard" replace />;
+  if (user && profile) {
+    const dashboardRoute = profile.role === 'staff' || profile.role === 'admin' 
+      ? "/dashboard" 
+      : "/patient-dashboard";
+    return <Navigate to={dashboardRoute} replace />;
   }
 
   const handleSignIn = async (e: React.FormEvent) => {
