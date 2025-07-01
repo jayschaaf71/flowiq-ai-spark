@@ -1,55 +1,42 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/use-toast';
-import { Shield, Lock, Eye, EyeOff, AlertTriangle } from 'lucide-react';
-import { useCurrentTenant } from '@/utils/enhancedTenantConfig';
-import { useNavigate, Navigate } from 'react-router-dom';
-import { RoleSwitcher } from './RoleSwitcher';
 
-export const AuthPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('signin');
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  
-  // Sign In Form
-  const [signInData, setSignInData] = useState({
-    email: '',
-    password: ''
-  });
-  
-  // Sign Up Form
-  const [signUpData, setSignUpData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    firstName: '',
-    lastName: '',
-    role: 'patient' as 'patient' | 'staff' | 'admin' | 'provider' | 'practice_manager'
-  });
+import { useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { Navigate } from "react-router-dom";
+import { Shield, User, Mail, Eye, EyeOff, AlertCircle } from "lucide-react";
+import { RoleSwitcher } from "./RoleSwitcher";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
-  const { signIn, signUp, user, profile } = useAuth();
+export const AuthPage = () => {
+  const { signUp, signIn, user, loading } = useAuth();
   const { toast } = useToast();
-  const { currentTenant } = useCurrentTenant();
-  const navigate = useNavigate();
+  const [authLoading, setAuthLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  // Redirect authenticated users based on their role
-  if (user && profile) {
-    switch (profile.role) {
-      case 'patient':
-        return <Navigate to="/patient-dashboard" replace />;
-      case 'admin':
-      case 'practice_manager':
-      case 'provider':
-      case 'staff':
-      default:
-        return <Navigate to="/" replace />;
-    }
+  // Form states
+  const [signInData, setSignInData] = useState({
+    email: "",
+    password: ""
+  });
+
+  const [signUpData, setSignUpData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    role: "patient"
+  });
+
+  // Redirect if already authenticated
+  if (user && !loading) {
+    return <Navigate to="/" replace />;
   }
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -59,56 +46,65 @@ export const AuthPage: React.FC = () => {
       toast({
         title: "Validation Error",
         description: "Please fill in all fields",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
 
-    setLoading(true);
+    setAuthLoading(true);
     try {
       const { error } = await signIn(signInData.email, signInData.password);
-
+      
       if (error) {
-        // HIPAA Compliance: Generic error messages to avoid information disclosure
-        let errorMessage = "Authentication failed. Please check your credentials.";
+        console.error('Sign in error details:', error);
         
-        if (error.message.includes('Email not confirmed')) {
-          errorMessage = "Please check your email and confirm your account before signing in.";
-        } else if (error.message.includes('Invalid login credentials')) {
-          errorMessage = "Invalid email or password. Please try again.";
+        // Handle specific error cases
+        if (error.message === 'Email not confirmed') {
+          toast({
+            title: "Email Confirmation Required",
+            description: "Please check your email and click the confirmation link before signing in. If you don't see the email, check your spam folder.",
+            variant: "destructive",
+            duration: 8000,
+          });
+        } else if (error.message === 'Invalid login credentials') {
+          toast({
+            title: "Invalid Credentials",
+            description: "Please check your email and password and try again.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Sign In Failed",
+            description: error.message || "An unexpected error occurred",
+            variant: "destructive",
+          });
         }
-        
-        toast({
-          title: "Sign In Failed",
-          description: errorMessage,
-          variant: "destructive"
-        });
       } else {
         toast({
           title: "Welcome back!",
-          description: "You have successfully signed in."
+          description: "You have successfully signed in.",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Unexpected sign in error:', error);
       toast({
         title: "Error",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive"
+        description: "An unexpected error occurred",
+        variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setAuthLoading(false);
     }
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validation
     if (!signUpData.firstName || !signUpData.lastName || !signUpData.email || !signUpData.password) {
       toast({
         title: "Validation Error",
         description: "Please fill in all required fields",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -117,318 +113,272 @@ export const AuthPage: React.FC = () => {
       toast({
         title: "Password Mismatch",
         description: "Passwords do not match",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
 
-    // HIPAA Compliance: Strong password requirements
-    if (signUpData.password.length < 8) {
+    if (signUpData.password.length < 6) {
       toast({
         title: "Weak Password",
-        description: "Password must be at least 8 characters long",
-        variant: "destructive"
+        description: "Password must be at least 6 characters long",
+        variant: "destructive",
       });
       return;
     }
 
-    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/.test(signUpData.password)) {
-      toast({
-        title: "Password Requirements",
-        description: "Password must contain uppercase, lowercase, number, and special character",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setLoading(true);
+    setAuthLoading(true);
     try {
       const { error } = await signUp(
-        signUpData.email,
-        signUpData.password,
-        signUpData.firstName,
+        signUpData.email, 
+        signUpData.password, 
+        signUpData.firstName, 
         signUpData.lastName,
         signUpData.role
       );
-
+      
       if (error) {
-        // HIPAA Compliance: Generic error messages
-        let errorMessage = "Account creation failed. Please try again.";
-        
-        if (error.message.includes('already registered')) {
-          errorMessage = "An account with this email already exists. Please sign in instead.";
-        }
-        
         toast({
           title: "Sign Up Failed",
-          description: errorMessage,
-          variant: "destructive"
+          description: error.message,
+          variant: "destructive",
         });
       } else {
         toast({
-          title: "Account Created Successfully!",
-          description: "Please check your email to verify your account before signing in."
+          title: "Account Created!",
+          description: "Please check your email to verify your account before signing in.",
+          duration: 8000,
         });
-        setActiveTab('signin');
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive"
+        description: "An unexpected error occurred",
+        variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setAuthLoading(false);
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-100 flex items-center justify-center p-4">
-      <div className="max-w-6xl w-full flex gap-8">
-        {/* Main Auth Section */}
-        <div className="flex-1 max-w-md space-y-6">
-          {/* FlowIQ Branding Header */}
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900">{currentTenant?.brand_name || 'FlowIQ'}</h1>
-            <p className="text-blue-600 font-medium mt-1">{currentTenant?.tagline || 'The AI Business Operating System'}</p>
-            <p className="text-gray-600 mt-2">Secure & HIPAA Compliant Access</p>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="max-w-md w-full space-y-6">
+        <div className="text-center">
+          <Shield className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+          <h1 className="text-3xl font-bold text-gray-900">FlowIQ</h1>
+          <p className="text-gray-600">Healthcare Practice Management</p>
+        </div>
 
-          {/* HIPAA Notice */}
-          <Alert className="border-blue-200 bg-blue-50">
-            <Lock className="h-4 w-4" />
-            <AlertDescription className="text-sm">
-              This system contains Protected Health Information (PHI). Access is restricted to authorized personnel only. 
-              All activities are logged and monitored for HIPAA compliance.
-            </AlertDescription>
-          </Alert>
+        {/* Email Confirmation Alert */}
+        <Alert className="border-amber-200 bg-amber-50">
+          <AlertCircle className="h-4 w-4 text-amber-600" />
+          <AlertDescription className="text-amber-800">
+            <strong>Note:</strong> Email confirmation is required for new accounts. Check your email after signing up.
+          </AlertDescription>
+        </Alert>
 
-          <Card className="shadow-xl">
-            <CardHeader className="text-center">
-              <CardTitle>Secure Access Portal</CardTitle>
-              <CardDescription>
-                Sign in to your account or create a new one to access healthcare services
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="grid w-full grid-cols-2 bg-white border border-gray-200">
-                  <TabsTrigger 
-                    value="signin"
-                    className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=inactive]:bg-gray-50 data-[state=inactive]:text-gray-700 border-r border-gray-200"
-                  >
-                    Sign In
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="signup"
-                    className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=inactive]:bg-gray-50 data-[state=inactive]:text-gray-700"
-                  >
-                    Sign Up
-                  </TabsTrigger>
-                </TabsList>
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-center">Access Your Account</CardTitle>
+            <CardDescription className="text-center">
+              Sign in to your existing account or create a new one
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="signin" className="space-y-4">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="signin">Sign In</TabsTrigger>
+                <TabsTrigger value="signup">Sign Up</TabsTrigger>
+              </TabsList>
 
-                <TabsContent value="signin" className="mt-4">
-                  <form onSubmit={handleSignIn} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="signin-email">Email Address</Label>
+              <TabsContent value="signin">
+                <form onSubmit={handleSignIn} className="space-y-4">
+                  <div>
+                    <Label htmlFor="signin-email">Email</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
                         id="signin-email"
                         type="email"
+                        placeholder="your@email.com"
+                        className="pl-10"
                         value={signInData.email}
                         onChange={(e) => setSignInData(prev => ({ ...prev, email: e.target.value }))}
-                        placeholder="Enter your email"
-                        className="bg-white border-gray-300"
                         required
-                        autoComplete="email"
                       />
                     </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="signin-password">Password</Label>
-                      <div className="relative">
-                        <Input
-                          id="signin-password"
-                          type={showPassword ? "text" : "password"}
-                          value={signInData.password}
-                          onChange={(e) => setSignInData(prev => ({ ...prev, password: e.target.value }))}
-                          placeholder="Enter your password"
-                          className="pr-10 bg-white border-gray-300"
-                          required
-                          autoComplete="current-password"
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="absolute right-0 top-0 h-full px-3 hover:bg-gray-100"
-                          onClick={() => setShowPassword(!showPassword)}
-                        >
-                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </Button>
-                      </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="signin-password">Password</Label>
+                    <div className="relative">
+                      <Input
+                        id="signin-password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Enter your password"
+                        className="pr-10"
+                        value={signInData.password}
+                        onChange={(e) => setSignInData(prev => ({ ...prev, password: e.target.value }))}
+                        required
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-gray-100"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4 text-gray-400" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-gray-400" />
+                        )}
+                      </Button>
                     </div>
+                  </div>
 
-                    <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={loading}>
-                      {loading ? 'Signing In...' : 'Sign In Securely'}
-                    </Button>
-                  </form>
-                </TabsContent>
+                  <Button type="submit" className="w-full" disabled={authLoading || loading}>
+                    {authLoading ? "Signing In..." : "Sign In"}
+                  </Button>
+                </form>
+              </TabsContent>
 
-                <TabsContent value="signup" className="mt-4">
-                  <form onSubmit={handleSignUp} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="signup-firstName">First Name *</Label>
+              <TabsContent value="signup">
+                <form onSubmit={handleSignUp} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="signup-firstName">First Name</Label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                         <Input
                           id="signup-firstName"
-                          type="text"
+                          placeholder="John"
+                          className="pl-10"
                           value={signUpData.firstName}
                           onChange={(e) => setSignUpData(prev => ({ ...prev, firstName: e.target.value }))}
-                          placeholder="First name"
-                          className="bg-white border-gray-300"
                           required
-                          autoComplete="given-name"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="signup-lastName">Last Name *</Label>
-                        <Input
-                          id="signup-lastName"
-                          type="text"
-                          value={signUpData.lastName}
-                          onChange={(e) => setSignUpData(prev => ({ ...prev, lastName: e.target.value }))}
-                          placeholder="Last name"
-                          className="bg-white border-gray-300"
-                          required
-                          autoComplete="family-name"
                         />
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-email">Email Address *</Label>
+                    <div>
+                      <Label htmlFor="signup-lastName">Last Name</Label>
+                      <Input
+                        id="signup-lastName"
+                        placeholder="Doe"
+                        value={signUpData.lastName}
+                        onChange={(e) => setSignUpData(prev => ({ ...prev, lastName: e.target.value }))}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="signup-email">Email</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
                         id="signup-email"
                         type="email"
+                        placeholder="your@email.com"
+                        className="pl-10"
                         value={signUpData.email}
                         onChange={(e) => setSignUpData(prev => ({ ...prev, email: e.target.value }))}
-                        placeholder="Enter your email"
-                        className="bg-white border-gray-300"
                         required
-                        autoComplete="email"
                       />
                     </div>
+                  </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-role">Account Type</Label>
-                      <select
-                        id="signup-role"
-                        value={signUpData.role}
-                        onChange={(e) => setSignUpData(prev => ({ ...prev, role: e.target.value as 'patient' | 'staff' | 'admin' | 'provider' | 'practice_manager' }))}
-                        className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="patient">Patient</option>
-                        <option value="staff">Healthcare Staff</option>
-                        <option value="provider">Healthcare Provider</option>
-                        <option value="practice_manager">Practice Manager</option>
-                        <option value="admin">Administrator</option>
-                      </select>
-                    </div>
+                  <div>
+                    <Label htmlFor="signup-role">Role</Label>
+                    <Select value={signUpData.role} onValueChange={(value) => setSignUpData(prev => ({ ...prev, role: value }))}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select your role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="patient">Patient</SelectItem>
+                        <SelectItem value="staff">Staff</SelectItem>
+                        <SelectItem value="provider">Provider</SelectItem>
+                        <SelectItem value="practice_manager">Practice Manager</SelectItem>
+                        <SelectItem value="admin">Admin</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-password">Password *</Label>
-                      <div className="relative">
-                        <Input
-                          id="signup-password"
-                          type={showPassword ? "text" : "password"}
-                          value={signUpData.password}
-                          onChange={(e) => setSignUpData(prev => ({ ...prev, password: e.target.value }))}
-                          placeholder="Create a strong password"
-                          className="pr-10 bg-white border-gray-300"
-                          required
-                          autoComplete="new-password"
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="absolute right-0 top-0 h-full px-3 hover:bg-gray-100"
-                          onClick={() => setShowPassword(!showPassword)}
-                        >
-                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </Button>
-                      </div>
-                      <p className="text-xs text-gray-600">
-                        Must be 8+ characters with uppercase, lowercase, number, and special character
-                      </p>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-confirmPassword">Confirm Password *</Label>
+                  <div>
+                    <Label htmlFor="signup-password">Password</Label>
+                    <div className="relative">
                       <Input
-                        id="signup-confirmPassword"
+                        id="signup-password"
                         type={showPassword ? "text" : "password"}
-                        value={signUpData.confirmPassword}
-                        onChange={(e) => setSignUpData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                        placeholder="Confirm your password"
-                        className="bg-white border-gray-300"
+                        placeholder="Create a password"
+                        className="pr-10"
+                        value={signUpData.password}
+                        onChange={(e) => setSignUpData(prev => ({ ...prev, password: e.target.value }))}
                         required
-                        autoComplete="new-password"
                       />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-gray-100"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4 text-gray-400" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-gray-400" />
+                        )}
+                      </Button>
                     </div>
+                  </div>
 
-                    <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={loading}>
-                      {loading ? 'Creating Account...' : 'Create Secure Account'}
-                    </Button>
-                  </form>
-                </TabsContent>
-              </Tabs>
-            </CardContent>
-          </Card>
+                  <div>
+                    <Label htmlFor="signup-confirmPassword">Confirm Password</Label>
+                    <Input
+                      id="signup-confirmPassword"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Confirm your password"
+                      value={signUpData.confirmPassword}
+                      onChange={(e) => setSignUpData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                      required
+                    />
+                  </div>
 
-          {/* HIPAA Compliance Footer */}
-          <div className="text-center text-xs text-gray-600 space-y-2">
-            <div className="flex items-center justify-center gap-2">
-              <AlertTriangle className="h-4 w-4" />
-              <span>HIPAA Compliant System</span>
-            </div>
-            <p>
-              By accessing this system, you acknowledge that you are authorized to view Protected Health Information 
-              and agree to maintain confidentiality in accordance with HIPAA regulations.
-            </p>
-            <p>
-              All access attempts are logged. Unauthorized access is prohibited and may result in legal action.
-            </p>
-            <div className="pt-2 text-blue-600">
-              <span className="font-medium">Powered by {currentTenant?.brand_name || 'FlowIQ'}</span>
-            </div>
-          </div>
-        </div>
+                  <Button type="submit" className="w-full" disabled={authLoading || loading}>
+                    {authLoading ? "Creating Account..." : "Create Account"}
+                  </Button>
+                </form>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
 
-        {/* Role Switcher Panel - Only show for authenticated users */}
-        {user && profile && (
-          <div className="flex-1 max-w-md">
-            <div className="space-y-4">
-              <div className="text-center">
-                <h2 className="text-2xl font-bold text-gray-900">Testing Panel</h2>
-                <p className="text-gray-600">Switch between different user roles to test the application</p>
-              </div>
-              
-              <RoleSwitcher />
-              
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <h3 className="font-semibold text-yellow-800 mb-2">Test Accounts</h3>
-                <div className="text-sm text-yellow-700 space-y-1">
-                  <p><strong>Admin:</strong> jayschaaf71@gmail.com</p>
-                  <p><strong>Provider:</strong> jason@blackknightai.com</p>
-                  <p><strong>Practice Manager:</strong> jayschaaf@yahoo.com</p>
-                  <p className="mt-2 text-xs">Use your existing passwords for these accounts.</p>
-                </div>
-              </div>
-            </div>
+        {/* Role Switcher for Testing (only show when signed in) */}
+        {user && (
+          <div className="space-y-4">
+            <RoleSwitcher />
           </div>
         )}
+
+        <p className="text-center text-sm text-gray-600">
+          By signing up, you agree to our terms of service and privacy policy.
+        </p>
       </div>
     </div>
   );
 };
+
+export default AuthPage;
