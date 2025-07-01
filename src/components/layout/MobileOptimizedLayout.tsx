@@ -24,7 +24,7 @@ export const MobileOptimizedLayout: React.FC<MobileOptimizedLayoutProps> = ({ ch
   const location = useLocation();
 
   const navItems = [
-    { icon: Home, label: 'Dashboard', path: '/' },
+    { icon: Home, label: 'Dashboard', path: '/dashboard' },
     { icon: Calendar, label: 'Schedule', path: '/schedule' },
     { icon: Users, label: 'Patients', path: '/patient-management' },
     { icon: FileText, label: 'EHR', path: '/ehr' },

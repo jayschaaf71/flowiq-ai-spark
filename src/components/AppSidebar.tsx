@@ -50,7 +50,7 @@ export const AppSidebar = () => {
   const { isPlatformAdmin, hasMinimumRole, primaryTenant } = useEnhancedAuth();
   
   const mainNavigationItems = [
-    { icon: Home, label: "Dashboard", path: "/", badge: null },
+    { icon: Home, label: "Dashboard", path: "/dashboard", badge: null },
     { icon: Users, label: "Patients", path: "/patient-management", badge: null },
     { icon: Database, label: "EHR", path: "/ehr", badge: null },
     { icon: TrendingUp, label: "Insights", path: "/insights", badge: null },
