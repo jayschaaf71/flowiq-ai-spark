@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Dashboard } from './pages/Dashboard';
@@ -24,6 +25,7 @@ import AuthTesting from '@/pages/AuthTesting';
 import DentalSleepDemo from '@/pages/DentalSleepDemo';
 import { FinancialManagementPage } from '@/pages/FinancialManagementPage';
 import { PatientExperiencePage } from '@/pages/PatientExperiencePage';
+import { Layout } from '@/components/Layout';
 
 const queryClient = new QueryClient();
 
@@ -46,60 +48,82 @@ function App() {
                 <Route path="/patient-dashboard" element={<PatientDashboard />} />
                 <Route path="/dashboard" element={
                   <TenantWrapper>
-                    <Dashboard />
+                    <Layout>
+                      <Dashboard />
+                    </Layout>
                   </TenantWrapper>
                 } />
                 <Route path="/financial" element={
                   <TenantWrapper>
-                    <FinancialManagementPage />
+                    <Layout>
+                      <FinancialManagementPage />
+                    </Layout>
                   </TenantWrapper>
                 } />
                 <Route path="/patient-experience" element={
                   <TenantWrapper>
-                    <PatientExperiencePage />
+                    <Layout>
+                      <PatientExperiencePage />
+                    </Layout>
                   </TenantWrapper>
                 } />
                 <Route path="/analytics" element={
                   <TenantWrapper>
-                    <Analytics />
+                    <Layout>
+                      <Analytics />
+                    </Layout>
                   </TenantWrapper>
                 } />
                 <Route path="/advanced-analytics" element={
                   <TenantWrapper>
-                    <AdvancedAnalytics />
+                    <Layout>
+                      <AdvancedAnalytics />
+                    </Layout>
                   </TenantWrapper>
                 } />
                 <Route path="/compliance" element={
                   <TenantWrapper>
-                    <ComplianceSecurityPage />
+                    <Layout>
+                      <ComplianceSecurityPage />
+                    </Layout>
                   </TenantWrapper>
                 } />
                 <Route path="/patient-portal" element={<PatientPortal />} />
                 <Route path="/provider-mobile" element={
                   <TenantWrapper>
-                    <ProviderMobile />
+                    <Layout>
+                      <ProviderMobile />
+                    </Layout>
                   </TenantWrapper>
                 } />
                 <Route path="/provider/patient-prep/:appointmentId" element={
                   <TenantWrapper>
-                    <PatientPrepPage />
+                    <Layout>
+                      <PatientPrepPage />
+                    </Layout>
                   </TenantWrapper>
                 } />
                 <Route path="/complete-intake" element={<CompleteIntakeFlow />} />
                 <Route path="/booking-widget" element={<BookingWidgetDemo />} />
                 <Route path="/schedule" element={
                   <TenantWrapper>
-                    <Schedule />
+                    <Layout>
+                      <Schedule />
+                    </Layout>
                   </TenantWrapper>
                 } />
                 <Route path="/ehr" element={
                   <TenantWrapper>
-                    <EHR />
+                    <Layout>
+                      <EHR />
+                    </Layout>
                   </TenantWrapper>
                 } />
                 <Route path="/settings" element={
                   <TenantWrapper>
-                    <Settings />
+                    <Layout>
+                      <Settings />
+                    </Layout>
                   </TenantWrapper>
                 } />
               </Routes>
