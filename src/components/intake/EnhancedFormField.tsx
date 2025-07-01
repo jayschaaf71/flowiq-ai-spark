@@ -149,6 +149,10 @@ export const EnhancedFormField: React.FC<EnhancedFormFieldProps> = ({
                 onSelect={(date) => onChange(date ? format(date, 'yyyy-MM-dd') : '')}
                 initialFocus
                 className="p-3 pointer-events-auto"
+                captionLayout="dropdown-buttons"
+                fromYear={1900}
+                toYear={new Date().getFullYear()}
+                defaultMonth={value ? new Date(value) : new Date(1990, 0)}
               />
             </PopoverContent>
           </Popover>
