@@ -1,6 +1,5 @@
 
 import { useState } from "react";
-import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,8 +10,7 @@ const InsightIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
 
   return (
-    <Layout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <PageHeader 
           title="Insight iQ"
           subtitle="AI-powered practice analytics and intelligent insights"
@@ -167,8 +165,7 @@ const InsightIQ = () => {
             </Card>
           </TabsContent>
         </Tabs>
-      </div>
-    </Layout>
+    </div>
   );
 };
 

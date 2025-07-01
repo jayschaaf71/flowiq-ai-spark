@@ -1,6 +1,5 @@
 
 import { useState } from "react";
-import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,7 +10,7 @@ const FollowupIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
 
   return (
-    <Layout>
+    <>
       <PageHeader 
         title="Follow-up iQ"
         subtitle="AI-powered patient follow-up and engagement automation"
@@ -151,7 +150,7 @@ const FollowupIQ = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </Layout>
+    </>
   );
 };
 
