@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,7 +13,8 @@ import {
   Zap,
   ArrowRight,
   LogIn,
-  Moon
+  Moon,
+  Loader2
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -21,7 +23,7 @@ import { useCurrentTenant } from "@/utils/enhancedTenantConfig";
 const Index = () => {
   const navigate = useNavigate();
   const { user, profile, loading } = useAuth();
-  const { currentTenant } = useCurrentTenant();
+  const { currentTenant, loading: tenantLoading } = useCurrentTenant();
 
   const handleGetStarted = () => {
     console.log("Get Started clicked", { user, profile });
@@ -50,17 +52,20 @@ const Index = () => {
     navigate('/auth');
   };
 
-  // Show loading state while checking auth
-  if (loading) {
+  // Show loading state while checking auth or tenant
+  if (loading || tenantLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <Loader2 className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4" />
           <p className="text-gray-600">Loading...</p>
         </div>
       </div>
     );
   }
+
+  // Debug: Log current state
+  console.log("Index page rendering:", { user: !!user, profile, currentTenant, loading, tenantLoading });
 
   const features = [
     {
