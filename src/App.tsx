@@ -22,6 +22,7 @@ import { TenantWrapper } from '@/components/wrappers';
 import { AuthPage } from '@/components/auth/AuthPage';
 import { PatientDashboard } from '@/pages/PatientDashboard';
 import AuthTesting from '@/pages/AuthTesting';
+import DentalSleepDemo from '@/pages/DentalSleepDemo';
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,11 @@ function App() {
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/auth-testing" element={<AuthTesting />} />
+                <Route path="/dental-sleep-demo" element={
+                  <TenantWrapper>
+                    <DentalSleepDemo />
+                  </TenantWrapper>
+                } />
                 <Route path="/patient-dashboard" element={<PatientDashboard />} />
                 <Route path="/dashboard" element={
                   <TenantWrapper>

@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,7 +11,8 @@ import {
   Shield,
   Zap,
   ArrowRight,
-  LogIn
+  LogIn,
+  Moon
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -131,6 +131,16 @@ const Index = () => {
                       <ArrowRight className="ml-2 w-5 h-5" />
                     </>
                   )}
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="px-8 py-3 text-lg border-blue-600 text-blue-600 hover:bg-blue-50"
+                  onClick={() => navigate('/dental-sleep-demo')}
+                >
+                  <Moon className="mr-2 w-5 h-5" />
+                  View Demo
                 </Button>
                 
                 {!user && (

@@ -9,7 +9,7 @@ interface ChiropracticWrapperProps {
 
 export const ChiropracticWrapper: React.FC<ChiropracticWrapperProps> = ({ children }) => {
   return (
-    <TenantProtectedRoute requiredRole="patient" allowPatients={true}>
+    <TenantProtectedRoute requiredRole="staff">
       <SpecialtyProvider>
         <div className="chiropractic-theme">
           <style>{`
