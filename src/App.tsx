@@ -33,6 +33,8 @@ import Team from '@/pages/Team';
 import Help from '@/pages/Help';
 import Insights from '@/pages/Insights';
 import Notifications from '@/pages/Notifications';
+import CheckIn from '@/pages/CheckIn';
+import ProviderSchedulingPage from '@/pages/ProviderScheduling';
 // AI Agent imports
 import ScheduleIQ from '@/pages/agents/ScheduleIQ';
 import IntakeIQ from '@/pages/agents/IntakeIQ';
@@ -172,6 +174,20 @@ function App() {
                   <TenantWrapper>
                     <Layout>
                       <Help />
+                    </Layout>
+                  </TenantWrapper>
+                } />
+                <Route path="/checkin" element={
+                  <TenantWrapper>
+                    <Layout>
+                      <CheckIn />
+                    </Layout>
+                  </TenantWrapper>
+                } />
+                <Route path="/provider-scheduling" element={
+                  <TenantWrapper>
+                    <Layout>
+                      <ProviderSchedulingPage />
                     </Layout>
                   </TenantWrapper>
                 } />
