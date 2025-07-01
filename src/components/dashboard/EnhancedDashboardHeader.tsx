@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -55,7 +56,7 @@ export const EnhancedDashboardHeader: React.FC = () => {
               <div>
                 <h1 className="text-2xl font-bold">FlowIQ Dashboard</h1>
                 <p className="text-sm text-muted-foreground">
-                  AI-powered healthcare practice management
+                  AI-powered practice management
                 </p>
               </div>
             </div>
