@@ -6,7 +6,7 @@ import { FileText, Activity, Stethoscope } from "lucide-react";
 
 const EHR = () => {
   return (
-    <Layout>
+    <>
       <PageHeader 
         title="Electronic Health Records"
         subtitle="Patient records, SOAP notes, and clinical documentation"
@@ -67,7 +67,7 @@ const EHR = () => {
           </CardContent>
         </Card>
       </div>
-    </Layout>
+    </>
   );
 };
 
