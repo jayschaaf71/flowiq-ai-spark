@@ -35,6 +35,8 @@ export const useCurrentTenant = () => {
   useEffect(() => {
     const fetchTenant = async () => {
       try {
+        setLoading(true);
+        
         // If no user, use default tenant
         if (!user || !profile) {
           const tenant = { ...DEFAULT_TENANT, brandName: DEFAULT_TENANT.brand_name };

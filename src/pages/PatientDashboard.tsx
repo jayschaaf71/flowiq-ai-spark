@@ -15,16 +15,41 @@ import {
   Settings,
   LogOut,
   Phone,
-  Mail
+  Mail,
+  Loader2
 } from 'lucide-react';
 
 export const PatientDashboard: React.FC = () => {
-  const { user, profile, signOut } = useAuth();
-  const { currentTenant } = useCurrentTenant();
+  const { user, profile, signOut, loading: authLoading } = useAuth();
+  const { currentTenant, loading: tenantLoading } = useCurrentTenant();
 
   const handleSignOut = async () => {
     await signOut();
   };
+
+  // Show loading state while authentication or tenant data is loading
+  if (authLoading || tenantLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 flex items-center justify-center">
+        <div className="flex items-center gap-3">
+          <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+          <span className="text-lg text-gray-700">Loading your dashboard...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // If user is not authenticated, don't render (should be handled by route protection)
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Authentication Required</h2>
+          <p className="text-gray-600">Please sign in to access your dashboard.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
@@ -40,7 +65,9 @@ export const PatientDashboard: React.FC = () => {
                 <h1 className="text-xl font-bold text-gray-900">
                   {currentTenant?.brand_name || 'FlowIQ'} Patient Portal
                 </h1>
-                <p className="text-sm text-gray-600">Welcome back, {profile?.first_name || 'Patient'}</p>
+                <p className="text-sm text-gray-600">
+                  Welcome back, {profile?.first_name || user?.email || 'Patient'}
+                </p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -67,7 +94,7 @@ export const PatientDashboard: React.FC = () => {
         <div className="mb-8">
           <div className="bg-gradient-to-r from-blue-600 to-green-600 rounded-lg p-6 text-white">
             <h2 className="text-2xl font-bold mb-2">
-              Welcome to your health dashboard, {profile?.first_name}!
+              Welcome to your health dashboard, {profile?.first_name || 'Patient'}!
             </h2>
             <p className="text-blue-100">
               Manage your appointments, view your health records, and stay connected with your care team.
