@@ -17,6 +17,12 @@ import {
 export const DentalSleepDashboard = () => {
   const { config } = useSpecialty();
 
+  // Fallback config for demo purposes
+  const displayConfig = config || {
+    name: 'Dental Sleep Medicine Practice',
+    tagline: 'Advanced sleep apnea treatment solutions'
+  };
+
   const todaysMetrics = {
     appointments: 8,
     newConsults: 2,
@@ -35,8 +41,8 @@ export const DentalSleepDashboard = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-blue-800">{config.name}</h1>
-          <p className="text-blue-600">{config.tagline}</p>
+          <h1 className="text-3xl font-bold text-blue-800">{displayConfig.name}</h1>
+          <p className="text-blue-600">{displayConfig.tagline}</p>
         </div>
         <div className="flex items-center gap-3">
           <Badge variant="secondary" className="bg-blue-100 text-blue-800">
