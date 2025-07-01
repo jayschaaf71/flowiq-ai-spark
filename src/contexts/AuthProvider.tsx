@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthState } from '@/hooks/useAuthState';
@@ -23,6 +23,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, firstName?: string, lastName?: string, role?: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  switchRole: (newRole: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -36,22 +37,105 @@ export const useAuth = () => {
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, session, loading } = useAuthState();
+  const { user, session, loading: authLoading } = useAuthState();
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [profileLoading, setProfileLoading] = useState(false);
   const { toast } = useToast();
-  
-  // Mock profile for now - in production this would come from Supabase
-  const profile: Profile | null = user ? {
-    id: user.id,
-    email: user.email || '',
-    first_name: user.user_metadata?.first_name,
-    last_name: user.user_metadata?.last_name,
-    role: user.user_metadata?.role || 'patient',
-    tenant_id: user.user_metadata?.tenant_id
-  } : null;
+
+  const loading = authLoading || profileLoading;
+
+  // Fetch user profile from the profiles table
+  const fetchProfile = async (userId: string) => {
+    try {
+      setProfileLoading(true);
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        console.error('Error fetching profile:', error);
+        // If profile doesn't exist, create a default one
+        if (error.code === 'PGRST116') {
+          const { data: newProfile, error: createError } = await supabase
+            .from('profiles')
+            .insert([{
+              id: userId,
+              email: user?.email || '',
+              role: 'patient'
+            }])
+            .select()
+            .single();
+
+          if (createError) {
+            console.error('Error creating profile:', createError);
+            return null;
+          }
+          return newProfile;
+        }
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Unexpected error fetching profile:', error);
+      return null;
+    } finally {
+      setProfileLoading(false);
+    }
+  };
+
+  // Update profile when user changes
+  useEffect(() => {
+    if (user) {
+      fetchProfile(user.id).then(setProfile);
+    } else {
+      setProfile(null);
+    }
+  }, [user]);
 
   const refreshProfile = async () => {
-    // In production, this would fetch from profiles table
-    console.log('Profile refresh requested for user:', user?.id);
+    if (user) {
+      const updatedProfile = await fetchProfile(user.id);
+      setProfile(updatedProfile);
+    }
+  };
+
+  const switchRole = async (newRole: string) => {
+    if (!user || !profile) return;
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ role: newRole })
+        .eq('id', user.id);
+
+      if (error) {
+        console.error('Error switching role:', error);
+        toast({
+          title: "Role Switch Failed",
+          description: "Unable to switch role. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Update local profile
+      setProfile({ ...profile, role: newRole });
+      
+      toast({
+        title: "Role Switched",
+        description: `Successfully switched to ${newRole} role.`,
+      });
+    } catch (error) {
+      console.error('Unexpected error switching role:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred.",
+        variant: "destructive",
+      });
+    }
   };
 
   const signIn = async (email: string, password: string) => {
@@ -101,6 +185,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signOut = async () => {
     try {
       await supabase.auth.signOut();
+      setProfile(null);
     } catch (error) {
       console.error('Sign out error:', error);
       toast({
@@ -120,6 +205,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signUp,
     signOut,
     refreshProfile,
+    switchRole,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Shield, Lock, Eye, EyeOff, AlertTriangle } from 'lucide-react';
 import { useCurrentTenant } from '@/utils/enhancedTenantConfig';
 import { useNavigate, Navigate } from 'react-router-dom';
+import { RoleSwitcher } from './RoleSwitcher';
 
 export const AuthPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('signin');
@@ -30,7 +30,7 @@ export const AuthPage: React.FC = () => {
     confirmPassword: '',
     firstName: '',
     lastName: '',
-    role: 'patient' as 'patient' | 'staff' | 'admin'
+    role: 'patient' as 'patient' | 'staff' | 'admin' | 'provider' | 'practice_manager'
   });
 
   const { signIn, signUp, user, profile } = useAuth();
@@ -38,12 +38,17 @@ export const AuthPage: React.FC = () => {
   const { currentTenant } = useCurrentTenant();
   const navigate = useNavigate();
 
-  // Redirect authenticated users
-  if (user) {
-    if (profile?.role === 'patient') {
-      return <Navigate to="/patient-dashboard" replace />;
-    } else {
-      return <Navigate to="/" replace />;
+  // Redirect authenticated users based on their role
+  if (user && profile) {
+    switch (profile.role) {
+      case 'patient':
+        return <Navigate to="/patient-dashboard" replace />;
+      case 'admin':
+      case 'practice_manager':
+      case 'provider':
+      case 'staff':
+      default:
+        return <Navigate to="/" replace />;
     }
   }
 
@@ -179,220 +184,250 @@ export const AuthPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-100 flex items-center justify-center p-4">
-      <div className="max-w-md w-full space-y-6">
-        {/* FlowIQ Branding Header */}
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">{currentTenant?.brand_name || 'FlowIQ'}</h1>
-          <p className="text-blue-600 font-medium mt-1">{currentTenant?.tagline || 'The AI Business Operating System'}</p>
-          <p className="text-gray-600 mt-2">Secure & HIPAA Compliant Access</p>
-        </div>
+      <div className="max-w-6xl w-full flex gap-8">
+        {/* Main Auth Section */}
+        <div className="flex-1 max-w-md space-y-6">
+          {/* FlowIQ Branding Header */}
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-gray-900">{currentTenant?.brand_name || 'FlowIQ'}</h1>
+            <p className="text-blue-600 font-medium mt-1">{currentTenant?.tagline || 'The AI Business Operating System'}</p>
+            <p className="text-gray-600 mt-2">Secure & HIPAA Compliant Access</p>
+          </div>
 
-        {/* HIPAA Notice */}
-        <Alert className="border-blue-200 bg-blue-50">
-          <Lock className="h-4 w-4" />
-          <AlertDescription className="text-sm">
-            This system contains Protected Health Information (PHI). Access is restricted to authorized personnel only. 
-            All activities are logged and monitored for HIPAA compliance.
-          </AlertDescription>
-        </Alert>
+          {/* HIPAA Notice */}
+          <Alert className="border-blue-200 bg-blue-50">
+            <Lock className="h-4 w-4" />
+            <AlertDescription className="text-sm">
+              This system contains Protected Health Information (PHI). Access is restricted to authorized personnel only. 
+              All activities are logged and monitored for HIPAA compliance.
+            </AlertDescription>
+          </Alert>
 
-        <Card className="shadow-xl">
-          <CardHeader className="text-center">
-            <CardTitle>Secure Access Portal</CardTitle>
-            <CardDescription>
-              Sign in to your account or create a new one to access healthcare services
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-2 bg-white border border-gray-200">
-                <TabsTrigger 
-                  value="signin"
-                  className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=inactive]:bg-gray-50 data-[state=inactive]:text-gray-700 border-r border-gray-200"
-                >
-                  Sign In
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="signup"
-                  className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=inactive]:bg-gray-50 data-[state=inactive]:text-gray-700"
-                >
-                  Sign Up
-                </TabsTrigger>
-              </TabsList>
+          <Card className="shadow-xl">
+            <CardHeader className="text-center">
+              <CardTitle>Secure Access Portal</CardTitle>
+              <CardDescription>
+                Sign in to your account or create a new one to access healthcare services
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList className="grid w-full grid-cols-2 bg-white border border-gray-200">
+                  <TabsTrigger 
+                    value="signin"
+                    className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=inactive]:bg-gray-50 data-[state=inactive]:text-gray-700 border-r border-gray-200"
+                  >
+                    Sign In
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="signup"
+                    className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=inactive]:bg-gray-50 data-[state=inactive]:text-gray-700"
+                  >
+                    Sign Up
+                  </TabsTrigger>
+                </TabsList>
 
-              <TabsContent value="signin" className="mt-4">
-                <form onSubmit={handleSignIn} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signin-email">Email Address</Label>
-                    <Input
-                      id="signin-email"
-                      type="email"
-                      value={signInData.email}
-                      onChange={(e) => setSignInData(prev => ({ ...prev, email: e.target.value }))}
-                      placeholder="Enter your email"
-                      className="bg-white border-gray-300"
-                      required
-                      autoComplete="email"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="signin-password">Password</Label>
-                    <div className="relative">
+                <TabsContent value="signin" className="mt-4">
+                  <form onSubmit={handleSignIn} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="signin-email">Email Address</Label>
                       <Input
-                        id="signin-password"
-                        type={showPassword ? "text" : "password"}
-                        value={signInData.password}
-                        onChange={(e) => setSignInData(prev => ({ ...prev, password: e.target.value }))}
-                        placeholder="Enter your password"
-                        className="pr-10 bg-white border-gray-300"
+                        id="signin-email"
+                        type="email"
+                        value={signInData.email}
+                        onChange={(e) => setSignInData(prev => ({ ...prev, email: e.target.value }))}
+                        placeholder="Enter your email"
+                        className="bg-white border-gray-300"
                         required
-                        autoComplete="current-password"
+                        autoComplete="email"
                       />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full px-3 hover:bg-gray-100"
-                        onClick={() => setShowPassword(!showPassword)}
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="signin-password">Password</Label>
+                      <div className="relative">
+                        <Input
+                          id="signin-password"
+                          type={showPassword ? "text" : "password"}
+                          value={signInData.password}
+                          onChange={(e) => setSignInData(prev => ({ ...prev, password: e.target.value }))}
+                          placeholder="Enter your password"
+                          className="pr-10 bg-white border-gray-300"
+                          required
+                          autoComplete="current-password"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-0 top-0 h-full px-3 hover:bg-gray-100"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                    </div>
+
+                    <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={loading}>
+                      {loading ? 'Signing In...' : 'Sign In Securely'}
+                    </Button>
+                  </form>
+                </TabsContent>
+
+                <TabsContent value="signup" className="mt-4">
+                  <form onSubmit={handleSignUp} className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-firstName">First Name *</Label>
+                        <Input
+                          id="signup-firstName"
+                          type="text"
+                          value={signUpData.firstName}
+                          onChange={(e) => setSignUpData(prev => ({ ...prev, firstName: e.target.value }))}
+                          placeholder="First name"
+                          className="bg-white border-gray-300"
+                          required
+                          autoComplete="given-name"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-lastName">Last Name *</Label>
+                        <Input
+                          id="signup-lastName"
+                          type="text"
+                          value={signUpData.lastName}
+                          onChange={(e) => setSignUpData(prev => ({ ...prev, lastName: e.target.value }))}
+                          placeholder="Last name"
+                          className="bg-white border-gray-300"
+                          required
+                          autoComplete="family-name"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-email">Email Address *</Label>
+                      <Input
+                        id="signup-email"
+                        type="email"
+                        value={signUpData.email}
+                        onChange={(e) => setSignUpData(prev => ({ ...prev, email: e.target.value }))}
+                        placeholder="Enter your email"
+                        className="bg-white border-gray-300"
+                        required
+                        autoComplete="email"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-role">Account Type</Label>
+                      <select
+                        id="signup-role"
+                        value={signUpData.role}
+                        onChange={(e) => setSignUpData(prev => ({ ...prev, role: e.target.value as 'patient' | 'staff' | 'admin' | 'provider' | 'practice_manager' }))}
+                        className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </Button>
+                        <option value="patient">Patient</option>
+                        <option value="staff">Healthcare Staff</option>
+                        <option value="provider">Healthcare Provider</option>
+                        <option value="practice_manager">Practice Manager</option>
+                        <option value="admin">Administrator</option>
+                      </select>
                     </div>
-                  </div>
 
-                  <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={loading}>
-                    {loading ? 'Signing In...' : 'Sign In Securely'}
-                  </Button>
-                </form>
-              </TabsContent>
-
-              <TabsContent value="signup" className="mt-4">
-                <form onSubmit={handleSignUp} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="signup-firstName">First Name *</Label>
-                      <Input
-                        id="signup-firstName"
-                        type="text"
-                        value={signUpData.firstName}
-                        onChange={(e) => setSignUpData(prev => ({ ...prev, firstName: e.target.value }))}
-                        placeholder="First name"
-                        className="bg-white border-gray-300"
-                        required
-                        autoComplete="given-name"
-                      />
+                      <Label htmlFor="signup-password">Password *</Label>
+                      <div className="relative">
+                        <Input
+                          id="signup-password"
+                          type={showPassword ? "text" : "password"}
+                          value={signUpData.password}
+                          onChange={(e) => setSignUpData(prev => ({ ...prev, password: e.target.value }))}
+                          placeholder="Create a strong password"
+                          className="pr-10 bg-white border-gray-300"
+                          required
+                          autoComplete="new-password"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-0 top-0 h-full px-3 hover:bg-gray-100"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                      <p className="text-xs text-gray-600">
+                        Must be 8+ characters with uppercase, lowercase, number, and special character
+                      </p>
                     </div>
+
                     <div className="space-y-2">
-                      <Label htmlFor="signup-lastName">Last Name *</Label>
+                      <Label htmlFor="signup-confirmPassword">Confirm Password *</Label>
                       <Input
-                        id="signup-lastName"
-                        type="text"
-                        value={signUpData.lastName}
-                        onChange={(e) => setSignUpData(prev => ({ ...prev, lastName: e.target.value }))}
-                        placeholder="Last name"
-                        className="bg-white border-gray-300"
-                        required
-                        autoComplete="family-name"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email Address *</Label>
-                    <Input
-                      id="signup-email"
-                      type="email"
-                      value={signUpData.email}
-                      onChange={(e) => setSignUpData(prev => ({ ...prev, email: e.target.value }))}
-                      placeholder="Enter your email"
-                      className="bg-white border-gray-300"
-                      required
-                      autoComplete="email"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-role">Account Type</Label>
-                    <select
-                      id="signup-role"
-                      value={signUpData.role}
-                      onChange={(e) => setSignUpData(prev => ({ ...prev, role: e.target.value as 'patient' | 'staff' | 'admin' }))}
-                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="patient">Patient</option>
-                      <option value="staff">Healthcare Staff</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password">Password *</Label>
-                    <div className="relative">
-                      <Input
-                        id="signup-password"
+                        id="signup-confirmPassword"
                         type={showPassword ? "text" : "password"}
-                        value={signUpData.password}
-                        onChange={(e) => setSignUpData(prev => ({ ...prev, password: e.target.value }))}
-                        placeholder="Create a strong password"
-                        className="pr-10 bg-white border-gray-300"
+                        value={signUpData.confirmPassword}
+                        onChange={(e) => setSignUpData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                        placeholder="Confirm your password"
+                        className="bg-white border-gray-300"
                         required
                         autoComplete="new-password"
                       />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full px-3 hover:bg-gray-100"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </Button>
                     </div>
-                    <p className="text-xs text-gray-600">
-                      Must be 8+ characters with uppercase, lowercase, number, and special character
-                    </p>
-                  </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-confirmPassword">Confirm Password *</Label>
-                    <Input
-                      id="signup-confirmPassword"
-                      type={showPassword ? "text" : "password"}
-                      value={signUpData.confirmPassword}
-                      onChange={(e) => setSignUpData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                      placeholder="Confirm your password"
-                      className="bg-white border-gray-300"
-                      required
-                      autoComplete="new-password"
-                    />
-                  </div>
+                    <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={loading}>
+                      {loading ? 'Creating Account...' : 'Create Secure Account'}
+                    </Button>
+                  </form>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
 
-                  <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={loading}>
-                    {loading ? 'Creating Account...' : 'Create Secure Account'}
-                  </Button>
-                </form>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
-
-        {/* HIPAA Compliance Footer */}
-        <div className="text-center text-xs text-gray-600 space-y-2">
-          <div className="flex items-center justify-center gap-2">
-            <AlertTriangle className="h-4 w-4" />
-            <span>HIPAA Compliant System</span>
-          </div>
-          <p>
-            By accessing this system, you acknowledge that you are authorized to view Protected Health Information 
-            and agree to maintain confidentiality in accordance with HIPAA regulations.
-          </p>
-          <p>
-            All access attempts are logged. Unauthorized access is prohibited and may result in legal action.
-          </p>
-          <div className="pt-2 text-blue-600">
-            <span className="font-medium">Powered by {currentTenant?.brand_name || 'FlowIQ'}</span>
+          {/* HIPAA Compliance Footer */}
+          <div className="text-center text-xs text-gray-600 space-y-2">
+            <div className="flex items-center justify-center gap-2">
+              <AlertTriangle className="h-4 w-4" />
+              <span>HIPAA Compliant System</span>
+            </div>
+            <p>
+              By accessing this system, you acknowledge that you are authorized to view Protected Health Information 
+              and agree to maintain confidentiality in accordance with HIPAA regulations.
+            </p>
+            <p>
+              All access attempts are logged. Unauthorized access is prohibited and may result in legal action.
+            </p>
+            <div className="pt-2 text-blue-600">
+              <span className="font-medium">Powered by {currentTenant?.brand_name || 'FlowIQ'}</span>
+            </div>
           </div>
         </div>
+
+        {/* Role Switcher Panel - Only show for authenticated users */}
+        {user && profile && (
+          <div className="flex-1 max-w-md">
+            <div className="space-y-4">
+              <div className="text-center">
+                <h2 className="text-2xl font-bold text-gray-900">Testing Panel</h2>
+                <p className="text-gray-600">Switch between different user roles to test the application</p>
+              </div>
+              
+              <RoleSwitcher />
+              
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <h3 className="font-semibold text-yellow-800 mb-2">Test Accounts</h3>
+                <div className="text-sm text-yellow-700 space-y-1">
+                  <p><strong>Admin:</strong> jayschaaf71@gmail.com</p>
+                  <p><strong>Provider:</strong> jason@blackknightai.com</p>
+                  <p><strong>Practice Manager:</strong> jayschaaf@yahoo.com</p>
+                  <p className="mt-2 text-xs">Use your existing passwords for these accounts.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
