@@ -48,6 +48,7 @@ import InsightIQ from '@/pages/agents/InsightIQ';
 import AssistIQ from '@/pages/agents/AssistIQ';
 import EHRIQ from '@/pages/agents/EHRIQ';
 import ManagerAgent from '@/pages/ManagerAgent';
+import PilotDashboard from '@/pages/PilotDashboard';
 
 const queryClient = new QueryClient();
 
@@ -195,6 +196,13 @@ function App() {
                   <TenantWrapper>
                     <Layout>
                       <ManagerAgent />
+                    </Layout>
+                  </TenantWrapper>
+                } />
+                <Route path="/pilot" element={
+                  <TenantWrapper>
+                    <Layout>
+                      <PilotDashboard />
                     </Layout>
                   </TenantWrapper>
                 } />

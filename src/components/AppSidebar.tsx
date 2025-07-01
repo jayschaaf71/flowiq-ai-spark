@@ -85,6 +85,7 @@ export const AppSidebar = () => {
 
   const managementItems = [
     { icon: UserPlus, label: "Manager Agent", path: "/manager", badge: "AI" },
+    { icon: Building2, label: "Beta Pilot", path: "/pilot", badge: "Live" },
     ...(hasMinimumRole('practice_manager') ? [{ icon: Users, label: "Team", path: "/team", badge: null }] : []),
     ...(hasMinimumRole('tenant_admin') ? [{ icon: Building2, label: "Practice Setup", path: "/setup", badge: null }] : []),
     ...(isPlatformAdmin ? [{ icon: Building2, label: "Tenant Admin", path: "/tenant-admin", badge: "Enterprise" }] : []),
