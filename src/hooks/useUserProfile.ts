@@ -22,5 +22,6 @@ export const useUserProfile = () => {
     enabled: !!user?.id,
     staleTime: 0, // Force fresh data every time
     gcTime: 0, // Don't cache the data
+    refetchInterval: 1000, // Refetch every second to ensure fresh data
   });
 };
