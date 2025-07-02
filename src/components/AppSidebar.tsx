@@ -89,7 +89,7 @@ export const AppSidebar = () => {
 
   const bottomItems = [
     { icon: Settings, label: "Settings", path: "/settings" },
-    { icon: HelpCircle, label: "Help", path: "/help" },
+    { icon: HelpCircle, label: "AssistIQ", path: "/help" },
   ];
 
   const isActive = (path: string) => location.pathname === path;
