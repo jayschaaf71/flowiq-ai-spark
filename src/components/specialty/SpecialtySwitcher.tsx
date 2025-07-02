@@ -1,7 +1,4 @@
 import React from 'react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
 
 export interface SpecialtyOption {
   id: string;
@@ -58,86 +55,69 @@ export const SpecialtySwitcher: React.FC<SpecialtySwitcherProps> = ({
 }) => {
   const currentOption = specialtyOptions.find(opt => opt.specialty === currentSpecialty) || specialtyOptions[0];
 
-  const getBackgroundColor = (color: string) => {
-    switch (color) {
-      case 'green': return 'bg-green-50 border-green-200';
-      case 'blue': return 'bg-blue-50 border-blue-200';
-      case 'purple': return 'bg-purple-50 border-purple-200';
-      case 'indigo': return 'bg-indigo-50 border-indigo-200';
-      default: return 'bg-gray-50 border-gray-200';
-    }
-  };
-
-  const getTextColor = (color: string) => {
-    switch (color) {
-      case 'green': return 'text-green-800';
-      case 'blue': return 'text-blue-800';
-      case 'purple': return 'text-purple-800';
-      case 'indigo': return 'text-indigo-800';
-      default: return 'text-gray-800';
-    }
-  };
-
-  const getBadgeColor = (color: string) => {
-    switch (color) {
-      case 'green': return 'bg-green-100 text-green-800';
-      case 'blue': return 'bg-blue-100 text-blue-800';
-      case 'purple': return 'bg-purple-100 text-purple-800';
-      case 'indigo': return 'bg-indigo-100 text-indigo-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
   return (
-    <Card className={getBackgroundColor(currentOption.color)}>
-      <CardContent className="p-6">
-        {/* Top Section - Brand Name and Badge */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="md:col-span-2">
-            <h1 className={`text-2xl font-bold ${getTextColor(currentOption.color)} mb-2`}>
-              {currentOption.brandName}
-            </h1>
-            <p className={`text-sm ${getTextColor(currentOption.color)} opacity-75`}>
-              {currentOption.description}
-            </p>
-          </div>
-          <div className="flex justify-start md:justify-end items-start">
-            <Badge className={getBadgeColor(currentOption.color)}>
-              {currentOption.name}
-            </Badge>
-          </div>
-        </div>
-
-        {/* Bottom Section - Controls */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          <span className="text-sm font-medium text-gray-700 whitespace-nowrap">
-            Switch Specialty:
-          </span>
-          <Select
-            value={currentOption.id}
-            onValueChange={(value) => {
-              const selected = specialtyOptions.find(opt => opt.id === value);
-              if (selected) {
-                onSpecialtyChange(selected);
-              }
-            }}
-          >
-            <SelectTrigger className="w-full sm:w-auto min-w-[200px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {specialtyOptions.map((option) => (
-                <SelectItem key={option.id} value={option.id}>
-                  {option.brandName} - {option.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Badge variant="outline" className="text-xs whitespace-nowrap">
-            Demo Mode
-          </Badge>
-        </div>
-      </CardContent>
-    </Card>
+    <div style={{
+      backgroundColor: '#f0f0f0',
+      border: '2px solid #333',
+      padding: '20px',
+      margin: '20px 0',
+      borderRadius: '8px'
+    }}>
+      {/* Brand Name - Simple Text */}
+      <h1 style={{
+        fontSize: '24px',
+        fontWeight: 'bold',
+        margin: '0 0 10px 0',
+        color: '#333'
+      }}>
+        {currentOption.brandName}
+      </h1>
+      
+      {/* Description - Simple Text */}
+      <p style={{
+        fontSize: '14px',
+        margin: '0 0 20px 0',
+        color: '#666'
+      }}>
+        {currentOption.description}
+      </p>
+      
+      {/* Dropdown - Simple HTML Select */}
+      <div style={{ marginBottom: '10px' }}>
+        <label style={{ marginRight: '10px', fontSize: '14px' }}>
+          Switch Specialty:
+        </label>
+        <select 
+          value={currentOption.id}
+          onChange={(e) => {
+            const selected = specialtyOptions.find(opt => opt.id === e.target.value);
+            if (selected) {
+              onSpecialtyChange(selected);
+            }
+          }}
+          style={{
+            padding: '5px 10px',
+            fontSize: '14px',
+            borderRadius: '4px',
+            border: '1px solid #ccc'
+          }}
+        >
+          {specialtyOptions.map((option) => (
+            <option key={option.id} value={option.id}>
+              {option.brandName}
+            </option>
+          ))}
+        </select>
+      </div>
+      
+      {/* Debug Info */}
+      <div style={{
+        fontSize: '12px',
+        color: '#999',
+        marginTop: '10px'
+      }}>
+        Current: {currentSpecialty} | Selected: {currentOption.id}
+      </div>
+    </div>
   );
 };
