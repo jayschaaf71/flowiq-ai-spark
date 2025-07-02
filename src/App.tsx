@@ -36,18 +36,14 @@ import Notifications from '@/pages/Notifications';
 import CheckIn from '@/pages/CheckIn';
 import ProviderSchedulingPage from '@/pages/ProviderScheduling';
 // AI Agent imports
-import ScheduleIQ from '@/pages/agents/ScheduleIQ';
+import AppointmentIQ from '@/pages/agents/AppointmentIQ';
 import IntakeIQ from '@/pages/agents/IntakeIQ';
-import RemindIQ from '@/pages/agents/RemindIQ';
 import ScribeIQ from '@/pages/agents/ScribeIQ';
 import ClaimsIQ from '@/pages/agents/ClaimsIQ';
-import BillingIQ from '@/pages/agents/BillingIQ';
+import PaymentsIQ from '@/pages/agents/PaymentsIQ';
 import InventoryIQ from '@/pages/agents/InventoryIQ';
-import FollowupIQ from '@/pages/agents/FollowupIQ';
 import InsightIQ from '@/pages/agents/InsightIQ';
-import AssistIQ from '@/pages/agents/AssistIQ';
-import EHRIQ from '@/pages/agents/EHRIQ';
-import ManagerAgent from '@/pages/ManagerAgent';
+import OpsIQ from '@/pages/agents/OpsIQ';
 import PilotDashboard from '@/pages/PilotDashboard';
 
 const queryClient = new QueryClient();
@@ -192,10 +188,10 @@ function App() {
                     </Layout>
                   </TenantWrapper>
                 } />
-                <Route path="/manager" element={
+                <Route path="/ops" element={
                   <TenantWrapper>
                     <Layout>
-                      <ManagerAgent />
+                      <OpsIQ />
                     </Layout>
                   </TenantWrapper>
                 } />
@@ -207,10 +203,10 @@ function App() {
                   </TenantWrapper>
                 } />
                 {/* AI Agent Routes */}
-                <Route path="/agents/schedule" element={
+                <Route path="/agents/appointment" element={
                   <TenantWrapper>
                     <Layout>
-                      <ScheduleIQ />
+                      <AppointmentIQ />
                     </Layout>
                   </TenantWrapper>
                 } />
@@ -218,13 +214,6 @@ function App() {
                   <TenantWrapper>
                     <Layout>
                       <IntakeIQ />
-                    </Layout>
-                  </TenantWrapper>
-                } />
-                <Route path="/agents/remind" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <RemindIQ />
                     </Layout>
                   </TenantWrapper>
                 } />
@@ -242,10 +231,10 @@ function App() {
                     </Layout>
                   </TenantWrapper>
                 } />
-                <Route path="/agents/billing" element={
+                <Route path="/agents/payments" element={
                   <TenantWrapper>
                     <Layout>
-                      <BillingIQ />
+                      <PaymentsIQ />
                     </Layout>
                   </TenantWrapper>
                 } />
@@ -256,31 +245,10 @@ function App() {
                     </Layout>
                   </TenantWrapper>
                 } />
-                <Route path="/agents/followup" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <FollowupIQ />
-                    </Layout>
-                  </TenantWrapper>
-                } />
-                <Route path="/agents/insight" element={
+                <Route path="/agents/insights" element={
                   <TenantWrapper>
                     <Layout>
                       <InsightIQ />
-                    </Layout>
-                  </TenantWrapper>
-                } />
-                <Route path="/agents/assist" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <AssistIQ />
-                    </Layout>
-                  </TenantWrapper>
-                } />
-                <Route path="/agents/ehr" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <EHRIQ />
                     </Layout>
                   </TenantWrapper>
                 } />

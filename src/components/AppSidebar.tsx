@@ -56,35 +56,31 @@ export const AppSidebar = () => {
     { icon: TrendingUp, label: "Insights", path: "/insights", badge: null },
   ];
 
-  // Clinical Operations
-  const clinicalOperations = [
-    { icon: CheckSquare, label: "Patient Check-In", path: "/checkin", badge: "New" },
-    { icon: Bell, label: "Notifications", path: "/notifications", badge: "New" },
-    { icon: Clock, label: "Provider Scheduling", path: "/provider-scheduling", badge: "New" },
+  // New grouped navigation structure
+  const appointmentsGroup = [
+    { icon: Calendar, label: "Appointment iQ", path: "/agents/appointment", badge: "AI" },
   ];
 
-  // Major Practice Areas - NEW SECTION
-  const practiceAreas = [
-    { icon: DollarSign, label: "Financial Management", path: "/financial", badge: "New" },
-    { icon: Heart, label: "Patient Experience", path: "/patient-experience", badge: "New" },
-    { icon: Shield, label: "Compliance & Security", path: "/compliance", badge: "New" },
-  ];
-
-  // AI agents organized by patient journey flow
-  const aiAgents = [
-    { icon: Calendar, label: "Schedule iQ", path: "/agents/schedule", badge: "AI" },
-    { icon: ClipboardList, label: "Intake iQ", path: "/agents/intake", badge: "AI" },
-    { icon: Bell, label: "Reminders iQ", path: "/agents/remind", badge: "AI" },
+  const clinicalSupportGroup = [
     { icon: Stethoscope, label: "Scribe iQ", path: "/agents/scribe", badge: "AI" },
+    { icon: Brain, label: "Insights iQ", path: "/agents/insights", badge: "AI" },
+  ];
+
+  const patientOperationsGroup = [
+    { icon: ClipboardList, label: "Intake iQ", path: "/agents/intake", badge: "AI" },
+  ];
+
+  const revenueCycleGroup = [
     { icon: Receipt, label: "Claims iQ", path: "/agents/claims", badge: "AI" },
-    { icon: CreditCard, label: "Billing iQ", path: "/agents/billing", badge: "AI" },
+    { icon: CreditCard, label: "Payments iQ", path: "/agents/payments", badge: "AI" },
+  ];
+
+  const practiceOpsGroup = [
     { icon: Package, label: "Inventory iQ", path: "/agents/inventory", badge: "AI" },
-    { icon: MessageSquare, label: "Follow up iQ", path: "/agents/followup", badge: "AI" },
-    { icon: Brain, label: "Insight iQ", path: "/agents/insight", badge: "AI" },
+    { icon: UserPlus, label: "Ops iQ", path: "/ops", badge: "AI" },
   ];
 
   const managementItems = [
-    { icon: UserPlus, label: "Manager Agent", path: "/manager", badge: "AI" },
     { icon: Building2, label: "Beta Pilot", path: "/pilot", badge: "Live" },
     ...(hasMinimumRole('practice_manager') ? [{ icon: Users, label: "Team", path: "/team", badge: null }] : []),
     ...(hasMinimumRole('tenant_admin') ? [{ icon: Building2, label: "Practice Setup", path: "/setup", badge: null }] : []),
@@ -158,9 +154,11 @@ export const AppSidebar = () => {
       <SidebarContent className="bg-white">
         <div className="px-2 py-2 space-y-4">
           {renderNavSection("Main", mainNavigationItems)}
-          {renderNavSection("Clinical Operations", clinicalOperations)}
-          {renderNavSection("Practice Areas", practiceAreas)}
-          {renderNavSection("AI Assistants", aiAgents)}
+          {renderNavSection("Appointments", appointmentsGroup)}
+          {renderNavSection("Clinical Support", clinicalSupportGroup)}
+          {renderNavSection("Patient Operations", patientOperationsGroup)}
+          {renderNavSection("Revenue Cycle", revenueCycleGroup)}
+          {renderNavSection("Practice Ops", practiceOpsGroup)}
           {renderNavSection("Management", managementItems)}
         </div>
       </SidebarContent>
