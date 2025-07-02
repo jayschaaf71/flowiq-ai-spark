@@ -10,6 +10,8 @@ import { FormBuilder } from "@/components/intake/FormBuilder";
 import { FormSubmissionsList } from "@/components/intake/FormSubmissionsList";
 import { IntakeAnalyticsDashboard } from "@/components/intake/IntakeAnalyticsDashboard";
 import { EnhancedAnalyticsDashboard } from "@/components/intake/EnhancedAnalyticsDashboard";
+import { VoiceEnabledPatientIntake } from "@/components/intake/VoiceEnabledPatientIntake";
+import { MobileVoiceIntake } from "@/components/intake/MobileVoiceIntake";
 import { useIntakeForms } from "@/hooks/useIntakeForms";
 
 const IntakeIQ = () => {
@@ -37,9 +39,11 @@ const IntakeIQ = () => {
       />
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           <TabsTrigger value="patient-intake">Patient Intake</TabsTrigger>
+          <TabsTrigger value="voice-intake">Voice Intake</TabsTrigger>
+          <TabsTrigger value="mobile-voice">Mobile Voice</TabsTrigger>
           <TabsTrigger value="staff-dashboard">Staff View</TabsTrigger>
           <TabsTrigger value="builder">Form Builder</TabsTrigger>
           <TabsTrigger value="submissions">Submissions</TabsTrigger>
@@ -52,6 +56,14 @@ const IntakeIQ = () => {
 
         <TabsContent value="patient-intake" className="space-y-4">
           <PatientRegistration />
+        </TabsContent>
+
+        <TabsContent value="voice-intake" className="space-y-4">
+          <VoiceEnabledPatientIntake />
+        </TabsContent>
+
+        <TabsContent value="mobile-voice" className="space-y-4">
+          <MobileVoiceIntake />
         </TabsContent>
 
         <TabsContent value="staff-dashboard" className="space-y-4">
