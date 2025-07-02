@@ -65,7 +65,7 @@ export const useCurrentTenant = () => {
           .from('tenants')
           .select('*')
           .eq('id', tenantId)
-          .single();
+          .maybeSingle();
 
         if (error) {
           console.error('Error fetching tenant:', error, 'for tenantId:', tenantId);
