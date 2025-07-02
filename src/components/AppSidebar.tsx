@@ -143,7 +143,7 @@ export const AppSidebar = () => {
   );
 
   return (
-    <Sidebar variant="inset" className="border-r">
+    <Sidebar className="border-r">
       <SidebarHeader className="border-b p-4">
         <div className="flex items-center gap-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
