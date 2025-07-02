@@ -68,6 +68,7 @@ export const Dashboard = () => {
   };
 
   const renderSpecialtyDashboard = () => {
+    console.log('Rendering dashboard for specialty:', currentSpecialty);
     switch (currentSpecialty) {
       case 'chiropractic-care':
         return <ChiropracticDashboard />;
@@ -78,12 +79,18 @@ export const Dashboard = () => {
       case 'appointment-scheduling':
         return <AppointmentDashboard />;
       default:
+        console.log('Defaulting to ChiropracticDashboard for:', currentSpecialty);
         return <ChiropracticDashboard />;
     }
   };
 
   return (
     <div className="space-y-6">
+      {/* Debug Info */}
+      <div className="text-xs text-gray-500 p-2 bg-gray-50 rounded">
+        Current Specialty: {currentSpecialty}
+      </div>
+      
       {/* Specialty Switcher */}
       <SpecialtySwitcher 
         currentSpecialty={currentSpecialty}
