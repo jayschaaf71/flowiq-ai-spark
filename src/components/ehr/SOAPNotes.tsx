@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,43 +18,31 @@ import {
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SOAPTemplateSelector } from "./SOAPTemplateSelector";
+import { useSOAPNotes } from "@/hooks/useSOAPNotes";
 
 export const SOAPNotes = () => {
   const [selectedNote, setSelectedNote] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isRecording, setIsRecording] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
+  const { soapNotes, loading } = useSOAPNotes();
 
-  const mockNotes = [
-    {
-      id: "1",
-      patientName: "Sarah Johnson",
-      date: "2024-01-10",
-      provider: "Dr. Smith",
-      status: "Signed",
-      subjective: "Patient reports lower back pain that started 3 days ago after lifting heavy boxes. Pain is 7/10, radiates to left leg. Worse in morning, improves with movement.",
-      objective: "Patient appears in mild distress. Gait slightly antalgic. ROM: Flexion limited to 45 degrees due to pain. SLR positive on left at 30 degrees. Tender to palpation L4-L5 region.",
-      assessment: "Acute lumbar strain with possible radiculopathy L5 distribution. Rule out disc herniation.",
-      plan: "1. Chiropractic adjustments 3x week x 2 weeks\n2. Ice 15 min q2h x 48 hours\n3. Home exercises - pelvic tilts, knee to chest\n4. Follow up in 1 week\n5. MRI if no improvement in 2 weeks",
-      generatedByAI: false,
-      createdAt: "2024-01-10T14:30:00Z"
-    },
-    {
-      id: "2", 
-      patientName: "Mike Chen",
-      date: "2024-01-08",
-      provider: "Dr. Johnson",
-      status: "Draft",
-      subjective: "Follow-up visit for neck pain. Patient reports 50% improvement since last visit. Headaches have decreased from daily to 2-3x per week.",
-      objective: "Improved cervical ROM. Flexion/extension within normal limits. Rotation still limited 10 degrees bilaterally. Muscle tension decreased in upper traps.",
-      assessment: "Cervical strain - improving. Tension-type headaches - improved.",
-      plan: "1. Continue current treatment plan\n2. Reduce frequency to 2x week\n3. Add cervical strengthening exercises\n4. Ergonomic assessment at work",
-      generatedByAI: true,
-      createdAt: "2024-01-08T10:15:00Z"
-    }
-  ];
+  // Convert database SOAP notes to display format
+  const allNotes = soapNotes.map(note => ({
+    id: note.id,
+    patientName: "Patient", // In real app, would join with patients table
+    date: note.visit_date,
+    provider: "Provider", // In real app, would join with providers table
+    status: note.status === 'draft' ? 'Draft' : 'Signed',
+    subjective: note.subjective || '',
+    objective: note.objective || '',
+    assessment: note.assessment || '',
+    plan: note.plan || '',
+    generatedByAI: note.is_ai_generated,
+    createdAt: note.created_at
+  }));
 
-  const filteredNotes = mockNotes.filter(note =>
+  const filteredNotes = allNotes.filter(note =>
     note.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     note.provider.toLowerCase().includes(searchTerm.toLowerCase()) ||
     note.subjective.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -127,7 +115,25 @@ export const SOAPNotes = () => {
         {/* Notes List */}
         <div className="lg:col-span-1 space-y-4">
           <h3 className="text-lg font-semibold">Recent Notes</h3>
-          {filteredNotes.map((note) => (
+          {loading ? (
+            <div className="space-y-4">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="p-4 border rounded-lg animate-pulse">
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                  <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                </div>
+              ))}
+            </div>
+          ) : filteredNotes.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <FileText className="w-8 h-8 mx-auto mb-2 opacity-50" />
+              <p className="text-sm">No SOAP notes found</p>
+              {soapNotes.length === 0 && (
+                <p className="text-xs mt-1">Create your first SOAP note using ScribeIQ</p>
+              )}
+            </div>
+          ) : (
+            filteredNotes.map((note) => (
             <Card 
               key={note.id} 
               className={`cursor-pointer transition-all ${
@@ -154,7 +160,7 @@ export const SOAPNotes = () => {
                   {note.generatedByAI && (
                     <div className="flex items-center gap-2 text-xs text-blue-600">
                       <Brain className="h-3 w-3" />
-                      AI Assisted
+                      AI Generated
                     </div>
                   )}
                 </CardDescription>
@@ -165,13 +171,14 @@ export const SOAPNotes = () => {
                 </p>
               </CardContent>
             </Card>
-          ))}
+          ))
+          )}
         </div>
 
         {/* SOAP Editor */}
         <div className="lg:col-span-2">
           {selectedNote ? (
-            <SOAPEditor note={mockNotes.find(n => n.id === selectedNote)!} />
+            <SOAPEditor note={allNotes.find(n => n.id === selectedNote)!} />
           ) : (
             <Card>
               <CardContent className="text-center py-12">
