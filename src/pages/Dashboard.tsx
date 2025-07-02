@@ -87,11 +87,6 @@ export const Dashboard = () => {
 
   return (
     <div className="space-y-6">
-      {/* Debug Info - Make it very visible */}
-      <div className="text-lg font-bold text-red-600 p-4 bg-yellow-200 border-2 border-red-500 rounded-lg">
-        🐛 DEBUG: Current Specialty = "{currentSpecialty}"
-      </div>
-      
       {/* Specialty Switcher */}
       <SpecialtySwitcher 
         currentSpecialty={currentSpecialty}

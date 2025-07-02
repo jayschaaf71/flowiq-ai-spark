@@ -104,17 +104,19 @@ export const SpecialtySwitcher: React.FC<SpecialtySwitcherProps> = ({
     <Card className={`${colors.bg} ${colors.border}`}>
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className={`text-xl font-bold ${colors.text}`}>
+          <div className="min-w-0 flex-1">
+            <h2 className={`text-xl font-bold ${colors.text} truncate`}>
               {currentOption.brandName}
             </h2>
-            <p className={`text-sm ${colors.text} opacity-80`}>
+            <p className={`text-sm ${colors.text} opacity-80 truncate`}>
               {currentOption.description}
             </p>
           </div>
-          <Badge className={colors.badge}>
-            {currentOption.name}
-          </Badge>
+          <div className="flex-shrink-0 ml-4">
+            <Badge className={colors.badge}>
+              {currentOption.name}
+            </Badge>
+          </div>
         </div>
 
         <div className="flex items-center gap-3">
