@@ -1296,6 +1296,48 @@ export type Database = {
         }
         Relationships: []
       }
+      drip_campaigns: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          steps: Json
+          target_audience: Json | null
+          tenant_id: string | null
+          trigger_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          steps?: Json
+          target_audience?: Json | null
+          tenant_id?: string | null
+          trigger_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          steps?: Json
+          target_audience?: Json | null
+          tenant_id?: string | null
+          trigger_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       edi_transactions: {
         Row: {
           acknowledgment_date: string | null
@@ -1364,6 +1406,76 @@ export type Database = {
             columns: ["payer_connection_id"]
             isOneToOne: false
             referencedRelation: "payer_connections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      eligibility_verifications: {
+        Row: {
+          copay_amount: number | null
+          coverage_details: Json | null
+          created_at: string
+          deductible_amount: number | null
+          id: string
+          insurance_provider_id: string | null
+          is_eligible: boolean | null
+          out_of_pocket_max: number | null
+          patient_id: string | null
+          response_data: Json | null
+          status: string | null
+          tenant_id: string | null
+          verification_date: string
+        }
+        Insert: {
+          copay_amount?: number | null
+          coverage_details?: Json | null
+          created_at?: string
+          deductible_amount?: number | null
+          id?: string
+          insurance_provider_id?: string | null
+          is_eligible?: boolean | null
+          out_of_pocket_max?: number | null
+          patient_id?: string | null
+          response_data?: Json | null
+          status?: string | null
+          tenant_id?: string | null
+          verification_date?: string
+        }
+        Update: {
+          copay_amount?: number | null
+          coverage_details?: Json | null
+          created_at?: string
+          deductible_amount?: number | null
+          id?: string
+          insurance_provider_id?: string | null
+          is_eligible?: boolean | null
+          out_of_pocket_max?: number | null
+          patient_id?: string | null
+          response_data?: Json | null
+          status?: string | null
+          tenant_id?: string | null
+          verification_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "eligibility_verifications_insurance_provider_id_fkey"
+            columns: ["insurance_provider_id"]
+            isOneToOne: false
+            referencedRelation: "insurance_providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "eligibility_verifications_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patient_onboarding_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "eligibility_verifications_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
             referencedColumns: ["id"]
           },
         ]
@@ -2652,6 +2764,60 @@ export type Database = {
           },
         ]
       }
+      patient_education: {
+        Row: {
+          completion_percentage: number | null
+          content_title: string
+          content_type: string
+          content_url: string | null
+          created_at: string
+          id: string
+          patient_id: string | null
+          quiz_score: number | null
+          tenant_id: string | null
+          viewed_at: string | null
+        }
+        Insert: {
+          completion_percentage?: number | null
+          content_title: string
+          content_type: string
+          content_url?: string | null
+          created_at?: string
+          id?: string
+          patient_id?: string | null
+          quiz_score?: number | null
+          tenant_id?: string | null
+          viewed_at?: string | null
+        }
+        Update: {
+          completion_percentage?: number | null
+          content_title?: string
+          content_type?: string
+          content_url?: string | null
+          created_at?: string
+          id?: string
+          patient_id?: string | null
+          quiz_score?: number | null
+          tenant_id?: string | null
+          viewed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_education_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patient_onboarding_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_education_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       patient_insurance: {
         Row: {
           copay_amount: number | null
@@ -3112,6 +3278,89 @@ export type Database = {
             columns: ["patient_id"]
             isOneToOne: false
             referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prior_authorizations: {
+        Row: {
+          approval_date: string | null
+          authorization_number: string | null
+          created_at: string
+          diagnosis_codes: string[] | null
+          expiration_date: string | null
+          id: string
+          insurance_provider_id: string | null
+          notes: string | null
+          patient_id: string | null
+          procedure_codes: string[] | null
+          provider_id: string | null
+          requested_date: string
+          status: string | null
+          tenant_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          approval_date?: string | null
+          authorization_number?: string | null
+          created_at?: string
+          diagnosis_codes?: string[] | null
+          expiration_date?: string | null
+          id?: string
+          insurance_provider_id?: string | null
+          notes?: string | null
+          patient_id?: string | null
+          procedure_codes?: string[] | null
+          provider_id?: string | null
+          requested_date?: string
+          status?: string | null
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          approval_date?: string | null
+          authorization_number?: string | null
+          created_at?: string
+          diagnosis_codes?: string[] | null
+          expiration_date?: string | null
+          id?: string
+          insurance_provider_id?: string | null
+          notes?: string | null
+          patient_id?: string | null
+          procedure_codes?: string[] | null
+          provider_id?: string | null
+          requested_date?: string
+          status?: string | null
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prior_authorizations_insurance_provider_id_fkey"
+            columns: ["insurance_provider_id"]
+            isOneToOne: false
+            referencedRelation: "insurance_providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prior_authorizations_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patient_onboarding_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prior_authorizations_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prior_authorizations_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
             referencedColumns: ["id"]
           },
         ]
@@ -3644,6 +3893,75 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      referrals: {
+        Row: {
+          created_at: string
+          id: string
+          outcome_sent_date: string | null
+          outcome_summary: string | null
+          patient_id: string | null
+          priority: string | null
+          referral_date: string
+          referral_reason: string | null
+          referring_physician_email: string | null
+          referring_physician_id: string | null
+          referring_physician_name: string
+          referring_practice: string | null
+          status: string | null
+          tenant_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          outcome_sent_date?: string | null
+          outcome_summary?: string | null
+          patient_id?: string | null
+          priority?: string | null
+          referral_date?: string
+          referral_reason?: string | null
+          referring_physician_email?: string | null
+          referring_physician_id?: string | null
+          referring_physician_name: string
+          referring_practice?: string | null
+          status?: string | null
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          outcome_sent_date?: string | null
+          outcome_summary?: string | null
+          patient_id?: string | null
+          priority?: string | null
+          referral_date?: string
+          referral_reason?: string | null
+          referring_physician_email?: string | null
+          referring_physician_id?: string | null
+          referring_physician_name?: string
+          referring_practice?: string | null
+          status?: string | null
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patient_onboarding_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       research_activities: {
         Row: {
