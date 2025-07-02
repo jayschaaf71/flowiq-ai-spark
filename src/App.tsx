@@ -55,10 +55,10 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <SpecialtyProvider>
-          <DashboardProvider>
-            <AnalyticsProvider>
-              <QueryClientProvider client={queryClient}>
+        <QueryClientProvider client={queryClient}>
+          <SpecialtyProvider>
+            <DashboardProvider>
+              <AnalyticsProvider>
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<AuthPage />} />
@@ -289,11 +289,11 @@ function App() {
                 {/* Fallback route */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
-            </QueryClientProvider>
-          </AnalyticsProvider>
-        </DashboardProvider>
-      </SpecialtyProvider>
-    </AuthProvider>
+              </AnalyticsProvider>
+            </DashboardProvider>
+          </SpecialtyProvider>
+        </QueryClientProvider>
+      </AuthProvider>
     </Router>
   );
 }
