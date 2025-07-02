@@ -1,140 +1,69 @@
 
-import { useState } from "react";
-import { PageHeader } from "@/components/PageHeader";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, Users, BarChart3, Plus } from "lucide-react";
-import { AppointmentManager } from "@/components/schedule/AppointmentManager";
-import { RealTimeCalendar } from "@/components/schedule/RealTimeCalendar";
-import { EnhancedCalendarView } from "@/components/schedule/EnhancedCalendarView";
-import { ScheduleAnalytics } from "@/components/schedule/ScheduleAnalytics";
-import { AppointmentBookingModal } from "@/components/schedule/AppointmentBookingModal";
-import { AppointmentDetailsModal } from "@/components/schedule/AppointmentDetailsModal";
+import React, { useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AppointmentBooking } from '@/components/appointments/AppointmentBooking';
+import { CalendarView } from '@/components/appointments/CalendarView';
+import { AppointmentList } from '@/components/appointments/AppointmentList';
+
+type ViewMode = 'calendar' | 'list' | 'booking';
 
 const Schedule = () => {
-  const [activeTab, setActiveTab] = useState("calendar");
-  const [selectedAppointment, setSelectedAppointment] = useState(null);
-  const [bookingModalOpen, setBookingModalOpen] = useState(false);
-  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
-  const [selectedTime, setSelectedTime] = useState<string | undefined>();
+  const [viewMode, setViewMode] = useState<ViewMode>('calendar');
+  const [selectedDate, setSelectedDate] = useState<Date>();
+  const [selectedTime, setSelectedTime] = useState<string>();
 
-  const handleTimeSlotClick = (date: Date, time: string) => {
-    console.log("Time slot clicked:", date, time);
+  const handleCreateAppointment = (date: Date, time?: string) => {
     setSelectedDate(date);
     setSelectedTime(time);
-    setBookingModalOpen(true);
+    setViewMode('booking');
   };
 
-  const handleAppointmentClick = (appointment: any) => {
-    console.log("Appointment clicked:", appointment);
-    setSelectedAppointment(appointment);
-    setDetailsModalOpen(true);
-  };
-
-  const handleQuickBook = () => {
-    setSelectedDate(new Date());
+  const handleBookingSuccess = () => {
+    setViewMode('calendar');
+    setSelectedDate(undefined);
     setSelectedTime(undefined);
-    setBookingModalOpen(true);
   };
 
-  const handleAppointmentBooked = (appointment: any) => {
-    console.log("New appointment booked:", appointment);
-    // The calendar will automatically refresh due to real-time updates
+  const handleBookingCancel = () => {
+    setViewMode('calendar');
+    setSelectedDate(undefined);
+    setSelectedTime(undefined);
   };
 
-  const handleAppointmentUpdated = (appointment: any) => {
-    console.log("Appointment updated:", appointment);
-    setSelectedAppointment(appointment);
-    // The calendar will automatically refresh due to real-time updates
-  };
-
-  const handleAppointmentDeleted = (appointmentId: string) => {
-    console.log("Appointment deleted:", appointmentId);
-    // The calendar will automatically refresh due to real-time updates
-  };
+  if (viewMode === 'booking') {
+    return (
+      <div className="container mx-auto py-6">
+        <AppointmentBooking
+          selectedDate={selectedDate}
+          selectedTime={selectedTime}
+          onSuccess={handleBookingSuccess}
+          onCancel={handleBookingCancel}
+        />
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      <PageHeader 
-        title="Schedule Management"
-        subtitle="Manage appointments, view today's schedule, and optimize patient flow"
-      >
-        <div className="flex items-center gap-3">
-          <Button onClick={handleQuickBook} className="flex items-center gap-2">
-            <Plus className="w-4 h-4" />
-            Quick Book
-          </Button>
-          <div className="flex gap-2">
-            <Badge className="bg-blue-100 text-blue-700">
-              <Calendar className="w-3 h-3 mr-1" />
-              Live Calendar
-            </Badge>
-            <Badge className="bg-green-100 text-green-700">
-              Real-time Updates
-            </Badge>
-          </div>
-        </div>
-      </PageHeader>
-      
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="calendar">
-            <Calendar className="w-4 h-4 mr-2" />
-            Calendar View
-          </TabsTrigger>
-          <TabsTrigger value="enhanced">
-            <Users className="w-4 h-4 mr-2" />
-            Enhanced View
-          </TabsTrigger>
-          <TabsTrigger value="appointments">
-            <Clock className="w-4 h-4 mr-2" />
-            Appointments
-          </TabsTrigger>
-          <TabsTrigger value="analytics">
-            <BarChart3 className="w-4 h-4 mr-2" />
-            Analytics
-          </TabsTrigger>
+    <div className="container mx-auto py-6">
+      <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as ViewMode)}>
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="calendar">Calendar View</TabsTrigger>
+          <TabsTrigger value="list">List View</TabsTrigger>
+          <TabsTrigger value="booking">Book Appointment</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="calendar" className="space-y-4">
-          <RealTimeCalendar 
-            onTimeSlotClick={handleTimeSlotClick}
-            onAppointmentClick={handleAppointmentClick}
-          />
+        <TabsContent value="calendar" className="mt-6">
+          <CalendarView onCreateAppointment={handleCreateAppointment} />
         </TabsContent>
 
-        <TabsContent value="enhanced" className="space-y-4">
-          <EnhancedCalendarView />
+        <TabsContent value="list" className="mt-6">
+          <AppointmentList />
         </TabsContent>
 
-        <TabsContent value="appointments" className="space-y-4">
-          <AppointmentManager />
-        </TabsContent>
-
-        <TabsContent value="analytics" className="space-y-4">
-          <ScheduleAnalytics />
+        <TabsContent value="booking" className="mt-6">
+          <AppointmentBooking onSuccess={handleBookingSuccess} />
         </TabsContent>
       </Tabs>
-
-      {/* Appointment Booking Modal */}
-      <AppointmentBookingModal
-        isOpen={bookingModalOpen}
-        onClose={() => setBookingModalOpen(false)}
-        selectedDate={selectedDate}
-        selectedTime={selectedTime}
-        onAppointmentBooked={handleAppointmentBooked}
-      />
-
-      {/* Appointment Details Modal */}
-      <AppointmentDetailsModal
-        isOpen={detailsModalOpen}
-        onClose={() => setDetailsModalOpen(false)}
-        appointment={selectedAppointment}
-        onAppointmentUpdated={handleAppointmentUpdated}
-        onAppointmentDeleted={handleAppointmentDeleted}
-      />
     </div>
   );
 };
