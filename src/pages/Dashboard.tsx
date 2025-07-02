@@ -47,18 +47,25 @@ export const Dashboard = () => {
       return <div className="text-center p-6">Loading dashboard...</div>;
     }
     
-    switch (specialty) {
-      case 'Chiropractic':
+    // Normalize specialty for comparison
+    const normalizedSpecialty = specialty?.toLowerCase().replace(/\s+/g, '-');
+    
+    switch (normalizedSpecialty) {
+      case 'chiropractic':
+      case 'chiropractic-care':
         console.log('Rendering ChiropracticDashboard');
         return <ChiropracticDashboard />;
-      case 'Dentistry':
+      case 'dentistry':
+      case 'dental':
+      case 'dental-care':
         console.log('Rendering DentalDashboard');
         return <DentalDashboard />;
-      case 'Dental Sleep Medicine':
+      case 'dental-sleep-medicine':
+      case 'dental-sleep':
         console.log('Rendering DentalSleepDashboard');
         return <DentalSleepDashboard />;
       default:
-        console.log('Defaulting to ChiropracticDashboard for specialty:', specialty);
+        console.log('Defaulting to ChiropracticDashboard for specialty:', specialty, 'normalized:', normalizedSpecialty);
         return <ChiropracticDashboard />;
     }
   };
