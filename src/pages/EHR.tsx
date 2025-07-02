@@ -9,6 +9,7 @@ import { ChiropracticEHR } from "@/components/ehr/specialty/ChiropracticEHR";
 import { DentistryEHR } from "@/components/ehr/specialty/DentistryEHR";
 import { DentalSleepEHR } from "@/components/ehr/specialty/DentalSleepEHR";
 import { GeneralPracticeEHR } from "@/components/ehr/specialty/GeneralPracticeEHR";
+import { SOAPNotes } from "@/components/ehr/SOAPNotes";
 
 const EHR = () => {
   const [activeSection, setActiveSection] = useState("ehr-main");
@@ -39,7 +40,7 @@ const EHR = () => {
       />
       
       <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card 
             className={`cursor-pointer transition-all ${activeSection === 'ehr-main' ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:shadow-md'}`}
             onClick={() => setActiveSection('ehr-main')}
@@ -52,6 +53,21 @@ const EHR = () => {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-gray-600">Access specialty-specific patient records</p>
+            </CardContent>
+          </Card>
+
+          <Card 
+            className={`cursor-pointer transition-all ${activeSection === 'soap-notes' ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:shadow-md'}`}
+            onClick={() => setActiveSection('soap-notes')}
+          >
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="w-5 h-5" />
+                SOAP Notes
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-600">Create and manage clinical documentation</p>
             </CardContent>
           </Card>
 
@@ -87,6 +103,8 @@ const EHR = () => {
         </div>
 
         {activeSection === 'ehr-main' && renderSpecialtyEHR()}
+        
+        {activeSection === 'soap-notes' && <SOAPNotes />}
         
         {activeSection === 'charts' && (
           <Card>
