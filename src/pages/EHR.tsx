@@ -3,33 +3,55 @@ import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, Activity, Stethoscope } from "lucide-react";
-import { SOAPNotes } from "@/components/ehr/SOAPNotes";
 import { useState } from "react";
+import { useUserProfile } from "@/hooks/useUserProfile";
+import { ChiropracticEHR } from "@/components/ehr/specialty/ChiropracticEHR";
+import { DentistryEHR } from "@/components/ehr/specialty/DentistryEHR";
+import { DentalSleepEHR } from "@/components/ehr/specialty/DentalSleepEHR";
+import { GeneralPracticeEHR } from "@/components/ehr/specialty/GeneralPracticeEHR";
 
 const EHR = () => {
-  const [activeSection, setActiveSection] = useState("soap-notes");
+  const [activeSection, setActiveSection] = useState("ehr-main");
+  const { data: userProfile } = useUserProfile();
+
+  const renderSpecialtyEHR = () => {
+    const specialty = userProfile?.specialty;
+    
+    switch (specialty) {
+      case 'Chiropractic':
+        return <ChiropracticEHR />;
+      case 'Dentistry':
+        return <DentistryEHR />;
+      case 'Dental Sleep Medicine':
+        return <DentalSleepEHR />;
+      case 'General Practice':
+      default:
+        return <GeneralPracticeEHR />;
+    }
+  };
 
   return (
     <>
       <PageHeader 
         title="Electronic Health Records"
-        subtitle="Patient records, SOAP notes, and clinical documentation"
+        subtitle={`${userProfile?.specialty || 'General Practice'} EHR System`}
+        badge={userProfile?.specialty || 'General Practice'}
       />
       
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card 
-            className={`cursor-pointer transition-all ${activeSection === 'soap-notes' ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:shadow-md'}`}
-            onClick={() => setActiveSection('soap-notes')}
+            className={`cursor-pointer transition-all ${activeSection === 'ehr-main' ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:shadow-md'}`}
+            onClick={() => setActiveSection('ehr-main')}
           >
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <FileText className="w-5 h-5" />
-                SOAP Notes
+                Main EHR
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-600">Create and manage clinical notes</p>
+              <p className="text-sm text-gray-600">Access specialty-specific patient records</p>
             </CardContent>
           </Card>
 
@@ -64,7 +86,7 @@ const EHR = () => {
           </Card>
         </div>
 
-        {activeSection === 'soap-notes' && <SOAPNotes />}
+        {activeSection === 'ehr-main' && renderSpecialtyEHR()}
         
         {activeSection === 'charts' && (
           <Card>
