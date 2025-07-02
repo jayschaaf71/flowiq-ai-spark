@@ -21,7 +21,6 @@ import { useNavigate } from "react-router-dom";
 import { EnhancedDashboardHeader } from "@/components/dashboard/EnhancedDashboardHeader";
 import { RealTimeActivityFeed } from "@/components/dashboard/RealTimeActivityFeed";
 import { SmartInsightsWidget } from "@/components/dashboard/SmartInsightsWidget";
-import { SpecialtySwitcher, SpecialtyOption } from "@/components/specialty/SpecialtySwitcher";
 import { useSpecialty } from "@/contexts/SpecialtyContext";
 import { ChiropracticDashboard } from "@/components/specialty/dashboards/ChiropracticDashboard";
 import { DentalDashboard } from "@/components/specialty/dashboards/DentalDashboard";
@@ -63,7 +62,7 @@ export const Dashboard = () => {
     navigate('/manager');
   };
 
-  const handleSpecialtyChange = (specialty: SpecialtyOption) => {
+  const handleSpecialtyChange = (specialty: any) => {
     console.log('Switching specialty to:', specialty.specialty);
     setCurrentSpecialty(specialty.specialty);
   };
