@@ -28,14 +28,34 @@ interface ChatMessage {
 }
 
 export const AIHelpAssistant: React.FC = () => {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: '1',
-      type: 'assistant',
-      content: "Hi! I'm your FlowiQ AI assistant. I can help you navigate the app, explain features, and guide you through workflows. What would you like to know?",
-      timestamp: new Date()
+  // Load messages from localStorage on component mount
+  const loadPersistedMessages = (): ChatMessage[] => {
+    try {
+      const stored = localStorage.getItem('flowiQ-ai-help-messages');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        // Convert timestamp strings back to Date objects
+        return parsed.map((msg: any) => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp)
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to load persisted messages:', error);
     }
-  ]);
+    
+    // Return default initial message
+    return [
+      {
+        id: '1',
+        type: 'assistant',
+        content: "Hi! I'm your FlowiQ AI assistant. I can help you navigate the app, explain features, and guide you through workflows. What would you like to know?",
+        timestamp: new Date()
+      }
+    ];
+  };
+
+  const [messages, setMessages] = useState<ChatMessage[]>(loadPersistedMessages);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showVoiceMode, setShowVoiceMode] = useState(false);
@@ -46,6 +66,11 @@ export const AIHelpAssistant: React.FC = () => {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  // Save messages to localStorage whenever messages change
+  useEffect(() => {
+    localStorage.setItem('flowiQ-ai-help-messages', JSON.stringify(messages));
+  }, [messages]);
 
   useEffect(() => {
     scrollToBottom();
@@ -174,14 +199,17 @@ Answer the user's question about using FlowiQ:`;
   };
 
   const clearConversation = () => {
-    setMessages([
+    const defaultMessages = [
       {
         id: '1',
-        type: 'assistant',
+        type: 'assistant' as const,
         content: "Hi! I'm your FlowiQ AI assistant. I can help you navigate the app, explain features, and guide you through workflows. What would you like to know?",
         timestamp: new Date()
       }
-    ]);
+    ];
+    
+    setMessages(defaultMessages);
+    localStorage.setItem('flowiQ-ai-help-messages', JSON.stringify(defaultMessages));
   };
 
   const quickQuestions = [
