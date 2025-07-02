@@ -37,8 +37,11 @@ export const useCurrentTenant = () => {
       try {
         setLoading(true);
         
+        console.log('fetchTenant called with user:', user?.id, 'profile:', profile);
+        
         // If no user, use default tenant
         if (!user || !profile) {
+          console.log('No user or profile, using default tenant');
           const tenant = { ...DEFAULT_TENANT, brandName: DEFAULT_TENANT.brand_name };
           setCurrentTenant(tenant);
           setLoading(false);
@@ -47,7 +50,10 @@ export const useCurrentTenant = () => {
 
         // Try to get tenant from user's profile
         const tenantId = profile.tenant_id;
+        console.log('Profile tenant_id:', tenantId);
+        
         if (!tenantId) {
+          console.log('No tenant_id in profile, using default tenant');
           const tenant = { ...DEFAULT_TENANT, brandName: DEFAULT_TENANT.brand_name };
           setCurrentTenant(tenant);
           setLoading(false);
@@ -61,11 +67,16 @@ export const useCurrentTenant = () => {
           .eq('id', tenantId)
           .single();
 
-        if (error || !tenant) {
-          console.log('Using default tenant configuration');
+        if (error) {
+          console.error('Error fetching tenant:', error, 'for tenantId:', tenantId);
+          const defaultTenant = { ...DEFAULT_TENANT, brandName: DEFAULT_TENANT.brand_name };
+          setCurrentTenant(defaultTenant);
+        } else if (!tenant) {
+          console.log('No tenant found for id:', tenantId);
           const defaultTenant = { ...DEFAULT_TENANT, brandName: DEFAULT_TENANT.brand_name };
           setCurrentTenant(defaultTenant);
         } else {
+          console.log('Successfully fetched tenant:', tenant);
           setCurrentTenant({
             id: tenant.id,
             name: tenant.name,
