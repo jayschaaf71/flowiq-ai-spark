@@ -18,7 +18,7 @@ export const ChiropracticDashboard = () => {
   
   // Fallback config for ChiropracticIQ
   const dashboardConfig = {
-    name: config?.brand_name || 'ChiropracticIQ',
+    name: config?.brand_name || 'Chiropractic IQ',
     tagline: config?.tagline || 'Optimizing spinal health and mobility'
   };
 

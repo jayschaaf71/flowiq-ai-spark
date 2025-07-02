@@ -16,7 +16,7 @@ const specialtyOptions: SpecialtyOption[] = [
   {
     id: 'chiropractic',
     name: 'Chiropractic Care',
-    brandName: 'ChiropracticIQ',
+    brandName: 'Chiropractic IQ',
     description: 'Optimizing spinal health and mobility',
     color: 'green',
     specialty: 'chiropractic-care'
@@ -24,7 +24,7 @@ const specialtyOptions: SpecialtyOption[] = [
   {
     id: 'dental',
     name: 'Dental Care',
-    brandName: 'DentalIQ',
+    brandName: 'Dental IQ',
     description: 'Complete oral health management',
     color: 'blue',
     specialty: 'dental-care'
@@ -32,7 +32,7 @@ const specialtyOptions: SpecialtyOption[] = [
   {
     id: 'dental-sleep',
     name: 'Dental Sleep Medicine',
-    brandName: 'DentalSleepIQ',
+    brandName: 'Dental Sleep IQ',
     description: 'Restoring quality sleep through dental solutions',
     color: 'purple',
     specialty: 'dental-sleep-medicine'
@@ -40,7 +40,7 @@ const specialtyOptions: SpecialtyOption[] = [
   {
     id: 'appointment',
     name: 'Smart Scheduling',
-    brandName: 'AppointmentIQ',
+    brandName: 'Appointment IQ',
     description: 'AI-powered scheduling and booking',
     color: 'indigo',
     specialty: 'appointment-scheduling'
