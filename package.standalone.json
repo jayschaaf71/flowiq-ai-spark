@@ -1,0 +1,26 @@
+{
+  "name": "appointmentiq-standalone",
+  "version": "1.0.0",
+  "description": "AppointmentIQ - Standalone AI-Powered Scheduling Platform",
+  "scripts": {
+    "dev:standalone": "vite --config vite.config.standalone.ts",
+    "build:standalone": "vite build --config vite.config.standalone.ts",
+    "preview:standalone": "vite preview --config vite.config.standalone.ts --port 8081"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/appointmentiq-standalone"
+  },
+  "keywords": [
+    "appointments",
+    "scheduling",
+    "ai",
+    "healthcare",
+    "booking",
+    "voice-enabled",
+    "conflict-resolution"
+  ],
+  "author": "AppointmentIQ Team",
+  "license": "MIT",
+  "homepage": "https://appointmentiq.ai"
+}

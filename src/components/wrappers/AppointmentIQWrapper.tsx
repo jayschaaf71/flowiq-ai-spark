@@ -39,35 +39,60 @@ export const AppointmentIQWrapper: React.FC<AppointmentIQWrapperProps> = ({
       <div className="appointmentiq-standalone">
         <style>{`
           .appointmentiq-standalone {
-            --primary-color: ${tenantConfig?.branding?.primaryColor || '#3b82f6'};
-            --secondary-color: #60a5fa;
-            --accent-color: #dbeafe;
+            --primary: 214 100% 59%;
+            --primary-foreground: 0 0% 98%;
+            --secondary: 214 95% 69%;
+            --secondary-foreground: 214 10% 10%;
+            --accent: 214 100% 91%;
+            --accent-foreground: 214 10% 10%;
+            --muted: 214 30% 95%;
+            --muted-foreground: 214 5% 45%;
+            --border: 214 30% 82%;
+            --card: 0 0% 100%;
+            --card-foreground: 214 10% 10%;
             --brand-name: "${tenantConfig?.branding?.name || 'AppointmentIQ'}";
+            --specialty-features: "voice-booking, ai-scheduling, conflict-resolution, waitlist";
           }
           
-          .standalone-header {
-            background: var(--primary-color);
-            color: white;
-            padding: 1rem;
+          .appointmentiq-standalone-header {
+            background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+            color: hsl(var(--primary-foreground));
+            padding: 1.5rem;
             text-align: center;
+            border-radius: 0.5rem;
+            margin-bottom: 2rem;
           }
           
-          .standalone-content {
+          .appointmentiq-standalone-content {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 2rem;
+            padding: 0 1rem;
+          }
+          
+          .appointmentiq-specialty-badge {
+            background: hsl(var(--accent));
+            color: hsl(var(--accent-foreground));
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-top: 0.5rem;
+            display: inline-block;
           }
         `}</style>
         
         {/* Standalone header */}
-        <div className="standalone-header">
-          <h1 className="text-2xl font-bold">
+        <div className="appointmentiq-standalone-header">
+          <h1 className="text-3xl font-bold mb-2">
             {tenantConfig?.branding?.name || 'AppointmentIQ'}
           </h1>
-          <p className="opacity-90">AI-Powered Appointment Scheduling</p>
+          <p className="opacity-90 text-lg mb-3">AI-Powered Appointment Scheduling</p>
+          <span className="appointmentiq-specialty-badge">
+            Smart Scheduling Platform
+          </span>
         </div>
         
-        <div className="standalone-content">
+        <div className="appointmentiq-standalone-content">
           {children}
         </div>
       </div>
@@ -81,11 +106,47 @@ export const AppointmentIQWrapper: React.FC<AppointmentIQWrapperProps> = ({
         <div className="appointmentiq-integrated">
           <style>{`
             .appointmentiq-integrated {
-              --appointmentiq-primary: #3b82f6;
-              --appointmentiq-secondary: #60a5fa;
-              --appointmentiq-accent: #dbeafe;
+              --primary: 214 100% 59%;
+              --primary-foreground: 0 0% 98%;
+              --secondary: 214 95% 69%;
+              --secondary-foreground: 214 10% 10%;
+              --accent: 214 100% 91%;
+              --accent-foreground: 214 10% 10%;
+              --brand-name: "AppointmentIQ";
+              --specialty-features: "voice-booking, ai-scheduling, conflict-resolution";
+            }
+            
+            .appointmentiq-integrated-header {
+              background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+              color: hsl(var(--primary-foreground));
+              padding: 1rem;
+              border-radius: 0.5rem;
+              margin-bottom: 1.5rem;
+            }
+            
+            .appointmentiq-integrated-badge {
+              background: hsl(var(--accent));
+              color: hsl(var(--accent-foreground));
+              padding: 0.25rem 0.75rem;
+              border-radius: 9999px;
+              font-size: 0.875rem;
+              font-weight: 500;
             }
           `}</style>
+          
+          {/* AppointmentIQ Header */}
+          <div className="appointmentiq-integrated-header">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-xl font-bold">AppointmentIQ</h1>
+                <p className="opacity-90 text-sm">AI-powered scheduling and booking</p>
+              </div>
+              <span className="appointmentiq-integrated-badge">
+                Smart Scheduling
+              </span>
+            </div>
+          </div>
+          
           {children}
         </div>
       </SpecialtyProvider>
