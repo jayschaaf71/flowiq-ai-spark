@@ -5,10 +5,14 @@ import { Badge } from "@/components/ui/badge";
 import { Brain, FileText, Copy, Download } from "lucide-react";
 import { useSOAPContext } from "@/contexts/SOAPContext";
 import { useToast } from "@/hooks/use-toast";
+import { useSOAPNotes } from "@/hooks/useSOAPNotes";
+import { useState } from "react";
 
 export const ScribeSOAPGeneration = () => {
   const { generatedSOAP, clearSOAP, isGenerating } = useSOAPContext();
   const { toast } = useToast();
+  const { createSOAPNote } = useSOAPNotes();
+  const [isSaving, setIsSaving] = useState(false);
 
   console.log('ScribeSOAPGeneration render - generatedSOAP:', generatedSOAP);
   console.log('ScribeSOAPGeneration render - isGenerating:', isGenerating);
@@ -71,6 +75,38 @@ ${generatedSOAP.plan}`;
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  };
+
+  const saveToPatientRecord = async () => {
+    if (!generatedSOAP) return;
+    
+    setIsSaving(true);
+    try {
+      await createSOAPNote({
+        subjective: generatedSOAP.subjective,
+        objective: generatedSOAP.objective,
+        assessment: generatedSOAP.assessment,
+        plan: generatedSOAP.plan,
+        is_ai_generated: true,
+        ai_confidence_score: 85, // Default confidence score for AI-generated notes
+        status: 'draft',
+        visit_date: new Date().toISOString().split('T')[0],
+        patient_id: 'temp-patient-id', // This should be selected by user in a real implementation
+      });
+      
+      toast({
+        title: "SOAP Note Saved",
+        description: "The SOAP note has been saved to the patient record successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Save Failed",
+        description: "Unable to save SOAP note to patient record",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -143,9 +179,13 @@ ${generatedSOAP.plan}`;
             </div>
 
             <div className="flex gap-2 pt-4 border-t">
-              <Button className="bg-green-600 hover:bg-green-700">
+              <Button 
+                className="bg-green-600 hover:bg-green-700" 
+                onClick={saveToPatientRecord}
+                disabled={isSaving}
+              >
                 <FileText className="w-4 h-4 mr-2" />
-                Save to Patient Record
+                {isSaving ? "Saving..." : "Save to Patient Record"}
               </Button>
               <Button variant="outline">
                 Edit & Refine
