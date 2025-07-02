@@ -147,14 +147,14 @@ export const AppSidebar = () => {
   return (
     <Sidebar className="border-r">
       <SidebarHeader className="border-b p-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground flex-shrink-0">
             <Brain className="h-4 w-4" />
           </div>
           {state === "expanded" && (
-            <div className="flex flex-col min-w-0">
+            <div className="flex flex-col min-w-0 flex-1">
               <div className="flex items-center gap-1">
-                <span className="font-bold text-lg">{getBrandName()}</span>
+                <span className="font-bold text-lg truncate">{getBrandName()}</span>
               </div>
               <p className="text-xs text-muted-foreground leading-tight truncate">
                 {tenantConfig.tagline}
