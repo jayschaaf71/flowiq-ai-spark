@@ -42,12 +42,14 @@ import {
 } from "@/components/ui/sidebar";
 import { useTenantConfig } from "@/utils/enhancedTenantConfig";
 import { useEnhancedAuth } from "@/hooks/useEnhancedAuth";
+import { useSpecialty } from "@/contexts/SpecialtyContext";
 
 export const AppSidebar = () => {
   const location = useLocation();
   const { state } = useSidebar();
   const tenantConfig = useTenantConfig();
   const { isPlatformAdmin, hasMinimumRole, primaryTenant } = useEnhancedAuth();
+  const { getBrandName, theme } = useSpecialty();
   
   const mainNavigationItems = [
     { icon: Home, label: "Dashboard", path: "/dashboard", badge: null },
@@ -152,8 +154,7 @@ export const AppSidebar = () => {
           {state === "expanded" && (
             <div className="flex flex-col min-w-0">
               <div className="flex items-center gap-1">
-                <span className="font-bold text-lg">Flow</span>
-                <span className="font-bold text-lg text-primary">iQ</span>
+                <span className="font-bold text-lg">{getBrandName()}</span>
               </div>
               <p className="text-xs text-muted-foreground leading-tight truncate">
                 {tenantConfig.tagline}

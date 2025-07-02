@@ -22,6 +22,7 @@ import { EnhancedDashboardHeader } from "@/components/dashboard/EnhancedDashboar
 import { RealTimeActivityFeed } from "@/components/dashboard/RealTimeActivityFeed";
 import { SmartInsightsWidget } from "@/components/dashboard/SmartInsightsWidget";
 import { SpecialtySwitcher, SpecialtyOption } from "@/components/specialty/SpecialtySwitcher";
+import { useSpecialty } from "@/contexts/SpecialtyContext";
 import { ChiropracticDashboard } from "@/components/specialty/dashboards/ChiropracticDashboard";
 import { DentalDashboard } from "@/components/specialty/dashboards/DentalDashboard";
 import { DentalSleepDashboard } from "@/components/specialty/dashboards/DentalSleepDashboard";
@@ -29,7 +30,7 @@ import { AppointmentDashboard } from "@/components/specialty/dashboards/Appointm
 
 export const Dashboard = () => {
   const navigate = useNavigate();
-  const [currentSpecialty, setCurrentSpecialty] = useState('chiropractic-care');
+  const { currentSpecialty, setCurrentSpecialty } = useSpecialty();
 
   const practiceAreas = [
     {
