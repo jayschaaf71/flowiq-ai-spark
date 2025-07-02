@@ -1,4 +1,5 @@
 
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,9 +21,15 @@ import { useNavigate } from "react-router-dom";
 import { EnhancedDashboardHeader } from "@/components/dashboard/EnhancedDashboardHeader";
 import { RealTimeActivityFeed } from "@/components/dashboard/RealTimeActivityFeed";
 import { SmartInsightsWidget } from "@/components/dashboard/SmartInsightsWidget";
+import { SpecialtySwitcher, SpecialtyOption } from "@/components/specialty/SpecialtySwitcher";
+import { ChiropracticDashboard } from "@/components/specialty/dashboards/ChiropracticDashboard";
+import { DentalDashboard } from "@/components/specialty/dashboards/DentalDashboard";
+import { DentalSleepDashboard } from "@/components/specialty/dashboards/DentalSleepDashboard";
+import { AppointmentDashboard } from "@/components/specialty/dashboards/AppointmentDashboard";
 
 export const Dashboard = () => {
   const navigate = useNavigate();
+  const [currentSpecialty, setCurrentSpecialty] = useState('chiropractic-care');
 
   const practiceAreas = [
     {
@@ -55,62 +62,36 @@ export const Dashboard = () => {
     navigate('/manager');
   };
 
+  const handleSpecialtyChange = (specialty: SpecialtyOption) => {
+    setCurrentSpecialty(specialty.specialty);
+  };
+
+  const renderSpecialtyDashboard = () => {
+    switch (currentSpecialty) {
+      case 'chiropractic-care':
+        return <ChiropracticDashboard />;
+      case 'dental-care':
+        return <DentalDashboard />;
+      case 'dental-sleep-medicine':
+        return <DentalSleepDashboard />;
+      case 'appointment-scheduling':
+        return <AppointmentDashboard />;
+      default:
+        return <ChiropracticDashboard />;
+    }
+  };
+
   return (
     <div className="space-y-6">
-      {/* Temporary test to show branding */}
-      <Card className="bg-gradient-to-r from-green-50 to-green-100 border-green-200">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-bold text-green-800">ChiropracticIQ</h2>
-              <p className="text-green-600">Optimizing spinal health and mobility</p>
-            </div>
-            <Badge className="bg-green-100 text-green-800 border-green-200">
-              Chiropractic Care
-            </Badge>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Specialty Switcher */}
+      <SpecialtySwitcher 
+        currentSpecialty={currentSpecialty}
+        onSpecialtyChange={handleSpecialtyChange}
+      />
 
-      <EnhancedDashboardHeader />
+      {/* Specialty-Specific Dashboard */}
+      {renderSpecialtyDashboard()}
 
-      {/* Practice Areas */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {practiceAreas.map((area, index) => (
-          <Card key={index} className="cursor-pointer hover:shadow-md transition-shadow duration-200">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <area.icon className={`w-5 h-5 ${area.color}`} />
-                {area.title}
-              </CardTitle>
-              <CardDescription>{area.description}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2 mb-4">
-                {area.metrics.map((metric, idx) => (
-                  <div key={idx} className="text-sm text-gray-600">
-                    • {metric}
-                  </div>
-                ))}
-              </div>
-              <Button 
-                onClick={() => navigate(area.path)}
-                className="w-full"
-                variant="outline"
-              >
-                View Details
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Enhanced Dashboard Widgets */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <RealTimeActivityFeed />
-        <SmartInsightsWidget />
-      </div>
     </div>
   );
 };
