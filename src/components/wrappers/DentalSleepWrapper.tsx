@@ -47,19 +47,6 @@ export const DentalSleepWrapper: React.FC<DentalSleepWrapperProps> = ({ children
             }
           `}</style>
           
-          {/* DentalSleepIQ Header */}
-          <div className="dental-sleep-iq-header">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-xl font-bold">DentalSleepIQ</h1>
-                <p className="opacity-90 text-sm">Restoring quality sleep through dental solutions</p>
-              </div>
-              <span className="dental-sleep-specialty-badge">
-                Sleep Medicine
-              </span>
-            </div>
-          </div>
-          
           {children}
         </div>
       </SpecialtyProvider>
