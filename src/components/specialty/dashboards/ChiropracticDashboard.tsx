@@ -15,6 +15,12 @@ import {
 
 export const ChiropracticDashboard = () => {
   const { config } = useSpecialty();
+  
+  // Fallback config for ChiropracticIQ
+  const dashboardConfig = {
+    name: config?.brand_name || 'ChiropracticIQ',
+    tagline: config?.tagline || 'Optimizing spinal health and mobility'
+  };
 
   const todaysMetrics = {
     appointments: 12,
@@ -34,8 +40,8 @@ export const ChiropracticDashboard = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-green-800">{config.name}</h1>
-          <p className="text-green-600">{config.tagline}</p>
+          <h1 className="text-3xl font-bold text-green-800">{dashboardConfig.name}</h1>
+          <p className="text-green-600">{dashboardConfig.tagline}</p>
         </div>
         <div className="flex items-center gap-3">
           <Badge variant="secondary" className="bg-green-100 text-green-800">
