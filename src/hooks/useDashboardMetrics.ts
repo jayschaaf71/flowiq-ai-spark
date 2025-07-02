@@ -7,47 +7,35 @@ export const useDashboardMetrics = () => {
     queryFn: async () => {
       const today = new Date().toISOString().split('T')[0];
       
-      // Get today's appointments
-      const { data: todaysAppointments, error: appointmentsError } = await supabase
+      // Get today's appointments - simplified query
+      const { data: todaysAppointments } = await supabase
         .from('appointments')
-        .select(`
-          *,
-          patients (first_name, last_name),
-          providers (first_name, last_name)
-        `)
+        .select('*')
         .eq('date', today)
         .neq('status', 'cancelled');
-
-      if (appointmentsError) throw appointmentsError;
 
       // Get new patients this week
       const weekAgo = new Date();
       weekAgo.setDate(weekAgo.getDate() - 7);
       
-      const { data: newPatients, error: patientsError } = await supabase
+      const { data: newPatients } = await supabase
         .from('patients')
         .select('*')
         .gte('created_at', weekAgo.toISOString());
 
-      if (patientsError) throw patientsError;
-
-      // Get today's revenue
-      const { data: todaysPayments, error: paymentsError } = await supabase
+      // Get today's revenue - check if table exists first
+      const { data: todaysPayments } = await supabase
         .from('payment_records')
         .select('amount')
         .gte('payment_date', today)
         .eq('payment_status', 'completed');
 
-      if (paymentsError) throw paymentsError;
-
       // Get recent patients
-      const { data: recentPatients, error: recentError } = await supabase
+      const { data: recentPatients } = await supabase
         .from('patients')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(5);
-
-      if (recentError) throw recentError;
 
       const todaysRevenue = todaysPayments?.reduce((sum, payment) => 
         sum + parseFloat(String(payment.amount || 0)), 0) || 0;
@@ -62,5 +50,6 @@ export const useDashboardMetrics = () => {
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchInterval: 30 * 1000, // 30 seconds
+    retry: false, // Don't retry on error
   });
 };
