@@ -391,7 +391,7 @@ export const DentalSleepEHR = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold text-blue-900">92%</div>
-                      <p className="text-xs text-blue-600">Nights with >4h use</p>
+                      <p className="text-xs text-blue-600">Nights with &gt;4h use</p>
                     </CardContent>
                   </Card>
                   
@@ -562,7 +562,7 @@ export const DentalSleepEHR = () => {
                     <span className="font-medium text-yellow-800">Compliance Alert</span>
                   </div>
                   <div className="text-sm text-yellow-700">
-                    90-day usage proof required (>4 hours/night, 70% of nights) before submitting final claim for reimbursement.
+                    90-day usage proof required (&gt;4 hours/night, 70% of nights) before submitting final claim for reimbursement.
                   </div>
                 </div>
               </div>

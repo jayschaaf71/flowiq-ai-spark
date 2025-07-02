@@ -388,7 +388,7 @@ export const GeneralPracticeEHR = () => {
                     </div>
                     <div className="p-2 border rounded">
                       <div className="font-medium">eGFR</div>
-                      <div className="text-lg">>60</div>
+                      <div className="text-lg">&gt;60</div>
                       <div className="text-xs text-green-600">Normal</div>
                     </div>
                     <div className="p-2 border rounded">
