@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,12 +8,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Navigate } from "react-router-dom";
-import { Calendar, User, Mail, Phone, Eye, EyeOff } from "lucide-react";
+import { Calendar, User, Mail, Phone, Eye, EyeOff, Loader2 } from "lucide-react";
 
 export const AuthPage = () => {
-  const { signUp, signIn, user, profile } = useAuth();
+  const { signUp, signIn, user, loading } = useAuth();
   const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
+  const [authLoading, setAuthLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   // Form states
@@ -33,14 +32,9 @@ export const AuthPage = () => {
     role: "patient"
   });
 
-  console.log("AuthPage - Current signUpData:", signUpData);
-
   // Redirect if already authenticated
-  if (user && profile) {
-    const dashboardRoute = profile.role === 'staff' || profile.role === 'admin' 
-      ? "/dashboard" 
-      : "/patient-dashboard";
-    return <Navigate to={dashboardRoute} replace />;
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -55,7 +49,7 @@ export const AuthPage = () => {
       return;
     }
 
-    setLoading(true);
+    setAuthLoading(true);
     try {
       const { error } = await signIn(signInData.email, signInData.password);
       
@@ -78,14 +72,12 @@ export const AuthPage = () => {
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setAuthLoading(false);
     }
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    console.log("Sign up form submitted with data:", signUpData);
     
     if (!signUpData.firstName || !signUpData.lastName || !signUpData.email || !signUpData.password) {
       toast({
@@ -114,7 +106,7 @@ export const AuthPage = () => {
       return;
     }
 
-    setLoading(true);
+    setAuthLoading(true);
     try {
       const { error } = await signUp(
         signUpData.email, 
@@ -143,7 +135,7 @@ export const AuthPage = () => {
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setAuthLoading(false);
     }
   };
 
@@ -155,6 +147,17 @@ export const AuthPage = () => {
     }
     return value;
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 text-blue-600 mx-auto animate-spin mb-4" />
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
@@ -225,8 +228,15 @@ export const AuthPage = () => {
                     </div>
                   </div>
 
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "Signing In..." : "Sign In"}
+                  <Button type="submit" className="w-full" disabled={authLoading}>
+                    {authLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Signing In...
+                      </>
+                    ) : (
+                      "Sign In"
+                    )}
                   </Button>
                 </form>
               </TabsContent>
@@ -295,17 +305,14 @@ export const AuthPage = () => {
                     <Label htmlFor="signup-role">Account Type</Label>
                     <Select 
                       value={signUpData.role} 
-                      onValueChange={(value) => {
-                        console.log("Role selected:", value);
-                        setSignUpData(prev => ({ ...prev, role: value }));
-                      }}
+                      onValueChange={(value) => setSignUpData(prev => ({ ...prev, role: value }))}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select account type" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="patient">Patient</SelectItem>
-                        <SelectItem value="staff">Staff</SelectItem>
+                        <SelectItem value="staff">Staff Member</SelectItem>
                         <SelectItem value="admin">Administrator</SelectItem>
                       </SelectContent>
                     </Select>
@@ -351,21 +358,22 @@ export const AuthPage = () => {
                     />
                   </div>
 
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "Creating Account..." : "Create Account"}
+                  <Button type="submit" className="w-full" disabled={authLoading}>
+                    {authLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Creating Account...
+                      </>
+                    ) : (
+                      "Create Account"
+                    )}
                   </Button>
                 </form>
               </TabsContent>
             </Tabs>
           </CardContent>
         </Card>
-
-        <p className="text-center text-sm text-gray-600 mt-4">
-          By signing up, you agree to our terms of service and privacy policy.
-        </p>
       </div>
     </div>
   );
 };
-
-export default AuthPage;

@@ -21,6 +21,7 @@ import { BookingWidgetDemo } from '@/pages/BookingWidgetDemo';
 import { PatientPrepPage } from '@/pages/PatientPrepPage';
 import { TenantWrapper } from '@/components/wrappers';
 import { AuthPage } from '@/components/auth/AuthPage';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { PatientDashboard } from '@/pages/PatientDashboard';
 import AuthTesting from '@/pages/AuthTesting';
 import DentalSleepDemo from '@/pages/DentalSleepDemo';
@@ -67,34 +68,46 @@ function App() {
                     <DentalSleepDemo />
                   </TenantWrapper>
                 } />
-                <Route path="/patient-dashboard" element={<PatientDashboard />} />
+                <Route path="/patient-dashboard" element={
+                  <ProtectedRoute>
+                    <PatientDashboard />
+                  </ProtectedRoute>
+                } />
                 <Route path="/dashboard" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <Dashboard />
-                    </Layout>
-                  </TenantWrapper>
+                  <ProtectedRoute requiredRole="staff">
+                    <TenantWrapper>
+                      <Layout>
+                        <Dashboard />
+                      </Layout>
+                    </TenantWrapper>
+                  </ProtectedRoute>
                 } />
                 <Route path="/financial" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <FinancialManagementPage />
-                    </Layout>
-                  </TenantWrapper>
+                  <ProtectedRoute requiredRole="staff">
+                    <TenantWrapper>
+                      <Layout>
+                        <FinancialManagementPage />
+                      </Layout>
+                    </TenantWrapper>
+                  </ProtectedRoute>
                 } />
                 <Route path="/patient-experience" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <PatientExperiencePage />
-                    </Layout>
-                  </TenantWrapper>
+                  <ProtectedRoute requiredRole="staff">
+                    <TenantWrapper>
+                      <Layout>
+                        <PatientExperiencePage />
+                      </Layout>
+                    </TenantWrapper>
+                  </ProtectedRoute>
                 } />
                 <Route path="/analytics" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <Analytics />
-                    </Layout>
-                  </TenantWrapper>
+                  <ProtectedRoute requiredRole="staff">
+                    <TenantWrapper>
+                      <Layout>
+                        <Analytics />
+                      </Layout>
+                    </TenantWrapper>
+                  </ProtectedRoute>
                 } />
                 <Route path="/advanced-analytics" element={
                   <TenantWrapper>
@@ -128,11 +141,13 @@ function App() {
                 <Route path="/complete-intake" element={<CompleteIntakeFlow />} />
                 <Route path="/booking-widget" element={<BookingWidgetDemo />} />
                 <Route path="/schedule" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <Schedule />
-                    </Layout>
-                  </TenantWrapper>
+                  <ProtectedRoute requiredRole="staff">
+                    <TenantWrapper>
+                      <Layout>
+                        <Schedule />
+                      </Layout>
+                    </TenantWrapper>
+                  </ProtectedRoute>
                 } />
                 <Route path="/ehr" element={
                   <TenantWrapper>
@@ -263,11 +278,13 @@ function App() {
                 } />
                 <Route path="/widget" element={<BookingWidgetPage />} />
                 <Route path="/settings" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <Settings />
-                    </Layout>
-                  </TenantWrapper>
+                  <ProtectedRoute>
+                    <TenantWrapper>
+                      <Layout>
+                        <Settings />
+                      </Layout>
+                    </TenantWrapper>
+                  </ProtectedRoute>
                 } />
                 {/* Fallback route */}
                 <Route path="*" element={<NotFound />} />
