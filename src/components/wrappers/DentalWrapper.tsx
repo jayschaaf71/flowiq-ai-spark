@@ -47,19 +47,6 @@ export const DentalWrapper: React.FC<DentalWrapperProps> = ({ children }) => {
             }
           `}</style>
           
-          {/* DentalIQ Header */}
-          <div className="dental-iq-header">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-xl font-bold">DentalIQ</h1>
-                <p className="opacity-90 text-sm">Complete oral health management</p>
-              </div>
-              <span className="dental-specialty-badge">
-                Dental Care
-              </span>
-            </div>
-          </div>
-          
           {children}
         </div>
       </SpecialtyProvider>
