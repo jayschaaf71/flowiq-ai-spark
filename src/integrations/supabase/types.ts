@@ -399,6 +399,42 @@ export type Database = {
           },
         ]
       }
+      appointment_types: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          duration_minutes: number
+          id: string
+          is_active: boolean
+          name: string
+          specialty: string | null
+          tenant_id: string | null
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number
+          id?: string
+          is_active?: boolean
+          name: string
+          specialty?: string | null
+          tenant_id?: string | null
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number
+          id?: string
+          is_active?: boolean
+          name?: string
+          specialty?: string | null
+          tenant_id?: string | null
+        }
+        Relationships: []
+      }
       appointment_waitlist: {
         Row: {
           appointment_type: string
@@ -3015,6 +3051,64 @@ export type Database = {
           total_collected?: number
         }
         Relationships: []
+      }
+      payment_records: {
+        Row: {
+          amount: number
+          appointment_id: string | null
+          created_at: string
+          id: string
+          patient_id: string
+          payment_date: string | null
+          payment_method: string
+          payment_status: string
+          transaction_id: string | null
+        }
+        Insert: {
+          amount: number
+          appointment_id?: string | null
+          created_at?: string
+          id?: string
+          patient_id: string
+          payment_date?: string | null
+          payment_method: string
+          payment_status?: string
+          transaction_id?: string | null
+        }
+        Update: {
+          amount?: number
+          appointment_id?: string | null
+          created_at?: string
+          id?: string
+          patient_id?: string
+          payment_date?: string | null
+          payment_method?: string
+          payment_status?: string
+          transaction_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_records_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_records_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patient_onboarding_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_records_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
