@@ -58,69 +58,59 @@ export const SpecialtySwitcher: React.FC<SpecialtySwitcherProps> = ({
 }) => {
   const currentOption = specialtyOptions.find(opt => opt.specialty === currentSpecialty) || specialtyOptions[0];
 
-  const getColorClasses = (color: string) => {
+  const getBackgroundColor = (color: string) => {
     switch (color) {
-      case 'green':
-        return {
-          bg: 'bg-green-50',
-          border: 'border-green-200',
-          text: 'text-green-800',
-          badge: 'bg-green-100 text-green-800 border-green-200'
-        };
-      case 'blue':
-        return {
-          bg: 'bg-blue-50',
-          border: 'border-blue-200',
-          text: 'text-blue-800',
-          badge: 'bg-blue-100 text-blue-800 border-blue-200'
-        };
-      case 'purple':
-        return {
-          bg: 'bg-purple-50',
-          border: 'border-purple-200',
-          text: 'text-purple-800',
-          badge: 'bg-purple-100 text-purple-800 border-purple-200'
-        };
-      case 'indigo':
-        return {
-          bg: 'bg-indigo-50',
-          border: 'border-indigo-200',
-          text: 'text-indigo-800',
-          badge: 'bg-indigo-100 text-indigo-800 border-indigo-200'
-        };
-      default:
-        return {
-          bg: 'bg-gray-50',
-          border: 'border-gray-200',
-          text: 'text-gray-800',
-          badge: 'bg-gray-100 text-gray-800 border-gray-200'
-        };
+      case 'green': return 'bg-green-50 border-green-200';
+      case 'blue': return 'bg-blue-50 border-blue-200';
+      case 'purple': return 'bg-purple-50 border-purple-200';
+      case 'indigo': return 'bg-indigo-50 border-indigo-200';
+      default: return 'bg-gray-50 border-gray-200';
     }
   };
 
-  const colors = getColorClasses(currentOption.color);
+  const getTextColor = (color: string) => {
+    switch (color) {
+      case 'green': return 'text-green-800';
+      case 'blue': return 'text-blue-800';
+      case 'purple': return 'text-purple-800';
+      case 'indigo': return 'text-indigo-800';
+      default: return 'text-gray-800';
+    }
+  };
+
+  const getBadgeColor = (color: string) => {
+    switch (color) {
+      case 'green': return 'bg-green-100 text-green-800';
+      case 'blue': return 'bg-blue-100 text-blue-800';
+      case 'purple': return 'bg-purple-100 text-purple-800';
+      case 'indigo': return 'bg-indigo-100 text-indigo-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
 
   return (
-    <Card className={`${colors.bg} ${colors.border}`}>
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between mb-4">
-          <div className="min-w-0 flex-1">
-            <h2 className={`text-xl font-bold ${colors.text} truncate`}>
+    <Card className={getBackgroundColor(currentOption.color)}>
+      <CardContent className="p-6">
+        {/* Top Section - Brand Name and Badge */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="md:col-span-2">
+            <h1 className={`text-2xl font-bold ${getTextColor(currentOption.color)} mb-2`}>
               {currentOption.brandName}
-            </h2>
-            <p className={`text-sm ${colors.text} opacity-80 truncate`}>
+            </h1>
+            <p className={`text-sm ${getTextColor(currentOption.color)} opacity-75`}>
               {currentOption.description}
             </p>
           </div>
-          <div className="flex-shrink-0 ml-4">
-            <Badge className={colors.badge}>
+          <div className="flex justify-start md:justify-end items-start">
+            <Badge className={getBadgeColor(currentOption.color)}>
               {currentOption.name}
             </Badge>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-medium text-gray-700">
+        {/* Bottom Section - Controls */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <span className="text-sm font-medium text-gray-700 whitespace-nowrap">
             Switch Specialty:
           </span>
           <Select
@@ -132,21 +122,18 @@ export const SpecialtySwitcher: React.FC<SpecialtySwitcherProps> = ({
               }
             }}
           >
-            <SelectTrigger className="w-48">
+            <SelectTrigger className="w-full sm:w-auto min-w-[200px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {specialtyOptions.map((option) => (
                 <SelectItem key={option.id} value={option.id}>
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">{option.brandName}</span>
-                    <span className="text-xs text-gray-500">- {option.name}</span>
-                  </div>
+                  {option.brandName} - {option.name}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-          <Badge variant="outline" className="text-xs">
+          <Badge variant="outline" className="text-xs whitespace-nowrap">
             Demo Mode
           </Badge>
         </div>
