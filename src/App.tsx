@@ -45,6 +45,7 @@ import PaymentsIQ from '@/pages/agents/PaymentsIQ';
 import InventoryIQ from '@/pages/agents/InventoryIQ';
 import InsightIQ from '@/pages/agents/InsightIQ';
 import OpsIQ from '@/pages/agents/OpsIQ';
+import AuthIQ from '@/pages/agents/AuthIQ';
 import PilotDashboard from '@/pages/PilotDashboard';
 import ExternalIntegrationsPage from '@/pages/ExternalIntegrations';
 import BookingWidgetPage from '@/pages/BookingWidget';
@@ -245,6 +246,13 @@ function App() {
                   <TenantWrapper>
                     <Layout>
                       <ClaimsIQ />
+                    </Layout>
+                  </TenantWrapper>
+                } />
+                <Route path="/agents/auth" element={
+                  <TenantWrapper>
+                    <Layout>
+                      <AuthIQ />
                     </Layout>
                   </TenantWrapper>
                 } />
