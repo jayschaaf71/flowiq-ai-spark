@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useSpecialty } from '@/contexts/SpecialtyContext';
+import { useNavigate } from 'react-router-dom';
 import { 
   Moon, 
   Users, 
@@ -15,6 +16,7 @@ import {
 } from "lucide-react";
 
 export const DentalSleepDashboard = () => {
+  const navigate = useNavigate();
   const { config } = useSpecialty();
 
   // Fallback config for demo purposes
@@ -41,7 +43,7 @@ export const DentalSleepDashboard = () => {
 
       {/* Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="border-blue-200">
+        <Card className="border-blue-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/schedule')}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Today's Appointments</CardTitle>
             <Calendar className="h-4 w-4 text-blue-600" />
@@ -52,7 +54,7 @@ export const DentalSleepDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-blue-200">
+        <Card className="border-blue-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/patient-management?filter=new')}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">New Consultations</CardTitle>
             <Users className="h-4 w-4 text-blue-600" />
@@ -63,7 +65,7 @@ export const DentalSleepDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-blue-200">
+        <Card className="border-blue-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/financial')}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Today's Revenue</CardTitle>
             <DollarSign className="h-4 w-4 text-blue-600" />
@@ -74,7 +76,7 @@ export const DentalSleepDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-blue-200">
+        <Card className="border-blue-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/analytics?metric=ahi-reduction')}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Avg AHI Reduction</CardTitle>
             <TrendingUp className="h-4 w-4 text-blue-600" />
@@ -97,15 +99,15 @@ export const DentalSleepDashboard = () => {
             <CardDescription>Sleep medicine workflows</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button className="w-full justify-start bg-blue-600 hover:bg-blue-700">
+            <Button className="w-full justify-start bg-blue-600 hover:bg-blue-700" onClick={() => navigate('/schedule')}>
               <Clock className="w-4 h-4 mr-2" />
               Schedule Sleep Consultation
             </Button>
-            <Button variant="outline" className="w-full justify-start border-blue-200 hover:bg-blue-50">
+            <Button variant="outline" className="w-full justify-start border-blue-200 hover:bg-blue-50" onClick={() => navigate('/ehr')}>
               <Activity className="w-4 h-4 mr-2" />
               Review Sleep Study
             </Button>
-            <Button variant="outline" className="w-full justify-start border-blue-200 hover:bg-blue-50">
+            <Button variant="outline" className="w-full justify-start border-blue-200 hover:bg-blue-50" onClick={() => navigate('/patient-management')}>
               <Stethoscope className="w-4 h-4 mr-2" />
               Appliance Follow-up
             </Button>

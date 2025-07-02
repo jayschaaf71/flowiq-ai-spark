@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useSpecialty } from '@/contexts/SpecialtyContext';
+import { useNavigate } from 'react-router-dom';
 import { 
   Activity, 
   Users, 
@@ -14,6 +15,7 @@ import {
 } from "lucide-react";
 
 export const ChiropracticDashboard = () => {
+  const navigate = useNavigate();
   const { config } = useSpecialty();
   
   // Fallback config for ChiropracticIQ
@@ -40,7 +42,7 @@ export const ChiropracticDashboard = () => {
 
       {/* Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="border-green-200">
+        <Card className="border-green-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/schedule')}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Today's Appointments</CardTitle>
             <Calendar className="h-4 w-4 text-green-600" />
@@ -51,7 +53,7 @@ export const ChiropracticDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-green-200">
+        <Card className="border-green-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/patient-management?filter=new')}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">New Patients</CardTitle>
             <Users className="h-4 w-4 text-green-600" />
@@ -62,7 +64,7 @@ export const ChiropracticDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-green-200">
+        <Card className="border-green-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/financial')}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Today's Revenue</CardTitle>
             <DollarSign className="h-4 w-4 text-green-600" />
@@ -73,7 +75,7 @@ export const ChiropracticDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-green-200">
+        <Card className="border-green-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/analytics?metric=pain-reduction')}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Avg Pain Reduction</CardTitle>
             <TrendingUp className="h-4 w-4 text-green-600" />
@@ -96,15 +98,15 @@ export const ChiropracticDashboard = () => {
             <CardDescription>Common chiropractic workflows</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button className="w-full justify-start bg-green-600 hover:bg-green-700">
+            <Button className="w-full justify-start bg-green-600 hover:bg-green-700" onClick={() => navigate('/schedule')}>
               <Clock className="w-4 h-4 mr-2" />
               Schedule Adjustment Session
             </Button>
-            <Button variant="outline" className="w-full justify-start border-green-200 hover:bg-green-50">
+            <Button variant="outline" className="w-full justify-start border-green-200 hover:bg-green-50" onClick={() => navigate('/ehr')}>
               <Activity className="w-4 h-4 mr-2" />
               Create SOAP Note
             </Button>
-            <Button variant="outline" className="w-full justify-start border-green-200 hover:bg-green-50">
+            <Button variant="outline" className="w-full justify-start border-green-200 hover:bg-green-50" onClick={() => navigate('/patient-management')}>
               <Users className="w-4 h-4 mr-2" />
               Add New Patient
             </Button>
