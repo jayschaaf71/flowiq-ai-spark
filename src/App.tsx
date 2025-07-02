@@ -47,6 +47,7 @@ import InsightIQ from '@/pages/agents/InsightIQ';
 import OpsIQ from '@/pages/agents/OpsIQ';
 import AuthIQ from '@/pages/agents/AuthIQ';
 import EducationIQ from '@/pages/agents/EducationIQ';
+import ReferralIQ from '@/pages/agents/ReferralIQ';
 import PilotDashboard from '@/pages/PilotDashboard';
 import ExternalIntegrationsPage from '@/pages/ExternalIntegrations';
 import BookingWidgetPage from '@/pages/BookingWidget';
@@ -261,6 +262,13 @@ function App() {
                   <TenantWrapper>
                     <Layout>
                       <EducationIQ />
+                    </Layout>
+                  </TenantWrapper>
+                } />
+                <Route path="/agents/referral" element={
+                  <TenantWrapper>
+                    <Layout>
+                      <ReferralIQ />
                     </Layout>
                   </TenantWrapper>
                 } />

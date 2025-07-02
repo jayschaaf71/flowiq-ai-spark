@@ -7,6 +7,7 @@ import { Shield, Smartphone } from "lucide-react";
 import { PlaudIntegration } from "@/components/ai/PlaudIntegration";
 import { ScribeDashboardTab } from "@/components/scribe/ScribeDashboardTab";
 import { ScribeLiveRecording } from "@/components/scribe/ScribeLiveRecording";
+import { EnhancedVoiceRecorder } from "@/components/scribe/EnhancedVoiceRecorder";
 import { ScribeSOAPGeneration } from "@/components/scribe/ScribeSOAPGeneration";
 import { ScribeTemplatesTab } from "@/components/scribe/ScribeTemplatesTab";
 import { ScribeSettingsTab } from "@/components/scribe/ScribeSettingsTab";
@@ -53,13 +54,14 @@ const ScribeIQ = () => {
         
         <div className="space-y-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full grid-cols-7">
               <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
               <TabsTrigger value="plaud">
                 <Smartphone className="w-4 h-4 mr-1" />
                 Plaud Device
               </TabsTrigger>
               <TabsTrigger value="transcribe">Live Recording</TabsTrigger>
+              <TabsTrigger value="whisper">AI Recorder</TabsTrigger>
               <TabsTrigger value="soap">SOAP Generation</TabsTrigger>
               <TabsTrigger value="templates">Templates</TabsTrigger>
               <TabsTrigger value="settings">Settings</TabsTrigger>
@@ -75,6 +77,10 @@ const ScribeIQ = () => {
 
             <TabsContent value="transcribe">
               <ScribeLiveRecording />
+            </TabsContent>
+
+            <TabsContent value="whisper">
+              <EnhancedVoiceRecorder />
             </TabsContent>
 
             <TabsContent value="soap">
