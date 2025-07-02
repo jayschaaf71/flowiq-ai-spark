@@ -131,6 +131,20 @@ Answer the user's question about using FlowiQ:`;
 
       setMessages(prev => [...prev, assistantMessage]);
 
+      // If actions were performed, show them
+      if (data.actions_performed && data.actions_performed.length > 0) {
+        const actionsMessage: ChatMessage = {
+          id: (Date.now() + 2).toString(),
+          type: 'system',
+          content: `🔧 Actions performed:\n${data.actions_performed.map((action: any) => 
+            `• ${action.function}: ${action.result.success ? '✅ ' + action.result.message : '❌ ' + action.result.error}`
+          ).join('\n')}`,
+          timestamp: new Date()
+        };
+        
+        setMessages(prev => [...prev, actionsMessage]);
+      }
+
     } catch (error) {
       console.error('AI Help error:', error);
       toast({
