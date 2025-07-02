@@ -17,7 +17,7 @@ interface SOAPTemplateProps {
 
 export const SOAPTemplateSelector = ({ onSelectTemplate, specialty }: SOAPTemplateProps) => {
   const [open, setOpen] = useState(false);
-  const [selectedSpecialty, setSelectedSpecialty] = useState(specialty || "");
+  const [selectedSpecialty, setSelectedSpecialty] = useState(specialty || "all");
   const [newTemplate, setNewTemplate] = useState({
     name: "",
     specialty: "",
@@ -82,7 +82,7 @@ export const SOAPTemplateSelector = ({ onSelectTemplate, specialty }: SOAPTempla
               <SelectValue placeholder="All specialties" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All specialties</SelectItem>
+              <SelectItem value="all">All specialties</SelectItem>
               {specialties.map((spec) => (
                 <SelectItem key={spec} value={spec}>{spec}</SelectItem>
               ))}

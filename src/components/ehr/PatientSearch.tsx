@@ -25,9 +25,9 @@ interface PatientSearchProps {
 export const PatientSearch = ({ onFiltersChange, totalResults }: PatientSearchProps) => {
   const [filters, setFilters] = useState<SearchFilters>({
     searchTerm: "",
-    ageRange: "",
-    gender: "",
-    insuranceStatus: "",
+    ageRange: "any",
+    gender: "any",
+    insuranceStatus: "any",
     lastVisitDate: undefined,
   });
 
@@ -42,9 +42,9 @@ export const PatientSearch = ({ onFiltersChange, totalResults }: PatientSearchPr
   const clearFilters = () => {
     const cleared = {
       searchTerm: "",
-      ageRange: "",
-      gender: "",
-      insuranceStatus: "",
+      ageRange: "any",
+      gender: "any",
+      insuranceStatus: "any",
       lastVisitDate: undefined,
     };
     setFilters(cleared);
@@ -53,7 +53,7 @@ export const PatientSearch = ({ onFiltersChange, totalResults }: PatientSearchPr
   };
 
   const activeFilterCount = Object.values(filters).filter(value => 
-    value && value !== ""
+    value && value !== "" && value !== "any"
   ).length;
 
   return (
@@ -101,7 +101,7 @@ export const PatientSearch = ({ onFiltersChange, totalResults }: PatientSearchPr
                   <SelectValue placeholder="Any age" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Any age</SelectItem>
+                  <SelectItem value="any">Any age</SelectItem>
                   <SelectItem value="0-17">0-17 years</SelectItem>
                   <SelectItem value="18-30">18-30 years</SelectItem>
                   <SelectItem value="31-50">31-50 years</SelectItem>
@@ -118,7 +118,7 @@ export const PatientSearch = ({ onFiltersChange, totalResults }: PatientSearchPr
                   <SelectValue placeholder="Any gender" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Any gender</SelectItem>
+                  <SelectItem value="any">Any gender</SelectItem>
                   <SelectItem value="male">Male</SelectItem>
                   <SelectItem value="female">Female</SelectItem>
                   <SelectItem value="non_binary">Non-binary</SelectItem>
@@ -134,7 +134,7 @@ export const PatientSearch = ({ onFiltersChange, totalResults }: PatientSearchPr
                   <SelectValue placeholder="Any status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Any status</SelectItem>
+                  <SelectItem value="any">Any status</SelectItem>
                   <SelectItem value="insured">Has Insurance</SelectItem>
                   <SelectItem value="uninsured">No Insurance</SelectItem>
                   <SelectItem value="expired">Expired Insurance</SelectItem>

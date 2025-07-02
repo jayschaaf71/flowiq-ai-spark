@@ -78,7 +78,7 @@ export const CreateOrderDialog = ({
                     </SelectItem>
                   ))
                 ) : (
-                  <SelectItem value="" disabled>
+                  <SelectItem value="no-vendors" disabled>
                     No active vendors available
                   </SelectItem>
                 )}
