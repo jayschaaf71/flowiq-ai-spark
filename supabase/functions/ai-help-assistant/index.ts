@@ -95,6 +95,22 @@ Answer the user's question about using FlowiQ and perform actions when requested
         }
       },
       {
+        name: "update_patient",
+        description: "Update patient information",
+        parameters: {
+          type: "object",
+          properties: {
+            patient_id: { type: "string", description: "Patient ID to update" },
+            first_name: { type: "string", description: "Patient's first name" },
+            last_name: { type: "string", description: "Patient's last name" },
+            email: { type: "string", description: "Patient's email address" },
+            phone: { type: "string", description: "Patient's phone number" },
+            date_of_birth: { type: "string", description: "Patient's date of birth (YYYY-MM-DD)" }
+          },
+          required: ["patient_id"]
+        }
+      },
+      {
         name: "create_appointment",
         description: "Create a new appointment",
         parameters: {
@@ -111,6 +127,33 @@ Answer the user's question about using FlowiQ and perform actions when requested
         }
       },
       {
+        name: "update_appointment",
+        description: "Update or reschedule an appointment",
+        parameters: {
+          type: "object",
+          properties: {
+            appointment_id: { type: "string", description: "Appointment ID to update" },
+            date: { type: "string", description: "New appointment date (YYYY-MM-DD)" },
+            time: { type: "string", description: "New appointment time (HH:MM)" },
+            status: { type: "string", enum: ["scheduled", "confirmed", "completed", "cancelled"], description: "Appointment status" },
+            notes: { type: "string", description: "Appointment notes" }
+          },
+          required: ["appointment_id"]
+        }
+      },
+      {
+        name: "cancel_appointment",
+        description: "Cancel an appointment",
+        parameters: {
+          type: "object",
+          properties: {
+            appointment_id: { type: "string", description: "Appointment ID to cancel" },
+            reason: { type: "string", description: "Cancellation reason" }
+          },
+          required: ["appointment_id"]
+        }
+      },
+      {
         name: "search_patients",
         description: "Search for patients by name or email",
         parameters: {
@@ -119,6 +162,83 @@ Answer the user's question about using FlowiQ and perform actions when requested
             query: { type: "string", description: "Search query (name or email)" }
           },
           required: ["query"]
+        }
+      },
+      {
+        name: "search_appointments",
+        description: "Search for appointments by date, patient, or status",
+        parameters: {
+          type: "object",
+          properties: {
+            date: { type: "string", description: "Search by date (YYYY-MM-DD)" },
+            patient_email: { type: "string", description: "Search by patient email" },
+            status: { type: "string", description: "Search by appointment status" },
+            provider_id: { type: "string", description: "Search by provider ID" }
+          }
+        }
+      },
+      {
+        name: "get_intake_submissions",
+        description: "Get recent intake form submissions",
+        parameters: {
+          type: "object",
+          properties: {
+            limit: { type: "number", description: "Number of submissions to retrieve (default: 10)" },
+            status: { type: "string", description: "Filter by status (pending, processed, etc.)" }
+          }
+        }
+      },
+      {
+        name: "create_intake_form",
+        description: "Create a new intake form",
+        parameters: {
+          type: "object",
+          properties: {
+            title: { type: "string", description: "Form title" },
+            description: { type: "string", description: "Form description" },
+            form_fields: { type: "array", description: "Array of form field objects" }
+          },
+          required: ["title", "form_fields"]
+        }
+      },
+      {
+        name: "get_claims_data",
+        description: "Get claims information and statistics",
+        parameters: {
+          type: "object",
+          properties: {
+            status: { type: "string", description: "Filter by claim status" },
+            date_from: { type: "string", description: "Start date (YYYY-MM-DD)" },
+            date_to: { type: "string", description: "End date (YYYY-MM-DD)" },
+            limit: { type: "number", description: "Number of claims to retrieve" }
+          }
+        }
+      },
+      {
+        name: "send_notification",
+        description: "Send a notification to a patient or staff member",
+        parameters: {
+          type: "object",
+          properties: {
+            recipient_email: { type: "string", description: "Recipient's email address" },
+            type: { type: "string", enum: ["sms", "email"], description: "Notification type" },
+            subject: { type: "string", description: "Notification subject" },
+            message: { type: "string", description: "Notification message" }
+          },
+          required: ["recipient_email", "type", "message"]
+        }
+      },
+      {
+        name: "check_availability",
+        description: "Check provider availability for scheduling",
+        parameters: {
+          type: "object",
+          properties: {
+            provider_id: { type: "string", description: "Provider ID to check" },
+            date: { type: "string", description: "Date to check (YYYY-MM-DD)" },
+            duration: { type: "number", description: "Appointment duration in minutes" }
+          },
+          required: ["date"]
         }
       }
     ];
@@ -171,11 +291,38 @@ Answer the user's question about using FlowiQ and perform actions when requested
               case 'add_patient':
                 functionResult = await addPatient(supabase, functionArgs);
                 break;
+              case 'update_patient':
+                functionResult = await updatePatient(supabase, functionArgs);
+                break;
               case 'create_appointment':
                 functionResult = await createAppointment(supabase, functionArgs);
                 break;
+              case 'update_appointment':
+                functionResult = await updateAppointment(supabase, functionArgs);
+                break;
+              case 'cancel_appointment':
+                functionResult = await cancelAppointment(supabase, functionArgs);
+                break;
               case 'search_patients':
                 functionResult = await searchPatients(supabase, functionArgs);
+                break;
+              case 'search_appointments':
+                functionResult = await searchAppointments(supabase, functionArgs);
+                break;
+              case 'get_intake_submissions':
+                functionResult = await getIntakeSubmissions(supabase, functionArgs);
+                break;
+              case 'create_intake_form':
+                functionResult = await createIntakeForm(supabase, functionArgs);
+                break;
+              case 'get_claims_data':
+                functionResult = await getClaimsData(supabase, functionArgs);
+                break;
+              case 'send_notification':
+                functionResult = await sendNotification(supabase, functionArgs);
+                break;
+              case 'check_availability':
+                functionResult = await checkAvailability(supabase, functionArgs);
                 break;
               default:
                 functionResult = { error: `Unknown function: ${functionName}` };
@@ -341,5 +488,282 @@ async function searchPatients(supabase: any, args: any) {
     patients: data,
     count: data.length,
     message: `Found ${data.length} patients matching "${query}"` 
+  };
+}
+
+async function updatePatient(supabase: any, args: any) {
+  const { patient_id, ...updateData } = args;
+  
+  // Remove undefined fields
+  const cleanUpdateData = Object.fromEntries(
+    Object.entries(updateData).filter(([_, value]) => value !== undefined)
+  );
+
+  const { data, error } = await supabase
+    .from('patients')
+    .update(cleanUpdateData)
+    .eq('id', patient_id)
+    .select()
+    .single();
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  return { 
+    success: true, 
+    patient: data,
+    message: `Successfully updated patient information` 
+  };
+}
+
+async function updateAppointment(supabase: any, args: any) {
+  const { appointment_id, ...updateData } = args;
+  
+  // Remove undefined fields
+  const cleanUpdateData = Object.fromEntries(
+    Object.entries(updateData).filter(([_, value]) => value !== undefined)
+  );
+
+  const { data, error } = await supabase
+    .from('appointments')
+    .update(cleanUpdateData)
+    .eq('id', appointment_id)
+    .select()
+    .single();
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  return { 
+    success: true, 
+    appointment: data,
+    message: `Successfully updated appointment` 
+  };
+}
+
+async function cancelAppointment(supabase: any, args: any) {
+  const { appointment_id, reason } = args;
+  
+  const { data, error } = await supabase
+    .from('appointments')
+    .update({ 
+      status: 'cancelled',
+      notes: reason ? `Cancelled: ${reason}` : 'Cancelled'
+    })
+    .eq('id', appointment_id)
+    .select()
+    .single();
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  return { 
+    success: true, 
+    appointment: data,
+    message: `Successfully cancelled appointment` 
+  };
+}
+
+async function searchAppointments(supabase: any, args: any) {
+  const { date, patient_email, status, provider_id } = args;
+  
+  let query = supabase
+    .from('appointments')
+    .select(`
+      id, 
+      date, 
+      time, 
+      title, 
+      status, 
+      appointment_type,
+      duration,
+      patient_id,
+      patients!inner(first_name, last_name, email)
+    `)
+    .limit(20);
+
+  if (date) {
+    query = query.eq('date', date);
+  }
+  
+  if (patient_email) {
+    query = query.eq('patients.email', patient_email);
+  }
+  
+  if (status) {
+    query = query.eq('status', status);
+  }
+  
+  if (provider_id) {
+    query = query.eq('provider_id', provider_id);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  return { 
+    success: true, 
+    appointments: data,
+    count: data.length,
+    message: `Found ${data.length} appointments matching criteria` 
+  };
+}
+
+async function getIntakeSubmissions(supabase: any, args: any) {
+  const { limit = 10, status } = args;
+  
+  let query = supabase
+    .from('intake_submissions')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (status) {
+    query = query.eq('status', status);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  return { 
+    success: true, 
+    submissions: data,
+    count: data.length,
+    message: `Retrieved ${data.length} intake submissions` 
+  };
+}
+
+async function createIntakeForm(supabase: any, args: any) {
+  const { title, description, form_fields } = args;
+  
+  const { data, error } = await supabase
+    .from('intake_forms')
+    .insert({
+      title,
+      description,
+      form_fields
+    })
+    .select()
+    .single();
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  return { 
+    success: true, 
+    form: data,
+    message: `Successfully created intake form "${title}"` 
+  };
+}
+
+async function getClaimsData(supabase: any, args: any) {
+  const { status, date_from, date_to, limit = 20 } = args;
+  
+  let query = supabase
+    .from('claims')
+    .select(`
+      id, 
+      claim_number, 
+      status, 
+      total_amount, 
+      service_date, 
+      submitted_date,
+      processing_status,
+      ai_confidence_score,
+      patients!inner(first_name, last_name, email)
+    `)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (status) {
+    query = query.eq('status', status);
+  }
+  
+  if (date_from) {
+    query = query.gte('service_date', date_from);
+  }
+  
+  if (date_to) {
+    query = query.lte('service_date', date_to);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  return { 
+    success: true, 
+    claims: data,
+    count: data.length,
+    message: `Retrieved ${data.length} claims` 
+  };
+}
+
+async function sendNotification(supabase: any, args: any) {
+  const { recipient_email, type, subject, message } = args;
+  
+  // Call the existing notification function
+  const { data, error } = await supabase.functions.invoke('send-communication', {
+    body: {
+      to: recipient_email,
+      type: type,
+      subject: subject,
+      message: message
+    }
+  });
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  return { 
+    success: true, 
+    notification: data,
+    message: `Successfully sent ${type} notification to ${recipient_email}` 
+  };
+}
+
+async function checkAvailability(supabase: any, args: any) {
+  const { provider_id, date, duration = 60 } = args;
+  
+  let query = supabase
+    .from('appointments')
+    .select('time, duration')
+    .eq('date', date)
+    .eq('status', 'scheduled');
+
+  if (provider_id) {
+    query = query.eq('provider_id', provider_id);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  // Calculate available slots (simplified logic)
+  const busySlots = data.map(apt => ({
+    start: apt.time,
+    duration: apt.duration
+  }));
+
+  return { 
+    success: true, 
+    busy_slots: busySlots,
+    available: busySlots.length < 8, // Simplified availability check
+    message: `Found ${busySlots.length} existing appointments on ${date}` 
   };
 }
