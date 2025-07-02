@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useSpecialty } from '@/contexts/SpecialtyContext';
 import { useNavigate } from 'react-router-dom';
+import { useDashboardMetrics } from '@/hooks/useDashboardMetrics';
 import { 
   Activity, 
   Users, 
@@ -16,6 +17,7 @@ import {
 
 export const ChiropracticDashboard = () => {
   const navigate = useNavigate();
+  const { data: metrics, isLoading, error } = useDashboardMetrics();
   const { config } = useSpecialty();
   
   // Fallback config for ChiropracticIQ
@@ -24,18 +26,44 @@ export const ChiropracticDashboard = () => {
     tagline: config?.tagline || 'Optimizing spinal health and mobility'
   };
 
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i} className="border-green-200 animate-pulse">
+              <CardContent className="p-6">
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-8 bg-gray-200 rounded w-1/2"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center p-6">
+        <p className="text-red-600">Error loading dashboard data</p>
+      </div>
+    );
+  }
+
   const todaysMetrics = {
-    appointments: 12,
-    newPatients: 3,
-    revenue: 1250,
-    avgPainReduction: 68
+    appointments: metrics?.appointmentsToday || 0,
+    newPatients: metrics?.newPatientsThisWeek || 0,
+    revenue: metrics?.todaysRevenue || 0,
+    avgPainReduction: 68 // This would come from treatment outcomes data
   };
 
-  const recentPatients = [
-    { name: 'John Smith', condition: 'Lower Back Pain', lastVisit: '2 hours ago', progress: 'Improving' },
-    { name: 'Sarah Johnson', condition: 'Neck Strain', lastVisit: '1 day ago', progress: 'Good' },
-    { name: 'Mike Wilson', condition: 'Sports Injury', lastVisit: '3 days ago', progress: 'Excellent' }
-  ];
+  const recentPatients = metrics?.recentPatients?.slice(0, 3).map(patient => ({
+    name: `${patient.first_name} ${patient.last_name}`,
+    condition: 'Treatment in progress', // Would come from treatment plans
+    lastVisit: new Date(patient.created_at).toLocaleDateString(),
+    progress: 'Good'
+  })) || [];
 
   return (
     <div className="space-y-6">
