@@ -87,15 +87,8 @@ export const Dashboard = () => {
 
   return (
     <div className="space-y-6">
-      {/* Specialty Switcher */}
-      <SpecialtySwitcher 
-        currentSpecialty={currentSpecialty}
-        onSpecialtyChange={handleSpecialtyChange}
-      />
-
-      {/* Specialty-Specific Dashboard */}
+      {/* Specialty-Specific Dashboard - No more green header */}
       {renderSpecialtyDashboard()}
-
     </div>
   );
 };
