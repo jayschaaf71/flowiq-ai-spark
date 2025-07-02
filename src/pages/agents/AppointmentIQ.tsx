@@ -320,7 +320,7 @@ export const AppointmentIQ = () => {
           <CardDescription>Common appointment management tasks</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <Button variant="outline" className="h-16 flex-col">
               <Calendar className="h-6 w-6 mb-1" />
               <span className="text-xs">Book Appointment</span>
@@ -332,6 +332,14 @@ export const AppointmentIQ = () => {
             <Button variant="outline" className="h-16 flex-col">
               <UserCheck className="h-6 w-6 mb-1" />
               <span className="text-xs">Check Intake</span>
+            </Button>
+            <Button 
+              variant="outline" 
+              className="h-16 flex-col"
+              onClick={() => navigate('/integrations')}
+            >
+              <Activity className="h-6 w-6 mb-1" />
+              <span className="text-xs">External Integrations</span>
             </Button>
             <Button variant="outline" className="h-16 flex-col">
               <Activity className="h-6 w-6 mb-1" />

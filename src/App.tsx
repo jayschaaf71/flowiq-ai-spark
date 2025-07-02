@@ -45,6 +45,8 @@ import InventoryIQ from '@/pages/agents/InventoryIQ';
 import InsightIQ from '@/pages/agents/InsightIQ';
 import OpsIQ from '@/pages/agents/OpsIQ';
 import PilotDashboard from '@/pages/PilotDashboard';
+import ExternalIntegrationsPage from '@/pages/ExternalIntegrations';
+import BookingWidgetPage from '@/pages/BookingWidget';
 
 const queryClient = new QueryClient();
 
@@ -252,6 +254,14 @@ function App() {
                     </Layout>
                   </TenantWrapper>
                 } />
+                <Route path="/integrations" element={
+                  <TenantWrapper>
+                    <Layout>
+                      <ExternalIntegrationsPage />
+                    </Layout>
+                  </TenantWrapper>
+                } />
+                <Route path="/widget" element={<BookingWidgetPage />} />
                 <Route path="/settings" element={
                   <TenantWrapper>
                     <Layout>
