@@ -56,28 +56,42 @@ export const AppSidebar = () => {
     { icon: TrendingUp, label: "Insights", path: "/insights", badge: null },
   ];
 
-  // New grouped navigation structure
-  const appointmentsGroup = [
-    { icon: Calendar, label: "Appointment iQ", path: "/agents/appointment", badge: "AI" },
-  ];
-
-  const clinicalSupportGroup = [
-    { icon: Stethoscope, label: "Scribe iQ", path: "/agents/scribe", badge: "AI" },
-    { icon: Brain, label: "Insights iQ", path: "/agents/insights", badge: "AI" },
-  ];
-
-  const patientOperationsGroup = [
-    { icon: ClipboardList, label: "Intake iQ", path: "/agents/intake", badge: "AI" },
-  ];
-
-  const revenueCycleGroup = [
-    { icon: Receipt, label: "Claims iQ", path: "/agents/claims", badge: "AI" },
-    { icon: CreditCard, label: "Payments iQ", path: "/agents/payments", badge: "AI" },
-  ];
-
-  const practiceOpsGroup = [
-    { icon: Package, label: "Inventory iQ", path: "/agents/inventory", badge: "AI" },
-    { icon: UserPlus, label: "Ops iQ", path: "/ops", badge: "AI" },
+  // AI Agent Groups
+  const aiAgentGroups = [
+    {
+      title: "Scheduling",
+      items: [
+        { icon: Calendar, label: "Appointment iQ", path: "/agents/appointment", badge: "AI" },
+      ]
+    },
+    {
+      title: "Clinical Support", 
+      items: [
+        { icon: Stethoscope, label: "Scribe iQ", path: "/agents/scribe", badge: "AI" },
+        { icon: Brain, label: "Insights iQ", path: "/agents/insights", badge: "AI" },
+      ]
+    },
+    {
+      title: "Patient Operations",
+      items: [
+        { icon: ClipboardList, label: "Intake iQ", path: "/agents/intake", badge: "AI" },
+        { icon: Bell, label: "Remind iQ", path: "/agents/remind", badge: "AI" },
+      ]
+    },
+    {
+      title: "Revenue Cycle",
+      items: [
+        { icon: Receipt, label: "Claims iQ", path: "/agents/claims", badge: "AI" },
+        { icon: CreditCard, label: "Payments iQ", path: "/agents/payments", badge: "AI" },
+      ]
+    },
+    {
+      title: "Practice Operations",
+      items: [
+        { icon: Package, label: "Inventory iQ", path: "/agents/inventory", badge: "AI" },
+        { icon: UserPlus, label: "Ops iQ", path: "/ops", badge: "AI" },
+      ]
+    }
   ];
 
   const managementItems = [
@@ -96,28 +110,28 @@ export const AppSidebar = () => {
 
   const renderNavSection = (title: string, items: any[]) => (
     <SidebarGroup key={title}>
-      <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+      <SidebarGroupLabel className="text-xs font-medium text-muted-foreground uppercase tracking-wider px-2">
         {title}
       </SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.path}>
-              <SidebarMenuButton asChild isActive={isActive(item.path)} className="hover:bg-gray-50">
-                <NavLink to={item.path} className="flex items-center gap-3 px-3 py-2 rounded-md transition-colors">
+              <SidebarMenuButton asChild isActive={isActive(item.path)} className="w-full">
+                <NavLink to={item.path} className="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 hover:bg-accent hover:text-accent-foreground">
                   <item.icon className="h-4 w-4 flex-shrink-0" />
-                  <span className="truncate">{item.label}</span>
-                  {item.badge && (
-                    <Badge 
-                      variant={item.badge === "AI" ? "default" : item.badge === "Enterprise" ? "secondary" : item.badge === "New" ? "destructive" : "secondary"} 
-                      className={`ml-auto text-xs flex-shrink-0 ${
-                        item.badge === "AI" ? "bg-blue-100 text-blue-700" : 
-                        item.badge === "Enterprise" ? "bg-purple-100 text-purple-700" : 
-                        item.badge === "New" ? "bg-green-100 text-green-700" : ""
-                      }`}
-                    >
-                      {item.badge}
-                    </Badge>
+                  {state === "expanded" && (
+                    <>
+                      <span className="truncate font-medium">{item.label}</span>
+                      {item.badge && (
+                        <Badge 
+                          variant={item.badge === "AI" ? "default" : item.badge === "Enterprise" ? "secondary" : item.badge === "Live" ? "destructive" : "secondary"} 
+                          className="ml-auto text-xs flex-shrink-0"
+                        >
+                          {item.badge}
+                        </Badge>
+                      )}
+                    </>
                   )}
                 </NavLink>
               </SidebarMenuButton>
@@ -129,20 +143,23 @@ export const AppSidebar = () => {
   );
 
   return (
-    <Sidebar variant="inset" className="border-r border-gray-200">
-      <SidebarHeader className="border-b border-gray-200 bg-white">
-        <div className="flex items-center gap-3 px-4 py-3">
+    <Sidebar variant="inset" className="border-r">
+      <SidebarHeader className="border-b p-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <Brain className="h-4 w-4" />
+          </div>
           {state === "expanded" && (
             <div className="flex flex-col min-w-0">
               <div className="flex items-center gap-1">
-                <span className="font-bold text-lg text-blue-600">Flow</span>
-                <span className="font-bold text-lg text-gray-800">iQ</span>
+                <span className="font-bold text-lg">Flow</span>
+                <span className="font-bold text-lg text-primary">iQ</span>
               </div>
-              <p className="text-xs text-gray-500 leading-tight truncate">
+              <p className="text-xs text-muted-foreground leading-tight truncate">
                 {tenantConfig.tagline}
               </p>
               {primaryTenant && (
-                <p className="text-xs text-blue-600 font-medium mt-1 truncate">
+                <p className="text-xs text-primary font-medium mt-1 truncate">
                   {primaryTenant.tenant.brand_name}
                 </p>
               )}
@@ -151,33 +168,66 @@ export const AppSidebar = () => {
         </div>
       </SidebarHeader>
       
-      <SidebarContent className="bg-white">
-        <div className="px-2 py-2 space-y-4">
-          {renderNavSection("Main", mainNavigationItems)}
-          {renderNavSection("Appointments", appointmentsGroup)}
-          {renderNavSection("Clinical Support", clinicalSupportGroup)}
-          {renderNavSection("Patient Operations", patientOperationsGroup)}
-          {renderNavSection("Revenue Cycle", revenueCycleGroup)}
-          {renderNavSection("Practice Ops", practiceOpsGroup)}
+      <SidebarContent>
+        <div className="space-y-4 p-2">
+          {renderNavSection("Overview", mainNavigationItems)}
+          
+          {/* AI Agents Section */}
+          <div className="space-y-2">
+            <SidebarGroupLabel className="text-xs font-medium text-muted-foreground uppercase tracking-wider px-2">
+              AI Agents
+            </SidebarGroupLabel>
+            {aiAgentGroups.map((group) => (
+              <div key={group.title} className="space-y-1">
+                {state === "expanded" && (
+                  <div className="px-2 py-1">
+                    <span className="text-xs text-muted-foreground/80">{group.title}</span>
+                  </div>
+                )}
+                <SidebarMenu>
+                  {group.items.map((item) => (
+                    <SidebarMenuItem key={item.path}>
+                      <SidebarMenuButton asChild isActive={isActive(item.path)} className="w-full">
+                        <NavLink to={item.path} className="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 hover:bg-accent hover:text-accent-foreground">
+                          <item.icon className="h-4 w-4 flex-shrink-0" />
+                          {state === "expanded" && (
+                            <>
+                              <span className="truncate font-medium">{item.label}</span>
+                              {item.badge && (
+                                <Badge variant="secondary" className="ml-auto text-xs flex-shrink-0">
+                                  {item.badge}
+                                </Badge>
+                              )}
+                            </>
+                          )}
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </div>
+            ))}
+          </div>
+
           {renderNavSection("Management", managementItems)}
         </div>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-gray-200 bg-white">
-        <div className="px-2 py-2">
-          <SidebarMenu>
-            {bottomItems.map((item) => (
-              <SidebarMenuItem key={item.path}>
-                <SidebarMenuButton asChild isActive={isActive(item.path)} className="hover:bg-gray-50">
-                  <NavLink to={item.path} className="flex items-center gap-3 px-3 py-2 rounded-md transition-colors">
-                    <item.icon className="h-4 w-4 flex-shrink-0" />
-                    <span className="truncate">{item.label}</span>
-                  </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </div>
+      <SidebarFooter className="border-t p-2">
+        <SidebarMenu>
+          {bottomItems.map((item) => (
+            <SidebarMenuItem key={item.path}>
+              <SidebarMenuButton asChild isActive={isActive(item.path)} className="w-full">
+                <NavLink to={item.path} className="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 hover:bg-accent hover:text-accent-foreground">
+                  <item.icon className="h-4 w-4 flex-shrink-0" />
+                  {state === "expanded" && (
+                    <span className="truncate font-medium">{item.label}</span>
+                  )}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
   );
