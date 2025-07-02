@@ -77,11 +77,10 @@ export const useAIVoiceTranscription = () => {
       const base64Audio = await base64Promise;
 
       // Call our HIPAA-compliant AI transcription service
-      const { data, error } = await supabase.functions.invoke('ai-voice-transcription', {
+      const { data, error } = await supabase.functions.invoke('voice-to-text', {
         body: {
           audio: base64Audio,
-          userId: user?.id,
-          patientId: patientId
+          language: 'en'
         }
       });
 
@@ -89,17 +88,16 @@ export const useAIVoiceTranscription = () => {
         throw error;
       }
 
-      setTranscription(data.transcription);
+      setTranscription(data.text);
       
       toast({
         title: "AI Transcription Complete",
-        description: `Processed ${data.transcription.length} characters with HIPAA compliance`,
+        description: `Processed ${data.text.length} characters with HIPAA compliance`,
       });
 
       return {
-        transcription: data.transcription,
-        containsPHI: data.containsPHI,
-        complianceStatus: data.complianceStatus
+        transcription: data.text,
+        confidence: data.confidence
       };
 
     } catch (error) {
