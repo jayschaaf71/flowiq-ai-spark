@@ -497,14 +497,14 @@ export const NotificationCenter: React.FC = () => {
                 <div className="border rounded-lg p-4 bg-muted/50">
                   <h4 className="font-medium mb-2">Available Variables:</h4>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
-                    <code>{{patient_name}}</code>
-                    <code>{{provider_name}}</code>
-                    <code>{{appointment_date}}</code>
-                    <code>{{appointment_time}}</code>
-                    <code>{{practice_name}}</code>
-                    <code>{{practice_phone}}</code>
-                    <code>{{appointment_type}}</code>
-                    <code>{{location}}</code>
+                    <code>{"{{patient_name}}"}</code>
+                    <code>{"{{provider_name}}"}</code>
+                    <code>{"{{appointment_date}}"}</code>
+                    <code>{"{{appointment_time}}"}</code>
+                    <code>{"{{practice_name}}"}</code>
+                    <code>{"{{practice_phone}}"}</code>
+                    <code>{"{{appointment_type}}"}</code>
+                    <code>{"{{location}}"}</code>
                   </div>
                 </div>
                 
