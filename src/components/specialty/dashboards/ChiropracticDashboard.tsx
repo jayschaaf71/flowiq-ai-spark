@@ -37,19 +37,6 @@ export const ChiropracticDashboard = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-green-800">{dashboardConfig.name}</h1>
-          <p className="text-green-600">{dashboardConfig.tagline}</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Badge variant="secondary" className="bg-green-100 text-green-800">
-            <Activity className="w-3 h-3 mr-1" />
-            Chiropractic Care
-          </Badge>
-        </div>
-      </div>
 
       {/* Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
