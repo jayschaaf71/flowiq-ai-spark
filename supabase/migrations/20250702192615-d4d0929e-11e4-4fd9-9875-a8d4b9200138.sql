@@ -1,0 +1,1 @@
+UPDATE profiles SET specialty = 'Dentistry' WHERE email = 'bob@test.com';
