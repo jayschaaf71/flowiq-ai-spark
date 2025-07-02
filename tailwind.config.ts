@@ -86,6 +86,10 @@ export default {
 				'lg': 'var(--shadow-lg)',
 				'xl': 'var(--shadow-xl)',
 			},
+			spacing: {
+				'safe-area-inset-bottom': 'env(safe-area-inset-bottom)',
+				'safe-area-inset-top': 'env(safe-area-inset-top)',
+			},
 			keyframes: {
 				'accordion-down': {
 					from: {
