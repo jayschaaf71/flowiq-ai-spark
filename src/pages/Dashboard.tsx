@@ -30,6 +30,10 @@ export const Dashboard = () => {
   const renderSpecialtyDashboard = () => {
     const specialty = userProfile?.specialty;
     
+    // Debug logging
+    console.log('User Profile:', userProfile);
+    console.log('Specialty:', specialty);
+    
     switch (specialty) {
       case 'Chiropractic':
         return <ChiropracticDashboard />;
@@ -39,6 +43,7 @@ export const Dashboard = () => {
         return <DentalSleepDashboard />;
       default:
         // Default to chiropractic if no specialty or unknown specialty
+        console.log('Defaulting to ChiropracticDashboard for specialty:', specialty);
         return <ChiropracticDashboard />;
     }
   };
