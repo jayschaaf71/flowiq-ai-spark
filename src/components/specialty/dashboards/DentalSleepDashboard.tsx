@@ -38,19 +38,6 @@ export const DentalSleepDashboard = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-blue-800">{displayConfig.name}</h1>
-          <p className="text-blue-600">{displayConfig.tagline}</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-            <Moon className="w-3 h-3 mr-1" />
-            Sleep Medicine
-          </Badge>
-        </div>
-      </div>
 
       {/* Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">

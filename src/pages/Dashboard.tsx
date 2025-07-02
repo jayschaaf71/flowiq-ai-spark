@@ -63,6 +63,7 @@ export const Dashboard = () => {
   };
 
   const handleSpecialtyChange = (specialty: SpecialtyOption) => {
+    console.log('Switching specialty to:', specialty.specialty);
     setCurrentSpecialty(specialty.specialty);
   };
 
