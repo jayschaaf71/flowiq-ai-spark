@@ -172,9 +172,9 @@ export const AIAgentTester = () => {
   const getStatusBadge = (status: TestResult['status']) => {
     switch (status) {
       case 'passed':
-        return <Badge className="bg-green-100 text-green-700">Passed</Badge>;
+        return <Badge className="bg-success/10 text-success">Passed</Badge>;
       case 'failed':
-        return <Badge className="bg-red-100 text-red-700">Failed</Badge>;
+        return <Badge className="bg-destructive/10 text-destructive">Failed</Badge>;
       case 'running':
         return <Badge className="bg-blue-100 text-blue-700">Running</Badge>;
       default:

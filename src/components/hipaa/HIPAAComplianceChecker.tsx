@@ -146,11 +146,11 @@ export const HIPAAComplianceChecker = () => {
   const getStatusBadge = (status: ComplianceCheck['status']) => {
     switch (status) {
       case 'compliant':
-        return <Badge className="bg-green-100 text-green-700">Compliant</Badge>;
+        return <Badge className="bg-success/10 text-success">Compliant</Badge>;
       case 'warning':
-        return <Badge className="bg-yellow-100 text-yellow-700">Warning</Badge>;
+        return <Badge className="bg-warning/10 text-warning">Warning</Badge>;
       case 'non-compliant':
-        return <Badge className="bg-red-100 text-red-700">Non-Compliant</Badge>;
+        return <Badge className="bg-destructive/10 text-destructive">Non-Compliant</Badge>;
     }
   };
 
