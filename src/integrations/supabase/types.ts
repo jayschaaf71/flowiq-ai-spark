@@ -505,6 +505,7 @@ export type Database = {
           profile_id: string | null
           provider_id: string | null
           status: string
+          tenant_id: string | null
           time: string
           title: string
           updated_at: string
@@ -522,6 +523,7 @@ export type Database = {
           profile_id?: string | null
           provider_id?: string | null
           status?: string
+          tenant_id?: string | null
           time: string
           title: string
           updated_at?: string
@@ -539,6 +541,7 @@ export type Database = {
           profile_id?: string | null
           provider_id?: string | null
           status?: string
+          tenant_id?: string | null
           time?: string
           title?: string
           updated_at?: string
@@ -913,6 +916,7 @@ export type Database = {
           service_date: string
           status: string | null
           submitted_date: string | null
+          tenant_id: string | null
           total_amount: number
           updated_at: string
         }
@@ -933,6 +937,7 @@ export type Database = {
           service_date: string
           status?: string | null
           submitted_date?: string | null
+          tenant_id?: string | null
           total_amount: number
           updated_at?: string
         }
@@ -953,6 +958,7 @@ export type Database = {
           service_date?: string
           status?: string | null
           submitted_date?: string | null
+          tenant_id?: string | null
           total_amount?: number
           updated_at?: string
         }
