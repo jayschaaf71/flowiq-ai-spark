@@ -47,18 +47,6 @@ export const ChiropracticWrapper: React.FC<ChiropracticWrapperProps> = ({ childr
             }
           `}</style>
           
-          {/* ChiropracticIQ Header */}
-          <div className="chiropractic-iq-header">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-xl font-bold">ChiropracticIQ</h1>
-                <p className="opacity-90 text-sm">Optimizing spinal health and mobility</p>
-              </div>
-              <span className="chiropractic-specialty-badge">
-                Chiropractic Care
-              </span>
-            </div>
-          </div>
           
           {children}
         </div>
