@@ -20,5 +20,7 @@ export const useUserProfile = () => {
       return data;
     },
     enabled: !!user?.id,
+    staleTime: 0, // Force fresh data every time
+    gcTime: 0, // Don't cache the data
   });
 };
