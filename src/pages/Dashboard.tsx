@@ -57,6 +57,21 @@ export const Dashboard = () => {
 
   return (
     <div className="space-y-6">
+      {/* Temporary test to show branding */}
+      <Card className="bg-gradient-to-r from-green-50 to-green-100 border-green-200">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-bold text-green-800">ChiropracticIQ</h2>
+              <p className="text-green-600">Optimizing spinal health and mobility</p>
+            </div>
+            <Badge className="bg-green-100 text-green-800 border-green-200">
+              Chiropractic Care
+            </Badge>
+          </div>
+        </CardContent>
+      </Card>
+
       <EnhancedDashboardHeader />
 
       {/* Practice Areas */}
