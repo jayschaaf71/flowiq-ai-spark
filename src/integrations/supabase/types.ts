@@ -3121,6 +3121,7 @@ export type Database = {
           phone: string | null
           primary_tenant_id: string | null
           role: string
+          specialty: string | null
           tenant_id: string | null
           updated_at: string
         }
@@ -3134,6 +3135,7 @@ export type Database = {
           phone?: string | null
           primary_tenant_id?: string | null
           role?: string
+          specialty?: string | null
           tenant_id?: string | null
           updated_at?: string
         }
@@ -3147,6 +3149,7 @@ export type Database = {
           phone?: string | null
           primary_tenant_id?: string | null
           role?: string
+          specialty?: string | null
           tenant_id?: string | null
           updated_at?: string
         }

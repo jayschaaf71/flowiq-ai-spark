@@ -30,7 +30,7 @@ export const SOAPTemplateSelector = ({ onSelectTemplate, specialty }: SOAPTempla
     }
   });
 
-  const { data: templates = [], isLoading } = useSOAPTemplates(selectedSpecialty);
+  const { data: templates = [], isLoading } = useSOAPTemplates(specialty || selectedSpecialty);
   const createTemplate = useCreateSOAPTemplate();
   const { toast } = useToast();
 
@@ -75,20 +75,27 @@ export const SOAPTemplateSelector = ({ onSelectTemplate, specialty }: SOAPTempla
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-4">
-        <div className="flex-1">
-          <Label>Select Specialty</Label>
-          <Select value={selectedSpecialty} onValueChange={setSelectedSpecialty}>
-            <SelectTrigger>
-              <SelectValue placeholder="All specialties" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All specialties</SelectItem>
-              {specialties.map((spec) => (
-                <SelectItem key={spec} value={spec}>{spec}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        {!specialty && (
+          <div className="flex-1">
+            <Label>Select Specialty</Label>
+            <Select value={selectedSpecialty} onValueChange={setSelectedSpecialty}>
+              <SelectTrigger>
+                <SelectValue placeholder="All specialties" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All specialties</SelectItem>
+                {specialties.map((spec) => (
+                  <SelectItem key={spec} value={spec}>{spec}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+        {specialty && (
+          <div className="flex-1">
+            <Label>Showing templates for: {specialty}</Label>
+          </div>
+        )}
 
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>

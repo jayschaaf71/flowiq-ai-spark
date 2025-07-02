@@ -19,6 +19,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SOAPTemplateSelector } from "./SOAPTemplateSelector";
 import { useSOAPNotes } from "@/hooks/useSOAPNotes";
+import { useUserProfile } from "@/hooks/useUserProfile";
 
 export const SOAPNotes = () => {
   const [selectedNote, setSelectedNote] = useState<string | null>(null);
@@ -26,6 +27,7 @@ export const SOAPNotes = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
   const { soapNotes, loading } = useSOAPNotes();
+  const { data: userProfile } = useUserProfile();
 
   // Convert database SOAP notes to display format
   const allNotes = soapNotes.map(note => ({
@@ -101,6 +103,7 @@ export const SOAPNotes = () => {
           </CardHeader>
           <CardContent>
             <SOAPTemplateSelector
+              specialty={userProfile?.specialty}
               onSelectTemplate={(template) => {
                 console.log('Selected template:', template);
                 // Here you would apply the template to a new SOAP note
