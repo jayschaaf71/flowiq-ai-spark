@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, ReactNode, useState } from 'react';
 import { useCurrentTenant, getSpecialtyTheme } from '@/utils/enhancedTenantConfig';
+import { useUserProfile } from '@/hooks/useUserProfile';
 
 interface SpecialtyContextType {
   specialty: string;
@@ -33,27 +34,35 @@ interface SpecialtyProviderProps {
 
 const specialtyBrands: Record<string, string> = {
   'chiropractic-care': 'Chiropractic IQ',
+  'chiropractic': 'Chiropractic IQ',
   'dental-care': 'Dental IQ', 
+  'dental': 'Dental IQ',
+  'dentistry': 'Dental IQ',
   'dental-sleep-medicine': 'Dental Sleep IQ',
+  'dental-sleep': 'Dental Sleep IQ',
   'appointment-scheduling': 'Appointment IQ'
 };
 
 export const SpecialtyProvider: React.FC<SpecialtyProviderProps> = ({ children }) => {
   const { currentTenant } = useCurrentTenant();
+  const { data: userProfile } = useUserProfile();
   
-  const [currentSpecialty, setCurrentSpecialty] = useState(
-    currentTenant?.specialty || 'chiropractic-care'
-  );
+  // Use user's profile specialty if available, otherwise fall back to tenant specialty
+  const effectiveSpecialty = userProfile?.specialty?.toLowerCase().replace(/\s+/g, '-') || 
+                            currentTenant?.specialty || 
+                            'chiropractic-care';
   
-  const theme = getSpecialtyTheme(currentSpecialty);
+  const [currentSpecialty, setCurrentSpecialty] = useState(effectiveSpecialty);
+  
+  const theme = getSpecialtyTheme(effectiveSpecialty);
 
   const getBrandName = () => {
-    return specialtyBrands[currentSpecialty] || 'Flow IQ';
+    return specialtyBrands[effectiveSpecialty] || 'Flow IQ';
   };
 
   const value: SpecialtyContextType = {
-    specialty: currentSpecialty,
-    currentSpecialty,
+    specialty: effectiveSpecialty,
+    currentSpecialty: effectiveSpecialty,
     setCurrentSpecialty,
     theme,
     tenantConfig: currentTenant,
