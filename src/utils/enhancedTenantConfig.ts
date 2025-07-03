@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthProvider';
@@ -15,16 +14,52 @@ export interface TenantConfig {
   tagline?: string;
 }
 
-// Default tenant configuration for fallback
-const DEFAULT_TENANT: TenantConfig = {
-  id: 'default',
-  name: 'FlowIQ Demo',
-  brand_name: 'FlowIQ',
-  brandName: 'FlowIQ',
-  specialty: 'chiropractic-care',
-  primary_color: '#16a34a',
-  secondary_color: '#22c55e',
-  tagline: 'The AI Business Operating System'
+// Default tenant configurations by specialty
+const DEFAULT_TENANTS: Record<string, TenantConfig> = {
+  chiropractic: {
+    id: 'default-chiro',
+    name: 'FlowIQ Demo',
+    brand_name: 'FlowIQ',
+    brandName: 'FlowIQ',
+    specialty: 'chiropractic-care',
+    primary_color: '#16a34a',
+    secondary_color: '#22c55e',
+    tagline: 'Chiropractic Care'
+  },
+  dental: {
+    id: 'default-dental',
+    name: 'Dental IQ',
+    brand_name: 'Dental IQ',
+    brandName: 'Dental IQ',
+    specialty: 'dental-care',
+    primary_color: '#3b82f6',
+    secondary_color: '#60a5fa',
+    tagline: 'The AI Business Operating System'
+  },
+  'dental-sleep': {
+    id: 'default-dental-sleep',
+    name: 'Dental Sleep IQ',
+    brand_name: 'Dental Sleep IQ',
+    brandName: 'Dental Sleep IQ',
+    specialty: 'dental-sleep-medicine',
+    primary_color: '#8b5cf6',
+    secondary_color: '#a78bfa',
+    tagline: 'Sleep Medicine Solutions'
+  }
+};
+
+// Helper function to detect current specialty from URL or context
+const detectCurrentSpecialty = (): string => {
+  const path = window.location.pathname;
+  const wrapper = document.querySelector('[class*="-iq-theme"]');
+  
+  if (wrapper?.classList.contains('dental-sleep-iq-theme') || path.includes('dental-sleep')) {
+    return 'dental-sleep';
+  } else if (wrapper?.classList.contains('dental-iq-theme') || path.includes('dental')) {
+    return 'dental';
+  } else {
+    return 'chiropractic';
+  }
 };
 
 export const useCurrentTenant = () => {
@@ -39,10 +74,14 @@ export const useCurrentTenant = () => {
         
         console.log('fetchTenant called with user:', user?.id, 'profile:', profile);
         
-        // If no user, use default tenant
+        // Detect current specialty context
+        const currentSpecialty = detectCurrentSpecialty();
+        console.log('Detected specialty:', currentSpecialty);
+        
+        // If no user, use default tenant for detected specialty
         if (!user || !profile) {
-          console.log('No user or profile, using default tenant');
-          const tenant = { ...DEFAULT_TENANT, brandName: DEFAULT_TENANT.brand_name };
+          console.log('No user or profile, using default tenant for specialty:', currentSpecialty);
+          const tenant = DEFAULT_TENANTS[currentSpecialty] || DEFAULT_TENANTS.chiropractic;
           setCurrentTenant(tenant);
           setLoading(false);
           return;
@@ -53,8 +92,8 @@ export const useCurrentTenant = () => {
         console.log('Profile tenant_id:', tenantId);
         
         if (!tenantId) {
-          console.log('No tenant_id in profile, using default tenant');
-          const tenant = { ...DEFAULT_TENANT, brandName: DEFAULT_TENANT.brand_name };
+          console.log('No tenant_id in profile, using default tenant for specialty:', currentSpecialty);
+          const tenant = DEFAULT_TENANTS[currentSpecialty] || DEFAULT_TENANTS.chiropractic;
           setCurrentTenant(tenant);
           setLoading(false);
           return;
@@ -69,11 +108,13 @@ export const useCurrentTenant = () => {
 
         if (error) {
           console.error('Error fetching tenant:', error, 'for tenantId:', tenantId);
-          const defaultTenant = { ...DEFAULT_TENANT, brandName: DEFAULT_TENANT.brand_name };
+          const currentSpecialty = detectCurrentSpecialty();
+          const defaultTenant = DEFAULT_TENANTS[currentSpecialty] || DEFAULT_TENANTS.chiropractic;
           setCurrentTenant(defaultTenant);
         } else if (!tenant) {
           console.log('No tenant found for id:', tenantId);
-          const defaultTenant = { ...DEFAULT_TENANT, brandName: DEFAULT_TENANT.brand_name };
+          const currentSpecialty = detectCurrentSpecialty();
+          const defaultTenant = DEFAULT_TENANTS[currentSpecialty] || DEFAULT_TENANTS.chiropractic;
           setCurrentTenant(defaultTenant);
         } else {
           console.log('Successfully fetched tenant:', tenant);
@@ -91,7 +132,8 @@ export const useCurrentTenant = () => {
         }
       } catch (error) {
         console.error('Error fetching tenant:', error);
-        const tenant = { ...DEFAULT_TENANT, brandName: DEFAULT_TENANT.brand_name };
+        const currentSpecialty = detectCurrentSpecialty();
+        const tenant = DEFAULT_TENANTS[currentSpecialty] || DEFAULT_TENANTS.chiropractic;
         setCurrentTenant(tenant);
       } finally {
         setLoading(false);
@@ -107,7 +149,8 @@ export const useCurrentTenant = () => {
 // Add useTenantConfig export that AppSidebar expects
 export const useTenantConfig = () => {
   const { currentTenant } = useCurrentTenant();
-  return currentTenant || DEFAULT_TENANT;
+  const currentSpecialty = detectCurrentSpecialty();
+  return currentTenant || DEFAULT_TENANTS[currentSpecialty] || DEFAULT_TENANTS.chiropractic;
 };
 
 // Specialty mapping for consistent theming
