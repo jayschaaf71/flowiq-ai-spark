@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
 import { useCurrentTenant } from '@/utils/enhancedTenantConfig';
+import { PatientBilling } from '@/components/patient-experience/PatientBilling';
 import { 
   Calendar, 
   Clock, 
@@ -16,12 +17,14 @@ import {
   LogOut,
   Phone,
   Mail,
-  Loader2
+  Loader2,
+  CreditCard
 } from 'lucide-react';
 
 export const PatientDashboard: React.FC = () => {
   const { user, profile, signOut, loading: authLoading } = useAuth();
   const { currentTenant, loading: tenantLoading } = useCurrentTenant();
+  const [activeSection, setActiveSection] = React.useState('dashboard');
 
   const handleSignOut = async () => {
     await signOut();
@@ -128,17 +131,36 @@ export const PatientDashboard: React.FC = () => {
             </CardContent>
           </Card>
 
-          <Card className="cursor-pointer hover:shadow-md transition-shadow">
+          <Card 
+            className="cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => setActiveSection('billing')}
+          >
             <CardContent className="p-6 text-center">
-              <Mail className="w-8 h-8 text-purple-600 mx-auto mb-3" />
-              <h3 className="font-semibold text-gray-900 mb-1">Messages</h3>
-              <p className="text-sm text-gray-600">Communicate with providers</p>
+              <CreditCard className="w-8 h-8 text-purple-600 mx-auto mb-3" />
+              <h3 className="font-semibold text-gray-900 mb-1">Pay Bills</h3>
+              <p className="text-sm text-gray-600">Manage payments & billing</p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Main Dashboard Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Conditional Content Based on Active Section */}
+        {activeSection === 'billing' ? (
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">Billing & Payments</h2>
+              <Button 
+                variant="outline" 
+                onClick={() => setActiveSection('dashboard')}
+              >
+                ← Back to Dashboard
+              </Button>
+            </div>
+            <PatientBilling />
+          </div>
+        ) : (
+          <>
+            {/* Main Dashboard Content */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Upcoming Appointments */}
           <Card>
             <CardHeader>
@@ -250,6 +272,8 @@ export const PatientDashboard: React.FC = () => {
             </div>
           </CardContent>
         </Card>
+          </>
+        )}
       </div>
     </div>
   );

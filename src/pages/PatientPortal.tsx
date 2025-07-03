@@ -24,6 +24,7 @@ import {
   Activity
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { PatientBilling } from '@/components/patient-experience/PatientBilling';
 
 export const PatientPortal: React.FC = () => {
   const isMobile = useIsMobile();
@@ -123,7 +124,10 @@ export const PatientPortal: React.FC = () => {
             </CardContent>
           </Card>
           
-          <Card className="cursor-pointer hover:shadow-md transition-shadow">
+          <Card 
+            className="cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => setActiveTab('billing')}
+          >
             <CardContent className="p-4 text-center">
               <CreditCard className="w-8 h-8 mx-auto mb-2 text-orange-600" />
               <p className="text-sm font-medium">Pay Bill</p>
@@ -141,13 +145,13 @@ export const PatientPortal: React.FC = () => {
           </Alert>
         )}
 
-        <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList className={`grid w-full ${isMobile ? 'grid-cols-3' : 'grid-cols-5'}`}>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+          <TabsList className={`grid w-full ${isMobile ? 'grid-cols-4' : 'grid-cols-5'}`}>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="appointments">Appointments</TabsTrigger>
             <TabsTrigger value="health">Health</TabsTrigger>
+            <TabsTrigger value="billing">Billing</TabsTrigger>
             {!isMobile && <TabsTrigger value="records">Records</TabsTrigger>}
-            {!isMobile && <TabsTrigger value="billing">Billing</TabsTrigger>}
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
@@ -317,6 +321,33 @@ export const PatientPortal: React.FC = () => {
               </CardContent>
             </Card>
           </TabsContent>
+
+          <TabsContent value="billing" className="space-y-4">
+            <PatientBilling />
+          </TabsContent>
+
+          {!isMobile && (
+            <TabsContent value="records" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="w-5 h-5" />
+                    Medical Records
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-8">
+                    <FileText className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Access Your Records</h3>
+                    <p className="text-gray-500 mb-4">
+                      View and download your complete medical history
+                    </p>
+                    <Button>View Medical Records</Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
         </Tabs>
       </div>
 
@@ -336,9 +367,12 @@ export const PatientPortal: React.FC = () => {
               <FileText className="w-5 h-5" />
               <span className="text-xs mt-1">Records</span>
             </button>
-            <button className="flex flex-col items-center py-2 text-gray-600">
-              <MessageSquare className="w-5 h-5" />
-              <span className="text-xs mt-1">Messages</span>
+            <button 
+              className="flex flex-col items-center py-2 text-gray-600"
+              onClick={() => setActiveTab('billing')}
+            >
+              <CreditCard className="w-5 h-5" />
+              <span className="text-xs mt-1">Billing</span>
             </button>
           </div>
         </div>
