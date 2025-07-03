@@ -9,7 +9,9 @@ import {
   TrendingUp, 
   Brain,
   Smartphone,
-  ArrowRight
+  ArrowRight,
+  Plus,
+  Bell
 } from "lucide-react";
 import { PlaudDeviceStatus } from "./PlaudDeviceStatus";
 
@@ -28,6 +30,11 @@ export const ScribeDashboardTab = () => {
 
   const handleNavigateToSettings = () => {
     window.dispatchEvent(new CustomEvent('changeScribeTab', { detail: 'settings' }));
+  };
+
+  const handleAddReminder = () => {
+    // Navigate to RemindIQ page
+    window.location.href = '/agents/remind';
   };
 
   return (
@@ -137,6 +144,17 @@ export const ScribeDashboardTab = () => {
             >
               <Smartphone className="w-4 h-4 mr-2" />
               Configure Plaud Device
+              <ArrowRight className="w-4 h-4 ml-auto" />
+            </Button>
+            
+            <Button 
+              onClick={handleAddReminder}
+              variant="outline"
+              className="w-full justify-start"
+              size="lg"
+            >
+              <Bell className="w-4 h-4 mr-2" />
+              Add Reminder
               <ArrowRight className="w-4 h-4 ml-auto" />
             </Button>
 
