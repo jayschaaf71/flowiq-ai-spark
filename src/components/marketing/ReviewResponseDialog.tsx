@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Star, Sparkles, Send } from 'lucide-react';
 import { CustomerReview, useCreateReviewResponse } from '@/hooks/useCustomerReviews';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ReviewResponseDialogProps {
   review: CustomerReview | null;
@@ -29,8 +30,21 @@ export const ReviewResponseDialog: React.FC<ReviewResponseDialogProps> = ({
     
     setIsGeneratingAI(true);
     try {
-      // TODO: Call AI assistant to generate response
-      const aiResponse = `Thank you for your ${review.rating >= 4 ? 'wonderful' : 'valuable'} feedback${review.reviewer_name ? `, ${review.reviewer_name}` : ''}! ${
+      const { data, error } = await supabase.functions.invoke('marketing-ai-assistant', {
+        body: {
+          action: 'generate_review_response',
+          data: {
+            review_text: review.review_text,
+            rating: review.rating,
+            reviewer_name: review.reviewer_name,
+            platform: review.platform
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      const aiResponse = data?.response || `Thank you for your ${review.rating >= 4 ? 'wonderful' : 'valuable'} feedback${review.reviewer_name ? `, ${review.reviewer_name}` : ''}! ${
         review.rating >= 4 
           ? "We're thrilled to hear about your positive experience with our team. Your satisfaction is our top priority, and we look forward to serving you again soon!"
           : "We appreciate you taking the time to share your experience. Your feedback helps us improve our services. We'd love the opportunity to address your concerns directly - please feel free to contact us so we can make things right."

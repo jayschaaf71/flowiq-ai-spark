@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useMarketingCampaigns, useCreateMarketingCampaign, useUpdateMarketingCampaign } from '@/hooks/useMarketingCampaigns';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   Plus, 
   Play, 
@@ -66,10 +67,8 @@ export const CampaignManager = () => {
   const generateAICampaign = async () => {
     setIsGeneratingAI(true);
     try {
-      const response = await fetch('/api/marketing-ai-assistant', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('marketing-ai-assistant', {
+        body: {
           action: 'generate_campaign',
           data: {
             campaign_type: formData.campaign_type,
@@ -77,12 +76,13 @@ export const CampaignManager = () => {
             specialty: 'general practice',
             goals: 'increase patient acquisition'
           }
-        })
+        }
       });
 
-      const result = await response.json();
-      if (result.success) {
-        const aiData = result.data;
+      if (error) throw error;
+
+      if (data?.success) {
+        const aiData = data.data;
         setFormData(prev => ({
           ...prev,
           name: aiData.name || prev.name,

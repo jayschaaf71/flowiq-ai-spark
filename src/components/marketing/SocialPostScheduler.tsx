@@ -11,6 +11,7 @@ import { CalendarIcon, Clock, Sparkles, Image, CalendarDays } from 'lucide-react
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 export const SocialPostScheduler = () => {
   const [open, setOpen] = useState(false);
@@ -50,16 +51,36 @@ export const SocialPostScheduler = () => {
     });
   };
 
-  const handleAIGenerate = () => {
-    // TODO: Call AI to generate post content
-    const aiContent = "🦷 Did you know regular dental checkups can prevent up to 90% of dental problems? Book your appointment today and keep your smile healthy! #DentalHealth #HealthySmile #PreventiveCare";
-    
-    setPostData({ ...postData, content: aiContent });
-    
-    toast({
-      title: 'AI Content Generated',
-      description: 'Post content generated successfully! You can edit it before scheduling.',
-    });
+  const handleAIGenerate = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('marketing-ai-assistant', {
+        body: {
+          action: 'generate_social_post',
+          data: {
+            platform: postData.platform,
+            content_type: 'engagement',
+            specialty: 'general practice'
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      const aiContent = data?.content || "🦷 Did you know regular dental checkups can prevent up to 90% of dental problems? Book your appointment today and keep your smile healthy! #DentalHealth #HealthySmile #PreventiveCare";
+      
+      setPostData({ ...postData, content: aiContent });
+      
+      toast({
+        title: 'AI Content Generated',
+        description: 'Post content generated successfully! You can edit it before scheduling.',
+      });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to generate AI content',
+        variant: 'destructive',
+      });
+    }
   };
 
   return (
