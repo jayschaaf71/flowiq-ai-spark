@@ -58,7 +58,7 @@ const AuthIQ = () => {
           </TabsList>
 
           <TabsContent value="dashboard">
-            <AuthIQDashboard />
+            <AuthIQDashboard onTabChange={setActiveTab} />
           </TabsContent>
 
           <TabsContent value="eligibility">

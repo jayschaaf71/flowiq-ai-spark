@@ -2,6 +2,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/hooks/use-toast";
+import { sidebarService } from "@/services/sidebarService";
 import { 
   CheckCircle, 
   Clock, 
@@ -15,7 +17,12 @@ import {
   FileText
 } from "lucide-react";
 
-export const AuthIQDashboard = () => {
+interface AuthIQDashboardProps {
+  onTabChange?: (tab: string) => void;
+}
+
+export const AuthIQDashboard = ({ onTabChange }: AuthIQDashboardProps) => {
+  const { toast } = useToast();
   const todayStats = {
     eligibilityChecks: 23,
     priorAuths: 8,
@@ -181,19 +188,59 @@ export const AuthIQDashboard = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Button className="h-auto flex-col py-4" variant="outline">
+            <Button 
+              className="h-auto flex-col py-4" 
+              variant="outline"
+              onClick={() => {
+                onTabChange?.('eligibility');
+                toast({
+                  title: "Eligibility Check",
+                  description: "Switching to eligibility verification panel"
+                });
+              }}
+            >
               <CheckCircle className="w-6 h-6 mb-2" />
               <span>Verify Eligibility</span>
             </Button>
-            <Button className="h-auto flex-col py-4" variant="outline">
+            <Button 
+              className="h-auto flex-col py-4" 
+              variant="outline"
+              onClick={() => {
+                onTabChange?.('prior-auth');
+                toast({
+                  title: "Prior Authorization",
+                  description: "Switching to prior authorization panel"
+                });
+              }}
+            >
               <FileText className="w-6 h-6 mb-2" />
               <span>Submit Prior Auth</span>
             </Button>
-            <Button className="h-auto flex-col py-4" variant="outline">
+            <Button 
+              className="h-auto flex-col py-4" 
+              variant="outline"
+              onClick={() => {
+                onTabChange?.('cost-estimator');
+                toast({
+                  title: "Cost Estimator",
+                  description: "Switching to cost estimation tool"
+                });
+              }}
+            >
               <DollarSign className="w-6 h-6 mb-2" />
               <span>Generate Cost Estimate</span>
             </Button>
-            <Button className="h-auto flex-col py-4" variant="outline">
+            <Button 
+              className="h-auto flex-col py-4" 
+              variant="outline"
+              onClick={() => {
+                onTabChange?.('eligibility');
+                toast({
+                  title: "Benefits Check",
+                  description: "Switching to eligibility verification for benefits"
+                });
+              }}
+            >
               <Shield className="w-6 h-6 mb-2" />
               <span>Check Benefits</span>
             </Button>
