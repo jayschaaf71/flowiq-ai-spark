@@ -93,14 +93,17 @@ export const IntegrationsDashboard = () => {
         </p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="zapier">Zapier</TabsTrigger>
-          <TabsTrigger value="webhooks">Webhooks</TabsTrigger>
-          <TabsTrigger value="patient-portal">Patient Portal</TabsTrigger>
-          <TabsTrigger value="widgets">Widgets</TabsTrigger>
-        </TabsList>
+      <div className="bg-card border border-border rounded-xl shadow-sm p-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <div className="flex justify-center">
+            <TabsList className="grid w-full max-w-3xl grid-cols-5">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="zapier">Zapier</TabsTrigger>
+              <TabsTrigger value="webhooks">Webhooks</TabsTrigger>
+              <TabsTrigger value="patient-portal">Patient Portal</TabsTrigger>
+              <TabsTrigger value="widgets">Widgets</TabsTrigger>
+            </TabsList>
+          </div>
 
         <TabsContent value="overview" className="space-y-6">
           {/* Key Metrics */}
@@ -307,7 +310,8 @@ export const IntegrationsDashboard = () => {
         <TabsContent value="widgets">
           <IframeWidget />
         </TabsContent>
-      </Tabs>
+        </Tabs>
+      </div>
     </div>
   );
 };

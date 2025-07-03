@@ -216,12 +216,15 @@ export const AnalyticsDashboard = () => {
         />
       </div>
 
-      <Tabs defaultValue="appointments" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="appointments">Appointments</TabsTrigger>
-          <TabsTrigger value="patients">Patients</TabsTrigger>
-          <TabsTrigger value="revenue">Revenue</TabsTrigger>
-        </TabsList>
+      <div className="bg-card border border-border rounded-xl shadow-sm p-6">
+        <Tabs defaultValue="appointments" className="space-y-6">
+          <div className="flex justify-center">
+            <TabsList className="grid w-full max-w-lg grid-cols-3">
+              <TabsTrigger value="appointments">Appointments</TabsTrigger>
+              <TabsTrigger value="patients">Patients</TabsTrigger>
+              <TabsTrigger value="revenue">Revenue</TabsTrigger>
+            </TabsList>
+          </div>
 
         <TabsContent value="appointments" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -330,6 +333,7 @@ export const AnalyticsDashboard = () => {
           </Card>
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 };

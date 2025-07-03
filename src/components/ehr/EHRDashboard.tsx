@@ -115,41 +115,45 @@ export const EHRDashboard = () => {
         </Card>
       )}
 
-      <Tabs defaultValue="patients" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-8">
-          <TabsTrigger value="patients" className="flex items-center gap-2">
-            <Users className="w-4 h-4" />
-            Patients
-          </TabsTrigger>
-          <TabsTrigger value="appointments" className="flex items-center gap-2">
-            <Calendar className="w-4 h-4" />
-            Appointments
-          </TabsTrigger>
-          <TabsTrigger value="soap" className="flex items-center gap-2">
-            <FileText className="w-4 h-4" />
-            SOAP Notes
-          </TabsTrigger>
-          <TabsTrigger value="workflows" className="flex items-center gap-2">
-            <Workflow className="w-4 h-4" />
-            Workflows
-          </TabsTrigger>
-          <TabsTrigger value="billing" className="flex items-center gap-2">
-            <CreditCard className="w-4 h-4" />
-            Billing
-          </TabsTrigger>
-          <TabsTrigger value="compliance" className="flex items-center gap-2">
-            <Shield className="w-4 h-4" />
-            Compliance
-          </TabsTrigger>
-          <TabsTrigger value="migration" className="flex items-center gap-2">
-            <Database className="w-4 h-4" />
-            Migration
-          </TabsTrigger>
-          <TabsTrigger value="analytics" className="flex items-center gap-2">
-            <BarChart3 className="w-4 h-4" />
-            Analytics
-          </TabsTrigger>
-        </TabsList>
+      {/* Main EHR Features */}
+      <div className="bg-card border border-border rounded-xl shadow-sm p-6">
+        <Tabs defaultValue="patients" className="space-y-6">
+          <div className="flex justify-center">
+            <TabsList className="grid w-full max-w-6xl grid-cols-8">
+              <TabsTrigger value="patients" className="flex items-center gap-2">
+                <Users className="w-4 h-4" />
+                Patients
+              </TabsTrigger>
+              <TabsTrigger value="appointments" className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                Appointments
+              </TabsTrigger>
+              <TabsTrigger value="soap" className="flex items-center gap-2">
+                <FileText className="w-4 h-4" />
+                SOAP Notes
+              </TabsTrigger>
+              <TabsTrigger value="workflows" className="flex items-center gap-2">
+                <Workflow className="w-4 h-4" />
+                Workflows
+              </TabsTrigger>
+              <TabsTrigger value="billing" className="flex items-center gap-2">
+                <CreditCard className="w-4 h-4" />
+                Billing
+              </TabsTrigger>
+              <TabsTrigger value="compliance" className="flex items-center gap-2">
+                <Shield className="w-4 h-4" />
+                Compliance
+              </TabsTrigger>
+              <TabsTrigger value="migration" className="flex items-center gap-2">
+                <Database className="w-4 h-4" />
+                Migration
+              </TabsTrigger>
+              <TabsTrigger value="analytics" className="flex items-center gap-2">
+                <BarChart3 className="w-4 h-4" />
+                Analytics
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
         <TabsContent value="patients">
           <PatientRecords />
@@ -183,6 +187,7 @@ export const EHRDashboard = () => {
           <EHRAnalytics />
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 };

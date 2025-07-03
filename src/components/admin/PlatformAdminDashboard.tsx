@@ -141,16 +141,19 @@ export const PlatformAdminDashboard: React.FC = () => {
       </div>
 
       {/* Main Dashboard */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-7">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="performance">Performance</TabsTrigger>
-          <TabsTrigger value="optimization">Optimization</TabsTrigger>
-          <TabsTrigger value="security">Security</TabsTrigger>
-          <TabsTrigger value="admin">Admin Hierarchy</TabsTrigger>
-          <TabsTrigger value="api">API Monitoring</TabsTrigger>
-          <TabsTrigger value="backups">Backups</TabsTrigger>
-        </TabsList>
+      <div className="bg-card border border-border rounded-xl shadow-sm p-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <div className="flex justify-center">
+            <TabsList className="grid w-full max-w-5xl grid-cols-7">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="performance">Performance</TabsTrigger>
+              <TabsTrigger value="optimization">Optimization</TabsTrigger>
+              <TabsTrigger value="security">Security</TabsTrigger>
+              <TabsTrigger value="admin">Admin Hierarchy</TabsTrigger>
+              <TabsTrigger value="api">API Monitoring</TabsTrigger>
+              <TabsTrigger value="backups">Backups</TabsTrigger>
+            </TabsList>
+          </div>
 
         <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -251,6 +254,7 @@ export const PlatformAdminDashboard: React.FC = () => {
           <AutomatedBackupManager />
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 };
