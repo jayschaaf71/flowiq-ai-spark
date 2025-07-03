@@ -54,14 +54,13 @@ const ScribeIQ = () => {
         
         <div className="space-y-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-            <TabsList className="grid w-full grid-cols-7">
+            <TabsList className="grid w-full grid-cols-6">
               <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
               <TabsTrigger value="plaud">
                 <Smartphone className="w-4 h-4 mr-1" />
                 Plaud Device
               </TabsTrigger>
-              <TabsTrigger value="transcribe">Live Recording</TabsTrigger>
-              <TabsTrigger value="whisper">AI Recorder</TabsTrigger>
+              <TabsTrigger value="whisper">AI Recording</TabsTrigger>
               <TabsTrigger value="soap">SOAP Generation</TabsTrigger>
               <TabsTrigger value="templates">Templates</TabsTrigger>
               <TabsTrigger value="settings">Settings</TabsTrigger>
@@ -73,10 +72,6 @@ const ScribeIQ = () => {
 
             <TabsContent value="plaud">
               <PlaudIntegration />
-            </TabsContent>
-
-            <TabsContent value="transcribe">
-              <ScribeLiveRecording />
             </TabsContent>
 
             <TabsContent value="whisper">

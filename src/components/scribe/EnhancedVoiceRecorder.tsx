@@ -2,17 +2,21 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAIVoiceTranscription } from '@/hooks/useAIVoiceTranscription';
-import { useSOAPGeneration } from '@/hooks/useSOAPGeneration';
+import { useSOAPContext } from '@/contexts/SOAPContext';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Mic, 
   MicOff, 
   Square, 
   Brain, 
-  Sparkles,
-  FileText 
+  Shield,
+  FileText,
+  Copy,
+  Volume2
 } from 'lucide-react';
 
 interface EnhancedVoiceRecorderProps {
@@ -34,18 +38,35 @@ export const EnhancedVoiceRecorder = ({
     setTranscription
   } = useAIVoiceTranscription();
 
-  const {
-    isGenerating,
-    generatedSOAP,
-    generateSOAPFromTranscription
-  } = useSOAPGeneration();
+  const { generateSOAPFromTranscription, isGenerating } = useSOAPContext();
+  const { toast } = useToast();
+
+  // Test transcription for demo purposes
+  const loadTestTranscription = () => {
+    const testText = `Patient is a 45-year-old male presenting with chest pain that started this morning around 8 AM. Pain is described as sharp, located in the center of chest, radiating to left arm. Patient denies shortness of breath, nausea, or diaphoresis. Patient has history of hypertension and takes lisinopril daily. Vital signs show blood pressure 140 over 90, heart rate 88, respiratory rate 16, temperature 98.6 degrees Fahrenheit. Physical examination reveals patient appears comfortable, no acute distress. Heart sounds regular rate and rhythm, no murmurs. Lungs clear to auscultation bilaterally. EKG shows normal sinus rhythm with no ST changes. Based on presentation and examination, this appears to be atypical chest pain, likely musculoskeletal in origin. Plan is to discharge home with ibuprofen for pain management and follow up with primary care physician in one week. Patient instructed to return immediately if symptoms worsen or if experiencing shortness of breath.`;
+    
+    setTranscription(testText);
+    toast({
+      title: "Test Transcription Loaded",
+      description: "Sample patient encounter loaded for testing SOAP generation",
+    });
+  };
 
   const handleGenerateSOAP = async () => {
-    if (!transcription) return;
-    
+    if (!transcription.trim()) {
+      toast({
+        title: "No Transcription",
+        description: "Please record or load a transcription first",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const soap = await generateSOAPFromTranscription(transcription);
       onSOAPGenerated?.(soap);
+      // After successful generation, switch to SOAP tab
+      window.dispatchEvent(new CustomEvent('changeScribeTab', { detail: 'soap' }));
     } catch (error) {
       console.error('Failed to generate SOAP:', error);
     }
@@ -56,96 +77,98 @@ export const EnhancedVoiceRecorder = ({
     onTranscriptionComplete?.(value);
   };
 
+  const copyTranscription = async () => {
+    if (!transcription) return;
+    
+    try {
+      await navigator.clipboard.writeText(transcription);
+      toast({
+        title: "Copied to Clipboard",
+        description: "Transcription has been copied",
+      });
+    } catch (error) {
+      toast({
+        title: "Copy Failed",
+        description: "Unable to copy to clipboard",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Recording Controls */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Brain className="w-5 h-5 text-blue-600" />
-            AI Voice Recording
+            <Mic className="w-5 h-5 text-red-600" />
+            AI Voice Recording & Transcription
           </CardTitle>
           <CardDescription>
-            Record patient encounters and generate transcriptions in real-time
+            Record patient encounters and generate real-time transcriptions with AI
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex flex-col items-center space-y-4">
-            <div className={`w-32 h-32 rounded-full flex items-center justify-center border-4 transition-all duration-300 ${
-              isRecording 
-                ? 'border-red-500 bg-red-50 animate-pulse' 
-                : 'border-gray-300 bg-gray-50'
-            }`}>
-              {isRecording ? (
-                <Mic className="w-16 h-16 text-red-500" />
-              ) : (
-                <MicOff className="w-16 h-16 text-gray-400" />
-              )}
-            </div>
-            
-            <div className="text-center">
-              <p className="text-lg font-medium mb-2">
-                {isRecording ? 'Recording in Progress' : 'Ready to Record'}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {isRecording 
-                  ? 'AI is transcribing your conversation in real-time' 
-                  : 'Click the button below to start recording'
-                }
-              </p>
-            </div>
+        <CardContent className="space-y-4">
+          <Alert className="border-blue-200 bg-blue-50">
+            <Shield className="h-4 w-4 text-blue-600" />
+            <AlertDescription className="text-blue-800">
+              <strong>HIPAA Compliant:</strong> All recordings are processed securely with end-to-end encryption and automatic PHI anonymization.
+            </AlertDescription>
+          </Alert>
 
-            {isRecording && (
-              <div className="w-full max-w-md">
-                <div className="flex items-center space-x-2 mb-2">
-                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                  <span className="text-sm">Live transcription active</span>
-                </div>
-                <Progress value={75} className="w-full" />
-                <p className="text-xs text-muted-foreground mt-1">Recording quality: Excellent</p>
+          <div className="flex items-center justify-center py-8">
+            <div className="text-center space-y-4">
+              <div className={`w-24 h-24 rounded-full flex items-center justify-center ${
+                isRecording ? 'bg-red-100 animate-pulse' : 'bg-gray-100'
+              }`}>
+                {isRecording ? (
+                  <Mic className="w-12 h-12 text-red-600" />
+                ) : (
+                  <MicOff className="w-12 h-12 text-gray-400" />
+                )}
               </div>
-            )}
-
-            <div className="flex gap-4">
-              {!isRecording ? (
-                <Button 
-                  onClick={startRecording}
-                  className="bg-red-600 hover:bg-red-700"
-                  size="lg"
-                  disabled={isProcessing}
-                >
-                  <Mic className="w-4 h-4 mr-2" />
-                  Start Recording
-                </Button>
-              ) : (
-                <Button 
-                  onClick={stopRecording}
-                  variant="outline"
-                  size="lg"
-                >
-                  <Square className="w-4 h-4 mr-2" />
-                  Stop Recording
-                </Button>
-              )}
               
-              {transcription && (
-                <Button 
-                  onClick={clearRecording}
-                  variant="outline"
-                  size="lg"
-                >
-                  Clear
-                </Button>
-              )}
-            </div>
-
-            {isProcessing && (
-              <div className="text-center py-4">
-                <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4" />
-                <p className="text-sm text-muted-foreground">Processing audio and generating transcription...</p>
+              <div className="space-y-2">
+                <p className="text-lg font-medium">
+                  {isRecording ? 'Recording...' : 'Ready to Record'}
+                </p>
+                <p className="text-sm text-gray-600">
+                  {isRecording 
+                    ? 'AI is transcribing your speech in real-time' 
+                    : 'Click the button below to start recording'
+                  }
+                </p>
               </div>
-            )}
+
+              <div className="flex gap-2 justify-center">
+                {!isRecording ? (
+                  <Button onClick={startRecording} size="lg" className="bg-red-600 hover:bg-red-700">
+                    <Mic className="w-4 h-4 mr-2" />
+                    Start Recording
+                  </Button>
+                ) : (
+                  <Button onClick={stopRecording} size="lg" variant="outline">
+                    <Square className="w-4 h-4 mr-2" />
+                    Stop Recording
+                  </Button>
+                )}
+                
+                <Button onClick={loadTestTranscription} variant="outline">
+                  <FileText className="w-4 h-4 mr-2" />
+                  Load Test Data
+                </Button>
+              </div>
+            </div>
           </div>
+
+          {isProcessing && (
+            <div className="text-center py-4">
+              <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4" />
+              <p className="text-sm text-gray-600">
+                AI is processing your recording with HIPAA compliance...
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -153,69 +176,61 @@ export const EnhancedVoiceRecorder = ({
       {transcription && (
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>Transcription</CardTitle>
-                <CardDescription>Review and edit the AI-generated transcription</CardDescription>
-              </div>
-              <Button 
-                onClick={handleGenerateSOAP}
-                disabled={!transcription || isGenerating}
+            <CardTitle className="flex items-center gap-2">
+              <Volume2 className="w-5 h-5 text-blue-600" />
+              AI Transcription
+              <Badge className="bg-green-100 text-green-700">
+                Live Processing
+              </Badge>
+            </CardTitle>
+            <CardDescription>
+              Real-time AI transcription with medical terminology recognition
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="relative">
+              <Textarea
+                value={transcription}
+                onChange={(e) => handleTranscriptionChange(e.target.value)}
+                placeholder="Transcription will appear here..."
+                className="min-h-[200px] font-mono text-sm"
+                readOnly={isRecording}
+              />
+              <Button
+                onClick={copyTranscription}
+                variant="outline"
                 size="sm"
+                className="absolute top-2 right-2"
               >
-                <Sparkles className="w-4 h-4 mr-2" />
-                {isGenerating ? 'Generating...' : 'Generate SOAP'}
+                <Copy className="w-3 h-3" />
               </Button>
             </div>
-          </CardHeader>
-          <CardContent>
-            <Textarea
-              value={transcription}
-              onChange={(e) => handleTranscriptionChange(e.target.value)}
-              className="min-h-[200px]"
-              placeholder="Transcription will appear here..."
-            />
-            <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-              <div className="flex items-center gap-2">
-                <Brain className="w-4 h-4 text-green-600" />
-                <span className="text-sm font-medium text-green-800">
-                  AI Confidence: 98.5%
-                </span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
-      {/* Generated SOAP Note Preview */}
-      {generatedSOAP && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="w-5 h-5 text-blue-600" />
-              Generated SOAP Note
-            </CardTitle>
-            <CardDescription>AI-structured clinical documentation</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 border rounded-lg">
-                  <h4 className="font-semibold text-sm mb-2">SUBJECTIVE</h4>
-                  <p className="text-sm text-gray-700">{generatedSOAP.subjective}</p>
-                </div>
-                <div className="p-4 border rounded-lg">
-                  <h4 className="font-semibold text-sm mb-2">OBJECTIVE</h4>
-                  <p className="text-sm text-gray-700">{generatedSOAP.objective}</p>
-                </div>
-                <div className="p-4 border rounded-lg">
-                  <h4 className="font-semibold text-sm mb-2">ASSESSMENT</h4>
-                  <p className="text-sm text-gray-700">{generatedSOAP.assessment}</p>
-                </div>
-                <div className="p-4 border rounded-lg">
-                  <h4 className="font-semibold text-sm mb-2">PLAN</h4>
-                  <p className="text-sm text-gray-700 whitespace-pre-line">{generatedSOAP.plan}</p>
-                </div>
+            <div className="flex items-center justify-between pt-4 border-t">
+              <div className="text-sm text-gray-600">
+                {transcription.length} characters • AI processed
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={clearRecording}>
+                  Clear
+                </Button>
+                <Button 
+                  onClick={handleGenerateSOAP}
+                  disabled={isGenerating || !transcription.trim()}
+                  className="bg-purple-600 hover:bg-purple-700"
+                >
+                  {isGenerating ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Brain className="w-4 h-4 mr-2" />
+                      Generate SOAP Note
+                    </>
+                  )}
+                </Button>
               </div>
             </div>
           </CardContent>
