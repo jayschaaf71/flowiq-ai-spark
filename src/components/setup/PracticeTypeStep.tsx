@@ -22,7 +22,7 @@ interface PracticeTypeStepProps {
 const practiceTypes = [
   {
     id: 'dental' as PracticeType,
-    title: 'Dental Clinic',
+    title: 'Dental Practice',
     description: 'General dentistry, cleanings, fillings, and oral health',
     icon: Smile,
     features: ['Appointment scheduling', 'Insurance billing', 'Patient records', 'Treatment plans']
