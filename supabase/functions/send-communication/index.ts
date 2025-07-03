@@ -117,6 +117,17 @@ const handler = async (req: Request): Promise<Response> => {
             <p>Best regards,<br>Your Healthcare Team</p>
           `;
           break;
+        case 'bill-notification-email':
+          emailSubject = request.customMessage ? 'Your Bill is Ready' : `Your Bill is Ready - Amount Due`;
+          emailContent = request.customMessage || `
+            <h2>Your Bill is Ready</h2>
+            <p>Dear ${request.patientName},</p>
+            <p>Your bill is now available and ready for payment. Please log into your patient portal to view details and make a payment.</p>
+            <p>If you have any questions, please contact our billing department.</p>
+            <br>
+            <p>Best regards,<br>Your Healthcare Team</p>
+          `;
+          break;
         default:
           emailContent = `
             <h2>Hello ${request.patientName},</h2>
@@ -208,6 +219,9 @@ const handler = async (req: Request): Promise<Response> => {
           break;
         case 'confirmation-sms':
           smsMessage = `Hi ${request.patientName}, please confirm your appointment tomorrow at 2:00 PM. Reply YES to confirm or NO to reschedule.`;
+          break;
+        case 'bill-notification-sms':
+          smsMessage = request.customMessage || `Hi ${request.patientName}, your bill is ready for payment. Visit your patient portal to view and pay online. Reply STOP to opt out.`;
           break;
         default:
           smsMessage = request.customMessage || message;

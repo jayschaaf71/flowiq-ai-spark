@@ -745,6 +745,51 @@ export type Database = {
         }
         Relationships: []
       }
+      billing_communication_logs: {
+        Row: {
+          appointment_id: string | null
+          bill_amount: number
+          bill_description: string
+          created_at: string
+          delivery_results: Json
+          due_date: string
+          id: string
+          notification_channels: string[]
+          patient_id: string
+          total_failed: number
+          total_sent: number
+          updated_at: string
+        }
+        Insert: {
+          appointment_id?: string | null
+          bill_amount: number
+          bill_description: string
+          created_at?: string
+          delivery_results?: Json
+          due_date: string
+          id?: string
+          notification_channels?: string[]
+          patient_id: string
+          total_failed?: number
+          total_sent?: number
+          updated_at?: string
+        }
+        Update: {
+          appointment_id?: string | null
+          bill_amount?: number
+          bill_description?: string
+          created_at?: string
+          delivery_results?: Json
+          due_date?: string
+          id?: string
+          notification_channels?: string[]
+          patient_id?: string
+          total_failed?: number
+          total_sent?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       calendar_events: {
         Row: {
           attendees: string[] | null
@@ -3204,6 +3249,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      patient_notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          metadata: Json | null
+          patient_id: string
+          priority: string
+          read_at: string | null
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          metadata?: Json | null
+          patient_id: string
+          priority?: string
+          read_at?: string | null
+          title: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          metadata?: Json | null
+          patient_id?: string
+          priority?: string
+          read_at?: string | null
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       patient_status_updates: {
         Row: {

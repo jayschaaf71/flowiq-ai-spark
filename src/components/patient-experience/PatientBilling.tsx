@@ -17,10 +17,12 @@ import {
   AlertCircle,
   Clock,
   Receipt,
-  Loader2
+  Loader2,
+  Mail
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { BillingCommunicationService } from '@/services/billingCommunicationService';
 
 interface Invoice {
   id: string;
@@ -182,6 +184,37 @@ export const PatientBilling: React.FC = () => {
     .filter(inv => inv.status === 'overdue')
     .reduce((sum, inv) => sum + inv.amount, 0);
 
+  const handleSendBill = async (invoice: Invoice) => {
+    try {
+      const result = await BillingCommunicationService.sendBillNotification({
+        patientId: 'current-patient-id', // This should come from auth context
+        patientName: 'John Doe', // This should come from user profile
+        patientEmail: 'patient@example.com', // This should come from user profile
+        patientPhone: '+15551234567', // This should come from user profile
+        billAmount: invoice.amount,
+        billDescription: invoice.description,
+        dueDate: invoice.dueDate,
+        appointmentId: invoice.id,
+        sendEmail: true,
+        sendSMS: true,
+        sendInApp: true
+      });
+
+      toast({
+        title: "Bill Sent Successfully",
+        description: `Bill notification sent via ${result.totalSent} channel(s)`,
+      });
+
+    } catch (error) {
+      console.error('Error sending bill:', error);
+      toast({
+        title: "Error Sending Bill",
+        description: "Failed to send bill notification. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
@@ -255,10 +288,19 @@ export const PatientBilling: React.FC = () => {
                       </div>
                     </div>
                     
-                    <div className="flex items-center gap-2">
+                     <div className="flex items-center gap-2">
                       <Button variant="outline" size="sm">
                         <Download className="w-4 h-4 mr-1" />
                         Download
+                      </Button>
+                      
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleSendBill(invoice)}
+                      >
+                        <Mail className="w-4 h-4 mr-1" />
+                        Send Bill
                       </Button>
                       
                       <Dialog>

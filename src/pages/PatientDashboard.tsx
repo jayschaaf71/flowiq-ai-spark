@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
 import { useCurrentTenant } from '@/utils/enhancedTenantConfig';
 import { PatientBilling } from '@/components/patient-experience/PatientBilling';
+import { PatientNotificationCenter } from '@/components/notifications/PatientNotificationCenter';
 import { 
   Calendar, 
   Clock, 
@@ -74,7 +75,11 @@ export const PatientDashboard: React.FC = () => {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setActiveSection('notifications')}
+              >
                 <Bell className="w-4 h-4 mr-2" />
                 Notifications
               </Button>
@@ -156,6 +161,19 @@ export const PatientDashboard: React.FC = () => {
               </Button>
             </div>
             <PatientBilling />
+          </div>
+        ) : activeSection === 'notifications' ? (
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">Notifications</h2>
+              <Button 
+                variant="outline" 
+                onClick={() => setActiveSection('dashboard')}
+              >
+                ← Back to Dashboard
+              </Button>
+            </div>
+            <PatientNotificationCenter />
           </div>
         ) : (
           <>
