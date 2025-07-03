@@ -1,35 +1,8 @@
 
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Home, 
-  Users, 
-  Database, 
-  BarChart3, 
-  Settings, 
-  HelpCircle,
-  ClipboardList,
-  Bell,
-  CreditCard,
-  Receipt,
-  UserCheck,
-  TrendingUp,
-  Stethoscope,
-  Building2,
-  UserPlus,
-  MessageSquare,
-  Brain,
-  Calendar,
-  Package,
-  CheckSquare,
-  Clock,
-  DollarSign,
-  Heart,
-  Shield,
-  GraduationCap,
-  Rocket,
-  Handshake
-} from "lucide-react";
+import { Brain } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -46,105 +19,66 @@ import {
 import { useTenantConfig } from "@/utils/enhancedTenantConfig";
 import { useEnhancedAuth } from "@/hooks/useEnhancedAuth";
 import { useSpecialty } from "@/contexts/SpecialtyContext";
+import { navItems, navGroups } from "@/config/navigationConfig";
+import { sidebarService } from "@/services/sidebarService";
 
 export const AppSidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { state } = useSidebar();
   const tenantConfig = useTenantConfig();
-  const { isPlatformAdmin, hasMinimumRole, primaryTenant } = useEnhancedAuth();
-  const { getBrandName, theme } = useSpecialty();
-  
-  const mainNavigationItems = [
-    { icon: Home, label: "Dashboard", path: "/dashboard", badge: null },
-    { icon: Users, label: "Patients", path: "/patient-management", badge: null },
-    { icon: Database, label: "EHR", path: "/ehr", badge: null },
-    { icon: TrendingUp, label: "Insights", path: "/insights", badge: null },
-  ];
+  const { isPlatformAdmin, hasMinimumRole, primaryTenant, user } = useEnhancedAuth();
+  const { getBrandName } = useSpecialty();
+  const [sessionStartTime] = useState(Date.now());
+  const [agentStatus, setAgentStatus] = useState<Record<string, boolean>>({});
 
-  // AI Agent Groups
-  const aiAgentGroups = [
-    {
-      title: "Clinical Care",
-      items: [
-        { icon: Stethoscope, label: "Scribe iQ", path: "/agents/scribe", badge: "AI" },
-        { icon: Calendar, label: "Appointment iQ", path: "/agents/appointment", badge: "AI" },
-      ]
-    },
-    {
-      title: "Patient Journey",
-      items: [
-        { icon: ClipboardList, label: "Intake iQ", path: "/agents/intake", badge: "AI" },
-        { icon: Bell, label: "Remind iQ", path: "/agents/remind", badge: "AI" },
-        { icon: GraduationCap, label: "Education iQ", path: "/agents/education", badge: "AI" },
-        { icon: Rocket, label: "Marketing iQ", path: "/agents/marketing", badge: "AI" },
-        { icon: Handshake, label: "Referral iQ", path: "/agents/referral", badge: "AI" },
-      ]
-    },
-    {
-      title: "Revenue Cycle",
-      items: [
-        { icon: CheckSquare, label: "Auth iQ", path: "/agents/auth", badge: "AI" },
-        { icon: Receipt, label: "Claims iQ", path: "/agents/claims", badge: "AI" },
-        { icon: CreditCard, label: "Payments iQ", path: "/agents/payments", badge: "AI" },
-      ]
-    },
-    {
-      title: "Operations",
-      items: [
-        { icon: Package, label: "Inventory iQ", path: "/agents/inventory", badge: "AI" },
-        { icon: UserPlus, label: "Ops iQ", path: "/ops", badge: "AI" },
-      ]
+  // Load agent licensing status
+  useEffect(() => {
+    sidebarService.getAgentStatus().then(setAgentStatus);
+  }, []);
+
+  // Handle deep linking
+  useEffect(() => {
+    const unsubscribe = sidebarService.onOpen((itemId: string) => {
+      const item = navItems.find(nav => nav.id === itemId);
+      if (item) {
+        navigate(item.path);
+      }
+    });
+    return unsubscribe;
+  }, [navigate]);
+
+  // Filter navigation items based on role and licensing
+  const filteredNavItems = navItems.filter(item => {
+    // Check licensing
+    if (item.requiredLicense && !agentStatus[item.id]) {
+      return false;
     }
-  ];
+    
+    // Check role requirements
+    if (item.requiredRole && !hasMinimumRole(item.requiredRole)) {
+      return false;
+    }
 
-  const managementItems = [
-    { icon: Building2, label: "Beta Pilot", path: "/pilot", badge: "Live" },
-    ...(hasMinimumRole('practice_manager') ? [{ icon: Users, label: "Team", path: "/team", badge: null }] : []),
-    ...(hasMinimumRole('tenant_admin') ? [{ icon: Building2, label: "Practice Setup", path: "/setup", badge: null }] : []),
-    ...(isPlatformAdmin ? [{ icon: Shield, label: "Platform Admin", path: "/platform-admin", badge: "Enterprise" }] : []),
-    ...(isPlatformAdmin ? [{ icon: Building2, label: "Tenant Admin", path: "/tenant-admin", badge: "Enterprise" }] : []),
-  ];
+    return true;
+  });
 
-  const settingsItems = [
-    { icon: Settings, label: "Settings", path: "/settings" },
-    { icon: HelpCircle, label: "AssistIQ", path: "/help" },
-  ];
+  // Group filtered items
+  const groupedItems = navGroups
+    .map(group => ({
+      ...group,
+      items: filteredNavItems
+        .filter(item => item.group === group.id)
+        .sort((a, b) => a.order - b.order)
+    }))
+    .filter(group => group.items.length > 0)
+    .sort((a, b) => a.order - b.order);
+
+  const handleNavClick = (item: any) => {
+    sidebarService.logNavClick(item.id || item.path, sessionStartTime);
+  };
 
   const isActive = (path: string) => location.pathname === path;
-
-  const renderNavSection = (title: string, items: any[]) => (
-    <SidebarGroup key={title}>
-      <SidebarGroupLabel className="text-xs font-medium text-muted-foreground uppercase tracking-wider px-2">
-        {title}
-      </SidebarGroupLabel>
-      <SidebarGroupContent>
-        <SidebarMenu>
-          {items.map((item) => (
-            <SidebarMenuItem key={item.path}>
-              <SidebarMenuButton asChild isActive={isActive(item.path)} className="w-full">
-                <NavLink to={item.path} className="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 hover:bg-accent hover:text-accent-foreground">
-                  <item.icon className="h-4 w-4 flex-shrink-0" />
-                  {state === "expanded" && (
-                    <>
-                      <span className="truncate font-medium">{item.label}</span>
-                      {item.badge && (
-                        <Badge 
-                          variant={item.badge === "AI" ? "default" : item.badge === "Enterprise" ? "secondary" : item.badge === "Live" ? "destructive" : "secondary"} 
-                          className="ml-auto text-xs flex-shrink-0"
-                        >
-                          {item.badge}
-                        </Badge>
-                      )}
-                    </>
-                  )}
-                </NavLink>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
-  );
 
   return (
     <Sidebar className="border-r">
@@ -173,11 +107,8 @@ export const AppSidebar = () => {
       
       <SidebarContent>
         <div className="space-y-4 p-2">
-          {renderNavSection("Overview", mainNavigationItems)}
-          
-          {/* AI Agents Section */}
-          {aiAgentGroups.map((group) => (
-            <div key={group.title} className="space-y-2">
+          {groupedItems.map((group) => (
+            <SidebarGroup key={group.id}>
               <SidebarGroupLabel className="text-xs font-medium text-muted-foreground uppercase tracking-wider px-2">
                 {group.title}
               </SidebarGroupLabel>
@@ -186,13 +117,20 @@ export const AppSidebar = () => {
                   {group.items.map((item) => (
                     <SidebarMenuItem key={item.path}>
                       <SidebarMenuButton asChild isActive={isActive(item.path)} className="w-full">
-                        <NavLink to={item.path} className="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 hover:bg-accent hover:text-accent-foreground">
+                        <NavLink 
+                          to={item.path} 
+                          className="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 hover:bg-accent hover:text-accent-foreground"
+                          onClick={() => handleNavClick(item)}
+                        >
                           <item.icon className="h-4 w-4 flex-shrink-0" />
                           {state === "expanded" && (
                             <>
                               <span className="truncate font-medium">{item.label}</span>
                               {item.badge && (
-                                <Badge variant="secondary" className="ml-auto text-xs flex-shrink-0">
+                                <Badge 
+                                  variant={item.badge === "AI" ? "default" : "secondary"} 
+                                  className="ml-auto text-xs flex-shrink-0"
+                                >
                                   {item.badge}
                                 </Badge>
                               )}
@@ -204,15 +142,13 @@ export const AppSidebar = () => {
                   ))}
                 </SidebarMenu>
               </SidebarGroupContent>
-            </div>
+            </SidebarGroup>
           ))}
-
-          {renderNavSection("Management", managementItems)}
         </div>
       </SidebarContent>
 
       <SidebarFooter className="border-t p-2">
-        {renderNavSection("Settings", settingsItems)}
+        {/* Additional management items if needed */}
       </SidebarFooter>
     </Sidebar>
   );
