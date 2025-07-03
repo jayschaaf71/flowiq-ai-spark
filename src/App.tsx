@@ -55,6 +55,11 @@ import BookingWidgetPage from '@/pages/BookingWidget';
 import PlatformAdmin from '@/pages/PlatformAdmin';
 import TenantOnboarding from '@/pages/TenantOnboarding';
 import PracticeSetup from '@/pages/PracticeSetup';
+// Demo imports
+import { DemoHub } from '@/pages/demo/DemoHub';
+import { DemoChiropractic } from '@/pages/demo/DemoChiropractic';
+import { DemoDental } from '@/pages/demo/DemoDental';
+import { DemoMedSpa } from '@/pages/demo/DemoMedSpa';
 
 const queryClient = new QueryClient();
 
@@ -332,6 +337,11 @@ function App() {
                     <PracticeSetup />
                   </ProtectedRoute>
                 } />
+                {/* Demo Routes - Public Access */}
+                <Route path="/demo" element={<DemoHub />} />
+                <Route path="/demo/chiropractic" element={<DemoChiropractic />} />
+                <Route path="/demo/dental" element={<DemoDental />} />
+                <Route path="/demo/medspa" element={<DemoMedSpa />} />
                 <Route path="/settings" element={
                   <ProtectedRoute>
                     <TenantWrapper>
