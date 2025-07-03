@@ -8,7 +8,8 @@ import {
   Bone, 
   Activity, 
   Heart, 
-  Sparkles 
+  Sparkles,
+  Moon
 } from "lucide-react";
 import { PracticeType, SetupData } from "@/pages/PracticeSetup";
 
@@ -38,6 +39,13 @@ const practiceTypes = [
     description: 'Extractions, implants, and surgical procedures',
     icon: Stethoscope,
     features: ['Pre-op preparation', 'Surgical scheduling', 'Recovery tracking', 'Referral management']
+  },
+  {
+    id: 'dental-sleep' as PracticeType,
+    title: 'Dental Sleep Practice',
+    description: 'Sleep apnea treatment, oral appliances, and sleep medicine',
+    icon: Moon,
+    features: ['Sleep studies', 'Oral appliance therapy', 'Titration tracking', 'Sleep disorder management']
   },
   {
     id: 'chiropractic' as PracticeType,
