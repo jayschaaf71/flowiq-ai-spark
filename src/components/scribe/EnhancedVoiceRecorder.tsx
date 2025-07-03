@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
-import { useVoiceRecording } from '@/hooks/useVoiceRecording';
+import { useAIVoiceTranscription } from '@/hooks/useAIVoiceTranscription';
 import { useSOAPGeneration } from '@/hooks/useSOAPGeneration';
 import { 
   Mic, 
@@ -32,7 +32,7 @@ export const EnhancedVoiceRecorder = ({
     stopRecording,
     clearRecording,
     setTranscription
-  } = useVoiceRecording();
+  } = useAIVoiceTranscription();
 
   const {
     isGenerating,
