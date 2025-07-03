@@ -46,7 +46,7 @@ const ScheduleIQ = () => {
           </TabsList>
 
           <TabsContent value="dashboard">
-            <ScheduleIQDashboard practiceId={practiceId} />
+            <ScheduleIQDashboard practiceId={practiceId} onTabChange={setActiveTab} />
           </TabsContent>
 
           <TabsContent value="assistant">

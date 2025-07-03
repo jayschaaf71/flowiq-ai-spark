@@ -256,7 +256,17 @@ export const PilotDashboard = () => {
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm font-medium text-gray-900">{agent.metrics}</p>
-                    <Button variant="outline" className="w-full mt-3">
+                    <Button 
+                      variant="outline" 
+                      className="w-full mt-3"
+                      onClick={() => {
+                        navigate(agent.path);
+                        toast({
+                          title: `${agent.name} Dashboard`,
+                          description: `Opening ${agent.name} dashboard`
+                        });
+                      }}
+                    >
                       Open Dashboard
                     </Button>
                   </CardContent>

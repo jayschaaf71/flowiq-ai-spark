@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Heart, 
   Users, 
@@ -14,6 +15,7 @@ import {
 } from "lucide-react";
 
 export const EducationDashboard = () => {
+  const { toast } = useToast();
   const complianceStats = {
     averageCompliance: 78,
     activePatients: 156,
@@ -165,7 +167,16 @@ export const EducationDashboard = () => {
                     <div className="text-sm text-gray-600">{alert.device} • {alert.issue}</div>
                     <div className="text-xs text-gray-500">{alert.time}</div>
                   </div>
-                  <Button size="sm" variant="outline">
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => {
+                      toast({
+                        title: "Contact Patient",
+                        description: `Contacting ${alert.patient} about compliance issue`
+                      });
+                    }}
+                  >
                     Contact
                   </Button>
                 </div>
@@ -187,19 +198,55 @@ export const EducationDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 gap-3">
-              <Button className="h-auto flex-col py-4" variant="outline">
+              <Button 
+                className="h-auto flex-col py-4" 
+                variant="outline"
+                onClick={() => {
+                  toast({
+                    title: "Usage Reminder",
+                    description: "Sending usage reminders to patients with low compliance"
+                  });
+                }}
+              >
                 <Smartphone className="w-6 h-6 mb-2" />
                 <span>Send Usage Reminder</span>
               </Button>
-              <Button className="h-auto flex-col py-4" variant="outline">
+              <Button 
+                className="h-auto flex-col py-4" 
+                variant="outline"
+                onClick={() => {
+                  toast({
+                    title: "Check-in Scheduled",
+                    description: "Scheduling follow-up check-ins for patients"
+                  });
+                }}
+              >
                 <Heart className="w-6 h-6 mb-2" />
                 <span>Schedule Check-in</span>
               </Button>
-              <Button className="h-auto flex-col py-4" variant="outline">
+              <Button 
+                className="h-auto flex-col py-4" 
+                variant="outline"
+                onClick={() => {
+                  toast({
+                    title: "Campaign Creator",
+                    description: "Education campaign builder will be available soon"
+                  });
+                }}
+              >
                 <MessageSquare className="w-6 h-6 mb-2" />
                 <span>Create Campaign</span>
               </Button>
-              <Button className="h-auto flex-col py-4" variant="outline">
+              <Button 
+                className="h-auto flex-col py-4" 
+                variant="outline"
+                onClick={() => {
+                  toast({
+                    title: "Analytics Dashboard",
+                    description: "Detailed education analytics will be available soon"
+                  });
+                }}
+              >
                 <TrendingUp className="w-6 h-6 mb-2" />
                 <span>View Analytics</span>
               </Button>

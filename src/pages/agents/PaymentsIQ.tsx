@@ -18,9 +18,11 @@ import {
   Download,
   Send
 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 export const PaymentsIQ = () => {
   const [selectedTab, setSelectedTab] = useState('overview');
+  const { toast } = useToast();
 
   // Mock data - in production this would come from your API
   const paymentStats = {
@@ -286,7 +288,17 @@ export const PaymentsIQ = () => {
                     <Badge className="bg-green-100 text-green-700">Active</Badge>
                   </div>
                 </div>
-                <Button className="w-full">Configure Reminders</Button>
+                <Button 
+                  className="w-full"
+                  onClick={() => {
+                    toast({
+                      title: "Configure Reminders",
+                      description: "Payment reminder configuration will be available soon"
+                    });
+                  }}
+                >
+                  Configure Reminders
+                </Button>
               </CardContent>
             </Card>
 
@@ -310,7 +322,17 @@ export const PaymentsIQ = () => {
                     <Badge className="bg-gray-100 text-gray-700">Disabled</Badge>
                   </div>
                 </div>
-                <Button className="w-full">Setup Payment Plans</Button>
+                <Button 
+                  className="w-full"
+                  onClick={() => {
+                    toast({
+                      title: "Payment Plans",
+                      description: "Payment plan setup will be available soon"
+                    });
+                  }}
+                >
+                  Setup Payment Plans
+                </Button>
               </CardContent>
             </Card>
           </div>

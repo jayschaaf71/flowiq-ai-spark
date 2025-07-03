@@ -19,9 +19,11 @@ import {
   Shield,
   Database
 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 export const OpsIQ = () => {
   const [selectedTab, setSelectedTab] = useState('overview');
+  const { toast } = useToast();
 
   // Mock data - in production this would come from your API
   const operationalStats = {
@@ -311,19 +313,55 @@ export const OpsIQ = () => {
                 <CardDescription>Core system settings and preferences</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Button variant="outline" className="w-full justify-start">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={() => {
+                    toast({
+                      title: "Database Settings",
+                      description: "Database configuration panel will be available soon"
+                    });
+                  }}
+                >
                   <Database className="w-4 h-4 mr-2" />
                   Database Settings
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={() => {
+                    toast({
+                      title: "Security Configuration",
+                      description: "Security settings panel will be available soon"
+                    });
+                  }}
+                >
                   <Shield className="w-4 h-4 mr-2" />
                   Security Configuration
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={() => {
+                    toast({
+                      title: "Performance Tuning",
+                      description: "Performance optimization tools will be available soon"
+                    });
+                  }}
+                >
                   <Activity className="w-4 h-4 mr-2" />
                   Performance Tuning
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={() => {
+                    toast({
+                      title: "User Management",
+                      description: "User management interface will be available soon"
+                    });
+                  }}
+                >
                   <Users className="w-4 h-4 mr-2" />
                   User Management
                 </Button>

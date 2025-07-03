@@ -23,9 +23,12 @@ import {
   Pill,
   Activity
 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 export const PatientPortal: React.FC = () => {
   const isMobile = useIsMobile();
+  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState('overview');
   const [notifications, setNotifications] = useState([
     {
       id: '1',
@@ -215,7 +218,17 @@ export const PatientPortal: React.FC = () => {
                     </div>
                   ))}
                 </div>
-                <Button variant="outline" className="w-full mt-4">
+                <Button 
+                  variant="outline" 
+                  className="w-full mt-4"
+                  onClick={() => {
+                    setActiveTab('appointments');
+                    toast({
+                      title: "Appointments",
+                      description: "Switching to appointments view"
+                    });
+                  }}
+                >
                   View All Appointments
                 </Button>
               </CardContent>

@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import { ClaimsDashboard } from "@/components/claims/ClaimsDashboard";
 import { PayerIntegration } from "@/components/claims/PayerIntegration";
 import { AIValidationPanel } from "@/components/claims/AIValidationPanel";
@@ -22,6 +23,7 @@ import { Brain, DollarSign, Shield, Send, Settings, Zap, CheckCircle, Lock, BarC
 
 const ClaimsIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
+  const { toast } = useToast();
 
   return (
     <div className="space-y-6">
@@ -47,11 +49,29 @@ const ClaimsIQ = () => {
             <Activity className="w-3 h-3 mr-1" />
             Real-time Tracking
           </Badge>
-          <Button variant="outline" size="sm">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => {
+              toast({
+                title: "Settings",
+                description: "Claims settings configuration will be available soon"
+              });
+            }}
+          >
             <Settings className="w-4 h-4 mr-2" />
             Settings
           </Button>
-          <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+          <Button 
+            size="sm" 
+            className="bg-blue-600 hover:bg-blue-700"
+            onClick={() => {
+              toast({
+                title: "Deploy Claims IQ",
+                description: "Claims IQ deployment initiated"
+              });
+            }}
+          >
             <Zap className="w-4 h-4 mr-2" />
             Deploy
           </Button>

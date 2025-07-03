@@ -9,9 +9,10 @@ import { scheduleIQService } from '@/services/scheduleIQService';
 
 interface ScheduleIQDashboardProps {
   practiceId: string;
+  onTabChange?: (tab: string) => void;
 }
 
-export const ScheduleIQDashboard: React.FC<ScheduleIQDashboardProps> = ({ practiceId }) => {
+export const ScheduleIQDashboard: React.FC<ScheduleIQDashboardProps> = ({ practiceId, onTabChange }) => {
   const { toast } = useToast();
   const [config, setConfig] = useState<any>(null);
   const [analytics, setAnalytics] = useState<any>(null);
@@ -189,7 +190,17 @@ export const ScheduleIQDashboard: React.FC<ScheduleIQDashboardProps> = ({ practi
             <p className="text-sm text-gray-600">
               AI analyzes and optimizes schedules to reduce wait times and improve efficiency
             </p>
-            <Button variant="outline" className="w-full">
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => {
+                onTabChange?.('analytics');
+                toast({
+                  title: "Optimization History",
+                  description: "Switching to analytics view"
+                });
+              }}
+            >
               View Optimization History
             </Button>
           </CardContent>

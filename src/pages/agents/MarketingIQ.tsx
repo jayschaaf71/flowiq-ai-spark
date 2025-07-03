@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Megaphone, 
   Star, 
@@ -14,6 +15,7 @@ import {
 } from 'lucide-react';
 
 const MarketingIQ = () => {
+  const { toast } = useToast();
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -106,7 +108,17 @@ const MarketingIQ = () => {
                 <Badge variant="outline">Draft</Badge>
               </div>
             </div>
-            <Button className="w-full">Create New Campaign</Button>
+            <Button 
+              className="w-full"
+              onClick={() => {
+                toast({
+                  title: "Campaign Creation",
+                  description: "Campaign creation wizard will be available soon"
+                });
+              }}
+            >
+              Create New Campaign
+            </Button>
           </CardContent>
         </Card>
 
@@ -144,7 +156,18 @@ const MarketingIQ = () => {
                 </div>
               </div>
             </div>
-            <Button variant="outline" className="w-full">View All Reviews</Button>
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => {
+                toast({
+                  title: "Review Management",
+                  description: "Review management interface will be available soon"
+                });
+              }}
+            >
+              View All Reviews
+            </Button>
           </CardContent>
         </Card>
 
@@ -199,7 +222,18 @@ const MarketingIQ = () => {
                 <p className="text-xs text-muted-foreground">followers</p>
               </div>
             </div>
-            <Button variant="outline" className="w-full">Schedule Posts</Button>
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => {
+                toast({
+                  title: "Social Media Scheduler",
+                  description: "Post scheduling feature will be available soon"
+                });
+              }}
+            >
+              Schedule Posts
+            </Button>
           </CardContent>
         </Card>
       </div>
