@@ -30,22 +30,42 @@ export const AIFormCreator: React.FC<AIFormCreatorProps> = ({ onFormCreated }) =
   const [processingStep, setProcessingStep] = useState('');
   const [progress, setProgress] = useState(0);
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       setUploadedFile(file);
+      setIsProcessing(true);
+      setProcessingStep('Extracting text from file...');
+      setProgress(25);
       
-      // Read file content if it's a text file
-      if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const content = e.target?.result as string;
-          setFormText(content);
-        };
-        reader.readAsText(file);
-      } else {
-        toast.error('Please upload a text file (.txt)');
+      try {
+        // Create FormData to send file to processing endpoint
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        const response = await fetch('https://jzusvsbkprwkjhhozaup.supabase.co/functions/v1/extract-file-content', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to extract file content');
+        }
+        
+        const result = await response.json();
+        setFormText(result.content);
+        setProgress(100);
+        setProcessingStep('File content extracted successfully!');
+        toast.success('File content extracted successfully!');
+        
+      } catch (error) {
+        console.error('File processing error:', error);
+        toast.error('Failed to process file. Please try uploading a text file or copy/paste the content.');
         setUploadedFile(null);
+      } finally {
+        setIsProcessing(false);
+        setProgress(0);
+        setProcessingStep('');
       }
     }
   };
@@ -75,7 +95,7 @@ export const AIFormCreator: React.FC<AIFormCreatorProps> = ({ onFormCreated }) =
       setProgress(75);
       
       // Call AI form processor
-      const response = await fetch('/api/ai-form-creator', {
+      const response = await fetch('https://jzusvsbkprwkjhhozaup.supabase.co/functions/v1/ai-form-creator', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -143,10 +163,13 @@ export const AIFormCreator: React.FC<AIFormCreatorProps> = ({ onFormCreated }) =
               <Input
                 id="file-upload"
                 type="file"
-                accept=".txt,.doc,.docx"
+                accept=".txt,.doc,.docx,.pdf,.md,.rtf"
                 onChange={handleFileUpload}
                 className="mt-2"
               />
+              <p className="text-xs text-gray-500 mt-1">
+                Supported formats: PDF, Word (.doc/.docx), Markdown (.md), Text (.txt), RTF
+              </p>
             </div>
             
             {uploadedFile && (
