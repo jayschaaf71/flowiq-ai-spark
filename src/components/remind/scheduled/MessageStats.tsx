@@ -7,16 +7,21 @@ interface MessageStatsProps {
   upcomingCount: number;
   sentToday: number;
   totalMessages: number;
+  onFilterClick?: (filter: string) => void;
 }
 
 export const MessageStats: React.FC<MessageStatsProps> = ({
   upcomingCount,
   sentToday,
-  totalMessages
+  totalMessages,
+  onFilterClick
 }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <Card>
+      <Card 
+        className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
+        onClick={() => onFilterClick?.("scheduled")}
+      >
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div>
@@ -28,7 +33,10 @@ export const MessageStats: React.FC<MessageStatsProps> = ({
         </CardContent>
       </Card>
 
-      <Card>
+      <Card 
+        className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
+        onClick={() => onFilterClick?.("sent")}
+      >
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div>
@@ -40,7 +48,10 @@ export const MessageStats: React.FC<MessageStatsProps> = ({
         </CardContent>
       </Card>
 
-      <Card>
+      <Card 
+        className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
+        onClick={() => onFilterClick?.("all")}
+      >
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
             <div>

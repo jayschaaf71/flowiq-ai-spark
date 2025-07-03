@@ -68,6 +68,7 @@ export const ScheduledMessages = () => {
         upcomingCount={upcomingCount}
         sentToday={sentToday}
         totalMessages={messages.length}
+        onFilterClick={setFilter}
       />
 
       <div className="space-y-4">
