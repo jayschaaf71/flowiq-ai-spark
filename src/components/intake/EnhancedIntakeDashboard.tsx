@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { useToast } from '@/hooks/use-toast';
 import { 
   FileText, 
   Clock, 
@@ -20,9 +21,14 @@ import {
 import { useIntakeForms } from '@/hooks/useIntakeForms';
 import { useTenantConfig } from '@/utils/tenantConfig';
 
-export const EnhancedIntakeDashboard = () => {
+interface EnhancedIntakeDashboardProps {
+  onTabChange?: (tab: string) => void;
+}
+
+export const EnhancedIntakeDashboard = ({ onTabChange }: EnhancedIntakeDashboardProps) => {
   const { forms, submissions, loading } = useIntakeForms();
   const tenantConfig = useTenantConfig();
+  const { toast } = useToast();
 
   if (loading) {
     return (
@@ -206,19 +212,58 @@ export const EnhancedIntakeDashboard = () => {
             <CardDescription>Common intake management tasks</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button className="w-full justify-start" variant="outline">
+            <Button 
+              className="w-full justify-start" 
+              variant="outline"
+              onClick={() => {
+                onTabChange?.('builder');
+                toast({
+                  title: "Form Builder",
+                  description: "Switching to form builder"
+                });
+              }}
+            >
               <Plus className="w-4 h-4 mr-2" />
               Create New Form Template
             </Button>
-            <Button className="w-full justify-start" variant="outline">
+            <Button 
+              className="w-full justify-start" 
+              variant="outline"
+              onClick={() => {
+                onTabChange?.('submissions');
+                toast({
+                  title: "Submissions Review",
+                  description: "Switching to submissions review"
+                });
+              }}
+            >
               <Eye className="w-4 h-4 mr-2" />
               Review Pending Submissions ({pendingReviews})
             </Button>
-            <Button className="w-full justify-start" variant="outline">
+            <Button 
+              className="w-full justify-start" 
+              variant="outline"
+              onClick={() => {
+                toast({
+                  title: "Patient Packets",
+                  description: "Patient packet generation will be available soon"
+                });
+              }}
+            >
               <FileText className="w-4 h-4 mr-2" />
               Generate Patient Packets
             </Button>
-            <Button className="w-full justify-start" variant="outline">
+            <Button 
+              className="w-full justify-start" 
+              variant="outline"
+              onClick={() => {
+                onTabChange?.('analytics');
+                toast({
+                  title: "Analytics Report",
+                  description: "Switching to analytics dashboard"
+                });
+              }}
+            >
               <TrendingUp className="w-4 h-4 mr-2" />
               View Analytics Report
             </Button>

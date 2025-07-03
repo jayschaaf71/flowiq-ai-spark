@@ -51,7 +51,7 @@ const IntakeIQ = () => {
         </TabsList>
 
         <TabsContent value="dashboard" className="space-y-4">
-          <EnhancedIntakeDashboard />
+          <EnhancedIntakeDashboard onTabChange={setActiveTab} />
         </TabsContent>
 
         <TabsContent value="patient-intake" className="space-y-4">
