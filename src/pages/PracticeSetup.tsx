@@ -13,7 +13,7 @@ import { AgentSelectionStep } from "@/components/setup/AgentSelectionStep";
 import { IntegrationStep } from "@/components/setup/IntegrationStep";
 import { ReviewStep } from "@/components/setup/ReviewStep";
 
-export type PracticeType = 'dental' | 'orthodontics' | 'oral-surgery' | 'dental-sleep' | 'chiropractic' | 'physical-therapy' | 'veterinary' | 'med-spa';
+export type PracticeType = 'dental' | 'orthodontics' | 'oral-surgery' | 'dental-sleep' | 'chiropractic' | 'physical-therapy' | 'veterinary' | 'med-spa' | 'appointment-iq';
 
 export interface SetupData {
   practiceType: PracticeType | null;

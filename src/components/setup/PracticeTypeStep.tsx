@@ -9,7 +9,8 @@ import {
   Activity, 
   Heart, 
   Sparkles,
-  Moon
+  Moon,
+  Calendar
 } from "lucide-react";
 import { PracticeType, SetupData } from "@/pages/PracticeSetup";
 
@@ -74,6 +75,13 @@ const practiceTypes = [
     description: 'Cosmetic treatments, skin care, and wellness services',
     icon: Sparkles,
     features: ['Treatment packages', 'Before/after photos', 'Consultation booking', 'Product sales']
+  },
+  {
+    id: 'appointment-iq' as PracticeType,
+    title: 'Appointment IQ',
+    description: 'Standalone appointment scheduling and management system',
+    icon: Calendar,
+    features: ['Online booking', 'Automated reminders', 'Schedule optimization', 'Multi-provider support']
   }
 ];
 
