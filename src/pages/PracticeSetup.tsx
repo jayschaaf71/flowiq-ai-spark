@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Layout } from "@/components/Layout";
+import { SetupLayout } from "@/components/SetupLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -117,7 +117,7 @@ const PracticeSetup = () => {
 
   if (isCompleted) {
     return (
-      <Layout>
+      <SetupLayout>
         <div className="min-h-screen flex items-center justify-center p-6">
           <Card className="max-w-md w-full text-center">
             <CardHeader>
@@ -139,12 +139,12 @@ const PracticeSetup = () => {
             </CardContent>
           </Card>
         </div>
-      </Layout>
+      </SetupLayout>
     );
   }
 
   return (
-    <Layout>
+    <SetupLayout>
       <PageHeader 
         title="Practice Setup"
         subtitle="Let's get FlowIQ configured for your practice"
@@ -211,7 +211,7 @@ const PracticeSetup = () => {
           </Button>
         </div>
       </div>
-    </Layout>
+    </SetupLayout>
   );
 };
 
