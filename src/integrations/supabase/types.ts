@@ -798,6 +798,59 @@ export type Database = {
           },
         ]
       }
+      campaign_analytics: {
+        Row: {
+          appointments_booked: number | null
+          campaign_id: string
+          clicks: number | null
+          conversions: number | null
+          created_at: string
+          id: string
+          impressions: number | null
+          leads_generated: number | null
+          metadata: Json | null
+          metric_date: string
+          revenue_generated: number | null
+          spend_amount: number | null
+        }
+        Insert: {
+          appointments_booked?: number | null
+          campaign_id: string
+          clicks?: number | null
+          conversions?: number | null
+          created_at?: string
+          id?: string
+          impressions?: number | null
+          leads_generated?: number | null
+          metadata?: Json | null
+          metric_date?: string
+          revenue_generated?: number | null
+          spend_amount?: number | null
+        }
+        Update: {
+          appointments_booked?: number | null
+          campaign_id?: string
+          clicks?: number | null
+          conversions?: number | null
+          created_at?: string
+          id?: string
+          impressions?: number | null
+          leads_generated?: number | null
+          metadata?: Json | null
+          metric_date?: string
+          revenue_generated?: number | null
+          spend_amount?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_analytics_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       claim_denials: {
         Row: {
           appeal_status: string
@@ -1104,6 +1157,81 @@ export type Database = {
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_reviews: {
+        Row: {
+          created_at: string
+          external_review_id: string | null
+          id: string
+          patient_id: string | null
+          platform: string
+          rating: number
+          responded_by: string | null
+          response_date: string | null
+          response_text: string | null
+          review_date: string
+          review_text: string | null
+          reviewer_email: string | null
+          reviewer_name: string | null
+          sentiment_score: number | null
+          status: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          external_review_id?: string | null
+          id?: string
+          patient_id?: string | null
+          platform: string
+          rating: number
+          responded_by?: string | null
+          response_date?: string | null
+          response_text?: string | null
+          review_date?: string
+          review_text?: string | null
+          reviewer_email?: string | null
+          reviewer_name?: string | null
+          sentiment_score?: number | null
+          status?: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          external_review_id?: string | null
+          id?: string
+          patient_id?: string | null
+          platform?: string
+          rating?: number
+          responded_by?: string | null
+          response_date?: string | null
+          response_text?: string | null
+          review_date?: string
+          review_text?: string | null
+          reviewer_email?: string | null
+          reviewer_name?: string | null
+          sentiment_score?: number | null
+          status?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_reviews_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patient_onboarding_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_reviews_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
             referencedColumns: ["id"]
           },
         ]
@@ -1989,6 +2117,48 @@ export type Database = {
         }
         Relationships: []
       }
+      lead_sources: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          source_name: string
+          source_type: string
+          tenant_id: string
+          updated_at: string
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          source_name: string
+          source_type: string
+          tenant_id: string
+          updated_at?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          source_name?: string
+          source_type?: string
+          tenant_id?: string
+          updated_at?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           created_at: string
@@ -2016,6 +2186,102 @@ export type Database = {
           status?: string
           updated_at?: string
           user_type?: Database["public"]["Enums"]["user_type"]
+        }
+        Relationships: []
+      }
+      marketing_automation_rules: {
+        Row: {
+          action_config: Json | null
+          action_type: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          tenant_id: string
+          trigger_conditions: Json | null
+          trigger_type: string
+          updated_at: string
+        }
+        Insert: {
+          action_config?: Json | null
+          action_type: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          tenant_id: string
+          trigger_conditions?: Json | null
+          trigger_type: string
+          updated_at?: string
+        }
+        Update: {
+          action_config?: Json | null
+          action_type?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          tenant_id?: string
+          trigger_conditions?: Json | null
+          trigger_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      marketing_campaigns: {
+        Row: {
+          budget_amount: number | null
+          campaign_type: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          end_date: string | null
+          id: string
+          name: string
+          settings: Json | null
+          start_date: string | null
+          status: string
+          target_audience: Json | null
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          budget_amount?: number | null
+          campaign_type: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          name: string
+          settings?: Json | null
+          start_date?: string | null
+          status?: string
+          target_audience?: Json | null
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          budget_amount?: number | null
+          campaign_type?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          name?: string
+          settings?: Json | null
+          start_date?: string | null
+          status?: string
+          target_audience?: Json | null
+          tenant_id?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -3000,16 +3266,22 @@ export type Database = {
           created_by: string | null
           date_of_birth: string
           email: string | null
+          email_marketing_consent: boolean | null
           emergency_contact_name: string | null
           emergency_contact_phone: string | null
           emergency_contact_relationship: string | null
           employer: string | null
+          first_contact_date: string | null
           first_name: string
           gender: string | null
           id: string
           is_active: boolean
+          last_marketing_contact: string | null
           last_name: string
+          lead_source_id: string | null
+          lifetime_value: number | null
           marital_status: string | null
+          marketing_consent: boolean | null
           occupation: string | null
           onboarding_completed_at: string | null
           onboarding_submission_id: string | null
@@ -3017,6 +3289,7 @@ export type Database = {
           phone: string | null
           preferred_language: string | null
           profile_id: string | null
+          sms_marketing_consent: boolean | null
           state: string | null
           updated_at: string
           updated_by: string | null
@@ -3030,16 +3303,22 @@ export type Database = {
           created_by?: string | null
           date_of_birth: string
           email?: string | null
+          email_marketing_consent?: boolean | null
           emergency_contact_name?: string | null
           emergency_contact_phone?: string | null
           emergency_contact_relationship?: string | null
           employer?: string | null
+          first_contact_date?: string | null
           first_name: string
           gender?: string | null
           id?: string
           is_active?: boolean
+          last_marketing_contact?: string | null
           last_name: string
+          lead_source_id?: string | null
+          lifetime_value?: number | null
           marital_status?: string | null
+          marketing_consent?: boolean | null
           occupation?: string | null
           onboarding_completed_at?: string | null
           onboarding_submission_id?: string | null
@@ -3047,6 +3326,7 @@ export type Database = {
           phone?: string | null
           preferred_language?: string | null
           profile_id?: string | null
+          sms_marketing_consent?: boolean | null
           state?: string | null
           updated_at?: string
           updated_by?: string | null
@@ -3060,16 +3340,22 @@ export type Database = {
           created_by?: string | null
           date_of_birth?: string
           email?: string | null
+          email_marketing_consent?: boolean | null
           emergency_contact_name?: string | null
           emergency_contact_phone?: string | null
           emergency_contact_relationship?: string | null
           employer?: string | null
+          first_contact_date?: string | null
           first_name?: string
           gender?: string | null
           id?: string
           is_active?: boolean
+          last_marketing_contact?: string | null
           last_name?: string
+          lead_source_id?: string | null
+          lifetime_value?: number | null
           marital_status?: string | null
+          marketing_consent?: boolean | null
           occupation?: string | null
           onboarding_completed_at?: string | null
           onboarding_submission_id?: string | null
@@ -3077,12 +3363,20 @@ export type Database = {
           phone?: string | null
           preferred_language?: string | null
           profile_id?: string | null
+          sms_marketing_consent?: boolean | null
           state?: string | null
           updated_at?: string
           updated_by?: string | null
           zip_code?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "patients_lead_source_id_fkey"
+            columns: ["lead_source_id"]
+            isOneToOne: false
+            referencedRelation: "lead_sources"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "patients_onboarding_submission_id_fkey"
             columns: ["onboarding_submission_id"]
@@ -4685,6 +4979,68 @@ export type Database = {
           template_data?: Json
         }
         Relationships: []
+      }
+      social_media_posts: {
+        Row: {
+          campaign_id: string | null
+          content: string
+          created_at: string
+          created_by: string | null
+          engagement_stats: Json | null
+          external_post_id: string | null
+          id: string
+          media_urls: string[] | null
+          platform: string
+          post_type: string
+          published_date: string | null
+          scheduled_date: string | null
+          status: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          campaign_id?: string | null
+          content: string
+          created_at?: string
+          created_by?: string | null
+          engagement_stats?: Json | null
+          external_post_id?: string | null
+          id?: string
+          media_urls?: string[] | null
+          platform: string
+          post_type: string
+          published_date?: string | null
+          scheduled_date?: string | null
+          status?: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          campaign_id?: string | null
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          engagement_stats?: Json | null
+          external_post_id?: string | null
+          id?: string
+          media_urls?: string[] | null
+          platform?: string
+          post_type?: string
+          published_date?: string | null
+          scheduled_date?: string | null
+          status?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_media_posts_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       solution_feedback: {
         Row: {
