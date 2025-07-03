@@ -45,7 +45,7 @@ const IntakeIQ = () => {
           <TabsTrigger value="voice-intake">Voice Intake</TabsTrigger>
           <TabsTrigger value="mobile-voice">Mobile Voice</TabsTrigger>
           <TabsTrigger value="staff-dashboard">Staff View</TabsTrigger>
-          <TabsTrigger value="builder">Form Builder</TabsTrigger>
+          <TabsTrigger value="builder">AI Form Builder</TabsTrigger>
           <TabsTrigger value="submissions">Submissions</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>

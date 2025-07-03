@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { useIntakeForms } from '@/hooks/useIntakeForms';
 import { toast } from 'sonner';
+import { AIFormCreator } from './AIFormCreator';
 
 interface FormField {
   id: string;
@@ -110,6 +111,12 @@ export const FormBuilder: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* AI Form Creator */}
+      <AIFormCreator onFormCreated={() => {
+        // Refresh forms list or handle form creation
+        toast.success('Form created successfully!');
+      }} />
+      
       {/* Form Header */}
       <Card>
         <CardHeader>

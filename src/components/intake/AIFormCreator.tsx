@@ -1,0 +1,280 @@
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { 
+  Upload, 
+  Bot, 
+  FileText, 
+  Loader2, 
+  CheckCircle, 
+  AlertCircle,
+  Sparkles
+} from 'lucide-react';
+import { useIntakeForms } from '@/hooks/useIntakeForms';
+import { toast } from 'sonner';
+
+interface AIFormCreatorProps {
+  onFormCreated?: () => void;
+}
+
+export const AIFormCreator: React.FC<AIFormCreatorProps> = ({ onFormCreated }) => {
+  const { createForm, isCreating } = useIntakeForms();
+  const [formText, setFormText] = useState('');
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [processingStep, setProcessingStep] = useState('');
+  const [progress, setProgress] = useState(0);
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setUploadedFile(file);
+      
+      // Read file content if it's a text file
+      if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const content = e.target?.result as string;
+          setFormText(content);
+        };
+        reader.readAsText(file);
+      } else {
+        toast.error('Please upload a text file (.txt)');
+        setUploadedFile(null);
+      }
+    }
+  };
+
+  const processFormWithAI = async () => {
+    if (!formText.trim()) {
+      toast.error('Please enter form text or upload a file');
+      return;
+    }
+
+    setIsProcessing(true);
+    setProgress(0);
+    
+    try {
+      setProcessingStep('Analyzing form content...');
+      setProgress(25);
+      
+      // Simulate AI processing steps
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setProcessingStep('Extracting field definitions...');
+      setProgress(50);
+      
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setProcessingStep('Generating form structure...');
+      setProgress(75);
+      
+      // Call AI form processor
+      const response = await fetch('/api/ai-form-creator', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          formText: formText,
+          fileName: uploadedFile?.name
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to process form');
+      }
+
+      const result = await response.json();
+      
+      setProcessingStep('Creating form...');
+      setProgress(90);
+      
+      // Create the form with AI-generated fields
+      await createForm({
+        title: result.title || 'AI Generated Form',
+        description: result.description || 'Form created from uploaded content',
+        form_fields: result.fields,
+        is_active: true
+      });
+      
+      setProgress(100);
+      setProcessingStep('Form created successfully!');
+      
+      toast.success('Form created successfully with AI assistance!');
+      
+      // Reset form
+      setFormText('');
+      setUploadedFile(null);
+      onFormCreated?.();
+      
+    } catch (error) {
+      console.error('AI form creation error:', error);
+      toast.error('Failed to create form. Please try again.');
+    } finally {
+      setIsProcessing(false);
+      setProgress(0);
+      setProcessingStep('');
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* File Upload Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Upload className="w-5 h-5" />
+            Upload Form Document
+          </CardTitle>
+          <CardDescription>
+            Upload a text file containing your form questions and fields
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="file-upload">Select File</Label>
+              <Input
+                id="file-upload"
+                type="file"
+                accept=".txt,.doc,.docx"
+                onChange={handleFileUpload}
+                className="mt-2"
+              />
+            </div>
+            
+            {uploadedFile && (
+              <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <FileText className="w-4 h-4 text-green-600" />
+                <span className="text-sm font-medium text-green-800">
+                  {uploadedFile.name}
+                </span>
+                <Badge variant="outline" className="text-green-700 border-green-300">
+                  Uploaded
+                </Badge>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Text Input Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Bot className="w-5 h-5" />
+            AI Form Creator
+          </CardTitle>
+          <CardDescription>
+            Paste your form content below and AI will automatically create structured fields
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="form-text">Form Content</Label>
+              <Textarea
+                id="form-text"
+                value={formText}
+                onChange={(e) => setFormText(e.target.value)}
+                placeholder="Paste your form questions here. For example:&#10;&#10;Patient Name: ___________&#10;Date of Birth: ___________&#10;Phone Number: ___________&#10;Chief Complaint: ___________&#10;Pain Level (1-10): ___________&#10;Medical History: ___________"
+                rows={12}
+                className="font-mono text-sm"
+              />
+            </div>
+            
+            <div className="text-xs text-gray-600">
+              <p className="mb-2">Tips for better AI processing:</p>
+              <ul className="list-disc list-inside space-y-1">
+                <li>Include field labels clearly (e.g., "Patient Name:", "Email Address:")</li>
+                <li>Specify field types when possible (e.g., "Pain Level (1-10)", "Date of Birth")</li>
+                <li>Mark required fields with asterisks (*)</li>
+                <li>Include multiple choice options on separate lines</li>
+              </ul>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Processing Status */}
+      {isProcessing && (
+        <Card>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-blue-600 animate-pulse" />
+                <span className="font-medium">AI Processing in Progress</span>
+              </div>
+              
+              <Progress value={progress} className="w-full" />
+              
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                {processingStep}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Action Button */}
+      <div className="flex justify-center">
+        <Button
+          onClick={processFormWithAI}
+          disabled={!formText.trim() || isProcessing || isCreating}
+          size="lg"
+          className="flex items-center gap-2"
+        >
+          {isProcessing ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <Bot className="w-4 h-4" />
+          )}
+          {isProcessing ? 'Processing...' : 'Create Form with AI'}
+        </Button>
+      </div>
+
+      {/* Example Section */}
+      <Card className="bg-blue-50 border-blue-200">
+        <CardHeader>
+          <CardTitle className="text-blue-800 text-sm">Example Form Content</CardTitle>
+        </CardHeader>
+        <CardContent className="text-xs">
+          <pre className="text-blue-700 whitespace-pre-wrap">
+{`NEW PATIENT INTAKE FORM
+
+Personal Information:
+Patient Name: _______________
+Date of Birth: _______________
+Phone Number: _______________
+Email Address: _______________
+Emergency Contact: _______________
+
+Medical Information:
+Chief Complaint: _______________
+Pain Level (1-10): _______________
+Symptoms (check all that apply):
+□ Headache
+□ Back pain
+□ Neck pain
+□ Joint stiffness
+
+Medical History: _______________
+Current Medications: _______________
+Allergies: _______________
+
+Insurance:
+Insurance Provider: _______________
+Policy Number: _______________`}
+          </pre>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
