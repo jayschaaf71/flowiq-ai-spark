@@ -15,6 +15,7 @@ import {
 import { ZapierIntegration } from './ZapierIntegration';
 import { IframeWidget } from './IframeWidget';
 import { WebhookManager } from './WebhookManager';
+import { EmbeddablePatientPortal } from './EmbeddablePatientPortal';
 
 export const IntegrationsDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -93,10 +94,11 @@ export const IntegrationsDashboard = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="zapier">Zapier</TabsTrigger>
           <TabsTrigger value="webhooks">Webhooks</TabsTrigger>
+          <TabsTrigger value="patient-portal">Patient Portal</TabsTrigger>
           <TabsTrigger value="widgets">Widgets</TabsTrigger>
         </TabsList>
 
@@ -296,6 +298,10 @@ export const IntegrationsDashboard = () => {
 
         <TabsContent value="webhooks">
           <WebhookManager />
+        </TabsContent>
+
+        <TabsContent value="patient-portal">
+          <EmbeddablePatientPortal />
         </TabsContent>
 
         <TabsContent value="widgets">
