@@ -19,7 +19,7 @@ import { ProviderMobile } from '@/pages/ProviderMobile';
 import { CompleteIntakeFlow } from '@/components/intake/CompleteIntakeFlow';
 import { BookingWidgetDemo } from '@/pages/BookingWidgetDemo';
 import { PatientPrepPage } from '@/pages/PatientPrepPage';
-import { TenantWrapper } from '@/components/wrappers';
+import { TenantWrapper, DentalSleepWrapper } from '@/components/wrappers';
 import { AuthPage } from '@/components/auth/AuthPage';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { PatientDashboard } from '@/pages/PatientDashboard';
@@ -250,11 +250,11 @@ function App() {
                   </TenantWrapper>
                 } />
                 <Route path="/agents/scribe" element={
-                  <TenantWrapper>
+                  <DentalSleepWrapper>
                     <Layout>
                       <ScribeIQ />
                     </Layout>
-                  </TenantWrapper>
+                  </DentalSleepWrapper>
                 } />
                 <Route path="/agents/claims" element={
                   <TenantWrapper>
