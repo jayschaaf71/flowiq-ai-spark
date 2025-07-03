@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -22,6 +22,7 @@ import {
 
 export const MarketingDashboard = () => {
   const { data: analytics, isLoading } = useMarketingAnalytics();
+  const [activeTab, setActiveTab] = useState('campaigns');
 
   if (isLoading) {
     return (
@@ -64,7 +65,10 @@ export const MarketingDashboard = () => {
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
+          onClick={() => setActiveTab('campaigns')}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Campaigns</CardTitle>
             <Megaphone className="h-4 w-4 text-muted-foreground" />
@@ -77,7 +81,10 @@ export const MarketingDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
+          onClick={() => setActiveTab('leads')}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Leads</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
@@ -90,7 +97,10 @@ export const MarketingDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
+          onClick={() => setActiveTab('analytics')}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Conversion Rate</CardTitle>
             <Target className="h-4 w-4 text-muted-foreground" />
@@ -103,7 +113,10 @@ export const MarketingDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
+          onClick={() => setActiveTab('analytics')}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Marketing ROI</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
@@ -118,7 +131,7 @@ export const MarketingDashboard = () => {
       </div>
 
       {/* Main Content Tabs */}
-      <Tabs defaultValue="campaigns" className="space-y-4">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
           <TabsTrigger value="reviews">Reviews</TabsTrigger>
