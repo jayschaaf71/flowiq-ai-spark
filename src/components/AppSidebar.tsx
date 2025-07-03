@@ -100,6 +100,7 @@ export const AppSidebar = () => {
     { icon: Building2, label: "Beta Pilot", path: "/pilot", badge: "Live" },
     ...(hasMinimumRole('practice_manager') ? [{ icon: Users, label: "Team", path: "/team", badge: null }] : []),
     ...(hasMinimumRole('tenant_admin') ? [{ icon: Building2, label: "Practice Setup", path: "/setup", badge: null }] : []),
+    ...(isPlatformAdmin ? [{ icon: Shield, label: "Platform Admin", path: "/platform-admin", badge: "Enterprise" }] : []),
     ...(isPlatformAdmin ? [{ icon: Building2, label: "Tenant Admin", path: "/tenant-admin", badge: "Enterprise" }] : []),
   ];
 

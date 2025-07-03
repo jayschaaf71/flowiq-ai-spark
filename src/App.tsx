@@ -51,6 +51,9 @@ import ReferralIQ from '@/pages/agents/ReferralIQ';
 import PilotDashboard from '@/pages/PilotDashboard';
 import ExternalIntegrationsPage from '@/pages/ExternalIntegrations';
 import BookingWidgetPage from '@/pages/BookingWidget';
+import PlatformAdmin from '@/pages/PlatformAdmin';
+import TenantOnboarding from '@/pages/TenantOnboarding';
+import PracticeSetup from '@/pages/PracticeSetup';
 
 const queryClient = new QueryClient();
 
@@ -301,6 +304,26 @@ function App() {
                   </TenantWrapper>
                 } />
                 <Route path="/widget" element={<BookingWidgetPage />} />
+                <Route path="/platform-admin" element={
+                  <ProtectedRoute requiredRole="admin">
+                    <PlatformAdmin />
+                  </ProtectedRoute>
+                } />
+                <Route path="/onboarding/:tenantId" element={
+                  <ProtectedRoute>
+                    <TenantOnboarding />
+                  </ProtectedRoute>
+                } />
+                <Route path="/onboarding" element={
+                  <ProtectedRoute>
+                    <TenantOnboarding />
+                  </ProtectedRoute>
+                } />
+                <Route path="/setup" element={
+                  <ProtectedRoute>
+                    <PracticeSetup />
+                  </ProtectedRoute>
+                } />
                 <Route path="/settings" element={
                   <ProtectedRoute>
                     <TenantWrapper>

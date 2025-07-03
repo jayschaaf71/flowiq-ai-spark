@@ -82,7 +82,6 @@ export const TenantResourceOptimization: React.FC = () => {
       users: 25,
       storageGB: 1.8,
       apiCalls: 18900,
-      storageUsed: 18900,
       monthlyRevenue: 2100,
       costPerUser: 84,
       utilizationScore: 92,

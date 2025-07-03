@@ -28,10 +28,14 @@ const Index = () => {
   const handleGetStarted = () => {
     console.log("Get Started clicked", { user, profile });
     if (user) {
-      // Redirect authenticated users to their appropriate dashboard
+      // Redirect authenticated users to their appropriate dashboard or onboarding
       if (profile?.role === 'patient') {
         console.log("Navigating to patient dashboard");
         navigate('/patient-dashboard');
+      } else if (profile?.role === 'admin' && !currentTenant) {
+        // New admin users without tenant - start onboarding
+        console.log("Navigating to onboarding");
+        navigate('/onboarding');
       } else {
         console.log("Navigating to main dashboard");
         navigate('/dashboard');
