@@ -49,6 +49,7 @@ import OpsIQ from '@/pages/agents/OpsIQ';
 import AuthIQ from '@/pages/agents/AuthIQ';
 import EducationIQ from '@/pages/agents/EducationIQ';
 import MarketingIQ from '@/pages/agents/MarketingIQ';
+import RemindIQ from '@/pages/agents/RemindIQ';
 import ReferralIQ from '@/pages/agents/ReferralIQ';
 import PilotDashboard from '@/pages/PilotDashboard';
 import ExternalIntegrationsPage from '@/pages/ExternalIntegrations';
@@ -301,6 +302,13 @@ function App() {
                   <TenantWrapper>
                     <Layout>
                       <MarketingIQ />
+                    </Layout>
+                  </TenantWrapper>
+                } />
+                <Route path="/agents/remind" element={
+                  <TenantWrapper>
+                    <Layout>
+                      <RemindIQ />
                     </Layout>
                   </TenantWrapper>
                 } />
