@@ -116,48 +116,46 @@ export const EnhancedVoiceRecorder = ({
             </AlertDescription>
           </Alert>
 
-          <div className="flex items-center justify-center py-8">
-            <div className="text-center space-y-4">
-              <div className={`w-24 h-24 rounded-full flex items-center justify-center ${
-                isRecording ? 'bg-red-100 animate-pulse' : 'bg-gray-100'
-              }`}>
-                {isRecording ? (
-                  <Mic className="w-12 h-12 text-red-600" />
-                ) : (
-                  <MicOff className="w-12 h-12 text-gray-400" />
-                )}
-              </div>
-              
-              <div className="space-y-2">
-                <p className="text-lg font-medium">
-                  {isRecording ? 'Recording...' : 'Ready to Record'}
-                </p>
-                <p className="text-sm text-gray-600">
-                  {isRecording 
-                    ? 'AI is transcribing your speech in real-time' 
-                    : 'Click the button below to start recording'
-                  }
-                </p>
-              </div>
+          <div className="flex flex-col items-center justify-center py-8 space-y-6">
+            <div className={`w-24 h-24 rounded-full flex items-center justify-center ${
+              isRecording ? 'bg-red-100 animate-pulse' : 'bg-gray-100'
+            }`}>
+              {isRecording ? (
+                <Mic className="w-12 h-12 text-red-600" />
+              ) : (
+                <MicOff className="w-12 h-12 text-gray-400" />
+              )}
+            </div>
+            
+            <div className="text-center space-y-2">
+              <p className="text-lg font-medium">
+                {isRecording ? 'Recording...' : 'Ready to Record'}
+              </p>
+              <p className="text-sm text-gray-600">
+                {isRecording 
+                  ? 'AI is transcribing your speech in real-time' 
+                  : 'Click the button below to start recording'
+                }
+              </p>
+            </div>
 
-              <div className="flex gap-2 justify-center">
-                {!isRecording ? (
-                  <Button onClick={startRecording} size="lg" className="bg-red-600 hover:bg-red-700">
-                    <Mic className="w-4 h-4 mr-2" />
-                    Start Recording
-                  </Button>
-                ) : (
-                  <Button onClick={stopRecording} size="lg" variant="outline">
-                    <Square className="w-4 h-4 mr-2" />
-                    Stop Recording
-                  </Button>
-                )}
-                
-                <Button onClick={loadTestTranscription} variant="outline">
-                  <FileText className="w-4 h-4 mr-2" />
-                  Load Test Data
+            <div className="flex flex-col sm:flex-row gap-3 items-center">
+              {!isRecording ? (
+                <Button onClick={startRecording} size="lg" className="bg-red-600 hover:bg-red-700">
+                  <Mic className="w-4 h-4 mr-2" />
+                  Start Recording
                 </Button>
-              </div>
+              ) : (
+                <Button onClick={stopRecording} size="lg" variant="outline">
+                  <Square className="w-4 h-4 mr-2" />
+                  Stop Recording
+                </Button>
+              )}
+              
+              <Button onClick={loadTestTranscription} variant="outline" size="lg">
+                <FileText className="w-4 h-4 mr-2" />
+                Load Test Data
+              </Button>
             </div>
           </div>
 
