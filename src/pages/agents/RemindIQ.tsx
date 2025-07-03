@@ -9,6 +9,7 @@ import { MessageTemplates } from "@/components/remind/MessageTemplates";
 import { ScheduledMessages } from "@/components/remind/ScheduledMessages";
 import { RemindAutomation } from "@/components/remind/RemindAutomation";
 import { RemindSettings } from "@/components/remind/RemindSettings";
+import { RemindAnalytics } from "@/components/remind/RemindAnalytics";
 
 const RemindIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -121,18 +122,7 @@ const RemindIQ = () => {
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Reminder Analytics</CardTitle>
-                <CardDescription>Track reminder effectiveness and engagement</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12 text-muted-foreground">
-                  <TrendingUp className="w-12 h-12 mx-auto mb-4" />
-                  <p>Analytics dashboard coming soon...</p>
-                </div>
-              </CardContent>
-            </Card>
+            <RemindAnalytics />
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-4">
