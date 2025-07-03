@@ -35,7 +35,7 @@ const practiceTypes = [
   },
   {
     id: 'oral-surgery' as PracticeType,
-    title: 'Oral Surgery Center',
+    title: 'Oral Surgery Practice',
     description: 'Extractions, implants, and surgical procedures',
     icon: Stethoscope,
     features: ['Pre-op preparation', 'Surgical scheduling', 'Recovery tracking', 'Referral management']
