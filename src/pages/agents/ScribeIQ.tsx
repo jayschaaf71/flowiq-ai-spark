@@ -12,11 +12,13 @@ import { ScribeSOAPGeneration } from "@/components/scribe/ScribeSOAPGeneration";
 import { ScribeTemplatesTab } from "@/components/scribe/ScribeTemplatesTab";
 import { ScribeSettingsTab } from "@/components/scribe/ScribeSettingsTab";
 import { SOAPProvider } from "@/contexts/SOAPContext";
+import { useSpecialty } from "@/contexts/SpecialtyContext";
 import { usePlaudIntegration } from "@/hooks/usePlaudIntegration";
 
 const ScribeIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const { isConnected } = usePlaudIntegration();
+  const { getBrandName } = useSpecialty();
 
   // Listen for tab change events from dashboard buttons
   useEffect(() => {
@@ -34,7 +36,7 @@ const ScribeIQ = () => {
     <SOAPProvider>
       <div className="space-y-6">
         <PageHeader 
-          title="Scribe iQ"
+          title={`${getBrandName()} - Scribe`}
           subtitle="AI-powered medical documentation and voice transcription with HIPAA compliance"
         >
           <div className="flex gap-2">
