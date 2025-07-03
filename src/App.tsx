@@ -47,6 +47,7 @@ import InsightIQ from '@/pages/agents/InsightIQ';
 import OpsIQ from '@/pages/agents/OpsIQ';
 import AuthIQ from '@/pages/agents/AuthIQ';
 import EducationIQ from '@/pages/agents/EducationIQ';
+import MarketingIQ from '@/pages/agents/MarketingIQ';
 import ReferralIQ from '@/pages/agents/ReferralIQ';
 import PilotDashboard from '@/pages/PilotDashboard';
 import ExternalIntegrationsPage from '@/pages/ExternalIntegrations';
@@ -254,20 +255,6 @@ function App() {
                     </Layout>
                   </TenantWrapper>
                 } />
-                <Route path="/agents/auth" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <AuthIQ />
-                    </Layout>
-                  </TenantWrapper>
-                } />
-                <Route path="/agents/education" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <EducationIQ />
-                    </Layout>
-                  </TenantWrapper>
-                } />
                 <Route path="/agents/referral" element={
                   <TenantWrapper>
                     <Layout>
@@ -293,6 +280,27 @@ function App() {
                   <TenantWrapper>
                     <Layout>
                       <InsightIQ />
+                    </Layout>
+                  </TenantWrapper>
+                } />
+                <Route path="/agents/education" element={
+                  <TenantWrapper>
+                    <Layout>
+                      <EducationIQ />
+                    </Layout>
+                  </TenantWrapper>
+                } />
+                <Route path="/agents/marketing" element={
+                  <TenantWrapper>
+                    <Layout>
+                      <MarketingIQ />
+                    </Layout>
+                  </TenantWrapper>
+                } />
+                <Route path="/agents/auth" element={
+                  <TenantWrapper>
+                    <Layout>
+                      <AuthIQ />
                     </Layout>
                   </TenantWrapper>
                 } />
