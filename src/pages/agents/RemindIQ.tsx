@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { MessageTemplates } from "@/components/remind/MessageTemplates";
 import { ScheduledMessages } from "@/components/remind/ScheduledMessages";
 import { RemindAutomation } from "@/components/remind/RemindAutomation";
+import { RemindSettings } from "@/components/remind/RemindSettings";
 
 const RemindIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -126,18 +127,7 @@ const RemindIQ = () => {
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Reminder Settings</CardTitle>
-                <CardDescription>Configure reminder timing and preferences</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12 text-muted-foreground">
-                  <Settings className="w-12 h-12 mx-auto mb-4" />
-                  <p>Settings configuration coming soon...</p>
-                </div>
-              </CardContent>
-            </Card>
+            <RemindSettings />
           </TabsContent>
         </Tabs>
       </div>
