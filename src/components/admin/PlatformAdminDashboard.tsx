@@ -173,7 +173,7 @@ export const PlatformAdminDashboard: React.FC = () => {
                       <Network className="h-4 w-4" />
                       <span>Network Latency</span>
                     </div>
-                    <Badge variant="success">< 50ms</Badge>
+                    <Badge variant="success">&lt; 50ms</Badge>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
