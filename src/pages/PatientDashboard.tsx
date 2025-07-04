@@ -125,35 +125,39 @@ export const PatientDashboard: React.FC = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
           {config.features.map((feature) => (
             <Card 
               key={feature.id}
-              className="cursor-pointer hover:shadow-md transition-shadow"
+              className="cursor-pointer hover:shadow-md transition-shadow min-h-[140px]"
               onClick={() => setActiveSection(feature.id)}
             >
-              <CardContent className="p-6 text-center">
-                <div className="w-8 h-8 mx-auto mb-3" style={{ color: config.customization.primaryColor }}>
-                  {feature.icon === 'Calendar' && <Calendar className="w-8 h-8" />}
-                  {feature.icon === 'Activity' && <Activity className="w-8 h-8" />}
-                  {feature.icon === 'FileText' && <FileText className="w-8 h-8" />}
-                  {feature.icon === 'Heart' && <Heart className="w-8 h-8" />}
-                  {feature.icon === 'CreditCard' && <CreditCard className="w-8 h-8" />}
-                  {feature.icon === 'Moon' && <Clock className="w-8 h-8" />}
-                  {feature.icon === 'Shield' && <User className="w-8 h-8" />}
-                  {feature.icon === 'Camera' && <FileText className="w-8 h-8" />}
-                  {feature.icon === 'Package' && <CreditCard className="w-8 h-8" />}
-                  {feature.icon === 'Gift' && <Heart className="w-8 h-8" />}
-                  {feature.icon === 'MessageSquare' && <Mail className="w-8 h-8" />}
-                  {feature.icon === 'TestTube' && <FileText className="w-8 h-8" />}
-                  {feature.icon === 'Crown' && <User className="w-8 h-8" />}
-                  {feature.icon === 'TrendingUp' && <Heart className="w-8 h-8" />}
-                  {feature.icon === 'Pill' && <CreditCard className="w-8 h-8" />}
-                  {feature.icon === 'BookOpen' && <FileText className="w-8 h-8" />}
-                  {feature.icon === 'Activity' && <Heart className="w-8 h-8" />}
+              <CardContent className="p-4 text-center h-full flex flex-col justify-between">
+                <div className="flex flex-col items-center space-y-3">
+                  <div className="w-10 h-10 flex items-center justify-center" style={{ color: config.customization.primaryColor }}>
+                    {feature.icon === 'Calendar' && <Calendar className="w-8 h-8" />}
+                    {feature.icon === 'Activity' && <Activity className="w-8 h-8" />}
+                    {feature.icon === 'FileText' && <FileText className="w-8 h-8" />}
+                    {feature.icon === 'Heart' && <Heart className="w-8 h-8" />}
+                    {feature.icon === 'CreditCard' && <CreditCard className="w-8 h-8" />}
+                    {feature.icon === 'Moon' && <Clock className="w-8 h-8" />}
+                    {feature.icon === 'Shield' && <User className="w-8 h-8" />}
+                    {feature.icon === 'Camera' && <FileText className="w-8 h-8" />}
+                    {feature.icon === 'Package' && <CreditCard className="w-8 h-8" />}
+                    {feature.icon === 'Gift' && <Heart className="w-8 h-8" />}
+                    {feature.icon === 'MessageSquare' && <Mail className="w-8 h-8" />}
+                    {feature.icon === 'TestTube' && <FileText className="w-8 h-8" />}
+                    {feature.icon === 'Crown' && <User className="w-8 h-8" />}
+                    {feature.icon === 'TrendingUp' && <Heart className="w-8 h-8" />}
+                    {feature.icon === 'Pill' && <CreditCard className="w-8 h-8" />}
+                    {feature.icon === 'BookOpen' && <FileText className="w-8 h-8" />}
+                    {feature.icon === 'Activity' && <Heart className="w-8 h-8" />}
+                  </div>
+                  <div className="space-y-1">
+                    <h3 className="font-semibold text-gray-900 text-sm leading-tight">{feature.name}</h3>
+                    <p className="text-xs text-gray-600 leading-tight">{feature.description}</p>
+                  </div>
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-1">{feature.name}</h3>
-                <p className="text-sm text-gray-600">{feature.description}</p>
               </CardContent>
             </Card>
           ))}
