@@ -601,7 +601,7 @@ export const PatientDashboard: React.FC = () => {
                 <div className="text-center py-8 text-gray-500">
                   <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                   <p>No other appointments scheduled</p>
-                  <Button className="mt-3" size="sm">Schedule Appointment</Button>
+                  <Button className="mt-3" size="sm" onClick={() => setActiveSection('book-appointment')}>Schedule Appointment</Button>
                 </div>
               </div>
             </CardContent>
