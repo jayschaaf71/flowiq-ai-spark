@@ -13,6 +13,10 @@ import { CommunicationCenter } from '@/components/patient-experience/Communicati
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { useCommunicationPreferences } from '@/hooks/useCommunicationPreferences';
+import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 import { 
   Calendar, 
   Clock, 
@@ -36,6 +40,7 @@ export const PatientDashboard: React.FC = () => {
   const { user, profile, signOut, loading: authLoading } = useAuth();
   const { currentTenant, loading: tenantLoading } = useCurrentTenant();
   const { config, isLoading: configLoading, specialty } = usePatientPortalConfig();
+  const { preferences, loading: prefsLoading, updatePreference } = useCommunicationPreferences();
   const [activeSection, setActiveSection] = React.useState('dashboard');
   const [selectedAppointment, setSelectedAppointment] = React.useState<any>(null);
   const { toast } = useToast();

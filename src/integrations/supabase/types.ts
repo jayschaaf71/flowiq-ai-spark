@@ -6116,6 +6116,54 @@ export type Database = {
         }
         Relationships: []
       }
+      user_communication_preferences: {
+        Row: {
+          appointment_reminders_enabled: boolean
+          appointment_reminders_method: string
+          billing_notifications_enabled: boolean
+          billing_notifications_method: string
+          created_at: string
+          educational_content_enabled: boolean
+          educational_content_method: string
+          general_notifications_enabled: boolean
+          id: string
+          test_results_enabled: boolean
+          test_results_method: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          appointment_reminders_enabled?: boolean
+          appointment_reminders_method?: string
+          billing_notifications_enabled?: boolean
+          billing_notifications_method?: string
+          created_at?: string
+          educational_content_enabled?: boolean
+          educational_content_method?: string
+          general_notifications_enabled?: boolean
+          id?: string
+          test_results_enabled?: boolean
+          test_results_method?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          appointment_reminders_enabled?: boolean
+          appointment_reminders_method?: string
+          billing_notifications_enabled?: boolean
+          billing_notifications_method?: string
+          created_at?: string
+          educational_content_enabled?: boolean
+          educational_content_method?: string
+          general_notifications_enabled?: boolean
+          id?: string
+          test_results_enabled?: boolean
+          test_results_method?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_profiles: {
         Row: {
           budget_range: string | null
