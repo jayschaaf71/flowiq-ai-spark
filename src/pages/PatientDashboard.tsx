@@ -62,6 +62,22 @@ export const PatientDashboard: React.FC = () => {
     });
   };
 
+  // Auto-scroll to content when section changes
+  React.useEffect(() => {
+    if (activeSection !== 'dashboard') {
+      // Small delay to ensure content is rendered
+      setTimeout(() => {
+        const contentElement = document.getElementById('main-content');
+        if (contentElement) {
+          contentElement.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+          });
+        }
+      }, 100);
+    }
+  }, [activeSection]);
+
   // Show loading state while authentication or tenant data is loading
   if (authLoading || tenantLoading || configLoading) {
     return (
@@ -187,6 +203,7 @@ export const PatientDashboard: React.FC = () => {
         </div>
 
         {/* Conditional Content Based on Active Section */}
+        <div id="main-content">
         {activeSection === 'billing' ? (
           <div>
             <div className="flex items-center justify-between mb-6">
@@ -668,6 +685,7 @@ export const PatientDashboard: React.FC = () => {
         </Card>
           </>
         )}
+        </div>
       </div>
 
       {/* Appointment Details Modal */}
