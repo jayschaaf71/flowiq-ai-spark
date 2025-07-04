@@ -17,6 +17,10 @@ import { useCommunicationPreferences } from '@/hooks/useCommunicationPreferences
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { useRealAppointments } from '@/hooks/useRealAppointments';
+import { useBillingInvoices } from '@/hooks/useBillingInvoices';
+import { useMedicalRecords } from '@/hooks/useMedicalRecords';
+import { usePatientInsurance } from '@/hooks/usePatientInsurance';
 import { 
   Calendar, 
   Clock, 
