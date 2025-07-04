@@ -28,6 +28,7 @@ import { MedicalRecordsDisplay } from '@/components/patient-experience/MedicalRe
 import { InsuranceInformation } from '@/components/patient-experience/InsuranceInformation';
 import { AppointmentsDisplay } from '@/components/patient-experience/AppointmentsDisplay';
 import { DentalSleepPatientPortal } from '@/components/patient-experience/DentalSleepPatientPortal';
+import { OnboardingGate } from '@/components/onboarding/OnboardingGate';
 import { 
   Calendar, 
   Clock, 
@@ -131,7 +132,11 @@ export const PatientDashboard: React.FC = () => {
 
   // Render specialized portal for dental sleep medicine
   if (currentTenant?.specialty === 'dental-sleep-medicine' || specialty === 'dental-sleep-medicine') {
-    return <DentalSleepPatientPortal />;
+    return (
+      <OnboardingGate>
+        <DentalSleepPatientPortal />
+      </OnboardingGate>
+    );
   }
 
   const dashboardContent = (

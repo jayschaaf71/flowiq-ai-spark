@@ -3363,6 +3363,62 @@ export type Database = {
           },
         ]
       }
+      patient_documents: {
+        Row: {
+          document_category: string
+          file_name: string
+          file_path: string
+          file_size: number | null
+          file_type: string | null
+          id: string
+          is_verified: boolean | null
+          metadata: Json | null
+          patient_id: string
+          tenant_id: string | null
+          upload_date: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          document_category: string
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          is_verified?: boolean | null
+          metadata?: Json | null
+          patient_id: string
+          tenant_id?: string | null
+          upload_date?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          document_category?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          is_verified?: boolean | null
+          metadata?: Json | null
+          patient_id?: string
+          tenant_id?: string | null
+          upload_date?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_documents_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       patient_education: {
         Row: {
           completion_percentage: number | null
@@ -3579,6 +3635,77 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      patient_onboarding: {
+        Row: {
+          completed_at: string | null
+          consents: Json | null
+          contact_info: Json | null
+          created_at: string
+          documents_uploaded: Json | null
+          emergency_contact: Json | null
+          id: string
+          insurance_info: Json | null
+          is_completed: boolean
+          medical_history: Json | null
+          personal_info: Json | null
+          portal_preferences: Json | null
+          specialty: string | null
+          step_completed: number
+          tenant_id: string | null
+          total_steps: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          consents?: Json | null
+          contact_info?: Json | null
+          created_at?: string
+          documents_uploaded?: Json | null
+          emergency_contact?: Json | null
+          id?: string
+          insurance_info?: Json | null
+          is_completed?: boolean
+          medical_history?: Json | null
+          personal_info?: Json | null
+          portal_preferences?: Json | null
+          specialty?: string | null
+          step_completed?: number
+          tenant_id?: string | null
+          total_steps?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          consents?: Json | null
+          contact_info?: Json | null
+          created_at?: string
+          documents_uploaded?: Json | null
+          emergency_contact?: Json | null
+          id?: string
+          insurance_info?: Json | null
+          is_completed?: boolean
+          medical_history?: Json | null
+          personal_info?: Json | null
+          portal_preferences?: Json | null
+          specialty?: string | null
+          step_completed?: number
+          tenant_id?: string | null
+          total_steps?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_onboarding_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       patient_status_updates: {
         Row: {
