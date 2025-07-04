@@ -153,9 +153,9 @@ const Index = () => {
                 <Button 
                   size="lg" 
                   className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white px-8 py-3 text-lg"
-                  onClick={() => navigate('/practice-setup')}
+                  onClick={() => navigate('/get-started')}
                 >
-                  Setup Your Practice
+                  Get Started Free
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
                 

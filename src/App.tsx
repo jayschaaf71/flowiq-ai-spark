@@ -20,7 +20,7 @@ import { CompleteIntakeFlow } from '@/components/intake/CompleteIntakeFlow';
 import { BookingWidgetDemo } from '@/pages/BookingWidgetDemo';
 import { PatientPrepPage } from '@/pages/PatientPrepPage';
 import { TenantWrapper, DentalSleepWrapper } from '@/components/wrappers';
-import { AuthPage } from '@/components/auth/AuthPage';
+import AuthPage from '@/pages/AuthPage';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { PatientDashboard } from '@/pages/PatientDashboard';
 import AuthTesting from '@/pages/AuthTesting';
@@ -77,6 +77,7 @@ function App() {
               <AnalyticsProvider>
               <Routes>
                 <Route path="/" element={<Index />} />
+                <Route path="/get-started" element={<AuthPage />} />
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/auth-testing" element={<AuthTesting />} />
                 <Route path="/dental-sleep-demo" element={
@@ -349,7 +350,11 @@ function App() {
                     <PracticeSetup />
                   </ProtectedRoute>
                 } />
-                <Route path="/practice-setup" element={<PracticeSetup />} />
+                <Route path="/practice-setup" element={
+                  <ProtectedRoute>
+                    <PracticeSetup />
+                  </ProtectedRoute>
+                } />
                 {/* Demo Routes - Public Access */}
                 <Route path="/demo" element={<DemoHub />} />
                 <Route path="/demo/chiropractic" element={<DemoChiropractic />} />
