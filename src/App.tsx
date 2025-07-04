@@ -347,6 +347,7 @@ function App() {
                     <PracticeSetup />
                   </ProtectedRoute>
                 } />
+                <Route path="/practice-setup" element={<PracticeSetup />} />
                 {/* Demo Routes - Public Access */}
                 <Route path="/demo" element={<DemoHub />} />
                 <Route path="/demo/chiropractic" element={<DemoChiropractic />} />
