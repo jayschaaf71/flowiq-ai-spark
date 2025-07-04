@@ -56,7 +56,10 @@ export const useCommunicationPreferences = () => {
 
         const { data: newData, error: insertError } = await supabase
           .from('user_communication_preferences')
-          .insert([defaultPreferences])
+          .upsert([defaultPreferences], { 
+            onConflict: 'user_id',
+            ignoreDuplicates: false 
+          })
           .select()
           .single();
 
@@ -65,6 +68,25 @@ export const useCommunicationPreferences = () => {
       }
     } catch (error) {
       console.error('Error fetching communication preferences:', error);
+      
+      // If it's a duplicate key error, try to fetch the existing record
+      if (error?.code === '23505') {
+        try {
+          const { data: existingData, error: fetchError } = await supabase
+            .from('user_communication_preferences')
+            .select('*')
+            .eq('user_id', user.id)
+            .single();
+          
+          if (!fetchError && existingData) {
+            setPreferences(existingData as CommunicationPreferences);
+            return;
+          }
+        } catch (retryError) {
+          console.error('Error fetching existing preferences:', retryError);
+        }
+      }
+      
       toast({
         title: "Error",
         description: "Failed to load communication preferences",

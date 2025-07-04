@@ -40,7 +40,7 @@ export const PatientDashboard: React.FC = () => {
   const { user, profile, signOut, loading: authLoading } = useAuth();
   const { currentTenant, loading: tenantLoading } = useCurrentTenant();
   const { config, isLoading: configLoading, specialty } = usePatientPortalConfig();
-  const { preferences, loading: prefsLoading, updatePreference } = useCommunicationPreferences();
+  const { preferences, loading: prefsLoading, saving, updatePreference } = useCommunicationPreferences();
   const [activeSection, setActiveSection] = React.useState('dashboard');
   const [selectedAppointment, setSelectedAppointment] = React.useState<any>(null);
   const { toast } = useToast();
@@ -674,41 +674,170 @@ export const PatientDashboard: React.FC = () => {
                   <CardDescription>Choose how you'd like to receive updates</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium">Appointment Reminders</p>
-                        <p className="text-sm text-gray-600">Get notified about upcoming appointments</p>
+                  {preferences && !prefsLoading ? (
+                    <div className="space-y-4">
+                      {/* Appointment Reminders */}
+                      <div className="space-y-3 p-4 border rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-medium">Appointment Reminders</p>
+                            <p className="text-sm text-gray-600">Get notified about upcoming appointments</p>
+                          </div>
+                          <Switch
+                            checked={preferences.appointment_reminders_enabled}
+                            onCheckedChange={(checked) => updatePreference('appointment_reminders_enabled', checked)}
+                            disabled={saving}
+                          />
+                        </div>
+                        {preferences.appointment_reminders_enabled && (
+                          <div className="flex items-center gap-2">
+                            <Label htmlFor="appointment-method" className="text-sm">Method:</Label>
+                            <Select
+                              value={preferences.appointment_reminders_method}
+                              onValueChange={(value) => updatePreference('appointment_reminders_method', value)}
+                              disabled={saving}
+                            >
+                              <SelectTrigger className="w-32">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="email">Email</SelectItem>
+                                <SelectItem value="sms">SMS</SelectItem>
+                                <SelectItem value="both">Both</SelectItem>
+                                <SelectItem value="none">None</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm text-gray-600">Email & SMS</span>
-                        <Badge variant="outline" className="text-green-700 border-green-700">Enabled</Badge>
+
+                      {/* Test Results */}
+                      <div className="space-y-3 p-4 border rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-medium">Test Results</p>
+                            <p className="text-sm text-gray-600">Receive lab results and test outcomes</p>
+                          </div>
+                          <Switch
+                            checked={preferences.test_results_enabled}
+                            onCheckedChange={(checked) => updatePreference('test_results_enabled', checked)}
+                            disabled={saving}
+                          />
+                        </div>
+                        {preferences.test_results_enabled && (
+                          <div className="flex items-center gap-2">
+                            <Label htmlFor="test-method" className="text-sm">Method:</Label>
+                            <Select
+                              value={preferences.test_results_method}
+                              onValueChange={(value) => updatePreference('test_results_method', value)}
+                              disabled={saving}
+                            >
+                              <SelectTrigger className="w-32">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="email">Email</SelectItem>
+                                <SelectItem value="sms">SMS</SelectItem>
+                                <SelectItem value="both">Both</SelectItem>
+                                <SelectItem value="none">None</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Billing Notifications */}
+                      <div className="space-y-3 p-4 border rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-medium">Billing Notifications</p>
+                            <p className="text-sm text-gray-600">Receive bill and payment confirmations</p>
+                          </div>
+                          <Switch
+                            checked={preferences.billing_notifications_enabled}
+                            onCheckedChange={(checked) => updatePreference('billing_notifications_enabled', checked)}
+                            disabled={saving}
+                          />
+                        </div>
+                        {preferences.billing_notifications_enabled && (
+                          <div className="flex items-center gap-2">
+                            <Label htmlFor="billing-method" className="text-sm">Method:</Label>
+                            <Select
+                              value={preferences.billing_notifications_method}
+                              onValueChange={(value) => updatePreference('billing_notifications_method', value)}
+                              disabled={saving}
+                            >
+                              <SelectTrigger className="w-32">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="email">Email</SelectItem>
+                                <SelectItem value="sms">SMS</SelectItem>
+                                <SelectItem value="both">Both</SelectItem>
+                                <SelectItem value="none">None</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Educational Content */}
+                      <div className="space-y-3 p-4 border rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-medium">Educational Content</p>
+                            <p className="text-sm text-gray-600">Health tips and educational materials</p>
+                          </div>
+                          <Switch
+                            checked={preferences.educational_content_enabled}
+                            onCheckedChange={(checked) => updatePreference('educational_content_enabled', checked)}
+                            disabled={saving}
+                          />
+                        </div>
+                        {preferences.educational_content_enabled && (
+                          <div className="flex items-center gap-2">
+                            <Label htmlFor="educational-method" className="text-sm">Method:</Label>
+                            <Select
+                              value={preferences.educational_content_method}
+                              onValueChange={(value) => updatePreference('educational_content_method', value)}
+                              disabled={saving}
+                            >
+                              <SelectTrigger className="w-32">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="email">Email</SelectItem>
+                                <SelectItem value="sms">SMS</SelectItem>
+                                <SelectItem value="both">Both</SelectItem>
+                                <SelectItem value="none">None</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* General Notifications */}
+                      <div className="space-y-3 p-4 border rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-medium">General Notifications</p>
+                            <p className="text-sm text-gray-600">System updates and announcements</p>
+                          </div>
+                          <Switch
+                            checked={preferences.general_notifications_enabled}
+                            onCheckedChange={(checked) => updatePreference('general_notifications_enabled', checked)}
+                            disabled={saving}
+                          />
+                        </div>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium">Billing Notifications</p>
-                        <p className="text-sm text-gray-600">Receive bill and payment confirmations</p>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm text-gray-600">Email</span>
-                        <Badge variant="outline" className="text-green-700 border-green-700">Enabled</Badge>
+                  ) : (
+                    <div className="flex items-center justify-center py-8">
+                      <div className="text-center">
+                        <p className="text-gray-500">Loading preferences...</p>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium">Health Updates</p>
-                        <p className="text-sm text-gray-600">Educational content and health tips</p>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm text-gray-600">Email</span>
-                        <Badge variant="outline">Disabled</Badge>
-                      </div>
-                    </div>
-                  </div>
-                  <Button variant="outline" onClick={handleUpdatePreferences}>
-                    Update Preferences
-                  </Button>
+                  )}
                 </CardContent>
               </Card>
 
