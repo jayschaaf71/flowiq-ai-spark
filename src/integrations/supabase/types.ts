@@ -790,6 +790,91 @@ export type Database = {
         }
         Relationships: []
       }
+      billing_invoices: {
+        Row: {
+          appointment_id: string | null
+          created_at: string
+          description: string | null
+          due_date: string
+          id: string
+          insurance_amount: number | null
+          invoice_number: string
+          line_items: Json | null
+          notes: string | null
+          paid_amount: number | null
+          patient_amount: number
+          patient_id: string
+          payment_date: string | null
+          payment_method: string | null
+          service_date: string
+          status: string
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          appointment_id?: string | null
+          created_at?: string
+          description?: string | null
+          due_date: string
+          id?: string
+          insurance_amount?: number | null
+          invoice_number: string
+          line_items?: Json | null
+          notes?: string | null
+          paid_amount?: number | null
+          patient_amount: number
+          patient_id: string
+          payment_date?: string | null
+          payment_method?: string | null
+          service_date: string
+          status?: string
+          total_amount: number
+          updated_at?: string
+        }
+        Update: {
+          appointment_id?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string
+          id?: string
+          insurance_amount?: number | null
+          invoice_number?: string
+          line_items?: Json | null
+          notes?: string | null
+          paid_amount?: number | null
+          patient_amount?: number
+          patient_id?: string
+          payment_date?: string | null
+          payment_method?: string | null
+          service_date?: string
+          status?: string
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_invoices_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "billing_invoices_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patient_onboarding_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "billing_invoices_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       calendar_events: {
         Row: {
           attendees: string[] | null
@@ -2499,6 +2584,76 @@ export type Database = {
             columns: ["patient_id"]
             isOneToOne: false
             referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      medical_records: {
+        Row: {
+          attachments: Json | null
+          content: string
+          created_at: string
+          diagnosis_codes: string[] | null
+          id: string
+          is_confidential: boolean
+          patient_id: string
+          provider_id: string | null
+          record_type: string
+          title: string
+          treatment_codes: string[] | null
+          updated_at: string
+          visit_date: string
+        }
+        Insert: {
+          attachments?: Json | null
+          content: string
+          created_at?: string
+          diagnosis_codes?: string[] | null
+          id?: string
+          is_confidential?: boolean
+          patient_id: string
+          provider_id?: string | null
+          record_type?: string
+          title: string
+          treatment_codes?: string[] | null
+          updated_at?: string
+          visit_date?: string
+        }
+        Update: {
+          attachments?: Json | null
+          content?: string
+          created_at?: string
+          diagnosis_codes?: string[] | null
+          id?: string
+          is_confidential?: boolean
+          patient_id?: string
+          provider_id?: string | null
+          record_type?: string
+          title?: string
+          treatment_codes?: string[] | null
+          updated_at?: string
+          visit_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medical_records_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patient_onboarding_summary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medical_records_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medical_records_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
             referencedColumns: ["id"]
           },
         ]
