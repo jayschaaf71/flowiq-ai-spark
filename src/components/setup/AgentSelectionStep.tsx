@@ -216,6 +216,26 @@ export const AgentSelectionStep = ({ setupData, updateSetupData }: AgentSelectio
       .filter(agent => agent.recommended)
       .map(agent => agent.id);
     updateSetupData({ selectedAgents: recommendedAgents });
+    setSelectedCategory('all'); // Show all agents after selection
+  };
+
+  const selectCategory = (category: string) => {
+    setSelectedCategory(category);
+    
+    // If selecting a specific category (not 'all'), auto-select all agents in that category
+    if (category !== 'all') {
+      const categoryAgents = availableAgents
+        .filter(agent => agent.category === category)
+        .map(agent => agent.id);
+      
+      // Combine with any existing selections from other categories
+      const currentSelections = setupData.selectedAgents.filter(agentId => {
+        const agent = availableAgents.find(a => a.id === agentId);
+        return agent && agent.category !== category; // Keep selections from other categories
+      });
+      
+      updateSetupData({ selectedAgents: [...currentSelections, ...categoryAgents] });
+    }
   };
 
   const filteredAgents = selectedCategory === 'all' 
@@ -255,7 +275,7 @@ export const AgentSelectionStep = ({ setupData, updateSetupData }: AgentSelectio
             key={category}
             variant={selectedCategory === category ? "default" : "outline"}
             size="sm"
-            onClick={() => setSelectedCategory(category)}
+            onClick={() => selectCategory(category)}
           >
             {category === 'all' ? 'All Agents' : category}
           </Button>
