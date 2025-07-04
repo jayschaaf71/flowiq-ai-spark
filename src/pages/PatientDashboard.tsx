@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
 import { useCurrentTenant } from '@/utils/enhancedTenantConfig';
+import { usePatientPortalConfig } from '@/hooks/usePatientPortalConfig';
 import { PatientBilling } from '@/components/patient-experience/PatientBilling';
 import { PatientNotificationCenter } from '@/components/notifications/PatientNotificationCenter';
 import { 
@@ -28,6 +29,7 @@ import {
 export const PatientDashboard: React.FC = () => {
   const { user, profile, signOut, loading: authLoading } = useAuth();
   const { currentTenant, loading: tenantLoading } = useCurrentTenant();
+  const { config, isLoading: configLoading, specialty } = usePatientPortalConfig();
   const [activeSection, setActiveSection] = React.useState('dashboard');
   const [selectedAppointment, setSelectedAppointment] = React.useState<any>(null);
 
@@ -36,7 +38,7 @@ export const PatientDashboard: React.FC = () => {
   };
 
   // Show loading state while authentication or tenant data is loading
-  if (authLoading || tenantLoading) {
+  if (authLoading || tenantLoading || configLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 flex items-center justify-center">
         <div className="flex items-center gap-3">
@@ -108,61 +110,50 @@ export const PatientDashboard: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <div className="bg-gradient-to-r from-blue-600 to-green-600 rounded-lg p-6 text-white">
+          <div className="bg-gradient-to-r from-blue-600 to-green-600 rounded-lg p-6 text-white" style={{
+            background: `linear-gradient(135deg, ${config.customization.primaryColor}, ${config.customization.secondaryColor})`
+          }}>
             <h2 className="text-2xl font-bold mb-2">
-              Welcome to your dashboard, {profile?.first_name || 'Patient'}!
+              {config.customization.welcomeMessage}, {profile?.first_name || 'Patient'}!
             </h2>
             <p className="text-blue-100">
-              Manage your appointments, view your health records, and stay connected with your care team.
+              {config.customization.footerText}
             </p>
           </div>
         </div>
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card 
-            className="cursor-pointer hover:shadow-md transition-shadow"
-            onClick={() => setActiveSection('book-appointment')}
-          >
-            <CardContent className="p-6 text-center">
-              <Calendar className="w-8 h-8 text-blue-600 mx-auto mb-3" />
-              <h3 className="font-semibold text-gray-900 mb-1">Book Appointment</h3>
-              <p className="text-sm text-gray-600">Schedule your next visit</p>
-            </CardContent>
-          </Card>
-
-          <Card 
-            className="cursor-pointer hover:shadow-md transition-shadow"
-            onClick={() => setActiveSection('health-records')}
-          >
-            <CardContent className="p-6 text-center">
-              <FileText className="w-8 h-8 text-green-600 mx-auto mb-3" />
-              <h3 className="font-semibold text-gray-900 mb-1">Health Records</h3>
-              <p className="text-sm text-gray-600">View your medical history</p>
-            </CardContent>
-          </Card>
-
-          <Card 
-            className="cursor-pointer hover:shadow-md transition-shadow"
-            onClick={() => setActiveSection('health-tracker')}
-          >
-            <CardContent className="p-6 text-center">
-              <Heart className="w-8 h-8 text-red-600 mx-auto mb-3" />
-              <h3 className="font-semibold text-gray-900 mb-1">Health Tracker</h3>
-              <p className="text-sm text-gray-600">Monitor your wellness</p>
-            </CardContent>
-          </Card>
-
-          <Card 
-            className="cursor-pointer hover:shadow-md transition-shadow"
-            onClick={() => setActiveSection('billing')}
-          >
-            <CardContent className="p-6 text-center">
-              <CreditCard className="w-8 h-8 text-purple-600 mx-auto mb-3" />
-              <h3 className="font-semibold text-gray-900 mb-1">Pay Bills</h3>
-              <p className="text-sm text-gray-600">Manage payments & billing</p>
-            </CardContent>
-          </Card>
+          {config.features.map((feature) => (
+            <Card 
+              key={feature.id}
+              className="cursor-pointer hover:shadow-md transition-shadow"
+              onClick={() => setActiveSection(feature.id)}
+            >
+              <CardContent className="p-6 text-center">
+                <div className="w-8 h-8 mx-auto mb-3" style={{ color: config.customization.primaryColor }}>
+                  {feature.icon === 'Calendar' && <Calendar className="w-8 h-8" />}
+                  {feature.icon === 'FileText' && <FileText className="w-8 h-8" />}
+                  {feature.icon === 'Heart' && <Heart className="w-8 h-8" />}
+                  {feature.icon === 'CreditCard' && <CreditCard className="w-8 h-8" />}
+                  {feature.icon === 'Moon' && <Clock className="w-8 h-8" />}
+                  {feature.icon === 'Shield' && <User className="w-8 h-8" />}
+                  {feature.icon === 'Camera' && <FileText className="w-8 h-8" />}
+                  {feature.icon === 'Package' && <CreditCard className="w-8 h-8" />}
+                  {feature.icon === 'Gift' && <Heart className="w-8 h-8" />}
+                  {feature.icon === 'MessageSquare' && <Mail className="w-8 h-8" />}
+                  {feature.icon === 'TestTube' && <FileText className="w-8 h-8" />}
+                  {feature.icon === 'Crown' && <User className="w-8 h-8" />}
+                  {feature.icon === 'TrendingUp' && <Heart className="w-8 h-8" />}
+                  {feature.icon === 'Pill' && <CreditCard className="w-8 h-8" />}
+                  {feature.icon === 'BookOpen' && <FileText className="w-8 h-8" />}
+                  {feature.icon === 'Activity' && <Heart className="w-8 h-8" />}
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-1">{feature.name}</h3>
+                <p className="text-sm text-gray-600">{feature.description}</p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
         {/* Conditional Content Based on Active Section */}
@@ -349,10 +340,11 @@ export const PatientDashboard: React.FC = () => {
                     <div>
                       <label className="text-sm font-medium text-gray-700">Appointment Type</label>
                       <select className="mt-1 w-full p-2 border border-gray-300 rounded-md">
-                        <option>Regular Checkup</option>
-                        <option>Follow-up Visit</option>
-                        <option>Specialist Consultation</option>
-                        <option>Lab Work</option>
+                        {config.appointmentTypes.map((type) => (
+                          <option key={type.id} value={type.id}>
+                            {type.name} ({type.duration} min)
+                          </option>
+                        ))}
                       </select>
                     </div>
                     <div>
