@@ -138,7 +138,7 @@ const Index = () => {
             
             <div className="max-w-3xl mx-auto">
               <h2 className="text-5xl font-bold text-gray-900 mb-6">
-                Healthcare Practice Management, 
+                Practice Management, 
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-green-600">
                   {" "}Reimagined
                 </span>
