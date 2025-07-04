@@ -9,6 +9,7 @@ import { usePatientPortalConfig } from '@/hooks/usePatientPortalConfig';
 import { PatientBilling } from '@/components/patient-experience/PatientBilling';
 import { PatientNotificationCenter } from '@/components/notifications/PatientNotificationCenter';
 import { ChiropracticSymptomChecker } from '@/components/patient-experience/ChiropracticSymptomChecker';
+import { CommunicationCenter } from '@/components/patient-experience/CommunicationCenter';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Calendar, 
@@ -192,12 +193,7 @@ export const PatientDashboard: React.FC = () => {
               </div>
               <div 
                 className="flex items-center gap-4 p-4 bg-green-100 rounded-lg cursor-pointer hover:bg-green-200 transition-colors"
-                onClick={() => {
-                  toast({
-                    title: "Secure Messaging",
-                    description: "Opening secure messaging portal to contact your provider.",
-                  });
-                }}
+                onClick={() => setActiveSection('messaging')}
               >
                 <Mail className="w-6 h-6 text-green-600" />
                 <div>
@@ -385,6 +381,19 @@ export const PatientDashboard: React.FC = () => {
                 <Button onClick={() => setActiveSection('book-appointment')}>Schedule Appointment</Button>
               </CardContent>
             </Card>
+          </div>
+        ) : activeSection === 'messaging' ? (
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">Secure Messaging</h2>
+              <Button 
+                variant="outline" 
+                onClick={() => setActiveSection('dashboard')}
+              >
+                ← Back to Dashboard
+              </Button>
+            </div>
+            <CommunicationCenter />
           </div>
         ) : activeSection === 'settings' ? (
           <div>
