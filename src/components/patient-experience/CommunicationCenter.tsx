@@ -5,7 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { RealTimeChatInterface } from './RealTimeChatInterface';
+import { useUploadFile } from '@/hooks/useFileAttachments';
+import { useToast } from '@/hooks/use-toast';
 import { 
   MessageSquare, 
   Send,
@@ -15,7 +18,9 @@ import {
   Shield,
   Paperclip,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Upload,
+  X
 } from 'lucide-react';
 
 interface Message {
@@ -43,10 +48,15 @@ interface Notification {
 }
 
 export const CommunicationCenter: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'messages' | 'notifications'>('messages');
+  const [activeTab, setActiveTab] = useState<'messages' | 'notifications' | 'chat'>('messages');
   const [newMessage, setNewMessage] = useState('');
   const [messageSubject, setMessageSubject] = useState('');
   const [selectedRecipient, setSelectedRecipient] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [attachDialogOpen, setAttachDialogOpen] = useState(false);
+  
+  const { toast } = useToast();
+  const uploadMutation = useUploadFile();
 
   const [messages] = useState<Message[]>([
     {
@@ -145,18 +155,41 @@ export const CommunicationCenter: React.FC = () => {
     }
   };
 
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      setAttachDialogOpen(false);
+      toast({
+        title: "File Selected",
+        description: `${file.name} will be attached to your message.`,
+      });
+    }
+  };
+
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+  };
+
   const sendMessage = () => {
     if (messageSubject && newMessage && selectedRecipient) {
       console.log('Sending message:', {
         subject: messageSubject,
         content: newMessage,
-        recipient: selectedRecipient
+        recipient: selectedRecipient,
+        attachment: selectedFile?.name
       });
       
       // Reset form
       setMessageSubject('');
       setNewMessage('');
       setSelectedRecipient('');
+      setSelectedFile(null);
+      
+      toast({
+        title: "Message Sent",
+        description: "Your secure message has been sent successfully.",
+      });
     }
   };
 
@@ -229,6 +262,15 @@ export const CommunicationCenter: React.FC = () => {
           Notifications
           <Badge variant="secondary">5</Badge>
         </Button>
+        <Button
+          variant={activeTab === 'chat' ? 'default' : 'ghost'}
+          onClick={() => setActiveTab('chat')}
+          className="flex items-center gap-2"
+        >
+          <MessageSquare className="h-4 w-4" />
+          Live Chat
+          <Badge variant="outline" className="bg-green-100 text-green-800">Real-time</Badge>
+        </Button>
       </div>
 
       {activeTab === 'messages' && (
@@ -281,11 +323,51 @@ export const CommunicationCenter: React.FC = () => {
                   />
                 </div>
                 
+                {/* File Attachment Display */}
+                {selectedFile && (
+                  <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-md">
+                    <Paperclip className="h-4 w-4 text-gray-500" />
+                    <span className="text-sm text-gray-700 flex-1">{selectedFile.name}</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleRemoveFile}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+                
                 <div className="flex justify-between items-center">
-                  <Button variant="outline" size="sm">
-                    <Paperclip className="h-4 w-4 mr-2" />
-                    Attach File
-                  </Button>
+                  <Dialog open={attachDialogOpen} onOpenChange={setAttachDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <Paperclip className="h-4 w-4 mr-2" />
+                        Attach File
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Attach File</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-2">
+                            Select file to attach
+                          </label>
+                          <Input
+                            type="file"
+                            onChange={handleFileSelect}
+                            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.txt"
+                            className="cursor-pointer"
+                          />
+                        </div>
+                        <p className="text-sm text-gray-600">
+                          Supported formats: PDF, JPG, PNG, DOC, DOCX, TXT (Max 10MB)
+                        </p>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                   
                   <Button onClick={sendMessage} disabled={!messageSubject || !newMessage || !selectedRecipient}>
                     <Send className="h-4 w-4 mr-2" />
@@ -418,6 +500,25 @@ export const CommunicationCenter: React.FC = () => {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {activeTab === 'chat' && (
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MessageSquare className="h-5 w-5 text-green-600" />
+                Live Chat with Healthcare Team
+              </CardTitle>
+              <CardDescription>
+                Real-time messaging with instant notifications
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <RealTimeChatInterface />
+            </CardContent>
+          </Card>
+        </div>
       )}
 
       {/* Communication Features */}
