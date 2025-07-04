@@ -184,6 +184,51 @@ export const PatientBilling: React.FC = () => {
     .filter(inv => inv.status === 'overdue')
     .reduce((sum, inv) => sum + inv.amount, 0);
 
+  const handleDownloadInvoice = async (invoice: Invoice) => {
+    try {
+      // Generate PDF content for the invoice
+      const invoiceContent = `
+        INVOICE
+        --------
+        Invoice ID: ${invoice.id}
+        Date: ${new Date().toLocaleDateString()}
+        
+        Service: ${invoice.description}
+        Provider: ${invoice.provider || 'N/A'}
+        Service Date: ${invoice.appointmentDate || 'N/A'}
+        Due Date: ${invoice.dueDate}
+        
+        Amount Due: $${invoice.amount.toFixed(2)}
+        Status: ${invoice.status.toUpperCase()}
+        
+        Thank you for your business!
+      `;
+
+      // Create and download the file
+      const blob = new Blob([invoiceContent], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `invoice-${invoice.id}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast({
+        title: "Invoice Downloaded",
+        description: `Invoice ${invoice.id} has been downloaded successfully.`,
+      });
+    } catch (error) {
+      console.error('Download error:', error);
+      toast({
+        title: "Download Failed",
+        description: "Failed to download invoice. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleRequestPaymentPlan = async () => {
     try {
       toast({
@@ -274,7 +319,11 @@ export const PatientBilling: React.FC = () => {
                     </div>
                     
                      <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleDownloadInvoice(invoice)}
+                      >
                         <Download className="w-4 h-4 mr-1" />
                         Download
                       </Button>
