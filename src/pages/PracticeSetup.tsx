@@ -98,9 +98,9 @@ const PracticeSetup = () => {
 
   const handleComplete = () => {
     console.log('Setup completed with data:', setupData);
-    setIsCompleted(true);
-    // Clear saved data on successful completion
+    // Clear saved data BEFORE setting completion to prevent restoration on redirect
     clearSavedData();
+    setIsCompleted(true);
     // Here you would save the setup data to your backend
   };
 
