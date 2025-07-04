@@ -34,7 +34,17 @@ const agentNames = {
   'billing-iq': 'Billing iQ',
   'claims-iq': 'Claims iQ',
   'assist-iq': 'Assist iQ',
-  'scribe-iq': 'Scribe iQ'
+  'scribe-iq': 'Scribe iQ',
+  'payments-iq': 'Payments iQ',
+  'ehr-iq': 'EHR iQ',
+  'inventory-iq': 'Inventory iQ',
+  'insight-iq': 'Insight iQ',
+  'ops-iq': 'Ops iQ',
+  'auth-iq': 'Auth iQ',
+  'education-iq': 'Education iQ',
+  'marketing-iq': 'Marketing iQ',
+  'referral-iq': 'Referral iQ',
+  'followup-iq': 'Followup iQ'
 };
 
 export const ReviewStep = ({ setupData, onComplete }: ReviewStepProps) => {
