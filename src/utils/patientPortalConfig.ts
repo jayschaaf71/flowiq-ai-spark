@@ -51,6 +51,7 @@ export const patientPortalConfigs: Record<SpecialtyType, PatientPortalConfig> = 
     specialty: 'chiropractic',
     features: [
       { id: 'appointments', name: 'Appointments', description: 'Schedule and manage visits', enabled: true, icon: 'Calendar' },
+      { id: 'symptom-checker', name: 'Symptom Checker', description: 'Prepare for your visit', enabled: true, icon: 'Activity' },
       { id: 'health-records', name: 'Health Records', description: 'View treatment history', enabled: true, icon: 'FileText' },
       { id: 'health-tracker', name: 'Pain Tracker', description: 'Track pain levels and mobility', enabled: true, icon: 'Heart' },
       { id: 'exercise-plan', name: 'Exercise Plans', description: 'View prescribed exercises', enabled: true, icon: 'Activity' },

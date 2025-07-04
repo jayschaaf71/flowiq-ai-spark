@@ -8,6 +8,7 @@ import { useCurrentTenant } from '@/utils/enhancedTenantConfig';
 import { usePatientPortalConfig } from '@/hooks/usePatientPortalConfig';
 import { PatientBilling } from '@/components/patient-experience/PatientBilling';
 import { PatientNotificationCenter } from '@/components/notifications/PatientNotificationCenter';
+import { ChiropracticSymptomChecker } from '@/components/patient-experience/ChiropracticSymptomChecker';
 import { 
   Calendar, 
   Clock, 
@@ -23,7 +24,8 @@ import {
   CreditCard,
   ChevronRight,
   X,
-  MapPin
+  MapPin,
+  Activity
 } from 'lucide-react';
 
 export const PatientDashboard: React.FC = () => {
@@ -133,6 +135,7 @@ export const PatientDashboard: React.FC = () => {
               <CardContent className="p-6 text-center">
                 <div className="w-8 h-8 mx-auto mb-3" style={{ color: config.customization.primaryColor }}>
                   {feature.icon === 'Calendar' && <Calendar className="w-8 h-8" />}
+                  {feature.icon === 'Activity' && <Activity className="w-8 h-8" />}
                   {feature.icon === 'FileText' && <FileText className="w-8 h-8" />}
                   {feature.icon === 'Heart' && <Heart className="w-8 h-8" />}
                   {feature.icon === 'CreditCard' && <CreditCard className="w-8 h-8" />}
@@ -169,6 +172,16 @@ export const PatientDashboard: React.FC = () => {
               </Button>
             </div>
             <PatientBilling />
+          </div>
+        ) : activeSection === 'symptom-checker' ? (
+          <div>
+            <ChiropracticSymptomChecker 
+              onComplete={(data) => {
+                console.log('Symptom assessment completed:', data);
+                setActiveSection('dashboard');
+              }}
+              onBack={() => setActiveSection('dashboard')}
+            />
           </div>
         ) : activeSection === 'notifications' ? (
           <div>
