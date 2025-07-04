@@ -381,7 +381,14 @@ export const PatientDashboard: React.FC = () => {
                     ></textarea>
                   </div>
                   
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                  <Button 
+                    className="w-full bg-blue-600 hover:bg-blue-700"
+                    onClick={() => {
+                      // For now, show a success message
+                      alert('Appointment request submitted! We will contact you within 24 hours to confirm your appointment.');
+                      setActiveSection('dashboard');
+                    }}
+                  >
                     Request Appointment
                   </Button>
                 </CardContent>
