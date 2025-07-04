@@ -87,7 +87,7 @@ export const ChiropracticDashboard = () => {
     <div className="space-y-6">
       {/* Financial Row */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="border-green-200">
+        <Card className="border-green-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/financial')}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Daily Collections</CardTitle>
             <DollarSign className="h-4 w-4 text-green-600" />
@@ -113,7 +113,7 @@ export const ChiropracticDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-green-200">
+        <Card className="border-green-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/analytics')}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Avg Visit Value</CardTitle>
             <TrendingUp className="h-4 w-4 text-green-600" />
@@ -129,7 +129,7 @@ export const ChiropracticDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-green-200">
+        <Card className="border-green-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/agents/claims')}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Days in A/R</CardTitle>
             <Clock className="h-4 w-4 text-green-600" />
@@ -159,7 +159,7 @@ export const ChiropracticDashboard = () => {
 
       {/* Clinical Quality Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="border-blue-200">
+        <Card className="border-blue-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/ehr')}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Target className="w-5 h-5 text-blue-600" />
@@ -182,7 +182,7 @@ export const ChiropracticDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-blue-200">
+        <Card className="border-blue-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/analytics')}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Gauge className="w-5 h-5 text-blue-600" />
@@ -213,7 +213,7 @@ export const ChiropracticDashboard = () => {
 
       {/* Operational & Patient Engagement Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="border-purple-200">
+        <Card className="border-purple-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/schedule')}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-sm">
               <Activity className="w-4 h-4 text-purple-600" />
@@ -229,7 +229,7 @@ export const ChiropracticDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-purple-200">
+        <Card className="border-purple-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/schedule')}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-sm">
               <Clock className="w-4 h-4 text-purple-600" />
@@ -245,7 +245,7 @@ export const ChiropracticDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-orange-200">
+        <Card className="border-orange-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/agents/marketing')}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-sm">
               <Users className="w-4 h-4 text-orange-600" />
