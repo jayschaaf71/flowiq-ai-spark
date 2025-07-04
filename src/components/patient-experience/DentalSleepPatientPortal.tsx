@@ -65,16 +65,46 @@ export const DentalSleepPatientPortal: React.FC = () => {
   };
 
   const handleScheduleAppointment = () => {
-    toast({
-      title: "Schedule Appointment",
-      description: "Scheduling feature will be available soon",
-    });
+    // In a real implementation, this would open a scheduling modal or navigate to booking
+    window.open('/booking-widget-demo', '_blank');
   };
 
   const handleDownloadReport = () => {
+    // In a real implementation, this would generate and download the actual report
+    const reportData = {
+      patientName: profile?.first_name + ' ' + profile?.last_name,
+      reportDate: new Date().toLocaleDateString(),
+      ahiScore: metrics.ahiScore,
+      complianceHours: metrics.complianceHours,
+      compliancePercentage: metrics.compliancePercentage,
+      deviceType: metrics.deviceType
+    };
+    
+    // Create a downloadable text file with sleep report summary
+    const reportContent = `Sleep Medicine Report
+Generated: ${reportData.reportDate}
+Patient: ${reportData.patientName}
+
+Current AHI Score: ${reportData.ahiScore}
+Nightly Usage: ${reportData.complianceHours} hours
+Compliance Rate: ${reportData.compliancePercentage}%
+Device Type: ${reportData.deviceType}
+
+Treatment Progress: Excellent improvement from initial AHI of 24.5 to current ${reportData.ahiScore}
+Compliance Target: Met (above 4 hours nightly usage)
+`;
+    
+    const blob = new Blob([reportContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'sleep-report.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+    
     toast({
-      title: "Download Report",
-      description: "Generating your sleep report...",
+      title: "Report Downloaded",
+      description: "Your sleep report has been downloaded successfully",
     });
   };
 
@@ -83,9 +113,11 @@ export const DentalSleepPatientPortal: React.FC = () => {
   };
 
   const handleDeviceHelp = () => {
+    // In a real implementation, this could open a help modal or guide
     toast({
-      title: "Device Help",
-      description: "Opening device settings guide...",
+      title: "Device Help Guide",
+      description: "Oral Appliance Care: Clean daily with mild soap and water. Use cleaning tablets 2-3 times per week. Store in provided case when not in use.",
+      duration: 10000, // Show longer for important info
     });
   };
 

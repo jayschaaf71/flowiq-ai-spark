@@ -62,6 +62,9 @@ import { DemoHub } from '@/pages/demo/DemoHub';
 import { DemoChiropractic } from '@/pages/demo/DemoChiropractic';
 import { DemoDental } from '@/pages/demo/DemoDental';
 import { DemoMedSpa } from '@/pages/demo/DemoMedSpa';
+import PatientNotifications from '@/pages/PatientNotifications';
+import PatientSettings from '@/pages/PatientSettings';
+import PatientMessages from '@/pages/PatientMessages';
 
 import { Toaster } from '@/components/ui/toaster';
 
@@ -92,17 +95,17 @@ function App() {
                 } />
                 <Route path="/patient/notifications" element={
                   <ProtectedRoute>
-                    <Notifications />
+                    <PatientNotifications />
                   </ProtectedRoute>
                 } />
                 <Route path="/patient/settings" element={
                   <ProtectedRoute>
-                    <Settings />
+                    <PatientSettings />
                   </ProtectedRoute>
                 } />
                 <Route path="/patient/messages" element={
                   <ProtectedRoute>
-                    <Notifications />
+                    <PatientMessages />
                   </ProtectedRoute>
                 } />
                 <Route path="/dashboard" element={
