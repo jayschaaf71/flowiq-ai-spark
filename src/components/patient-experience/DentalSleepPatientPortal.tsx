@@ -1,31 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from '@/components/ui/progress';
 import { useAuth } from '@/hooks/useAuth';
-import { useCurrentTenant } from '@/utils/enhancedTenantConfig';
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
+import { PatientAppointmentBooking } from '@/components/booking/PatientAppointmentBooking';
+import { PatientFileUpload } from '@/components/patient-experience/PatientFileUpload';
 import { 
-  Moon, 
   Calendar, 
+  Clock, 
+  TrendingUp, 
+  CheckCircle, 
   FileText, 
-  Activity,
-  Clock,
-  TrendingUp,
-  Gauge,
-  CheckCircle,
-  AlertCircle,
-  Download,
-  Heart,
-  Stethoscope,
-  Bell,
   MessageSquare,
+  Download,
   Settings,
+  Bell,
   LogOut,
-  User
+  Moon,
+  Gauge,
+  Activity,
+  Stethoscope,
+  Heart,
+  User,
+  Phone,
+  ArrowRight
 } from 'lucide-react';
 
 interface SleepMetrics {
@@ -39,9 +41,11 @@ interface SleepMetrics {
 
 export const DentalSleepPatientPortal: React.FC = () => {
   const { user, profile, signOut } = useAuth();
-  const { currentTenant } = useCurrentTenant();
   const { toast } = useToast();
   const navigate = useNavigate();
+  
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [showFileUpload, setShowFileUpload] = useState(false);
   
   const [metrics] = useState<SleepMetrics>({
     ahiScore: 8.2,
@@ -65,8 +69,7 @@ export const DentalSleepPatientPortal: React.FC = () => {
   };
 
   const handleScheduleAppointment = () => {
-    // In a real implementation, this would open a scheduling modal or navigate to booking
-    window.open('/booking-widget-demo', '_blank');
+    setShowBookingModal(true);
   };
 
   const handleDownloadReport = () => {
@@ -206,7 +209,7 @@ Compliance Target: Met (above 4 hours nightly usage)
             </div>
             <div>
               <h1 className="text-xl font-bold text-gray-900">
-                {currentTenant?.name || 'Dental Sleep IQ'} Patient Portal
+                Dental Sleep IQ Patient Portal
               </h1>
               <p className="text-sm text-gray-600">
                 Sleep Medicine Management System
@@ -545,65 +548,86 @@ Compliance Target: Met (above 4 hours nightly usage)
             </Card>
           </TabsContent>
 
-          <TabsContent value="education" className="space-y-6">
-            <Card className="bg-white/90 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Heart className="w-5 h-5 text-purple-600" />
-                  Sleep Health Education
-                </CardTitle>
-                <CardDescription>Resources to improve your sleep wellness</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-4 border border-purple-100 rounded-lg">
-                    <h4 className="font-medium mb-2">Oral Appliance Care</h4>
-                    <p className="text-sm text-gray-600 mb-3">Learn proper cleaning and maintenance techniques</p>
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={() => handleEducationLink("Oral Appliance Care Guide")}
-                    >
-                      View Guide
-                    </Button>
-                  </div>
-                  <div className="p-4 border border-purple-100 rounded-lg">
-                    <h4 className="font-medium mb-2">Sleep Hygiene Tips</h4>
-                    <p className="text-sm text-gray-600 mb-3">Improve your sleep environment and habits</p>
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={() => handleEducationLink("Sleep Hygiene Tips")}
-                    >
-                      Read More
-                    </Button>
-                  </div>
-                  <div className="p-4 border border-purple-100 rounded-lg">
-                    <h4 className="font-medium mb-2">Understanding Your AHI</h4>
-                    <p className="text-sm text-gray-600 mb-3">What your sleep study numbers mean</p>
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={() => handleEducationLink("Understanding Your AHI")}
-                    >
-                      Learn More
-                    </Button>
-                  </div>
-                  <div className="p-4 border border-purple-100 rounded-lg">
-                    <h4 className="font-medium mb-2">Exercise & Sleep</h4>
-                    <p className="text-sm text-gray-600 mb-3">How physical activity affects sleep quality</p>
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={() => handleEducationLink("Exercise & Sleep Tips")}
-                    >
-                      View Tips
-                    </Button>
-                  </div>
+            <TabsContent value="education" className="space-y-6">
+              {showFileUpload ? (
+                <div className="space-y-4">
+                  <Button 
+                    variant="ghost" 
+                    onClick={() => setShowFileUpload(false)}
+                    className="text-purple-600 hover:text-purple-700"
+                  >
+                    ← Back to Education
+                  </Button>
+                  <PatientFileUpload onFileUploaded={() => {
+                    toast({
+                      title: "File Uploaded",
+                      description: "Your document has been uploaded successfully.",
+                    });
+                  }} />
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              ) : (
+                <>
+                  <Card className="bg-white/90 backdrop-blur-sm">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Heart className="w-5 h-5 text-purple-600" />
+                        Sleep Health Education
+                      </CardTitle>
+                      <CardDescription>Resources to improve your sleep wellness</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="p-4 border border-purple-100 rounded-lg">
+                          <h4 className="font-medium mb-2">Oral Appliance Care</h4>
+                          <p className="text-sm text-gray-600 mb-3">Learn proper cleaning and maintenance techniques</p>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleEducationLink("Oral Appliance Care Guide")}
+                          >
+                            View Guide
+                          </Button>
+                        </div>
+                        <div className="p-4 border border-purple-100 rounded-lg">
+                          <h4 className="font-medium mb-2">Sleep Hygiene Tips</h4>
+                          <p className="text-sm text-gray-600 mb-3">Improve your sleep environment and habits</p>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleEducationLink("Sleep Hygiene Tips")}
+                          >
+                            Read More
+                          </Button>
+                        </div>
+                        <div className="p-4 border border-purple-100 rounded-lg">
+                          <h4 className="font-medium mb-2">Understanding Your AHI</h4>
+                          <p className="text-sm text-gray-600 mb-3">What your sleep study numbers mean</p>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleEducationLink("Understanding Your AHI")}
+                          >
+                            Learn More
+                          </Button>
+                        </div>
+                        <div className="p-4 border border-purple-100 rounded-lg">
+                          <h4 className="font-medium mb-2">Upload Your Documents</h4>
+                          <p className="text-sm text-gray-600 mb-3">Share medical records and insurance documents</p>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => setShowFileUpload(true)}
+                          >
+                            <FileText className="w-4 h-4 mr-2" />
+                            Upload Files
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </>
+              )}
+            </TabsContent>
 
           <TabsContent value="messages" className="space-y-6">
             <Card className="bg-white/90 backdrop-blur-sm">
@@ -644,6 +668,12 @@ Compliance Target: Met (above 4 hours nightly usage)
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Appointment Booking Modal */}
+      <PatientAppointmentBooking 
+        open={showBookingModal} 
+        onOpenChange={setShowBookingModal} 
+      />
     </div>
   );
 };
