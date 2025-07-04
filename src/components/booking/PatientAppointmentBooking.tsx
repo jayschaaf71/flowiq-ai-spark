@@ -52,9 +52,9 @@ export const PatientAppointmentBooking: React.FC<PatientAppointmentBookingProps>
   // Mock providers - replace with real data
   useEffect(() => {
     setProviders([
-      { id: '1', name: 'Dr. Sarah Wilson', specialty: 'Sleep Medicine' },
-      { id: '2', name: 'Dr. Michael Chen', specialty: 'Pulmonology' },
-      { id: '3', name: 'Care Coordinator', specialty: 'Patient Care' }
+      { id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', name: 'Dr. Sarah Wilson', specialty: 'Sleep Medicine' },
+      { id: 'b2c3d4e5-f6g7-8901-bcde-f23456789012', name: 'Dr. Michael Chen', specialty: 'Pulmonology' },
+      { id: 'c3d4e5f6-g7h8-9012-cdef-345678901234', name: 'Care Coordinator', specialty: 'Patient Care' }
     ]);
   }, []);
 
