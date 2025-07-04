@@ -10,6 +10,7 @@ import { PatientBilling } from '@/components/patient-experience/PatientBilling';
 import { PatientNotificationCenter } from '@/components/notifications/PatientNotificationCenter';
 import { ChiropracticSymptomChecker } from '@/components/patient-experience/ChiropracticSymptomChecker';
 import { CommunicationCenter } from '@/components/patient-experience/CommunicationCenter';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Calendar, 
@@ -686,23 +687,99 @@ export const PatientDashboard: React.FC = () => {
                   </Badge>
                 </div>
 
-                <div 
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
-                  onClick={() => {
-                    toast({
-                      title: "Medications Details",
-                      description: "Loading your active medications and prescription history.",
-                    });
-                  }}
-                >
-                  <div>
-                    <p className="font-medium text-gray-900">Active Medications</p>
-                    <p className="text-sm text-gray-600">2 prescriptions</p>
-                  </div>
-                  <Badge variant="outline" className="cursor-pointer">
-                    View Details
-                  </Badge>
-                </div>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+                      <div>
+                        <p className="font-medium text-gray-900">Active Medications</p>
+                        <p className="text-sm text-gray-600">2 prescriptions</p>
+                      </div>
+                      <Badge variant="outline" className="cursor-pointer">
+                        View Details
+                      </Badge>
+                    </div>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle className="flex items-center gap-2">
+                        <Heart className="w-5 h-5 text-red-600" />
+                        Active Medications
+                      </DialogTitle>
+                      <DialogDescription>
+                        Your current prescriptions and medication history
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div className="border rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="font-semibold text-lg">Lisinopril 10mg</h4>
+                          <Badge className="bg-green-100 text-green-800">Active</Badge>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <p className="font-medium text-gray-700">Prescribed by:</p>
+                            <p className="text-gray-600">Dr. Sarah Smith</p>
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-700">Date prescribed:</p>
+                            <p className="text-gray-600">February 15, 2024</p>
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-700">Dosage:</p>
+                            <p className="text-gray-600">Once daily</p>
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-700">Refills remaining:</p>
+                            <p className="text-gray-600">3 refills</p>
+                          </div>
+                        </div>
+                        <div className="mt-3">
+                          <p className="font-medium text-gray-700">Instructions:</p>
+                          <p className="text-gray-600">Take with food in the morning. Monitor blood pressure weekly.</p>
+                        </div>
+                      </div>
+                      
+                      <div className="border rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="font-semibold text-lg">Metformin 500mg</h4>
+                          <Badge className="bg-green-100 text-green-800">Active</Badge>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <p className="font-medium text-gray-700">Prescribed by:</p>
+                            <p className="text-gray-600">Dr. Michael Chen</p>
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-700">Date prescribed:</p>
+                            <p className="text-gray-600">January 20, 2024</p>
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-700">Dosage:</p>
+                            <p className="text-gray-600">Twice daily with meals</p>
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-700">Refills remaining:</p>
+                            <p className="text-gray-600">2 refills</p>
+                          </div>
+                        </div>
+                        <div className="mt-3">
+                          <p className="font-medium text-gray-700">Instructions:</p>
+                          <p className="text-gray-600">Take with breakfast and dinner. Monitor blood sugar levels.</p>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-blue-50 p-4 rounded-lg">
+                        <h4 className="font-semibold text-blue-800 mb-2">Important Reminders</h4>
+                        <ul className="text-sm text-blue-700 space-y-1">
+                          <li>• Always take medications as prescribed</li>
+                          <li>• Contact your provider before stopping any medication</li>
+                          <li>• Report any side effects immediately</li>
+                          <li>• Keep track of refill dates to avoid running out</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
 
                 <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-lg">
                   <div>
