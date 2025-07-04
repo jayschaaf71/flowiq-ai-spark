@@ -3076,6 +3076,56 @@ export type Database = {
           },
         ]
       }
+      notification_preferences: {
+        Row: {
+          appointment_reminders: boolean
+          billing_notifications: boolean
+          created_at: string
+          educational_content: boolean
+          email_enabled: boolean
+          id: string
+          push_enabled: boolean
+          sms_enabled: boolean
+          treatment_updates: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          appointment_reminders?: boolean
+          billing_notifications?: boolean
+          created_at?: string
+          educational_content?: boolean
+          email_enabled?: boolean
+          id?: string
+          push_enabled?: boolean
+          sms_enabled?: boolean
+          treatment_updates?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          appointment_reminders?: boolean
+          billing_notifications?: boolean
+          created_at?: string
+          educational_content?: boolean
+          email_enabled?: boolean
+          id?: string
+          push_enabled?: boolean
+          sms_enabled?: boolean
+          treatment_updates?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notification_queue: {
         Row: {
           appointment_id: string | null
@@ -6234,6 +6284,50 @@ export type Database = {
             columns: ["provider_id"]
             isOneToOne: false
             referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_2fa: {
+        Row: {
+          backup_codes: string[] | null
+          created_at: string
+          enabled: boolean
+          enabled_at: string | null
+          id: string
+          last_used_at: string | null
+          secret: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          backup_codes?: string[] | null
+          created_at?: string
+          enabled?: boolean
+          enabled_at?: string | null
+          id?: string
+          last_used_at?: string | null
+          secret: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          backup_codes?: string[] | null
+          created_at?: string
+          enabled?: boolean
+          enabled_at?: string | null
+          id?: string
+          last_used_at?: string | null
+          secret?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_2fa_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
