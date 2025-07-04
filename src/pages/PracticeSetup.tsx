@@ -13,6 +13,7 @@ import { AgentSelectionStep } from "@/components/setup/AgentSelectionStep";
 import { IntegrationStep } from "@/components/setup/IntegrationStep";
 import { ReviewStep } from "@/components/setup/ReviewStep";
 import { usePracticeSetupPersistence } from "@/hooks/usePracticeSetupPersistence";
+import { supabase } from "@/integrations/supabase/client";
 
 export type PracticeType = 'dental' | 'orthodontics' | 'oral-surgery' | 'dental-sleep' | 'chiropractic' | 'physical-therapy' | 'veterinary' | 'med-spa' | 'appointment-iq';
 
@@ -96,8 +97,36 @@ const PracticeSetup = () => {
     }
   };
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     console.log('Setup completed with data:', setupData);
+    
+    // Update user profile with selected practice type
+    if (setupData.practiceType) {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const specialtyMapping = {
+            'dental-sleep': 'Dental Sleep Medicine',
+            'dental': 'Dentistry', 
+            'orthodontics': 'Orthodontics',
+            'oral-surgery': 'Oral Surgery',
+            'chiropractic': 'Chiropractic Care',
+            'physical-therapy': 'Physical Therapy',
+            'veterinary': 'Veterinary Medicine',
+            'med-spa': 'Medical Spa',
+            'appointment-iq': 'Appointment Scheduling'
+          };
+          
+          await supabase
+            .from('profiles')
+            .update({ specialty: specialtyMapping[setupData.practiceType] || setupData.practiceType })
+            .eq('id', user.id);
+        }
+      } catch (error) {
+        console.error('Failed to update user profile:', error);
+      }
+    }
+    
     // Clear saved data BEFORE setting completion to prevent restoration on redirect
     clearSavedData();
     setIsCompleted(true);
