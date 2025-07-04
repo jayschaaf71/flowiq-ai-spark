@@ -269,10 +269,10 @@ const Index = () => {
               <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-green-600 rounded-lg flex items-center justify-center mr-3">
                 <Zap className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold">{currentTenant?.brand_name || 'FlowIQ'}</span>
+              <span className="text-xl font-bold">FlowIQ</span>
             </div>
             <p className="text-gray-400 mb-6">
-              {currentTenant?.tagline || 'The AI Business Operating System'}
+              The AI Business Operating System
             </p>
             <div className="flex justify-center space-x-6 text-sm text-gray-400">
               <span>© 2024 FlowIQ. All rights reserved.</span>
