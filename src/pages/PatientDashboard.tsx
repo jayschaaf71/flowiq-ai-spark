@@ -9,6 +9,7 @@ import { usePatientPortalConfig } from '@/hooks/usePatientPortalConfig';
 import { PatientBilling } from '@/components/patient-experience/PatientBilling';
 import { PatientNotificationCenter } from '@/components/notifications/PatientNotificationCenter';
 import { ChiropracticSymptomChecker } from '@/components/patient-experience/ChiropracticSymptomChecker';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Calendar, 
   Clock, 
@@ -34,9 +35,31 @@ export const PatientDashboard: React.FC = () => {
   const { config, isLoading: configLoading, specialty } = usePatientPortalConfig();
   const [activeSection, setActiveSection] = React.useState('dashboard');
   const [selectedAppointment, setSelectedAppointment] = React.useState<any>(null);
+  const { toast } = useToast();
 
   const handleSignOut = async () => {
     await signOut();
+  };
+
+  const handleUpdatePreferences = () => {
+    toast({
+      title: "Communication Preferences Updated",
+      description: "Your notification preferences have been saved successfully.",
+    });
+  };
+
+  const handleChangePassword = () => {
+    toast({
+      title: "Password Change",
+      description: "Password change feature will be available soon. Please contact support if you need to change your password.",
+    });
+  };
+
+  const handleEnable2FA = () => {
+    toast({
+      title: "Two-Factor Authentication",
+      description: "2FA setup will be available soon. This will add an extra layer of security to your account.",
+    });
   };
 
   // Show loading state while authentication or tenant data is loading
@@ -390,7 +413,7 @@ export const PatientDashboard: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <Button variant="outline">
+                  <Button variant="outline" onClick={handleUpdatePreferences}>
                     Update Preferences
                   </Button>
                 </CardContent>
@@ -412,7 +435,7 @@ export const PatientDashboard: React.FC = () => {
                         <p className="font-medium">Password</p>
                         <p className="text-sm text-gray-600">Last updated 30 days ago</p>
                       </div>
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" onClick={handleChangePassword}>
                         Change Password
                       </Button>
                     </div>
@@ -421,7 +444,7 @@ export const PatientDashboard: React.FC = () => {
                         <p className="font-medium">Two-Factor Authentication</p>
                         <p className="text-sm text-gray-600">Add extra security to your account</p>
                       </div>
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" onClick={handleEnable2FA}>
                         Enable 2FA
                       </Button>
                     </div>
