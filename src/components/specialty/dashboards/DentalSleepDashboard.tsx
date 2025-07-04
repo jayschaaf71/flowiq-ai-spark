@@ -184,15 +184,35 @@ export const DentalSleepDashboard = () => {
             <CardDescription>Specialized workflows</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button className="w-full justify-start bg-blue-600 hover:bg-blue-700" onClick={() => navigate('/schedule?type=sleep-consult')}>
+            <Button 
+              className="w-full justify-start bg-blue-600 hover:bg-blue-700" 
+              onClick={() => {
+                console.log("Navigating to /schedule");
+                navigate('/schedule');
+              }}
+            >
               <Calendar className="w-4 h-4 mr-2" />
               Schedule Sleep Consultation
             </Button>
-            <Button variant="outline" className="w-full justify-start border-blue-200 hover:bg-blue-50" onClick={() => navigate('/ehr?template=sleep-study')}>
+            <Button 
+              variant="outline" 
+              className="w-full justify-start border-blue-200 hover:bg-blue-50" 
+              onClick={() => {
+                console.log("Navigating to /ehr");
+                navigate('/ehr');
+              }}
+            >
               <Activity className="w-4 h-4 mr-2" />
               Review Sleep Study
             </Button>
-            <Button variant="outline" className="w-full justify-start border-blue-200 hover:bg-blue-50" onClick={() => navigate('/agents/claims?type=medical')}>
+            <Button 
+              variant="outline" 
+              className="w-full justify-start border-blue-200 hover:bg-blue-50" 
+              onClick={() => {
+                console.log("Navigating to /agents/claims");
+                navigate('/agents/claims');
+              }}
+            >
               <DollarSign className="w-4 h-4 mr-2" />
               Medical Claims Processing
             </Button>
