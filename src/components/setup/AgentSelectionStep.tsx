@@ -216,7 +216,7 @@ export const AgentSelectionStep = ({ setupData, updateSetupData }: AgentSelectio
   return (
     <div>
       <div className="mb-6">
-        <h2 className="text-2xl font-bold mb-2">Choose your AI agents</h2>
+        <h2 className="text-2xl font-bold mb-2">Choose your AI agents ({availableAgents.length})</h2>
         <p className="text-gray-600">
           Select the AI agents you want to activate. You can always add more later.
         </p>
