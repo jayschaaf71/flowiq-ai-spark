@@ -12,12 +12,17 @@ export const usePracticeSetupPersistence = (
 ) => {
   // Load data from localStorage on mount
   useEffect(() => {
+    console.log('Loading saved practice setup data...');
     const savedData = localStorage.getItem(STORAGE_KEY);
     const savedStep = localStorage.getItem(STEP_STORAGE_KEY);
+    
+    console.log('Saved data:', savedData);
+    console.log('Saved step:', savedStep);
     
     if (savedData) {
       try {
         const parsedData = JSON.parse(savedData) as SetupData;
+        console.log('Restoring setup data:', parsedData);
         setSetupData(parsedData);
       } catch (error) {
         console.error('Failed to parse saved setup data:', error);
@@ -28,6 +33,7 @@ export const usePracticeSetupPersistence = (
     if (savedStep) {
       try {
         const parsedStep = parseInt(savedStep, 10);
+        console.log('Restoring step:', parsedStep);
         if (parsedStep >= 1 && parsedStep <= 5) {
           setCurrentStep(parsedStep);
         }
@@ -36,7 +42,7 @@ export const usePracticeSetupPersistence = (
         localStorage.removeItem(STEP_STORAGE_KEY);
       }
     }
-  }, [setSetupData, setCurrentStep]);
+  }, []);
 
   // Save data to localStorage whenever setupData changes
   useEffect(() => {
