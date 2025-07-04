@@ -12,7 +12,16 @@ import {
   Receipt, 
   MessageSquare, 
   Stethoscope,
-  CheckCircle
+  CheckCircle,
+  Package,
+  Eye,
+  Shield,
+  GraduationCap,
+  UserPlus,
+  TrendingUp,
+  Settings,
+  FileText,
+  BarChart3
 } from "lucide-react";
 import { SetupData } from "@/pages/PracticeSetup";
 
@@ -42,30 +51,12 @@ const availableAgents = [
   },
   {
     id: 'remind-iq',
-    name: 'Reminders iQ',
+    name: 'Remind iQ',
     description: 'Automated appointment reminders and follow-up communications',
     icon: Bell,
     benefits: ['Reduces no-shows by 40%', 'Customizable reminder templates', 'Multi-channel messaging'],
     recommended: true,
     category: 'Essential'
-  },
-  {
-    id: 'billing-iq',
-    name: 'Billing iQ',
-    description: 'Insurance verification, invoicing, and payment processing',
-    icon: CreditCard,
-    benefits: ['Real-time insurance verification', 'Automated invoicing', 'Payment plan management'],
-    recommended: false,
-    category: 'Operations'
-  },
-  {
-    id: 'claims-iq',
-    name: 'Claims iQ',
-    description: 'Insurance claims submission, tracking, and denial management',
-    icon: Receipt,
-    benefits: ['Faster claim processing', 'Denial tracking & resubmission', 'Revenue optimization'],
-    recommended: false,
-    category: 'Operations'
   },
   {
     id: 'assist-iq',
@@ -77,6 +68,33 @@ const availableAgents = [
     category: 'Support'
   },
   {
+    id: 'billing-iq',
+    name: 'Billing iQ',
+    description: 'Insurance verification, invoicing, and payment processing',
+    icon: CreditCard,
+    benefits: ['Real-time insurance verification', 'Automated invoicing', 'Payment plan management'],
+    recommended: false,
+    category: 'Financial'
+  },
+  {
+    id: 'claims-iq',
+    name: 'Claims iQ',
+    description: 'Insurance claims submission, tracking, and denial management',
+    icon: Receipt,
+    benefits: ['Faster claim processing', 'Denial tracking & resubmission', 'Revenue optimization'],
+    recommended: false,
+    category: 'Financial'
+  },
+  {
+    id: 'payments-iq',
+    name: 'Payments iQ',
+    description: 'Payment collection, processing, and automated billing workflows',
+    icon: TrendingUp,
+    benefits: ['Automated payment collection', 'Payment plan management', 'Revenue optimization'],
+    recommended: false,
+    category: 'Financial'
+  },
+  {
     id: 'scribe-iq',
     name: 'Scribe iQ',
     description: 'AI medical scribe for appointment notes and documentation',
@@ -84,13 +102,94 @@ const availableAgents = [
     benefits: ['Automated documentation', 'Voice-to-text transcription', 'Template generation'],
     recommended: false,
     category: 'Clinical'
+  },
+  {
+    id: 'ehr-iq',
+    name: 'EHR iQ',
+    description: 'Electronic health records integration and management',
+    icon: FileText,
+    benefits: ['EHR integration', 'Patient data synchronization', 'Clinical workflow automation'],
+    recommended: false,
+    category: 'Clinical'
+  },
+  {
+    id: 'inventory-iq',
+    name: 'Inventory iQ',
+    description: 'Smart inventory management and automated ordering',
+    icon: Package,
+    benefits: ['Automated reordering', 'Vendor management', 'Cost optimization', 'Stock tracking'],
+    recommended: false,
+    category: 'Operations'
+  },
+  {
+    id: 'insight-iq',
+    name: 'Insight iQ',
+    description: 'Business intelligence and practice analytics',
+    icon: BarChart3,
+    benefits: ['Performance analytics', 'Predictive insights', 'Custom reporting', 'Data visualization'],
+    recommended: false,
+    category: 'Analytics'
+  },
+  {
+    id: 'ops-iq',
+    name: 'Ops iQ',
+    description: 'Operational workflow automation and system monitoring',
+    icon: Settings,
+    benefits: ['Workflow automation', 'System monitoring', 'Process optimization', 'Performance tracking'],
+    recommended: false,
+    category: 'Operations'
+  },
+  {
+    id: 'auth-iq',
+    name: 'Auth iQ',
+    description: 'Advanced authentication and security management',
+    icon: Shield,
+    benefits: ['Multi-factor authentication', 'Security monitoring', 'Access control', 'Compliance tracking'],
+    recommended: false,
+    category: 'Security'
+  },
+  {
+    id: 'education-iq',
+    name: 'Education iQ',
+    description: 'Patient education and engagement automation',
+    icon: GraduationCap,
+    benefits: ['Automated patient education', 'Engagement tracking', 'Custom content delivery'],
+    recommended: false,
+    category: 'Patient Experience'
+  },
+  {
+    id: 'marketing-iq',
+    name: 'Marketing iQ',
+    description: 'Practice marketing automation and patient acquisition',
+    icon: Eye,
+    benefits: ['Lead generation', 'Campaign automation', 'Social media management', 'Review management'],
+    recommended: false,
+    category: 'Growth'
+  },
+  {
+    id: 'referral-iq',
+    name: 'Referral iQ',
+    description: 'Referral management and physician relationship automation',
+    icon: UserPlus,
+    benefits: ['Referral tracking', 'Physician outreach', 'Relationship management', 'Communication automation'],
+    recommended: false,
+    category: 'Growth'
+  },
+  {
+    id: 'followup-iq',
+    name: 'Followup iQ',
+    description: 'Automated patient follow-up and care coordination',
+    icon: Bell,
+    benefits: ['Post-visit follow-up', 'Care plan reminders', 'Treatment adherence tracking'],
+    recommended: false,
+    category: 'Patient Experience'
   }
 ];
 
 export const AgentSelectionStep = ({ setupData, updateSetupData }: AgentSelectionStepProps) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   
-  const categories = ['all', 'Essential', 'Operations', 'Support', 'Clinical'];
+  const categories = ['all', 'Essential', 'Support', 'Financial', 'Clinical', 'Operations', 'Analytics', 'Security', 'Patient Experience', 'Growth'];
 
   const handleAgentToggle = (agentId: string) => {
     const currentAgents = setupData.selectedAgents;
