@@ -63,7 +63,24 @@ import { DemoChiropractic } from '@/pages/demo/DemoChiropractic';
 import { DemoDental } from '@/pages/demo/DemoDental';
 import { DemoMedSpa } from '@/pages/demo/DemoMedSpa';
 
+import { Toaster } from '@/components/ui/toaster';
+import { useLocation } from 'react-router-dom';
+
 const queryClient = new QueryClient();
+
+// Conditional Dashboard Provider to exclude certain routes from having notifications
+const ConditionalDashboardProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const location = useLocation();
+  
+  // Routes that should not have the dashboard context (and thus no notifications)
+  const excludedRoutes = ['/practice-setup', '/setup'];
+  
+  if (excludedRoutes.includes(location.pathname)) {
+    return <>{children}</>;
+  }
+  
+  return <DashboardProvider>{children}</DashboardProvider>;
+};
 
 function App() {
   return (
@@ -71,7 +88,7 @@ function App() {
       <AuthProvider>
         <QueryClientProvider client={queryClient}>
           <SpecialtyProvider>
-            <DashboardProvider>
+            <ConditionalDashboardProvider>
               <AnalyticsProvider>
               <Routes>
                 <Route path="/" element={<Index />} />
@@ -365,8 +382,9 @@ function App() {
                 {/* Fallback route */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              <Toaster />
               </AnalyticsProvider>
-            </DashboardProvider>
+            </ConditionalDashboardProvider>
           </SpecialtyProvider>
         </QueryClientProvider>
       </AuthProvider>
