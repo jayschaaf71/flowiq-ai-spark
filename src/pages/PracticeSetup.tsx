@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { SetupLayout } from "@/components/SetupLayout";
 import { SetupPageHeader } from "@/components/setup/SetupPageHeader";
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,7 @@ export interface SetupData {
 }
 
 const PracticeSetup = () => {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [isCompleted, setIsCompleted] = useState(false);
   const [setupData, setSetupData] = useState<SetupData>({
@@ -166,7 +168,13 @@ const PracticeSetup = () => {
             </CardHeader>
             <CardContent>
               <Button 
-                onClick={() => window.location.href = '/'}
+                onClick={() => {
+                  // Force clear any remaining saved data
+                  localStorage.removeItem('practice-setup-data');
+                  localStorage.removeItem('practice-setup-step');
+                  // Use React Router navigation instead of window.location
+                  navigate('/dashboard');
+                }}
                 className="w-full bg-gradient-to-r from-blue-500 to-purple-500"
               >
                 Go to Dashboard
