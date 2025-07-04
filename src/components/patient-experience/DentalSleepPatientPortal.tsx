@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/useAuth';
 import { useCurrentTenant } from '@/utils/enhancedTenantConfig';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 import { 
   Moon, 
   Calendar, 
@@ -40,6 +41,7 @@ export const DentalSleepPatientPortal: React.FC = () => {
   const { user, profile, signOut } = useAuth();
   const { currentTenant } = useCurrentTenant();
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   const [metrics] = useState<SleepMetrics>({
     ahiScore: 8.2,
@@ -52,6 +54,14 @@ export const DentalSleepPatientPortal: React.FC = () => {
 
   const handleSignOut = async () => {
     await signOut();
+  };
+
+  const handleNotifications = () => {
+    navigate('/notifications');
+  };
+
+  const handleSettings = () => {
+    navigate('/settings');
   };
 
   const upcomingAppointments = [
@@ -126,11 +136,11 @@ export const DentalSleepPatientPortal: React.FC = () => {
             </div>
           </div>
           <div className="flex items-center space-x-3">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={handleNotifications}>
               <Bell className="w-4 h-4 mr-2" />
               Notifications
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={handleSettings}>
               <Settings className="w-4 h-4 mr-2" />
               Settings
             </Button>
