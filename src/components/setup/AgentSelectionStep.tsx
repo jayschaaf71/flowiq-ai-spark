@@ -189,7 +189,16 @@ const availableAgents = [
 export const AgentSelectionStep = ({ setupData, updateSetupData }: AgentSelectionStepProps) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   
-  const categories = ['all', 'Essential', 'Support', 'Financial', 'Clinical', 'Operations', 'Analytics', 'Security', 'Patient Experience', 'Growth'];
+  // Get all unique categories from agents, plus 'all'
+  const uniqueCategories = [...new Set(availableAgents.map(agent => agent.category))];
+  const categories = ['all', ...uniqueCategories.sort()];
+
+  console.log('Available categories:', categories);
+  console.log('Agents by category:', uniqueCategories.map(cat => ({
+    category: cat,
+    count: availableAgents.filter(a => a.category === cat).length,
+    agents: availableAgents.filter(a => a.category === cat).map(a => a.name)
+  })));
 
   const handleAgentToggle = (agentId: string) => {
     const currentAgents = setupData.selectedAgents;
@@ -216,10 +225,17 @@ export const AgentSelectionStep = ({ setupData, updateSetupData }: AgentSelectio
   return (
     <div>
       <div className="mb-6">
-        <h2 className="text-2xl font-bold mb-2">Choose your AI agents ({availableAgents.length})</h2>
+        <h2 className="text-2xl font-bold mb-2">
+          Choose your AI agents ({filteredAgents.length} of {availableAgents.length} shown)
+        </h2>
         <p className="text-gray-600">
           Select the AI agents you want to activate. You can always add more later.
         </p>
+        {selectedCategory !== 'all' && (
+          <p className="text-sm text-blue-600 mt-1">
+            Filtering by: {selectedCategory} ({filteredAgents.length} agents)
+          </p>
+        )}
       </div>
 
       {/* Quick Actions */}
