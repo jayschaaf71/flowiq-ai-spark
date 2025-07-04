@@ -23,6 +23,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { BillingCommunicationService } from '@/services/billingCommunicationService';
+import { useBillingInvoices } from '@/hooks/useBillingInvoices';
 
 interface Invoice {
   id: string;
@@ -44,9 +45,9 @@ interface PaymentHistory {
 }
 
 export const PatientBilling: React.FC = () => {
-  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const { invoices, loading: invoicesLoading } = useBillingInvoices();
   const [paymentHistory, setPaymentHistory] = useState<PaymentHistory[]>([]);
-  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+  const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
   const [paymentMethod, setPaymentMethod] = useState('card');
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentForm, setPaymentForm] = useState({
@@ -58,38 +59,8 @@ export const PatientBilling: React.FC = () => {
   });
   const { toast } = useToast();
 
-  // Mock data - in production this would come from your API
+  // Mock payment history - this would also be replaced with real data
   useEffect(() => {
-    setInvoices([
-      {
-        id: '1',
-        amount: 250.00,
-        dueDate: '2024-01-20',
-        description: 'Regular Checkup - Dr. Smith',
-        status: 'pending',
-        appointmentDate: '2024-01-15',
-        provider: 'Dr. Sarah Smith'
-      },
-      {
-        id: '2',
-        amount: 125.00,
-        dueDate: '2024-01-18',
-        description: 'Lab Work - Blood Panel',
-        status: 'overdue',
-        appointmentDate: '2024-01-10',
-        provider: 'Dr. Mike Chen'
-      },
-      {
-        id: '3',
-        amount: 450.00,
-        dueDate: '2024-02-01',
-        description: 'Specialist Consultation',
-        status: 'pending',
-        appointmentDate: '2024-01-25',
-        provider: 'Dr. Lisa Johnson'
-      }
-    ]);
-
     setPaymentHistory([
       {
         id: '1',
