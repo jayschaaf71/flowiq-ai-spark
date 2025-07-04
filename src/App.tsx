@@ -100,6 +100,11 @@ function App() {
                     <Settings />
                   </ProtectedRoute>
                 } />
+                <Route path="/patient/messages" element={
+                  <ProtectedRoute>
+                    <Notifications />
+                  </ProtectedRoute>
+                } />
                 <Route path="/dashboard" element={
                   <ProtectedRoute requiredRole="staff">
                     <TenantWrapper>

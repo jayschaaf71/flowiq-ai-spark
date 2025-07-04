@@ -64,6 +64,52 @@ export const DentalSleepPatientPortal: React.FC = () => {
     navigate('/patient/settings');
   };
 
+  const handleScheduleAppointment = () => {
+    toast({
+      title: "Schedule Appointment",
+      description: "Scheduling feature will be available soon",
+    });
+  };
+
+  const handleDownloadReport = () => {
+    toast({
+      title: "Download Report",
+      description: "Generating your sleep report...",
+    });
+  };
+
+  const handleMessageCareTeam = () => {
+    navigate('/patient/messages');
+  };
+
+  const handleDeviceHelp = () => {
+    toast({
+      title: "Device Help",
+      description: "Opening device settings guide...",
+    });
+  };
+
+  const handleReschedule = (appointmentId: string) => {
+    toast({
+      title: "Reschedule Appointment",
+      description: "Appointment rescheduling will be available soon",
+    });
+  };
+
+  const handleEducationLink = (topic: string) => {
+    toast({
+      title: topic,
+      description: "Educational content will be available soon",
+    });
+  };
+
+  const handleSendMessage = () => {
+    toast({
+      title: "New Message",
+      description: "Messaging feature will be available soon",
+    });
+  };
+
   const upcomingAppointments = [
     {
       id: '1',
@@ -300,19 +346,34 @@ export const DentalSleepPatientPortal: React.FC = () => {
                   <CardDescription>Common tasks and requests</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <Button className="w-full justify-start bg-purple-600 hover:bg-purple-700">
+                  <Button 
+                    className="w-full justify-start bg-purple-600 hover:bg-purple-700"
+                    onClick={handleScheduleAppointment}
+                  >
                     <Calendar className="w-4 h-4 mr-2" />
                     Schedule Follow-up Visit
                   </Button>
-                  <Button variant="outline" className="w-full justify-start border-purple-200 hover:bg-purple-50">
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start border-purple-200 hover:bg-purple-50"
+                    onClick={handleDownloadReport}
+                  >
                     <Download className="w-4 h-4 mr-2" />
                     Download Sleep Report
                   </Button>
-                  <Button variant="outline" className="w-full justify-start border-purple-200 hover:bg-purple-50">
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start border-purple-200 hover:bg-purple-50"
+                    onClick={handleMessageCareTeam}
+                  >
                     <MessageSquare className="w-4 h-4 mr-2" />
                     Message Care Team
                   </Button>
-                  <Button variant="outline" className="w-full justify-start border-purple-200 hover:bg-purple-50">
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start border-purple-200 hover:bg-purple-50"
+                    onClick={handleDeviceHelp}
+                  >
                     <Settings className="w-4 h-4 mr-2" />
                     Device Settings Help
                   </Button>
@@ -380,7 +441,11 @@ export const DentalSleepPatientPortal: React.FC = () => {
                         >
                           {apt.status}
                         </Badge>
-                        <Button size="sm" variant="outline">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleReschedule(apt.id)}
+                        >
                           Reschedule
                         </Button>
                       </div>
@@ -462,22 +527,46 @@ export const DentalSleepPatientPortal: React.FC = () => {
                   <div className="p-4 border border-purple-100 rounded-lg">
                     <h4 className="font-medium mb-2">Oral Appliance Care</h4>
                     <p className="text-sm text-gray-600 mb-3">Learn proper cleaning and maintenance techniques</p>
-                    <Button size="sm" variant="outline">View Guide</Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => handleEducationLink("Oral Appliance Care Guide")}
+                    >
+                      View Guide
+                    </Button>
                   </div>
                   <div className="p-4 border border-purple-100 rounded-lg">
                     <h4 className="font-medium mb-2">Sleep Hygiene Tips</h4>
                     <p className="text-sm text-gray-600 mb-3">Improve your sleep environment and habits</p>
-                    <Button size="sm" variant="outline">Read More</Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => handleEducationLink("Sleep Hygiene Tips")}
+                    >
+                      Read More
+                    </Button>
                   </div>
                   <div className="p-4 border border-purple-100 rounded-lg">
                     <h4 className="font-medium mb-2">Understanding Your AHI</h4>
                     <p className="text-sm text-gray-600 mb-3">What your sleep study numbers mean</p>
-                    <Button size="sm" variant="outline">Learn More</Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => handleEducationLink("Understanding Your AHI")}
+                    >
+                      Learn More
+                    </Button>
                   </div>
                   <div className="p-4 border border-purple-100 rounded-lg">
                     <h4 className="font-medium mb-2">Exercise & Sleep</h4>
                     <p className="text-sm text-gray-600 mb-3">How physical activity affects sleep quality</p>
-                    <Button size="sm" variant="outline">View Tips</Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => handleEducationLink("Exercise & Sleep Tips")}
+                    >
+                      View Tips
+                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -509,7 +598,10 @@ export const DentalSleepPatientPortal: React.FC = () => {
                   </div>
                   
                   <div className="text-center">
-                    <Button className="bg-purple-600 hover:bg-purple-700">
+                    <Button 
+                      className="bg-purple-600 hover:bg-purple-700"
+                      onClick={handleSendMessage}
+                    >
                       <MessageSquare className="w-4 h-4 mr-2" />
                       Send New Message
                     </Button>
