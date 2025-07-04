@@ -98,10 +98,10 @@ export const PatientDashboard: React.FC = () => {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">
-                  Welcome to {currentTenant?.name || 'FlowIQ'} Patient Portal{profile?.first_name ? `, ${profile.first_name}` : ''}!
+                  {currentTenant?.name || 'FlowIQ'} Patient Portal
                 </h1>
                 <p className="text-sm text-gray-600">
-                  {currentTenant?.tagline || 'Your healthcare journey continues'}
+                  {currentTenant?.tagline || 'Your healthcare management system'}
                 </p>
               </div>
             </div>
