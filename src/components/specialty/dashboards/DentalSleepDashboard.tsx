@@ -55,7 +55,13 @@ export const DentalSleepDashboard = () => {
     <div className="space-y-6">
       {/* Financial Row */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="border-blue-200">
+        <Card 
+          className="border-blue-200 cursor-pointer hover:shadow-lg transition-shadow duration-200 hover:border-blue-400"
+          onClick={() => {
+            console.log("Device Deliveries card clicked - navigating to /agents/inventory");
+            navigate('/agents/inventory');
+          }}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Device Deliveries MTD</CardTitle>
             <Target className="h-4 w-4 text-blue-600" />
@@ -74,7 +80,13 @@ export const DentalSleepDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-blue-200">
+        <Card 
+          className="border-blue-200 cursor-pointer hover:shadow-lg transition-shadow duration-200 hover:border-blue-400"
+          onClick={() => {
+            console.log("Reimbursement Approval card clicked - navigating to /agents/claims");
+            navigate('/agents/claims');
+          }}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Reimbursement Approval</CardTitle>
             <DollarSign className="h-4 w-4 text-blue-600" />
@@ -88,7 +100,13 @@ export const DentalSleepDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-blue-200">
+        <Card 
+          className="border-blue-200 cursor-pointer hover:shadow-lg transition-shadow duration-200 hover:border-blue-400"
+          onClick={() => {
+            console.log("Avg Reimbursement/Case card clicked - navigating to /analytics");
+            navigate('/analytics');
+          }}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Avg Reimbursement/Case</CardTitle>
             <TrendingUp className="h-4 w-4 text-blue-600" />
@@ -102,7 +120,13 @@ export const DentalSleepDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-blue-200">
+        <Card 
+          className="border-blue-200 cursor-pointer hover:shadow-lg transition-shadow duration-200 hover:border-blue-400"
+          onClick={() => {
+            console.log("AHI Reduction card clicked - navigating to /ehr");
+            navigate('/ehr');
+          }}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">AHI Reduction</CardTitle>
             <Gauge className="h-4 w-4 text-blue-600" />
@@ -116,7 +140,13 @@ export const DentalSleepDashboard = () => {
 
       {/* Clinical & Operational Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="border-purple-200">
+        <Card 
+          className="border-purple-200 cursor-pointer hover:shadow-lg transition-shadow duration-200 hover:border-purple-400"
+          onClick={() => {
+            console.log("Compliance card clicked - navigating to /patient-management");
+            navigate('/patient-management');
+          }}
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CheckCircle className="w-5 h-5 text-purple-600" />
@@ -138,7 +168,13 @@ export const DentalSleepDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-purple-200">
+        <Card 
+          className="border-purple-200 cursor-pointer hover:shadow-lg transition-shadow duration-200 hover:border-purple-400"
+          onClick={() => {
+            console.log("Referral-to-Schedule card clicked - navigating to /schedule");
+            navigate('/schedule');
+          }}
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="w-5 h-5 text-purple-600" />
@@ -155,7 +191,13 @@ export const DentalSleepDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-purple-200">
+        <Card 
+          className="border-purple-200 cursor-pointer hover:shadow-lg transition-shadow duration-200 hover:border-purple-400"
+          onClick={() => {
+            console.log("Follow-Up No-Show card clicked - navigating to /schedule");
+            navigate('/schedule');
+          }}
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Clock className="w-5 h-5 text-purple-600" />
