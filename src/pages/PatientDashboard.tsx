@@ -11,6 +11,7 @@ import { PatientNotificationCenter } from '@/components/notifications/PatientNot
 import { ChiropracticSymptomChecker } from '@/components/patient-experience/ChiropracticSymptomChecker';
 import { CommunicationCenter } from '@/components/patient-experience/CommunicationCenter';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Calendar, 
@@ -299,7 +300,221 @@ export const PatientDashboard: React.FC = () => {
                 <FileText className="w-16 h-16 mx-auto mb-4 text-gray-400" />
                 <h3 className="text-lg font-semibold mb-2">Treatment History</h3>
                 <p className="text-gray-600 mb-4">Your complete chiropractic treatment records and progress notes.</p>
-                <Button>View Records</Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button>View Records</Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle className="flex items-center gap-2">
+                        <FileText className="w-5 h-5 text-blue-600" />
+                        Treatment History & Records
+                      </DialogTitle>
+                      <DialogDescription>
+                        Your complete medical history and treatment records
+                      </DialogDescription>
+                    </DialogHeader>
+                    <Tabs defaultValue="visits" className="w-full">
+                      <TabsList className="grid w-full grid-cols-4">
+                        <TabsTrigger value="visits">Recent Visits</TabsTrigger>
+                        <TabsTrigger value="treatments">Treatments</TabsTrigger>
+                        <TabsTrigger value="progress">Progress Notes</TabsTrigger>
+                        <TabsTrigger value="documents">Documents</TabsTrigger>
+                      </TabsList>
+                      
+                      <TabsContent value="visits" className="space-y-4">
+                        <div className="border rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="font-semibold">Follow-up Consultation</h4>
+                            <Badge variant="outline">February 28, 2024</Badge>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4 text-sm mb-3">
+                            <div>
+                              <p className="font-medium text-gray-700">Provider:</p>
+                              <p className="text-gray-600">Dr. Sarah Smith</p>
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-700">Duration:</p>
+                              <p className="text-gray-600">45 minutes</p>
+                            </div>
+                          </div>
+                          <div className="text-sm">
+                            <p className="font-medium text-gray-700">Visit Summary:</p>
+                            <p className="text-gray-600">Patient showed significant improvement in lower back pain. Recommended continued physical therapy and follow-up in 4 weeks.</p>
+                          </div>
+                        </div>
+                        
+                        <div className="border rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="font-semibold">Initial Assessment</h4>
+                            <Badge variant="outline">January 15, 2024</Badge>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4 text-sm mb-3">
+                            <div>
+                              <p className="font-medium text-gray-700">Provider:</p>
+                              <p className="text-gray-600">Dr. Sarah Smith</p>
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-700">Duration:</p>
+                              <p className="text-gray-600">60 minutes</p>
+                            </div>
+                          </div>
+                          <div className="text-sm">
+                            <p className="font-medium text-gray-700">Visit Summary:</p>
+                            <p className="text-gray-600">Comprehensive spinal assessment. Diagnosed with lumbar strain. Started treatment plan including spinal adjustments and exercise therapy.</p>
+                          </div>
+                        </div>
+                      </TabsContent>
+                      
+                      <TabsContent value="treatments" className="space-y-4">
+                        <div className="border rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="font-semibold">Spinal Adjustment - Lumbar</h4>
+                            <Badge className="bg-green-100 text-green-800">Completed</Badge>
+                          </div>
+                          <div className="grid grid-cols-3 gap-4 text-sm mb-3">
+                            <div>
+                              <p className="font-medium text-gray-700">Date:</p>
+                              <p className="text-gray-600">February 28, 2024</p>
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-700">Technique:</p>
+                              <p className="text-gray-600">Diversified</p>
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-700">Region:</p>
+                              <p className="text-gray-600">L3-L5</p>
+                            </div>
+                          </div>
+                          <div className="text-sm">
+                            <p className="font-medium text-gray-700">Outcome:</p>
+                            <p className="text-gray-600">Improved range of motion, reduced pain level from 7/10 to 4/10</p>
+                          </div>
+                        </div>
+                        
+                        <div className="border rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="font-semibold">Therapeutic Exercise</h4>
+                            <Badge className="bg-green-100 text-green-800">Completed</Badge>
+                          </div>
+                          <div className="grid grid-cols-3 gap-4 text-sm mb-3">
+                            <div>
+                              <p className="font-medium text-gray-700">Date:</p>
+                              <p className="text-gray-600">February 21, 2024</p>
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-700">Type:</p>
+                              <p className="text-gray-600">Core Strengthening</p>
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-700">Duration:</p>
+                              <p className="text-gray-600">30 minutes</p>
+                            </div>
+                          </div>
+                          <div className="text-sm">
+                            <p className="font-medium text-gray-700">Progress:</p>
+                            <p className="text-gray-600">Patient completed all exercises with proper form. Increased resistance by 20%</p>
+                          </div>
+                        </div>
+                      </TabsContent>
+                      
+                      <TabsContent value="progress" className="space-y-4">
+                        <div className="border rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="font-semibold">Progress Assessment</h4>
+                            <Badge variant="outline">February 28, 2024</Badge>
+                          </div>
+                          <div className="space-y-3 text-sm">
+                            <div>
+                              <p className="font-medium text-gray-700">Pain Level:</p>
+                              <p className="text-gray-600">Decreased from 7/10 to 4/10 over 6 weeks</p>
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-700">Mobility:</p>
+                              <p className="text-gray-600">Range of motion improved by 40% in lumbar flexion</p>
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-700">Functional Status:</p>
+                              <p className="text-gray-600">Able to return to normal daily activities without restrictions</p>
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-700">Next Steps:</p>
+                              <p className="text-gray-600">Continue home exercises, follow-up in 4 weeks, consider discharge if continued improvement</p>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="border rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="font-semibold">Initial Assessment Notes</h4>
+                            <Badge variant="outline">January 15, 2024</Badge>
+                          </div>
+                          <div className="space-y-3 text-sm">
+                            <div>
+                              <p className="font-medium text-gray-700">Chief Complaint:</p>
+                              <p className="text-gray-600">Lower back pain for 3 weeks following lifting injury</p>
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-700">Physical Findings:</p>
+                              <p className="text-gray-600">Muscle spasm in lumbar paraspinals, reduced flexion ROM</p>
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-700">Treatment Plan:</p>
+                              <p className="text-gray-600">3x/week spinal adjustments, therapeutic exercises, patient education</p>
+                            </div>
+                          </div>
+                        </div>
+                      </TabsContent>
+                      
+                      <TabsContent value="documents" className="space-y-4">
+                        <div className="border rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="font-semibold">X-Ray Results - Lumbar Spine</h4>
+                            <Badge variant="outline">January 20, 2024</Badge>
+                          </div>
+                          <div className="text-sm">
+                            <p className="font-medium text-gray-700">Report Summary:</p>
+                            <p className="text-gray-600 mb-3">Normal vertebral alignment. No acute fractures or dislocations. Mild disc space narrowing at L4-L5.</p>
+                            <Button variant="outline" size="sm">
+                              <FileText className="w-4 h-4 mr-2" />
+                              Download Report
+                            </Button>
+                          </div>
+                        </div>
+                        
+                        <div className="border rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="font-semibold">Treatment Plan Document</h4>
+                            <Badge variant="outline">January 15, 2024</Badge>
+                          </div>
+                          <div className="text-sm">
+                            <p className="font-medium text-gray-700">Plan Overview:</p>
+                            <p className="text-gray-600 mb-3">Comprehensive 8-week treatment protocol for lumbar strain recovery.</p>
+                            <Button variant="outline" size="sm">
+                              <FileText className="w-4 h-4 mr-2" />
+                              Download Plan
+                            </Button>
+                          </div>
+                        </div>
+                        
+                        <div className="border rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="font-semibold">Exercise Instructions</h4>
+                            <Badge variant="outline">January 22, 2024</Badge>
+                          </div>
+                          <div className="text-sm">
+                            <p className="font-medium text-gray-700">Home Exercise Program:</p>
+                            <p className="text-gray-600 mb-3">Detailed instructions for core strengthening and flexibility exercises.</p>
+                            <Button variant="outline" size="sm">
+                              <FileText className="w-4 h-4 mr-2" />
+                              Download Instructions
+                            </Button>
+                          </div>
+                        </div>
+                      </TabsContent>
+                    </Tabs>
+                  </DialogContent>
+                </Dialog>
               </CardContent>
             </Card>
           </div>
