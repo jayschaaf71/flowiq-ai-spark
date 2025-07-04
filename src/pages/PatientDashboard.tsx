@@ -83,7 +83,11 @@ export const PatientDashboard: React.FC = () => {
                 <Bell className="w-4 h-4 mr-2" />
                 Notifications
               </Button>
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setActiveSection('settings')}
+              >
                 <Settings className="w-4 h-4 mr-2" />
                 Settings
               </Button>
@@ -174,6 +178,136 @@ export const PatientDashboard: React.FC = () => {
               </Button>
             </div>
             <PatientNotificationCenter />
+          </div>
+        ) : activeSection === 'settings' ? (
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">Account Settings</h2>
+              <Button 
+                variant="outline" 
+                onClick={() => setActiveSection('dashboard')}
+              >
+                ← Back to Dashboard
+              </Button>
+            </div>
+            
+            {/* Settings Content */}
+            <div className="space-y-6">
+              {/* Profile Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <User className="w-5 h-5 text-blue-600" />
+                    Profile Information
+                  </CardTitle>
+                  <CardDescription>Manage your personal information</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">First Name</label>
+                      <p className="mt-1 text-gray-900">{profile?.first_name || 'Not provided'}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Last Name</label>
+                      <p className="mt-1 text-gray-900">{profile?.last_name || 'Not provided'}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Email</label>
+                      <p className="mt-1 text-gray-900">{user?.email}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Phone</label>
+                      <p className="mt-1 text-gray-900">Not provided</p>
+                    </div>
+                  </div>
+                  <Button variant="outline">
+                    Edit Profile
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Communication Preferences */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Bell className="w-5 h-5 text-green-600" />
+                    Communication Preferences
+                  </CardTitle>
+                  <CardDescription>Choose how you'd like to receive updates</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium">Appointment Reminders</p>
+                        <p className="text-sm text-gray-600">Get notified about upcoming appointments</p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm text-gray-600">Email & SMS</span>
+                        <Badge variant="outline" className="text-green-700 border-green-700">Enabled</Badge>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium">Billing Notifications</p>
+                        <p className="text-sm text-gray-600">Receive bill and payment confirmations</p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm text-gray-600">Email</span>
+                        <Badge variant="outline" className="text-green-700 border-green-700">Enabled</Badge>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium">Health Updates</p>
+                        <p className="text-sm text-gray-600">Educational content and health tips</p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm text-gray-600">Email</span>
+                        <Badge variant="outline">Disabled</Badge>
+                      </div>
+                    </div>
+                  </div>
+                  <Button variant="outline">
+                    Update Preferences
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Security */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Settings className="w-5 h-5 text-red-600" />
+                    Security
+                  </CardTitle>
+                  <CardDescription>Manage your account security</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium">Password</p>
+                        <p className="text-sm text-gray-600">Last updated 30 days ago</p>
+                      </div>
+                      <Button variant="outline" size="sm">
+                        Change Password
+                      </Button>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium">Two-Factor Authentication</p>
+                        <p className="text-sm text-gray-600">Add extra security to your account</p>
+                      </div>
+                      <Button variant="outline" size="sm">
+                        Enable 2FA
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         ) : (
           <>
