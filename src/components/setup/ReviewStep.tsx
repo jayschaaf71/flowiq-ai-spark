@@ -190,23 +190,6 @@ export const ReviewStep = ({ setupData, onComplete }: ReviewStepProps) => {
         </Card>
       </div>
 
-      <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
-        <div className="text-center">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            Ready to transform your practice?
-          </h3>
-          <p className="text-gray-700 mb-4">
-            FlowIQ will start working immediately to automate your workflows and improve efficiency.
-          </p>
-          <Button 
-            onClick={onComplete}
-            className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-2"
-            size="lg"
-          >
-            Launch FlowIQ
-          </Button>
-        </div>
-      </div>
     </div>
   );
 };
