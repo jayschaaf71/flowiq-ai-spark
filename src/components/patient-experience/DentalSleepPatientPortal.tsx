@@ -4,6 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAuth } from '@/hooks/useAuth';
+import { useCurrentTenant } from '@/utils/enhancedTenantConfig';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Moon, 
   Calendar, 
@@ -19,7 +22,9 @@ import {
   Stethoscope,
   Bell,
   MessageSquare,
-  Settings
+  Settings,
+  LogOut,
+  User
 } from 'lucide-react';
 
 interface SleepMetrics {
@@ -32,6 +37,10 @@ interface SleepMetrics {
 }
 
 export const DentalSleepPatientPortal: React.FC = () => {
+  const { user, profile, signOut } = useAuth();
+  const { currentTenant } = useCurrentTenant();
+  const { toast } = useToast();
+  
   const [metrics] = useState<SleepMetrics>({
     ahiScore: 8.2,
     complianceHours: 6.8,
@@ -40,6 +49,10 @@ export const DentalSleepPatientPortal: React.FC = () => {
     deviceType: 'Oral Appliance',
     compliancePercentage: 87
   });
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
 
   const upcomingAppointments = [
     {
@@ -96,24 +109,73 @@ export const DentalSleepPatientPortal: React.FC = () => {
       `}</style>
       
       <div className="container mx-auto p-4 max-w-7xl">
-        {/* Header */}
-        <div className="dental-sleep-iq-header mb-6">
+      {/* Prominent Header Banner */}
+      <div className="bg-white shadow-sm border-b mb-6">
+        <div className="flex items-center justify-between py-4 px-6">
+          <div className="flex items-center space-x-4">
+            <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
+              <Moon className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-gray-900">
+                {currentTenant?.name || 'Dental Sleep IQ'} Patient Portal
+              </h1>
+              <p className="text-sm text-gray-600">
+                Sleep Medicine Management System
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-3">
+            <Button variant="outline" size="sm">
+              <Bell className="w-4 h-4 mr-2" />
+              Notifications
+            </Button>
+            <Button variant="outline" size="sm">
+              <Settings className="w-4 h-4 mr-2" />
+              Settings
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleSignOut}>
+              <LogOut className="w-4 h-4 mr-2" />
+              Sign Out
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Welcome Banner */}
+      <div className="mb-8">
+        <div className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg p-6 text-white">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-white mb-1">Sleep Medicine Portal</h1>
-              <p className="text-purple-100">Dental Sleep IQ - Your Sleep Health Journey</p>
+              <h2 className="text-2xl font-bold mb-2">
+                Welcome back, {profile?.first_name || 'Patient'}!
+              </h2>
+              <p className="text-purple-100 mb-4">
+                Your Sleep Health Journey - Managing your sleep apnea with expertise and care
+              </p>
+              <div className="flex items-center gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <Badge className="bg-white/20 text-white border-white/30">
+                    {metrics.deviceType}
+                  </Badge>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4" />
+                  <span>Treatment Progress: Excellent</span>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-3">
-              <Badge className="bg-white/20 text-white border-white/30">
-                {metrics.deviceType}
-              </Badge>
-              <Button variant="secondary" size="sm">
-                <Bell className="w-4 h-4 mr-2" />
-                Notifications
-              </Button>
+            <div className="text-right">
+              <div className="text-3xl font-bold">{metrics.ahiScore}</div>
+              <div className="text-purple-100 text-sm">Current AHI Score</div>
+              <div className="flex items-center gap-1 text-sm mt-1">
+                <TrendingUp className="w-3 h-3" />
+                <span>66% improvement</span>
+              </div>
             </div>
           </div>
         </div>
+      </div>
 
         {/* Key Metrics Dashboard */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
