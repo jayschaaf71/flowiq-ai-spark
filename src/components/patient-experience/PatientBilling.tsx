@@ -45,7 +45,7 @@ interface PaymentHistory {
 }
 
 export const PatientBilling: React.FC = () => {
-  const { invoices, loading: invoicesLoading } = useBillingInvoices();
+  const { invoices, loading: invoicesLoading, refetch } = useBillingInvoices();
   const [paymentHistory, setPaymentHistory] = useState<PaymentHistory[]>([]);
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
   const [paymentMethod, setPaymentMethod] = useState('card');
@@ -90,7 +90,7 @@ export const PatientBilling: React.FC = () => {
     }
   };
 
-  const handlePayment = async (invoice: Invoice) => {
+  const handlePayment = async (invoice: any) => {
     setIsProcessing(true);
     
     try {
@@ -99,7 +99,7 @@ export const PatientBilling: React.FC = () => {
         body: {
           patientId: 'current-patient-id', // This should come from auth context
           appointmentId: invoice.id,
-          amount: invoice.amount,
+          amount: invoice.total_amount,
           paymentMethod: paymentMethod,
           description: invoice.description
         }
@@ -107,22 +107,16 @@ export const PatientBilling: React.FC = () => {
 
       if (error) throw error;
 
-      // Update invoice status locally
-      setInvoices(prev => 
-        prev.map(inv => 
-          inv.id === invoice.id 
-            ? { ...inv, status: 'paid' as const }
-            : inv
-        )
-      );
+      // Refetch invoices to get updated data
+      refetch();
 
       // Add to payment history
       const newPayment: PaymentHistory = {
         id: data.transactionId,
-        amount: invoice.amount,
+        amount: invoice.total_amount,
         date: new Date().toISOString().split('T')[0],
         method: paymentMethod === 'card' ? 'Credit Card' : 'Bank Transfer',
-        description: invoice.description,
+        description: invoice.description || 'Payment',
         transactionId: data.transactionId
       };
       
@@ -132,7 +126,7 @@ export const PatientBilling: React.FC = () => {
       
       toast({
         title: "Payment Successful",
-        description: `Your payment of $${invoice.amount.toFixed(2)} has been processed successfully.`,
+        description: `Your payment of $${invoice.total_amount.toFixed(2)} has been processed successfully.`,
       });
 
     } catch (error) {
@@ -149,13 +143,13 @@ export const PatientBilling: React.FC = () => {
 
   const totalBalance = invoices
     .filter(inv => inv.status !== 'paid')
-    .reduce((sum, inv) => sum + inv.amount, 0);
+    .reduce((sum, inv) => sum + inv.total_amount, 0);
 
   const overdueAmount = invoices
     .filter(inv => inv.status === 'overdue')
-    .reduce((sum, inv) => sum + inv.amount, 0);
+    .reduce((sum, inv) => sum + inv.total_amount, 0);
 
-  const handleDownloadInvoice = async (invoice: Invoice) => {
+  const handleDownloadInvoice = async (invoice: any) => {
     try {
       // Generate PDF content for the invoice
       const invoiceContent = `
@@ -165,11 +159,10 @@ export const PatientBilling: React.FC = () => {
         Date: ${new Date().toLocaleDateString()}
         
         Service: ${invoice.description}
-        Provider: ${invoice.provider || 'N/A'}
-        Service Date: ${invoice.appointmentDate || 'N/A'}
-        Due Date: ${invoice.dueDate}
+        Service Date: ${invoice.service_date}
+        Due Date: ${invoice.due_date}
         
-        Amount Due: $${invoice.amount.toFixed(2)}
+        Amount Due: $${invoice.total_amount.toFixed(2)}
         Status: ${invoice.status.toUpperCase()}
         
         Thank you for your business!
@@ -324,12 +317,11 @@ export const PatientBilling: React.FC = () => {
                           {invoice.status}
                         </Badge>
                       </div>
-                      <div className="text-sm text-gray-600 space-y-1">
-                        <p>Amount: ${invoice.amount.toFixed(2)}</p>
-                        <p>Due Date: {invoice.dueDate}</p>
-                        {invoice.provider && <p>Provider: {invoice.provider}</p>}
-                        {invoice.appointmentDate && <p>Service Date: {invoice.appointmentDate}</p>}
-                      </div>
+                       <div className="text-sm text-gray-600 space-y-1">
+                         <p>Amount: ${invoice.total_amount.toFixed(2)}</p>
+                         <p>Due Date: {invoice.due_date}</p>
+                         <p>Service Date: {invoice.service_date}</p>
+                       </div>
                     </div>
                     
                      <div className="flex items-center gap-2">
@@ -366,20 +358,16 @@ export const PatientBilling: React.FC = () => {
                               {/* Invoice Summary */}
                               <div className="p-4 bg-gray-50 rounded-lg">
                                 <h4 className="font-semibold mb-2">Payment Summary</h4>
-                                <div className="space-y-1 text-sm">
-                                  <div className="flex justify-between">
-                                    <span>Service:</span>
-                                    <span>{selectedInvoice.description}</span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span>Provider:</span>
-                                    <span>{selectedInvoice.provider}</span>
-                                  </div>
-                                  <div className="flex justify-between font-semibold">
-                                    <span>Amount Due:</span>
-                                    <span>${selectedInvoice.amount.toFixed(2)}</span>
-                                  </div>
-                                </div>
+                                 <div className="space-y-1 text-sm">
+                                   <div className="flex justify-between">
+                                     <span>Service:</span>
+                                     <span>{selectedInvoice.description}</span>
+                                   </div>
+                                   <div className="flex justify-between font-semibold">
+                                     <span>Amount Due:</span>
+                                     <span>${selectedInvoice.total_amount.toFixed(2)}</span>
+                                   </div>
+                                 </div>
                               </div>
 
                               {/* Payment Method */}
@@ -481,7 +469,7 @@ export const PatientBilling: React.FC = () => {
                                   ) : (
                                     <>
                                       <CreditCard className="w-4 h-4 mr-2" />
-                                      Pay ${selectedInvoice.amount.toFixed(2)}
+                                      Pay ${selectedInvoice.total_amount.toFixed(2)}
                                     </>
                                   )}
                                 </Button>
