@@ -229,6 +229,49 @@ export const PatientBilling: React.FC = () => {
     }
   };
 
+  const handleDownloadReceipt = async (payment: PaymentHistory) => {
+    try {
+      // Generate receipt content
+      const receiptContent = `
+        PAYMENT RECEIPT
+        ---------------
+        Receipt ID: ${payment.id}
+        Transaction ID: ${payment.transactionId}
+        Date: ${payment.date}
+        
+        Service: ${payment.description}
+        Payment Method: ${payment.method}
+        Amount Paid: $${payment.amount.toFixed(2)}
+        Status: PAID
+        
+        Thank you for your payment!
+      `;
+
+      // Create and download the file
+      const blob = new Blob([receiptContent], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `receipt-${payment.transactionId}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast({
+        title: "Receipt Downloaded",
+        description: `Receipt for ${payment.description} has been downloaded successfully.`,
+      });
+    } catch (error) {
+      console.error('Download error:', error);
+      toast({
+        title: "Download Failed",
+        description: "Failed to download receipt. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleRequestPaymentPlan = async () => {
     try {
       toast({
@@ -506,7 +549,11 @@ export const PatientBilling: React.FC = () => {
                     </div>
                     <div className="text-right">
                       <p className="font-semibold">${payment.amount.toFixed(2)}</p>
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleDownloadReceipt(payment)}
+                      >
                         <Download className="w-4 h-4 mr-1" />
                         Receipt
                       </Button>
