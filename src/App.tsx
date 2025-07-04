@@ -90,6 +90,16 @@ function App() {
                     <PatientDashboard />
                   </ProtectedRoute>
                 } />
+                <Route path="/patient/notifications" element={
+                  <ProtectedRoute>
+                    <Notifications />
+                  </ProtectedRoute>
+                } />
+                <Route path="/patient/settings" element={
+                  <ProtectedRoute>
+                    <Settings />
+                  </ProtectedRoute>
+                } />
                 <Route path="/dashboard" element={
                   <ProtectedRoute requiredRole="staff">
                     <TenantWrapper>

@@ -57,11 +57,11 @@ export const DentalSleepPatientPortal: React.FC = () => {
   };
 
   const handleNotifications = () => {
-    navigate('/notifications');
+    navigate('/patient/notifications');
   };
 
   const handleSettings = () => {
-    navigate('/settings');
+    navigate('/patient/settings');
   };
 
   const upcomingAppointments = [
