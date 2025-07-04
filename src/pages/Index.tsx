@@ -128,10 +128,10 @@ const Index = () => {
               </div>
               <div className="text-left">
                 <h1 className="text-4xl font-bold text-gray-900">
-                  {currentTenant?.brand_name || 'FlowIQ'}
+                  FlowIQ
                 </h1>
                 <p className="text-xl text-blue-600 font-medium">
-                  {currentTenant?.tagline || 'The AI Business Operating System'}
+                  The AI Business Operating System
                 </p>
               </div>
             </div>
