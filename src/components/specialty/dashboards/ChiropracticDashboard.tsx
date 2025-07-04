@@ -145,7 +145,7 @@ export const ChiropracticDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-green-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/analytics')}>
+        <Card className="border-green-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/agents/marketing')}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Google Reviews</CardTitle>
             <Star className="h-4 w-4 text-yellow-500" />
