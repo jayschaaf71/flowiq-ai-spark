@@ -225,8 +225,12 @@ export const AgentSelectionStep = ({ setupData, updateSetupData }: AgentSelectio
     
     setSelectedCategory(category);
     
-    // If selecting a specific category (not 'all'), auto-select all agents in that category
-    if (category !== 'all') {
+    if (category === 'all') {
+      // Clear all selections when viewing all agents
+      console.log('Clearing all selections for "All Agents" view');
+      updateSetupData({ selectedAgents: [] });
+    } else {
+      // If selecting a specific category, auto-select all agents in that category
       const categoryAgents = availableAgents
         .filter(agent => agent.category === category)
         .map(agent => agent.id);
@@ -244,8 +248,6 @@ export const AgentSelectionStep = ({ setupData, updateSetupData }: AgentSelectio
       const newSelections = [...currentSelections, ...categoryAgents];
       console.log('New selections after category selection:', newSelections);
       updateSetupData({ selectedAgents: newSelections });
-    } else {
-      console.log('Selected "All Agents" - no auto-selection should happen');
     }
   };
 
