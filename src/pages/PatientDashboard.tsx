@@ -45,6 +45,10 @@ export const PatientDashboard: React.FC = () => {
   const { currentTenant, loading: tenantLoading } = useCurrentTenant();
   const { config, isLoading: configLoading, specialty } = usePatientPortalConfig();
   const { preferences, loading: prefsLoading, saving, updatePreference } = useCommunicationPreferences();
+  const { appointments } = useRealAppointments();
+  const { invoices } = useBillingInvoices();
+  const { records } = useMedicalRecords();
+  const { insurance } = usePatientInsurance();
   const [activeSection, setActiveSection] = React.useState('dashboard');
   const [selectedAppointment, setSelectedAppointment] = React.useState<any>(null);
   const { toast } = useToast();
