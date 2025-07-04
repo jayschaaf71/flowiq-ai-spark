@@ -163,6 +163,52 @@ export const PatientDashboard: React.FC = () => {
           </div>
         </div>
 
+        {/* Contact Your Care Team - Moved Higher for Better Visibility */}
+        <Card className="mb-8 border-blue-200 bg-gradient-to-r from-blue-50 to-green-50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-blue-800">
+              <Phone className="w-5 h-5 text-blue-600" />
+              Contact Your Care Team
+            </CardTitle>
+            <CardDescription>Get in touch with your healthcare providers - Available 24/7</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div 
+                className="flex items-center gap-4 p-4 bg-blue-100 rounded-lg cursor-pointer hover:bg-blue-200 transition-colors"
+                onClick={() => {
+                  window.location.href = 'tel:+15551234567';
+                  toast({
+                    title: "Calling Office",
+                    description: "Connecting you to our office at (555) 123-4567",
+                  });
+                }}
+              >
+                <Phone className="w-6 h-6 text-blue-600" />
+                <div>
+                  <p className="font-medium text-gray-900">Call Office</p>
+                  <p className="text-sm text-gray-600">(555) 123-4567</p>
+                </div>
+              </div>
+              <div 
+                className="flex items-center gap-4 p-4 bg-green-100 rounded-lg cursor-pointer hover:bg-green-200 transition-colors"
+                onClick={() => {
+                  toast({
+                    title: "Secure Messaging",
+                    description: "Opening secure messaging portal to contact your provider.",
+                  });
+                }}
+              >
+                <Mail className="w-6 h-6 text-green-600" />
+                <div>
+                  <p className="font-medium text-gray-900">Secure Message</p>
+                  <p className="text-sm text-gray-600">Send a message to your provider</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
           {config.features.map((feature) => (
@@ -631,12 +677,20 @@ export const PatientDashboard: React.FC = () => {
                   </Badge>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div 
+                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                  onClick={() => {
+                    toast({
+                      title: "Medications Details",
+                      description: "Loading your active medications and prescription history.",
+                    });
+                  }}
+                >
                   <div>
                     <p className="font-medium text-gray-900">Active Medications</p>
                     <p className="text-sm text-gray-600">2 prescriptions</p>
                   </div>
-                  <Badge variant="outline">
+                  <Badge variant="outline" className="cursor-pointer">
                     View Details
                   </Badge>
                 </div>
@@ -644,7 +698,7 @@ export const PatientDashboard: React.FC = () => {
                 <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-lg">
                   <div>
                     <p className="font-medium text-gray-900">Preventive Care</p>
-                    <p className="text-sm text-gray-600">Annual physical due</p>
+                    <p className="text-sm text-gray-600">Chiropractic check-up due</p>
                   </div>
                   <Badge variant="outline" className="text-yellow-700 border-yellow-700">
                     Due Soon
@@ -654,35 +708,6 @@ export const PatientDashboard: React.FC = () => {
             </CardContent>
           </Card>
         </div>
-
-        {/* Contact Information */}
-        <Card className="mt-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Phone className="w-5 h-5 text-blue-600" />
-              Contact Your Care Team
-            </CardTitle>
-            <CardDescription>Get in touch with your healthcare providers</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="flex items-center gap-4 p-4 bg-blue-50 rounded-lg">
-                <Phone className="w-6 h-6 text-blue-600" />
-                <div>
-                  <p className="font-medium text-gray-900">Call Office</p>
-                  <p className="text-sm text-gray-600">(555) 123-4567</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4 p-4 bg-green-50 rounded-lg">
-                <Mail className="w-6 h-6 text-green-600" />
-                <div>
-                  <p className="font-medium text-gray-900">Secure Message</p>
-                  <p className="text-sm text-gray-600">Send a message to your provider</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
           </>
         )}
         </div>
