@@ -8,8 +8,8 @@ interface SetupLayoutProps {
 export const SetupLayout = ({ children }: SetupLayoutProps) => {
   return (
     <div className="min-h-screen bg-background">
-      {/* Simple header without specialty branding */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      {/* Simple header without any notification components */}
+      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 relative z-50">
         <div className="flex h-16 items-center gap-3 px-6">
           <div className="flex items-center gap-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
@@ -23,8 +23,11 @@ export const SetupLayout = ({ children }: SetupLayoutProps) => {
         </div>
       </header>
       
-      <main className="flex-1">
-        {children}
+      {/* Use a container that prevents any global positioned elements from showing */}
+      <main className="flex-1 relative">
+        <div className="isolate">
+          {children}
+        </div>
       </main>
     </div>
   );

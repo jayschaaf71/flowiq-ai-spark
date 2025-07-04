@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { SetupLayout } from "@/components/SetupLayout";
-import { PageHeader } from "@/components/PageHeader";
+import { SetupPageHeader } from "@/components/setup/SetupPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,7 @@ import { BasicInfoStep } from "@/components/setup/BasicInfoStep";
 import { AgentSelectionStep } from "@/components/setup/AgentSelectionStep";
 import { IntegrationStep } from "@/components/setup/IntegrationStep";
 import { ReviewStep } from "@/components/setup/ReviewStep";
+import { usePracticeSetupPersistence } from "@/hooks/usePracticeSetupPersistence";
 
 export type PracticeType = 'dental' | 'orthodontics' | 'oral-surgery' | 'dental-sleep' | 'chiropractic' | 'physical-therapy' | 'veterinary' | 'med-spa' | 'appointment-iq';
 
@@ -47,6 +48,9 @@ const PracticeSetup = () => {
       payments: false,
     },
   });
+
+  // Add persistence hooks
+  const { clearSavedData, hasSavedData } = usePracticeSetupPersistence(setupData, setSetupData);
 
   const totalSteps = 5;
   const progress = (currentStep / totalSteps) * 100;
@@ -95,6 +99,8 @@ const PracticeSetup = () => {
   const handleComplete = () => {
     console.log('Setup completed with data:', setupData);
     setIsCompleted(true);
+    // Clear saved data on successful completion
+    clearSavedData();
     // Here you would save the setup data to your backend
   };
 
@@ -145,12 +151,24 @@ const PracticeSetup = () => {
 
   return (
     <SetupLayout>
-      <PageHeader 
+      <SetupPageHeader 
         title="Practice Setup"
         subtitle="Let's get FlowIQ configured for your practice"
       />
       
       <div className="p-6 max-w-4xl mx-auto">
+        {/* Show saved data notice if exists */}
+        {hasSavedData() && (
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-blue-600" />
+              <p className="text-blue-800 font-medium">
+                We've saved your progress! You can continue where you left off.
+              </p>
+            </div>
+          </div>
+        )}
+        
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-4">
