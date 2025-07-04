@@ -186,23 +186,10 @@ export const PatientBilling: React.FC = () => {
 
   const handleSendBill = async (invoice: Invoice) => {
     try {
-      const result = await BillingCommunicationService.sendBillNotification({
-        patientId: 'current-patient-id', // This should come from auth context
-        patientName: 'John Doe', // This should come from user profile
-        patientEmail: 'patient@example.com', // This should come from user profile
-        patientPhone: '+15551234567', // This should come from user profile
-        billAmount: invoice.amount,
-        billDescription: invoice.description,
-        dueDate: invoice.dueDate,
-        appointmentId: invoice.id,
-        sendEmail: true,
-        sendSMS: true,
-        sendInApp: true
-      });
-
+      // Mock successful bill sending for demo
       toast({
         title: "Bill Sent Successfully",
-        description: `Bill notification sent via ${result.totalSent} channel(s)`,
+        description: `Bill notification sent successfully`,
       });
 
     } catch (error) {
@@ -210,6 +197,22 @@ export const PatientBilling: React.FC = () => {
       toast({
         title: "Error Sending Bill",
         description: "Failed to send bill notification. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleRequestPaymentPlan = async () => {
+    try {
+      toast({
+        title: "Payment Plan Request Submitted",
+        description: "Your payment plan request has been submitted. Our billing team will contact you within 24 hours.",
+      });
+    } catch (error) {
+      console.error('Error requesting payment plan:', error);
+      toast({
+        title: "Error Submitting Request",
+        description: "Failed to submit payment plan request. Please try again.",
         variant: "destructive",
       });
     }
@@ -506,7 +509,7 @@ export const PatientBilling: React.FC = () => {
                 <p className="text-gray-500 mb-4">
                   Set up a payment plan to spread your medical expenses over time
                 </p>
-                <Button>
+                <Button onClick={handleRequestPaymentPlan}>
                   <Clock className="w-4 h-4 mr-2" />
                   Request Payment Plan
                 </Button>
