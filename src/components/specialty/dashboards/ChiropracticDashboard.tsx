@@ -27,6 +27,21 @@ export const ChiropracticDashboard = () => {
   const { data: metrics, isLoading, error } = useDashboardMetrics();
   const { config } = useSpecialty();
   
+  // Debug function for navigation
+  const handleNavigation = (path: string, cardName: string) => {
+    console.log(`=== NAVIGATION DEBUG ===`);
+    console.log(`Card clicked: ${cardName}`);
+    console.log(`Attempting to navigate to: ${path}`);
+    console.log(`Navigate function:`, navigate);
+    
+    try {
+      navigate(path);
+      console.log(`Navigation successful to ${path}`);
+    } catch (error) {
+      console.error(`Navigation failed:`, error);
+    }
+  };
+  
   // Sample data - in production this would come from real metrics
   const chiropracticMetrics = {
     // Financial KPIs
@@ -87,7 +102,7 @@ export const ChiropracticDashboard = () => {
     <div className="space-y-6">
       {/* Financial Row */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="border-green-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/financial')}>
+        <Card className="border-green-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleNavigation('/financial', 'Daily Collections')}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Daily Collections</CardTitle>
             <DollarSign className="h-4 w-4 text-green-600" />
@@ -113,7 +128,7 @@ export const ChiropracticDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-green-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/analytics')}>
+        <Card className="border-green-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleNavigation('/analytics', 'Avg Visit Value')}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Avg Visit Value</CardTitle>
             <TrendingUp className="h-4 w-4 text-green-600" />
@@ -129,7 +144,7 @@ export const ChiropracticDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-green-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/agents/claims')}>
+        <Card className="border-green-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleNavigation('/agents/claims', 'Days in A/R')}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Days in A/R</CardTitle>
             <Clock className="h-4 w-4 text-green-600" />
@@ -145,7 +160,7 @@ export const ChiropracticDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-green-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/agents/marketing')}>
+        <Card className="border-green-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleNavigation('/agents/marketing', 'Google Reviews')}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Google Reviews</CardTitle>
             <Star className="h-4 w-4 text-yellow-500" />
@@ -159,7 +174,7 @@ export const ChiropracticDashboard = () => {
 
       {/* Clinical Quality Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="border-blue-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/ehr')}>
+        <Card className="border-blue-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleNavigation('/ehr', 'Care Plan Adherence')}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Target className="w-5 h-5 text-blue-600" />
@@ -182,7 +197,7 @@ export const ChiropracticDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-blue-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/analytics')}>
+        <Card className="border-blue-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleNavigation('/analytics', 'Pain Score Improvement')}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Gauge className="w-5 h-5 text-blue-600" />
@@ -213,7 +228,7 @@ export const ChiropracticDashboard = () => {
 
       {/* Operational & Patient Engagement Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="border-purple-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/schedule')}>
+        <Card className="border-purple-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleNavigation('/schedule', 'Visits/Provider/Day')}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-sm">
               <Activity className="w-4 h-4 text-purple-600" />
@@ -229,7 +244,7 @@ export const ChiropracticDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-purple-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/schedule')}>
+        <Card className="border-purple-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleNavigation('/schedule', 'Avg Wait Time')}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-sm">
               <Clock className="w-4 h-4 text-purple-600" />
@@ -245,7 +260,7 @@ export const ChiropracticDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-orange-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/agents/marketing')}>
+        <Card className="border-orange-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleNavigation('/agents/marketing', 'New Patients MTD')}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-sm">
               <Users className="w-4 h-4 text-orange-600" />
@@ -275,15 +290,15 @@ export const ChiropracticDashboard = () => {
             <CardDescription>Common chiropractic workflows</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button className="w-full justify-start bg-green-600 hover:bg-green-700" onClick={() => navigate('/schedule')}>
+            <Button className="w-full justify-start bg-green-600 hover:bg-green-700" onClick={() => handleNavigation('/schedule', 'Schedule Adjustment Session')}>
               <Calendar className="w-4 h-4 mr-2" />
               Schedule Adjustment Session
             </Button>
-            <Button variant="outline" className="w-full justify-start border-green-200 hover:bg-green-50" onClick={() => navigate('/ehr')}>
+            <Button variant="outline" className="w-full justify-start border-green-200 hover:bg-green-50" onClick={() => handleNavigation('/ehr', 'Create SOAP Note')}>
               <Activity className="w-4 h-4 mr-2" />
               Create SOAP Note
             </Button>
-            <Button variant="outline" className="w-full justify-start border-green-200 hover:bg-green-50" onClick={() => navigate('/agents/scribe')}>
+            <Button variant="outline" className="w-full justify-start border-green-200 hover:bg-green-50" onClick={() => handleNavigation('/agents/scribe', 'ScribeIQ Documentation')}>
               <Stethoscope className="w-4 h-4 mr-2" />
               ScribeIQ Documentation
             </Button>
