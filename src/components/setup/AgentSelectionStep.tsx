@@ -220,6 +220,9 @@ export const AgentSelectionStep = ({ setupData, updateSetupData }: AgentSelectio
   };
 
   const selectCategory = (category: string) => {
+    console.log('Selecting category:', category);
+    console.log('Current selected agents before:', setupData.selectedAgents);
+    
     setSelectedCategory(category);
     
     // If selecting a specific category (not 'all'), auto-select all agents in that category
@@ -228,13 +231,21 @@ export const AgentSelectionStep = ({ setupData, updateSetupData }: AgentSelectio
         .filter(agent => agent.category === category)
         .map(agent => agent.id);
       
+      console.log('Category agents to add:', categoryAgents);
+      
       // Combine with any existing selections from other categories
       const currentSelections = setupData.selectedAgents.filter(agentId => {
         const agent = availableAgents.find(a => a.id === agentId);
         return agent && agent.category !== category; // Keep selections from other categories
       });
       
-      updateSetupData({ selectedAgents: [...currentSelections, ...categoryAgents] });
+      console.log('Current selections from other categories:', currentSelections);
+      
+      const newSelections = [...currentSelections, ...categoryAgents];
+      console.log('New selections after category selection:', newSelections);
+      updateSetupData({ selectedAgents: newSelections });
+    } else {
+      console.log('Selected "All Agents" - no auto-selection should happen');
     }
   };
 
