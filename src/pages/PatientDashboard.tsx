@@ -21,6 +21,12 @@ import { useRealAppointments } from '@/hooks/useRealAppointments';
 import { useBillingInvoices } from '@/hooks/useBillingInvoices';
 import { useMedicalRecords } from '@/hooks/useMedicalRecords';
 import { usePatientInsurance } from '@/hooks/usePatientInsurance';
+import { EnhancedMobileInterface } from '@/components/mobile/EnhancedMobileInterface';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { FileUpload } from '@/components/patient-experience/FileUpload';
+import { MedicalRecordsDisplay } from '@/components/patient-experience/MedicalRecordsDisplay';
+import { InsuranceInformation } from '@/components/patient-experience/InsuranceInformation';
+import { AppointmentsDisplay } from '@/components/patient-experience/AppointmentsDisplay';
 import { 
   Calendar, 
   Clock, 
@@ -37,7 +43,10 @@ import {
   ChevronRight,
   X,
   MapPin,
-  Activity
+  Activity,
+  Menu,
+  ArrowLeft,
+  Upload
 } from 'lucide-react';
 
 export const PatientDashboard: React.FC = () => {
@@ -51,6 +60,7 @@ export const PatientDashboard: React.FC = () => {
   const { insurance } = usePatientInsurance();
   const [activeSection, setActiveSection] = React.useState('dashboard');
   const [selectedAppointment, setSelectedAppointment] = React.useState<any>(null);
+  const isMobile = useIsMobile();
   const { toast } = useToast();
 
   const handleSignOut = async () => {
@@ -118,9 +128,160 @@ export const PatientDashboard: React.FC = () => {
     );
   }
 
+  const dashboardContent = (
+    <div className="space-y-4 md:space-y-6">
+      {/* Welcome Section */}
+      <div className="mb-6 md:mb-8">
+        <div className="bg-gradient-to-r from-blue-600 to-green-600 rounded-lg p-4 md:p-6 text-white" style={{
+          background: `linear-gradient(135deg, ${config.customization.primaryColor}, ${config.customization.secondaryColor})`
+        }}>
+          <h2 className="text-xl md:text-2xl font-bold mb-2">
+            {config.customization.welcomeMessage}, {profile?.first_name || 'Patient'}!
+          </h2>
+          <p className="text-blue-100 text-sm md:text-base">
+            {config.customization.footerText}
+          </p>
+        </div>
+      </div>
+
+      {/* Contact Your Care Team - Mobile Priority */}
+      <Card className="mb-6 md:mb-8 border-blue-200 bg-gradient-to-r from-blue-50 to-green-50">
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2 text-blue-800 text-lg md:text-xl">
+            <Phone className="w-5 h-5 text-blue-600" />
+            Contact Your Care Team
+          </CardTitle>
+          <CardDescription className="text-sm">Get in touch with your healthcare providers - Available 24/7</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+            <div 
+              className="flex items-center gap-4 p-4 bg-blue-100 rounded-lg cursor-pointer hover:bg-blue-200 transition-colors touch-manipulation"
+              onClick={() => {
+                window.location.href = 'tel:+15551234567';
+                toast({
+                  title: "Calling Office",
+                  description: "Connecting you to our office at (555) 123-4567",
+                });
+              }}
+            >
+              <Phone className="w-6 h-6 text-blue-600 flex-shrink-0" />
+              <div>
+                <p className="font-medium text-gray-900">Call Office</p>
+                <p className="text-sm text-gray-600">(555) 123-4567</p>
+              </div>
+            </div>
+            <div 
+              className="flex items-center gap-4 p-4 bg-green-100 rounded-lg cursor-pointer hover:bg-green-200 transition-colors touch-manipulation"
+              onClick={() => setActiveSection('messaging')}
+            >
+              <Mail className="w-6 h-6 text-green-600 flex-shrink-0" />
+              <div>
+                <p className="font-medium text-gray-900">Secure Message</p>
+                <p className="text-sm text-gray-600">Send a message to your provider</p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Quick Actions - Mobile Optimized Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
+        {config.features.map((feature) => (
+          <Card 
+            key={feature.id}
+            className="cursor-pointer hover:shadow-md transition-shadow min-h-[120px] md:min-h-[140px] touch-manipulation"
+            onClick={() => setActiveSection(feature.id)}
+          >
+            <CardContent className="p-3 md:p-4 text-center h-full flex flex-col justify-between">
+              <div className="flex flex-col items-center space-y-2 md:space-y-3">
+                <div className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center" style={{ color: config.customization.primaryColor }}>
+                  {feature.icon === 'Calendar' && <Calendar className="w-6 h-6 md:w-8 md:h-8" />}
+                  {feature.icon === 'Activity' && <Activity className="w-6 h-6 md:w-8 md:h-8" />}
+                  {feature.icon === 'FileText' && <FileText className="w-6 h-6 md:w-8 md:h-8" />}
+                  {feature.icon === 'Heart' && <Heart className="w-6 h-6 md:w-8 md:h-8" />}
+                  {feature.icon === 'CreditCard' && <CreditCard className="w-6 h-6 md:w-8 md:h-8" />}
+                  {feature.icon === 'Moon' && <Clock className="w-6 h-6 md:w-8 md:h-8" />}
+                  {feature.icon === 'Shield' && <User className="w-6 h-6 md:w-8 md:h-8" />}
+                  {feature.icon === 'Camera' && <Upload className="w-6 h-6 md:w-8 md:h-8" />}
+                  {feature.icon === 'Package' && <CreditCard className="w-6 h-6 md:w-8 md:h-8" />}
+                  {feature.icon === 'Gift' && <Heart className="w-6 h-6 md:w-8 md:h-8" />}
+                  {feature.icon === 'MessageSquare' && <Mail className="w-6 h-6 md:w-8 md:h-8" />}
+                  {feature.icon === 'TestTube' && <FileText className="w-6 h-6 md:w-8 md:h-8" />}
+                  {feature.icon === 'Crown' && <User className="w-6 h-6 md:w-8 md:h-8" />}
+                  {feature.icon === 'TrendingUp' && <Heart className="w-6 h-6 md:w-8 md:h-8" />}
+                  {feature.icon === 'Pill' && <CreditCard className="w-6 h-6 md:w-8 md:h-8" />}
+                  {feature.icon === 'BookOpen' && <FileText className="w-6 h-6 md:w-8 md:h-8" />}
+                  {feature.icon === 'Activity' && <Heart className="w-6 h-6 md:w-8 md:h-8" />}
+                </div>
+                <div className="space-y-1">
+                  <h3 className="font-semibold text-gray-900 text-xs md:text-sm leading-tight">{feature.name}</h3>
+                  <p className="text-xs text-gray-600 leading-tight hidden md:block">{feature.description}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+
+  if (isMobile) {
+    return (
+      <EnhancedMobileInterface showPatientFeatures={true}>
+        <div className="space-y-4">
+          {/* Mobile Header */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-green-600 rounded-full flex items-center justify-center">
+                <Heart className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h1 className="text-lg font-bold text-gray-900">
+                  {currentTenant?.name || 'FlowIQ'}
+                </h1>
+                <p className="text-xs text-gray-600">
+                  Patient Portal
+                </p>
+              </div>
+            </div>
+            {activeSection !== 'dashboard' && (
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setActiveSection('dashboard')}
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back
+              </Button>
+            )}
+          </div>
+
+          {/* Content based on active section */}
+          {activeSection === 'dashboard' && dashboardContent}
+          {activeSection === 'appointments' && <AppointmentsDisplay />}
+          {activeSection === 'health-records' && <MedicalRecordsDisplay />}
+          {activeSection === 'insurance' && <InsuranceInformation />}
+          {activeSection === 'upload-documents' && <FileUpload />}
+          {activeSection === 'billing' && <PatientBilling />}
+          {activeSection === 'notifications' && <PatientNotificationCenter />}
+          {activeSection === 'symptom-checker' && (
+            <ChiropracticSymptomChecker 
+              onComplete={(data) => {
+                console.log('Symptom assessment completed:', data);
+                setActiveSection('dashboard');
+              }}
+              onBack={() => setActiveSection('dashboard')}
+            />
+          )}
+        </div>
+      </EnhancedMobileInterface>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
-      {/* Header */}
+      {/* Desktop Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
@@ -163,101 +324,65 @@ export const PatientDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Desktop Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <div className="bg-gradient-to-r from-blue-600 to-green-600 rounded-lg p-6 text-white" style={{
-            background: `linear-gradient(135deg, ${config.customization.primaryColor}, ${config.customization.secondaryColor})`
-          }}>
-            <h2 className="text-2xl font-bold mb-2">
-              {config.customization.welcomeMessage}, {profile?.first_name || 'Patient'}!
-            </h2>
-            <p className="text-blue-100">
-              {config.customization.footerText}
-            </p>
-          </div>
-        </div>
-
-        {/* Contact Your Care Team - Moved Higher for Better Visibility */}
-        <Card className="mb-8 border-blue-200 bg-gradient-to-r from-blue-50 to-green-50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-blue-800">
-              <Phone className="w-5 h-5 text-blue-600" />
-              Contact Your Care Team
-            </CardTitle>
-            <CardDescription>Get in touch with your healthcare providers - Available 24/7</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div 
-                className="flex items-center gap-4 p-4 bg-blue-100 rounded-lg cursor-pointer hover:bg-blue-200 transition-colors"
-                onClick={() => {
-                  window.location.href = 'tel:+15551234567';
-                  toast({
-                    title: "Calling Office",
-                    description: "Connecting you to our office at (555) 123-4567",
-                  });
-                }}
+        {activeSection === 'dashboard' && dashboardContent}
+        {activeSection === 'appointments' && (
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">My Appointments</h2>
+              <Button 
+                variant="outline" 
+                onClick={() => setActiveSection('dashboard')}
               >
-                <Phone className="w-6 h-6 text-blue-600" />
-                <div>
-                  <p className="font-medium text-gray-900">Call Office</p>
-                  <p className="text-sm text-gray-600">(555) 123-4567</p>
-                </div>
-              </div>
-              <div 
-                className="flex items-center gap-4 p-4 bg-green-100 rounded-lg cursor-pointer hover:bg-green-200 transition-colors"
-                onClick={() => setActiveSection('messaging')}
-              >
-                <Mail className="w-6 h-6 text-green-600" />
-                <div>
-                  <p className="font-medium text-gray-900">Secure Message</p>
-                  <p className="text-sm text-gray-600">Send a message to your provider</p>
-                </div>
-              </div>
+                ← Back to Dashboard
+              </Button>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
-          {config.features.map((feature) => (
-            <Card 
-              key={feature.id}
-              className="cursor-pointer hover:shadow-md transition-shadow min-h-[140px]"
-              onClick={() => setActiveSection(feature.id)}
-            >
-              <CardContent className="p-4 text-center h-full flex flex-col justify-between">
-                <div className="flex flex-col items-center space-y-3">
-                  <div className="w-10 h-10 flex items-center justify-center" style={{ color: config.customization.primaryColor }}>
-                    {feature.icon === 'Calendar' && <Calendar className="w-8 h-8" />}
-                    {feature.icon === 'Activity' && <Activity className="w-8 h-8" />}
-                    {feature.icon === 'FileText' && <FileText className="w-8 h-8" />}
-                    {feature.icon === 'Heart' && <Heart className="w-8 h-8" />}
-                    {feature.icon === 'CreditCard' && <CreditCard className="w-8 h-8" />}
-                    {feature.icon === 'Moon' && <Clock className="w-8 h-8" />}
-                    {feature.icon === 'Shield' && <User className="w-8 h-8" />}
-                    {feature.icon === 'Camera' && <FileText className="w-8 h-8" />}
-                    {feature.icon === 'Package' && <CreditCard className="w-8 h-8" />}
-                    {feature.icon === 'Gift' && <Heart className="w-8 h-8" />}
-                    {feature.icon === 'MessageSquare' && <Mail className="w-8 h-8" />}
-                    {feature.icon === 'TestTube' && <FileText className="w-8 h-8" />}
-                    {feature.icon === 'Crown' && <User className="w-8 h-8" />}
-                    {feature.icon === 'TrendingUp' && <Heart className="w-8 h-8" />}
-                    {feature.icon === 'Pill' && <CreditCard className="w-8 h-8" />}
-                    {feature.icon === 'BookOpen' && <FileText className="w-8 h-8" />}
-                    {feature.icon === 'Activity' && <Heart className="w-8 h-8" />}
-                  </div>
-                  <div className="space-y-1">
-                    <h3 className="font-semibold text-gray-900 text-sm leading-tight">{feature.name}</h3>
-                    <p className="text-xs text-gray-600 leading-tight">{feature.description}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+            <AppointmentsDisplay />
+          </div>
+        )}
+        {activeSection === 'health-records' && (
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">Medical Records</h2>
+              <Button 
+                variant="outline" 
+                onClick={() => setActiveSection('dashboard')}
+              >
+                ← Back to Dashboard
+              </Button>
+            </div>
+            <MedicalRecordsDisplay />
+          </div>
+        )}
+        {activeSection === 'insurance' && (
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">Insurance Information</h2>
+              <Button 
+                variant="outline" 
+                onClick={() => setActiveSection('dashboard')}
+              >
+                ← Back to Dashboard
+              </Button>
+            </div>
+            <InsuranceInformation />
+          </div>
+        )}
+        {activeSection === 'upload-documents' && (
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">Upload Documents</h2>
+              <Button 
+                variant="outline" 
+                onClick={() => setActiveSection('dashboard')}
+              >
+                ← Back to Dashboard
+              </Button>
+            </div>
+            <FileUpload />
+          </div>
+        )}
 
         {/* Conditional Content Based on Active Section */}
         <div id="main-content">

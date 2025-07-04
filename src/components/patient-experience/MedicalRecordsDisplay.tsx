@@ -138,7 +138,7 @@ Generated on: ${new Date().toLocaleString()}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col gap-4">
             <div className="flex-1">
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -146,16 +146,16 @@ Generated on: ${new Date().toLocaleString()}
                   placeholder="Search records..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 h-12 touch-manipulation"
                 />
               </div>
             </div>
             <Select value={filterType} onValueChange={setFilterType}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-full sm:w-[180px] h-12 touch-manipulation">
                 <Filter className="w-4 h-4 mr-2" />
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-50">
                 <SelectItem value="all">All Records</SelectItem>
                 <SelectItem value="visit_note">Visit Notes</SelectItem>
                 <SelectItem value="lab_result">Lab Results</SelectItem>
@@ -184,51 +184,53 @@ Generated on: ${new Date().toLocaleString()}
           </Card>
         ) : (
           filteredRecords.map((record) => (
-            <Card key={record.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between">
+            <Card key={record.id} className="hover:shadow-md transition-shadow touch-manipulation">
+              <CardContent className="p-4 md:p-6">
+                <div className="flex flex-col space-y-4">
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="font-semibold text-lg">{record.title}</h3>
-                      <Badge className={getRecordTypeColor(record.record_type)}>
-                        {formatRecordType(record.record_type)}
-                      </Badge>
-                      {record.is_confidential && (
-                        <Badge variant="destructive">Confidential</Badge>
-                      )}
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3">
+                      <h3 className="font-semibold text-base md:text-lg flex-1">{record.title}</h3>
+                      <div className="flex flex-wrap gap-2">
+                        <Badge className={getRecordTypeColor(record.record_type)} variant="secondary">
+                          {formatRecordType(record.record_type)}
+                        </Badge>
+                        {record.is_confidential && (
+                          <Badge variant="destructive">Confidential</Badge>
+                        )}
+                      </div>
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-muted-foreground mb-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm text-muted-foreground mb-4">
                       <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4" />
+                        <Calendar className="w-4 h-4 flex-shrink-0" />
                         <span>{new Date(record.visit_date).toLocaleDateString()}</span>
                       </div>
                       {record.providers && (
                         <div className="flex items-center gap-2">
-                          <User className="w-4 h-4" />
-                          <span>
+                          <User className="w-4 h-4 flex-shrink-0" />
+                          <span className="truncate">
                             Dr. {record.providers.first_name} {record.providers.last_name}
                           </span>
                         </div>
                       )}
                       {record.providers?.specialty && (
                         <div className="flex items-center gap-2">
-                          <Stethoscope className="w-4 h-4" />
-                          <span>{record.providers.specialty}</span>
+                          <Stethoscope className="w-4 h-4 flex-shrink-0" />
+                          <span className="truncate">{record.providers.specialty}</span>
                         </div>
                       )}
                     </div>
 
-                    <p className="text-sm text-muted-foreground line-clamp-2">
+                    <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
                       {record.content}
                     </p>
 
                     {(record.diagnosis_codes || record.treatment_codes) && (
-                      <div className="mt-3 space-y-2">
+                      <div className="space-y-2 mb-4">
                         {record.diagnosis_codes && record.diagnosis_codes.length > 0 && (
                           <div>
-                            <span className="text-xs font-medium text-muted-foreground">Diagnosis Codes: </span>
-                            <div className="inline-flex gap-1 flex-wrap">
+                            <span className="text-xs font-medium text-muted-foreground block mb-1">Diagnosis Codes:</span>
+                            <div className="flex gap-1 flex-wrap">
                               {record.diagnosis_codes.map((code, index) => (
                                 <Badge key={index} variant="outline" className="text-xs">
                                   {code}
@@ -239,8 +241,8 @@ Generated on: ${new Date().toLocaleString()}
                         )}
                         {record.treatment_codes && record.treatment_codes.length > 0 && (
                           <div>
-                            <span className="text-xs font-medium text-muted-foreground">Treatment Codes: </span>
-                            <div className="inline-flex gap-1 flex-wrap">
+                            <span className="text-xs font-medium text-muted-foreground block mb-1">Treatment Codes:</span>
+                            <div className="flex gap-1 flex-wrap">
                               {record.treatment_codes.map((code, index) => (
                                 <Badge key={index} variant="outline" className="text-xs">
                                   {code}
@@ -253,16 +255,17 @@ Generated on: ${new Date().toLocaleString()}
                     )}
                   </div>
                   
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => setSelectedRecord(record)}
+                          className="flex-1 sm:flex-none h-10 touch-manipulation"
                         >
                           <Eye className="w-4 h-4 mr-2" />
-                          View
+                          View Full Record
                         </Button>
                       </DialogTrigger>
                       <DialogContent className="max-w-4xl max-h-[80vh] overflow-auto">
@@ -332,6 +335,7 @@ Generated on: ${new Date().toLocaleString()}
                       variant="ghost"
                       size="sm"
                       onClick={() => downloadRecord(record)}
+                      className="flex-1 sm:flex-none h-10 touch-manipulation"
                     >
                       <Download className="w-4 h-4 mr-2" />
                       Download

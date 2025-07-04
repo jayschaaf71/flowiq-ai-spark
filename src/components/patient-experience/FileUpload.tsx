@@ -211,26 +211,26 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Upload Section */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2 text-lg">
             <Upload className="w-5 h-5" />
             Upload Documents
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-sm">
             Upload insurance cards, forms, X-rays, and other documents
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="category">Document Category</Label>
+            <Label htmlFor="category" className="text-sm font-medium">Document Category</Label>
             <select
               id="category"
               value={fileCategory}
               onChange={(e) => setFileCategory(e.target.value)}
-              className="w-full p-2 border rounded-md"
+              className="w-full p-3 border rounded-md text-sm touch-manipulation"
             >
               <option value="general">General Documents</option>
               <option value="insurance">Insurance Cards</option>
@@ -241,7 +241,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="file-upload">Select Files</Label>
+            <Label htmlFor="file-upload" className="text-sm font-medium">Select Files</Label>
             <Input
               id="file-upload"
               type="file"
@@ -249,8 +249,9 @@ export const FileUpload: React.FC<FileUploadProps> = ({
               accept={allowedTypes.join(',')}
               onChange={handleFileSelect}
               disabled={uploading}
+              className="p-3 h-12 touch-manipulation"
             />
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               Maximum file size: {maxFileSize / (1024 * 1024)}MB
             </p>
           </div>
@@ -258,20 +259,22 @@ export const FileUpload: React.FC<FileUploadProps> = ({
           {selectedFiles && (
             <div className="space-y-2">
               <p className="text-sm font-medium">Selected Files:</p>
-              {Array.from(selectedFiles).map((file, index) => (
-                <div key={index} className="flex items-center justify-between p-2 bg-muted rounded">
-                  <span className="text-sm">{file.name}</span>
-                  <span className="text-sm text-muted-foreground">
-                    {formatFileSize(file.size)}
-                  </span>
-                </div>
-              ))}
+              <div className="space-y-2">
+                {Array.from(selectedFiles).map((file, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                    <span className="text-sm truncate flex-1 mr-2">{file.name}</span>
+                    <span className="text-xs text-muted-foreground flex-shrink-0">
+                      {formatFileSize(file.size)}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
           {uploading && (
             <div className="space-y-2">
-              <Progress value={uploadProgress} className="w-full" />
+              <Progress value={uploadProgress} className="w-full h-2" />
               <p className="text-sm text-muted-foreground">Uploading files...</p>
             </div>
           )}
@@ -279,7 +282,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
           <Button 
             onClick={uploadFiles} 
             disabled={!selectedFiles || uploading}
-            className="w-full"
+            className="w-full h-12 text-sm touch-manipulation"
           >
             {uploading ? 'Uploading...' : 'Upload Files'}
           </Button>
@@ -288,38 +291,39 @@ export const FileUpload: React.FC<FileUploadProps> = ({
 
       {/* Files List */}
       <Card>
-        <CardHeader>
-          <CardTitle>Your Documents</CardTitle>
-          <CardDescription>
+        <CardHeader className="pb-4">
+          <CardTitle className="text-lg">Your Documents</CardTitle>
+          <CardDescription className="text-sm">
             View and manage your uploaded documents
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             {uploadedFiles.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">
+              <p className="text-center text-muted-foreground py-6 md:py-8 text-sm">
                 No documents uploaded yet
               </p>
             ) : (
               uploadedFiles.map((file) => (
-                <div key={file.id} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex items-center gap-3">
+                <div key={file.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 md:p-4 border rounded-lg space-y-3 sm:space-y-0">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
                     {getFileIcon(file.type)}
-                    <div>
-                      <p className="font-medium">{file.name}</p>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-sm truncate">{file.name}</p>
+                      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mt-1">
                         <span>{formatFileSize(file.size)}</span>
-                        <Badge variant="secondary">{file.category}</Badge>
-                        <span>{file.uploadedAt.toLocaleDateString()}</span>
+                        <Badge variant="secondary" className="text-xs">{file.category}</Badge>
+                        <span className="hidden sm:inline">{file.uploadedAt.toLocaleDateString()}</span>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-shrink-0">
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => setPreviewFile(file)}
+                      className="h-8 w-8 p-0 touch-manipulation"
                     >
                       <Eye className="w-4 h-4" />
                     </Button>
@@ -327,6 +331,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                       variant="ghost"
                       size="sm"
                       onClick={() => downloadFile(file)}
+                      className="h-8 w-8 p-0 touch-manipulation"
                     >
                       <Download className="w-4 h-4" />
                     </Button>
@@ -334,6 +339,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                       variant="ghost"
                       size="sm"
                       onClick={() => deleteFile(file.id)}
+                      className="h-8 w-8 p-0 touch-manipulation text-destructive hover:text-destructive"
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>

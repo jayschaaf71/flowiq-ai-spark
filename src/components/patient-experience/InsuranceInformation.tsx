@@ -128,54 +128,54 @@ export const InsuranceInformation: React.FC = () => {
               )}
               
               <CardContent className="p-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                   {/* Insurance Details */}
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
-                      <CreditCard className="w-8 h-8 text-blue-600" />
-                      <div>
-                        <h3 className="font-semibold text-lg">
+                      <CreditCard className="w-6 h-6 md:w-8 md:h-8 text-blue-600 flex-shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-semibold text-base md:text-lg truncate">
                           {ins.insurance_providers?.name || 'Insurance Provider'}
                         </h3>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-xs md:text-sm text-muted-foreground">
                           {ins.subscriber_relationship === 'self' ? 'Primary Holder' : `Dependent (${ins.subscriber_relationship})`}
                         </p>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                       <div>
-                        <Label className="text-sm font-medium">Policy Number</Label>
-                        <p className="text-sm text-muted-foreground">{ins.policy_number}</p>
+                        <Label className="text-xs md:text-sm font-medium">Policy Number</Label>
+                        <p className="text-sm md:text-base text-muted-foreground break-all">{ins.policy_number}</p>
                       </div>
                       {ins.group_number && (
                         <div>
-                          <Label className="text-sm font-medium">Group Number</Label>
-                          <p className="text-sm text-muted-foreground">{ins.group_number}</p>
+                          <Label className="text-xs md:text-sm font-medium">Group Number</Label>
+                          <p className="text-sm md:text-base text-muted-foreground">{ins.group_number}</p>
                         </div>
                       )}
                       {ins.subscriber_name && (
                         <div>
-                          <Label className="text-sm font-medium">Subscriber</Label>
-                          <p className="text-sm text-muted-foreground">{ins.subscriber_name}</p>
+                          <Label className="text-xs md:text-sm font-medium">Subscriber</Label>
+                          <p className="text-sm md:text-base text-muted-foreground">{ins.subscriber_name}</p>
                         </div>
                       )}
                       <div>
-                        <Label className="text-sm font-medium">Relationship</Label>
-                        <p className="text-sm text-muted-foreground capitalize">
+                        <Label className="text-xs md:text-sm font-medium">Relationship</Label>
+                        <p className="text-sm md:text-base text-muted-foreground capitalize">
                           {ins.subscriber_relationship}
                         </p>
                       </div>
                     </div>
 
                     {/* Coverage Dates */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                       {ins.effective_date && (
                         <div>
-                          <Label className="text-sm font-medium">Effective Date</Label>
+                          <Label className="text-xs md:text-sm font-medium">Effective Date</Label>
                           <div className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4 text-muted-foreground" />
-                            <p className="text-sm text-muted-foreground">
+                            <Calendar className="w-3 h-3 md:w-4 md:h-4 text-muted-foreground flex-shrink-0" />
+                            <p className="text-xs md:text-sm text-muted-foreground">
                               {new Date(ins.effective_date).toLocaleDateString()}
                             </p>
                           </div>
@@ -183,10 +183,10 @@ export const InsuranceInformation: React.FC = () => {
                       )}
                       {ins.expiration_date && (
                         <div>
-                          <Label className="text-sm font-medium">Expiration Date</Label>
-                          <div className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4 text-muted-foreground" />
-                            <p className={`text-sm ${
+                          <Label className="text-xs md:text-sm font-medium">Expiration Date</Label>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <Calendar className="w-3 h-3 md:w-4 md:h-4 text-muted-foreground flex-shrink-0" />
+                            <p className={`text-xs md:text-sm ${
                               isExpired(ins.expiration_date) ? 'text-red-600' :
                               isExpiringSoon(ins.expiration_date) ? 'text-orange-600' :
                               'text-muted-foreground'
@@ -209,16 +209,16 @@ export const InsuranceInformation: React.FC = () => {
 
                   {/* Benefits Information */}
                   <div className="space-y-4">
-                    <h4 className="font-medium">Coverage Details</h4>
+                    <h4 className="font-medium text-sm md:text-base">Coverage Details</h4>
                     
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                       {ins.copay_amount && (
                         <div className="p-3 bg-blue-50 rounded-lg">
                           <div className="flex items-center gap-2 mb-1">
-                            <DollarSign className="w-4 h-4 text-blue-600" />
-                            <Label className="text-sm font-medium">Copay</Label>
+                            <DollarSign className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                            <Label className="text-xs md:text-sm font-medium">Copay</Label>
                           </div>
-                          <p className="text-lg font-semibold text-blue-700">
+                          <p className="text-base md:text-lg font-semibold text-blue-700">
                             ${ins.copay_amount.toFixed(2)}
                           </p>
                         </div>
@@ -227,10 +227,10 @@ export const InsuranceInformation: React.FC = () => {
                       {ins.deductible_amount && (
                         <div className="p-3 bg-green-50 rounded-lg">
                           <div className="flex items-center gap-2 mb-1">
-                            <Shield className="w-4 h-4 text-green-600" />
-                            <Label className="text-sm font-medium">Deductible</Label>
+                            <Shield className="w-4 h-4 text-green-600 flex-shrink-0" />
+                            <Label className="text-xs md:text-sm font-medium">Deductible</Label>
                           </div>
-                          <p className="text-lg font-semibold text-green-700">
+                          <p className="text-base md:text-lg font-semibold text-green-700">
                             ${ins.deductible_amount.toFixed(2)}
                           </p>
                         </div>
@@ -240,17 +240,17 @@ export const InsuranceInformation: React.FC = () => {
                     {/* Provider Contact */}
                     {ins.insurance_providers && (
                       <div className="space-y-2">
-                        <Label className="text-sm font-medium">Provider Contact</Label>
+                        <Label className="text-xs md:text-sm font-medium">Provider Contact</Label>
                         {ins.insurance_providers.phone && (
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Phone className="w-4 h-4" />
+                          <div className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground">
+                            <Phone className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
                             <span>{ins.insurance_providers.phone}</span>
                           </div>
                         )}
                         {ins.insurance_providers.address && (
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <MapPin className="w-4 h-4" />
-                            <span>{ins.insurance_providers.address}</span>
+                          <div className="flex items-start gap-2 text-xs md:text-sm text-muted-foreground">
+                            <MapPin className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0 mt-0.5" />
+                            <span className="break-words">{ins.insurance_providers.address}</span>
                           </div>
                         )}
                       </div>
@@ -286,13 +286,14 @@ export const InsuranceInformation: React.FC = () => {
                 </div>
 
                 {/* Actions */}
-                <div className="flex justify-end mt-6 pt-4 border-t">
+                <div className="flex justify-end mt-4 md:mt-6 pt-4 border-t">
                   <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
                     <DialogTrigger asChild>
                       <Button 
                         variant="outline" 
                         size="sm"
                         onClick={() => setEditingInsurance(ins)}
+                        className="h-10 touch-manipulation"
                       >
                         <Edit className="w-4 h-4 mr-2" />
                         Edit Information
