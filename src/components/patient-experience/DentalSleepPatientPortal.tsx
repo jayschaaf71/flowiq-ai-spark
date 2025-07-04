@@ -270,11 +270,19 @@ Compliance Target: Met (above 4 hours nightly usage)
 
         {/* Key Metrics Dashboard */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Card className="border-purple-200 bg-white/90 backdrop-blur-sm">
+          <Card 
+            className="border-purple-200 bg-white/90 backdrop-blur-sm cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => toast({
+              title: "Current AHI Score Details",
+              description: `Your AHI has improved from 24.5 to ${metrics.ahiScore} - a 66% reduction! This shows excellent treatment progress. AHI measures breathing disruptions per hour during sleep.`,
+              duration: 8000
+            })}
+          >
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
                 <Gauge className="w-4 h-4 text-purple-600" />
                 Current AHI Score
+                <ArrowRight className="w-3 h-3 ml-auto text-purple-400" />
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -286,11 +294,19 @@ Compliance Target: Met (above 4 hours nightly usage)
             </CardContent>
           </Card>
 
-          <Card className="border-purple-200 bg-white/90 backdrop-blur-sm">
+          <Card 
+            className="border-purple-200 bg-white/90 backdrop-blur-sm cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => toast({
+              title: "Nightly Usage Details",
+              description: `You're averaging ${metrics.complianceHours} hours per night with your oral appliance. This exceeds the 4-hour minimum for effective treatment. Keep up the excellent work!`,
+              duration: 8000
+            })}
+          >
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
                 <Clock className="w-4 h-4 text-purple-600" />
                 Nightly Usage
+                <ArrowRight className="w-3 h-3 ml-auto text-purple-400" />
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -302,11 +318,19 @@ Compliance Target: Met (above 4 hours nightly usage)
             </CardContent>
           </Card>
 
-          <Card className="border-purple-200 bg-white/90 backdrop-blur-sm">
+          <Card 
+            className="border-purple-200 bg-white/90 backdrop-blur-sm cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => toast({
+              title: "Compliance Rate Details",
+              description: `Your ${metrics.compliancePercentage}% compliance rate is excellent! This means you're using your device consistently. Consistent use is key to successful sleep apnea treatment.`,
+              duration: 8000
+            })}
+          >
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
                 <Activity className="w-4 h-4 text-purple-600" />
                 Compliance Rate
+                <ArrowRight className="w-3 h-3 ml-auto text-purple-400" />
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -315,11 +339,15 @@ Compliance Target: Met (above 4 hours nightly usage)
             </CardContent>
           </Card>
 
-          <Card className="border-purple-200 bg-white/90 backdrop-blur-sm">
+          <Card 
+            className="border-purple-200 bg-white/90 backdrop-blur-sm cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={handleScheduleAppointment}
+          >
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-purple-600" />
                 Next Visit
+                <ArrowRight className="w-3 h-3 ml-auto text-purple-400" />
               </CardTitle>
             </CardHeader>
             <CardContent>
