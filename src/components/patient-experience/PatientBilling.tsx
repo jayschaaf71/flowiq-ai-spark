@@ -184,24 +184,6 @@ export const PatientBilling: React.FC = () => {
     .filter(inv => inv.status === 'overdue')
     .reduce((sum, inv) => sum + inv.amount, 0);
 
-  const handleSendBill = async (invoice: Invoice) => {
-    try {
-      // Mock successful bill sending for demo
-      toast({
-        title: "Bill Sent Successfully",
-        description: `Bill notification sent successfully`,
-      });
-
-    } catch (error) {
-      console.error('Error sending bill:', error);
-      toast({
-        title: "Error Sending Bill",
-        description: "Failed to send bill notification. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
   const handleRequestPaymentPlan = async () => {
     try {
       toast({
@@ -295,15 +277,6 @@ export const PatientBilling: React.FC = () => {
                       <Button variant="outline" size="sm">
                         <Download className="w-4 h-4 mr-1" />
                         Download
-                      </Button>
-                      
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleSendBill(invoice)}
-                      >
-                        <Mail className="w-4 h-4 mr-1" />
-                        Send Bill
                       </Button>
                       
                       <Dialog>
