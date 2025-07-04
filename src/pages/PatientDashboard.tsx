@@ -19,13 +19,17 @@ import {
   Phone,
   Mail,
   Loader2,
-  CreditCard
+  CreditCard,
+  ChevronRight,
+  X,
+  MapPin
 } from 'lucide-react';
 
 export const PatientDashboard: React.FC = () => {
   const { user, profile, signOut, loading: authLoading } = useAuth();
   const { currentTenant, loading: tenantLoading } = useCurrentTenant();
   const [activeSection, setActiveSection] = React.useState('dashboard');
+  const [selectedAppointment, setSelectedAppointment] = React.useState<any>(null);
 
   const handleSignOut = async () => {
     await signOut();
@@ -580,7 +584,20 @@ export const PatientDashboard: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
+                <div 
+                  className="flex items-center justify-between p-4 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors"
+                  onClick={() => setSelectedAppointment({
+                    id: '1',
+                    type: 'Regular Checkup',
+                    provider: 'Dr. Smith',
+                    specialty: 'General Medicine',
+                    date: 'March 15, 2024',
+                    time: '2:00 PM',
+                    status: 'Confirmed',
+                    location: 'Main Office - Room 205',
+                    notes: 'Annual physical examination'
+                  })}
+                >
                   <div>
                     <p className="font-medium text-gray-900">Regular Checkup</p>
                     <p className="text-sm text-gray-600">Dr. Smith • General Medicine</p>
@@ -595,7 +612,10 @@ export const PatientDashboard: React.FC = () => {
                       </span>
                     </div>
                   </div>
-                  <Badge className="bg-blue-600">Confirmed</Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge className="bg-blue-600">Confirmed</Badge>
+                    <ChevronRight className="w-5 h-5 text-gray-400" />
+                  </div>
                 </div>
 
                 <div className="text-center py-8 text-gray-500">
@@ -683,6 +703,89 @@ export const PatientDashboard: React.FC = () => {
           </>
         )}
       </div>
+
+      {/* Appointment Details Modal */}
+      {selectedAppointment && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-blue-600" />
+                  Appointment Details
+                </CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedAppointment(null)}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <h3 className="font-semibold text-lg">{selectedAppointment.type}</h3>
+                <p className="text-gray-600">{selectedAppointment.provider} • {selectedAppointment.specialty}</p>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <Calendar className="w-4 h-4 text-gray-500" />
+                  <span>{selectedAppointment.date}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Clock className="w-4 h-4 text-gray-500" />
+                  <span>{selectedAppointment.time}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <MapPin className="w-4 h-4 text-gray-500" />
+                  <span>{selectedAppointment.location}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-4 h-4 flex items-center justify-center">
+                    <div className={`w-2 h-2 rounded-full ${
+                      selectedAppointment.status === 'Confirmed' ? 'bg-green-500' : 'bg-yellow-500'
+                    }`} />
+                  </div>
+                  <span>Status: {selectedAppointment.status}</span>
+                </div>
+              </div>
+              
+              {selectedAppointment.notes && (
+                <div>
+                  <p className="text-sm font-medium text-gray-700">Notes:</p>
+                  <p className="text-sm text-gray-600">{selectedAppointment.notes}</p>
+                </div>
+              )}
+              
+              <div className="space-y-3 pt-4 border-t">
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => {
+                    setSelectedAppointment(null);
+                    setActiveSection('book-appointment');
+                  }}
+                >
+                  <Calendar className="w-4 h-4 mr-2" />
+                  Reschedule
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full text-red-600 border-red-200 hover:bg-red-50"
+                  onClick={() => {
+                    // Add cancel logic here
+                    setSelectedAppointment(null);
+                  }}
+                >
+                  Cancel Appointment
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };
