@@ -75,10 +75,10 @@ export const PatientDashboard: React.FC = () => {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">
-                  {currentTenant?.brand_name || 'FlowIQ'} Patient Portal
+                  Welcome to {currentTenant?.name || 'FlowIQ'} Patient Portal{profile?.first_name ? `, ${profile.first_name}` : ''}!
                 </h1>
                 <p className="text-sm text-gray-600">
-                  Welcome back, {profile?.first_name || user?.email || 'Patient'}
+                  {currentTenant?.tagline || 'Your healthcare journey continues'}
                 </p>
               </div>
             </div>
