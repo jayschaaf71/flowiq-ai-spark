@@ -50,7 +50,7 @@ const PracticeSetup = () => {
   });
 
   // Add persistence hooks
-  const { clearSavedData, hasSavedData } = usePracticeSetupPersistence(setupData, setSetupData);
+  const { clearSavedData, hasSavedData } = usePracticeSetupPersistence(setupData, setSetupData, currentStep, setCurrentStep);
 
   const totalSteps = 5;
   const progress = (currentStep / totalSteps) * 100;
