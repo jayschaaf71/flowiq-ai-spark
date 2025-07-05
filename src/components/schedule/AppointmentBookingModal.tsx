@@ -145,12 +145,17 @@ export const AppointmentBookingModal = ({
         const { data: existingPatient, error: patientCheckError } = await supabase
           .from('patients')
           .select('id')
-          .eq('profile_id', session.user.id)
-          .single();
+          .eq('id', session.user.id)
+          .maybeSingle();
 
-        if (patientCheckError && patientCheckError.code === 'PGRST116') {
-          // Patient doesn't exist, create one linked to the user's profile
-          console.log('Creating new patient record linked to profile...');
+        if (patientCheckError && patientCheckError.code !== 'PGRST116') {
+          console.error('Patient check error:', patientCheckError);
+          throw new Error(`Database error: ${patientCheckError.message}`);
+        }
+        
+        if (!existingPatient) {
+          // Patient doesn't exist, create one linked to the user
+          console.log('Creating new patient record...');
           const nameParts = formData.patientName.split(' ');
           const firstName = nameParts[0] || '';
           const lastName = nameParts.slice(1).join(' ') || '';
@@ -158,12 +163,11 @@ export const AppointmentBookingModal = ({
           const { data: newPatient, error: createPatientError } = await supabase
             .from('patients')
             .insert({
-              profile_id: session.user.id, // Link to the user's profile
+              id: session.user.id, // Link to the user's auth id
               first_name: firstName,
               last_name: lastName,
               email: formData.email,
               phone: formData.phone,
-              date_of_birth: '1990-01-01' // Default date, should be collected properly later
             })
             .select()
             .single();
@@ -175,9 +179,6 @@ export const AppointmentBookingModal = ({
           
           console.log('Created patient:', newPatient);
           patientId = newPatient.id;
-        } else if (patientCheckError) {
-          console.error('Patient check error:', patientCheckError);
-          throw new Error(`Database error: ${patientCheckError.message}`);
         } else {
           console.log('Using existing patient:', existingPatient);
           patientId = existingPatient.id;

@@ -1,6 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,13 +8,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { SetupLayout } from "@/components/SetupLayout";
 import { Loader2, Brain } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthProvider";
 
 export default function AuthPage() {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { signIn, signUp, user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
 
   const [signUpData, setSignUpData] = useState({
     firstName: "",
@@ -49,27 +55,16 @@ export default function AuthPage() {
     }
 
     try {
-      const redirectUrl = `${window.location.origin}/`;
-      
-      const { error } = await supabase.auth.signUp({
-        email: signUpData.email,
-        password: signUpData.password,
-        options: {
-          emailRedirectTo: redirectUrl,
-          data: {
-            first_name: signUpData.firstName,
-            last_name: signUpData.lastName,
-          },
-        },
-      });
+      const { error } = await signUp(
+        signUpData.email,
+        signUpData.password,
+        signUpData.firstName,
+        signUpData.lastName
+      );
 
       if (error) {
         setError(error.message);
       } else {
-        toast({
-          title: "Account created successfully!",
-          description: "Please check your email to verify your account.",
-        });
         // Redirect to practice setup after successful signup
         navigate("/practice-setup");
       }
@@ -86,18 +81,11 @@ export default function AuthPage() {
     setError(null);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: signInData.email,
-        password: signInData.password,
-      });
+      const { error } = await signIn(signInData.email, signInData.password);
 
       if (error) {
         setError(error.message);
       } else {
-        toast({
-          title: "Welcome back!",
-          description: "Successfully signed in.",
-        });
         navigate("/dashboard");
       }
     } catch (err) {
