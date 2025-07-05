@@ -2,7 +2,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { DollarSign, TrendingUp, AlertTriangle, CheckCircle, Clock, FileText } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { DollarSign, TrendingUp, AlertTriangle, CheckCircle, Clock, FileText, Brain } from "lucide-react";
+import { AIClaimsValidator } from "./AIClaimsValidator";
 
 export const ClaimsDashboard = () => {
   // Mock data for the dashboard
@@ -166,6 +168,24 @@ export const ClaimsDashboard = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* AI Claims Validator Section */}
+      <AIClaimsValidator 
+        claimData={{
+          id: "CLM-2024-001",
+          claim_number: "CLM-2024-001",
+          total_amount: 1250.00,
+          payer_name: "Blue Cross Blue Shield",
+          status: "pending",
+          diagnosis_codes: ["M54.5", "M25.511"],
+          procedure_codes: ["99213", "73060"],
+          submitted_date: "2024-01-15",
+          notes: "Patient presents with lower back pain and knee discomfort"
+        }}
+        onValidationComplete={(result) => {
+          console.log("Validation completed:", result);
+        }}
+      />
     </div>
   );
 };

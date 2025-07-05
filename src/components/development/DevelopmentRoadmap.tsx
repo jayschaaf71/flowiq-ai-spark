@@ -6,7 +6,7 @@ export const DevelopmentRoadmap = () => {
   const claimsIQTasks = [
     { id: 1, title: "Fix Sample Data Creation", status: "done", priority: "high", description: "Resolve team_members role constraint issue" },
     { id: 2, title: "Real-time Claims Processing", status: "done", priority: "medium", description: "WebSocket integration for live updates" },
-    { id: 3, title: "AI Claims Review Engine", status: "todo", priority: "high", description: "Implement AI-powered claim validation" },
+    { id: 3, title: "AI Claims Review Engine", status: "done", priority: "high", description: "Implement AI-powered claim validation" },
     { id: 4, title: "Denial Management Automation", status: "done", priority: "medium", description: "Auto-correction and appeal generation" },
     { id: 5, title: "Revenue Analytics Dashboard", status: "done", priority: "low", description: "Comprehensive financial reporting" },
     { id: 6, title: "Payer Integration APIs", status: "todo", priority: "high", description: "Direct submission to insurance providers" },
