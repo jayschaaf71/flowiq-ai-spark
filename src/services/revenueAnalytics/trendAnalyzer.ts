@@ -97,7 +97,7 @@ export class TrendAnalyzerService {
     return this.getRevenueData(dateRange);
   }
 
-  async getRevenueKPIs() {
+  async getRevenueKPIs(dateRange?: { start: string; end: string }) {
     return [
       { name: 'Collection Rate', current: 85, target: 90, trend: 'up' as const, variance: 5, format: 'percentage' as const },
       { name: 'Days in A/R', current: 32, target: 30, trend: 'down' as const, variance: -2, format: 'days' as const }

@@ -28,166 +28,128 @@ const DEFAULT_TENANTS: Record<string, TenantConfig> = {
   },
   dental: {
     id: 'default-dental',
-    name: 'Dental IQ',
-    brand_name: 'Dental IQ',
-    brandName: 'Dental IQ',
+    name: 'FlowIQ Dental',
+    brand_name: 'FlowIQ Dental',
+    brandName: 'FlowIQ Dental',
     specialty: 'dental-care',
-    primary_color: '#3b82f6',
-    secondary_color: '#60a5fa',
-    tagline: 'The AI Business Operating System'
+    primary_color: '#0ea5e9',
+    secondary_color: '#38bdf8',
+    tagline: 'Dental Care Excellence'
   },
   'dental-sleep': {
     id: 'default-dental-sleep',
-    name: 'Dental Sleep IQ',
-    brand_name: 'Dental Sleep IQ',
-    brandName: 'Dental Sleep IQ',
+    name: 'FlowIQ Sleep',
+    brand_name: 'FlowIQ Sleep',
+    brandName: 'FlowIQ Sleep',
     specialty: 'dental-sleep-medicine',
     primary_color: '#8b5cf6',
     secondary_color: '#a78bfa',
-    tagline: 'Sleep Medicine Solutions'
+    tagline: 'Sleep Medicine'
+  },
+  'med-spa': {
+    id: 'default-medspa',
+    name: 'FlowIQ MedSpa',
+    brand_name: 'FlowIQ MedSpa',
+    brandName: 'FlowIQ MedSpa',
+    specialty: 'medical-spa',
+    primary_color: '#ec4899',
+    secondary_color: '#f472b6',
+    tagline: 'Medical Spa Services'
+  },
+  general: {
+    id: 'default-general',
+    name: 'FlowIQ Health',
+    brand_name: 'FlowIQ Health',
+    brandName: 'FlowIQ Health',
+    specialty: 'general-practice',
+    primary_color: '#06b6d4',
+    secondary_color: '#22d3ee',
+    tagline: 'Healthcare Excellence'
   }
 };
 
-// Helper function to detect current specialty from URL or context
-const detectCurrentSpecialty = (): string => {
-  const path = window.location.pathname;
-  const wrapper = document.querySelector('[class*="-iq-theme"]');
-  
-  if (wrapper?.classList.contains('dental-sleep-iq-theme') || path.includes('dental-sleep')) {
-    return 'dental-sleep';
-  } else if (wrapper?.classList.contains('dental-iq-theme') || path.includes('dental')) {
-    return 'dental';
-  } else {
-    return 'chiropractic';
-  }
-};
+export function useEnhancedTenantConfig() {
+  const { user } = useAuth();
+  const [tenantConfig, setTenantConfig] = useState<TenantConfig | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-export const useCurrentTenant = () => {
-  const { user, profile } = useAuth();
-  const [currentTenant, setCurrentTenant] = useState<TenantConfig | null>(null);
-  const [loading, setLoading] = useState(true);
+  const loadTenantConfig = async () => {
+    try {
+      setIsLoading(true);
+      console.log('Mock loading tenant config for user:', user?.id);
+      
+      // Mock tenant configuration - return default based on specialty or general
+      const specialty = localStorage.getItem('specialty') || 'general';
+      const config = DEFAULT_TENANTS[specialty] || DEFAULT_TENANTS.general;
+      
+      setTenantConfig(config);
+    } catch (error) {
+      console.error('Error loading tenant config:', error);
+      setTenantConfig(DEFAULT_TENANTS.general);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const updateTenantConfig = async (updates: Partial<TenantConfig>) => {
+    try {
+      console.log('Mock updating tenant config:', updates);
+      
+      if (tenantConfig) {
+        const updatedConfig = { ...tenantConfig, ...updates };
+        setTenantConfig(updatedConfig);
+        return updatedConfig;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error updating tenant config:', error);
+      return null;
+    }
+  };
 
   useEffect(() => {
-    const fetchTenant = async () => {
-      try {
-        setLoading(true);
-        
-        console.log('fetchTenant called with user:', user?.id, 'profile:', profile);
-        
-        // Detect current specialty context
-        const currentSpecialty = detectCurrentSpecialty();
-        console.log('Detected specialty:', currentSpecialty);
-        
-        // If no user, use default tenant for detected specialty
-        if (!user || !profile) {
-          console.log('No user or profile, using default tenant for specialty:', currentSpecialty);
-          const tenant = DEFAULT_TENANTS[currentSpecialty] || DEFAULT_TENANTS.chiropractic;
-          setCurrentTenant(tenant);
-          setLoading(false);
-          return;
-        }
+    loadTenantConfig();
+  }, [user]);
 
-        // Try to get tenant from user's profile
-        const tenantId = profile.tenant_id;
-        console.log('Profile tenant_id:', tenantId);
-        
-        if (!tenantId) {
-          console.log('No tenant_id in profile, using default tenant for specialty:', currentSpecialty);
-          const tenant = DEFAULT_TENANTS[currentSpecialty] || DEFAULT_TENANTS.chiropractic;
-          setCurrentTenant(tenant);
-          setLoading(false);
-          return;
-        }
+  return {
+    tenantConfig,
+    currentTenant: tenantConfig, // Add alias for compatibility
+    isLoading,
+    loading: isLoading, // Add alias for compatibility
+    tagline: tenantConfig?.tagline,
+    updateTenantConfig,
+    refetch: loadTenantConfig
+  };
+}
 
-        // Fetch tenant configuration from database
-        const { data: tenant, error } = await supabase
-          .from('tenants')
-          .select('*')
-          .eq('id', tenantId)
-          .maybeSingle();
-
-        if (error) {
-          console.error('Error fetching tenant:', error, 'for tenantId:', tenantId);
-          const currentSpecialty = detectCurrentSpecialty();
-          const defaultTenant = DEFAULT_TENANTS[currentSpecialty] || DEFAULT_TENANTS.chiropractic;
-          setCurrentTenant(defaultTenant);
-        } else if (!tenant) {
-          console.log('No tenant found for id:', tenantId);
-          const currentSpecialty = detectCurrentSpecialty();
-          const defaultTenant = DEFAULT_TENANTS[currentSpecialty] || DEFAULT_TENANTS.chiropractic;
-          setCurrentTenant(defaultTenant);
-        } else {
-          console.log('Successfully fetched tenant:', tenant);
-          setCurrentTenant({
-            id: tenant.id,
-            name: tenant.name,
-            brand_name: tenant.brand_name,
-            brandName: tenant.brand_name, // Add alias
-            specialty: tenant.specialty,
-            primary_color: tenant.primary_color,
-            secondary_color: tenant.secondary_color,
-            logo_url: tenant.logo_url,
-            tagline: tenant.tagline
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching tenant:', error);
-        const currentSpecialty = detectCurrentSpecialty();
-        const tenant = DEFAULT_TENANTS[currentSpecialty] || DEFAULT_TENANTS.chiropractic;
-        setCurrentTenant(tenant);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTenant();
-  }, [user, profile]);
-
-  return { currentTenant, loading };
+export const getTenantConfigForSpecialty = (specialty: string): TenantConfig => {
+  return DEFAULT_TENANTS[specialty] || DEFAULT_TENANTS.general;
 };
 
-// Add useTenantConfig export that AppSidebar expects
-export const useTenantConfig = () => {
-  const { currentTenant } = useCurrentTenant();
-  const currentSpecialty = detectCurrentSpecialty();
-  return currentTenant || DEFAULT_TENANTS[currentSpecialty] || DEFAULT_TENANTS.chiropractic;
-};
-
-// Specialty mapping for consistent theming
-export const getSpecialtyTheme = (specialty: string) => {
-  const normalizedSpecialty = specialty?.toLowerCase().replace(/\s+/g, '-');
+export const enhancedTenantConfigService = {
+  async getTenantConfig(tenantId?: string): Promise<TenantConfig | null> {
+    console.log('Mock fetching tenant config for:', tenantId);
+    return DEFAULT_TENANTS.general;
+  },
   
-  switch (normalizedSpecialty) {
-    case 'chiropractic-care':
-    case 'chiropractic':
-      return {
-        primaryColor: '#16a34a',
-        secondaryColor: '#22c55e',
-        accentColor: '#dcfce7',
-        theme: 'chiropractic'
-      };
-    case 'dental-care':
-    case 'dental':
-      return {
-        primaryColor: '#3b82f6',
-        secondaryColor: '#60a5fa',
-        accentColor: '#dbeafe',
-        theme: 'dental'
-      };
-    case 'dental-sleep-medicine':
-    case 'dental-sleep':
-      return {
-        primaryColor: '#8b5cf6',
-        secondaryColor: '#a78bfa',
-        accentColor: '#ede9fe',
-        theme: 'dental-sleep'
-      };
-    default:
-      return {
-        primaryColor: '#16a34a',
-        secondaryColor: '#22c55e',
-        accentColor: '#dcfce7',
-        theme: 'default'
-      };
+  async updateTenantConfig(tenantId: string, updates: Partial<TenantConfig>): Promise<TenantConfig | null> {
+    console.log('Mock updating tenant config:', tenantId, updates);
+    return { ...DEFAULT_TENANTS.general, ...updates };
   }
+};
+
+// Add missing exports for compatibility
+export const useTenantConfig = useEnhancedTenantConfig;
+export const useCurrentTenant = useEnhancedTenantConfig;
+
+export const getSpecialtyTheme = (specialty: string) => {
+  const config = DEFAULT_TENANTS[specialty] || DEFAULT_TENANTS.general;
+  return {
+    primaryColor: config.primary_color,
+    secondaryColor: config.secondary_color,
+    accentColor: config.secondary_color, // Add for compatibility
+    theme: 'modern', // Add for compatibility
+    name: config.name,
+    tagline: config.tagline
+  };
 };

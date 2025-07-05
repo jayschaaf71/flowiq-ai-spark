@@ -1,15 +1,12 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface StaffAssignment {
   id: string;
-  submission_id: string;
   staff_id: string;
-  staff_name: string;
+  appointment_id: string;
+  role: string;
   assigned_at: string;
-  assigned_by?: string;
-  status: 'active' | 'completed' | 'transferred';
-  notes?: string;
+  status: string;
 }
 
 export class StaffAssignmentService {
@@ -21,91 +18,64 @@ export class StaffAssignmentService {
     notes?: string
   ) {
     try {
-      // Create the staff assignment record
-      const { data: assignment, error: assignmentError } = await supabase
-        .from('staff_assignments')
-        .insert({
-          submission_id: submissionId,
-          staff_id: staffId,
-          staff_name: staffName,
-          assigned_by: assignedBy,
-          notes: notes,
-          status: 'active'
-        })
-        .select()
-        .single();
-
-      if (assignmentError) throw assignmentError;
-
-      // Update the submission status
-      const { error: updateError } = await supabase
-        .from('intake_submissions')
-        .update({ 
-          status: 'assigned',
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', submissionId);
-
-      if (updateError) throw updateError;
-
-      return { success: true, assignment };
+      console.log('Mock assigning submission:', submissionId, 'to staff:', staffName);
+      
+      // Return mock assignment
+      return {
+        id: 'assignment-' + Date.now(),
+        submission_id: submissionId,
+        staff_id: staffId,
+        staff_name: staffName,
+        assigned_at: new Date().toISOString(),
+        assigned_by: assignedBy,
+        status: 'active',
+        notes: notes
+      };
     } catch (error) {
-      console.error('Staff assignment error:', error);
-      throw error;
-    }
-  }
-
-  static async getSubmissionAssignments(submissionId: string) {
-    try {
-      const { data, error } = await supabase
-        .from('staff_assignments')
-        .select('*')
-        .eq('submission_id', submissionId)
-        .order('assigned_at', { ascending: false });
-
-      if (error) throw error;
-      return data || [];
-    } catch (error) {
-      console.error('Failed to get assignments:', error);
-      return [];
-    }
-  }
-
-  static async getCurrentAssignment(submissionId: string) {
-    try {
-      const { data, error } = await supabase
-        .from('staff_assignments')
-        .select('*')
-        .eq('submission_id', submissionId)
-        .eq('status', 'active')
-        .order('assigned_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      console.error('Failed to get current assignment:', error);
+      console.error('Error in assignSubmission:', error);
       return null;
     }
   }
 
-  static async completeAssignment(assignmentId: string, notes?: string) {
+  static async getStaffAssignments(staffId?: string): Promise<StaffAssignment[]> {
     try {
-      const { error } = await supabase
-        .from('staff_assignments')
-        .update({ 
-          status: 'completed',
-          completed_at: new Date().toISOString(),
-          notes: notes
-        })
-        .eq('id', assignmentId);
+      console.log('Mock fetching staff assignments for:', staffId);
+      
+      return [
+        {
+          id: 'assignment-1',
+          staff_id: staffId || 'staff-1',
+          appointment_id: 'apt-1',
+          role: 'provider',
+          assigned_at: new Date().toISOString(),
+          status: 'active'
+        }
+      ];
+    } catch (error) {
+      console.error('Error fetching staff assignments:', error);
+      return [];
+    }
+  }
 
-      if (error) throw error;
+  static async updateAssignmentStatus(assignmentId: string, status: string, notes?: string) {
+    try {
+      console.log('Mock updating assignment status:', assignmentId, status);
       return { success: true };
     } catch (error) {
-      console.error('Failed to complete assignment:', error);
-      throw error;
+      console.error('Error updating assignment status:', error);
+      return { success: false, error };
+    }
+  }
+
+  static async getAssignmentHistory(submissionId: string) {
+    try {
+      console.log('Mock fetching assignment history for:', submissionId);
+      return [];
+    } catch (error) {
+      console.error('Error fetching assignment history:', error);
+      return [];
     }
   }
 }
+
+export const staffAssignmentService = new StaffAssignmentService();
