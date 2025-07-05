@@ -28,6 +28,8 @@ import { MedicalRecordsDisplay } from '@/components/patient-experience/MedicalRe
 import { InsuranceInformation } from '@/components/patient-experience/InsuranceInformation';
 import { AppointmentsDisplay } from '@/components/patient-experience/AppointmentsDisplay';
 import { DentalSleepPatientPortal } from '@/components/patient-experience/DentalSleepPatientPortal';
+import { ChiropracticPatientPortal } from '@/components/patient-experience/ChiropracticPatientPortal';
+import { DentalPatientPortal } from '@/components/patient-experience/DentalPatientPortal';
 import { OnboardingGate } from '@/components/onboarding/OnboardingGate';
 import { 
   Calendar, 
@@ -130,11 +132,27 @@ export const PatientDashboard: React.FC = () => {
     );
   }
 
-  // Render specialized portal for dental sleep medicine
+  // Render specialized portals based on specialty
   if (currentTenant?.specialty === 'dental-sleep-medicine' || specialty === 'dental-sleep-medicine') {
     return (
       <OnboardingGate>
         <DentalSleepPatientPortal />
+      </OnboardingGate>
+    );
+  }
+
+  if (currentTenant?.specialty === 'chiropractic-care' || currentTenant?.specialty === 'chiropractic' || specialty === 'chiropractic') {
+    return (
+      <OnboardingGate>
+        <ChiropracticPatientPortal />
+      </OnboardingGate>
+    );
+  }
+
+  if (currentTenant?.specialty === 'dental-care' || currentTenant?.specialty === 'dental' || specialty === 'dental') {
+    return (
+      <OnboardingGate>
+        <DentalPatientPortal />
       </OnboardingGate>
     );
   }
