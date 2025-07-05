@@ -4,18 +4,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Tables, TablesInsert } from "@/integrations/supabase/types";
 
-type Medication = Tables<"medications">;
-type NewMedication = TablesInsert<"medications">;
+type Medication = Tables<"prescriptions">;
+type NewMedication = TablesInsert<"prescriptions">;
 
 export const useMedications = (patientId: string) => {
   return useQuery({
-    queryKey: ['medications', patientId],
+    queryKey: ['prescriptions', patientId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('medications')
+        .from('prescriptions')
         .select('*')
         .eq('patient_id', patientId)
-        .order('created_at', { ascending: false });
+        .order('prescribed_date', { ascending: false });
 
       if (error) throw error;
       return data || [];
@@ -31,7 +31,7 @@ export const useCreateMedication = () => {
   return useMutation({
     mutationFn: async (medication: NewMedication) => {
       const { data, error } = await supabase
-        .from('medications')
+        .from('prescriptions')
         .insert({
           ...medication,
           created_by: (await supabase.auth.getUser()).data.user?.id
@@ -43,7 +43,7 @@ export const useCreateMedication = () => {
       return data;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['medications', data.patient_id] });
+      queryClient.invalidateQueries({ queryKey: ['prescriptions', data.patient_id] });
       toast({
         title: "Medication added",
         description: "The medication has been successfully recorded.",
@@ -66,7 +66,7 @@ export const useUpdateMedication = () => {
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<Medication> }) => {
       const { data, error } = await supabase
-        .from('medications')
+        .from('prescriptions')
         .update(updates)
         .eq('id', id)
         .select()
@@ -76,7 +76,7 @@ export const useUpdateMedication = () => {
       return data;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['medications', data.patient_id] });
+      queryClient.invalidateQueries({ queryKey: ['prescriptions', data.patient_id] });
       toast({
         title: "Medication updated",
         description: "The medication has been successfully updated.",

@@ -294,6 +294,50 @@ export type Database = {
         }
         Relationships: []
       }
+      medical_conditions: {
+        Row: {
+          condition_name: string
+          created_at: string
+          created_by: string | null
+          diagnosis_date: string | null
+          id: string
+          notes: string | null
+          patient_id: string
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          condition_name: string
+          created_at?: string
+          created_by?: string | null
+          diagnosis_date?: string | null
+          id?: string
+          notes?: string | null
+          patient_id: string
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          condition_name?: string
+          created_at?: string
+          created_by?: string | null
+          diagnosis_date?: string | null
+          id?: string
+          notes?: string | null
+          patient_id?: string
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medical_conditions_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       medical_records: {
         Row: {
           allergies: string[] | null
@@ -534,6 +578,7 @@ export type Database = {
           emergency_contact_name: string | null
           emergency_contact_phone: string | null
           first_name: string | null
+          gender: string | null
           id: string
           insurance_number: string | null
           insurance_provider: string | null
@@ -557,6 +602,7 @@ export type Database = {
           emergency_contact_name?: string | null
           emergency_contact_phone?: string | null
           first_name?: string | null
+          gender?: string | null
           id?: string
           insurance_number?: string | null
           insurance_provider?: string | null
@@ -580,6 +626,7 @@ export type Database = {
           emergency_contact_name?: string | null
           emergency_contact_phone?: string | null
           first_name?: string | null
+          gender?: string | null
           id?: string
           insurance_number?: string | null
           insurance_provider?: string | null
@@ -594,6 +641,59 @@ export type Database = {
           zip_code?: string | null
         }
         Relationships: []
+      }
+      prescriptions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          dosage: string
+          frequency: string
+          id: string
+          medication_name: string
+          notes: string | null
+          patient_id: string
+          prescribed_by: string
+          prescribed_date: string
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          dosage: string
+          frequency: string
+          id?: string
+          medication_name: string
+          notes?: string | null
+          patient_id: string
+          prescribed_by: string
+          prescribed_date: string
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          dosage?: string
+          frequency?: string
+          id?: string
+          medication_name?: string
+          notes?: string | null
+          patient_id?: string
+          prescribed_by?: string
+          prescribed_date?: string
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prescriptions_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
