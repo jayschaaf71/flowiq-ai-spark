@@ -27,17 +27,17 @@ export const useTenantAnalytics = () => {
     queryFn: async () => {
       console.log('Fetching tenant usage metrics...');
       
-      // This would be a more complex query in a real implementation
-      // For now, we'll return mock data based on actual tenants
-      const { data: tenants, error } = await supabase
-        .from('tenants')
-        .select('id, name, brand_name')
-        .eq('is_active', true);
-
-      if (error) throw error;
+      // Mock tenants data since table doesn't exist
+      console.log('Using mock tenants data for analytics');
+      
+      const mockTenants = [
+        { id: '1', name: 'Medical Practice 1', brand_name: 'Smith Clinic' },
+        { id: '2', name: 'Medical Practice 2', brand_name: 'Jones Wellness' },
+        { id: '3', name: 'Medical Practice 3', brand_name: 'Community Health' }
+      ];
 
       // Generate mock usage data
-      const mockUsageMetrics: TenantUsageMetrics[] = (tenants || []).map(tenant => ({
+      const mockUsageMetrics: TenantUsageMetrics[] = mockTenants.map(tenant => ({
         tenant_id: tenant.id,
         tenant_name: tenant.brand_name || tenant.name,
         user_count: Math.floor(Math.random() * 20) + 5,

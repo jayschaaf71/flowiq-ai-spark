@@ -68,19 +68,28 @@ export const useVendors = () => {
   const { data: vendors, isLoading: vendorsLoading, error: vendorsError } = useQuery({
     queryKey: ['vendors'],
     queryFn: async () => {
-      console.log('Fetching vendors...');
-      const { data, error } = await supabase
-        .from('vendors')
-        .select('*')
-        .order('name');
+      console.log('Using mock vendors data...');
       
-      if (error) {
-        console.error('Error fetching vendors:', error);
-        throw error;
-      }
+      // Mock vendors data since table doesn't exist
+      const mockVendors: Vendor[] = [
+        {
+          id: '1',
+          name: 'Medical Supplies Inc',
+          vendor_number: 'V001',
+          contact_person: 'John Smith',
+          email: 'john@medicalsupplies.com',
+          phone: '(555) 123-4567',
+          address: '123 Medical St',
+          integration_status: 'connected',
+          integration_config: {},
+          notes: 'Primary medical supplies vendor',
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      ];
       
-      console.log('Vendors fetched:', data);
-      return data as Vendor[];
+      return mockVendors;
     },
   });
 

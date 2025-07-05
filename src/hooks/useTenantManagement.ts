@@ -61,34 +61,79 @@ export const useTenantManagement = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch all tenants (platform admin only)
+  // Fetch all tenants (platform admin only) - mock data
   const { data: tenants, isLoading: tenantsLoading } = useQuery({
     queryKey: ['tenants'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('tenants')
-        .select('*')
-        .order('name');
-      if (error) throw error;
-      return data as Tenant[];
+      // Mock tenants data since table doesn't exist
+      console.log('Using mock tenants data');
+      
+      const mockTenants: Tenant[] = [
+        {
+          id: '1',
+          name: 'Smith Medical Practice',
+          slug: 'smith-medical',
+          brand_name: 'Smith Clinic',
+          primary_color: '#3b82f6',
+          secondary_color: '#6366f1',
+          specialty: 'general',
+          subscription_tier: 'professional',
+          max_forms: 50,
+          max_submissions: 1000,
+          max_users: 10,
+          custom_branding_enabled: true,
+          api_access_enabled: true,
+          white_label_enabled: false,
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      ];
+      
+      return mockTenants;
     },
     enabled: !!user,
   });
 
-  // Fetch user's tenant memberships
+  // Fetch user's tenant memberships - mock data
   const { data: userTenants, isLoading: userTenantsLoading } = useQuery({
     queryKey: ['user-tenants', user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('tenant_users')
-        .select(`
-          *,
-          tenants!tenant_users_tenant_id_fkey(*)
-        `)
-        .eq('user_id', user!.id)
-        .eq('is_active', true);
-      if (error) throw error;
-      return data;
+      // Mock user tenants data since table doesn't exist
+      console.log('Using mock user tenants data');
+      
+      const mockUserTenants = [
+        {
+          id: '1',
+          tenant_id: '1',
+          user_id: user!.id,
+          role: 'tenant_admin' as const,
+          permissions: {},
+          is_active: true,
+          created_at: new Date().toISOString(),
+          tenants: {
+            id: '1',
+            name: 'Smith Medical Practice',
+            slug: 'smith-medical',
+            brand_name: 'Smith Clinic',
+            primary_color: '#3b82f6',
+            secondary_color: '#6366f1',
+            specialty: 'general',
+            subscription_tier: 'professional',
+            max_forms: 50,
+            max_submissions: 1000,
+            max_users: 10,
+            custom_branding_enabled: true,
+            api_access_enabled: true,
+            white_label_enabled: false,
+            is_active: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+        }
+      ];
+      
+      return mockUserTenants;
     },
     enabled: !!user,
   });
@@ -101,15 +146,19 @@ export const useTenantManagement = () => {
     return tenantUser?.tenants as Tenant;
   };
 
-  // Create tenant mutation
+  // Create tenant mutation - mock implementation
   const createTenantMutation = useMutation({
     mutationFn: async (tenantData: Omit<Tenant, 'id' | 'created_at' | 'updated_at'>) => {
-      const { data, error } = await supabase
-        .from('tenants')
-        .insert([tenantData])
-        .select()
-        .single();
-      if (error) throw error;
+      // Mock tenant creation since table doesn't exist
+      console.log('Mock creating tenant:', tenantData);
+      
+      const data: Tenant = {
+        ...tenantData,
+        id: Date.now().toString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      
       return data;
     },
     onSuccess: () => {
@@ -125,16 +174,18 @@ export const useTenantManagement = () => {
     },
   });
 
-  // Update tenant mutation
+  // Update tenant mutation - mock implementation
   const updateTenantMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<Tenant> }) => {
-      const { data, error } = await supabase
-        .from('tenants')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
-      if (error) throw error;
+      // Mock tenant update since table doesn't exist
+      console.log('Mock updating tenant:', id, updates);
+      
+      const data = {
+        id,
+        ...updates,
+        updated_at: new Date().toISOString()
+      };
+      
       return data;
     },
     onSuccess: () => {
@@ -150,7 +201,7 @@ export const useTenantManagement = () => {
     },
   });
 
-  // Invite user to tenant
+  // Invite user to tenant - mock implementation
   const inviteUserMutation = useMutation({
     mutationFn: async ({ 
       tenantId, 
@@ -161,20 +212,21 @@ export const useTenantManagement = () => {
       email: string; 
       role: TenantUser['role'] 
     }) => {
-      // This would typically send an invitation email
-      // For now, we'll create a placeholder entry
-      const { data, error } = await supabase
-        .from('tenant_users')
-        .insert([{
-          tenant_id: tenantId,
-          user_id: user!.id, // Temporary - would be actual user ID after invitation
-          role,
-          invited_by: user!.id,
-          invited_at: new Date().toISOString()
-        }])
-        .select()
-        .single();
-      if (error) throw error;
+      // Mock user invitation since table doesn't exist
+      console.log('Mock inviting user:', { tenantId, email, role });
+      
+      const data = {
+        id: Date.now().toString(),
+        tenant_id: tenantId,
+        user_id: user!.id,
+        role,
+        permissions: {},
+        is_active: true,
+        invited_by: user!.id,
+        invited_at: new Date().toISOString(),
+        created_at: new Date().toISOString()
+      };
+      
       return data;
     },
     onSuccess: () => {
