@@ -62,7 +62,7 @@ export const AnalyticsDashboard = () => {
     try {
       // Load basic counts
       const [patientsRes, appointmentsRes] = await Promise.all([
-        supabase.from('patients').select('*', { count: 'exact' }),
+        supabase.from('profiles').select('*', { count: 'exact' }),
         supabase.from('appointments').select('*', { count: 'exact' })
       ]);
 

@@ -109,13 +109,17 @@ export const AppointmentBooking = ({
   const fetchPatients = async () => {
     try {
       const { data, error } = await supabase
-        .from('patients')
-        .select('id, first_name, last_name, patient_number')
-        .eq('is_active', true)
+        .from('profiles')
+        .select('id, first_name, last_name, contact_phone')
         .order('first_name');
 
       if (error) throw error;
-      setPatients(data || []);
+      setPatients(data?.map(profile => ({
+        id: profile.id,
+        first_name: profile.first_name || '',
+        last_name: profile.last_name || '',
+        patient_number: profile.contact_phone || 'No phone'
+      })) || []);
     } catch (error) {
       console.error('Error fetching patients:', error);
     }
@@ -174,20 +178,13 @@ export const AppointmentBooking = ({
     try {
       const appointmentData = {
         patient_id: formData.patient_id || null,
-        provider_id: formData.provider_id,
+        provider: formData.provider_id,
         date: format(formData.date, 'yyyy-MM-dd'),
         time: formData.time,
         duration: formData.duration,
-        appointment_type: formData.appointment_type,
-        title: formData.title,
+        type: formData.appointment_type,
         notes: formData.notes,
-        status: 'pending',
-        // Include contact info for new patients
-        ...((!formData.patient_id) && {
-          email: formData.email,
-          phone: formData.phone,
-          patient_name: formData.patient_name
-        })
+        status: 'pending'
       };
 
       const { data, error } = await supabase
