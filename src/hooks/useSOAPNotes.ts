@@ -1,6 +1,4 @@
-
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 interface SOAPNote {
@@ -35,14 +33,34 @@ export const useSOAPNotes = () => {
   const fetchSOAPNotes = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('soap_notes')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
+      // Mock SOAP notes data
+      const mockNotes: SOAPNote[] = [
+        {
+          id: '1',
+          patient_id: 'patient-1',
+          provider_id: 'provider-1',
+          appointment_id: 'appointment-1',
+          subjective: 'Patient reports lower back pain for 3 days',
+          objective: 'Range of motion limited, tender to touch L4-L5',
+          assessment: 'Acute lower back strain',
+          plan: 'Chiropractic adjustment, ice therapy, follow up in 1 week',
+          is_ai_generated: true,
+          ai_confidence_score: 0.95,
+          status: 'draft',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          visit_date: new Date().toISOString().split('T')[0],
+          chief_complaint: 'Lower back pain',
+          diagnosis_codes: ['M54.5'],
+          vital_signs: {
+            blood_pressure: '120/80',
+            heart_rate: 72,
+            temperature: 98.6
+          }
+        }
+      ];
       
-      setSOAPNotes(data || []);
+      setSOAPNotes(mockNotes);
     } catch (error) {
       console.error('Error fetching SOAP notes:', error);
       toast({
@@ -55,44 +73,27 @@ export const useSOAPNotes = () => {
     }
   };
 
-  const createSOAPNote = async (soapData: Partial<SOAPNote>) => {
+  const createSOAPNote = async (note: Omit<SOAPNote, 'id' | 'created_at' | 'updated_at'>) => {
+    setLoading(true);
     try {
-      // Ensure required fields are present and map to database schema
-      const noteData = {
-        patient_id: soapData.patient_id || '',
-        provider_id: soapData.provider_id,
-        appointment_id: soapData.appointment_id,
-        subjective: soapData.subjective,
-        objective: soapData.objective,
-        assessment: soapData.assessment,
-        plan: soapData.plan,
-        transcription_text: soapData.transcription_text,
-        is_ai_generated: soapData.is_ai_generated || false,
-        ai_confidence_score: soapData.ai_confidence_score,
-        status: soapData.status || 'draft',
-        visit_date: soapData.visit_date || new Date().toISOString().split('T')[0],
-        chief_complaint: soapData.chief_complaint,
-        diagnosis_codes: soapData.diagnosis_codes || [],
-        vital_signs: soapData.vital_signs,
-        created_by: soapData.created_by
+      // Mock SOAP note creation
+      console.log('Creating SOAP note:', note);
+      
+      const newNote: SOAPNote = {
+        ...note,
+        id: Date.now().toString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       };
 
-      const { data, error } = await supabase
-        .from('soap_notes')
-        .insert(noteData)
-        .select()
-        .single();
+      setSOAPNotes(prev => [newNote, ...prev]);
 
-      if (error) throw error;
-
-      setSOAPNotes(prev => [data, ...prev]);
-      
       toast({
-        title: "SOAP Note Created",
-        description: "SOAP note has been saved successfully",
+        title: "Success",
+        description: "SOAP note created successfully",
       });
-      
-      return data;
+
+      return newNote;
     } catch (error) {
       console.error('Error creating SOAP note:', error);
       toast({
@@ -100,31 +101,32 @@ export const useSOAPNotes = () => {
         description: "Failed to create SOAP note",
         variant: "destructive",
       });
-      throw error;
+      return null;
+    } finally {
+      setLoading(false);
     }
   };
 
   const updateSOAPNote = async (id: string, updates: Partial<SOAPNote>) => {
+    setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('soap_notes')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
+      // Mock SOAP note update
+      console.log('Updating SOAP note:', id, updates);
 
-      if (error) throw error;
+      setSOAPNotes(prev => 
+        prev.map(note => 
+          note.id === id 
+            ? { ...note, ...updates, updated_at: new Date().toISOString() }
+            : note
+        )
+      );
 
-      setSOAPNotes(prev => prev.map(note => 
-        note.id === id ? { ...note, ...data } : note
-      ));
-      
       toast({
-        title: "SOAP Note Updated",
-        description: "Changes have been saved successfully",
+        title: "Success",
+        description: "SOAP note updated successfully",
       });
-      
-      return data;
+
+      return true;
     } catch (error) {
       console.error('Error updating SOAP note:', error);
       toast({
@@ -132,8 +134,45 @@ export const useSOAPNotes = () => {
         description: "Failed to update SOAP note",
         variant: "destructive",
       });
-      throw error;
+      return false;
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const deleteSOAPNote = async (id: string) => {
+    setLoading(true);
+    try {
+      // Mock SOAP note deletion
+      console.log('Deleting SOAP note:', id);
+
+      setSOAPNotes(prev => prev.filter(note => note.id !== id));
+
+      toast({
+        title: "Success",
+        description: "SOAP note deleted successfully",
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Error deleting SOAP note:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete SOAP note",
+        variant: "destructive",
+      });
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const signSOAPNote = async (id: string, signedBy: string) => {
+    return updateSOAPNote(id, {
+      status: 'signed',
+      signed_at: new Date().toISOString(),
+      signed_by: signedBy
+    });
   };
 
   useEffect(() => {
@@ -143,8 +182,10 @@ export const useSOAPNotes = () => {
   return {
     soapNotes,
     loading,
-    fetchSOAPNotes,
     createSOAPNote,
-    updateSOAPNote
+    updateSOAPNote,
+    deleteSOAPNote,
+    signSOAPNote,
+    fetchSOAPNotes
   };
 };

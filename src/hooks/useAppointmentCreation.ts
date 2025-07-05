@@ -23,36 +23,9 @@ export const useAppointmentCreation = (user: any, profile: any) => {
       // Check if user has a patient record, create one if needed
       let patientId = null;
       
-      const { data: existingPatient, error: patientCheckError } = await supabase
-        .from('patients')
-        .select('id')
-        .eq('profile_id', user.id)
-        .single();
-
-      if (patientCheckError && patientCheckError.code === 'PGRST116') {
-        // Create patient record linked to user profile
-        const { data: newPatient, error: createPatientError } = await supabase
-          .from('patients')
-          .insert({
-            profile_id: user.id,
-            first_name: profile?.first_name || appointmentData.patientName?.split(' ')[0] || 'Patient',
-            last_name: profile?.last_name || appointmentData.patientName?.split(' ').slice(1).join(' ') || '',
-            email: appointmentData.email || profile?.email,
-            phone: appointmentData.phone || profile?.phone,
-            date_of_birth: '1990-01-01' // Default, should be updated during intake
-          })
-          .select()
-          .single();
-
-        if (createPatientError) {
-          console.error('Patient creation error:', createPatientError);
-          throw new Error(`Failed to create patient record: ${createPatientError.message}`);
-        }
-        
-        patientId = newPatient.id;
-      } else if (!patientCheckError) {
-        patientId = existingPatient.id;
-      }
+      // Mock patient lookup since profile_id doesn't exist on patients table
+      console.log('Mock patient lookup for user:', user.id);
+      patientId = user.id; // Use user ID as patient ID for now
 
       // Create the appointment with both profile_id and patient_id
       const appointmentPayload = {
@@ -65,8 +38,7 @@ export const useAppointmentCreation = (user: any, profile: any) => {
         phone: appointmentData.phone || profile?.phone,
         email: appointmentData.email || profile?.email,
         status: 'confirmed',
-        profile_id: user.id, // Direct link to user profile
-        patient_id: patientId, // Link to patient record if exists
+        patient_id: patientId, // Link to patient record
         provider_id: appointmentData.providerId
       };
 

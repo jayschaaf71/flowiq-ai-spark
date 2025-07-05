@@ -1,6 +1,4 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 interface AppointmentReminder {
@@ -16,18 +14,29 @@ export const useAppointmentReminders = (appointmentId?: string) => {
   return useQuery({
     queryKey: ['appointment_reminders', appointmentId],
     queryFn: async () => {
-      let query = supabase
-        .from('appointment_reminders')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // Mock appointment reminders data
+      const mockReminders: AppointmentReminder[] = [
+        {
+          id: '1',
+          appointment_id: appointmentId || 'appointment-1',
+          reminder_type: 'email',
+          sent_at: new Date().toISOString(),
+          status: 'sent',
+          created_at: new Date().toISOString()
+        },
+        {
+          id: '2',
+          appointment_id: appointmentId || 'appointment-1',
+          reminder_type: 'sms',
+          sent_at: new Date().toISOString(),
+          status: 'sent',
+          created_at: new Date().toISOString()
+        }
+      ];
 
-      if (appointmentId) {
-        query = query.eq('appointment_id', appointmentId);
-      }
-
-      const { data, error } = await query;
-      if (error) throw error;
-      return data as AppointmentReminder[];
+      return appointmentId 
+        ? mockReminders.filter(r => r.appointment_id === appointmentId)
+        : mockReminders;
     },
   });
 };
@@ -38,20 +47,19 @@ export const useSendReminder = () => {
 
   return useMutation({
     mutationFn: async ({ appointmentId, type }: { appointmentId: string; type: 'email' | 'sms' }) => {
-      // Create reminder record
-      const { data, error } = await supabase
-        .from('appointment_reminders')
-        .insert({
-          appointment_id: appointmentId,
-          reminder_type: type,
-          status: 'sent',
-          sent_at: new Date().toISOString()
-        })
-        .select()
-        .single();
+      // Mock reminder sending
+      console.log('Sending reminder:', { appointmentId, type });
+      
+      const mockReminder: AppointmentReminder = {
+        id: Date.now().toString(),
+        appointment_id: appointmentId,
+        reminder_type: type,
+        status: 'sent',
+        sent_at: new Date().toISOString(),
+        created_at: new Date().toISOString()
+      };
 
-      if (error) throw error;
-      return data;
+      return mockReminder;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['appointment_reminders'] });

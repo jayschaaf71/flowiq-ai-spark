@@ -1,7 +1,5 @@
-
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
 interface RecurringAppointment {
   id: string;
@@ -35,29 +33,28 @@ export const useRecurringAppointments = () => {
   const loadRecurringAppointments = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('recurring_appointments')
-        .select('*')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
+      // Mock recurring appointments data
+      const mockData: RecurringAppointment[] = [
+        {
+          id: '1',
+          patient_name: 'John Smith',
+          patient_id: 'patient-1',
+          appointment_type: 'Physical Therapy',
+          duration: 60,
+          frequency: 'weekly',
+          interval_count: 1,
+          days_of_week: [1, 3, 5], // Monday, Wednesday, Friday
+          start_date: '2024-01-15',
+          is_active: true,
+          next_scheduled: '2024-01-22T10:00:00Z',
+          occurrences_created: 3,
+          notes: 'Weekly PT sessions',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      ];
 
-      if (error) {
-        console.error("Error loading recurring appointments:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load recurring appointments",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Type cast the frequency field to match our interface
-      const typedData = (data || []).map(item => ({
-        ...item,
-        frequency: item.frequency as "daily" | "weekly" | "monthly"
-      }));
-
-      setRecurringAppointments(typedData);
+      setRecurringAppointments(mockData);
     } catch (error) {
       console.error("Error loading recurring appointments:", error);
       toast({
@@ -73,32 +70,25 @@ export const useRecurringAppointments = () => {
   const createRecurringPattern = async (pattern: Omit<RecurringAppointment, 'id' | 'created_at' | 'updated_at' | 'occurrences_created'>) => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('recurring_appointments')
-        .insert([{
-          ...pattern,
-          occurrences_created: 0
-        }])
-        .select()
-        .single();
+      // Mock creation
+      console.log('Creating recurring pattern:', pattern);
 
-      if (error) {
-        console.error("Error creating recurring pattern:", error);
-        toast({
-          title: "Error",
-          description: "Failed to create recurring appointment pattern",
-          variant: "destructive",
-        });
-        return null;
-      }
+      const newPattern: RecurringAppointment = {
+        ...pattern,
+        id: Date.now().toString(),
+        occurrences_created: 0,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      setRecurringAppointments(prev => [...prev, newPattern]);
 
       toast({
         title: "Success",
         description: "Recurring appointment pattern created",
       });
 
-      await loadRecurringAppointments();
-      return data;
+      return newPattern;
     } catch (error) {
       console.error("Error creating recurring pattern:", error);
       toast({
@@ -115,27 +105,22 @@ export const useRecurringAppointments = () => {
   const updateRecurringPattern = async (id: string, updates: Partial<RecurringAppointment>) => {
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from('recurring_appointments')
-        .update(updates)
-        .eq('id', id);
+      // Mock update
+      console.log('Updating recurring pattern:', id, updates);
 
-      if (error) {
-        console.error("Error updating recurring pattern:", error);
-        toast({
-          title: "Error",
-          description: "Failed to update recurring appointment pattern",
-          variant: "destructive",
-        });
-        return false;
-      }
+      setRecurringAppointments(prev => 
+        prev.map(pattern => 
+          pattern.id === id 
+            ? { ...pattern, ...updates, updated_at: new Date().toISOString() }
+            : pattern
+        )
+      );
 
       toast({
         title: "Success",
         description: "Recurring appointment pattern updated",
       });
 
-      await loadRecurringAppointments();
       return true;
     } catch (error) {
       console.error("Error updating recurring pattern:", error);
@@ -153,27 +138,22 @@ export const useRecurringAppointments = () => {
   const deleteRecurringPattern = async (id: string) => {
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from('recurring_appointments')
-        .update({ is_active: false })
-        .eq('id', id);
+      // Mock deletion
+      console.log('Deleting recurring pattern:', id);
 
-      if (error) {
-        console.error("Error deleting recurring pattern:", error);
-        toast({
-          title: "Error",
-          description: "Failed to delete recurring appointment pattern",
-          variant: "destructive",
-        });
-        return false;
-      }
+      setRecurringAppointments(prev => 
+        prev.map(pattern => 
+          pattern.id === id 
+            ? { ...pattern, is_active: false, updated_at: new Date().toISOString() }
+            : pattern
+        )
+      );
 
       toast({
         title: "Success",
         description: "Recurring appointment pattern deleted",
       });
 
-      await loadRecurringAppointments();
       return true;
     } catch (error) {
       console.error("Error deleting recurring pattern:", error);

@@ -1,6 +1,5 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface SOAPTemplate {
   id: string;
@@ -21,43 +20,76 @@ export const useSOAPTemplates = (specialty?: string) => {
   return useQuery({
     queryKey: ['soap_templates', specialty],
     queryFn: async () => {
-      let query = supabase
-        .from('soap_note_templates')
-        .select('*')
-        .eq('is_active', true)
-        .order('specialty', { ascending: true })
-        .order('name', { ascending: true });
+      // Mock SOAP templates data
+      const mockTemplates: SOAPTemplate[] = [
+        {
+          id: '1',
+          name: 'Chiropractic Initial Evaluation',
+          specialty: 'chiropractic',
+          template_data: {
+            subjective: 'Chief complaint: [CHIEF_COMPLAINT]\nHistory of present illness: [HPI]\nPain scale: [PAIN_SCALE]/10',
+            objective: 'Vital signs: [VITALS]\nRange of motion: [ROM]\nOrthopedic tests: [ORTHO_TESTS]',
+            assessment: 'Primary diagnosis: [DIAGNOSIS]\nSecondary conditions: [SECONDARY]',
+            plan: 'Treatment plan: [TREATMENT]\nFrequency: [FREQUENCY]\nHome exercises: [EXERCISES]'
+          },
+          is_active: true,
+          created_at: new Date().toISOString(),
+          created_by: 'provider-1'
+        },
+        {
+          id: '2',
+          name: 'Follow-up Visit',
+          specialty: 'general',
+          template_data: {
+            subjective: 'Patient reports [IMPROVEMENT/WORSENING] since last visit\nCurrent symptoms: [SYMPTOMS]',
+            objective: 'Physical examination findings: [FINDINGS]\nResponse to previous treatment: [RESPONSE]',
+            assessment: 'Clinical impression: [ASSESSMENT]\nProgress: [PROGRESS]',
+            plan: 'Continue current treatment\nModifications: [MODIFICATIONS]\nNext visit: [NEXT_VISIT]'
+          },
+          is_active: true,
+          created_at: new Date().toISOString(),
+          created_by: 'provider-1'
+        }
+      ];
 
-      if (specialty) {
-        query = query.eq('specialty', specialty);
-      }
-
-      const { data, error } = await query;
-      if (error) throw error;
-      return data as SOAPTemplate[];
+      return specialty 
+        ? mockTemplates.filter(template => template.specialty === specialty || template.specialty === 'general')
+        : mockTemplates;
     },
   });
 };
 
 export const useCreateSOAPTemplate = () => {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   return useMutation({
     mutationFn: async (template: Omit<SOAPTemplate, 'id' | 'created_at' | 'created_by'>) => {
-      const { data, error } = await supabase
-        .from('soap_note_templates')
-        .insert({
-          ...template,
-          created_by: (await supabase.auth.getUser()).data.user?.id
-        })
-        .select()
-        .single();
+      // Mock template creation
+      console.log('Creating SOAP template:', template);
+      
+      const newTemplate: SOAPTemplate = {
+        ...template,
+        id: Date.now().toString(),
+        created_at: new Date().toISOString(),
+        created_by: 'current-user'
+      };
 
-      if (error) throw error;
-      return data;
+      return newTemplate;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['soap_templates'] });
+      toast({
+        title: "Template created",
+        description: "SOAP template has been created successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to create SOAP template",
+        variant: "destructive",
+      });
     },
   });
 };

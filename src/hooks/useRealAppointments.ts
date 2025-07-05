@@ -38,15 +38,21 @@ export const useRealAppointments = () => {
       setLoading(true);
       setError(null);
 
-      // First get the patient record for this user
+      // Mock patient lookup - use email to find patient record
       const { data: patientData, error: patientError } = await supabase
         .from('patients')
         .select('id')
-        .eq('profile_id', user.id)
-        .single();
+        .eq('email', user.email)
+        .maybeSingle();
 
-      if (patientError || !patientData) {
-        console.log('No patient record found for user');
+      if (patientError) {
+        console.log('Error finding patient by email:', patientError);
+        setAppointments([]);
+        return;
+      }
+
+      if (!patientData) {
+        console.log('No patient record found for user email');
         setAppointments([]);
         return;
       }

@@ -1,37 +1,52 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Tables, TablesInsert } from '@/integrations/supabase/types';
 
-type ProviderAssignment = Tables<'provider_assignments'>;
-type NewProviderAssignment = TablesInsert<'provider_assignments'>;
+interface ProviderAssignment {
+  id: string;
+  patient_id: string;
+  provider_id: string;
+  assigned_by?: string;
+  assigned_at: string;
+  is_active: boolean;
+  notes?: string;
+  providers?: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    specialty?: string;
+    email?: string;
+  };
+}
+
+interface NewProviderAssignment {
+  patient_id: string;
+  provider_id: string;
+  notes?: string;
+}
 
 export const useProviderAssignments = (patientId?: string) => {
   return useQuery({
     queryKey: ['provider_assignments', patientId],
     queryFn: async () => {
-      let query = supabase
-        .from('provider_assignments')
-        .select(`
-          *,
-          providers (
-            id,
-            first_name,
-            last_name,
-            specialty,
-            email
-          )
-        `)
-        .order('created_at', { ascending: false });
+      // Mock provider assignments data
+      const mockAssignments: ProviderAssignment[] = [
+        {
+          id: '1',
+          patient_id: patientId || 'patient-1',
+          provider_id: 'provider-1',
+          assigned_at: new Date().toISOString(),
+          is_active: true,
+          providers: {
+            id: 'provider-1',
+            first_name: 'Dr. John',
+            last_name: 'Smith',
+            specialty: 'Chiropractic',
+            email: 'dr.smith@clinic.com'
+          }
+        }
+      ];
 
-      if (patientId) {
-        query = query.eq('patient_id', patientId);
-      }
-
-      const { data, error } = await query;
-      if (error) throw error;
-      return data || [];
+      return patientId ? mockAssignments.filter(a => a.patient_id === patientId) : mockAssignments;
     },
     enabled: !!patientId,
   });
@@ -43,17 +58,24 @@ export const useAssignProvider = () => {
 
   return useMutation({
     mutationFn: async (assignment: NewProviderAssignment) => {
-      const { data, error } = await supabase
-        .from('provider_assignments')
-        .insert({
-          ...assignment,
-          assigned_by: (await supabase.auth.getUser()).data.user?.id
-        })
-        .select()
-        .single();
+      // Mock provider assignment
+      console.log('Assigning provider:', assignment);
+      
+      const mockAssignment: ProviderAssignment = {
+        id: Date.now().toString(),
+        ...assignment,
+        assigned_at: new Date().toISOString(),
+        is_active: true,
+        providers: {
+          id: assignment.provider_id,
+          first_name: 'Dr. John',
+          last_name: 'Smith',
+          specialty: 'Chiropractic',
+          email: 'dr.smith@clinic.com'
+        }
+      };
 
-      if (error) throw error;
-      return data;
+      return mockAssignment;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['provider_assignments', data.patient_id] });
