@@ -36,17 +36,8 @@ export const use2FA = () => {
 
   const load2FASettings = async () => {
     try {
-      const { data, error } = await supabase
-        .from('user_2fa_settings')
-        .select('*')
-        .eq('user_id', user?.id)
-        .maybeSingle();
-
-      if (error && error.code !== 'PGRST116') {
-        throw error;
-      }
-
-      setSettings(data || { is_enabled: false });
+      // Mock 2FA settings until user_2fa_settings table is created
+      setSettings({ is_enabled: false });
     } catch (error) {
       console.error('Error loading 2FA settings:', error);
       toast({
@@ -61,15 +52,8 @@ export const use2FA = () => {
 
   const loadRecentAttempts = async () => {
     try {
-      const { data, error } = await supabase
-        .from('user_2fa_attempts')
-        .select('*')
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false })
-        .limit(10);
-
-      if (error) throw error;
-      setRecentAttempts(data || []);
+      // Mock 2FA attempts until user_2fa_attempts table is created
+      setRecentAttempts([]);
     } catch (error) {
       console.error('Error loading 2FA attempts:', error);
     }

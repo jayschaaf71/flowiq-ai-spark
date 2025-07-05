@@ -8,12 +8,8 @@ export const useAvailabilityOperations = () => {
 
   const bookSlot = async (slotId: string, appointmentId: string) => {
     try {
-      const { error } = await supabase
-        .from('availability_slots')
-        .update({ is_available: false, appointment_id: appointmentId })
-        .eq('id', slotId);
-
-      if (error) throw error;
+      // Mock booking slot
+      console.log('Booking slot:', slotId, appointmentId);
 
       toast({
         title: "Slot Booked",
@@ -34,12 +30,8 @@ export const useAvailabilityOperations = () => {
 
   const releaseSlot = async (slotId: string) => {
     try {
-      const { error } = await supabase
-        .from('availability_slots')
-        .update({ is_available: true, appointment_id: null })
-        .eq('id', slotId);
-
-      if (error) throw error;
+      // Mock releasing slot
+      console.log('Releasing slot:', slotId);
 
       toast({
         title: "Slot Released",

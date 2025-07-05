@@ -21,8 +21,8 @@ export const useAIClaimsProcessing = () => {
       const { error } = await supabase
         .from('claims')
         .update({ 
-          processing_status: processingStatus,
-          ai_confidence_score: aiConfidenceScore
+          status: processingStatus,
+          notes: `AI Confidence Score: ${aiConfidenceScore}`
         })
         .eq('id', claimId);
 
@@ -105,7 +105,7 @@ export const useAIClaimsProcessing = () => {
         validationIssues.push('Invalid claim amount');
       }
       
-      if (!claim.service_date) {
+      if (!claim.submitted_date) {
         validationIssues.push('Missing service date');
       }
 

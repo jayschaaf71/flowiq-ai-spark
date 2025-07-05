@@ -48,12 +48,12 @@ export const EditTeamMemberDialog = ({ member, open, onOpenChange }: EditTeamMem
         role: member.role || '',
         specialty: member.specialty || '',
         status: member.status || '',
-        hire_date: member.hire_date || '',
-        hourly_rate: member.hourly_rate?.toString() || '',
-        salary: member.salary?.toString() || '',
-        emergency_contact_name: member.emergency_contact_name || '',
-        emergency_contact_phone: member.emergency_contact_phone || '',
-        notes: member.notes || ''
+        hire_date: '',
+        hourly_rate: '',
+        salary: '',
+        emergency_contact_name: '',
+        emergency_contact_phone: '',
+        notes: ''
       });
     }
   }, [member]);

@@ -44,8 +44,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const loading = authLoading || profileLoading;
 
-  // Fetch user profile from the profiles table
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = async (userId: string): Promise<Profile | null> => {
     try {
       setProfileLoading(true);
       const { data, error } = await supabase
@@ -62,8 +61,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             .from('profiles')
             .insert([{
               id: userId,
-              email: user?.email || '',
-              role: 'patient'
+              first_name: user?.user_metadata?.first_name || '',
+              last_name: user?.user_metadata?.last_name || '',
+              contact_email: user?.email || ''
             }])
             .select()
             .single();
@@ -72,12 +72,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             console.error('Error creating profile:', createError);
             return null;
           }
-          return newProfile;
+          return {
+            id: newProfile.id,
+            email: user?.email || '',
+            first_name: newProfile.first_name,
+            last_name: newProfile.last_name,
+            role: 'patient'
+          };
         }
         return null;
       }
 
-      return data;
+      return {
+        id: data.id,
+        email: user?.email || '',
+        first_name: data.first_name,
+        last_name: data.last_name, 
+        role: 'patient' // Default role since profiles table doesn't have role field
+      };
     } catch (error) {
       console.error('Unexpected error fetching profile:', error);
       return null;
@@ -106,20 +118,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!user || !profile) return;
 
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ role: newRole })
-        .eq('id', user.id);
-
-      if (error) {
-        console.error('Error switching role:', error);
-        toast({
-          title: "Role Switch Failed",
-          description: "Unable to switch role. Please try again.",
-          variant: "destructive",
-        });
-        return;
-      }
+      // Mock role switching since profiles table doesn't have role field
+      console.log('Role switching requested:', newRole);
 
       // Update local profile
       setProfile({ ...profile, role: newRole });

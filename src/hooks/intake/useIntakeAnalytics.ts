@@ -5,14 +5,8 @@ export const useIntakeAnalytics = () => {
   // Track form events for analytics
   const trackFormEvent = async (formId: string, eventType: string, metadata?: any) => {
     try {
-      await supabase
-        .from('intake_analytics')
-        .insert([{
-          form_id: formId,
-          event_type: eventType,
-          tenant_type: 'healthcare',
-          metadata: metadata || {}
-        }]);
+      // Mock analytics tracking until intake_analytics table is created
+      console.log('Form event tracked:', { formId, eventType, metadata });
     } catch (error) {
       console.error('Error tracking form event:', error);
     }

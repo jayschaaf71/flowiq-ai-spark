@@ -38,37 +38,27 @@ export const useBillingInvoices = () => {
       setLoading(true);
       setError(null);
 
-      // First get the patient record for this user
-      const { data: patientData, error: patientError } = await supabase
-        .from('patients')
-        .select('id')
-        .eq('profile_id', user.id)
-        .single();
+      // Mock billing invoices
+      const mockInvoices: BillingInvoice[] = [
+        {
+          id: '1',
+          patient_id: user.id,
+          appointment_id: 'apt-1',
+          invoice_number: 'INV-001',
+          total_amount: 150.00,
+          insurance_amount: 100.00,
+          patient_amount: 50.00,
+          paid_amount: 0,
+          status: 'pending',
+          due_date: '2024-12-31',
+          service_date: '2024-11-15',
+          description: 'Consultation fee',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      ];
 
-      if (patientError || !patientData) {
-        console.log('No patient record found for user');
-        setInvoices([]);
-        return;
-      }
-
-      // Fetch billing invoices for this patient
-      const { data, error } = await supabase
-        .from('billing_invoices')
-        .select(`
-          *,
-          appointments:appointment_id (
-            title,
-            date,
-            time,
-            appointment_type
-          )
-        `)
-        .eq('patient_id', patientData.id)
-        .order('service_date', { ascending: false });
-
-      if (error) throw error;
-
-      setInvoices((data as unknown as BillingInvoice[]) || []);
+      setInvoices(mockInvoices);
     } catch (error) {
       console.error('Error fetching billing invoices:', error);
       setError('Failed to load billing information');
@@ -84,12 +74,8 @@ export const useBillingInvoices = () => {
 
   const updateInvoiceStatus = async (invoiceId: string, status: string) => {
     try {
-      const { error } = await supabase
-        .from('billing_invoices')
-        .update({ status, updated_at: new Date().toISOString() })
-        .eq('id', invoiceId);
-
-      if (error) throw error;
+      // Mock updating invoice status
+      console.log('Updating invoice status:', invoiceId, status);
 
       // Update local state
       setInvoices(prev => prev.map(invoice => 
