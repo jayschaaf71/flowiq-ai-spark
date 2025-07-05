@@ -192,6 +192,66 @@ export type Database = {
           },
         ]
       }
+      communication_logs: {
+        Row: {
+          created_at: string
+          delivered_at: string | null
+          id: string
+          message: string
+          patient_id: string | null
+          recipient: string
+          sent_at: string | null
+          status: string
+          submission_id: string | null
+          template_id: string | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          delivered_at?: string | null
+          id?: string
+          message: string
+          patient_id?: string | null
+          recipient: string
+          sent_at?: string | null
+          status?: string
+          submission_id?: string | null
+          template_id?: string | null
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          delivered_at?: string | null
+          id?: string
+          message?: string
+          patient_id?: string | null
+          recipient?: string
+          sent_at?: string | null
+          status?: string
+          submission_id?: string | null
+          template_id?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "communication_logs_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_logs_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "intake_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       file_attachments: {
         Row: {
           appointment_id: string | null
@@ -293,6 +353,93 @@ export type Database = {
           zip_code?: string | null
         }
         Relationships: []
+      }
+      intake_forms: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          form_fields: Json
+          id: string
+          is_active: boolean
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          form_fields?: Json
+          id?: string
+          is_active?: boolean
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          form_fields?: Json
+          id?: string
+          is_active?: boolean
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      intake_submissions: {
+        Row: {
+          ai_summary: string | null
+          created_at: string
+          form_id: string
+          id: string
+          patient_id: string | null
+          priority_level: string | null
+          status: string | null
+          submission_data: Json
+          submitted_at: string
+          updated_at: string
+        }
+        Insert: {
+          ai_summary?: string | null
+          created_at?: string
+          form_id: string
+          id?: string
+          patient_id?: string | null
+          priority_level?: string | null
+          status?: string | null
+          submission_data?: Json
+          submitted_at?: string
+          updated_at?: string
+        }
+        Update: {
+          ai_summary?: string | null
+          created_at?: string
+          form_id?: string
+          id?: string
+          patient_id?: string | null
+          priority_level?: string | null
+          status?: string | null
+          submission_data?: Json
+          submitted_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "intake_submissions_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "intake_forms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "intake_submissions_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       medical_conditions: {
         Row: {
@@ -710,6 +857,7 @@ export type Database = {
           last_name: string | null
           notes: string | null
           preferred_channel: string | null
+          specialty: string | null
           updated_at: string
         }
         Insert: {
@@ -726,6 +874,7 @@ export type Database = {
           last_name?: string | null
           notes?: string | null
           preferred_channel?: string | null
+          specialty?: string | null
           updated_at?: string
         }
         Update: {
@@ -742,6 +891,7 @@ export type Database = {
           last_name?: string | null
           notes?: string | null
           preferred_channel?: string | null
+          specialty?: string | null
           updated_at?: string
         }
         Relationships: []

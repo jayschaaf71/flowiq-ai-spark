@@ -204,7 +204,9 @@ export const CompleteIntakeFlow: React.FC = () => {
             appointment_type: data.appointmentType,
             status: 'pending',
             phone: data.phone,
-            email: data.email
+            email: data.email,
+            duration: 60, // Default 60 minutes
+            provider: 'TBD' // Will be assigned later
           })
           .select()
           .single();
@@ -267,10 +269,7 @@ export const CompleteIntakeFlow: React.FC = () => {
       const submissionData = {
         form_id: formId,
         patient_id: patientId,
-        patient_name: `${formData.firstName} ${formData.lastName}`,
-        patient_email: formData.email,
-        patient_phone: formData.phone,
-        form_data: { ...formData, ...finalData },
+        submission_data: { ...formData, ...finalData },
         status: 'completed',
         ai_summary: generateAISummary({ ...formData, ...finalData }),
         priority_level: determinePriorityLevel({ ...formData, ...finalData })
