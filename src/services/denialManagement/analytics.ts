@@ -4,22 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 export class DenialAnalyticsService {
   async getDenialAnalytics(dateRange: { start: string; end: string }) {
     try {
-      // Get denial analytics from database
-      const { data: analytics, error } = await supabase
-        .from('denial_analytics')
-        .select('*')
-        .gte('period_start', dateRange.start)
-        .lte('period_end', dateRange.end)
-        .order('period_start', { ascending: false })
-        .limit(1);
-
-      if (error) throw error;
-
-      if (analytics && analytics.length > 0) {
-        return analytics[0];
-      }
-
-      // Return mock data if no analytics found
+      console.log('Mock fetching denial analytics for date range:', dateRange);
+      
+      // Return mock data since table doesn't exist
       return {
         totalDenials: 89,
         totalDeniedAmount: 12450.75,

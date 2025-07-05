@@ -71,34 +71,45 @@ export interface EligibilityResponse {
 class PayerIntegrationService {
   // Get all active payer connections
   async getPayerConnections(): Promise<PayerConnection[]> {
-    const { data, error } = await supabase
-      .from('payer_connections')
-      .select('*')
-      .eq('is_active', true)
-      .order('payer_name');
-
-    if (error) {
-      console.error('Error fetching payer connections:', error);
-      throw error;
-    }
-
-    return (data || []).map(this.mapPayerConnection);
+    console.log('Mock fetching payer connections');
+    
+    // Return mock data since payer_connections table doesn't exist
+    return [
+      {
+        id: 'pc1',
+        payerName: 'Aetna',
+        payerId: 'AETNA001',
+        connectionType: 'edi',
+        endpointUrl: 'https://api.aetna.com/edi',
+        isActive: true,
+        lastSyncAt: new Date().toISOString(),
+        successRate: 95.2,
+        avgResponseTime: 2.3,
+        claimsSubmitted: 1523,
+        configuration: { timeout: 30000 }
+      },
+      {
+        id: 'pc2',
+        payerName: 'Blue Cross Blue Shield',
+        payerId: 'BCBS001',
+        connectionType: 'api',
+        endpointUrl: 'https://api.bcbs.com/claims',
+        isActive: true,
+        lastSyncAt: new Date().toISOString(),
+        successRate: 92.8,
+        avgResponseTime: 1.8,
+        claimsSubmitted: 2847,
+        configuration: { apiKey: 'encrypted' }
+      }
+    ];
   }
 
   // Get payer connection by ID
   async getPayerConnection(id: string): Promise<PayerConnection | null> {
-    const { data, error } = await supabase
-      .from('payer_connections')
-      .select('*')
-      .eq('id', id)
-      .single();
-
-    if (error) {
-      console.error('Error fetching payer connection:', error);
-      return null;
-    }
-
-    return data ? this.mapPayerConnection(data) : null;
+    console.log('Mock fetching payer connection:', id);
+    
+    const connections = await this.getPayerConnections();
+    return connections.find(conn => conn.id === id) || null;
   }
 
   // Submit claim to payer
@@ -134,25 +145,19 @@ class PayerIntegrationService {
       // Create EDI content (simplified for demo)
       const ediContent = await this.generateEDIContent(claim, payerConnection);
 
-      // Create EDI transaction record
-      const { data: transaction, error: transactionError } = await supabase
-        .from('edi_transactions')
-        .insert({
-          claim_id: request.claimId,
-          payer_connection_id: request.payerConnectionId,
-          transaction_type: 'claim_submission',
-          edi_format: 'X12_837',
-          control_number: controlNumber,
-          batch_id: request.batchId,
-          edi_content: ediContent,
-          status: 'submitted'
-        })
-        .select()
-        .single();
-
-      if (transactionError) {
-        throw transactionError;
-      }
+      // Create EDI transaction record (mock)
+      console.log('Mock creating EDI transaction for claim:', request.claimId);
+      const transaction = {
+        id: 'edi-' + Date.now(),
+        claim_id: request.claimId,
+        payer_connection_id: request.payerConnectionId,
+        transaction_type: 'claim_submission',
+        edi_format: 'X12_837',
+        control_number: controlNumber,
+        batch_id: request.batchId,
+        edi_content: ediContent,
+        status: 'submitted'
+      };
 
       // Submit to payer (simulate API call)
       const submissionResult = await this.submitToPayerEndpoint(
@@ -161,15 +166,8 @@ class PayerIntegrationService {
         controlNumber
       );
 
-      // Update transaction with submission result
-      await supabase
-        .from('edi_transactions')
-        .update({
-          status: submissionResult.success ? 'submitted' : 'rejected',
-          response_content: submissionResult.response,
-          error_codes: submissionResult.errors
-        })
-        .eq('id', transaction.id);
+      // Mock update transaction with submission result
+      console.log('Mock updating transaction status:', transaction.id, submissionResult.success ? 'submitted' : 'rejected');
 
       // Update claim status
       await supabase
@@ -253,34 +251,39 @@ class PayerIntegrationService {
 
   // Get EDI transaction status
   async getTransactionStatus(transactionId: string): Promise<EDITransaction | null> {
-    const { data, error } = await supabase
-      .from('edi_transactions')
-      .select('*')
-      .eq('id', transactionId)
-      .single();
-
-    if (error) {
-      console.error('Error fetching transaction:', error);
-      return null;
-    }
-
-    return data ? this.mapEDITransaction(data) : null;
+    console.log('Mock fetching transaction status:', transactionId);
+    
+    // Return mock transaction data
+    return {
+      id: transactionId,
+      claimId: 'claim-123',
+      payerConnectionId: 'pc1',
+      transactionType: 'claim_submission',
+      ediFormat: 'X12_837',
+      submissionDate: new Date().toISOString(),
+      status: 'submitted',
+      controlNumber: 'CTL' + Date.now(),
+      batchId: 'BATCH-001'
+    };
   }
 
   // Get transactions for a claim
   async getClaimTransactions(claimId: string): Promise<EDITransaction[]> {
-    const { data, error } = await supabase
-      .from('edi_transactions')
-      .select('*')
-      .eq('claim_id', claimId)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching claim transactions:', error);
-      return [];
-    }
-
-    return (data || []).map(this.mapEDITransaction);
+    console.log('Mock fetching claim transactions for:', claimId);
+    
+    // Return mock transaction data
+    return [
+      {
+        id: 'edi-1',
+        claimId,
+        payerConnectionId: 'pc1',
+        transactionType: 'claim_submission',
+        ediFormat: 'X12_837',
+        submissionDate: new Date().toISOString(),
+        status: 'submitted',
+        controlNumber: 'CTL' + Date.now()
+      }
+    ];
   }
 
   // Test payer connection
@@ -299,14 +302,8 @@ class PayerIntegrationService {
       const responseTime = Date.now() - startTime;
       const success = Math.random() > 0.1; // 90% success rate for demo
 
-      // Update connection status
-      await supabase
-        .from('payer_connections')
-        .update({
-          last_sync_at: new Date().toISOString(),
-          avg_response_time: responseTime / 1000
-        })
-        .eq('id', payerId);
+      // Mock update connection status
+      console.log('Mock updating payer connection stats:', payerId, responseTime);
 
       return {
         success,
@@ -331,14 +328,8 @@ class PayerIntegrationService {
     if (transaction.status === 'submitted' && Math.random() > 0.7) {
       const newStatus = Math.random() > 0.5 ? 'acknowledged' : 'processed';
       
-      await supabase
-        .from('edi_transactions')
-        .update({
-          status: newStatus,
-          acknowledgment_date: newStatus === 'acknowledged' ? new Date().toISOString() : transaction.acknowledgmentDate,
-          response_date: newStatus === 'processed' ? new Date().toISOString() : transaction.responseDate
-        })
-        .eq('id', transactionId);
+      // Mock update transaction status
+      console.log('Mock updating transaction status:', transactionId, newStatus);
 
       return await this.getTransactionStatus(transactionId);
     }
@@ -435,26 +426,8 @@ IEA*1*${this.generateControlNumber()}~`;
   }
 
   private async updatePayerStats(payerConnectionId: string, success: boolean): Promise<void> {
-    const { data: currentStats } = await supabase
-      .from('payer_connections')
-      .select('claims_submitted, success_rate')
-      .eq('id', payerConnectionId)
-      .single();
-
-    if (currentStats) {
-      const newClaimsSubmitted = currentStats.claims_submitted + 1;
-      const currentSuccessCount = Math.round((currentStats.success_rate / 100) * currentStats.claims_submitted);
-      const newSuccessCount = currentSuccessCount + (success ? 1 : 0);
-      const newSuccessRate = (newSuccessCount / newClaimsSubmitted) * 100;
-
-      await supabase
-        .from('payer_connections')
-        .update({
-          claims_submitted: newClaimsSubmitted,
-          success_rate: newSuccessRate
-        })
-        .eq('id', payerConnectionId);
-    }
+    console.log('Mock updating payer stats:', payerConnectionId, success);
+    // Mock implementation since payer_connections table doesn't exist
   }
 }
 

@@ -57,17 +57,15 @@ export const processNewRecording = async (recording: any, config: PlaudConfig): 
 
     if (error) throw error;
 
-    // Store in voice_recordings table
-    const { error: dbError } = await supabase
-      .from('voice_recordings')
-      .insert({
-        user_id: user.id,
-        source: 'plaud',
-        external_id: id,
-        filename: filename,
-        duration: duration,
-        transcription: data.transcription,
-        processed_at: new Date().toISOString(),
+    // Mock store in voice_recordings table
+    console.log('Mock storing voice recording:', {
+      user_id: user.id,
+      source: 'plaud',
+      external_id: id,
+      filename: filename,
+      duration: duration,
+      transcription: data.transcription
+    });
         metadata: {
           originalUrl: download_url,
           plaudRecordingId: id,

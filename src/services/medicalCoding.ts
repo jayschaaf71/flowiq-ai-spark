@@ -57,14 +57,9 @@ class MedicalCodingService {
     const validatedCodes: MedicalCode[] = [];
     
     for (const code of aiResponse.codes) {
-      // Check if code exists in our database
-      const { data: dbCode } = await supabase
-        .from('medical_codes')
-        .select('*')
-        .eq('code', code.code)
-        .eq('code_type', code.codeType)
-        .eq('is_active', true)
-        .single();
+      // Mock code validation since medical_codes table doesn't exist
+      console.log('Mock validating code:', code.code, code.codeType);
+      const dbCode = null; // Mock no database code found
 
       if (dbCode) {
         // Code is valid, use database description if available
@@ -93,13 +88,9 @@ class MedicalCodingService {
   private async fallbackCoding(request: CodingRequest): Promise<CodingResponse> {
     console.log('Using fallback coding for:', request.procedureType);
     
-    // Try to get codes from database based on specialty and procedure type
-    const { data: dbCodes } = await supabase
-      .from('medical_codes')
-      .select('*')
-      .eq('specialty', request.specialty.toLowerCase())
-      .eq('is_active', true)
-      .limit(5);
+    // Mock get codes from database since medical_codes table doesn't exist
+    console.log('Mock fetching medical codes for specialty:', request.specialty);
+    const dbCodes = null;
 
     let codes: MedicalCode[] = [];
 
@@ -162,13 +153,9 @@ class MedicalCodingService {
         continue;
       }
 
-      // Database validation
-      const { data: dbCode } = await supabase
-        .from('medical_codes')
-        .select('*')
-        .eq('code', code.code)
-        .eq('code_type', code.codeType)
-        .single();
+      // Mock database validation since medical_codes table doesn't exist
+      console.log('Mock validating code:', code.code, code.codeType);
+      const dbCode = null;
 
       if (!dbCode) {
         warnings.push(`Code ${code.code} not found in database - verify accuracy`);
@@ -188,31 +175,25 @@ class MedicalCodingService {
 
   // Get available codes by specialty
   async getCodesBySpecialty(specialty: string, codeType?: string): Promise<MedicalCode[]> {
-    let query = supabase
-      .from('medical_codes')
-      .select('*')
-      .eq('specialty', specialty.toLowerCase())
-      .eq('is_active', true);
+    console.log('Mock fetching codes by specialty:', specialty, codeType);
+    
+    // Return mock medical codes since table doesn't exist
+    const mockCodes: Record<string, MedicalCode[]> = {
+      'general': [
+        { code: '99213', codeType: 'CPT', description: 'Office visit - established patient', confidence: 1.0 },
+        { code: '99214', codeType: 'CPT', description: 'Office visit - established patient, complex', confidence: 1.0 }
+      ],
+      'dental': [
+        { code: 'D1110', codeType: 'CDT', description: 'Adult prophylaxis', confidence: 1.0 },
+        { code: 'D0120', codeType: 'CDT', description: 'Periodic oral evaluation', confidence: 1.0 }
+      ],
+      'chiropractic': [
+        { code: '98940', codeType: 'CPT', description: 'Chiropractic manipulative treatment', confidence: 1.0 },
+        { code: '98941', codeType: 'CPT', description: 'Chiropractic manipulative treatment, extended', confidence: 1.0 }
+      ]
+    };
 
-    if (codeType) {
-      query = query.eq('code_type', codeType);
-    }
-
-    const { data, error } = await query.limit(50);
-
-    if (error) {
-      console.error('Error fetching codes:', error);
-      return [];
-    }
-
-    return (data || []).map(dbCode => ({
-      code: dbCode.code,
-      codeType: dbCode.code_type as 'CPT' | 'ICD-10-CM' | 'HCPCS' | 'CDT',
-      description: dbCode.description,
-      confidence: 1.0,
-      category: dbCode.category,
-      specialty: dbCode.specialty
-    }));
+    return mockCodes[specialty.toLowerCase()] || mockCodes['general'];
   }
 }
 

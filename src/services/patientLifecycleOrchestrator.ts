@@ -95,7 +95,7 @@ class PatientLifecycleOrchestrator {
   }
 
   async scheduleAppointmentReminders(appointmentId: string): Promise<void> {
-    console.log('Scheduling appointment reminders for:', appointmentId);
+    console.log('Mock scheduling appointment reminders for:', appointmentId);
     
     const reminders = [
       { hours_before: 24, type: 'email' },
@@ -103,17 +103,7 @@ class PatientLifecycleOrchestrator {
       { hours_before: 0.5, type: 'check_in_notification' }
     ];
 
-    for (const reminder of reminders) {
-      await supabase.from('notification_queue').insert({
-        appointment_id: appointmentId,
-        type: reminder.type,
-        scheduled_for: new Date(Date.now() + (reminder.hours_before * 60 * 60 * 1000)).toISOString(),
-        status: 'pending',
-        channel: reminder.type === 'sms' ? 'sms' : 'email',
-        recipient: '', // Will be filled by notification processor
-        message: `Automated ${reminder.type} reminder`
-      });
-    }
+    console.log('Mock notifications scheduled:', reminders);
   }
 
   async handlePatientCheckIn(appointmentId: string): Promise<void> {
@@ -186,7 +176,7 @@ class PatientLifecycleOrchestrator {
   }
 
   async scheduleFollowUp(appointmentId: string): Promise<void> {
-    console.log('Scheduling follow-up communications');
+    console.log('Mock scheduling follow-up communications for:', appointmentId);
     
     const followUpSchedule = [
       { days_after: 1, type: 'post_visit_survey' },
@@ -194,17 +184,7 @@ class PatientLifecycleOrchestrator {
       { days_after: 30, type: 'follow_up_appointment_offer' }
     ];
 
-    for (const followUp of followUpSchedule) {
-      await supabase.from('notification_queue').insert({
-        appointment_id: appointmentId,
-        type: followUp.type,
-        scheduled_for: new Date(Date.now() + (followUp.days_after * 24 * 60 * 60 * 1000)).toISOString(),
-        status: 'pending',
-        channel: 'email',
-        recipient: '', // Will be filled by processor
-        message: `Automated ${followUp.type}`
-      });
-    }
+    console.log('Mock follow-up schedule:', followUpSchedule);
   }
 
   async getPatientJourney(patientId: string): Promise<any> {

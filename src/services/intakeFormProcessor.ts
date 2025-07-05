@@ -182,18 +182,12 @@ export class IntakeFormProcessor {
 
   static async trackFormCompletion(formId: string, submissionId: string, completeness: number) {
     try {
-      await supabase
-        .from('intake_analytics')
-        .insert({
-          form_id: formId,
-          submission_id: submissionId,
-          event_type: completeness === 100 ? 'form_completed' : 'form_partially_completed',
-          tenant_type: 'default',
-          metadata: {
-            completeness_percentage: completeness,
-            timestamp: new Date().toISOString()
-          }
-        });
+      console.log('Mock tracking form completion:', {
+        form_id: formId,
+        submission_id: submissionId,
+        event_type: completeness === 100 ? 'form_completed' : 'form_partially_completed',
+        completeness_percentage: completeness
+      });
     } catch (error) {
       console.error('Analytics tracking error:', error);
     }
@@ -205,19 +199,13 @@ export class IntakeFormProcessor {
     
     // For now, just log - in production you'd send email/SMS/push notifications
     try {
-      await supabase
-        .from('intake_analytics')
-        .insert({
-          form_id: submission.form_id,
-          submission_id: submission.id,
-          event_type: 'priority_notification_sent',
-          tenant_type: 'default',
-          metadata: {
-            priority_level: submission.priority_level,
-            notification_type: 'high_priority_alert',
-            timestamp: new Date().toISOString()
-          }
-        });
+      console.log('Mock logging priority notification:', {
+        form_id: submission.form_id,
+        submission_id: submission.id,
+        event_type: 'priority_notification_sent',
+        priority_level: submission.priority_level,
+        notification_type: 'high_priority_alert'
+      });
     } catch (error) {
       console.error('Priority notification error:', error);
     }
@@ -225,22 +213,21 @@ export class IntakeFormProcessor {
 
   static async getSubmissionAnalytics(formId?: string) {
     try {
-      let query = supabase
-        .from('intake_analytics')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (formId) {
-        query = query.eq('form_id', formId);
-      }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-
+      console.log('Mock fetching submission analytics for form:', formId);
+      
+      // Return mock analytics data
       return {
         success: true,
-        analytics: data
+        analytics: [
+          {
+            id: '1',
+            form_id: formId || 'form-1',
+            event_type: 'form_completed',
+            tenant_type: 'default',
+            created_at: new Date().toISOString(),
+            metadata: { completeness_percentage: 100 }
+          }
+        ]
       };
     } catch (error) {
       console.error('Analytics fetch error:', error);
