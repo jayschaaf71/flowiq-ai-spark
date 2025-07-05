@@ -10,6 +10,45 @@ export interface RevenueMetrics {
   grossCollectionRate: number;
 }
 
+export interface ProviderPerformanceData {
+  providerId: string;
+  providerName: string;
+  totalBilled: number;
+  totalCollected: number;
+  collectionRate: number;
+  averageDaysInAR: number;
+  claimCount: number;
+  denialRate: number;
+}
+
+export interface PayerPerformanceData {
+  payerId: string;
+  payerName: string;
+  totalBilled: number;
+  totalPaid: number;
+  paymentRate: number;
+  averagePaymentTime: number;
+  claimCount: number;
+  denialRate: number;
+}
+
+export interface RevenueData {
+  period: string;
+  billed: number;
+  collected: number;
+  denials: number;
+  adjustments: number;
+  netRevenue: number;
+}
+
+export interface ForecastData {
+  period: string;
+  predicted: number;
+  confidence: number;
+  upperBound: number;
+  lowerBound: number;
+}
+
 export interface RevenueByProvider {
   providerId: string;
   providerName: string;

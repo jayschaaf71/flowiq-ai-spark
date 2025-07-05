@@ -27,9 +27,13 @@ export class MetricsCalculatorService {
       const collectionRate = totalBilled > 0 ? (totalCollected / totalBilled) * 100 : 0;
       const denialRate = claims?.length ? (totalDenials / claims.length) * 100 : 0;
       
-      // Calculate average days in A/R
+      // Calculate average days in A/R (mock since days_in_ar field doesn't exist)
       const averageDaysInAR = claims?.reduce((sum, claim) => {
-        return sum + (claim.days_in_ar || 0);
+        // Mock calculation based on submitted vs processed dates
+        const submitted = new Date(claim.submitted_date || claim.created_at);
+        const processed = new Date(claim.processed_date || claim.created_at);
+        const daysInAR = Math.max(0, Math.floor((processed.getTime() - submitted.getTime()) / (1000 * 60 * 60 * 24)));
+        return sum + daysInAR;
       }, 0) / (claims?.length || 1);
 
       return {
