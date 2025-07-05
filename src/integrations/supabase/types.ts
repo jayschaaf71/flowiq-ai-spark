@@ -11,44 +11,59 @@ export type Database = {
     Tables: {
       appointments: {
         Row: {
+          appointment_type: string | null
           created_at: string
           date: string
           duration: number
+          email: string | null
           id: string
           notes: string | null
           patient_id: string | null
+          patient_name: string | null
+          phone: string | null
           provider: string
           room: string | null
           status: string | null
           time: string
+          title: string | null
           type: string | null
           updated_at: string
         }
         Insert: {
+          appointment_type?: string | null
           created_at?: string
           date: string
           duration: number
+          email?: string | null
           id?: string
           notes?: string | null
           patient_id?: string | null
+          patient_name?: string | null
+          phone?: string | null
           provider: string
           room?: string | null
           status?: string | null
           time: string
+          title?: string | null
           type?: string | null
           updated_at?: string
         }
         Update: {
+          appointment_type?: string | null
           created_at?: string
           date?: string
           duration?: number
+          email?: string | null
           id?: string
           notes?: string | null
           patient_id?: string | null
+          patient_name?: string | null
+          phone?: string | null
           provider?: string
           room?: string | null
           status?: string | null
           time?: string
+          title?: string | null
           type?: string | null
           updated_at?: string
         }
@@ -61,6 +76,78 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      patients: {
+        Row: {
+          address: string | null
+          allergies: string | null
+          city: string | null
+          created_at: string
+          date_of_birth: string | null
+          email: string | null
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          first_name: string | null
+          id: string
+          insurance_number: string | null
+          insurance_provider: string | null
+          is_active: boolean
+          last_name: string | null
+          medical_history: string | null
+          medications: string | null
+          patient_number: string | null
+          phone: string | null
+          state: string | null
+          updated_at: string
+          zip_code: string | null
+        }
+        Insert: {
+          address?: string | null
+          allergies?: string | null
+          city?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          email?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          first_name?: string | null
+          id?: string
+          insurance_number?: string | null
+          insurance_provider?: string | null
+          is_active?: boolean
+          last_name?: string | null
+          medical_history?: string | null
+          medications?: string | null
+          patient_number?: string | null
+          phone?: string | null
+          state?: string | null
+          updated_at?: string
+          zip_code?: string | null
+        }
+        Update: {
+          address?: string | null
+          allergies?: string | null
+          city?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          email?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          first_name?: string | null
+          id?: string
+          insurance_number?: string | null
+          insurance_provider?: string | null
+          is_active?: boolean
+          last_name?: string | null
+          medical_history?: string | null
+          medications?: string | null
+          patient_number?: string | null
+          phone?: string | null
+          state?: string | null
+          updated_at?: string
+          zip_code?: string | null
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -109,6 +196,48 @@ export type Database = {
           last_name?: string | null
           notes?: string | null
           preferred_channel?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      providers: {
+        Row: {
+          created_at: string
+          email: string | null
+          first_name: string
+          id: string
+          is_active: boolean
+          last_name: string
+          license_number: string | null
+          npi_number: string | null
+          phone: string | null
+          specialty: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          first_name: string
+          id?: string
+          is_active?: boolean
+          last_name: string
+          license_number?: string | null
+          npi_number?: string | null
+          phone?: string | null
+          specialty?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          first_name?: string
+          id?: string
+          is_active?: boolean
+          last_name?: string
+          license_number?: string | null
+          npi_number?: string | null
+          phone?: string | null
+          specialty?: string | null
           updated_at?: string
         }
         Relationships: []

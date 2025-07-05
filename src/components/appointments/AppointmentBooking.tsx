@@ -183,8 +183,16 @@ export const AppointmentBooking = ({
         time: formData.time,
         duration: formData.duration,
         type: formData.appointment_type,
+        appointment_type: formData.appointment_type,
+        title: formData.title,
         notes: formData.notes,
-        status: 'pending'
+        status: 'pending',
+        // Include contact info for new patients
+        ...((!formData.patient_id) && {
+          email: formData.email,
+          phone: formData.phone,
+          patient_name: formData.patient_name
+        })
       };
 
       const { data, error } = await supabase
