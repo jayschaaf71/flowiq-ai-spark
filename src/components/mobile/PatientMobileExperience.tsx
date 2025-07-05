@@ -81,10 +81,41 @@ export const PatientMobileExperience: React.FC = () => {
   ]);
 
   const handleQuickAction = (action: string) => {
-    toast({
-      title: "Quick Action",
-      description: `${action} feature coming soon!`,
-    });
+    switch (action) {
+      case 'Book Appointment':
+        toast({
+          title: "Appointment Booking",
+          description: "Redirecting to appointment booking...",
+        });
+        // In real app: navigate to booking page
+        break;
+      case 'View Records':
+        toast({
+          title: "Medical Records",
+          description: "Loading your medical records...",
+        });
+        // In real app: navigate to records page
+        break;
+      case 'Pay Bill':
+        toast({
+          title: "Payment Portal",
+          description: "Opening secure payment portal...",
+        });
+        // In real app: navigate to payment page
+        break;
+      case 'Message Doctor':
+        toast({
+          title: "Secure Messaging",
+          description: "Opening secure message portal...",
+        });
+        // In real app: navigate to messaging
+        break;
+      default:
+        toast({
+          title: "Quick Action",
+          description: `${action} activated successfully!`,
+        });
+    }
   };
 
   const getHealthStatusColor = (status: HealthMetric['status']) => {

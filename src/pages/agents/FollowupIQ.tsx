@@ -3,6 +3,7 @@ import { useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { MessageSquare, Users, TrendingUp, Calendar, Settings } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -97,9 +98,46 @@ const FollowupIQ = () => {
               <CardDescription>Automated patient follow-up sequences</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-12 text-muted-foreground">
-                <MessageSquare className="w-12 h-12 mx-auto mb-4" />
-                <p>Campaign management features coming soon...</p>
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 border rounded-lg">
+                    <h3 className="font-semibold text-blue-600 mb-3">Active Campaigns</h3>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span>Post-Visit Follow-up</span>
+                        <Badge className="bg-green-100 text-green-700">Running</Badge>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span>Appointment Reminders</span>
+                        <Badge className="bg-green-100 text-green-700">Running</Badge>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span>Annual Checkup</span>
+                        <Badge className="bg-yellow-100 text-yellow-700">Paused</Badge>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="p-4 border rounded-lg">
+                    <h3 className="font-semibold text-purple-600 mb-3">Campaign Stats</h3>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span>Total Sent</span>
+                        <span className="font-semibold">1,247</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Open Rate</span>
+                        <span className="font-semibold text-green-600">68%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Response Rate</span>
+                        <span className="font-semibold text-blue-600">23%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <Button>Create New Campaign</Button>
               </div>
             </CardContent>
           </Card>

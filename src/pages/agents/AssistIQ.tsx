@@ -238,9 +238,32 @@ const AssistIQ = () => {
                 <CardDescription>Real-time staff assistance and support</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-12 text-muted-foreground">
-                  <MessageSquare className="w-12 h-12 mx-auto mb-4" />
-                  <p>Live chat interface coming soon...</p>
+                <div className="space-y-6">
+                  <div className="border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-semibold">Active Conversations</h3>
+                      <Badge variant="secondary">3 Active</Badge>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3 p-3 border rounded hover:bg-muted/50">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <div className="flex-1">
+                          <p className="font-medium">John Smith</p>
+                          <p className="text-sm text-muted-foreground">Appointment scheduling question</p>
+                        </div>
+                        <span className="text-xs text-muted-foreground">2 min ago</span>
+                      </div>
+                      <div className="flex items-center gap-3 p-3 border rounded hover:bg-muted/50">
+                        <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                        <div className="flex-1">
+                          <p className="font-medium">Sarah Johnson</p>
+                          <p className="text-sm text-muted-foreground">Insurance verification</p>
+                        </div>
+                        <span className="text-xs text-muted-foreground">5 min ago</span>
+                      </div>
+                    </div>
+                  </div>
+                  <Button className="w-full">Start New Chat</Button>
                 </div>
               </CardContent>
             </Card>
@@ -253,9 +276,44 @@ const AssistIQ = () => {
                 <CardDescription>Manage articles, FAQs, and procedures</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-12 text-muted-foreground">
-                  <BookOpen className="w-12 h-12 mx-auto mb-4" />
-                  <p>Knowledge base management coming soon...</p>
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-4 border rounded-lg">
+                      <h3 className="font-semibold mb-3">Articles</h3>
+                      <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <span>Appointment Booking</span>
+                          <Badge variant="outline">12 views</Badge>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Insurance Information</span>
+                          <Badge variant="outline">8 views</Badge>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Payment Methods</span>
+                          <Badge variant="outline">15 views</Badge>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-4 border rounded-lg">
+                      <h3 className="font-semibold mb-3">FAQs</h3>
+                      <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <span>Office Hours</span>
+                          <Badge variant="outline">25 hits</Badge>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Cancellation Policy</span>
+                          <Badge variant="outline">18 hits</Badge>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>New Patient Process</span>
+                          <Badge variant="outline">32 hits</Badge>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <Button>Add New Article</Button>
                 </div>
               </CardContent>
             </Card>
@@ -268,9 +326,44 @@ const AssistIQ = () => {
                 <CardDescription>Query patterns and staff satisfaction metrics</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-12 text-muted-foreground">
-                  <TrendingUp className="w-12 h-12 mx-auto mb-4" />
-                  <p>Analytics dashboard coming soon...</p>
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="p-4 border rounded-lg text-center">
+                      <div className="text-2xl font-bold text-blue-600">156</div>
+                      <p className="text-sm text-muted-foreground">Total Queries</p>
+                    </div>
+                    <div className="p-4 border rounded-lg text-center">
+                      <div className="text-2xl font-bold text-green-600">92%</div>
+                      <p className="text-sm text-muted-foreground">Resolution Rate</p>
+                    </div>
+                    <div className="p-4 border rounded-lg text-center">
+                      <div className="text-2xl font-bold text-purple-600">4.8</div>
+                      <p className="text-sm text-muted-foreground">Satisfaction Score</p>
+                    </div>
+                  </div>
+                  <div className="border rounded-lg p-4">
+                    <h3 className="font-semibold mb-3">Popular Topics</h3>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span>Appointment Scheduling</span>
+                        <div className="flex items-center gap-2">
+                          <div className="w-20 bg-muted rounded-full h-2">
+                            <div className="bg-blue-600 h-2 rounded-full" style={{width: '80%'}}></div>
+                          </div>
+                          <span className="text-sm">80%</span>
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span>Insurance Questions</span>
+                        <div className="flex items-center gap-2">
+                          <div className="w-20 bg-muted rounded-full h-2">
+                            <div className="bg-green-600 h-2 rounded-full" style={{width: '65%'}}></div>
+                          </div>
+                          <span className="text-sm">65%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>

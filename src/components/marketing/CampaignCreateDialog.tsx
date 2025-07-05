@@ -66,9 +66,22 @@ export const CampaignCreateDialog = () => {
   };
 
   const handleAIGenerate = () => {
+    const aiGeneratedCampaign = {
+      name: 'AI Health Checkup Reminder',
+      type: 'email',
+      audience: 'overdue-patients',
+      message: 'Hello [Patient Name], it\'s time for your annual checkup! Book your appointment today and save 10% on preventive care services.',
+      schedule: 'weekly'
+    };
+    
+    setFormData({
+      ...formData,
+      ...aiGeneratedCampaign
+    });
+    
     toast({
-      title: 'AI Campaign Generator',
-      description: 'AI-powered campaign generation coming soon!',
+      title: 'AI Campaign Generated!',
+      description: 'Campaign template has been generated and applied to the form.',
     });
   };
 

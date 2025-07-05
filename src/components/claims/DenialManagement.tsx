@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { EnhancedDenialManagement } from "./EnhancedDenialManagement";
 import { 
@@ -306,9 +307,52 @@ export const DenialManagement = () => {
                   <CardDescription>Monitor the status of submitted appeals</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-center py-12 text-muted-foreground">
-                    <FileText className="w-12 h-12 mx-auto mb-4" />
-                    <p>Appeals tracking dashboard coming soon...</p>
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="p-4 border rounded-lg">
+                        <h3 className="font-semibold text-blue-600">Pending Appeals</h3>
+                        <div className="text-2xl font-bold mt-2">7</div>
+                        <p className="text-sm text-muted-foreground">Under review</p>
+                      </div>
+                      <div className="p-4 border rounded-lg">
+                        <h3 className="font-semibold text-green-600">Approved Appeals</h3>
+                        <div className="text-2xl font-bold mt-2">23</div>
+                        <p className="text-sm text-muted-foreground">This month</p>
+                      </div>
+                      <div className="p-4 border rounded-lg">
+                        <h3 className="font-semibold text-red-600">Denied Appeals</h3>
+                        <div className="text-2xl font-bold mt-2">3</div>
+                        <p className="text-sm text-muted-foreground">Require action</p>
+                      </div>
+                    </div>
+                    
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Appeal ID</TableHead>
+                          <TableHead>Patient</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Filed Date</TableHead>
+                          <TableHead>Response Due</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell>APP-001</TableCell>
+                          <TableCell>Sarah Johnson</TableCell>
+                          <TableCell><Badge variant="secondary">Under Review</Badge></TableCell>
+                          <TableCell>2024-01-15</TableCell>
+                          <TableCell>2024-02-15</TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell>APP-002</TableCell>
+                          <TableCell>Mike Chen</TableCell>
+                          <TableCell><Badge className="bg-green-100 text-green-700">Approved</Badge></TableCell>
+                          <TableCell>2024-01-10</TableCell>
+                          <TableCell>Completed</TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
                   </div>
                 </CardContent>
               </Card>

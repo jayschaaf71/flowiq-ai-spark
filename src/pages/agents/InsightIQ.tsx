@@ -112,9 +112,48 @@ const InsightIQ = () => {
                 <CardDescription>Detailed performance analytics and trends</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-12 text-muted-foreground">
-                  <BarChart3 className="w-12 h-12 mx-auto mb-4" />
-                  <p>Advanced analytics dashboard coming soon...</p>
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="p-4 border rounded-lg text-center">
+                      <div className="text-2xl font-bold text-blue-600">247</div>
+                      <p className="text-sm text-muted-foreground">Patient Visits</p>
+                      <p className="text-xs text-green-600">↑ 12% this month</p>
+                    </div>
+                    <div className="p-4 border rounded-lg text-center">
+                      <div className="text-2xl font-bold text-green-600">89%</div>
+                      <p className="text-sm text-muted-foreground">Satisfaction Rate</p>
+                      <p className="text-xs text-green-600">↑ 3% this month</p>
+                    </div>
+                    <div className="p-4 border rounded-lg text-center">
+                      <div className="text-2xl font-bold text-purple-600">$127k</div>
+                      <p className="text-sm text-muted-foreground">Monthly Revenue</p>
+                      <p className="text-xs text-green-600">↑ 8% this month</p>
+                    </div>
+                  </div>
+                  
+                  <div className="border rounded-lg p-4">
+                    <h3 className="font-semibold mb-3">Key Performance Indicators</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-sm">Patient Retention</span>
+                          <span className="text-sm font-semibold">92%</span>
+                        </div>
+                        <div className="w-full bg-muted rounded-full h-2">
+                          <div className="bg-blue-600 h-2 rounded-full" style={{width: '92%'}}></div>
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-sm">Appointment Efficiency</span>
+                          <span className="text-sm font-semibold">87%</span>
+                        </div>
+                        <div className="w-full bg-muted rounded-full h-2">
+                          <div className="bg-green-600 h-2 rounded-full" style={{width: '87%'}}></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
