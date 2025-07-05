@@ -315,11 +315,9 @@ export const VoiceEnabledIntake: React.FC = () => {
           phone: structuredData.phone || '',
           date_of_birth: structuredData.dateOfBirth || null,
           gender: structuredData.gender || null,
-          medical_history: {
-            voiceIntake: true,
-            transcripts: intakeData.voiceTranscripts,
-            structuredData: structuredData
-          }
+          medical_history: structuredData.medicalHistory || 'Voice intake completed',
+          allergies: structuredData.allergies || null,
+          medications: structuredData.medications || null
         })
         .select()
         .single();
