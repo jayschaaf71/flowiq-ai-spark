@@ -1,11 +1,45 @@
-
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
+export interface ClaimDenial {
+  id: string;
+  claim_id: string;
+  denial_date: string;
+  denial_amount: number;
+  denial_reason: string;
+  appeal_status: string;
+  is_auto_correctable: boolean;
+}
+
+export interface RevenueMetric {
+  total_collections: number;
+  total_charges: number;
+  collection_rate: number;
+  denial_rate: number;
+  average_days_in_ar: number;
+  claims_submitted: number;
+  claims_paid: number;
+  claims_denied: number;
+  period_start: string;
+  period_end: string;
+}
+
+export interface PayerPerformance {
+  payer_name: string;
+  collection_rate: number;
+  average_payment_days: number;
+  total_claims: number;
+  paid_claims: number;
+  denied_claims: number;
+}
+
 export const useClaimsSampleData = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [denials, setDenials] = useState<ClaimDenial[]>([]);
+  const [revenueMetrics, setRevenueMetrics] = useState<RevenueMetric | null>(null);
+  const [payerPerformance, setPayerPerformance] = useState<PayerPerformance[]>([]);
 
   const createSampleData = async () => {
     setLoading(true);
@@ -17,33 +51,21 @@ export const useClaimsSampleData = () => {
           last_name: 'Smith',
           email: 'john.smith@email.com',
           phone: '(555) 123-4567',
-          date_of_birth: '1985-06-15',
-          address_line1: '123 Main St',
-          city: 'Springfield',
-          state: 'IL',
-          zip_code: '62701'
+          date_of_birth: '1985-06-15'
         },
         {
           first_name: 'Sarah',
           last_name: 'Johnson',
           email: 'sarah.johnson@email.com',
           phone: '(555) 234-5678',
-          date_of_birth: '1992-03-22',
-          address_line1: '456 Oak Ave',
-          city: 'Springfield',
-          state: 'IL',
-          zip_code: '62702'
+          date_of_birth: '1992-03-22'
         },
         {
           first_name: 'Mike',
           last_name: 'Wilson',
           email: 'mike.wilson@email.com',
           phone: '(555) 345-6789',
-          date_of_birth: '1978-11-08',
-          address_line1: '789 Pine Rd',
-          city: 'Springfield',
-          state: 'IL',
-          zip_code: '62703'
+          date_of_birth: '1978-11-08'
         }
       ];
 
@@ -80,70 +102,37 @@ export const useClaimsSampleData = () => {
 
       if (insuranceError) throw insuranceError;
 
-      // Create sample team members - using 'admin' as a safe role
-      const sampleProviders = [
-        {
-          first_name: 'Dr. Emily',
-          last_name: 'Chen',
-          email: 'emily.chen@clinic.com',
-          phone: '(555) 111-2222',
-          role: 'admin',
-          specialty: 'General Dentistry'
-        }
-      ];
-
-      const { data: providers, error: providersError } = await supabase
-        .from('team_members')
-        .insert(sampleProviders)
-        .select();
-
-      if (providersError) throw providersError;
-
       // Create sample claims
       const sampleClaims = [
         {
           patient_id: patients[0].id,
-          insurance_provider_id: insurance[0].id,
-          provider_id: providers[0].id,
           claim_number: 'CLM-2024-001',
-          service_date: '2024-01-15',
           total_amount: 350.00,
-          processing_status: 'draft',
-          ai_confidence_score: 85,
-          days_in_ar: 5
+          payer_name: 'Blue Cross Blue Shield',
+          status: 'draft',
+          submitted_date: '2024-01-15',
+          diagnosis_codes: ['M54.5', 'Z00.00'],
+          procedure_codes: ['99213', '73060']
         },
         {
           patient_id: patients[1].id,
-          insurance_provider_id: insurance[1].id,
-          provider_id: providers[0].id,
           claim_number: 'CLM-2024-002',
-          service_date: '2024-01-18',
           total_amount: 275.50,
-          processing_status: 'ready_for_review',
-          ai_confidence_score: 92,
-          days_in_ar: 2
+          payer_name: 'Aetna',
+          status: 'submitted',
+          submitted_date: '2024-01-18',
+          diagnosis_codes: ['K02.9'],
+          procedure_codes: ['D2140']
         },
         {
           patient_id: patients[2].id,
-          insurance_provider_id: insurance[2].id,
-          provider_id: providers[0].id,
           claim_number: 'CLM-2024-003',
-          service_date: '2024-01-20',
           total_amount: 150.00,
-          processing_status: 'submitted',
-          ai_confidence_score: 78,
-          days_in_ar: 15
-        },
-        {
-          patient_id: patients[0].id,
-          insurance_provider_id: insurance[0].id,
-          provider_id: providers[0].id,
-          claim_number: 'CLM-2024-004',
-          service_date: '2024-01-22',
-          total_amount: 425.00,
-          processing_status: 'paid',
-          ai_confidence_score: 95,
-          days_in_ar: 8
+          payer_name: 'Cigna',
+          status: 'paid',
+          submitted_date: '2024-01-20',
+          diagnosis_codes: ['Z01.21'],
+          procedure_codes: ['D0120']
         }
       ];
 
@@ -154,26 +143,20 @@ export const useClaimsSampleData = () => {
 
       if (claimsError) throw claimsError;
 
-      // Create sample denials
-      const sampleDenials = [
+      // Mock additional analytics data since tables don't exist
+      const mockDenials: ClaimDenial[] = [
         {
-          claim_id: claims[0].id,
+          id: '1',
+          claim_id: claims[0]?.id || 'CLM-001',
           denial_date: '2024-01-25',
           denial_amount: 350.00,
           denial_reason: 'Prior Authorization Required',
-          appeal_status: 'not_appealed',
+          appeal_status: 'pending',
           is_auto_correctable: true
         }
       ];
 
-      const { error: denialsError } = await supabase
-        .from('claim_denials')
-        .insert(sampleDenials);
-
-      if (denialsError) throw denialsError;
-
-      // Create sample revenue metrics
-      const sampleMetrics = {
+      const mockRevenueMetrics: RevenueMetric = {
         total_collections: 127450,
         total_charges: 135000,
         collection_rate: 94.5,
@@ -186,48 +169,37 @@ export const useClaimsSampleData = () => {
         period_end: '2024-01-31'
       };
 
-      const { error: metricsError } = await supabase
-        .from('revenue_metrics')
-        .insert(sampleMetrics);
-
-      if (metricsError) throw metricsError;
-
-      // Create sample payer performance
-      const samplePayerPerformance = [
+      const mockPayerPerformance: PayerPerformance[] = [
         {
           payer_name: 'Blue Cross Blue Shield',
           collection_rate: 96.2,
           average_payment_days: 14,
-          total_collected: 45000,
-          claims_count: 45,
-          period_start: '2024-01-01',
-          period_end: '2024-01-31'
+          total_claims: 45,
+          paid_claims: 43,
+          denied_claims: 2
         },
         {
           payer_name: 'Aetna',
           collection_rate: 94.8,
           average_payment_days: 18,
-          total_collected: 32000,
-          claims_count: 32,
-          period_start: '2024-01-01',
-          period_end: '2024-01-31'
+          total_claims: 32,
+          paid_claims: 30,
+          denied_claims: 2
         },
         {
           payer_name: 'Cigna',
           collection_rate: 92.1,
           average_payment_days: 22,
-          total_collected: 28000,
-          claims_count: 28,
-          period_start: '2024-01-01',
-          period_end: '2024-01-31'
+          total_claims: 28,
+          paid_claims: 26,
+          denied_claims: 2
         }
       ];
 
-      const { error: payerError } = await supabase
-        .from('payer_performance')
-        .insert(samplePayerPerformance);
-
-      if (payerError) throw payerError;
+      // Set mock data
+      setDenials(mockDenials);
+      setRevenueMetrics(mockRevenueMetrics);
+      setPayerPerformance(mockPayerPerformance);
 
       toast({
         title: "Sample Data Created",
@@ -248,6 +220,9 @@ export const useClaimsSampleData = () => {
 
   return {
     loading,
+    denials,
+    revenueMetrics,
+    payerPerformance,
     createSampleData
   };
 };

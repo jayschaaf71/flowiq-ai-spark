@@ -72,8 +72,8 @@ export const useClaimsData = () => {
       const { error } = await supabase
         .from('claims')
         .update({ 
-          processing_status: status,
-          ai_confidence_score: status === 'ai_processing' ? Math.floor(Math.random() * 20) + 80 : undefined
+          status: status,
+          notes: status === 'ai_processing' ? `AI Confidence: ${Math.floor(Math.random() * 20) + 80}%` : undefined
         })
         .eq('id', claimId);
       

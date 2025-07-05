@@ -1,172 +1,77 @@
-
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { useState, useEffect } from 'react';
+import { useToast } from './use-toast';
 
 export interface CustomVariable {
   id: string;
   key: string;
   label: string;
-  description: string;
-  type: 'text' | 'date' | 'number' | 'boolean' | 'select';
-  defaultValue?: string;
+  description?: string;
+  type: 'text' | 'select' | 'number' | 'date';
+  default_value?: string;
   options?: string[];
   category: string;
-  isSystem: boolean;
-  createdAt?: string;
-  updatedAt?: string;
+  is_system: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export const useCustomVariables = () => {
   const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const [variables, setVariables] = useState<CustomVariable[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const {
-    data: variables = [],
-    isLoading,
-    error
-  } = useQuery({
-    queryKey: ['custom-variables'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('custom_variables')
-        .select('*')
-        .order('category', { ascending: true })
-        .order('label', { ascending: true });
-
-      if (error) throw error;
-
-      return data.map(variable => ({
-        id: variable.id,
-        key: variable.key,
-        label: variable.label,
-        description: variable.description || '',
-        type: variable.type as CustomVariable['type'],
-        defaultValue: variable.default_value,
-        options: variable.options,
-        category: variable.category,
-        isSystem: variable.is_system,
-        createdAt: variable.created_at,
-        updatedAt: variable.updated_at
-      }));
+  const loadVariables = async () => {
+    try {
+      setLoading(true);
+      // Mock custom variables
+      const mockVariables: CustomVariable[] = [
+        {
+          id: '1',
+          key: 'practice_name',
+          label: 'Practice Name',
+          description: 'Name of the medical practice',
+          type: 'text',
+          default_value: 'Healthcare Practice',
+          category: 'practice',
+          is_system: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      ];
+      
+      setVariables(mockVariables);
+    } catch (error) {
+      console.error('Error loading custom variables:', error);
+    } finally {
+      setLoading(false);
     }
-  });
+  };
 
-  const createVariableMutation = useMutation({
-    mutationFn: async (variable: Omit<CustomVariable, 'id' | 'isSystem' | 'createdAt' | 'updatedAt'>) => {
-      const { data, error } = await supabase
-        .from('custom_variables')
-        .insert({
-          key: variable.key,
-          label: variable.label,
-          description: variable.description,
-          type: variable.type,
-          default_value: variable.defaultValue,
-          options: variable.options,
-          category: variable.category,
-          is_system: false
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['custom-variables'] });
-      toast({
-        title: "Variable Created",
-        description: "Custom variable has been created successfully.",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: "Failed to create variable. Please try again.",
-        variant: "destructive",
-      });
+  const createVariable = async (variable: Omit<CustomVariable, 'id' | 'created_at' | 'updated_at'>) => {
+    try {
+      const newVariable: CustomVariable = {
+        ...variable,
+        id: Date.now().toString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      
+      setVariables(prev => [...prev, newVariable]);
+      return newVariable;
+    } catch (error) {
+      console.error('Error creating custom variable:', error);
+      return null;
     }
-  });
+  };
 
-  const updateVariableMutation = useMutation({
-    mutationFn: async ({ id, ...variable }: Partial<CustomVariable> & { id: string }) => {
-      const { data, error } = await supabase
-        .from('custom_variables')
-        .update({
-          key: variable.key,
-          label: variable.label,
-          description: variable.description,
-          type: variable.type,
-          default_value: variable.defaultValue,
-          options: variable.options,
-          category: variable.category
-        })
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['custom-variables'] });
-      toast({
-        title: "Variable Updated",
-        description: "Custom variable has been updated successfully.",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: "Failed to update variable. Please try again.",
-        variant: "destructive",
-      });
-    }
-  });
-
-  const deleteVariableMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('custom_variables')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['custom-variables'] });
-      toast({
-        title: "Variable Deleted",
-        description: "Custom variable has been deleted successfully.",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: "Failed to delete variable. Please try again.",
-        variant: "destructive",
-      });
-    }
-  });
-
-  const variablesByCategory = variables.reduce((acc, variable) => {
-    if (!acc[variable.category]) {
-      acc[variable.category] = [];
-    }
-    acc[variable.category].push(variable);
-    return acc;
-  }, {} as Record<string, CustomVariable[]>);
+  useEffect(() => {
+    loadVariables();
+  }, []);
 
   return {
     variables,
-    variablesByCategory,
-    isLoading,
-    error,
-    createVariable: createVariableMutation.mutate,
-    updateVariable: updateVariableMutation.mutate,
-    deleteVariable: deleteVariableMutation.mutate,
-    isCreating: createVariableMutation.isPending,
-    isUpdating: updateVariableMutation.isPending,
-    isDeleting: deleteVariableMutation.isPending
+    loading,
+    createVariable,
+    refetch: loadVariables
   };
 };

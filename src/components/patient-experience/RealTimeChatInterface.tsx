@@ -34,7 +34,7 @@ export const RealTimeChatInterface = () => {
     createConversation, 
     markAsRead,
     fetchMessages
-  } = useChat(selectedConversation || undefined);
+  } = useChat();
 
   // Auto scroll to bottom when new messages arrive
   useEffect(() => {
