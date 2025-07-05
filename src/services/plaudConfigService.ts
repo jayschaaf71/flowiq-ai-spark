@@ -16,8 +16,7 @@ export const loadPlaudConfig = async (): Promise<PlaudConfig | null> => {
     return {
       apiKey: 'mock-api-key',
       webhookUrl: getWebhookUrl(),
-      isConnected: true,
-      deviceId: 'mock-device'
+      autoSync: true
     };
   } catch (error) {
     console.error('Failed to load Plaud configuration:', error);
@@ -29,19 +28,10 @@ export const savePlaudConfig = async (newConfig: PlaudConfig): Promise<boolean> 
   try {
     console.log('Mock saving Plaud configuration:', newConfig);
     
-    // Mock success since integration_settings table doesn't exist
-    return true;
-  } catch (error) {
-    console.error('Failed to save Plaud configuration:', error);
-    return false;
-  }
-};
-
-    if (error) throw error;
-
     // Log the webhook URL for user reference
     console.log('Plaud webhook URL configured:', getWebhookUrl());
     
+    // Mock success since integration_settings table doesn't exist
     return true;
   } catch (error) {
     console.error('Failed to save Plaud configuration:', error);
