@@ -30,7 +30,7 @@ export const FileAttachments = ({ patientId, soapNoteId, appointmentId }: FileAt
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [description, setDescription] = useState("");
 
-  const { data: attachments = [], isLoading } = useFileAttachments(patientId, soapNoteId, appointmentId);
+  const { data: attachments = [], isLoading } = useFileAttachments(patientId, appointmentId);
   const uploadMutation = useUploadFile();
   const deleteMutation = useDeleteFile();
   const downloadMutation = useDownloadFile();
@@ -65,7 +65,6 @@ export const FileAttachments = ({ patientId, soapNoteId, appointmentId }: FileAt
     uploadMutation.mutate({
       file: selectedFile,
       patientId,
-      soapNoteId,
       appointmentId,
       description
     });

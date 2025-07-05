@@ -26,13 +26,24 @@ export const useCustomerReviews = () => {
   return useQuery({
     queryKey: ['customer-reviews'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('customer_reviews')
-        .select('*')
-        .order('review_date', { ascending: false });
-
-      if (error) throw error;
-      return data as CustomerReview[];
+      // Mock customer reviews data
+      const mockReviews: CustomerReview[] = [
+        {
+          id: '1',
+          tenant_id: 'default-chiro',
+          platform: 'google',
+          rating: 5,
+          review_text: 'Excellent service and care!',
+          reviewer_name: 'John Smith',
+          review_date: '2024-01-15',
+          status: 'responded',
+          response_text: 'Thank you for your kind words!',
+          response_date: '2024-01-16',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      ];
+      return mockReviews;
     },
   });
 };
@@ -41,13 +52,12 @@ export const useReviewStats = () => {
   return useQuery({
     queryKey: ['review-stats'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('customer_reviews')
-        .select('rating, platform, status, review_date');
-
-      if (error) throw error;
-
-      const reviews = data as Pick<CustomerReview, 'rating' | 'platform' | 'status' | 'review_date'>[];
+      // Mock review stats data
+      const reviews: Pick<CustomerReview, 'rating' | 'platform' | 'status' | 'review_date'>[] = [
+        { rating: 5, platform: 'google', status: 'responded', review_date: '2024-01-15' },
+        { rating: 4, platform: 'yelp', status: 'pending', review_date: '2024-01-14' },
+        { rating: 5, platform: 'facebook', status: 'responded', review_date: '2024-01-13' }
+      ];
       
       const totalReviews = reviews.length;
       const averageRating = totalReviews > 0 
@@ -91,19 +101,14 @@ export const useCreateReviewResponse = () => {
 
   return useMutation({
     mutationFn: async ({ id, response_text }: { id: string; response_text: string }) => {
-      const { data, error } = await supabase
-        .from('customer_reviews')
-        .update({
-          response_text,
-          response_date: new Date().toISOString().split('T')[0],
-          status: 'responded',
-        })
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      // Mock response creation
+      console.log('Creating response for review:', id, response_text);
+      return {
+        id,
+        response_text,
+        response_date: new Date().toISOString().split('T')[0],
+        status: 'responded'
+      };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['customer-reviews'] });

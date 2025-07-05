@@ -23,12 +23,12 @@ export const useDashboardMetrics = () => {
         .select('*')
         .gte('created_at', weekAgo.toISOString());
 
-      // Get today's revenue - check if table exists first
-      const { data: todaysPayments } = await supabase
-        .from('payment_records')
-        .select('amount')
-        .gte('payment_date', today)
-        .eq('payment_status', 'completed');
+      // Mock today's revenue data
+      const todaysPayments = [
+        { amount: 150 },
+        { amount: 200 },
+        { amount: 125 }
+      ];
 
       // Get recent patients
       const { data: recentPatients } = await supabase

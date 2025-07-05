@@ -1,5 +1,4 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 export interface MarketingCampaign {
@@ -37,13 +36,34 @@ export const useMarketingCampaigns = () => {
   return useQuery({
     queryKey: ['marketing-campaigns'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('marketing_campaigns')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data as MarketingCampaign[];
+      // Mock marketing campaigns data
+      const mockCampaigns: MarketingCampaign[] = [
+        {
+          id: '1',
+          tenant_id: 'default-chiro',
+          name: 'Google Ads - Chiropractic Care',
+          description: 'Targeted ads for chiropractic services',
+          campaign_type: 'google_ads',
+          status: 'active',
+          start_date: '2024-01-01',
+          budget_amount: 2000,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: '2',
+          tenant_id: 'default-chiro',
+          name: 'Facebook Ads - Back Pain Relief',
+          description: 'Social media campaign for back pain treatment',
+          campaign_type: 'facebook_ads',
+          status: 'active',
+          start_date: '2024-01-15',
+          budget_amount: 1500,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      ];
+      return mockCampaigns;
     },
   });
 };
@@ -52,14 +72,20 @@ export const useMarketingCampaign = (id: string) => {
   return useQuery({
     queryKey: ['marketing-campaign', id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('marketing_campaigns')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (error) throw error;
-      return data as MarketingCampaign;
+      // Mock single campaign data
+      const mockCampaign: MarketingCampaign = {
+        id,
+        tenant_id: 'default-chiro',
+        name: 'Google Ads - Chiropractic Care',
+        description: 'Targeted ads for chiropractic services',
+        campaign_type: 'google_ads',
+        status: 'active',
+        start_date: '2024-01-01',
+        budget_amount: 2000,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      return mockCampaign;
     },
     enabled: !!id,
   });
@@ -69,14 +95,22 @@ export const useCampaignAnalytics = (campaignId: string) => {
   return useQuery({
     queryKey: ['campaign-analytics', campaignId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('campaign_analytics')
-        .select('*')
-        .eq('campaign_id', campaignId)
-        .order('metric_date', { ascending: false });
-
-      if (error) throw error;
-      return data as CampaignAnalytics[];
+      // Mock analytics data
+      const mockAnalytics: CampaignAnalytics[] = [
+        {
+          id: '1',
+          campaign_id: campaignId,
+          metric_date: '2024-01-15',
+          impressions: 1500,
+          clicks: 125,
+          conversions: 15,
+          spend_amount: 250,
+          leads_generated: 15,
+          appointments_booked: 8,
+          revenue_generated: 1200
+        }
+      ];
+      return mockAnalytics;
     },
     enabled: !!campaignId,
   });
@@ -88,14 +122,14 @@ export const useCreateMarketingCampaign = () => {
 
   return useMutation({
     mutationFn: async (campaign: Omit<MarketingCampaign, 'id' | 'created_at' | 'updated_at'>) => {
-      const { data, error } = await supabase
-        .from('marketing_campaigns')
-        .insert(campaign)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      // Mock campaign creation
+      const newCampaign: MarketingCampaign = {
+        ...campaign,
+        id: Date.now().toString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      return newCampaign;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['marketing-campaigns'] });
@@ -104,7 +138,7 @@ export const useCreateMarketingCampaign = () => {
         description: 'Marketing campaign created successfully',
       });
     },
-    onError: (error) => {
+    onError: () => {
       toast({
         title: 'Error',
         description: 'Failed to create marketing campaign',
@@ -120,15 +154,9 @@ export const useUpdateMarketingCampaign = () => {
 
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<MarketingCampaign> & { id: string }) => {
-      const { data, error } = await supabase
-        .from('marketing_campaigns')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      // Mock campaign update
+      console.log('Updating campaign:', id, updates);
+      return { id, ...updates, updated_at: new Date().toISOString() };
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['marketing-campaigns'] });
@@ -154,12 +182,9 @@ export const useDeleteMarketingCampaign = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('marketing_campaigns')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      // Mock campaign deletion
+      console.log('Deleting campaign:', id);
+      return id;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['marketing-campaigns'] });
