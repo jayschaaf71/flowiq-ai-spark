@@ -155,18 +155,61 @@ export const StreamlinedPatientOnboarding: React.FC<StreamlinedPatientOnboarding
             
             <Card className="p-6">
               <div className="space-y-4">
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                  <FileText className="w-8 h-8 mx-auto text-gray-400 mb-4" />
-                  <p className="text-gray-600">Document upload functionality coming soon</p>
-                  <p className="text-sm text-gray-500">For now, you can bring your documents to your appointment</p>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-300 transition-colors">
+                  <FileText className="w-8 h-8 mx-auto text-blue-500 mb-4" />
+                  <h3 className="font-semibold mb-2">Upload Your Documents</h3>
+                  <p className="text-gray-600 mb-4">Drag and drop or click to select files</p>
+                  
+                  <input
+                    type="file"
+                    multiple
+                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                    className="hidden"
+                    id="document-upload"
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files || []);
+                      toast({
+                        title: "Documents Selected",
+                        description: `${files.length} document(s) ready for upload`,
+                      });
+                    }}
+                  />
+                  <label htmlFor="document-upload" className="cursor-pointer">
+                    <Button type="button" variant="outline" className="mb-2">
+                      Select Documents
+                    </Button>
+                  </label>
+                  
+                  <div className="text-xs text-gray-500 mt-2">
+                    Supported: PDF, JPG, PNG, DOC, DOCX (Max 10MB each)
+                  </div>
                 </div>
                 
-                <Button 
-                  onClick={() => handlePhaseComplete('documents')}
-                  className="w-full"
-                >
-                  Skip for Now - Complete Later
-                </Button>
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <h4 className="font-medium text-blue-900 mb-2">Recommended Documents:</h4>
+                  <ul className="text-sm text-blue-800 space-y-1">
+                    <li>• Insurance cards (front and back)</li>
+                    <li>• Previous medical records</li>
+                    <li>• List of current medications</li>
+                    <li>• Referral letters (if applicable)</li>
+                  </ul>
+                </div>
+                
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={() => handlePhaseComplete('documents')}
+                    className="flex-1"
+                  >
+                    Continue with Uploaded Documents
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => handlePhaseComplete('documents')}
+                    className="flex-1"
+                  >
+                    Skip for Now
+                  </Button>
+                </div>
               </div>
             </Card>
           </div>

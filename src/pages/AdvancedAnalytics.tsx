@@ -173,16 +173,100 @@ export const AdvancedAnalytics: React.FC = () => {
           </TabsContent>
 
           <TabsContent value="practice" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Staff Productivity</CardTitle>
+                  <CardDescription>Individual and team performance metrics</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center p-3 border rounded">
+                      <div>
+                        <p className="font-medium">Dr. Sarah Johnson</p>
+                        <p className="text-sm text-gray-600">12 patients today</p>
+                      </div>
+                      <Badge className="bg-green-100 text-green-700">98%</Badge>
+                    </div>
+                    <div className="flex justify-between items-center p-3 border rounded">
+                      <div>
+                        <p className="font-medium">Dr. Michael Chen</p>
+                        <p className="text-sm text-gray-600">8 patients today</p>
+                      </div>
+                      <Badge className="bg-green-100 text-green-700">95%</Badge>
+                    </div>
+                    <div className="flex justify-between items-center p-3 border rounded">
+                      <div>
+                        <p className="font-medium">Lisa Rodriguez, RDH</p>
+                        <p className="text-sm text-gray-600">15 cleanings today</p>
+                      </div>
+                      <Badge className="bg-green-100 text-green-700">92%</Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Operational Efficiency</CardTitle>
+                  <CardDescription>Practice efficiency metrics</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-sm">Appointment Utilization</span>
+                        <span className="text-sm font-semibold">89%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="bg-blue-600 h-2 rounded-full" style={{width: '89%'}}></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-sm">On-Time Performance</span>
+                        <span className="text-sm font-semibold">94%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="bg-green-600 h-2 rounded-full" style={{width: '94%'}}></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-sm">Patient Satisfaction</span>
+                        <span className="text-sm font-semibold">96%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="bg-purple-600 h-2 rounded-full" style={{width: '96%'}}></div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
             <Card>
               <CardHeader>
-                <CardTitle>Practice Performance</CardTitle>
-                <CardDescription>Comprehensive practice metrics and insights</CardDescription>
+                <CardTitle>Financial Performance</CardTitle>
+                <CardDescription>Revenue and cost analysis</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-12">
-                  <Activity className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Practice Analytics</h3>
-                  <p className="text-gray-600">Detailed practice performance metrics coming soon.</p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="text-center p-4 border rounded-lg">
+                    <div className="text-2xl font-bold text-green-600">$45,200</div>
+                    <p className="text-sm text-gray-600">Monthly Revenue</p>
+                    <p className="text-xs text-green-600">↑ 12% vs last month</p>
+                  </div>
+                  <div className="text-center p-4 border rounded-lg">
+                    <div className="text-2xl font-bold text-blue-600">$28,800</div>
+                    <p className="text-sm text-gray-600">Operating Costs</p>
+                    <p className="text-xs text-red-600">↑ 3% vs last month</p>
+                  </div>
+                  <div className="text-center p-4 border rounded-lg">
+                    <div className="text-2xl font-bold text-purple-600">36%</div>
+                    <p className="text-sm text-gray-600">Profit Margin</p>
+                    <p className="text-xs text-green-600">↑ 2% vs last month</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>

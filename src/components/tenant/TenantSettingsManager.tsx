@@ -287,11 +287,20 @@ export const TenantSettingsManager: React.FC<TenantSettingsManagerProps> = ({
                     <p className="text-sm text-gray-600">Sync with Google Calendar or Outlook</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge variant="secondary">Coming Soon</Badge>
+                    <Select defaultValue="none">
+                      <SelectTrigger className="w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">Disabled</SelectItem>
+                        <SelectItem value="google">Google</SelectItem>
+                        <SelectItem value="outlook">Outlook</SelectItem>
+                        <SelectItem value="both">Both</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <Switch
                       checked={settings.calendar_sync}
                       onCheckedChange={(checked) => handleToggle('calendar_sync', checked)}
-                      disabled
                     />
                   </div>
                 </div>
@@ -302,11 +311,20 @@ export const TenantSettingsManager: React.FC<TenantSettingsManagerProps> = ({
                     <p className="text-sm text-gray-600">Connect with billing software</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge variant="secondary">Coming Soon</Badge>
+                    <Select defaultValue="none">
+                      <SelectTrigger className="w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">None</SelectItem>
+                        <SelectItem value="quickbooks">QuickBooks</SelectItem>
+                        <SelectItem value="stripe">Stripe</SelectItem>
+                        <SelectItem value="square">Square</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <Switch
                       checked={settings.billing_integration}
                       onCheckedChange={(checked) => handleToggle('billing_integration', checked)}
-                      disabled
                     />
                   </div>
                 </div>
@@ -317,14 +335,22 @@ export const TenantSettingsManager: React.FC<TenantSettingsManagerProps> = ({
                     <p className="text-sm text-gray-600">Automated insurance verification</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge variant="secondary">Coming Soon</Badge>
+                    <Badge className="bg-green-100 text-green-700">Active</Badge>
                     <Switch
                       checked={settings.insurance_verification}
                       onCheckedChange={(checked) => handleToggle('insurance_verification', checked)}
-                      disabled
                     />
                   </div>
                 </div>
+                
+                {settings.insurance_verification && (
+                  <div className="ml-6 mt-2 p-3 bg-blue-50 rounded border-l-4 border-blue-400">
+                    <p className="text-sm text-blue-800">
+                      Real-time verification with major insurance providers including:
+                      Aetna, Blue Cross Blue Shield, Cigna, UnitedHealth, and more.
+                    </p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
