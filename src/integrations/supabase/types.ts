@@ -87,6 +87,224 @@ export type Database = {
           },
         ]
       }
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          ip_address: unknown | null
+          new_values: Json | null
+          old_values: Json | null
+          record_id: string | null
+          table_name: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string | null
+          table_name: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string | null
+          table_name?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      claims: {
+        Row: {
+          appointment_id: string | null
+          claim_number: string | null
+          created_at: string
+          diagnosis_codes: string[] | null
+          id: string
+          notes: string | null
+          patient_id: string
+          payer_name: string | null
+          procedure_codes: string[] | null
+          processed_date: string | null
+          status: string | null
+          submitted_date: string | null
+          total_amount: number | null
+          updated_at: string
+        }
+        Insert: {
+          appointment_id?: string | null
+          claim_number?: string | null
+          created_at?: string
+          diagnosis_codes?: string[] | null
+          id?: string
+          notes?: string | null
+          patient_id: string
+          payer_name?: string | null
+          procedure_codes?: string[] | null
+          processed_date?: string | null
+          status?: string | null
+          submitted_date?: string | null
+          total_amount?: number | null
+          updated_at?: string
+        }
+        Update: {
+          appointment_id?: string | null
+          claim_number?: string | null
+          created_at?: string
+          diagnosis_codes?: string[] | null
+          id?: string
+          notes?: string | null
+          patient_id?: string
+          payer_name?: string | null
+          procedure_codes?: string[] | null
+          processed_date?: string | null
+          status?: string | null
+          submitted_date?: string | null
+          total_amount?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "claims_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "claims_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      file_attachments: {
+        Row: {
+          appointment_id: string | null
+          created_at: string
+          description: string | null
+          file_name: string
+          file_size: number
+          file_type: string
+          id: string
+          patient_id: string | null
+          storage_path: string
+          updated_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          appointment_id?: string | null
+          created_at?: string
+          description?: string | null
+          file_name: string
+          file_size: number
+          file_type: string
+          id?: string
+          patient_id?: string | null
+          storage_path: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          appointment_id?: string | null
+          created_at?: string
+          description?: string | null
+          file_name?: string
+          file_size?: number
+          file_type?: string
+          id?: string
+          patient_id?: string | null
+          storage_path?: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "file_attachments_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "file_attachments_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      medical_records: {
+        Row: {
+          allergies: string[] | null
+          content: Json | null
+          created_at: string
+          created_by: string | null
+          diagnosis: string | null
+          id: string
+          medications: string[] | null
+          notes: string | null
+          patient_id: string
+          record_type: string
+          treatment: string | null
+          updated_at: string
+          vital_signs: Json | null
+        }
+        Insert: {
+          allergies?: string[] | null
+          content?: Json | null
+          created_at?: string
+          created_by?: string | null
+          diagnosis?: string | null
+          id?: string
+          medications?: string[] | null
+          notes?: string | null
+          patient_id: string
+          record_type: string
+          treatment?: string | null
+          updated_at?: string
+          vital_signs?: Json | null
+        }
+        Update: {
+          allergies?: string[] | null
+          content?: Json | null
+          created_at?: string
+          created_by?: string | null
+          diagnosis?: string | null
+          id?: string
+          medications?: string[] | null
+          notes?: string | null
+          patient_id?: string
+          record_type?: string
+          treatment?: string | null
+          updated_at?: string
+          vital_signs?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medical_records_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       patient_checkins: {
         Row: {
           appointment_id: string
