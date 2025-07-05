@@ -249,6 +249,51 @@ export type Database = {
           },
         ]
       }
+      insurance_providers: {
+        Row: {
+          address: string | null
+          city: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          phone: string | null
+          state: string | null
+          type: string | null
+          updated_at: string
+          website: string | null
+          zip_code: string | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          phone?: string | null
+          state?: string | null
+          type?: string | null
+          updated_at?: string
+          website?: string | null
+          zip_code?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          phone?: string | null
+          state?: string | null
+          type?: string | null
+          updated_at?: string
+          website?: string | null
+          zip_code?: string | null
+        }
+        Relationships: []
+      }
       medical_records: {
         Row: {
           allergies: string[] | null
@@ -355,6 +400,75 @@ export type Database = {
           },
           {
             foreignKeyName: "patient_checkins_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patient_insurance: {
+        Row: {
+          copay_amount: number | null
+          created_at: string
+          deductible_amount: number | null
+          effective_date: string | null
+          expiration_date: string | null
+          group_number: string | null
+          id: string
+          insurance_provider_id: string
+          is_active: boolean
+          is_primary: boolean | null
+          patient_id: string
+          policy_number: string
+          subscriber_name: string | null
+          subscriber_relationship: string | null
+          updated_at: string
+        }
+        Insert: {
+          copay_amount?: number | null
+          created_at?: string
+          deductible_amount?: number | null
+          effective_date?: string | null
+          expiration_date?: string | null
+          group_number?: string | null
+          id?: string
+          insurance_provider_id: string
+          is_active?: boolean
+          is_primary?: boolean | null
+          patient_id: string
+          policy_number: string
+          subscriber_name?: string | null
+          subscriber_relationship?: string | null
+          updated_at?: string
+        }
+        Update: {
+          copay_amount?: number | null
+          created_at?: string
+          deductible_amount?: number | null
+          effective_date?: string | null
+          expiration_date?: string | null
+          group_number?: string | null
+          id?: string
+          insurance_provider_id?: string
+          is_active?: boolean
+          is_primary?: boolean | null
+          patient_id?: string
+          policy_number?: string
+          subscriber_name?: string | null
+          subscriber_relationship?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_insurance_insurance_provider_id_fkey"
+            columns: ["insurance_provider_id"]
+            isOneToOne: false
+            referencedRelation: "insurance_providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_insurance_patient_id_fkey"
             columns: ["patient_id"]
             isOneToOne: false
             referencedRelation: "patients"

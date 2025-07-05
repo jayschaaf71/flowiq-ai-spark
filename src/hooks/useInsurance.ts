@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
@@ -14,10 +13,10 @@ export const useInsuranceProviders = () => {
         .from('insurance_providers')
         .select('*')
         .eq('is_active', true)
-        .order('name', { ascending: true });
+        .order('name');
 
       if (error) throw error;
-      return data || [];
+      return data as InsuranceProvider[];
     },
   });
 };
@@ -30,14 +29,19 @@ export const usePatientInsurance = (patientId: string) => {
         .from('patient_insurance')
         .select(`
           *,
-          insurance_providers(name, phone, website)
+          insurance_providers (
+            id,
+            name,
+            phone,
+            website
+          )
         `)
         .eq('patient_id', patientId)
         .eq('is_active', true)
         .order('is_primary', { ascending: false });
 
       if (error) throw error;
-      return data || [];
+      return data;
     },
     enabled: !!patientId,
   });
@@ -47,10 +51,10 @@ export const useCreatePatientInsurance = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (insurance: Omit<PatientInsurance, 'id' | 'created_at' | 'updated_at'>) => {
+    mutationFn: async (insuranceData: Omit<PatientInsurance, 'id' | 'created_at' | 'updated_at'>) => {
       const { data, error } = await supabase
         .from('patient_insurance')
-        .insert(insurance)
+        .insert([insuranceData])
         .select()
         .single();
 
