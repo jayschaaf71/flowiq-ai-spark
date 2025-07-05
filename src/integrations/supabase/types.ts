@@ -9,6 +9,51 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      appointment_waitlist: {
+        Row: {
+          appointment_type: string
+          created_at: string
+          email: string | null
+          id: string
+          notes: string | null
+          patient_name: string
+          phone: string | null
+          preferred_date: string | null
+          preferred_time: string | null
+          priority: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          appointment_type: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          notes?: string | null
+          patient_name: string
+          phone?: string | null
+          preferred_date?: string | null
+          preferred_time?: string | null
+          priority?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          appointment_type?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          notes?: string | null
+          patient_name?: string
+          phone?: string | null
+          preferred_date?: string | null
+          preferred_time?: string | null
+          priority?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       appointments: {
         Row: {
           appointment_type: string | null
@@ -896,6 +941,42 @@ export type Database = {
         }
         Relationships: []
       }
+      provider_notifications: {
+        Row: {
+          action_url: string | null
+          created_at: string
+          id: string
+          is_read: boolean | null
+          message: string
+          notification_type: string
+          provider_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          action_url?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message: string
+          notification_type: string
+          provider_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          action_url?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          notification_type?: string
+          provider_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       providers: {
         Row: {
           created_at: string
@@ -988,6 +1069,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      team_members: {
+        Row: {
+          created_at: string
+          email: string
+          first_name: string
+          id: string
+          last_name: string
+          phone: string | null
+          role: string
+          specialty: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          first_name: string
+          id?: string
+          last_name: string
+          phone?: string | null
+          role: string
+          specialty?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          phone?: string | null
+          role?: string
+          specialty?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
     }
     Views: {
