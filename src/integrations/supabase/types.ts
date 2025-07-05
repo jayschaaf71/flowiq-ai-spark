@@ -21,7 +21,8 @@ export type Database = {
           patient_id: string | null
           patient_name: string | null
           phone: string | null
-          provider: string
+          provider: string | null
+          provider_id: string | null
           room: string | null
           status: string | null
           time: string
@@ -40,7 +41,8 @@ export type Database = {
           patient_id?: string | null
           patient_name?: string | null
           phone?: string | null
-          provider: string
+          provider?: string | null
+          provider_id?: string | null
           room?: string | null
           status?: string | null
           time: string
@@ -59,7 +61,8 @@ export type Database = {
           patient_id?: string | null
           patient_name?: string | null
           phone?: string | null
-          provider?: string
+          provider?: string | null
+          provider_id?: string | null
           room?: string | null
           status?: string | null
           time?: string
@@ -73,6 +76,117 @@ export type Database = {
             columns: ["patient_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_appointments_provider"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patient_checkins: {
+        Row: {
+          appointment_id: string
+          check_in_method: string | null
+          copay_amount: number | null
+          copay_collected: boolean | null
+          created_at: string
+          forms_completed: boolean | null
+          id: string
+          insurance_verified: boolean | null
+          notes: string | null
+          patient_id: string
+          updated_at: string
+        }
+        Insert: {
+          appointment_id: string
+          check_in_method?: string | null
+          copay_amount?: number | null
+          copay_collected?: boolean | null
+          created_at?: string
+          forms_completed?: boolean | null
+          id?: string
+          insurance_verified?: boolean | null
+          notes?: string | null
+          patient_id: string
+          updated_at?: string
+        }
+        Update: {
+          appointment_id?: string
+          check_in_method?: string | null
+          copay_amount?: number | null
+          copay_collected?: boolean | null
+          created_at?: string
+          forms_completed?: boolean | null
+          id?: string
+          insurance_verified?: boolean | null
+          notes?: string | null
+          patient_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_checkins_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_checkins_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patient_notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          metadata: Json | null
+          patient_id: string
+          priority: string | null
+          read: boolean | null
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          metadata?: Json | null
+          patient_id: string
+          priority?: string | null
+          read?: boolean | null
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          metadata?: Json | null
+          patient_id?: string
+          priority?: string | null
+          read?: boolean | null
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_notifications_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
             referencedColumns: ["id"]
           },
         ]

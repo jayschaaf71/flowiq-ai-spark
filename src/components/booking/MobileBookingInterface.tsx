@@ -194,7 +194,8 @@ export const MobileBookingInterface = ({
             status: 'confirmed',
             notes: patientInfo.notes,
             email: patientInfo.email,
-            phone: patientInfo.phone
+            phone: patientInfo.phone,
+            provider: 'Provider Name' // Keep provider text field for backwards compatibility
           })
           .select()
           .single();

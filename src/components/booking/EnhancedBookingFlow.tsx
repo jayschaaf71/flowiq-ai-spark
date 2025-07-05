@@ -116,6 +116,7 @@ export const EnhancedBookingFlow = ({ onAppointmentBooked }: EnhancedBookingFlow
         .from('appointments')
         .insert({
           patient_id: patientId,
+          provider_id: '00000000-0000-0000-0000-000000000001', // Default provider for now
           title: `${appointmentData.type} - ${selectedPatient?.first_name || appointmentData.newPatient.firstName} ${selectedPatient?.last_name || appointmentData.newPatient.lastName}`,
           appointment_type: appointmentData.type,
           date: appointmentData.date,
@@ -124,7 +125,8 @@ export const EnhancedBookingFlow = ({ onAppointmentBooked }: EnhancedBookingFlow
           status: 'confirmed',
           notes: appointmentData.notes,
           email: selectedPatient?.email || appointmentData.newPatient.email,
-          phone: selectedPatient?.phone || appointmentData.newPatient.phone
+          phone: selectedPatient?.phone || appointmentData.newPatient.phone,
+          provider: 'Default Provider' // Keep provider text field for backwards compatibility
         })
         .select()
         .single();

@@ -18,7 +18,8 @@ interface Appointment {
   time: string;
   appointment_type: string;
   patient_id: string;
-  provider_id: string;
+  provider_id?: string;
+  provider: string;
   status?: string; // Added optional status property
 }
 

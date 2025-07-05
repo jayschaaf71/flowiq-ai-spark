@@ -100,7 +100,8 @@ export const PatientAppointmentBooking: React.FC<PatientAppointmentBookingProps>
         status: 'pending',
         email: profile?.email,
         phone: '', // Could add phone field
-        duration: 60 // Default 60 minutes
+        duration: 60, // Default 60 minutes
+        provider: 'Provider Name' // Keep provider text field for backwards compatibility
       };
 
       const { error } = await supabase
