@@ -117,18 +117,18 @@ export const AppointmentWaitlist = () => {
     setLoading(true);
     try {
       // Mock insert operation
-      const newEntry = {
+      const waitlistEntry = {
         id: Date.now().toString(),
-        ...newWaitlistEntry,
-        status: 'active',
+        ...newEntry,
+        status: 'active' as const,
         created_at: new Date().toISOString()
       };
       
-      setWaitlist(prev => [newEntry, ...prev]);
+      setWaitlist(prev => [waitlistEntry, ...prev]);
       
       toast({
         title: "Added to Waitlist",
-        description: `${newEntry.patient_name} has been added to the waitlist`,
+        description: `${waitlistEntry.patient_name} has been added to the waitlist`,
       });
 
       setNewEntry({
@@ -160,18 +160,15 @@ export const AppointmentWaitlist = () => {
   const updateStatus = async (id: string, status: WaitlistEntry['status']) => {
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from('appointment_waitlist')
-        .update({ status })
-        .eq('id', id);
-
-      if (error) throw error;
+      // Mock status update
+      setWaitlist(prev => prev.map(entry => 
+        entry.id === id ? { ...entry, status } : entry
+      ));
       
       toast({
         title: "Status Updated",
         description: `Waitlist entry marked as ${status}`,
       });
-      
       loadWaitlist();
     } catch (error) {
       console.error('Error updating status:', error);
