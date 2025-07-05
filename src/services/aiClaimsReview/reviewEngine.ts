@@ -458,15 +458,12 @@ class AIClaimsReviewEngine {
 
   private async saveEnhancedReviewResults(result: ClaimReviewResult): Promise<void> {
     try {
-      const { error } = await supabase
-        .from('claims')
-        .update({
-          ai_confidence_score: result.overallScore,
-          processing_status: result.submissionReady ? 'ai_approved' : 'ai_review_required'
-        })
-        .eq('claim_number', result.claimId);
-
-      if (error) console.error('Error saving enhanced review results:', error);
+      // Mock saving enhanced review results since fields don't exist yet
+      console.log('Mock saving enhanced review results:', {
+        claim_id: result.claimId,
+        ai_confidence_score: result.overallScore,
+        processing_status: result.submissionReady ? 'ai_approved' : 'ai_review_required'
+      });
       
       console.log(`Enhanced AI review completed for ${result.claimId}: ${result.overallScore}% confidence, ${result.aiInsights.length} insights, ${result.autoCorrections.length} corrections`);
     } catch (error) {

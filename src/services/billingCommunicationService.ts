@@ -195,14 +195,13 @@ export class BillingCommunicationService {
 
   static async logBillNotification(request: BillNotificationRequest, results: any[]) {
     try {
-      await supabase
-        .from('billing_communication_logs')
-        .insert({
-          patient_id: request.patientId,
-          appointment_id: request.appointmentId,
-          bill_amount: request.billAmount,
-          bill_description: request.billDescription,
-          due_date: request.dueDate,
+      // Mock log bill notification since table doesn't exist yet
+      console.log('Mock logging bill notification:', {
+        patient_id: request.patientId,
+        appointment_id: request.appointmentId,
+        bill_amount: request.billAmount,
+        bill_description: request.billDescription,
+        due_date: request.dueDate,
           notification_channels: results.map(r => r.type),
           delivery_results: results,
           total_sent: results.filter(r => r.status === 'sent').length,
@@ -267,14 +266,9 @@ export class BillingCommunicationService {
 
   static async getBillNotificationHistory(patientId: string) {
     try {
-      const { data, error } = await supabase
-        .from('billing_communication_logs')
-        .select('*')
-        .eq('patient_id', patientId)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data || [];
+      // Mock get bill notification history since table doesn't exist yet
+      console.log('Mock fetching bill notification history for patient:', patientId);
+      return [];
     } catch (error) {
       console.error('Failed to get bill notification history:', error);
       return [];

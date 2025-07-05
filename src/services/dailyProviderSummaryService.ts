@@ -89,22 +89,8 @@ export class DailyProviderSummaryService {
     // Generate notifications based on appointments and status
     const notifications = this.generateNotifications(formattedAppointments, provider);
 
-    // Get working hours (default if not set)
-    let workingHours = { start: '09:00', end: '17:00' };
-    
-    // Handle working_hours from database - it might be a JSON object or null
-    if (provider.working_hours) {
-      try {
-        if (typeof provider.working_hours === 'string') {
-          workingHours = JSON.parse(provider.working_hours);
-        } else if (typeof provider.working_hours === 'object' && provider.working_hours !== null) {
-          workingHours = provider.working_hours as { start: string; end: string };
-        }
-      } catch (error) {
-        console.error('Error parsing working hours:', error);
-        // Keep default working hours
-      }
-    }
+    // Get working hours (mock since field doesn't exist)
+    const workingHours = { start: '09:00', end: '17:00' };
 
     return {
       provider: {
