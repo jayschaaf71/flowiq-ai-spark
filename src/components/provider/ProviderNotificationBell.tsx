@@ -33,8 +33,30 @@ export const ProviderNotificationBell: React.FC<ProviderNotificationBellProps> =
 
   const loadNotifications = async () => {
     try {
-      const data = await ProviderNotificationService.getProviderNotifications(providerId);
-      setNotifications(data);
+      // Mock data until provider_notifications table is created
+      const mockNotifications: ProviderNotification[] = [
+        {
+          id: '1',
+          provider_id: providerId,
+          notification_type: 'intake_completed',
+          title: 'Patient Intake Completed',
+          message: 'John Smith has completed their intake form',
+          is_read: false,
+          created_at: new Date().toISOString(),
+          action_url: '/patients/123'
+        },
+        {
+          id: '2',
+          provider_id: providerId,
+          notification_type: 'upcoming_appointment',
+          title: 'Upcoming Appointment',
+          message: 'Sarah Johnson has an appointment in 30 minutes',
+          is_read: false,
+          created_at: new Date().toISOString(),
+          action_url: '/schedule'
+        }
+      ];
+      setNotifications(mockNotifications);
     } catch (error) {
       console.error('Error loading notifications:', error);
     } finally {
@@ -44,8 +66,8 @@ export const ProviderNotificationBell: React.FC<ProviderNotificationBellProps> =
 
   const loadUnreadCount = async () => {
     try {
-      const count = await ProviderNotificationService.getUnreadCount(providerId);
-      setUnreadCount(count);
+      // Mock count until provider_notifications table is created
+      setUnreadCount(2);
     } catch (error) {
       console.error('Error loading unread count:', error);
     }
@@ -53,7 +75,7 @@ export const ProviderNotificationBell: React.FC<ProviderNotificationBellProps> =
 
   const handleNotificationClick = async (notification: ProviderNotification) => {
     if (!notification.is_read) {
-      await ProviderNotificationService.markAsRead(notification.id);
+      // Mock marking as read
       setNotifications(prev =>
         prev.map(n => n.id === notification.id ? { ...n, is_read: true } : n)
       );

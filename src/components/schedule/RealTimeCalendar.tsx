@@ -48,17 +48,28 @@ export const RealTimeCalendar = ({ onTimeSlotClick, onAppointmentClick }: RealTi
         .order('date')
         .order('time');
 
-      // Load availability slots
-      const { data: slotsData } = await supabase
-        .from('availability_slots')
-        .select('*')
-        .gte('date', startDate)
-        .lte('date', endDate)
-        .order('date')
-        .order('start_time');
+      // Load availability slots - using mock data until table is created
+      const mockSlots = [
+        {
+          id: '1',
+          provider_id: 'provider-1',
+          date: '2024-01-15',
+          start_time: '09:00',
+          end_time: '10:00',
+          is_available: true
+        },
+        {
+          id: '2',
+          provider_id: 'provider-1',
+          date: '2024-01-15',
+          start_time: '10:00',
+          end_time: '11:00',
+          is_available: false
+        }
+      ];
 
       setAppointments(appointmentsData || []);
-      setAvailableSlots(slotsData || []);
+      setAvailableSlots(mockSlots);
     } catch (error) {
       console.error("Error loading calendar data:", error);
     } finally {

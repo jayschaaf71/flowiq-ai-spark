@@ -82,7 +82,12 @@ export const PatientNotificationCenter: React.FC = () => {
         .limit(20);
 
       if (error) throw error;
-      setNotifications(data || []);
+      // Map read field to is_read for component interface
+      const mappedNotifications = (data || []).map(notification => ({
+        ...notification,
+        is_read: notification.read
+      }));
+      setNotifications(mappedNotifications);
     } catch (error) {
       console.error('Error loading notifications:', error);
     } finally {
@@ -95,8 +100,7 @@ export const PatientNotificationCenter: React.FC = () => {
       const { error } = await supabase
         .from('patient_notifications')
         .update({ 
-          is_read: true, 
-          read_at: new Date().toISOString() 
+          read: true 
         })
         .eq('id', notificationId);
 

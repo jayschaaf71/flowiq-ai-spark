@@ -28,6 +28,7 @@ interface UploadedFile {
 
 interface PatientFileUploadProps {
   onFileUploaded?: (file: UploadedFile) => void;
+  onClose?: () => void;
 }
 
 export const PatientFileUpload: React.FC<PatientFileUploadProps> = ({ onFileUploaded }) => {

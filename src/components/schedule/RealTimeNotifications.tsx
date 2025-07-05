@@ -34,17 +34,30 @@ export const RealTimeNotifications: React.FC = () => {
 
   const loadNotifications = async () => {
     try {
-      const { data } = await supabase
-        .from('schedule_notifications')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(50);
-
-      if (data) {
-        const formattedNotifications = data.map(formatNotification);
-        setNotifications(formattedNotifications);
-        setUnreadCount(formattedNotifications.filter(n => !n.read).length);
-      }
+      // Mock notifications until schedule_notifications table is created
+      const mockNotifications = [
+        {
+          id: '1',
+          type: 'booking' as const,
+          title: 'Appointment Confirmed',
+          message: 'Appointment with Dr. Smith confirmed for 2pm',
+          timestamp: new Date(),
+          priority: 'medium' as const,
+          read: false
+        },
+        {
+          id: '2',
+          type: 'conflict' as const,
+          title: 'Appointment Cancelled',
+          message: 'Patient cancelled appointment for 3pm',
+          timestamp: new Date(),
+          priority: 'high' as const,
+          read: false
+        }
+      ];
+      
+      setNotifications(mockNotifications);
+      setUnreadCount(mockNotifications.filter(n => !n.read).length);
     } catch (error) {
       console.error('Error loading notifications:', error);
     }
@@ -96,11 +109,7 @@ export const RealTimeNotifications: React.FC = () => {
 
   const markAsRead = async (notificationId: string) => {
     try {
-      await supabase
-        .from('schedule_notifications')
-        .update({ read: true })
-        .eq('id', notificationId);
-
+      // Mock marking as read
       setNotifications(prev =>
         prev.map(n => n.id === notificationId ? { ...n, read: true } : n)
       );
@@ -112,13 +121,7 @@ export const RealTimeNotifications: React.FC = () => {
 
   const markAllAsRead = async () => {
     try {
-      const unreadIds = notifications.filter(n => !n.read).map(n => n.id);
-      
-      await supabase
-        .from('schedule_notifications')
-        .update({ read: true })
-        .in('id', unreadIds);
-
+      // Mock marking all as read
       setNotifications(prev => prev.map(n => ({ ...n, read: true })));
       setUnreadCount(0);
     } catch (error) {

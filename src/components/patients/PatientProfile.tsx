@@ -107,16 +107,26 @@ export const PatientProfile = ({ patientId, onBack, onEdit }: PatientProfileProp
         setAppointments(appointmentsData || []);
       }
 
-      // Fetch allergies
+      // Fetch allergies from medical_conditions table
       const { data: allergiesData, error: allergiesError } = await supabase
-        .from('allergies')
+        .from('medical_conditions')
         .select('*')
-        .eq('patient_id', patientId);
+        .eq('patient_id', patientId)
+        .ilike('condition_name', '%allerg%');
 
       if (allergiesError) {
         console.error('Error fetching allergies:', allergiesError);
       } else {
-        setAllergies(allergiesData || []);
+        // Map to expected allergy format
+        const mappedAllergies = (allergiesData || []).map(condition => ({
+          id: condition.id,
+          allergen: condition.condition_name,
+          severity: condition.status,
+          reaction: condition.notes || '',
+          patient_id: condition.patient_id,
+          created_at: condition.created_at
+        }));
+        setAllergies(mappedAllergies);
       }
 
     } catch (error: any) {

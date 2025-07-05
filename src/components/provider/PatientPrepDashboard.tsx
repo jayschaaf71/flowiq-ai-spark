@@ -83,31 +83,32 @@ export const PatientPrepDashboard: React.FC<PatientPrepDashboardProps> = ({ appo
 
       // Get medical history
       const { data: medicalHistory } = await supabase
-        .from('medical_history')
+        .from('medical_conditions')
         .select('*')
         .eq('patient_id', patient.id)
         .order('diagnosis_date', { ascending: false });
 
-      // Get allergies
+      // Get allergies from medical conditions
       const { data: allergies } = await supabase
-        .from('allergies')
+        .from('medical_conditions')
         .select('*')
-        .eq('patient_id', patient.id);
+        .eq('patient_id', patient.id)
+        .ilike('condition_name', '%allerg%');
 
-      // Get medications
+      // Get medications from prescriptions
       const { data: medications } = await supabase
-        .from('medications')
+        .from('prescriptions')
         .select('*')
         .eq('patient_id', patient.id)
         .eq('status', 'active');
 
       // Extract symptom assessment from intake data - properly cast JSON
       let symptomAssessment = null;
-      if (intakeSubmission?.form_data) {
+      if (intakeSubmission?.submission_data) {
         try {
-          const formData = typeof intakeSubmission.form_data === 'string' 
-            ? JSON.parse(intakeSubmission.form_data)
-            : intakeSubmission.form_data;
+          const formData = typeof intakeSubmission.submission_data === 'string' 
+            ? JSON.parse(intakeSubmission.submission_data)
+            : intakeSubmission.submission_data;
           symptomAssessment = formData?.symptom_assessment || formData?.symptomAssessment || null;
         } catch (error) {
           console.error('Error parsing form data:', error);
