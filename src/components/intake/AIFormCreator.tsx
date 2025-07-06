@@ -179,7 +179,7 @@ Once you've pasted your content here, you can delete these instructions and proc
           'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpucHphYm1xaWVjZW9xanlwdnZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg3MTQ4NzIsImV4cCI6MjA2NDI5MDg3Mn0.RSZZj9ijOESttwNopqROh1pXqi7y4Q4TDW4_6eqcBFU`,
         },
         body: JSON.stringify({
-          formText: formText,
+          content: formText,
           fileName: uploadedFile?.name
         }),
       });
