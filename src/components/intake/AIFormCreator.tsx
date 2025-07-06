@@ -163,12 +163,15 @@ export const AIFormCreator: React.FC<AIFormCreatorProps> = ({ onFormCreated }) =
               <Input
                 id="file-upload"
                 type="file"
-                accept=".txt,.doc,.docx,.pdf,.md,.rtf"
+                accept=".pdf,.txt,.doc,.docx,.md,.rtf,application/pdf,text/plain,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 onChange={handleFileUpload}
                 className="mt-2"
               />
               <p className="text-xs text-gray-500 mt-1">
                 Supported formats: PDF, Word (.doc/.docx), Markdown (.md), Text (.txt), RTF
+              </p>
+              <p className="text-xs text-amber-600 mt-1">
+                <strong>PDF grayed out?</strong> Try: Different browser (Chrome/Firefox), check file isn't password protected, or try renaming file to end with .pdf
               </p>
             </div>
             
