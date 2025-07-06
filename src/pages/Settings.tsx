@@ -22,7 +22,7 @@ const Settings = () => {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Practice Name</label>
-                  <input className="w-full p-2 border rounded" defaultValue="FlowIQ Health" />
+                  <input className="w-full p-2 border rounded" defaultValue="FlowIQ" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Time Zone</label>

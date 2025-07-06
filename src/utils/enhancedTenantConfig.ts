@@ -58,13 +58,13 @@ const DEFAULT_TENANTS: Record<string, TenantConfig> = {
   },
   general: {
     id: 'default-general',
-    name: 'FlowIQ Health',
-    brand_name: 'FlowIQ Health',
-    brandName: 'FlowIQ Health',
-    specialty: 'general-practice',
+    name: 'FlowIQ',
+    brand_name: 'FlowIQ',
+    brandName: 'FlowIQ',
+    specialty: 'chiropractic-practice',
     primary_color: '#06b6d4',
     secondary_color: '#22d3ee',
-    tagline: 'Healthcare Excellence'
+    tagline: 'Chiropractic Practice'
   }
 };
 
