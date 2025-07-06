@@ -5,7 +5,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { IntakeDashboard } from "@/components/intake/IntakeDashboard";
 import { EnhancedIntakeDashboard } from "@/components/intake/EnhancedIntakeDashboard";
 import { StaffIntakeDashboard } from "@/components/intake/StaffIntakeDashboard";
-import { PatientRegistration } from "@/components/intake/PatientRegistration";
 import { FormBuilder } from "@/components/intake/FormBuilder";
 import { FormSubmissionsList } from "@/components/intake/FormSubmissionsList";
 import { IntakeAnalyticsDashboard } from "@/components/intake/IntakeAnalyticsDashboard";
@@ -39,14 +38,12 @@ const IntakeIQ = () => {
       />
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-8">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-          <TabsTrigger value="patient-intake">Patient Intake</TabsTrigger>
-          <TabsTrigger value="voice-intake">Voice Intake</TabsTrigger>
-          <TabsTrigger value="mobile-voice">Mobile Voice</TabsTrigger>
-          <TabsTrigger value="staff-dashboard">Staff View</TabsTrigger>
+          <TabsTrigger value="staff-view">Staff View</TabsTrigger>
           <TabsTrigger value="builder">AI Form Builder</TabsTrigger>
           <TabsTrigger value="submissions">Submissions</TabsTrigger>
+          <TabsTrigger value="voice-tools">Voice Tools</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
 
@@ -54,20 +51,23 @@ const IntakeIQ = () => {
           <EnhancedIntakeDashboard onTabChange={setActiveTab} />
         </TabsContent>
 
-        <TabsContent value="patient-intake" className="space-y-4">
-          <PatientRegistration />
-        </TabsContent>
-
-        <TabsContent value="voice-intake" className="space-y-4">
-          <VoiceEnabledPatientIntake />
-        </TabsContent>
-
-        <TabsContent value="mobile-voice" className="space-y-4">
-          <MobileVoiceIntake />
-        </TabsContent>
-
-        <TabsContent value="staff-dashboard" className="space-y-4">
+        <TabsContent value="staff-view" className="space-y-4">
           <StaffIntakeDashboard />
+        </TabsContent>
+
+        <TabsContent value="voice-tools" className="space-y-4">
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Voice-Enabled Intake</h3>
+                <VoiceEnabledPatientIntake />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Mobile Voice Interface</h3>
+                <MobileVoiceIntake />
+              </div>
+            </div>
+          </div>
         </TabsContent>
 
         <TabsContent value="builder" className="space-y-4">

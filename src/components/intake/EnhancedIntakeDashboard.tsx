@@ -319,10 +319,11 @@ export const EnhancedIntakeDashboard = ({ onTabChange }: EnhancedIntakeDashboard
                        onClick={(e) => {
                          console.log('Preview button clicked for:', form.title);
                          e.stopPropagation();
-                         onTabChange?.('patient-intake');
+                         // Open preview in new tab instead of navigating to removed tab
+                         window.open(`/patient-intake/${form.id}`, '_blank');
                          toast({
                            title: "Preview Form",
-                           description: `Viewing ${form.title} as patients see it`
+                           description: `Opening ${form.title} in new tab`
                          });
                        }}
                      >
