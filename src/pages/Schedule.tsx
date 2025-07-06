@@ -6,14 +6,17 @@ import { CalendarView } from '@/components/appointments/CalendarView';
 import { AppointmentList } from '@/components/appointments/AppointmentList';
 import { AppointmentCalendar } from '@/components/schedule/AppointmentCalendar';
 import { EnhancedSchedulingInterface } from '@/components/schedule/EnhancedSchedulingInterface';
-import { IntelligentConflictResolution } from '@/components/schedule/IntelligentConflictResolution';
+import { AppointmentQuickActions } from '@/components/schedule/AppointmentQuickActions';
 
-type ViewMode = 'enhanced' | 'calendar' | 'list' | 'booking' | 'conflicts';
+import { useAppointments } from '@/hooks/useAppointments';
+
+type ViewMode = 'enhanced' | 'calendar' | 'list' | 'booking' | 'actions';
 
 const Schedule = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('enhanced');
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedTime, setSelectedTime] = useState<string>();
+  const { appointments, refetch } = useAppointments();
 
   const handleCreateAppointment = (date: Date, time?: string) => {
     setSelectedDate(date);
@@ -53,7 +56,7 @@ const Schedule = () => {
           <TabsTrigger value="enhanced">AI Scheduling</TabsTrigger>
           <TabsTrigger value="calendar">Calendar View</TabsTrigger>
           <TabsTrigger value="list">List View</TabsTrigger>
-          <TabsTrigger value="conflicts">Conflict Resolution</TabsTrigger>
+          <TabsTrigger value="actions">Quick Actions</TabsTrigger>
           <TabsTrigger value="booking">Book Appointment</TabsTrigger>
         </TabsList>
 
@@ -75,12 +78,20 @@ const Schedule = () => {
           <AppointmentList />
         </TabsContent>
 
-        <TabsContent value="conflicts" className="mt-6">
-          <IntelligentConflictResolution />
+        <TabsContent value="actions" className="mt-6">
+          <AppointmentQuickActions 
+            appointments={appointments}
+            onAppointmentsUpdate={refetch}
+          />
         </TabsContent>
 
         <TabsContent value="booking" className="mt-6">
-          <AppointmentBooking onSuccess={handleBookingSuccess} />
+          <AppointmentBooking 
+            onSuccess={() => {
+              handleBookingSuccess();
+              refetch(); // Refresh appointments after booking
+            }}
+          />
         </TabsContent>
       </Tabs>
     </div>

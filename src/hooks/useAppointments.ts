@@ -56,22 +56,22 @@ export const useAppointments = () => {
   const { handleError } = useErrorHandler();
 
   useEffect(() => {
-    const fetchAppointments = async () => {
-      try {
-        setLoading(true);
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 500));
-        setAppointments(mockAppointments);
-      } catch (error) {
-        console.error('Error fetching appointments:', error);
-        handleError(error as Error, 'Failed to load appointments');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchAppointments();
   }, [handleError]);
+
+  const fetchAppointments = async () => {
+    try {
+      setLoading(true);
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setAppointments(mockAppointments);
+    } catch (error) {
+      console.error('Error fetching appointments:', error);
+      handleError(error as Error, 'Failed to load appointments');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const updateAppointmentStatus = async (appointmentId: string, newStatus: Appointment['status']) => {
     try {
@@ -114,11 +114,19 @@ export const useAppointments = () => {
     }
   };
 
+  const refetch = () => {
+    // Re-trigger the effect to fetch appointments
+    setAppointments([]);
+    setLoading(true);
+    fetchAppointments();
+  };
+
   return {
     appointments,
     loading,
     error: null,
     updateAppointmentStatus,
-    sendReminder
+    sendReminder,
+    refetch
   };
 };

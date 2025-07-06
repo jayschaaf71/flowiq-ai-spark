@@ -150,45 +150,47 @@ export const AppointmentBooking = ({
       const dayOfWeek = formData.date.getDay();
 
       // Get provider schedule for the selected day
-      const { data: schedule, error: scheduleError } = await supabase
+      const { data: schedule } = await supabase
         .from('provider_schedules')
         .select('start_time, end_time, break_start_time, break_end_time')
         .eq('provider_id', formData.provider_id)
         .eq('day_of_week', dayOfWeek)
         .eq('is_available', true)
-        .single();
+        .maybeSingle();
 
-      if (scheduleError) {
+      if (!schedule) {
         console.log('No schedule found for this day');
         setAvailableSlots([]);
         return;
       }
 
       // Get existing appointments for this provider and date
-      const { data: appointments, error: appointmentsError } = await supabase
+      const { data: appointments } = await supabase
         .from('appointments')
         .select('time, duration')
         .eq('provider_id', formData.provider_id)
         .eq('date', dateStr)
         .neq('status', 'cancelled');
 
-      if (appointmentsError) throw appointmentsError;
-
       // Generate available time slots
       const slots = generateTimeSlots(schedule, appointments || []);
       setAvailableSlots(slots);
     } catch (error) {
       console.error('Error fetching available slots:', error);
-      // Fallback to basic time slots
-      const slots = [];
-      for (let hour = 9; hour < 17; hour++) {
-        for (let minute = 0; minute < 60; minute += 30) {
-          const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-          slots.push(timeString);
-        }
-      }
-      setAvailableSlots(slots);
+      // Fallback to basic time slots if there's an error
+      generateFallbackSlots();
     }
+  };
+
+  const generateFallbackSlots = () => {
+    const slots = [];
+    for (let hour = 9; hour < 17; hour++) {
+      for (let minute = 0; minute < 60; minute += 30) {
+        const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        slots.push(timeString);
+      }
+    }
+    setAvailableSlots(slots);
   };
 
   const generateTimeSlots = (schedule: any, existingAppointments: any[]) => {
@@ -228,11 +230,12 @@ export const AppointmentBooking = ({
       // Check if slot conflicts with existing appointments
       const hasConflict = existingAppointments.some(apt => {
         const aptStart = timeToMinutes(apt.time);
-        const aptEnd = aptStart + apt.duration;
+        const aptEnd = aptStart + (apt.duration || 60);
         const slotEnd = minutes + 30; // 30-minute default slot
         
         return (minutes >= aptStart && minutes < aptEnd) ||
-               (slotEnd > aptStart && slotEnd <= aptEnd);
+               (slotEnd > aptStart && slotEnd <= aptEnd) ||
+               (minutes <= aptStart && slotEnd >= aptEnd);
       });
 
       if (!hasConflict) {
