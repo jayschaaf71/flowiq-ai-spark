@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AppointmentBooking } from '@/components/appointments/AppointmentBooking';
 import { CalendarView } from '@/components/appointments/CalendarView';
 import { AppointmentList } from '@/components/appointments/AppointmentList';
+import { AppointmentCalendar } from '@/components/schedule/AppointmentCalendar';
 import { EnhancedSchedulingInterface } from '@/components/schedule/EnhancedSchedulingInterface';
 import { IntelligentConflictResolution } from '@/components/schedule/IntelligentConflictResolution';
 
@@ -61,7 +62,13 @@ const Schedule = () => {
         </TabsContent>
 
         <TabsContent value="calendar" className="mt-6">
-          <CalendarView onCreateAppointment={handleCreateAppointment} />
+          <AppointmentCalendar 
+            onTimeSlotClick={handleCreateAppointment}
+            onAppointmentClick={(appointment) => {
+              console.log('Appointment clicked:', appointment);
+              // Handle appointment details view
+            }}
+          />
         </TabsContent>
 
         <TabsContent value="list" className="mt-6">

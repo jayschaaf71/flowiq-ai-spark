@@ -95,46 +95,152 @@ export const AppointmentBooking = ({
 
   const fetchProviders = async () => {
     try {
-      // Mock providers for now
-      setProviders([
-        { id: 'provider-1', name: 'Dr. Smith' },
-        { id: 'provider-2', name: 'Dr. Johnson' },
-        { id: 'provider-3', name: 'Dr. Williams' }
-      ]);
+      const { data, error } = await supabase
+        .from('providers')
+        .select('id, first_name, last_name, specialty')
+        .eq('is_active', true)
+        .order('first_name');
+
+      if (error) throw error;
+      
+      setProviders(data?.map(provider => ({
+        id: provider.id,
+        name: `${provider.first_name} ${provider.last_name}${provider.specialty ? ` (${provider.specialty})` : ''}`
+      })) || []);
     } catch (error) {
       console.error('Error fetching providers:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load providers",
+        variant: "destructive",
+      });
     }
   };
 
   const fetchPatients = async () => {
     try {
       const { data, error } = await supabase
-        .from('profiles')
-        .select('id, first_name, last_name, contact_phone')
+        .from('patients')
+        .select('id, first_name, last_name, phone, email, patient_number')
+        .eq('is_active', true)
         .order('first_name');
 
       if (error) throw error;
-      setPatients(data?.map(profile => ({
-        id: profile.id,
-        first_name: profile.first_name || '',
-        last_name: profile.last_name || '',
-        patient_number: profile.contact_phone || 'No phone'
+      setPatients(data?.map(patient => ({
+        id: patient.id,
+        first_name: patient.first_name || '',
+        last_name: patient.last_name || '',
+        patient_number: patient.patient_number || patient.phone || 'No phone'
       })) || []);
     } catch (error) {
       console.error('Error fetching patients:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load patients",
+        variant: "destructive",
+      });
     }
   };
 
   const fetchAvailableSlots = async () => {
-    // Generate time slots for demo (9 AM to 5 PM)
+    if (!formData.provider_id || !formData.date) return;
+
+    try {
+      const dateStr = format(formData.date, 'yyyy-MM-dd');
+      const dayOfWeek = formData.date.getDay();
+
+      // Get provider schedule for the selected day
+      const { data: schedule, error: scheduleError } = await supabase
+        .from('provider_schedules')
+        .select('start_time, end_time, break_start_time, break_end_time')
+        .eq('provider_id', formData.provider_id)
+        .eq('day_of_week', dayOfWeek)
+        .eq('is_available', true)
+        .single();
+
+      if (scheduleError) {
+        console.log('No schedule found for this day');
+        setAvailableSlots([]);
+        return;
+      }
+
+      // Get existing appointments for this provider and date
+      const { data: appointments, error: appointmentsError } = await supabase
+        .from('appointments')
+        .select('time, duration')
+        .eq('provider_id', formData.provider_id)
+        .eq('date', dateStr)
+        .neq('status', 'cancelled');
+
+      if (appointmentsError) throw appointmentsError;
+
+      // Generate available time slots
+      const slots = generateTimeSlots(schedule, appointments || []);
+      setAvailableSlots(slots);
+    } catch (error) {
+      console.error('Error fetching available slots:', error);
+      // Fallback to basic time slots
+      const slots = [];
+      for (let hour = 9; hour < 17; hour++) {
+        for (let minute = 0; minute < 60; minute += 30) {
+          const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+          slots.push(timeString);
+        }
+      }
+      setAvailableSlots(slots);
+    }
+  };
+
+  const generateTimeSlots = (schedule: any, existingAppointments: any[]) => {
     const slots = [];
-    for (let hour = 9; hour < 17; hour++) {
-      for (let minute = 0; minute < 60; minute += 30) {
-        const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-        slots.push(timeString);
+    const startTime = schedule.start_time;
+    const endTime = schedule.end_time;
+    const breakStart = schedule.break_start_time;
+    const breakEnd = schedule.break_end_time;
+
+    // Convert times to minutes for easier calculation
+    const timeToMinutes = (time: string) => {
+      const [hours, minutes] = time.split(':').map(Number);
+      return hours * 60 + minutes;
+    };
+
+    const minutesToTime = (minutes: number) => {
+      const hours = Math.floor(minutes / 60);
+      const mins = minutes % 60;
+      return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+    };
+
+    const startMinutes = timeToMinutes(startTime);
+    const endMinutes = timeToMinutes(endTime);
+    const breakStartMinutes = breakStart ? timeToMinutes(breakStart) : null;
+    const breakEndMinutes = breakEnd ? timeToMinutes(breakEnd) : null;
+
+    // Generate 30-minute slots
+    for (let minutes = startMinutes; minutes < endMinutes; minutes += 30) {
+      const slotTime = minutesToTime(minutes);
+      
+      // Skip break time
+      if (breakStartMinutes && breakEndMinutes && 
+          minutes >= breakStartMinutes && minutes < breakEndMinutes) {
+        continue;
+      }
+
+      // Check if slot conflicts with existing appointments
+      const hasConflict = existingAppointments.some(apt => {
+        const aptStart = timeToMinutes(apt.time);
+        const aptEnd = aptStart + apt.duration;
+        const slotEnd = minutes + 30; // 30-minute default slot
+        
+        return (minutes >= aptStart && minutes < aptEnd) ||
+               (slotEnd > aptStart && slotEnd <= aptEnd);
+      });
+
+      if (!hasConflict) {
+        slots.push(slotTime);
       }
     }
-    setAvailableSlots(slots);
+
+    return slots;
   };
 
   const handleInputChange = (field: keyof AppointmentFormData, value: any) => {
