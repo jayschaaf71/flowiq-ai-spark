@@ -43,19 +43,36 @@ export const AIFormCreator: React.FC<AIFormCreatorProps> = ({ onFormCreated }) =
       setProgress(25);
       
       try {
-        // Create FormData to send file to processing endpoint
+        // For text files, read directly
+        if (file.type === 'text/plain' || file.name.toLowerCase().endsWith('.txt') || file.name.toLowerCase().endsWith('.md')) {
+          console.log('Processing text file directly');
+          const text = await file.text();
+          setFormText(text);
+          setProgress(100);
+          setProcessingStep('File content loaded successfully!');
+          toast.success('Text file loaded successfully!');
+          return;
+        }
+        
+        // For other files, try the extraction service with timeout
+        console.log('Sending request to extract-file-content');
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+        
         const formData = new FormData();
         formData.append('file', file);
         
-        console.log('Sending request to extract-file-content');
         const response = await fetch('https://jnpzabmqieceqjypvve.supabase.co/functions/v1/extract-file-content', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpucHphYm1xaWVjZW9xanlwdnZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg3MTQ4NzIsImV4cCI6MjA2NDI5MDg3Mn0.RSZZj9ijOESttwNopqROh1pXqi7y4Q4TDW4_6eqcBFU`,
           },
           body: formData,
+          signal: controller.signal
         });
         
+        clearTimeout(timeoutId);
         console.log('Response status:', response.status);
         
         if (!response.ok) {
@@ -79,16 +96,44 @@ export const AIFormCreator: React.FC<AIFormCreatorProps> = ({ onFormCreated }) =
       } catch (error) {
         console.error('File processing error:', error);
         
-        // Try to get detailed error message from response
-        let errorMessage = 'Failed to process file. Please try uploading a text file or copy/paste the content.';
+        // Provide helpful fallback instructions
+        let errorMessage = '';
+        let fallbackInstructions = '';
         
-        if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          errorMessage = 'File processing timed out.';
+        } else if (error instanceof Error) {
           errorMessage = error.message;
+        } else {
+          errorMessage = 'Failed to process file.';
         }
         
-        toast.error(errorMessage);
+        // Generate specific instructions based on file type
+        if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+          fallbackInstructions = `Please manually copy the text from your PDF:
+1. Open the PDF file
+2. Select all text (Ctrl+A or Cmd+A)
+3. Copy (Ctrl+C or Cmd+C)
+4. Paste into the "Form Content" area below`;
+        } else if (file.name.toLowerCase().endsWith('.docx') || file.name.toLowerCase().endsWith('.doc')) {
+          fallbackInstructions = `Please manually copy the text from your Word document:
+1. Open the Word document
+2. Select all content (Ctrl+A or Cmd+A)
+3. Copy (Ctrl+C or Cmd+C)
+4. Paste into the "Form Content" area below`;
+        } else {
+          fallbackInstructions = 'Please copy and paste the content directly into the "Form Content" area below.';
+        }
+        
+        // Show the fallback instructions in the form text area
+        setFormText(`File Upload Instructions for ${file.name}:
+
+${fallbackInstructions}
+
+Once you've pasted your content here, you can delete these instructions and proceed with creating your form.`);
+        
+        toast.error(`${errorMessage} Please follow the instructions that have been added to the form content area.`);
         setUploadedFile(null);
-        setFormText(''); // Clear any partial content
       } finally {
         setIsProcessing(false);
         setProgress(0);
