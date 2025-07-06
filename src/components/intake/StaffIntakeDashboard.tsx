@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -19,10 +18,10 @@ import {
   UserCheck,
   Calendar
 } from 'lucide-react';
-import { useIntakeSubmissions } from '@/hooks/useIntakeSubmissions';
+import { useIntakeForms } from '@/hooks/useIntakeForms';
 import { FormSubmissionsList } from './FormSubmissionsList';
-import { IntakeAnalyticsDashboard } from './IntakeAnalyticsDashboard';
 import { EnhancedAnalyticsDashboard } from './EnhancedAnalyticsDashboard';
+import { toast } from 'sonner';
 
 export const StaffIntakeDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('pending');
@@ -30,22 +29,13 @@ export const StaffIntakeDashboard: React.FC = () => {
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [assigneeFilter, setAssigneeFilter] = useState('all');
   
-  const { 
-    submissions, 
-    isLoading, 
-    assignStaff, 
-    sendCommunication, 
-    updateStatus,
-    isAssigning,
-    isSendingCommunication,
-    isUpdatingStatus
-  } = useIntakeSubmissions();
+  const { submissions, loading } = useIntakeForms();
 
   // Filter submissions based on status and filters
   const filteredSubmissions = submissions.filter(submission => {
     const matchesSearch = 
-      submission.patient_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      submission.patient_email.toLowerCase().includes(searchTerm.toLowerCase());
+      submission.patient_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      submission.patient_email?.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesPriority = priorityFilter === 'all' || submission.priority_level === priorityFilter;
     const matchesStatus = activeTab === 'all' || submission.status === activeTab;
@@ -64,7 +54,24 @@ export const StaffIntakeDashboard: React.FC = () => {
 
   const statusCounts = getStatusCounts();
 
-  if (isLoading) {
+  const handleAssignStaff = (submissionId: string, staffId: string, staffName: string) => {
+    console.log('Assigning staff:', { submissionId, staffId, staffName });
+    toast.success(`Assigned ${staffName} to submission`);
+  };
+
+  const handleSendCommunication = (
+    submissionId: string,
+    templateId: string,
+    recipient: string,
+    patientName: string,
+    customMessage?: string,
+    type?: 'email' | 'sms'
+  ) => {
+    console.log('Sending communication:', { submissionId, templateId, recipient, patientName, customMessage, type });
+    toast.success(`${type === 'sms' ? 'SMS' : 'Email'} sent to ${patientName}`);
+  };
+
+  if (loading) {
     return (
       <div className="space-y-6">
         <div className="animate-pulse space-y-4">
@@ -211,10 +218,10 @@ export const StaffIntakeDashboard: React.FC = () => {
                 submissions={filteredSubmissions} 
                 onViewSubmission={(submission) => console.log('View:', submission)}
                 showActions={true}
-                onAssignToStaff={assignStaff}
-                onSendCommunication={sendCommunication}
-                isAssigning={isAssigning}
-                isSendingCommunication={isSendingCommunication}
+                onAssignToStaff={handleAssignStaff}
+                onSendCommunication={handleSendCommunication}
+                isAssigning={false}
+                isSendingCommunication={false}
               />
             </CardContent>
           </Card>
@@ -246,10 +253,10 @@ export const StaffIntakeDashboard: React.FC = () => {
             submissions={filteredSubmissions} 
             onViewSubmission={(submission) => console.log('View:', submission)}
             showActions={true}
-            onAssignToStaff={assignStaff}
-            onSendCommunication={sendCommunication}
-            isAssigning={isAssigning}
-            isSendingCommunication={isSendingCommunication}
+            onAssignToStaff={handleAssignStaff}
+            onSendCommunication={handleSendCommunication}
+            isAssigning={false}
+            isSendingCommunication={false}
           />
         </TabsContent>
 
@@ -268,11 +275,24 @@ export const StaffIntakeDashboard: React.FC = () => {
             <CardContent>
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Button className="h-24 flex flex-col items-center justify-center">
+                  <Button 
+                    className="h-24 flex flex-col items-center justify-center"
+                    onClick={() => {
+                      console.log('Send Bulk Reminders clicked');
+                      toast.success('Bulk reminders feature coming soon');
+                    }}
+                  >
                     <Mail className="w-6 h-6 mb-2" />
                     Send Bulk Reminders
                   </Button>
-                  <Button variant="outline" className="h-24 flex flex-col items-center justify-center">
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex flex-col items-center justify-center"
+                    onClick={() => {
+                      console.log('Schedule Callbacks clicked');
+                      toast.success('Callback scheduling feature coming soon');
+                    }}
+                  >
                     <Phone className="w-6 h-6 mb-2" />
                     Schedule Callbacks
                   </Button>

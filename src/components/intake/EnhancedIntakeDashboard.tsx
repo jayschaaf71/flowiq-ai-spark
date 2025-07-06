@@ -212,61 +212,65 @@ export const EnhancedIntakeDashboard = ({ onTabChange }: EnhancedIntakeDashboard
             <CardDescription>Common intake management tasks</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button 
-              className="w-full justify-start" 
-              variant="outline"
-              onClick={() => {
-                onTabChange?.('builder');
-                toast({
-                  title: "Form Builder",
-                  description: "Switching to form builder"
-                });
-              }}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Create New Form Template
-            </Button>
-            <Button 
-              className="w-full justify-start" 
-              variant="outline"
-              onClick={() => {
-                onTabChange?.('submissions');
-                toast({
-                  title: "Submissions Review",
-                  description: "Switching to submissions review"
-                });
-              }}
-            >
-              <Eye className="w-4 h-4 mr-2" />
-              Review Pending Submissions ({pendingReviews})
-            </Button>
-            <Button 
-              className="w-full justify-start" 
-              variant="outline"
-              onClick={() => {
-                toast({
-                  title: "Patient Packets",
-                  description: "Patient packet generation will be available soon"
-                });
-              }}
-            >
-              <FileText className="w-4 h-4 mr-2" />
-              Generate Patient Packets
-            </Button>
-            <Button 
-              className="w-full justify-start" 
-              variant="outline"
-              onClick={() => {
-                onTabChange?.('analytics');
-                toast({
-                  title: "Analytics Report",
-                  description: "Switching to analytics dashboard"
-                });
-              }}
-            >
-              <TrendingUp className="w-4 h-4 mr-2" />
-              View Analytics Report
-            </Button>
+             <Button 
+               className="w-full justify-start" 
+               variant="outline"
+               onClick={() => {
+                 console.log('Create New Form button clicked');
+                 onTabChange?.('builder');
+                 toast({
+                   title: "Form Builder",
+                   description: "Switching to form builder"
+                 });
+               }}
+             >
+               <Plus className="w-4 h-4 mr-2" />
+               Create New Form Template
+             </Button>
+             <Button 
+               className="w-full justify-start" 
+               variant="outline"
+               onClick={() => {
+                 console.log('Review Submissions button clicked');
+                 onTabChange?.('submissions');
+                 toast({
+                   title: "Submissions Review",
+                   description: "Switching to submissions review"
+                 });
+               }}
+             >
+               <Eye className="w-4 h-4 mr-2" />
+               Review Pending Submissions ({pendingReviews})
+             </Button>
+             <Button 
+               className="w-full justify-start" 
+               variant="outline"
+               onClick={() => {
+                 console.log('Generate Patient Packets button clicked');
+                 toast({
+                   title: "Patient Packets",
+                   description: "Patient packet generation will be available soon"
+                 });
+               }}
+             >
+               <FileText className="w-4 h-4 mr-2" />
+               Generate Patient Packets
+             </Button>
+             <Button 
+               className="w-full justify-start" 
+               variant="outline"
+               onClick={() => {
+                 console.log('View Analytics button clicked');
+                 onTabChange?.('analytics');
+                 toast({
+                   title: "Analytics Report",
+                   description: "Switching to analytics dashboard"
+                 });
+               }}
+             >
+               <TrendingUp className="w-4 h-4 mr-2" />
+               View Analytics Report
+             </Button>
           </CardContent>
         </Card>
       </div>
@@ -284,17 +288,18 @@ export const EnhancedIntakeDashboard = ({ onTabChange }: EnhancedIntakeDashboard
               // Safely get form fields count with type guard
               const formFieldsCount = Array.isArray(form.form_fields) ? form.form_fields.length : 0;
               return (
-                <div 
-                  key={form.id} 
-                  className="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer hover:border-blue-300"
-                  onClick={() => {
-                    onTabChange?.('builder');
-                    toast({
-                      title: "Form Selected",
-                      description: `Opening ${form.title} in the form builder`
-                    });
-                  }}
-                >
+                 <div 
+                   key={form.id} 
+                   className="border rounded-lg p-4 hover:shadow-md transition-all cursor-pointer hover:border-blue-300 hover:bg-blue-50"
+                   onClick={() => {
+                     console.log('Form card clicked:', form.title);
+                     onTabChange?.('builder');
+                     toast({
+                       title: "Form Selected",
+                       description: `Opening ${form.title} in the form builder`
+                     });
+                   }}
+                 >
                   <div className="flex items-start justify-between mb-2">
                     <h3 className="font-medium">{form.title}</h3>
                     <Badge variant="outline" className="text-green-700 border-green-300">
@@ -307,36 +312,38 @@ export const EnhancedIntakeDashboard = ({ onTabChange }: EnhancedIntakeDashboard
                     <span>{formSubmissions.length} submissions</span>
                   </div>
                   <div className="flex gap-2">
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onTabChange?.('patient-intake');
-                        toast({
-                          title: "Preview Form",
-                          description: `Viewing ${form.title} as patients see it`
-                        });
-                      }}
-                    >
-                      <Eye className="w-3 h-3 mr-1" />
-                      Preview
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onTabChange?.('builder');
-                        toast({
-                          title: "Edit Form",
-                          description: `Opening ${form.title} in editor`
-                        });
-                      }}
-                    >
-                      <FileText className="w-3 h-3 mr-1" />
-                      Edit
-                    </Button>
+                     <Button 
+                       size="sm" 
+                       variant="outline"
+                       onClick={(e) => {
+                         console.log('Preview button clicked for:', form.title);
+                         e.stopPropagation();
+                         onTabChange?.('patient-intake');
+                         toast({
+                           title: "Preview Form",
+                           description: `Viewing ${form.title} as patients see it`
+                         });
+                       }}
+                     >
+                       <Eye className="w-3 h-3 mr-1" />
+                       Preview
+                     </Button>
+                     <Button 
+                       size="sm" 
+                       variant="outline"
+                       onClick={(e) => {
+                         console.log('Edit button clicked for:', form.title);
+                         e.stopPropagation();
+                         onTabChange?.('builder');
+                         toast({
+                           title: "Edit Form",
+                           description: `Opening ${form.title} in editor`
+                         });
+                       }}
+                     >
+                       <FileText className="w-3 h-3 mr-1" />
+                       Edit
+                     </Button>
                   </div>
                 </div>
               );

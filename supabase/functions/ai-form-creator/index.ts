@@ -12,18 +12,29 @@ serve(async (req) => {
   }
 
   try {
-    const { content, formText, fileName } = await req.json();
+    const body = await req.json();
+    console.log('Received request body:', body);
+    
+    const { content, formText, fileName } = body;
     
     // Handle both parameter formats for flexibility
     const textContent = content || formText;
     
     if (!textContent) {
+      console.error('No form content provided');
       throw new Error('Form content is required');
     }
 
     console.log('Processing AI form creation...');
     console.log('Form text length:', textContent.length);
     console.log('File name:', fileName);
+    
+    const apiKey = Deno.env.get('OPENAI_API_KEY');
+    if (!apiKey) {
+      console.error('OpenAI API key not found');
+      throw new Error('OpenAI API key not configured');
+    }
+    console.log('OpenAI API key found:', apiKey.slice(0, 10) + '...');
 
     // Create detailed prompt for AI form processing
     const systemPrompt = `You are an AI assistant that converts unstructured form text into structured form field definitions.
@@ -76,10 +87,11 @@ ${textContent}
 Please analyze and convert to JSON format.`;
 
     // Call OpenAI GPT for intelligent form processing
+    console.log('Making OpenAI API call...');
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+        'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -92,6 +104,8 @@ Please analyze and convert to JSON format.`;
         max_tokens: 3000,
       }),
     });
+    
+    console.log('OpenAI response status:', response.status);
 
     if (!response.ok) {
       const errorText = await response.text();
