@@ -163,15 +163,45 @@ export const AIFormCreator: React.FC<AIFormCreatorProps> = ({ onFormCreated }) =
         <CardContent>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="file-upload">Select File</Label>
-              <Input
-                id="file-upload"
-                type="file"
-                accept=".pdf,.txt,.doc,.docx,.md,.rtf,application/pdf,text/plain,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                onChange={handleFileUpload}
-                className="mt-2"
-              />
-              <p className="text-xs text-gray-500 mt-1">
+              <Label>Select File</Label>
+              <div className="mt-2">
+                {/* Hidden file input */}
+                <input
+                  id="file-upload"
+                  type="file"
+                  accept=".pdf,.txt,.doc,.docx,.md,.rtf,application/pdf,text/plain,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+                
+                {/* Custom styled upload button */}
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                  <Upload className="w-8 h-8 text-gray-400 mx-auto mb-3" />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => document.getElementById('file-upload')?.click()}
+                    className="mb-2"
+                    disabled={isProcessing}
+                  >
+                    {isProcessing ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-4 h-4 mr-2" />
+                        Choose File
+                      </>
+                    )}
+                  </Button>
+                  <p className="text-sm text-gray-500">
+                    or drag and drop your file here
+                  </p>
+                </div>
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
                 Supported formats: PDF, Word (.doc/.docx), Markdown (.md), Text (.txt), RTF
               </p>
               <p className="text-xs text-amber-600 mt-1">
