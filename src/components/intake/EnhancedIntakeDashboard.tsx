@@ -284,12 +284,59 @@ export const EnhancedIntakeDashboard = ({ onTabChange }: EnhancedIntakeDashboard
               // Safely get form fields count with type guard
               const formFieldsCount = Array.isArray(form.form_fields) ? form.form_fields.length : 0;
               return (
-                <div key={form.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                  <h3 className="font-medium mb-2">{form.title}</h3>
+                <div 
+                  key={form.id} 
+                  className="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer hover:border-blue-300"
+                  onClick={() => {
+                    onTabChange?.('builder');
+                    toast({
+                      title: "Form Selected",
+                      description: `Opening ${form.title} in the form builder`
+                    });
+                  }}
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-medium">{form.title}</h3>
+                    <Badge variant="outline" className="text-green-700 border-green-300">
+                      Active
+                    </Badge>
+                  </div>
                   <p className="text-sm text-gray-600 mb-3">{form.description}</p>
-                  <div className="flex justify-between items-center text-xs text-gray-500">
+                  <div className="flex justify-between items-center text-xs text-gray-500 mb-3">
                     <span>{formFieldsCount} fields</span>
                     <span>{formSubmissions.length} submissions</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onTabChange?.('patient-intake');
+                        toast({
+                          title: "Preview Form",
+                          description: `Viewing ${form.title} as patients see it`
+                        });
+                      }}
+                    >
+                      <Eye className="w-3 h-3 mr-1" />
+                      Preview
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onTabChange?.('builder');
+                        toast({
+                          title: "Edit Form",
+                          description: `Opening ${form.title} in editor`
+                        });
+                      }}
+                    >
+                      <FileText className="w-3 h-3 mr-1" />
+                      Edit
+                    </Button>
                   </div>
                 </div>
               );
