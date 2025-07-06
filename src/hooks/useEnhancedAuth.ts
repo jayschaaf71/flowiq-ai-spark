@@ -51,7 +51,7 @@ export const useEnhancedAuth = () => {
             tenant: {
               id: profile.tenant_id || 'default',
               name: 'Default Practice',
-              brand_name: 'FlowIQ Practice',
+              brand_name: 'Powered by FlowIQ AI Automation',
               specialty: 'Chiropractic Care'
             }
           });

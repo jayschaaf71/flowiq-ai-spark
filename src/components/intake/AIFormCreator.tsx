@@ -337,41 +337,6 @@ export const AIFormCreator: React.FC<AIFormCreatorProps> = ({ onFormCreated }) =
         </Button>
       </div>
 
-      {/* Example Section */}
-      <Card className="bg-blue-50 border-blue-200">
-        <CardHeader>
-          <CardTitle className="text-blue-800 text-sm">Example Form Content</CardTitle>
-        </CardHeader>
-        <CardContent className="text-xs">
-          <pre className="text-blue-700 whitespace-pre-wrap">
-{`NEW PATIENT INTAKE FORM
-
-Personal Information:
-Patient Name: _______________
-Date of Birth: _______________
-Phone Number: _______________
-Email Address: _______________
-Emergency Contact: _______________
-
-Medical Information:
-Chief Complaint: _______________
-Pain Level (1-10): _______________
-Symptoms (check all that apply):
-□ Headache
-□ Back pain
-□ Neck pain
-□ Joint stiffness
-
-Medical History: _______________
-Current Medications: _______________
-Allergies: _______________
-
-Insurance:
-Insurance Provider: _______________
-Policy Number: _______________`}
-          </pre>
-        </CardContent>
-      </Card>
     </div>
   );
 };
