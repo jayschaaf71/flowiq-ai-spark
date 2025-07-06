@@ -1,3 +1,4 @@
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
@@ -11,14 +12,17 @@ serve(async (req) => {
   }
 
   try {
-    const { formText, fileName } = await req.json();
+    const { content, formText, fileName } = await req.json();
     
-    if (!formText) {
-      throw new Error('Form text is required');
+    // Handle both parameter formats for flexibility
+    const textContent = content || formText;
+    
+    if (!textContent) {
+      throw new Error('Form content is required');
     }
 
     console.log('Processing AI form creation...');
-    console.log('Form text length:', formText.length);
+    console.log('Form text length:', textContent.length);
     console.log('File name:', fileName);
 
     // Create detailed prompt for AI form processing
@@ -67,7 +71,7 @@ Rules:
 
     const userPrompt = `Convert this form text into structured fields:
 
-${formText}
+${textContent}
 
 Please analyze and convert to JSON format.`;
 
