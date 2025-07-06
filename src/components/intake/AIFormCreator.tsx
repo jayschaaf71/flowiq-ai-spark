@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useIntakeForms } from '@/hooks/useIntakeForms';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AIFormCreatorProps {
   onFormCreated?: () => void;
@@ -171,24 +172,22 @@ Once you've pasted your content here, you can delete these instructions and proc
       setProcessingStep('Generating form structure...');
       setProgress(75);
       
-      // Call AI form processor
-      const response = await fetch('https://jnpzabmqieceqjypvve.supabase.co/functions/v1/ai-form-creator', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpucHphYm1xaWVjZW9xanlwdnZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg3MTQ4NzIsImV4cCI6MjA2NDI5MDg3Mn0.RSZZj9ijOESttwNopqROh1pXqi7y4Q4TDW4_6eqcBFU`,
-        },
-        body: JSON.stringify({
+      // Call AI form processor using Supabase client
+      const { data: result, error: functionError } = await supabase.functions.invoke('ai-form-creator', {
+        body: {
           content: formText,
           fileName: uploadedFile?.name
-        }),
+        }
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to process form');
+      if (functionError) {
+        console.error('Supabase function error:', functionError);
+        throw new Error(`Failed to process form: ${functionError.message}`);
       }
 
-      const result = await response.json();
+      if (!result) {
+        throw new Error('No result returned from form processor');
+      }
       
       setProcessingStep('Creating form...');
       setProgress(90);
