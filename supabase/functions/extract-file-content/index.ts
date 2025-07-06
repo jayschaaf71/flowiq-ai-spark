@@ -36,15 +36,23 @@ serve(async (req) => {
       extractedContent = await file.text();
     } 
     else if (fileType === 'application/pdf' || fileName.endsWith('.pdf')) {
-      // PDF files - check if OpenAI key exists
-      if (!Deno.env.get('OPENAI_API_KEY')) {
-        console.error('OpenAI API key not found for PDF processing');
-        throw new Error('PDF processing requires OpenAI API key. Please configure OPENAI_API_KEY in Supabase secrets.');
-      }
-      console.log('Processing as PDF file with AI');
-      const arrayBuffer = await file.arrayBuffer();
-      const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
-      extractedContent = await extractPDFWithAI(base64);
+      // PDF files - For now, provide instructions to convert to text
+      console.log('PDF file detected - providing conversion instructions');
+      extractedContent = `PDF File Detected: ${file.name}
+
+To use this PDF with the AI Form Builder, please:
+
+1. Open the PDF file on your computer
+2. Select all text content (Ctrl+A or Cmd+A)
+3. Copy the text (Ctrl+C or Cmd+C)  
+4. Paste the content into the "Form Content" text area below
+
+If the PDF contains forms or complex layouts:
+- Try using Adobe Reader or another PDF viewer with good text selection
+- For scanned PDFs, you may need to use OCR software first
+- Consider converting the PDF to a Word document first
+
+This approach ensures accurate text extraction for the AI form builder.`;
     }
     else if (
       fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
@@ -52,30 +60,36 @@ serve(async (req) => {
       fileName.endsWith('.docx') ||
       fileName.endsWith('.doc')
     ) {
-      // Word documents - check if OpenAI key exists
-      if (!Deno.env.get('OPENAI_API_KEY')) {
-        console.error('OpenAI API key not found for Word document processing');
-        throw new Error('Word document processing requires OpenAI API key. Please configure OPENAI_API_KEY in Supabase secrets.');
-      }
-      console.log('Processing as Word document with AI');
-      const arrayBuffer = await file.arrayBuffer();
-      const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
-      extractedContent = await extractDocumentWithAI(base64, 'word');
+      // Word documents - provide instructions for manual extraction
+      console.log('Word document detected - providing conversion instructions');
+      extractedContent = `Word Document Detected: ${file.name}
+
+To use this Word document with the AI Form Builder, please:
+
+1. Open the Word document on your computer
+2. Select all content (Ctrl+A or Cmd+A)
+3. Copy the text (Ctrl+C or Cmd+C)
+4. Paste the content into the "Form Content" text area below
+
+This ensures all form fields, questions, and formatting are preserved for accurate AI processing.`;
     }
     else if (fileType === 'application/rtf' || fileName.endsWith('.rtf')) {
-      // RTF files
-      if (!Deno.env.get('OPENAI_API_KEY')) {
-        console.error('OpenAI API key not found for RTF processing');
-        throw new Error('RTF processing requires OpenAI API key. Please configure OPENAI_API_KEY in Supabase secrets.');
-      }
-      console.log('Processing as RTF file with AI');
-      const arrayBuffer = await file.arrayBuffer();
-      const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
-      extractedContent = await extractDocumentWithAI(base64, 'rtf');
+      // RTF files - provide instructions for manual extraction
+      console.log('RTF document detected - providing conversion instructions');
+      extractedContent = `RTF Document Detected: ${file.name}
+
+To use this RTF document with the AI Form Builder, please:
+
+1. Open the RTF document in a word processor (Word, WordPad, etc.)
+2. Select all content (Ctrl+A or Cmd+A)
+3. Copy the text (Ctrl+C or Cmd+C)
+4. Paste the content into the "Form Content" text area below
+
+This ensures proper text extraction for the AI form builder.`;
     }
     else {
       console.error('Unsupported file type:', fileType);
-      throw new Error(`Unsupported file type: ${fileType}. Please upload PDF, Word, Text, or Markdown files.`);
+      throw new Error(`Unsupported file type: ${fileType}. Currently supported: Text files (.txt, .md). For PDF/Word files, please copy and paste the content directly into the form.`);
     }
 
     if (!extractedContent || extractedContent.trim().length === 0) {
@@ -108,89 +122,3 @@ serve(async (req) => {
     );
   }
 });
-
-async function extractPDFWithAI(base64Content: string): Promise<string> {
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'gpt-4o-mini',
-      messages: [
-        {
-          role: 'system',
-          content: 'You are a document text extraction assistant. Extract all text content from the provided PDF file. Focus on form fields, questions, labels, and any structured content. Preserve the original structure and formatting as much as possible.'
-        },
-        {
-          role: 'user',
-          content: [
-            {
-              type: 'text',
-              text: 'Please extract all text content from this PDF file, paying special attention to form fields, questions, and labels:'
-            },
-            {
-              type: 'image_url',
-              image_url: {
-                url: `data:application/pdf;base64,${base64Content}`
-              }
-            }
-          ]
-        }
-      ],
-      max_tokens: 4000,
-      temperature: 0.1,
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`PDF extraction failed: ${response.statusText}`);
-  }
-
-  const result = await response.json();
-  return result.choices[0].message.content;
-}
-
-async function extractDocumentWithAI(base64Content: string, docType: string): Promise<string> {
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'gpt-4o-mini',
-      messages: [
-        {
-          role: 'system',
-          content: `You are a document text extraction assistant. Extract all text content from the provided ${docType.toUpperCase()} document. Focus on form fields, questions, labels, and any structured content. Preserve the original structure and formatting as much as possible.`
-        },
-        {
-          role: 'user',
-          content: [
-            {
-              type: 'text',
-              text: `Please extract all text content from this ${docType.toUpperCase()} document, paying special attention to form fields, questions, and labels:`
-            },
-            {
-              type: 'image_url',
-              image_url: {
-                url: `data:application/${docType === 'word' ? 'vnd.openxmlformats-officedocument.wordprocessingml.document' : 'rtf'};base64,${base64Content}`
-              }
-            }
-          ]
-        }
-      ],
-      max_tokens: 4000,
-      temperature: 0.1,
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`Document extraction failed: ${response.statusText}`);
-  }
-
-  const result = await response.json();
-  return result.choices[0].message.content;
-}
