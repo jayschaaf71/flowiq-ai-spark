@@ -2,6 +2,7 @@ import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { TwoFactorAuth } from "@/components/auth/TwoFactorAuth";
 
 const Settings = () => {
   return (
@@ -73,6 +74,9 @@ const Settings = () => {
               </CardContent>
             </Card>
           </div>
+          
+          {/* Two-Factor Authentication Section */}
+          <TwoFactorAuth />
         </div>
       </div>
     </Layout>

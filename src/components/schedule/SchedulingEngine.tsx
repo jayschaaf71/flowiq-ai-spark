@@ -156,10 +156,17 @@ export const SchedulingEngine = ({ onAppointmentBooked }: SchedulingEngineProps)
       const { data: existingPatient, error: patientCheckError } = await supabase
         .from('patients')
         .select('id')
-        .eq('profile_id', user.id)
-        .single();
+        .eq('id', user.id)
+        .maybeSingle();
 
-      if (patientCheckError && patientCheckError.code === 'PGRST116') {
+      if (patientCheckError) {
+        console.error('Error checking patient:', patientCheckError);
+        throw patientCheckError;
+      }
+      
+      if (existingPatient) {
+        patientId = existingPatient.id;
+      } else {
         // Create new patient linked to user profile
         const [firstName, ...lastNameParts] = patientInfo.name.split(' ');
         const lastName = lastNameParts.join(' ') || '';
@@ -179,8 +186,6 @@ export const SchedulingEngine = ({ onAppointmentBooked }: SchedulingEngineProps)
 
         if (patientError) throw patientError;
         patientId = newPatient.id;
-      } else if (!patientCheckError) {
-        patientId = existingPatient.id;
       }
 
       // Create appointment with both profile_id and patient_id

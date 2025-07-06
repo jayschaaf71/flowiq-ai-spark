@@ -7,12 +7,11 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 )
 
-// Simple TOTP implementation for 2FA
 function generateSecret(): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
   let secret = '';
   for (let i = 0; i < 32; i++) {
-    secret += chars.charAt(Math.floor(Math.random() * chars.length));
+    secret += chars[Math.floor(Math.random() * chars.length)];
   }
   return secret;
 }
@@ -20,7 +19,7 @@ function generateSecret(): string {
 function generateBackupCodes(): string[] {
   const codes = [];
   for (let i = 0; i < 10; i++) {
-    const code = Math.random().toString(36).substring(2, 10).toUpperCase();
+    const code = Math.random().toString(36).substring(2, 8).toUpperCase();
     codes.push(code);
   }
   return codes;
@@ -42,36 +41,6 @@ function base32Decode(encoded: string): Uint8Array {
   }
   
   return new Uint8Array(bytes);
-}
-
-async function generateTOTP(secret: string): Promise<string> {
-  const key = base32Decode(secret);
-  const time = Math.floor(Date.now() / 1000 / 30);
-  
-  const buffer = new ArrayBuffer(8);
-  const view = new DataView(buffer);
-  view.setUint32(4, time, false);
-  
-  const keyData = await crypto.subtle.importKey(
-    'raw',
-    key,
-    { name: 'HMAC', hash: 'SHA-1' },
-    false,
-    ['sign']
-  );
-  
-  const signature = await crypto.subtle.sign('HMAC', keyData, buffer);
-  const bytes = new Uint8Array(signature);
-  const offset = bytes[19] & 0xf;
-  
-  const code = (
-    ((bytes[offset] & 0x7f) << 24) |
-    ((bytes[offset + 1] & 0xff) << 16) |
-    ((bytes[offset + 2] & 0xff) << 8) |
-    (bytes[offset + 3] & 0xff)
-  ) % 1000000;
-  
-  return code.toString().padStart(6, '0');
 }
 
 async function verifyTOTP(secret: string, token: string): Promise<boolean> {
@@ -135,115 +104,147 @@ serve(async (req) => {
 
     const { action, token, password } = await req.json()
 
-    switch (action) {
-      case 'setup': {
-        const secret = generateSecret();
-        const serviceName = 'FlowIQ AI';
-        const accountName = user.email;
-        const qrUrl = `otpauth://totp/${serviceName}:${accountName}?secret=${secret}&issuer=${serviceName}`;
-        
-        return new Response(
-          JSON.stringify({
-            secret,
-            qrUrl,
-            manualEntryKey: secret
-          }),
-          {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            status: 200,
-          },
-        )
-      }
-
-      case 'verify_setup': {
-        if (!token) {
-          throw new Error('Token required for verification')
-        }
-
-        // Get the temporary secret from a previous setup call
-        // In a real implementation, you'd store this temporarily
-        // For now, we'll assume the secret is passed or stored differently
-        
-        const backupCodes = generateBackupCodes();
-        
-        // Store 2FA settings
-        const { error: insertError } = await supabase
-          .from('user_2fa_settings')
-          .upsert({
-            user_id: user.id,
-            is_enabled: true,
-            secret_key: token, // In real implementation, this would be the verified secret
-            backup_codes: backupCodes
-          }, {
-            onConflict: 'user_id'
-          });
-
-        if (insertError) throw insertError;
-
-        return new Response(
-          JSON.stringify({
-            success: true,
-            backup_codes: backupCodes
-          }),
-          {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            status: 200,
-          },
-        )
-      }
-
-      case 'disable': {
-        if (!password) {
-          throw new Error('Password required to disable 2FA')
-        }
-
-        // Verify password (you'd implement proper password verification)
-        const { error: deleteError } = await supabase
-          .from('user_2fa_settings')
-          .delete()
-          .eq('user_id', user.id);
-
-        if (deleteError) throw deleteError;
-
-        return new Response(
-          JSON.stringify({ success: true }),
-          {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            status: 200,
-          },
-        )
-      }
-
-      case 'generate_backup_codes': {
-        const newBackupCodes = generateBackupCodes();
-        
-        const { error: updateError } = await supabase
-          .from('user_2fa_settings')
-          .update({
-            backup_codes: newBackupCodes,
-            updated_at: new Date().toISOString()
-          })
-          .eq('user_id', user.id);
-
-        if (updateError) throw updateError;
-
-        return new Response(
-          JSON.stringify({
-            backup_codes: newBackupCodes
-          }),
-          {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            status: 200,
-          },
-        )
-      }
-
-      default:
-        throw new Error('Invalid action')
+    if (action === 'setup') {
+      // Generate new secret and QR code
+      const secret = generateSecret()
+      const appName = 'FlowIQ'
+      const userEmail = user.email
+      const qrCodeUrl = `otpauth://totp/${encodeURIComponent(appName)}:${encodeURIComponent(userEmail)}?secret=${secret}&issuer=${encodeURIComponent(appName)}`
+      
+      return new Response(
+        JSON.stringify({
+          secret,
+          qrCodeUrl,
+          manualEntry: secret.match(/.{1,4}/g)?.join(' ') || secret
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        },
+      )
     }
 
+    if (action === 'verify_setup') {
+      if (!token) {
+        throw new Error('Token is required for verification')
+      }
+
+      // Get the secret from a previous setup call (this should be stored temporarily)
+      // For now, we'll assume the secret is passed with the request
+      const { secret } = await req.json()
+      
+      if (!secret) {
+        throw new Error('Secret is required for verification')
+      }
+
+      const isValid = await verifyTOTP(secret, token)
+      
+      if (!isValid) {
+        throw new Error('Invalid verification code')
+      }
+
+      // Generate backup codes
+      const backupCodes = generateBackupCodes()
+
+      // Save 2FA settings to database
+      const { error: insertError } = await supabase
+        .from('user_2fa_settings')
+        .upsert({
+          user_id: user.id,
+          is_enabled: true,
+          secret_key: secret,
+          backup_codes: backupCodes,
+          updated_at: new Date().toISOString()
+        })
+
+      if (insertError) {
+        console.error('Error saving 2FA settings:', insertError)
+        throw new Error('Failed to save 2FA settings')
+      }
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          backup_codes: backupCodes
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        },
+      )
+    }
+
+    if (action === 'disable') {
+      if (!password) {
+        throw new Error('Password is required to disable 2FA')
+      }
+
+      // Verify password
+      const { error: passwordError } = await supabase.auth.signInWithPassword({
+        email: user.email!,
+        password
+      })
+
+      if (passwordError) {
+        throw new Error('Invalid password')
+      }
+
+      // Disable 2FA
+      const { error: updateError } = await supabase
+        .from('user_2fa_settings')
+        .update({
+          is_enabled: false,
+          secret_key: null,
+          backup_codes: null,
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', user.id)
+
+      if (updateError) {
+        throw new Error('Failed to disable 2FA')
+      }
+
+      return new Response(
+        JSON.stringify({ success: true }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        },
+      )
+    }
+
+    if (action === 'generate_backup_codes') {
+      // Generate new backup codes
+      const backupCodes = generateBackupCodes()
+
+      const { error: updateError } = await supabase
+        .from('user_2fa_settings')
+        .update({
+          backup_codes: backupCodes,
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', user.id)
+
+      if (updateError) {
+        throw new Error('Failed to generate backup codes')
+      }
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          backup_codes: backupCodes
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        },
+      )
+    }
+
+    throw new Error('Invalid action')
+
   } catch (error) {
-    console.error('2FA Setup Error:', error);
+    console.error('Error in setup-2fa function:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       {

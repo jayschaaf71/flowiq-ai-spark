@@ -1109,6 +1109,72 @@ export type Database = {
         }
         Relationships: []
       }
+      user_2fa_attempts: {
+        Row: {
+          attempt_type: string
+          created_at: string
+          id: string
+          ip_address: string | null
+          success: boolean
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          attempt_type: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          success: boolean
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          attempt_type?: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          success?: boolean
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_2fa_settings: {
+        Row: {
+          backup_codes: string[] | null
+          created_at: string
+          id: string
+          is_enabled: boolean
+          last_used_at: string | null
+          last_used_backup_code_at: string | null
+          secret_key: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          backup_codes?: string[] | null
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          last_used_at?: string | null
+          last_used_backup_code_at?: string | null
+          secret_key?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          backup_codes?: string[] | null
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          last_used_at?: string | null
+          last_used_backup_code_at?: string | null
+          secret_key?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

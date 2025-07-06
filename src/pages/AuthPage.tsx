@@ -7,8 +7,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { SetupLayout } from "@/components/SetupLayout";
-import { Loader2, Brain } from "lucide-react";
+import { Loader2, Brain, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/contexts/AuthProvider";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function AuthPage() {
   const navigate = useNavigate();
@@ -35,6 +36,10 @@ export default function AuthPage() {
     email: "",
     password: "",
   });
+
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetSent, setResetSent] = useState(false);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,6 +92,28 @@ export default function AuthPage() {
         setError(error.message);
       } else {
         navigate("/dashboard");
+      }
+    } catch (err) {
+      setError("An unexpected error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('send-password-reset', {
+        body: { email: resetEmail }
+      });
+
+      if (error) {
+        setError(error.message);
+      } else {
+        setResetSent(true);
       }
     } catch (err) {
       setError("An unexpected error occurred");
@@ -233,11 +260,81 @@ export default function AuthPage() {
                       {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                       Sign In
                     </Button>
+                    
+                    <div className="text-center">
+                      <Button 
+                        type="button" 
+                        variant="link" 
+                        className="text-sm"
+                        onClick={() => setShowForgotPassword(true)}
+                      >
+                        Forgot your password?
+                      </Button>
+                    </div>
                   </form>
                 </CardContent>
               </Card>
             </TabsContent>
           </Tabs>
+
+          {/* Forgot Password Dialog */}
+          {showForgotPassword && (
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setShowForgotPassword(false);
+                      setResetEmail("");
+                      setResetSent(false);
+                      setError(null);
+                    }}
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                  </Button>
+                  <div>
+                    <CardTitle>Reset Password</CardTitle>
+                    <CardDescription>
+                      {resetSent ? "Check your email" : "Enter your email address"}
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {resetSent ? (
+                  <div className="text-center space-y-4">
+                    <p className="text-sm text-muted-foreground">
+                      We've sent a password reset link to <strong>{resetEmail}</strong>
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Click the link in the email to reset your password. 
+                      Check your spam folder if you don't see it.
+                    </p>
+                  </div>
+                ) : (
+                  <form onSubmit={handleForgotPassword} className="space-y-4">
+                    <div>
+                      <Label htmlFor="reset-email">Email Address</Label>
+                      <Input
+                        id="reset-email"
+                        type="email"
+                        value={resetEmail}
+                        onChange={(e) => setResetEmail(e.target.value)}
+                        placeholder="Enter your email"
+                        required
+                      />
+                    </div>
+                    <Button type="submit" className="w-full" disabled={loading || !resetEmail}>
+                      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Send Reset Link
+                    </Button>
+                  </form>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
           <div className="text-center text-sm text-muted-foreground">
             By creating an account, you agree to our Terms of Service and Privacy Policy
