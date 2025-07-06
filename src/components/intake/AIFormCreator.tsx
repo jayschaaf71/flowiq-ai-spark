@@ -43,7 +43,7 @@ export const AIFormCreator: React.FC<AIFormCreatorProps> = ({ onFormCreated }) =
         const formData = new FormData();
         formData.append('file', file);
         
-        const response = await fetch('https://jzusvsbkprwkjhhozaup.supabase.co/functions/v1/extract-file-content', {
+        const response = await fetch('https://jnpzabmqieceqjypvve.supabase.co/functions/v1/extract-file-content', {
           method: 'POST',
           body: formData,
         });
@@ -95,7 +95,7 @@ export const AIFormCreator: React.FC<AIFormCreatorProps> = ({ onFormCreated }) =
       setProgress(75);
       
       // Call AI form processor
-      const response = await fetch('https://jzusvsbkprwkjhhozaup.supabase.co/functions/v1/ai-form-creator', {
+      const response = await fetch('https://jnpzabmqieceqjypvve.supabase.co/functions/v1/ai-form-creator', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
