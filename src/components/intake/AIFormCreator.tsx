@@ -173,12 +173,19 @@ Once you've pasted your content here, you can delete these instructions and proc
       setProgress(75);
       
       // Call AI form processor using Supabase client
+      console.log('About to call ai-form-creator function with:', {
+        content: formText.substring(0, 100) + '...',
+        fileName: uploadedFile?.name
+      });
+      
       const { data: result, error: functionError } = await supabase.functions.invoke('ai-form-creator', {
         body: {
           content: formText,
           fileName: uploadedFile?.name
         }
       });
+
+      console.log('Function response:', { result, functionError });
 
       if (functionError) {
         console.error('Supabase function error:', functionError);

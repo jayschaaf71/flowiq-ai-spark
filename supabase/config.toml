@@ -1,1 +1,107 @@
 project_id = "jnpzabmqieceoqjypvve"
+
+[api]
+enabled = true
+port = 54321
+
+[db]
+enabled = true
+port = 54322
+
+[studio]
+enabled = true
+port = 54323
+
+[inbucket]
+enabled = true
+port = 54324
+
+[storage]
+enabled = true
+
+[auth]
+enabled = true
+
+[functions.ai-form-creator]
+verify_jwt = false
+
+[functions.extract-file-content]
+verify_jwt = false
+
+[functions.ai-form-processor]
+verify_jwt = false
+
+[functions.ai-claims-validation]
+verify_jwt = false
+
+[functions.ai-help-assistant]
+verify_jwt = false
+
+[functions.ai-medical-coding]
+verify_jwt = false
+
+[functions.ai-soap-generation]
+verify_jwt = false
+
+[functions.ai-voice-transcription]
+verify_jwt = false
+
+[functions.book-appointment]
+verify_jwt = false
+
+[functions.campaign-automation]
+verify_jwt = false
+
+[functions.marketing-ai-assistant]
+verify_jwt = false
+
+[functions.plaud-webhook]
+verify_jwt = false
+
+[functions.process-patient-intake]
+verify_jwt = false
+
+[functions.process-payment]
+verify_jwt = false
+
+[functions.schedule-ai-chat]
+verify_jwt = false
+
+[functions.send-appointment-confirmation]
+verify_jwt = false
+
+[functions.send-communication]
+verify_jwt = false
+
+[functions.send-notification]
+verify_jwt = false
+
+[functions.send-password-reset]
+verify_jwt = false
+
+[functions.send-reminder]
+verify_jwt = false
+
+[functions.send-scheduled-email]
+verify_jwt = false
+
+[functions.send-scheduled-sms]
+verify_jwt = false
+
+[functions.send-team-invitation]
+verify_jwt = false
+
+[functions.send-welcome-email]
+verify_jwt = false
+
+[functions.setup-2fa]
+verify_jwt = false
+
+[functions.sync-calendar-events]
+verify_jwt = false
+
+[functions.verify-2fa]
+verify_jwt = false
+
+[functions.voice-to-text]
+verify_jwt = false
