@@ -51,36 +51,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Error fetching profile:', error);
-        // If profile doesn't exist, create a default one
-        if (error.code === 'PGRST116') {
-          const { data: newProfile, error: createError } = await supabase
-            .from('profiles')
-            .insert([{
-              id: userId,
-              first_name: user?.user_metadata?.first_name || '',
-              last_name: user?.user_metadata?.last_name || '',
-              contact_email: user?.email || ''
-            }])
-            .select()
-            .single();
-
-          if (createError) {
-            console.error('Error creating profile:', createError);
-            return null;
-          }
-          return {
-            id: newProfile.id,
-            email: user?.email || '',
-            first_name: newProfile.first_name,
-            last_name: newProfile.last_name,
-            role: 'patient'
-          };
-        }
         return null;
+      }
+
+      // If no profile exists, create a default one
+      if (!data) {
+        const { data: newProfile, error: createError } = await supabase
+          .from('profiles')
+          .insert([{
+            id: userId,
+            first_name: user?.user_metadata?.first_name || '',
+            last_name: user?.user_metadata?.last_name || '',
+            contact_email: user?.email || ''
+          }])
+          .select()
+          .single();
+
+        if (createError) {
+          console.error('Error creating profile:', createError);
+          return null;
+        }
+        return {
+          id: newProfile.id,
+          email: user?.email || '',
+          first_name: newProfile.first_name,
+          last_name: newProfile.last_name,
+          role: 'patient'
+        };
       }
 
       return {
