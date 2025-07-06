@@ -63,8 +63,17 @@ export const AIFormCreator: React.FC<AIFormCreatorProps> = ({ onFormCreated }) =
         
       } catch (error) {
         console.error('File processing error:', error);
-        toast.error('Failed to process file. Please try uploading a text file or copy/paste the content.');
+        
+        // Try to get detailed error message from response
+        let errorMessage = 'Failed to process file. Please try uploading a text file or copy/paste the content.';
+        
+        if (error instanceof Error) {
+          errorMessage = error.message;
+        }
+        
+        toast.error(errorMessage);
         setUploadedFile(null);
+        setFormText(''); // Clear any partial content
       } finally {
         setIsProcessing(false);
         setProgress(0);
@@ -139,7 +148,15 @@ export const AIFormCreator: React.FC<AIFormCreatorProps> = ({ onFormCreated }) =
       
     } catch (error) {
       console.error('AI form creation error:', error);
-      toast.error('Failed to create form. Please try again.');
+      
+      // Try to get detailed error message
+      let errorMessage = 'Failed to create form. Please try again.';
+      
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
+      toast.error(errorMessage);
     } finally {
       setIsProcessing(false);
       setProgress(0);
