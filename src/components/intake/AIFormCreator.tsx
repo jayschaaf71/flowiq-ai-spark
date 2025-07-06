@@ -31,8 +31,12 @@ export const AIFormCreator: React.FC<AIFormCreatorProps> = ({ onFormCreated }) =
   const [progress, setProgress] = useState(0);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('File upload triggered');
     const file = event.target.files?.[0];
+    console.log('Selected file:', file);
+    
     if (file) {
+      console.log('Processing file:', file.name, file.type, file.size);
       setUploadedFile(file);
       setIsProcessing(true);
       setProcessingStep('Extracting text from file...');
@@ -43,6 +47,7 @@ export const AIFormCreator: React.FC<AIFormCreatorProps> = ({ onFormCreated }) =
         const formData = new FormData();
         formData.append('file', file);
         
+        console.log('Sending request to extract-file-content');
         const response = await fetch('https://jnpzabmqieceqjypvve.supabase.co/functions/v1/extract-file-content', {
           method: 'POST',
           headers: {
@@ -51,11 +56,21 @@ export const AIFormCreator: React.FC<AIFormCreatorProps> = ({ onFormCreated }) =
           body: formData,
         });
         
+        console.log('Response status:', response.status);
+        
         if (!response.ok) {
-          throw new Error('Failed to extract file content');
+          const errorText = await response.text();
+          console.error('Response error:', errorText);
+          throw new Error(`Failed to extract file content: ${response.status} ${response.statusText}`);
         }
         
         const result = await response.json();
+        console.log('Extraction result:', result);
+        
+        if (result.error) {
+          throw new Error(result.error);
+        }
+        
         setFormText(result.content);
         setProgress(100);
         setProcessingStep('File content extracted successfully!');
@@ -78,7 +93,12 @@ export const AIFormCreator: React.FC<AIFormCreatorProps> = ({ onFormCreated }) =
         setIsProcessing(false);
         setProgress(0);
         setProcessingStep('');
+        
+        // Reset the file input so the same file can be selected again
+        event.target.value = '';
       }
+    } else {
+      console.log('No file selected');
     }
   };
 
