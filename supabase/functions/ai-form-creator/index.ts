@@ -22,7 +22,13 @@ serve(async (req) => {
     
     if (!textContent) {
       console.error('No form content provided');
-      throw new Error('Form content is required');
+      return new Response(
+        JSON.stringify({ error: 'Form content is required' }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     console.log('Processing AI form creation...');
@@ -32,7 +38,15 @@ serve(async (req) => {
     const apiKey = Deno.env.get('OPENAI_API_KEY');
     if (!apiKey) {
       console.error('OpenAI API key not found');
-      throw new Error('OpenAI API key not configured');
+      return new Response(
+        JSON.stringify({ 
+          error: 'OpenAI API key not configured. Please add your OpenAI API key in Supabase Edge Function secrets.' 
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
     }
     console.log('OpenAI API key found:', apiKey.slice(0, 10) + '...');
 
@@ -110,7 +124,16 @@ Please analyze and convert to JSON format.`;
     if (!response.ok) {
       const errorText = await response.text();
       console.error('OpenAI API error:', errorText);
-      throw new Error(`OpenAI API error: ${errorText}`);
+      return new Response(
+        JSON.stringify({ 
+          error: `OpenAI API error: ${response.status} ${response.statusText}`,
+          details: errorText
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     const aiResponse = await response.json();
@@ -124,7 +147,17 @@ Please analyze and convert to JSON format.`;
       formData = JSON.parse(structuredForm);
     } catch (parseError) {
       console.error('Failed to parse AI response as JSON:', structuredForm);
-      throw new Error('Failed to process form structure from text');
+      console.error('Parse error:', parseError);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Failed to process AI response. The AI returned invalid JSON format.',
+          details: structuredForm
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     // Validate and clean the form data
