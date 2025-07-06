@@ -31,6 +31,7 @@ import { DentalSleepPatientPortal } from '@/components/patient-experience/Dental
 import { ChiropracticPatientPortal } from '@/components/patient-experience/ChiropracticPatientPortal';
 import { DentalPatientPortal } from '@/components/patient-experience/DentalPatientPortal';
 import { OnboardingGate } from '@/components/onboarding/OnboardingGate';
+import { PatientJourneyCard } from '@/components/patient-experience/PatientJourneyCard';
 import { 
   Calendar, 
   Clock, 
@@ -172,6 +173,9 @@ export const PatientDashboard: React.FC = () => {
           </p>
         </div>
       </div>
+
+      {/* Patient Journey Card - Priority Display */}
+      <PatientJourneyCard />
 
       {/* Contact Your Care Team - Mobile Priority */}
       <Card className="mb-6 md:mb-8 border-blue-200 bg-gradient-to-r from-blue-50 to-green-50">

@@ -66,6 +66,7 @@ import { DemoMedSpa } from '@/pages/demo/DemoMedSpa';
 import PatientNotifications from '@/pages/PatientNotifications';
 import PatientSettings from '@/pages/PatientSettings';
 import PatientMessages from '@/pages/PatientMessages';
+import PatientJourney from '@/pages/PatientJourney';
 import ResetPassword from '@/pages/ResetPassword';
 
 import { Toaster } from '@/components/ui/toaster';
@@ -94,6 +95,11 @@ function App() {
                 <Route path="/patient-dashboard" element={
                   <ProtectedRoute>
                     <PatientDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/patient-journey" element={
+                  <ProtectedRoute>
+                    <PatientJourney />
                   </ProtectedRoute>
                 } />
                 <Route path="/patient/notifications" element={
