@@ -902,6 +902,7 @@ export type Database = {
           last_name: string | null
           notes: string | null
           preferred_channel: string | null
+          role: string | null
           specialty: string | null
           updated_at: string
         }
@@ -919,6 +920,7 @@ export type Database = {
           last_name?: string | null
           notes?: string | null
           preferred_channel?: string | null
+          role?: string | null
           specialty?: string | null
           updated_at?: string
         }
@@ -936,6 +938,7 @@ export type Database = {
           last_name?: string | null
           notes?: string | null
           preferred_channel?: string | null
+          role?: string | null
           specialty?: string | null
           updated_at?: string
         }

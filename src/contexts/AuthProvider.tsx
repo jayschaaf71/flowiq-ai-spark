@@ -80,7 +80,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           email: user?.email || '',
           first_name: newProfile.first_name,
           last_name: newProfile.last_name,
-          role: 'patient'
+          role: newProfile.role || 'patient'
         };
       }
 
@@ -89,7 +89,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email: user?.email || '',
         first_name: data.first_name,
         last_name: data.last_name, 
-        role: 'patient' // Default role since profiles table doesn't have role field
+        role: data.role || 'patient'
       };
     } catch (error) {
       console.error('Unexpected error fetching profile:', error);
@@ -119,8 +119,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!user || !profile) return;
 
     try {
-      // Mock role switching since profiles table doesn't have role field
-      console.log('Role switching requested:', newRole);
+      // Update role in database
+      const { error } = await supabase
+        .from('profiles')
+        .update({ role: newRole })
+        .eq('id', user.id);
+
+      if (error) {
+        console.error('Error updating role:', error);
+        toast({
+          title: "Error",
+          description: "Failed to update role. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
 
       // Update local profile
       setProfile({ ...profile, role: newRole });
