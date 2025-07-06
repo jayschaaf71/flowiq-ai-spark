@@ -11,11 +11,12 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, CheckCircle, AlertCircle, FileText, Loader2, Shield, Clock } from 'lucide-react';
+import { CalendarIcon, CheckCircle, AlertCircle, FileText, Loader2, Shield, Clock, Mic } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { VoiceEnabledFormField } from './VoiceEnabledFormField';
 
 interface FormField {
   id: string;
@@ -211,27 +212,27 @@ export const PublicFormViewer: React.FC<PublicFormViewerProps> = ({
       className: cn(error && "border-red-500")
     };
 
-    switch (field.type) {
-      case 'text':
-      case 'email':
-      case 'phone':
-        return (
-          <div key={field.id} className="space-y-2">
-            <Label htmlFor={fieldId} className="flex items-center gap-1">
-              {field.label}
-              {field.required && <span className="text-red-500">*</span>}
-            </Label>
-            <Input
-              {...commonProps}
-              type={field.type === 'email' ? 'email' : field.type === 'phone' ? 'tel' : 'text'}
-              placeholder={field.placeholder}
-              value={value || ''}
-              onChange={(e) => handleFieldChange(field.id, e.target.value)}
-            />
-            {error && <p className="text-sm text-red-500">{error}</p>}
-          </div>
-        );
+    // Use voice-enabled fields for text inputs
+    if (['text', 'email', 'phone', 'textarea'].includes(field.type)) {
+      return (
+        <div key={field.id} className="space-y-2">
+          <VoiceEnabledFormField
+            field={{
+              name: field.id,
+              label: field.label,
+              type: field.type as 'text' | 'email' | 'phone' | 'textarea',
+              required: field.required,
+              placeholder: field.placeholder,
+            }}
+            value={value || ''}
+            onChange={(newValue) => handleFieldChange(field.id, newValue)}
+          />
+          {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
+        </div>
+      );
+    }
 
+    switch (field.type) {
       case 'number':
         return (
           <div key={field.id} className="space-y-2">
@@ -245,24 +246,6 @@ export const PublicFormViewer: React.FC<PublicFormViewerProps> = ({
               placeholder={field.placeholder}
               value={value || ''}
               onChange={(e) => handleFieldChange(field.id, e.target.value)}
-            />
-            {error && <p className="text-sm text-red-500">{error}</p>}
-          </div>
-        );
-
-      case 'textarea':
-        return (
-          <div key={field.id} className="space-y-2">
-            <Label htmlFor={fieldId} className="flex items-center gap-1">
-              {field.label}
-              {field.required && <span className="text-red-500">*</span>}
-            </Label>
-            <Textarea
-              {...commonProps}
-              placeholder={field.placeholder}
-              value={value || ''}
-              onChange={(e) => handleFieldChange(field.id, e.target.value)}
-              rows={4}
             />
             {error && <p className="text-sm text-red-500">{error}</p>}
           </div>
@@ -435,6 +418,17 @@ export const PublicFormViewer: React.FC<PublicFormViewerProps> = ({
             <span>{progress}%</span>
           </div>
           <Progress value={progress} className="w-full" />
+        </div>
+
+        {/* Voice Input Notice */}
+        <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+          <div className="flex items-center gap-2">
+            <Mic className="w-4 h-4 text-green-600" />
+            <span className="text-sm font-medium text-green-900">Voice Input Available</span>
+          </div>
+          <p className="text-xs text-green-700 mt-1">
+            You can speak your answers instead of typing. Just click the voice button next to any text field.
+          </p>
         </div>
 
         {/* Privacy Notice */}
