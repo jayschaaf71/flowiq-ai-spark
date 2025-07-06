@@ -94,11 +94,18 @@ Rules:
 - Use appropriate placeholders
 - Generate a descriptive form title and description`;
 
+    // Handle very long content by truncating if needed
+    let processedContent = textContent;
+    if (textContent.length > 8000) {
+      console.log('Content too long, truncating...');
+      processedContent = textContent.substring(0, 8000) + '\n\n[Content truncated for processing]';
+    }
+
     const userPrompt = `Convert this form text into structured fields:
 
-${textContent}
+${processedContent}
 
-Please analyze and convert to JSON format.`;
+Please analyze and convert to JSON format. Focus on creating the most important fields from the content provided.`;
 
     // Call OpenAI GPT for intelligent form processing
     console.log('Making OpenAI API call...');
@@ -115,7 +122,7 @@ Please analyze and convert to JSON format.`;
           { role: 'user', content: userPrompt }
         ],
         temperature: 0.1,
-        max_tokens: 3000,
+        max_tokens: 4000,
       }),
     });
     

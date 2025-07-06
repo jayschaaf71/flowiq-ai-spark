@@ -58,20 +58,21 @@ export const AIFormCreator: React.FC<AIFormCreatorProps> = ({ onFormCreated }) =
         // For other files, try the extraction service with timeout
         console.log('Sending request to extract-file-content');
         
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
-        
-        const formData = new FormData();
-        formData.append('file', file);
-        
-        const response = await fetch('https://jnpzabmqieceqjypvve.supabase.co/functions/v1/extract-file-content', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpucHphYm1xaWVjZW9xanlwdnZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg3MTQ4NzIsImV4cCI6MjA2NDI5MDg3Mn0.RSZZj9ijOESttwNopqROh1pXqi7y4Q4TDW4_6eqcBFU`,
-          },
-          body: formData,
-          signal: controller.signal
-        });
+    // Increase timeout for longer processing
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout for long forms
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const response = await fetch('https://jnpzabmqieceqjypvve.supabase.co/functions/v1/extract-file-content', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpucHphYm1xaWVjZW9xanlwdnZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg3MTQ4NzIsImV4cCI6MjA2NDI5MDg3Mn0.RSZZj9ijOESttwNopqROh1pXqi7y4Q4TDW4_6eqcBFU`,
+      },
+      body: formData,
+      signal: controller.signal
+    });
         
         clearTimeout(timeoutId);
         console.log('Response status:', response.status);
@@ -161,16 +162,20 @@ Once you've pasted your content here, you can delete these instructions and proc
       setProcessingStep('Analyzing form content...');
       setProgress(25);
       
-      // Simulate AI processing steps
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Simulate AI processing steps with longer timeouts for big forms
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
       setProcessingStep('Extracting field definitions...');
       setProgress(50);
       
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
       setProcessingStep('Generating form structure...');
       setProgress(75);
+      
+      // Add longer timeout for big forms
+      const isLongForm = formText.length > 5000;
+      console.log('Form length:', formText.length, 'Is long form:', isLongForm);
       
       // Call AI form processor using Supabase client
       console.log('About to call ai-form-creator function with:', {
