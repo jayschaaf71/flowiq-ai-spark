@@ -288,18 +288,19 @@ export const EnhancedIntakeDashboard = ({ onTabChange }: EnhancedIntakeDashboard
               // Safely get form fields count with type guard
               const formFieldsCount = Array.isArray(form.form_fields) ? form.form_fields.length : 0;
               return (
-                 <div 
-                   key={form.id} 
-                   className="border rounded-lg p-4 hover:shadow-md transition-all cursor-pointer hover:border-blue-300 hover:bg-blue-50"
-                   onClick={() => {
-                     console.log('Form card clicked:', form.title);
-                     onTabChange?.('builder');
-                     toast({
-                       title: "Form Selected",
-                       description: `Opening ${form.title} in the form builder`
-                     });
-                   }}
-                 >
+                  <div 
+                    key={form.id} 
+                    className="border rounded-lg p-4 hover:shadow-md transition-all cursor-pointer hover:border-blue-300 hover:bg-blue-50"
+                    onClick={() => {
+                      console.log('Form card clicked:', form.title, form.id);
+                      // Open form preview in new tab
+                      window.open(`/patient-intake/${form.id}`, '_blank');
+                      toast({
+                        title: "Form Preview",
+                        description: `Opening preview for ${form.title}`
+                      });
+                    }}
+                  >
                   <div className="flex items-start justify-between mb-2">
                     <h3 className="font-medium">{form.title}</h3>
                     <Badge variant="outline" className="text-green-700 border-green-300">

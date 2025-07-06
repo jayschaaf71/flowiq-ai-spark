@@ -177,18 +177,29 @@ Once you've pasted your content here, you can delete these instructions and proc
       const isLongForm = formText.length > 5000;
       console.log('Form length:', formText.length, 'Is long form:', isLongForm);
       
-      // Call AI form processor using Supabase client
+      // Call AI form processor using Supabase client with timeout
       console.log('About to call ai-form-creator function with:', {
         content: formText.substring(0, 100) + '...',
         fileName: uploadedFile?.name
       });
       
-      const { data: result, error: functionError } = await supabase.functions.invoke('ai-form-creator', {
+      // Create timeout promise
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('AI processing timeout - please try a shorter form or contact support')), 45000)
+      );
+      
+      // Call function with timeout
+      const functionCallPromise = supabase.functions.invoke('ai-form-creator', {
         body: {
           content: formText,
           fileName: uploadedFile?.name
         }
       });
+      
+      const { data: result, error: functionError } = await Promise.race([
+        functionCallPromise,
+        timeoutPromise
+      ]) as any;
 
       console.log('Function response:', { result, functionError });
 

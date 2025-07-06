@@ -27,6 +27,7 @@ import AuthTesting from '@/pages/AuthTesting';
 import DentalSleepDemo from '@/pages/DentalSleepDemo';
 import { FinancialManagementPage } from '@/pages/FinancialManagementPage';
 import { PatientExperiencePage } from '@/pages/PatientExperiencePage';
+import PatientIntakeForm from '@/pages/PatientIntakeForm';
 import { EmbeddedPortal } from '@/pages/EmbeddedPortal';
 import { Layout } from '@/components/Layout';
 import PatientManagement from '@/pages/PatientManagement';
@@ -161,6 +162,7 @@ function App() {
                   </TenantWrapper>
                 } />
                 <Route path="/patient-portal" element={<PatientPortal />} />
+                <Route path="/patient-intake/:formId" element={<PatientIntakeForm />} />
                 <Route path="/embedded-portal" element={<EmbeddedPortal />} />
                 <Route path="/provider-mobile" element={
                   <TenantWrapper>
