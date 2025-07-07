@@ -11,6 +11,7 @@ import { IntakeAnalyticsDashboard } from "@/components/intake/IntakeAnalyticsDas
 import { EnhancedAnalyticsDashboard } from "@/components/intake/EnhancedAnalyticsDashboard";
 import { VoiceEnabledPatientIntake } from "@/components/intake/VoiceEnabledPatientIntake";
 import { MobileVoiceIntake } from "@/components/intake/MobileVoiceIntake";
+import { IntakeFormSeed } from "@/components/intake/IntakeFormSeed";
 import { useIntakeForms } from "@/hooks/useIntakeForms";
 
 const IntakeIQ = () => {
@@ -31,6 +32,9 @@ const IntakeIQ = () => {
 
   return (
     <div className="space-y-6">
+      {/* Seed West County Spine and Joint forms */}
+      <IntakeFormSeed />
+      
       <PageHeader 
         title="Intake iQ"
         subtitle="AI-driven patient intake and form processing"
