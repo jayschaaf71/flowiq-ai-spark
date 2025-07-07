@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useNavigate } from "react-router-dom";
 import { 
   Calendar,
   Users,
@@ -20,6 +21,7 @@ import { useAppointments } from "@/hooks/useAppointments";
 import { usePatients } from "@/hooks/usePatients";
 
 export const ChiropracticDashboard = () => {
+  const navigate = useNavigate();
   const { appointments, loading: appointmentsLoading } = useAppointments();
   const { data: patients, isLoading: patientsLoading } = usePatients();
 
@@ -35,28 +37,32 @@ export const ChiropracticDashboard = () => {
       value: todayAppointments.length,
       icon: Calendar,
       color: "text-blue-600",
-      bgColor: "bg-blue-50"
+      bgColor: "bg-blue-50",
+      onClick: () => navigate('/schedule')
     },
     {
       title: "Active Patients",
       value: activePatients.length,
       icon: Users,
       color: "text-green-600",
-      bgColor: "bg-green-50"
+      bgColor: "bg-green-50",
+      onClick: () => navigate('/patient-management')
     },
     {
       title: "Pending Appointments",
       value: pendingAppointments.length,
       icon: Clock,
       color: "text-orange-600",
-      bgColor: "bg-orange-50"
+      bgColor: "bg-orange-50",
+      onClick: () => navigate('/schedule')
     },
     {
       title: "Today's Revenue",
       value: "$2,840",
       icon: DollarSign,
       color: "text-purple-600",
-      bgColor: "bg-purple-50"
+      bgColor: "bg-purple-50",
+      onClick: () => navigate('/financial-management')
     }
   ];
 
@@ -71,7 +77,7 @@ export const ChiropracticDashboard = () => {
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {statsCards.map((stat, index) => (
-          <Card key={index}>
+          <Card key={index} className="cursor-pointer hover:shadow-md transition-shadow" onClick={stat.onClick}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -95,27 +101,50 @@ export const ChiropracticDashboard = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            <Button className="h-20 flex-col gap-2">
+            <Button 
+              className="h-20 flex-col gap-2"
+              onClick={() => navigate('/schedule')}
+            >
               <Calendar className="w-5 h-5" />
               <span className="text-xs">New Appointment</span>
             </Button>
-            <Button variant="outline" className="h-20 flex-col gap-2">
+            <Button 
+              variant="outline" 
+              className="h-20 flex-col gap-2"
+              onClick={() => navigate('/patient-management')}
+            >
               <Users className="w-5 h-5" />
               <span className="text-xs">Add Patient</span>
             </Button>
-            <Button variant="outline" className="h-20 flex-col gap-2">
+            <Button 
+              variant="outline" 
+              className="h-20 flex-col gap-2"
+              onClick={() => navigate('/ehr')}
+            >
               <FileText className="w-5 h-5" />
               <span className="text-xs">SOAP Notes</span>
             </Button>
-            <Button variant="outline" className="h-20 flex-col gap-2">
+            <Button 
+              variant="outline" 
+              className="h-20 flex-col gap-2"
+              onClick={() => navigate('/ehr')}
+            >
               <Activity className="w-5 h-5" />
               <span className="text-xs">Treatment Plan</span>
             </Button>
-            <Button variant="outline" className="h-20 flex-col gap-2">
+            <Button 
+              variant="outline" 
+              className="h-20 flex-col gap-2"
+              onClick={() => navigate('/analytics')}
+            >
               <TrendingUp className="w-5 h-5" />
               <span className="text-xs">Reports</span>
             </Button>
-            <Button variant="outline" className="h-20 flex-col gap-2">
+            <Button 
+              variant="outline" 
+              className="h-20 flex-col gap-2"
+              onClick={() => navigate('/agents/remind')}
+            >
               <Bell className="w-5 h-5" />
               <span className="text-xs">Reminders</span>
             </Button>
@@ -168,7 +197,11 @@ export const ChiropracticDashboard = () => {
               ))}
               {todayAppointments.length > 5 && (
                 <div className="text-center pt-2">
-                  <Button variant="link" size="sm">
+                  <Button 
+                    variant="link" 
+                    size="sm"
+                    onClick={() => navigate('/schedule')}
+                  >
                     View all {todayAppointments.length} appointments
                   </Button>
                 </div>
