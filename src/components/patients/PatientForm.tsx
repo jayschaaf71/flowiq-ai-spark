@@ -110,9 +110,18 @@ export const PatientForm = ({ onSuccess, onCancel }: PatientFormProps) => {
 
     setLoading(true);
     try {
+      // Combine address lines into single address field to match database schema
+      const patientData = {
+        ...formData,
+        address: [formData.address_line1, formData.address_line2].filter(Boolean).join(', '),
+      };
+      
+      // Remove the address_line fields since they don't exist in the database
+      const { address_line1, address_line2, ...dataForDb } = patientData;
+
       const { data, error } = await supabase
         .from('patients')
-        .insert([formData])
+        .insert([dataForDb])
         .select()
         .single();
 
