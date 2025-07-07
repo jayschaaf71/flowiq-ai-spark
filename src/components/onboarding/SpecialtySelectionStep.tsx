@@ -77,6 +77,14 @@ export const SpecialtySelectionStep: React.FC<SpecialtySelectionStepProps> = ({
   selectedSpecialty,
   onSelectSpecialty
 }) => {
+  
+  const handleSpecialtySelect = (specialty: SpecialtyType) => {
+    // Save specialty selection to localStorage for immediate persistence
+    localStorage.setItem('currentSpecialty', specialty);
+    localStorage.setItem('selectedSpecialty', specialty);
+    onSelectSpecialty(specialty);
+    console.log('Specialty selected during onboarding:', specialty);
+  };
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
@@ -99,7 +107,7 @@ export const SpecialtySelectionStep: React.FC<SpecialtySelectionStepProps> = ({
                   ? 'border-blue-500 bg-blue-50 shadow-md' 
                   : 'border-gray-200 hover:border-gray-300'
               }`}
-              onClick={() => onSelectSpecialty(specialty.id)}
+              onClick={() => handleSpecialtySelect(specialty.id)}
             >
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">

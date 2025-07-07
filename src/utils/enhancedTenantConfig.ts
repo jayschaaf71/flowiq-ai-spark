@@ -78,14 +78,18 @@ export function useEnhancedTenantConfig() {
       setIsLoading(true);
       console.log('Mock loading tenant config for user:', user?.id);
       
-      // Mock tenant configuration - return default based on specialty or general
-      const specialty = localStorage.getItem('specialty') || 'general';
-      const config = DEFAULT_TENANTS[specialty] || DEFAULT_TENANTS.general;
+      // Check for current specialty from different sources
+      const currentSpecialty = localStorage.getItem('currentSpecialty') || 
+                               localStorage.getItem('specialty') || 
+                               'chiropractic';
+      
+      console.log('Loading config for specialty:', currentSpecialty);
+      const config = DEFAULT_TENANTS[currentSpecialty] || DEFAULT_TENANTS.chiropractic;
       
       setTenantConfig(config);
     } catch (error) {
       console.error('Error loading tenant config:', error);
-      setTenantConfig(DEFAULT_TENANTS.general);
+      setTenantConfig(DEFAULT_TENANTS.chiropractic);
     } finally {
       setIsLoading(false);
     }
@@ -110,6 +114,27 @@ export function useEnhancedTenantConfig() {
   useEffect(() => {
     loadTenantConfig();
   }, [user]);
+
+  // Listen for specialty changes from localStorage
+  useEffect(() => {
+    const handleStorageChange = () => {
+      loadTenantConfig();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    // Also listen for manual updates to localStorage from same tab
+    const interval = setInterval(() => {
+      const currentSpecialty = localStorage.getItem('currentSpecialty');
+      if (currentSpecialty && tenantConfig?.specialty !== currentSpecialty) {
+        loadTenantConfig();
+      }
+    }, 1000);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [tenantConfig?.specialty]);
 
   return {
     tenantConfig,
