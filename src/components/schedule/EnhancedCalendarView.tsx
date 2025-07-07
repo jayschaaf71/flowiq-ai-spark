@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar, Clock, User, MapPin, Phone, Mail, Search, Filter, ChevronLeft, ChevronRight, Plus, Edit, Trash2, Copy, MoreHorizontal } from 'lucide-react';
 import { format, startOfWeek, endOfWeek, addDays, isSameDay, parseISO, addWeeks, subWeeks, addMonths, subMonths } from 'date-fns';
 import { useAppointments } from '@/hooks/useAppointments';
+import { DragDropCalendar } from './DragDropCalendar';
 
 interface Appointment {
   id: string;
@@ -156,16 +157,7 @@ export const EnhancedCalendarView = () => {
 
       {/* Calendar Views */}
       {viewMode === 'dragdrop' ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Drag & Drop Calendar</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-12 text-gray-500">
-              Drag & Drop functionality would be implemented here
-            </div>
-          </CardContent>
-        </Card>
+        <DragDropCalendar />
       ) : viewMode === 'week' ? (
         <div className="grid grid-cols-7 gap-2">
           {getWeekDays().map((day, index) => {
@@ -222,7 +214,7 @@ export const EnhancedCalendarView = () => {
       )}
 
       {/* Stats Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="text-center">
