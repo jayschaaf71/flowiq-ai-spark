@@ -95,7 +95,11 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
         setRecordingDuration(prev => {
           const newDuration = prev + 1;
           if (newDuration >= maxDuration) {
-            stopRecording();
+            // Stop recording directly without calling stopRecording to avoid circular dependency
+            if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+              mediaRecorderRef.current.stop();
+              setIsRecording(false);
+            }
           }
           return newDuration;
         });
@@ -113,7 +117,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   }, [maxDuration, toast]);
 
   const stopRecording = useCallback(() => {
-    if (mediaRecorderRef.current && isRecording) {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
       
@@ -122,7 +126,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
         durationIntervalRef.current = null;
       }
     }
-  }, [isRecording]);
+  }, []);
 
   const playRecording = useCallback(() => {
     if (audioBlob && !isPlaying) {
