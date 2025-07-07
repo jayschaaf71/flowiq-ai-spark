@@ -188,7 +188,7 @@ const handler = async (req: Request): Promise<Response> => {
       });
 
     } else if (request.type === 'sms') {
-      // Enhanced SMS processing with validation and analytics
+      // Enhanced SMS processing with Twilio integration
       const formattedPhone = formatPhoneNumber(request.recipient);
       
       if (!validatePhoneNumber(formattedPhone)) {
@@ -227,52 +227,133 @@ const handler = async (req: Request): Promise<Response> => {
           smsMessage = request.customMessage || message;
       }
 
-      console.log(`SMS Simulation - Enhanced Processing:`);
-      console.log(`To: ${formattedPhone}`);
-      console.log(`Message: ${smsMessage}`);
-      console.log(`Characters: ${smsMessage.length}`);
-      console.log(`Segments: ${segments}`);
-      console.log(`Estimated Cost: $${estimatedCost.toFixed(4)}`);
-      
-      // Simulate SMS processing delay based on message length
-      const processingDelay = Math.min(1000 + (segments * 200), 3000);
-      await new Promise(resolve => setTimeout(resolve, processingDelay));
-      
-      // Update communication log with enhanced metadata
-      await supabase
-        .from('communication_logs')
-        .update({ 
-          status: 'sent', 
-          sent_at: new Date().toISOString(),
-          metadata: { 
-            sms_simulated: true, 
-            message_length: smsMessage.length,
-            character_count: smsMessage.length,
-            segment_count: segments,
-            estimated_cost: estimatedCost,
-            formatted_phone: formattedPhone,
-            template_used: request.templateId,
-            processing_time_ms: processingDelay
-          }
-        })
-        .eq('id', request.logId);
+      // Get Twilio credentials
+      const twilioAccountSid = Deno.env.get('TWILIO_ACCOUNT_SID');
+      const twilioAuthToken = Deno.env.get('TWILIO_AUTH_TOKEN');
+      const twilioFromNumber = Deno.env.get('TWILIO_FROM_NUMBER');
 
-      return new Response(JSON.stringify({ 
-        success: true, 
-        message: 'SMS sent successfully (simulated)',
-        details: {
-          recipient: formattedPhone,
-          template: request.templateId,
-          messageLength: smsMessage.length,
-          characterCount: smsMessage.length,
-          segmentCount: segments,
-          estimatedCost: `$${estimatedCost.toFixed(4)}`,
-          processingTime: `${processingDelay}ms`
+      if (twilioAccountSid && twilioAuthToken && twilioFromNumber) {
+        // Send real SMS using Twilio
+        const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilioAccountSid}/Messages.json`;
+        const twilioAuth = btoa(`${twilioAccountSid}:${twilioAuthToken}`);
+
+        const twilioResponse = await fetch(twilioUrl, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Basic ${twilioAuth}`,
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams({
+            To: formattedPhone,
+            From: twilioFromNumber,
+            Body: smsMessage,
+          }),
+        });
+
+        if (!twilioResponse.ok) {
+          const errorText = await twilioResponse.text();
+          console.error('Twilio API error:', errorText);
+          
+          // Update log with error
+          await supabase
+            .from('communication_logs')
+            .update({ 
+              status: 'failed',
+              error_message: `SMS sending failed: ${errorText}`
+            })
+            .eq('id', request.logId);
+
+          throw new Error(`SMS sending failed: ${errorText}`);
         }
-      }), {
-        status: 200,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      });
+
+        const smsResult = await twilioResponse.json();
+        console.log('SMS sent successfully via Twilio:', smsResult);
+        
+        // Update communication log with success
+        await supabase
+          .from('communication_logs')
+          .update({ 
+            status: 'sent', 
+            sent_at: new Date().toISOString(),
+            metadata: { 
+              twilio_sid: smsResult.sid,
+              message_length: smsMessage.length,
+              character_count: smsMessage.length,
+              segment_count: segments,
+              estimated_cost: estimatedCost,
+              formatted_phone: formattedPhone,
+              template_used: request.templateId,
+              twilio_status: smsResult.status,
+              twilio_response: smsResult
+            }
+          })
+          .eq('id', request.logId);
+
+        return new Response(JSON.stringify({ 
+          success: true, 
+          message: 'SMS sent successfully via Twilio',
+          details: {
+            recipient: formattedPhone,
+            template: request.templateId,
+            messageLength: smsMessage.length,
+            segmentCount: segments,
+            estimatedCost: `$${estimatedCost.toFixed(4)}`,
+            twilioSid: smsResult.sid,
+            status: smsResult.status
+          }
+        }), {
+          status: 200,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        });
+      } else {
+        // Simulate SMS processing if Twilio not configured
+        console.log(`SMS Simulation - Enhanced Processing:`);
+        console.log(`To: ${formattedPhone}`);
+        console.log(`Message: ${smsMessage}`);
+        console.log(`Characters: ${smsMessage.length}`);
+        console.log(`Segments: ${segments}`);
+        console.log(`Estimated Cost: $${estimatedCost.toFixed(4)}`);
+        
+        // Simulate SMS processing delay based on message length
+        const processingDelay = Math.min(1000 + (segments * 200), 3000);
+        await new Promise(resolve => setTimeout(resolve, processingDelay));
+        
+        // Update communication log with enhanced metadata
+        await supabase
+          .from('communication_logs')
+          .update({ 
+            status: 'sent', 
+            sent_at: new Date().toISOString(),
+            metadata: { 
+              sms_simulated: true, 
+              message_length: smsMessage.length,
+              character_count: smsMessage.length,
+              segment_count: segments,
+              estimated_cost: estimatedCost,
+              formatted_phone: formattedPhone,
+              template_used: request.templateId,
+              processing_time_ms: processingDelay
+            }
+          })
+          .eq('id', request.logId);
+
+        return new Response(JSON.stringify({ 
+          success: true, 
+          message: 'SMS sent successfully (simulated)',
+          details: {
+            recipient: formattedPhone,
+            template: request.templateId,
+            messageLength: smsMessage.length,
+            characterCount: smsMessage.length,
+            segmentCount: segments,
+            estimatedCost: `$${estimatedCost.toFixed(4)}`,
+            processingTime: `${processingDelay}ms`
+          }
+        }), {
+          status: 200,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        });
+      }
     }
 
     throw new Error('Invalid communication type');

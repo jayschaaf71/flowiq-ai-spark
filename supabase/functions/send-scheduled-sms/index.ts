@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
@@ -11,6 +10,31 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_URL') ?? '',
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 );
+
+// SMS utilities
+const calculateSMSSegments = (message: string): number => {
+  return Math.ceil(message.length / 160);
+};
+
+const estimateSMSCost = (message: string): number => {
+  const segments = calculateSMSSegments(message);
+  return segments * 0.0075; // Approximate cost per segment
+};
+
+const validatePhoneNumber = (phone: string): boolean => {
+  const digits = phone.replace(/\D/g, '');
+  return digits.length >= 10 && digits.length <= 15;
+};
+
+const formatPhoneNumber = (phone: string): string => {
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length === 10) {
+    return `+1${digits}`;
+  } else if (digits.length === 11 && digits.startsWith('1')) {
+    return `+${digits}`;
+  }
+  return phone;
+};
 
 serve(async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
@@ -39,47 +63,29 @@ serve(async (req: Request): Promise<Response> => {
       message = message.replace(new RegExp(placeholder, 'g'), value as string);
     }
 
-    // Validate message length
-    if (message.length > template.max_length) {
-      throw new Error(`Message too long: ${message.length} characters (max: ${template.max_length})`);
-    }
-
-    // Get SMS integration settings
-    const { data: smsIntegration } = await supabase
-      .from('integrations')
-      .select('*')
-      .eq('type', 'sms')
-      .eq('enabled', true)
-      .single();
-
-    if (!smsIntegration) {
-      throw new Error('No SMS integration configured');
-    }
-
-    // Format phone number
+    // Format and validate phone number
     const formattedPhone = formatPhoneNumber(recipient);
     if (!validatePhoneNumber(formattedPhone)) {
       throw new Error('Invalid phone number format');
     }
 
-    // Calculate SMS segments and cost
-    const segments = Math.ceil(message.length / 160);
-    const estimatedCost = segments * 0.0075; // Approximate cost per segment
+    const segments = calculateSMSSegments(message);
+    const estimatedCost = estimateSMSCost(message);
 
-    // Send SMS using Twilio (if configured) or simulate
-    const twilioSid = Deno.env.get('TWILIO_ACCOUNT_SID');
-    const twilioToken = Deno.env.get('TWILIO_AUTH_TOKEN');
+    // Get Twilio credentials
+    const twilioAccountSid = Deno.env.get('TWILIO_ACCOUNT_SID');
+    const twilioAuthToken = Deno.env.get('TWILIO_AUTH_TOKEN');
     const twilioFromNumber = Deno.env.get('TWILIO_FROM_NUMBER');
 
-    if (twilioSid && twilioToken && twilioFromNumber) {
-      // Real Twilio SMS sending
-      const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`;
-      const credentials = btoa(`${twilioSid}:${twilioToken}`);
+    if (twilioAccountSid && twilioAuthToken && twilioFromNumber) {
+      // Send real SMS using Twilio
+      const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilioAccountSid}/Messages.json`;
+      const twilioAuth = btoa(`${twilioAccountSid}:${twilioAuthToken}`);
 
       const twilioResponse = await fetch(twilioUrl, {
         method: 'POST',
         headers: {
-          'Authorization': `Basic ${credentials}`,
+          'Authorization': `Basic ${twilioAuth}`,
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({
@@ -100,7 +106,7 @@ serve(async (req: Request): Promise<Response> => {
       await supabase
         .from('communication_logs')
         .insert({
-          submission_id: crypto.randomUUID(),
+          submission_id: crypto.randomUUID(), // Generate a UUID for non-submission SMS
           type: 'sms',
           recipient: formattedPhone,
           message: message,
@@ -108,7 +114,7 @@ serve(async (req: Request): Promise<Response> => {
           status: 'sent',
           sent_at: new Date().toISOString(),
           metadata: { 
-            sid: smsResult.sid,
+            twilio_sid: smsResult.sid, 
             provider: 'twilio',
             segments: segments,
             estimated_cost: estimatedCost
@@ -118,8 +124,12 @@ serve(async (req: Request): Promise<Response> => {
       return new Response(JSON.stringify({ 
         success: true, 
         messageId: smsResult.sid,
-        segments: segments,
-        estimatedCost: estimatedCost
+        details: {
+          recipient: formattedPhone,
+          segments: segments,
+          estimatedCost: `$${estimatedCost.toFixed(4)}`,
+          status: smsResult.status
+        }
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -129,11 +139,12 @@ serve(async (req: Request): Promise<Response> => {
         to: formattedPhone,
         message: message,
         segments: segments,
-        estimatedCost: estimatedCost
+        estimatedCost: `$${estimatedCost.toFixed(4)}`
       });
 
       // Simulate processing delay
-      await new Promise(resolve => setTimeout(resolve, 1000 + (segments * 200)));
+      const processingDelay = Math.min(1000 + (segments * 200), 3000);
+      await new Promise(resolve => setTimeout(resolve, processingDelay));
 
       // Log the simulated SMS send
       await supabase
@@ -150,19 +161,18 @@ serve(async (req: Request): Promise<Response> => {
             simulated: true,
             segments: segments,
             estimated_cost: estimatedCost,
-            message_length: message.length
+            processing_time_ms: processingDelay
           }
         });
 
       return new Response(JSON.stringify({ 
         success: true, 
         messageId: 'simulated_' + Date.now(),
-        segments: segments,
-        estimatedCost: estimatedCost,
         details: {
           recipient: formattedPhone,
-          messageLength: message.length,
-          segments: segments
+          segments: segments,
+          estimatedCost: `$${estimatedCost.toFixed(4)}`,
+          processingTime: `${processingDelay}ms`
         }
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -181,18 +191,3 @@ serve(async (req: Request): Promise<Response> => {
     });
   }
 });
-
-function formatPhoneNumber(phone: string): string {
-  const digits = phone.replace(/\D/g, '');
-  if (digits.length === 10) {
-    return `+1${digits}`;
-  } else if (digits.length === 11 && digits.startsWith('1')) {
-    return `+${digits}`;
-  }
-  return phone;
-}
-
-function validatePhoneNumber(phone: string): boolean {
-  const digits = phone.replace(/\D/g, '');
-  return digits.length >= 10 && digits.length <= 15;
-}
