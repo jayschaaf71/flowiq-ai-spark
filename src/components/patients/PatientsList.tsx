@@ -70,9 +70,9 @@ export const PatientsList = ({ onSelectPatient, onAddPatient }: PatientsListProp
   const filteredPatients = patients.filter(patient => {
     const searchLower = searchTerm.toLowerCase();
     return (
-      patient.first_name.toLowerCase().includes(searchLower) ||
-      patient.last_name.toLowerCase().includes(searchLower) ||
-      patient.patient_number.toLowerCase().includes(searchLower) ||
+      patient.first_name?.toLowerCase().includes(searchLower) ||
+      patient.last_name?.toLowerCase().includes(searchLower) ||
+      patient.patient_number?.toLowerCase().includes(searchLower) ||
       patient.email?.toLowerCase().includes(searchLower) ||
       patient.phone?.includes(searchTerm)
     );
