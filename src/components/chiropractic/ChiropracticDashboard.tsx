@@ -62,7 +62,7 @@ export const ChiropracticDashboard = () => {
       icon: DollarSign,
       color: "text-purple-600",
       bgColor: "bg-purple-50",
-      onClick: () => navigate('/financial-management')
+      onClick: () => navigate('/financial')
     }
   ];
 

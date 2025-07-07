@@ -127,15 +127,24 @@ function App() {
                     </ChiropracticWrapper>
                   </ProtectedRoute>
                 } />
-                <Route path="/financial" element={
-                  <ProtectedRoute requiredRole="staff">
-                    <ChiropracticWrapper>
-                      <Layout>
-                        <FinancialManagementPage />
-                      </Layout>
-                    </ChiropracticWrapper>
-                  </ProtectedRoute>
-                } />
+                 <Route path="/financial" element={
+                   <ProtectedRoute requiredRole="staff">
+                     <ChiropracticWrapper>
+                       <Layout>
+                         <FinancialManagementPage />
+                       </Layout>
+                     </ChiropracticWrapper>
+                   </ProtectedRoute>
+                 } />
+                 <Route path="/financial-management" element={
+                   <ProtectedRoute requiredRole="staff">
+                     <ChiropracticWrapper>
+                       <Layout>
+                         <FinancialManagementPage />
+                       </Layout>
+                     </ChiropracticWrapper>
+                   </ProtectedRoute>
+                 } />
                 <Route path="/patient-experience" element={
                   <ProtectedRoute requiredRole="staff">
                     <ChiropracticWrapper>
