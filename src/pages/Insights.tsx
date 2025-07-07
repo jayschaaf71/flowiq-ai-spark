@@ -1,8 +1,12 @@
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import { TrendingUp, Brain, Users } from "lucide-react";
 
 const Insights = () => {
+  const navigate = useNavigate();
+
   return (
     <>
       <PageHeader 
@@ -13,7 +17,7 @@ const Insights = () => {
       <div className="space-y-6">
         {/* AI Insights Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card className="border-l-4 border-l-blue-500">
+          <Card className="border-l-4 border-l-blue-500 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/schedule')}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Brain className="w-5 h-5 text-blue-600" />
@@ -32,7 +36,7 @@ const Insights = () => {
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-l-green-500">
+          <Card className="border-l-4 border-l-green-500 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/agents/remind')}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <TrendingUp className="w-5 h-5 text-green-600" />
@@ -51,7 +55,7 @@ const Insights = () => {
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-l-purple-500">
+          <Card className="border-l-4 border-l-purple-500 cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/patient-management')}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Users className="w-5 h-5 text-purple-600" />
@@ -161,9 +165,9 @@ const Insights = () => {
                     <p className="text-sm text-gray-600 mt-1">
                       23 patients are due for checkups. Automated reminders could book 15-18 appointments.
                     </p>
-                    <button className="text-xs text-green-600 hover:text-green-700 mt-2">
+                    <Button variant="link" size="sm" className="text-xs text-green-600 hover:text-green-700 mt-2 p-0 h-auto" onClick={() => navigate('/agents/remind')}>
                       Start Campaign →
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -176,9 +180,9 @@ const Insights = () => {
                     <p className="text-sm text-gray-600 mt-1">
                       Adjust morning slots to reduce 2-4 PM bottleneck and improve patient flow.
                     </p>
-                    <button className="text-xs text-blue-600 hover:text-blue-700 mt-2">
+                    <Button variant="link" size="sm" className="text-xs text-blue-600 hover:text-blue-700 mt-2 p-0 h-auto" onClick={() => navigate('/schedule')}>
                       View Schedule →
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
