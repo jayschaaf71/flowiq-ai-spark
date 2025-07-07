@@ -20,6 +20,34 @@ export interface ConflictDetectionResult {
   autoResolved: number;
 }
 
+export interface ConflictResolution {
+  conflicts: Array<{
+    id: string;
+    type: string;
+    description: string;
+    severity: 'critical' | 'warning' | 'minor';
+    suggested_solution: string;
+  }>;
+  resolutions: Array<{
+    conflictId: string;
+    action: string;
+    success: boolean;
+    resolution: string;
+    alternativeSlots: string[];
+  }>;
+  autoResolved: number;
+  manualReviewRequired: number;
+}
+
+export interface PatientRiskScore {
+  patientId: string;
+  score: number;
+  riskLevel: 'low' | 'medium' | 'high' | 'critical';
+  factors: string[];
+  recommendations: string[];
+  lastUpdated: Date;
+}
+
 class AISchedulingService {
   async optimizeProviderSchedule(providerId: string, date: string): Promise<OptimizationResult> {
     const { data: appointments } = await supabase
@@ -38,7 +66,7 @@ class AISchedulingService {
     };
   }
 
-  async detectAndResolveConflicts(date: string): Promise<ConflictDetectionResult> {
+  async detectAndResolveConflicts(date: string): Promise<ConflictResolution> {
     const { data: appointments } = await supabase
       .from('appointments')
       .select('*')
@@ -46,7 +74,28 @@ class AISchedulingService {
 
     return {
       conflicts: [],
-      autoResolved: 0
+      resolutions: [],
+      autoResolved: 0,
+      manualReviewRequired: 0
+    };
+  }
+
+  async generatePatientRiskScore(patientId: string): Promise<PatientRiskScore> {
+    return {
+      patientId,
+      score: Math.floor(Math.random() * 70) + 30, // Mock score 30-100
+      riskLevel: ['low', 'medium', 'high'][Math.floor(Math.random() * 3)] as any,
+      factors: [
+        'Previous no-show history',
+        'Multiple appointment cancellations',
+        'First-time patient'
+      ],
+      recommendations: [
+        'Send additional confirmation reminder',
+        'Call to confirm appointment',
+        'Consider shorter appointment buffer'
+      ],
+      lastUpdated: new Date()
     };
   }
 }
