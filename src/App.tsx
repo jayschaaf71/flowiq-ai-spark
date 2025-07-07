@@ -196,53 +196,67 @@ function App() {
                   </ProtectedRoute>
                 } />
                 <Route path="/ehr" element={
-                  <ChiropracticWrapper>
-                    <Layout>
-                      <EHR />
-                    </Layout>
-                  </ChiropracticWrapper>
+                  <ProtectedRoute requiredRole="staff">
+                    <ChiropracticWrapper>
+                      <Layout>
+                        <EHR />
+                      </Layout>
+                    </ChiropracticWrapper>
+                  </ProtectedRoute>
                 } />
                 <Route path="/patient-management" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <PatientManagement />
-                    </Layout>
-                  </TenantWrapper>
+                  <ProtectedRoute requiredRole="staff">
+                    <ChiropracticWrapper>
+                      <Layout>
+                        <PatientManagement />
+                      </Layout>
+                    </ChiropracticWrapper>
+                  </ProtectedRoute>
                 } />
                 <Route path="/insights" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <Insights />
-                    </Layout>
-                  </TenantWrapper>
+                  <ProtectedRoute requiredRole="staff">
+                    <ChiropracticWrapper>
+                      <Layout>
+                        <Insights />
+                      </Layout>
+                    </ChiropracticWrapper>
+                  </ProtectedRoute>
                 } />
                 <Route path="/notifications" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <Notifications />
-                    </Layout>
-                  </TenantWrapper>
+                  <ProtectedRoute requiredRole="staff">
+                    <ChiropracticWrapper>
+                      <Layout>
+                        <Notifications />
+                      </Layout>
+                    </ChiropracticWrapper>
+                  </ProtectedRoute>
                 } />
                 <Route path="/team" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <Team />
-                    </Layout>
-                  </TenantWrapper>
+                  <ProtectedRoute requiredRole="staff">
+                    <ChiropracticWrapper>
+                      <Layout>
+                        <Team />
+                      </Layout>
+                    </ChiropracticWrapper>
+                  </ProtectedRoute>
                 } />
                 <Route path="/help" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <Help />
-                    </Layout>
-                  </TenantWrapper>
+                  <ProtectedRoute requiredRole="staff">
+                    <ChiropracticWrapper>
+                      <Layout>
+                        <Help />
+                      </Layout>
+                    </ChiropracticWrapper>
+                  </ProtectedRoute>
                 } />
                 <Route path="/checkin" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <CheckIn />
-                    </Layout>
-                  </TenantWrapper>
+                  <ProtectedRoute requiredRole="staff">
+                    <ChiropracticWrapper>
+                      <Layout>
+                        <CheckIn />
+                      </Layout>
+                    </ChiropracticWrapper>
+                  </ProtectedRoute>
                 } />
                 <Route path="/provider-scheduling" element={
                   <TenantWrapper>
