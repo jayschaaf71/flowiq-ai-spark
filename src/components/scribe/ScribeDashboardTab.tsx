@@ -21,7 +21,7 @@ export const ScribeDashboardTab = () => {
   };
 
   const handleNavigateToLive = () => {
-    window.dispatchEvent(new CustomEvent('changeScribeTab', { detail: 'transcribe' }));
+    window.dispatchEvent(new CustomEvent('changeScribeTab', { detail: 'whisper' }));
   };
 
   const handleNavigateToSOAP = () => {
