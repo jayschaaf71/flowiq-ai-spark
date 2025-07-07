@@ -180,7 +180,8 @@ export class EnhancedCommunicationService {
   // Get email templates
   static async getEmailTemplates() {
     try {
-      const { data, error } = await supabase
+      // Use any to bypass TypeScript restrictions until types are regenerated
+      const { data, error } = await (supabase as any)
         .from('email_templates')
         .select('*')
         .order('name');
@@ -196,7 +197,8 @@ export class EnhancedCommunicationService {
   // Get SMS templates
   static async getSMSTemplates() {
     try {
-      const { data, error } = await supabase
+      // Use any to bypass TypeScript restrictions until types are regenerated
+      const { data, error } = await (supabase as any)
         .from('sms_templates')
         .select('*')
         .order('name');
@@ -212,7 +214,8 @@ export class EnhancedCommunicationService {
   // Create email template
   static async createEmailTemplate(template: Omit<CommunicationTemplate, 'id'>) {
     try {
-      const { data, error } = await supabase
+      // Use any to bypass TypeScript restrictions until types are regenerated
+      const { data, error } = await (supabase as any)
         .from('email_templates')
         .insert({
           name: template.name,
@@ -234,7 +237,8 @@ export class EnhancedCommunicationService {
   // Create SMS template
   static async createSMSTemplate(template: Omit<CommunicationTemplate, 'id'>) {
     try {
-      const { data, error } = await supabase
+      // Use any to bypass TypeScript restrictions until types are regenerated
+      const { data, error } = await (supabase as any)
         .from('sms_templates')
         .insert({
           name: template.name,

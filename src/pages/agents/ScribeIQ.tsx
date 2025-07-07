@@ -46,7 +46,7 @@ const ScribeIQ = () => {
               HIPAA Compliant
             </Badge>
             {isConnected && (
-              <Badge className="bg-purple-100 text-purple-700">
+              <Badge variant="outline" className="border-primary text-primary">
                 <Smartphone className="w-3 h-3 mr-1" />
                 Plaud Connected
               </Badge>
