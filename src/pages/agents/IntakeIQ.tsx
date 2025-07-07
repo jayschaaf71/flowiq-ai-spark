@@ -14,6 +14,7 @@ import { MobileVoiceIntake } from "@/components/intake/MobileVoiceIntake";
 import { IntakeFormSeed } from "@/components/intake/IntakeFormSeed";
 import { ConversationalVoiceIntake } from "@/components/intake/ConversationalVoiceIntake";
 import { useIntakeForms } from "@/hooks/useIntakeForms";
+import { DentalSleepRedirect } from "@/components/DentalSleepRedirect";
 
 const IntakeIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -31,78 +32,8 @@ const IntakeIQ = () => {
     };
   });
 
-  return (
-    <div className="space-y-6">
-      {/* Seed West County Spine and Joint forms */}
-      <IntakeFormSeed />
-      
-      <PageHeader 
-        title="Intake iQ"
-        subtitle="AI-driven patient intake and form processing"
-        badge="AI"
-      />
-      
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-          <TabsTrigger value="staff-view">Staff View</TabsTrigger>
-          <TabsTrigger value="builder">AI Form Builder</TabsTrigger>
-          <TabsTrigger value="submissions">Submissions</TabsTrigger>
-          <TabsTrigger value="voice-tools">Voice Tools</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="dashboard" className="space-y-4">
-          <EnhancedIntakeDashboard onTabChange={setActiveTab} />
-        </TabsContent>
-
-        <TabsContent value="staff-view" className="space-y-4">
-          <StaffIntakeDashboard />
-        </TabsContent>
-
-        <TabsContent value="voice-tools" className="space-y-4">
-          <div className="space-y-6">
-            {/* Featured: Conversational Voice Intake */}
-            <div>
-              <h3 className="text-lg font-semibold mb-2">🎯 Conversational Voice Intake (Recommended)</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Tell the AI everything at once - your name, date of birth, reason for visit, etc. The AI will organize it automatically.
-              </p>
-              <ConversationalVoiceIntake />
-            </div>
-            
-            {/* Alternative Options */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div>
-                <h3 className="text-lg font-semibold mb-4">Step-by-Step Voice Intake</h3>
-                <VoiceEnabledPatientIntake />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold mb-4">Mobile Voice Interface</h3>
-                <MobileVoiceIntake />
-              </div>
-            </div>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="builder" className="space-y-4">
-          <FormBuilder />
-        </TabsContent>
-
-        <TabsContent value="submissions" className="space-y-4">
-          <FormSubmissionsList 
-            submissions={submissions}
-            onViewSubmission={(submission) => console.log('View submission:', submission)}
-            showActions={true}
-          />
-        </TabsContent>
-
-        <TabsContent value="analytics" className="space-y-4">
-          <EnhancedAnalyticsDashboard />
-        </TabsContent>
-      </Tabs>
-    </div>
-  );
+  // Redirect to Dental Sleep iQ
+  return <DentalSleepRedirect />;
 };
 
 export default IntakeIQ;
