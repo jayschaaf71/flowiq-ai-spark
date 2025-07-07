@@ -88,9 +88,9 @@ function App() {
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/auth-testing" element={<AuthTesting />} />
                 <Route path="/dental-sleep-demo" element={
-                  <TenantWrapper>
+                  <DentalSleepWrapper>
                     <DentalSleepDemo />
-                  </TenantWrapper>
+                  </DentalSleepWrapper>
                 } />
                 <Route path="/patient-dashboard" element={
                   <ProtectedRoute>
