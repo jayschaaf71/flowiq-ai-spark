@@ -102,7 +102,7 @@ export const ChiropracticDashboard = () => {
     <div className="space-y-6">
       {/* Financial Row */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="border-green-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleNavigation('/financial', 'Daily Collections')}>
+        <Card className="border-green-200 cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleNavigation('/financial-management', 'Daily Collections')}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Daily Collections</CardTitle>
             <DollarSign className="h-4 w-4 text-green-600" />
