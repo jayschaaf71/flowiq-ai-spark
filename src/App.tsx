@@ -32,6 +32,7 @@ import PatientIntakeForm from '@/pages/PatientIntakeForm';
 import { EmbeddedPortal } from '@/pages/EmbeddedPortal';
 import { Layout } from '@/components/Layout';
 import PatientManagement from '@/pages/PatientManagement';
+import ProviderManagement from '@/pages/ProviderManagement';
 import NotFound from '@/pages/NotFound';
 import Team from '@/pages/Team';
 import Help from '@/pages/Help';
@@ -222,7 +223,16 @@ function App() {
                       </Layout>
                     </ChiropracticWrapper>
                   </ProtectedRoute>
-                } />
+                 } />
+                 <Route path="/provider-management" element={
+                   <ProtectedRoute requiredRole="staff">
+                     <ChiropracticWrapper>
+                       <Layout>
+                         <ProviderManagement />
+                       </Layout>
+                     </ChiropracticWrapper>
+                   </ProtectedRoute>
+                 } />
                 <Route path="/insights" element={
                   <ProtectedRoute requiredRole="staff">
                     <ChiropracticWrapper>

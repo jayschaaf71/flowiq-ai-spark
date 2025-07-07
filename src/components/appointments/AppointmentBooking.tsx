@@ -287,7 +287,7 @@ export const AppointmentBooking = ({
     try {
       const appointmentData = {
         patient_id: formData.patient_id || null,
-        provider: formData.provider_id,
+        provider_id: formData.provider_id, // Fixed: was 'provider'
         date: format(formData.date, 'yyyy-MM-dd'),
         time: formData.time,
         duration: formData.duration,
