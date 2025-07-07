@@ -287,12 +287,12 @@ export const AppointmentBooking = ({
     try {
       const appointmentData = {
         patient_id: formData.patient_id || null,
-        provider_id: formData.provider_id, // Fixed: was 'provider'
+        provider_id: formData.provider_id,
         date: format(formData.date, 'yyyy-MM-dd'),
         time: formData.time,
         duration: formData.duration,
-        type: formData.appointment_type,
-        appointment_type: formData.appointment_type,
+        type: mapAppointmentTypeToDbValue(formData.appointment_type), // Use mapped value
+        appointment_type: formData.appointment_type, // Keep display value
         title: formData.title,
         notes: formData.notes,
         status: 'scheduled',
@@ -331,7 +331,7 @@ export const AppointmentBooking = ({
 
   const appointmentTypes = [
     'Initial Consultation',
-    'Follow-up Visit',
+    'Follow-up Visit', 
     'Spinal Adjustment',
     'Physical Therapy',
     'Pain Management',
@@ -339,6 +339,21 @@ export const AppointmentBooking = ({
     'Re-evaluation',
     'Emergency Visit'
   ];
+
+  // Map display names to database values
+  const mapAppointmentTypeToDbValue = (displayType: string): string => {
+    const typeMap: { [key: string]: string } = {
+      'Initial Consultation': 'initial-consultation',
+      'Follow-up Visit': 'adjustment',
+      'Spinal Adjustment': 'adjustment', 
+      'Physical Therapy': 'adjustment',
+      'Pain Management': 'adjustment',
+      'Wellness Check': 'adjustment',
+      'Re-evaluation': 'adjustment',
+      'Emergency Visit': 'emergency'
+    };
+    return typeMap[displayType] || 'other';
+  };
 
   return (
     <Card className="max-w-2xl mx-auto">
