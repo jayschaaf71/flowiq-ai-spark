@@ -122,7 +122,7 @@ export const AIValidationPanel = ({ claimData, onValidationComplete }: AIValidat
             </TabsContent>
 
             <TabsContent value="suggestions" className="space-y-4">
-              <ValidationSuggestions suggestions={validationResult.suggestions} />
+              <ValidationSuggestions suggestions={validationResult.suggestions.map(s => ({ field: 'General', suggestion: s }))} />
             </TabsContent>
           </Tabs>
         )}
