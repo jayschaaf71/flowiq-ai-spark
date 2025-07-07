@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { ChiropracticDashboard } from "@/components/specialty/dashboards/ChiropracticDashboard";
+import { ChiropracticDashboard } from "@/components/chiropractic/ChiropracticDashboard";
 import { DentalDashboard } from "@/components/specialty/dashboards/DentalDashboard";
 import { DentalSleepDashboard } from "@/components/specialty/dashboards/DentalSleepDashboard";
 

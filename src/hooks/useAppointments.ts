@@ -1,132 +1,182 @@
 
-import { useState, useEffect } from 'react';
-import { useToast } from '@/hooks/use-toast';
-import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Tables, TablesInsert } from "@/integrations/supabase/types";
+import { useToast } from "@/hooks/use-toast";
 
-interface Appointment {
-  id: string;
-  title: string;
-  appointment_type: string;
-  date: string;
-  time: string;
-  duration: number;
-  status: "confirmed" | "pending" | "cancelled" | "completed" | "no-show";
-  notes?: string;
-  phone?: string;
-  email?: string;
-  created_at: string;
-  patient_id: string;
-  provider_id?: string;
-}
-
-const mockAppointments: Appointment[] = [
-  {
-    id: '1',
-    title: 'John Doe - Initial Consultation',
-    appointment_type: 'consultation',
-    date: new Date().toISOString().split('T')[0],
-    time: '09:00',
-    duration: 60,
-    status: 'confirmed',
-    phone: '555-0123',
-    email: 'john@example.com',
-    created_at: new Date().toISOString(),
-    patient_id: '1',
-    provider_id: 'provider1'
-  },
-  {
-    id: '2',
-    title: 'Jane Smith - Follow-up',
-    appointment_type: 'follow-up',
-    date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
-    time: '10:30',
-    duration: 30,
-    status: 'pending',
-    phone: '555-0456',
-    email: 'jane@example.com',
-    created_at: new Date().toISOString(),
-    patient_id: '2'
-  }
-];
+type Appointment = Tables<"appointments">;
+type NewAppointment = TablesInsert<"appointments">;
 
 export const useAppointments = () => {
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [loading, setLoading] = useState(true);
+  const query = useQuery({
+    queryKey: ['appointments'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('appointments')
+        .select('*')
+        .order('date', { ascending: true })
+        .order('time', { ascending: true });
+
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  const updateMutation = useUpdateAppointment();
   const { toast } = useToast();
-  const { handleError } = useErrorHandler();
 
-  useEffect(() => {
-    fetchAppointments();
-  }, [handleError]);
-
-  const fetchAppointments = async () => {
+  const updateAppointmentStatus = async (appointmentId: string, newStatus: string) => {
     try {
-      setLoading(true);
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setAppointments(mockAppointments);
-    } catch (error) {
-      console.error('Error fetching appointments:', error);
-      handleError(error as Error, 'Failed to load appointments');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const updateAppointmentStatus = async (appointmentId: string, newStatus: Appointment['status']) => {
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      setAppointments(prev => 
-        prev.map(apt => 
-          apt.id === appointmentId 
-            ? { ...apt, status: newStatus }
-            : apt
-        )
-      );
-
-      toast({
-        title: "Status Updated",
-        description: `Appointment status changed to ${newStatus}`,
+      await updateMutation.mutateAsync({ 
+        id: appointmentId, 
+        updates: { status: newStatus } 
       });
-
-      return appointments.find(apt => apt.id === appointmentId);
+      return query.data?.find(apt => apt.id === appointmentId);
     } catch (error) {
-      console.error('Error updating appointment status:', error);
-      handleError(error as Error, 'Failed to update appointment status');
       return null;
     }
   };
 
   const sendReminder = async (appointment: Appointment) => {
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
+      // TODO: Implement actual reminder sending via edge function
       toast({
         title: "Reminder Sent",
-        description: `Reminder sent to ${appointment.title}`,
+        description: `Reminder sent for appointment with ${appointment.patient_name || 'patient'}`,
       });
     } catch (error) {
-      console.error('Error sending reminder:', error);
-      handleError(error as Error, 'Failed to send reminder');
+      toast({
+        title: "Error",
+        description: "Failed to send reminder",
+        variant: "destructive",
+      });
     }
   };
 
-  const refetch = () => {
-    // Re-trigger the effect to fetch appointments
-    setAppointments([]);
-    setLoading(true);
-    fetchAppointments();
-  };
-
   return {
-    appointments,
-    loading,
-    error: null,
+    appointments: query.data || [],
+    loading: query.isLoading,
+    error: query.error,
     updateAppointmentStatus,
     sendReminder,
-    refetch
+    refetch: query.refetch
   };
+};
+
+export const useAppointment = (id: string) => {
+  return useQuery({
+    queryKey: ['appointment', id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('appointments')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id,
+  });
+};
+
+export const useCreateAppointment = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (appointment: NewAppointment) => {
+      const { data, error } = await supabase
+        .from('appointments')
+        .insert(appointment)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['appointments'] });
+      toast({
+        title: "Appointment Created",
+        description: "New appointment has been scheduled successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to create appointment",
+        variant: "destructive",
+      });
+    },
+  });
+};
+
+export const useUpdateAppointment = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: Partial<Appointment> }) => {
+      const { data, error } = await supabase
+        .from('appointments')
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['appointments'] });
+      queryClient.invalidateQueries({ queryKey: ['appointment', data.id] });
+      toast({
+        title: "Appointment Updated",
+        description: "Appointment has been updated successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to update appointment",
+        variant: "destructive",
+      });
+    },
+  });
+};
+
+export const useAppointmentsByDate = (date: string) => {
+  return useQuery({
+    queryKey: ['appointments', 'by-date', date],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('appointments')
+        .select('*')
+        .eq('date', date)
+        .order('time', { ascending: true });
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!date,
+  });
+};
+
+export const useAppointmentsByPatient = (patientId: string) => {
+  return useQuery({
+    queryKey: ['appointments', 'by-patient', patientId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('appointments')
+        .select('*')
+        .eq('patient_id', patientId)
+        .order('date', { ascending: false })
+        .order('time', { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!patientId,
+  });
 };

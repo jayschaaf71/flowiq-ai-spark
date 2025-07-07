@@ -1,91 +1,117 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/use-toast';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Tables, TablesInsert } from "@/integrations/supabase/types";
+import { useToast } from "@/hooks/use-toast";
 
-export interface MedicalRecord {
-  id: string;
-  patient_id: string;
-  provider_id?: string;
-  record_type: string;
-  title: string;
-  content: string;
-  diagnosis_codes?: string[];
-  treatment_codes?: string[];
-  visit_date: string;
-  attachments?: any;
-  is_confidential: boolean;
-  created_at: string;
-  updated_at: string;
-  providers?: {
-    first_name: string;
-    last_name: string;
-    title?: string;
-    specialty?: string;
-  } | null;
-}
+type MedicalRecord = Tables<"medical_records">;
+type NewMedicalRecord = TablesInsert<"medical_records">;
 
-export const useMedicalRecords = () => {
-  const { user } = useAuth();
-  const { toast } = useToast();
-  const [records, setRecords] = useState<MedicalRecord[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export const useMedicalRecords = (patientId?: string) => {
+  const query = useQuery({
+    queryKey: ['medical_records', patientId],
+    queryFn: async () => {
+      let supabaseQuery = supabase
+        .from('medical_records')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-  const fetchMedicalRecords = async () => {
-    if (!user) return;
+      if (patientId) {
+        supabaseQuery = supabaseQuery.eq('patient_id', patientId);
+      }
 
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Mock no patient record found since patients table doesn't have profile_id field
-      console.log('Mock loading medical records for user:', user.id);
-      
-      // Return mock data since medical_records table doesn't exist or has limited data
-      setRecords([
-        {
-          id: 'mock-record-1',
-          patient_id: user.id,
-          record_type: 'visit_note',
-          title: 'Annual Check-up',
-          content: 'Patient reports improvement with prescribed exercises',
-          diagnosis_codes: ['M54.9'],
-          treatment_codes: ['97110'],
-          visit_date: new Date().toISOString(),
-          attachments: null,
-          is_confidential: false,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          providers: {
-            first_name: 'Dr.',
-            last_name: 'Smith',
-            title: 'MD',
-            specialty: 'General Practice'
-          }
-        }
-      ]);
-    } catch (error) {
-      console.error('Error fetching medical records:', error);
-      setError('Failed to load medical records');
-      toast({
-        title: "Error",
-        description: "Failed to load your medical records",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchMedicalRecords();
-  }, [user]);
+      const { data, error } = await supabaseQuery;
+      if (error) throw error;
+      return data || [];
+    },
+  });
 
   return {
-    records,
-    loading,
-    error,
-    refetch: fetchMedicalRecords
+    records: query.data || [],
+    loading: query.isLoading,
+    error: query.error,
+    refetch: () => query.refetch()
   };
+};
+
+export const useMedicalRecord = (id: string) => {
+  return useQuery({
+    queryKey: ['medical_record', id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('medical_records')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id,
+  });
+};
+
+export const useCreateMedicalRecord = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (record: NewMedicalRecord) => {
+      const { data, error } = await supabase
+        .from('medical_records')
+        .insert(record)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['medical_records'] });
+      toast({
+        title: "Medical Record Created",
+        description: "New medical record has been added successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to create medical record",
+        variant: "destructive",
+      });
+    },
+  });
+};
+
+export const useUpdateMedicalRecord = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: Partial<MedicalRecord> }) => {
+      const { data, error } = await supabase
+        .from('medical_records')
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['medical_records'] });
+      queryClient.invalidateQueries({ queryKey: ['medical_record', data.id] });
+      toast({
+        title: "Medical Record Updated",
+        description: "Medical record has been updated successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to update medical record",
+        variant: "destructive",
+      });
+    },
+  });
 };
