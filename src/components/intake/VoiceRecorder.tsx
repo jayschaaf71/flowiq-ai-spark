@@ -151,7 +151,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
         setIsPlaying(false);
       });
     }
-  }, [audioBlob, isPlaying]);
+  }, [audioBlob]);
 
   const pausePlayback = useCallback(() => {
     if (audioRef.current) {
@@ -173,14 +173,15 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
   }, []);
 
   const processRecording = useCallback(async () => {
-    if (!audioBlob) return;
+    const currentAudioBlob = audioBlob;
+    if (!currentAudioBlob) return;
     
     setIsProcessing(true);
     setError(null);
     
     try {
       // Convert blob to base64
-      const arrayBuffer = await audioBlob.arrayBuffer();
+      const arrayBuffer = await currentAudioBlob.arrayBuffer();
       const base64Audio = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
       
       console.log('Sending audio for transcription...');
@@ -231,7 +232,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     } finally {
       setIsProcessing(false);
     }
-  }, [audioBlob, onTranscriptionComplete, toast]);
+  }, [onTranscriptionComplete, toast]);
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -310,8 +311,8 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
 
             {hasRecording && !isProcessing && (
               <>
-                <Button
-                  onClick={isPlaying ? pausePlayback : playRecording}
+                 <Button
+                  onClick={() => isPlaying ? pausePlayback() : playRecording()}
                   variant="outline"
                   size="sm"
                 >
