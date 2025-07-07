@@ -26,6 +26,7 @@ import { PatientDashboard } from '@/pages/PatientDashboard';
 import AuthTesting from '@/pages/AuthTesting';
 import DentalSleepDemo from '@/pages/DentalSleepDemo';
 import { FinancialManagementPage } from '@/pages/FinancialManagementPage';
+import { AIAutomationHub } from '@/pages/AIAutomationHub';
 import { PatientExperiencePage } from '@/pages/PatientExperiencePage';
 import PatientIntakeForm from '@/pages/PatientIntakeForm';
 import { EmbeddedPortal } from '@/pages/EmbeddedPortal';
@@ -264,6 +265,15 @@ function App() {
                       <ProviderSchedulingPage />
                     </Layout>
                   </TenantWrapper>
+                 } />
+                <Route path="/ai-automation" element={
+                  <ProtectedRoute requiredRole="staff">
+                    <ChiropracticWrapper>
+                      <Layout>
+                        <AIAutomationHub />
+                      </Layout>
+                    </ChiropracticWrapper>
+                  </ProtectedRoute>
                 } />
                 <Route path="/ops" element={
                   <TenantWrapper>
