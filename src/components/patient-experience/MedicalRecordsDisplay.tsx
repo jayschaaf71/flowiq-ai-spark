@@ -27,10 +27,13 @@ export const MedicalRecordsDisplay: React.FC = () => {
   const { toast } = useToast();
 
   const filteredRecords = records.filter(record => {
-    const matchesSearch = record.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         record.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (record.providers?.first_name && 
-                          `${record.providers.first_name} ${record.providers.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()));
+    const contentString = typeof record.content === 'string' ? record.content : JSON.stringify(record.content || '');
+    const diagnosisString = record.diagnosis || '';
+    const notesString = record.notes || '';
+    
+    const matchesSearch = diagnosisString.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         contentString.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         notesString.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesFilter = filterType === 'all' || record.record_type === filterType;
     
@@ -62,17 +65,17 @@ MEDICAL RECORD
 
 Patient: ${record.patient_id}
 Record Type: ${formatRecordType(record.record_type)}
-Date: ${new Date(record.visit_date).toLocaleDateString()}
-Provider: ${record.providers?.first_name} ${record.providers?.last_name}
-Specialty: ${record.providers?.specialty || 'N/A'}
+Date: ${new Date(record.created_at).toLocaleDateString()}
 
-Title: ${record.title}
+Diagnosis: ${record.diagnosis || 'N/A'}
+Treatment: ${record.treatment || 'N/A'}
 
 Content:
-${record.content}
+${typeof record.content === 'string' ? record.content : JSON.stringify(record.content || {})}
 
-${record.diagnosis_codes ? `Diagnosis Codes: ${record.diagnosis_codes.join(', ')}` : ''}
-${record.treatment_codes ? `Treatment Codes: ${record.treatment_codes.join(', ')}` : ''}
+Notes: ${record.notes || 'N/A'}
+Medications: ${record.medications?.join(', ') || 'N/A'}
+Allergies: ${record.allergies?.join(', ') || 'N/A'}
 
 Generated on: ${new Date().toLocaleString()}
       `;
@@ -189,63 +192,65 @@ Generated on: ${new Date().toLocaleString()}
                 <div className="flex flex-col space-y-4">
                   <div className="flex-1">
                     <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3">
-                      <h3 className="font-semibold text-base md:text-lg flex-1">{record.title}</h3>
+                      <h3 className="font-semibold text-base md:text-lg flex-1">
+                        {record.diagnosis || formatRecordType(record.record_type)}
+                      </h3>
                       <div className="flex flex-wrap gap-2">
                         <Badge className={getRecordTypeColor(record.record_type)} variant="secondary">
                           {formatRecordType(record.record_type)}
                         </Badge>
-                        {record.is_confidential && (
-                          <Badge variant="destructive">Confidential</Badge>
-                        )}
                       </div>
                     </div>
                     
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm text-muted-foreground mb-4">
                       <div className="flex items-center gap-2">
                         <Calendar className="w-4 h-4 flex-shrink-0" />
-                        <span>{new Date(record.visit_date).toLocaleDateString()}</span>
+                        <span>{new Date(record.created_at).toLocaleDateString()}</span>
                       </div>
-                      {record.providers && (
-                        <div className="flex items-center gap-2">
-                          <User className="w-4 h-4 flex-shrink-0" />
-                          <span className="truncate">
-                            Dr. {record.providers.first_name} {record.providers.last_name}
-                          </span>
+                    </div>
+
+                    <div className="space-y-2 mb-4">
+                      {record.diagnosis && (
+                        <div>
+                          <span className="text-xs font-medium text-muted-foreground block mb-1">Diagnosis:</span>
+                          <p className="text-sm">{record.diagnosis}</p>
                         </div>
                       )}
-                      {record.providers?.specialty && (
-                        <div className="flex items-center gap-2">
-                          <Stethoscope className="w-4 h-4 flex-shrink-0" />
-                          <span className="truncate">{record.providers.specialty}</span>
+                      {record.treatment && (
+                        <div>
+                          <span className="text-xs font-medium text-muted-foreground block mb-1">Treatment:</span>
+                          <p className="text-sm">{record.treatment}</p>
+                        </div>
+                      )}
+                      {record.notes && (
+                        <div>
+                          <span className="text-xs font-medium text-muted-foreground block mb-1">Notes:</span>
+                          <p className="text-sm text-muted-foreground line-clamp-3">{record.notes}</p>
                         </div>
                       )}
                     </div>
 
-                    <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
-                      {record.content}
-                    </p>
-
-                    {(record.diagnosis_codes || record.treatment_codes) && (
+                    {(record.medications || record.allergies) && (
                       <div className="space-y-2 mb-4">
-                        {record.diagnosis_codes && record.diagnosis_codes.length > 0 && (
+                        {record.medications && record.medications.length > 0 && (
                           <div>
-                            <span className="text-xs font-medium text-muted-foreground block mb-1">Diagnosis Codes:</span>
+                            <span className="text-xs font-medium text-muted-foreground block mb-1">Medications:</span>
                             <div className="flex gap-1 flex-wrap">
-                              {record.diagnosis_codes.map((code, index) => (
+                              {record.medications.map((medication, index) => (
                                 <Badge key={index} variant="outline" className="text-xs">
-                                  {code}
+                                  {medication}
                                 </Badge>
                               ))}
                             </div>
                           </div>
                         )}
-                        {record.treatment_codes && record.treatment_codes.length > 0 && (
+                        {record.allergies && record.allergies.length > 0 && (
                           <div>
-                            <span className="text-xs font-medium text-muted-foreground block mb-1">Treatment Codes:</span>
+                            <span className="text-xs font-medium text-muted-foreground block mb-1">Allergies:</span>
                             <div className="flex gap-1 flex-wrap">
-                              {record.treatment_codes.map((code, index) => (
-                                <Badge key={index} variant="outline" className="text-xs">
-                                  {code}
+                              {record.allergies.map((allergy, index) => (
+                                <Badge key={index} variant="destructive" className="text-xs">
+                                  {allergy}
                                 </Badge>
                               ))}
                             </div>
@@ -270,9 +275,9 @@ Generated on: ${new Date().toLocaleString()}
                       </DialogTrigger>
                       <DialogContent className="max-w-4xl max-h-[80vh] overflow-auto">
                         <DialogHeader>
-                          <DialogTitle>{record.title}</DialogTitle>
+                          <DialogTitle>{record.diagnosis || formatRecordType(record.record_type)}</DialogTitle>
                           <DialogDescription>
-                            Medical record from {new Date(record.visit_date).toLocaleDateString()}
+                            Medical record from {new Date(record.created_at).toLocaleDateString()}
                           </DialogDescription>
                         </DialogHeader>
                         {selectedRecord && (
@@ -285,37 +290,50 @@ Generated on: ${new Date().toLocaleString()}
                                 </p>
                               </div>
                               <div>
-                                <p className="text-sm font-medium">Visit Date</p>
+                                <p className="text-sm font-medium">Date Created</p>
                                 <p className="text-sm text-muted-foreground">
-                                  {new Date(selectedRecord.visit_date).toLocaleDateString()}
+                                  {new Date(selectedRecord.created_at).toLocaleDateString()}
                                 </p>
                               </div>
-                              {selectedRecord.providers && (
-                                <>
-                                  <div>
-                                    <p className="text-sm font-medium">Provider</p>
-                                    <p className="text-sm text-muted-foreground">
-                                      Dr. {selectedRecord.providers.first_name} {selectedRecord.providers.last_name}
-                                    </p>
-                                  </div>
-                                  <div>
-                                    <p className="text-sm font-medium">Specialty</p>
-                                    <p className="text-sm text-muted-foreground">
-                                      {selectedRecord.providers.specialty || 'N/A'}
-                                    </p>
-                                  </div>
-                                </>
-                              )}
                             </div>
                             
-                            <div>
-                              <h4 className="font-medium mb-2">Record Content</h4>
-                              <div className="p-4 bg-muted rounded-lg">
-                                <p className="text-sm whitespace-pre-wrap">
-                                  {selectedRecord.content}
-                                </p>
+                            {selectedRecord.diagnosis && (
+                              <div>
+                                <h4 className="font-medium mb-2">Diagnosis</h4>
+                                <div className="p-4 bg-muted rounded-lg">
+                                  <p className="text-sm">{selectedRecord.diagnosis}</p>
+                                </div>
                               </div>
-                            </div>
+                            )}
+                            
+                            {selectedRecord.treatment && (
+                              <div>
+                                <h4 className="font-medium mb-2">Treatment</h4>
+                                <div className="p-4 bg-muted rounded-lg">
+                                  <p className="text-sm">{selectedRecord.treatment}</p>
+                                </div>
+                              </div>
+                            )}
+                            
+                            {selectedRecord.content && (
+                              <div>
+                                <h4 className="font-medium mb-2">Additional Content</h4>
+                                <div className="p-4 bg-muted rounded-lg">
+                                  <p className="text-sm whitespace-pre-wrap">
+                                    {typeof selectedRecord.content === 'string' ? selectedRecord.content : JSON.stringify(selectedRecord.content, null, 2)}
+                                  </p>
+                                </div>
+                              </div>
+                            )}
+                            
+                            {selectedRecord.notes && (
+                              <div>
+                                <h4 className="font-medium mb-2">Notes</h4>
+                                <div className="p-4 bg-muted rounded-lg">
+                                  <p className="text-sm whitespace-pre-wrap">{selectedRecord.notes}</p>
+                                </div>
+                              </div>
+                            )}
                             
                             <div className="flex justify-end">
                               <Button

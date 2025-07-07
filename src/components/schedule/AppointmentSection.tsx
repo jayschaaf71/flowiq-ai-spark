@@ -5,22 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Clock, Phone, Mail, Calendar, User } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
+import { Tables } from "@/integrations/supabase/types";
 
-interface Appointment {
-  id: string;
-  title: string;
-  appointment_type: string;
-  date: string;
-  time: string;
-  duration: number;
-  status: "confirmed" | "pending" | "cancelled" | "completed" | "no-show";
-  notes?: string;
-  phone?: string;
-  email?: string;
-  created_at: string;
-  patient_id: string;
-  provider_id?: string;
-}
+type Appointment = Tables<"appointments">;
 
 interface AppointmentSectionProps {
   title: string;
@@ -29,7 +16,7 @@ interface AppointmentSectionProps {
   appointments: Appointment[];
   emptyMessage: string;
   userRole: string;
-  onStatusUpdate: (appointmentId: string, status: Appointment['status']) => void;
+  onStatusUpdate: (appointmentId: string, status: string) => void;
   onSendReminder: (appointmentId: string) => void;
   loading: boolean;
   isToday: boolean;

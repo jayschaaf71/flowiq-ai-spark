@@ -3,22 +3,9 @@ import { AppointmentSection } from "./AppointmentSection";
 import { useAppointments } from "@/hooks/useAppointments";
 import { Calendar, Clock } from "lucide-react";
 import { isToday, parseISO } from "date-fns";
+import { Tables } from "@/integrations/supabase/types";
 
-interface Appointment {
-  id: string;
-  title: string;
-  appointment_type: string;
-  date: string;
-  time: string;
-  duration: number;
-  status: "confirmed" | "pending" | "cancelled" | "completed" | "no-show";
-  notes?: string;
-  phone?: string;
-  email?: string;
-  created_at: string;
-  patient_id: string;
-  provider_id?: string;
-}
+type Appointment = Tables<"appointments">;
 
 interface AppointmentManagerProps {
   onAppointmentUpdate?: (appointment: Appointment) => void;
@@ -27,7 +14,7 @@ interface AppointmentManagerProps {
 export const AppointmentManager = ({ onAppointmentUpdate }: AppointmentManagerProps) => {
   const { appointments, loading, updateAppointmentStatus, sendReminder } = useAppointments();
 
-  const handleStatusUpdate = async (appointmentId: string, newStatus: Appointment['status']) => {
+  const handleStatusUpdate = async (appointmentId: string, newStatus: string) => {
     console.log('Handling status update:', appointmentId, newStatus);
     const updatedAppointment = await updateAppointmentStatus(appointmentId, newStatus);
     if (updatedAppointment && onAppointmentUpdate) {

@@ -5,22 +5,9 @@ import { AppointmentFilters } from "./AppointmentFilters";
 import { AppointmentBulkActions } from "./AppointmentBulkActions";
 import { useAppointments } from "@/hooks/useAppointments";
 import { format } from "date-fns";
+import { Tables } from "@/integrations/supabase/types";
 
-interface Appointment {
-  id: string;
-  title: string;
-  appointment_type: string;
-  date: string;
-  time: string;
-  duration: number;
-  status: "confirmed" | "pending" | "cancelled" | "completed" | "no-show";
-  notes?: string;
-  phone?: string;
-  email?: string;
-  created_at: string;
-  patient_id: string;
-  provider_id?: string;
-}
+type Appointment = Tables<"appointments">;
 
 export const CalendarView = () => {
   const { appointments, updateAppointmentStatus, sendReminder } = useAppointments();
@@ -63,7 +50,7 @@ export const CalendarView = () => {
     return matchesSearch && matchesStatus && matchesProvider && matchesDate && matchesType;
   });
 
-  const handleBulkStatusUpdate = async (appointmentIds: string[], newStatus: Appointment['status']) => {
+  const handleBulkStatusUpdate = async (appointmentIds: string[], newStatus: string) => {
     for (const id of appointmentIds) {
       await updateAppointmentStatus(id, newStatus);
     }

@@ -17,28 +17,15 @@ import {
   XCircle,
   Clock
 } from "lucide-react";
+import { Tables } from "@/integrations/supabase/types";
 
-interface Appointment {
-  id: string;
-  title: string;
-  appointment_type: string;
-  date: string;
-  time: string;
-  duration: number;
-  status: "confirmed" | "pending" | "cancelled" | "completed" | "no-show";
-  notes?: string;
-  phone?: string;
-  email?: string;
-  created_at: string;
-  patient_id: string;
-  provider_id?: string;
-}
+type Appointment = Tables<"appointments">;
 
 interface AppointmentBulkActionsProps {
   appointments: Appointment[];
   selectedAppointments: string[];
   onSelectionChange: (appointmentIds: string[]) => void;
-  onBulkStatusUpdate: (appointmentIds: string[], newStatus: Appointment['status']) => void;
+  onBulkStatusUpdate: (appointmentIds: string[], newStatus: string) => void;
   onBulkSendReminders: (appointmentIds: string[]) => void;
   onBulkDelete: (appointmentIds: string[]) => void;
 }
@@ -77,7 +64,7 @@ export const AppointmentBulkActions = ({
       switch (action) {
         case "status":
           if (value) {
-            await onBulkStatusUpdate(selectedAppointments, value as Appointment['status']);
+            await onBulkStatusUpdate(selectedAppointments, value);
             toast({
               title: "Status Updated",
               description: `${selectedAppointments.length} appointments updated to ${value}`,
