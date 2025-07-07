@@ -1,5 +1,6 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AppointmentBooking } from '@/components/appointments/AppointmentBooking';
 import { CalendarView } from '@/components/appointments/CalendarView';
@@ -14,10 +15,19 @@ import { useAppointments } from '@/hooks/useAppointments';
 type ViewMode = 'enhanced' | 'calendar' | 'list' | 'booking' | 'actions';
 
 const Schedule = () => {
+  const [searchParams] = useSearchParams();
   const [viewMode, setViewMode] = useState<ViewMode>('enhanced');
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedTime, setSelectedTime] = useState<string>();
   const { appointments, refetch } = useAppointments();
+
+  // Check for booking mode from query parameter
+  useEffect(() => {
+    const mode = searchParams.get('mode');
+    if (mode === 'booking') {
+      setViewMode('booking');
+    }
+  }, [searchParams]);
 
   const handleCreateAppointment = (date: Date, time?: string) => {
     setSelectedDate(date);

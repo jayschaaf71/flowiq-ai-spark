@@ -339,7 +339,7 @@ export const AppointmentIQ = () => {
             <Button 
               variant="outline" 
               className="h-16 flex-col"
-              onClick={() => navigate('/schedule')}
+              onClick={() => navigate('/schedule?mode=booking')}
             >
               <Calendar className="h-6 w-6 mb-1" />
               <span className="text-xs">Book Appointment</span>
