@@ -81,97 +81,167 @@ export const ChiroIQDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 p-6">
+    <div className="min-h-screen bg-gray-50 p-6">
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-green-800 flex items-center gap-3">
-              <Activity className="w-8 h-8" />
-              ChiroIQ Dashboard
-            </h1>
-            <p className="text-green-600 mt-1">
-              {getGreeting()}, {getUserName()}! Here's your practice overview for today.
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <Badge variant="secondary" className="bg-green-100 text-green-800">
-              <Activity className="w-3 h-3 mr-1" />
-              {userRole.replace('_', ' ').toUpperCase()}
-            </Badge>
-            <Button 
-              variant="outline" 
-              className="border-green-200 text-green-700 hover:bg-green-50"
-              onClick={() => navigate('/analytics')}
-            >
-              <Target className="w-4 h-4 mr-2" />
-              Set Goals
-            </Button>
-          </div>
-        </div>
+        <h1 className="text-3xl font-bold text-gray-900">Chiropractic Practice</h1>
+        <p className="text-gray-600 mt-1">Welcome to your practice management dashboard</p>
       </div>
 
-      {/* AI Summary - Always visible */}
-      <div className="mb-6">
-        <AISummary />
-      </div>
+      {/* Top Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/schedule')}>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Today's Appointments</p>
+                <p className="text-3xl font-bold text-gray-900">0</p>
+              </div>
+              <Calendar className="w-8 h-8 text-blue-600" />
+            </div>
+          </CardContent>
+        </Card>
 
-      {/* Core Widgets Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
-        <TodaysAppointments />
-        <CheckInQueue />
-        <OutstandingTasks />
-        <DailyRevenue />
-        
-        {/* Role-specific widgets */}
-        {getRoleSpecificWidgets()}
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/patient-management')}>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Active Patients</p>
+                <p className="text-3xl font-bold text-gray-900">1</p>
+              </div>
+              <Users className="w-8 h-8 text-green-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/schedule')}>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Pending Appointments</p>
+                <p className="text-3xl font-bold text-gray-900">0</p>
+              </div>
+              <Clock className="w-8 h-8 text-orange-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/financial-management')}>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Today's Revenue</p>
+                <p className="text-3xl font-bold text-gray-900">$2,840</p>
+              </div>
+              <DollarSign className="w-8 h-8 text-purple-600" />
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Quick Actions */}
-      <Card className="border-green-200">
+      <Card className="mb-8">
         <CardHeader>
-          <CardTitle className="text-green-800 flex items-center gap-2">
-            <TrendingUp className="w-5 h-5" />
-            Quick Actions
-          </CardTitle>
-          <CardDescription>
-            Common tasks for your role
-          </CardDescription>
+          <CardTitle className="text-xl font-semibold">Quick Actions</CardTitle>
+          <CardDescription>Common tasks and shortcuts</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
             <Button 
-              variant="outline" 
-              className="h-auto p-4 flex flex-col items-center gap-2 border-green-200 hover:bg-green-50"
+              className="h-20 flex flex-col items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white"
               onClick={() => navigate('/schedule')}
             >
-              <Calendar className="w-6 h-6 text-green-600" />
-              <span className="text-sm">Schedule</span>
+              <Calendar className="w-6 h-6" />
+              <span className="text-sm">New Appointment</span>
             </Button>
             <Button 
               variant="outline" 
-              className="h-auto p-4 flex flex-col items-center gap-2 border-green-200 hover:bg-green-50"
+              className="h-20 flex flex-col items-center justify-center gap-2"
+              onClick={() => navigate('/patient-management')}
+            >
+              <Users className="w-6 h-6" />
+              <span className="text-sm">Add Patient</span>
+            </Button>
+            <Button 
+              variant="outline" 
+              className="h-20 flex flex-col items-center justify-center gap-2"
               onClick={() => navigate('/ehr')}
             >
-              <FileText className="w-6 h-6 text-green-600" />
+              <FileText className="w-6 h-6" />
               <span className="text-sm">SOAP Notes</span>
             </Button>
             <Button 
               variant="outline" 
-              className="h-auto p-4 flex flex-col items-center gap-2 border-green-200 hover:bg-green-50"
-              onClick={() => navigate('/patient-management')}
+              className="h-20 flex flex-col items-center justify-center gap-2"
+              onClick={() => navigate('/ehr')}
             >
-              <Users className="w-6 h-6 text-green-600" />
-              <span className="text-sm">Patients</span>
+              <Activity className="w-6 h-6" />
+              <span className="text-sm">Treatment Plan</span>
             </Button>
             <Button 
               variant="outline" 
-              className="h-auto p-4 flex flex-col items-center gap-2 border-green-200 hover:bg-green-50"
-              onClick={() => navigate('/financial-management')}
+              className="h-20 flex flex-col items-center justify-center gap-2"
+              onClick={() => navigate('/analytics')}
             >
-              <DollarSign className="w-6 h-6 text-green-600" />
-              <span className="text-sm">Billing</span>
+              <TrendingUp className="w-6 h-6" />
+              <span className="text-sm">Reports</span>
             </Button>
+            <Button 
+              variant="outline" 
+              className="h-20 flex flex-col items-center justify-center gap-2"
+              onClick={() => navigate('/agents/remind')}
+            >
+              <MessageSquare className="w-6 h-6" />
+              <span className="text-sm">Reminders</span>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Today's Schedule */}
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Calendar className="w-5 h-5" />
+            Today's Schedule
+          </CardTitle>
+          <CardDescription>0 appointments scheduled for 7/7/2025</CardDescription>
+        </CardHeader>
+        <CardContent className="py-12">
+          <div className="text-center text-gray-500">
+            <Calendar className="w-12 h-12 mx-auto mb-4 opacity-50" />
+            <p>No appointments scheduled for today</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Recent Activity */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Activity className="w-5 h-5" />
+            Recent Activity
+          </CardTitle>
+          <CardDescription>Latest patient interactions and system updates</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+            <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
+              <CheckCircle className="w-4 h-4 text-white" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-900">John Doe completed appointment</p>
+              <p className="text-xs text-gray-600">10 minutes ago</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+              <MessageSquare className="w-4 h-4 text-white" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-900">Reminder sent to Jane Smith</p>
+              <p className="text-xs text-gray-600">25 minutes ago</p>
+            </div>
           </div>
         </CardContent>
       </Card>
