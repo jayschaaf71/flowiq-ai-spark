@@ -119,88 +119,88 @@ function App() {
                 } />
                 <Route path="/dashboard" element={
                   <ProtectedRoute requiredRole="staff">
-                    <TenantWrapper>
+                    <ChiropracticWrapper>
                       <Layout>
                         <Dashboard />
                       </Layout>
-                    </TenantWrapper>
+                    </ChiropracticWrapper>
                   </ProtectedRoute>
                 } />
                 <Route path="/financial" element={
                   <ProtectedRoute requiredRole="staff">
-                    <TenantWrapper>
+                    <ChiropracticWrapper>
                       <Layout>
                         <FinancialManagementPage />
                       </Layout>
-                    </TenantWrapper>
+                    </ChiropracticWrapper>
                   </ProtectedRoute>
                 } />
                 <Route path="/patient-experience" element={
                   <ProtectedRoute requiredRole="staff">
-                    <TenantWrapper>
+                    <ChiropracticWrapper>
                       <Layout>
                         <PatientExperiencePage />
                       </Layout>
-                    </TenantWrapper>
+                    </ChiropracticWrapper>
                   </ProtectedRoute>
                 } />
                 <Route path="/analytics" element={
                   <ProtectedRoute requiredRole="staff">
-                    <TenantWrapper>
+                    <ChiropracticWrapper>
                       <Layout>
                         <Analytics />
                       </Layout>
-                    </TenantWrapper>
+                    </ChiropracticWrapper>
                   </ProtectedRoute>
                 } />
                 <Route path="/advanced-analytics" element={
-                  <TenantWrapper>
+                  <ChiropracticWrapper>
                     <Layout>
                       <AdvancedAnalytics />
                     </Layout>
-                  </TenantWrapper>
+                  </ChiropracticWrapper>
                 } />
                 <Route path="/compliance" element={
-                  <TenantWrapper>
+                  <ChiropracticWrapper>
                     <Layout>
                       <ComplianceSecurityPage />
                     </Layout>
-                  </TenantWrapper>
+                  </ChiropracticWrapper>
                 } />
                 <Route path="/patient-portal" element={<PatientPortal />} />
                 <Route path="/patient-intake/:formId" element={<PatientIntakeForm />} />
                 <Route path="/embedded-portal" element={<EmbeddedPortal />} />
                 <Route path="/provider-mobile" element={
-                  <TenantWrapper>
+                  <ChiropracticWrapper>
                     <Layout>
                       <ProviderMobile />
                     </Layout>
-                  </TenantWrapper>
+                  </ChiropracticWrapper>
                 } />
                 <Route path="/provider/patient-prep/:appointmentId" element={
-                  <TenantWrapper>
+                  <ChiropracticWrapper>
                     <Layout>
                       <PatientPrepPage />
                     </Layout>
-                  </TenantWrapper>
+                  </ChiropracticWrapper>
                 } />
                 <Route path="/complete-intake" element={<CompleteIntakeFlow />} />
                 <Route path="/booking-widget" element={<BookingWidgetDemo />} />
                 <Route path="/schedule" element={
                   <ProtectedRoute requiredRole="staff">
-                    <TenantWrapper>
+                    <ChiropracticWrapper>
                       <Layout>
                         <Schedule />
                       </Layout>
-                    </TenantWrapper>
+                    </ChiropracticWrapper>
                   </ProtectedRoute>
                 } />
                 <Route path="/ehr" element={
-                  <TenantWrapper>
+                  <ChiropracticWrapper>
                     <Layout>
                       <EHR />
                     </Layout>
-                  </TenantWrapper>
+                  </ChiropracticWrapper>
                 } />
                 <Route path="/patient-management" element={
                   <TenantWrapper>
@@ -267,18 +267,18 @@ function App() {
                 } />
                 {/* AI Agent Routes */}
                 <Route path="/agents/appointment" element={
-                  <TenantWrapper>
+                  <ChiropracticWrapper>
                     <Layout>
                       <AppointmentIQ />
                     </Layout>
-                  </TenantWrapper>
+                  </ChiropracticWrapper>
                 } />
                 <Route path="/agents/intake" element={
-                  <TenantWrapper>
+                  <ChiropracticWrapper>
                     <Layout>
                       <IntakeIQ />
                     </Layout>
-                  </TenantWrapper>
+                  </ChiropracticWrapper>
                 } />
                 <Route path="/agents/scribe" element={
                   <ChiropracticWrapper>
@@ -288,74 +288,74 @@ function App() {
                   </ChiropracticWrapper>
                 } />
                 <Route path="/agents/claims" element={
-                  <TenantWrapper>
+                  <ChiropracticWrapper>
                     <Layout>
                       <ClaimsIQ />
                     </Layout>
-                  </TenantWrapper>
+                  </ChiropracticWrapper>
                 } />
                 <Route path="/agents/referral" element={
-                  <TenantWrapper>
+                  <ChiropracticWrapper>
                     <Layout>
                       <ReferralIQ />
                     </Layout>
-                  </TenantWrapper>
+                  </ChiropracticWrapper>
                 } />
                 <Route path="/agents/payments" element={
-                  <TenantWrapper>
+                  <ChiropracticWrapper>
                     <Layout>
                       <PaymentsIQ />
                     </Layout>
-                  </TenantWrapper>
+                  </ChiropracticWrapper>
                 } />
                 <Route path="/agents/inventory" element={
-                  <TenantWrapper>
+                  <ChiropracticWrapper>
                     <Layout>
                       <InventoryIQ />
                     </Layout>
-                  </TenantWrapper>
+                  </ChiropracticWrapper>
                 } />
                 <Route path="/agents/insights" element={
-                  <TenantWrapper>
+                  <ChiropracticWrapper>
                     <Layout>
                       <InsightIQ />
                     </Layout>
-                  </TenantWrapper>
+                  </ChiropracticWrapper>
                 } />
                 <Route path="/agents/education" element={
-                  <TenantWrapper>
+                  <ChiropracticWrapper>
                     <Layout>
                       <EducationIQ />
                     </Layout>
-                  </TenantWrapper>
+                  </ChiropracticWrapper>
                 } />
                 <Route path="/agents/marketing" element={
-                  <TenantWrapper>
+                  <ChiropracticWrapper>
                     <Layout>
                       <MarketingIQ />
                     </Layout>
-                  </TenantWrapper>
+                  </ChiropracticWrapper>
                 } />
                 <Route path="/agents/remind" element={
-                  <TenantWrapper>
+                  <ChiropracticWrapper>
                     <Layout>
                       <RemindIQ />
                     </Layout>
-                  </TenantWrapper>
+                  </ChiropracticWrapper>
                 } />
                 <Route path="/agents/auth" element={
-                  <TenantWrapper>
+                  <ChiropracticWrapper>
                     <Layout>
                       <AuthIQ />
                     </Layout>
-                  </TenantWrapper>
+                  </ChiropracticWrapper>
                 } />
                 <Route path="/integrations" element={
-                  <TenantWrapper>
+                  <ChiropracticWrapper>
                     <Layout>
                       <ExternalIntegrationsPage />
                     </Layout>
-                  </TenantWrapper>
+                  </ChiropracticWrapper>
                 } />
                 <Route path="/widget" element={<BookingWidgetPage />} />
                 <Route path="/platform-admin" element={
@@ -390,11 +390,11 @@ function App() {
                 <Route path="/demo/medspa" element={<DemoMedSpa />} />
                 <Route path="/settings" element={
                   <ProtectedRoute>
-                    <TenantWrapper>
+                    <ChiropracticWrapper>
                       <Layout>
                         <Settings />
                       </Layout>
-                    </TenantWrapper>
+                    </ChiropracticWrapper>
                   </ProtectedRoute>
                 } />
                 {/* Fallback route */}
