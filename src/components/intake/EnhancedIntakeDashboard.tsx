@@ -16,10 +16,12 @@ import {
   Eye,
   Brain,
   Activity,
-  BarChart3
+  BarChart3,
+  MessageSquare
 } from 'lucide-react';
 import { useIntakeForms } from '@/hooks/useIntakeForms';
 import { useTenantConfig } from '@/utils/tenantConfig';
+import { CommunicationTemplatesDialog } from './CommunicationTemplatesDialog';
 
 interface EnhancedIntakeDashboardProps {
   onTabChange?: (tab: string) => void;
@@ -242,20 +244,17 @@ export const EnhancedIntakeDashboard = ({ onTabChange }: EnhancedIntakeDashboard
                <Eye className="w-4 h-4 mr-2" />
                Review Pending Submissions ({pendingReviews})
              </Button>
-             <Button 
-               className="w-full justify-start" 
-               variant="outline"
-               onClick={() => {
-                 console.log('Generate Patient Packets button clicked');
-                 toast({
-                   title: "Patient Packets",
-                   description: "Patient packet generation will be available soon"
-                 });
-               }}
-             >
-               <FileText className="w-4 h-4 mr-2" />
-               Generate Patient Packets
-             </Button>
+             <CommunicationTemplatesDialog
+               trigger={
+                 <Button 
+                   className="w-full justify-start" 
+                   variant="outline"
+                 >
+                   <MessageSquare className="w-4 h-4 mr-2" />
+                   Send Communication Templates
+                 </Button>
+               }
+             />
              <Button 
                className="w-full justify-start" 
                variant="outline"
