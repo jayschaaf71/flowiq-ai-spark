@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { transcript, formFields, currentFormData } = await req.json();
+    const { transcript, formFields, currentFormData, conversationMode, conversationHistory } = await req.json();
     
     if (!transcript || !formFields) {
       throw new Error('Transcript and form fields are required');
@@ -20,10 +20,41 @@ serve(async (req) => {
 
     console.log('Processing AI form completion...');
     console.log('Transcript:', transcript);
+    console.log('Conversation mode:', conversationMode);
     console.log('Form fields:', formFields.map((f: any) => f.label));
 
     // Create detailed prompt for AI processing
-    const systemPrompt = `You are an AI assistant that helps extract and organize patient information from voice transcripts into structured form data.
+    const systemPrompt = conversationMode ? 
+      `You are an AI assistant that helps extract and organize patient information from conversational voice transcripts into structured form data.
+
+Your task is to:
+1. Extract relevant information from the conversation transcript
+2. Map it to the appropriate form fields  
+3. Validate and format the data correctly
+4. Return a JSON object with the extracted information
+5. In conversational mode, be liberal in extracting information from natural speech
+
+Form Fields Available:
+${formFields.map((field: any) => `- ${field.name}: ${field.label} (${field.type}): ${field.description || ''}`).join('\n')}
+
+Current Form Data:
+${JSON.stringify(currentFormData, null, 2)}
+
+Conversation Context:
+${conversationHistory ? conversationHistory.map((msg: any) => `${msg.type}: ${msg.message}`).join('\n') : 'None'}
+
+Rules for Conversational Mode:
+- Extract information from natural conversational speech
+- Be liberal in interpretation - if someone says "I'm John Smith, 52 years old", extract firstName: "John", lastName: "Smith", and try to calculate dateOfBirth if possible
+- Use proper formatting (dates as YYYY-MM-DD, phone numbers as (XXX) XXX-XXXX)
+- For gender, accept variations like "male", "man", "M", "female", "woman", "F", etc.
+- For relationships, normalize to standard terms (spouse, parent, child, sibling, friend, other)
+- If someone mentions pain, try to extract a numeric pain level (0-10)
+- Extract addresses even if they're mentioned casually
+- Infer context - if they mention "my wife Sarah" in emergency contact context, extract relationship as "spouse"
+- Return only the JSON object, no additional text
+- Preserve existing form data and add new information mentioned in the transcript` :
+      `You are an AI assistant that helps extract and organize patient information from voice transcripts into structured form data.
 
 Your task is to:
 1. Extract relevant information from the voice transcript
@@ -32,7 +63,7 @@ Your task is to:
 4. Return a JSON object with the extracted information
 
 Form Fields Available:
-${formFields.map((field: any) => `- ${field.label} (${field.type}): ${field.description || ''}`).join('\n')}
+${formFields.map((field: any) => `- ${field.name}: ${field.label} (${field.type}): ${field.description || ''}`).join('\n')}
 
 Current Form Data:
 ${JSON.stringify(currentFormData, null, 2)}
@@ -45,7 +76,11 @@ Rules:
 - Return only the JSON object, no additional text
 - Preserve existing form data and only update fields mentioned in the transcript`;
 
-    const userPrompt = `Voice transcript to process: "${transcript}"
+    const userPrompt = conversationMode ?
+      `Conversational transcript to process: "${transcript}"
+
+Please extract and structure ALL available information from this natural conversation into the form fields. Be liberal in your interpretation and extract as much relevant data as possible. Return a JSON object with field names as keys and extracted values as values.` :
+      `Voice transcript to process: "${transcript}"
 
 Please extract and structure the information into the form fields. Return a JSON object with field names as keys and extracted values as values.`;
 

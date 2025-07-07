@@ -12,6 +12,7 @@ import { EnhancedAnalyticsDashboard } from "@/components/intake/EnhancedAnalytic
 import { VoiceEnabledPatientIntake } from "@/components/intake/VoiceEnabledPatientIntake";
 import { MobileVoiceIntake } from "@/components/intake/MobileVoiceIntake";
 import { IntakeFormSeed } from "@/components/intake/IntakeFormSeed";
+import { ConversationalVoiceIntake } from "@/components/intake/ConversationalVoiceIntake";
 import { useIntakeForms } from "@/hooks/useIntakeForms";
 
 const IntakeIQ = () => {
@@ -61,9 +62,19 @@ const IntakeIQ = () => {
 
         <TabsContent value="voice-tools" className="space-y-4">
           <div className="space-y-6">
+            {/* Featured: Conversational Voice Intake */}
+            <div>
+              <h3 className="text-lg font-semibold mb-2">🎯 Conversational Voice Intake (Recommended)</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Tell the AI everything at once - your name, date of birth, reason for visit, etc. The AI will organize it automatically.
+              </p>
+              <ConversationalVoiceIntake />
+            </div>
+            
+            {/* Alternative Options */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div>
-                <h3 className="text-lg font-semibold mb-4">Voice-Enabled Intake</h3>
+                <h3 className="text-lg font-semibold mb-4">Step-by-Step Voice Intake</h3>
                 <VoiceEnabledPatientIntake />
               </div>
               <div>
