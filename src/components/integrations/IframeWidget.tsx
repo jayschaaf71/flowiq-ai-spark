@@ -62,6 +62,18 @@ export const IframeWidget = () => {
     });
   };
 
+  const openInNewTab = () => {
+    const params = new URLSearchParams();
+    params.set('practice_id', widgetConfig.practiceId);
+    if (widgetConfig.providerId) params.set('provider_id', widgetConfig.providerId);
+    if (widgetConfig.locationId) params.set('location_id', widgetConfig.locationId);
+    params.set('theme_color', widgetConfig.themeColor.replace('#', ''));
+    params.set('show_followups', widgetConfig.showFollowups.toString());
+
+    const testUrl = `${window.location.origin}/widget?${params.toString()}`;
+    window.open(testUrl, '_blank');
+  };
+
   const getDeviceWidth = () => {
     switch (previewDevice) {
       case 'mobile': return '320px';
@@ -276,7 +288,7 @@ export const IframeWidget = () => {
               <Copy className="w-4 h-4 mr-2" />
               Copy Code
             </Button>
-            <Button variant="outline">
+            <Button variant="outline" onClick={openInNewTab}>
               <ExternalLink className="w-4 h-4 mr-2" />
               Test in New Tab
             </Button>

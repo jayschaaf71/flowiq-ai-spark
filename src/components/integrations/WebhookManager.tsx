@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { useWebhookManager } from '@/hooks/useWebhookManager';
 import { 
   Webhook,
   Plus,
@@ -14,7 +15,10 @@ import {
   CheckCircle,
   XCircle,
   Clock,
-  Copy
+  Copy,
+  Settings,
+  AlertTriangle,
+  Zap
 } from 'lucide-react';
 
 interface WebhookEndpoint {
@@ -28,24 +32,23 @@ interface WebhookEndpoint {
 }
 
 export const WebhookManager = () => {
-  const { toast } = useToast();
-  const [webhooks, setWebhooks] = useState<WebhookEndpoint[]>([
-    {
-      id: '1',
-      name: 'EHR System Sync',
-      url: 'https://api.ehrsystem.com/webhooks/appointments',
-      events: ['appointment.created', 'appointment.updated'],
-      status: 'active',
-      lastTriggered: '2024-01-15T09:30:00Z',
-      createdAt: '2024-01-10T10:00:00Z'
-    }
-  ]);
-
+  const { 
+    webhooks, 
+    isLoading, 
+    testWebhook, 
+    addWebhook, 
+    updateWebhook, 
+    deleteWebhook, 
+    retryFailedWebhook 
+  } = useWebhookManager();
+  
   const [showAddForm, setShowAddForm] = useState(false);
   const [newWebhook, setNewWebhook] = useState({
     name: '',
     url: '',
-    events: [] as string[]
+    events: [] as string[],
+    headers: {} as Record<string, string>,
+    secretKey: ''
   });
 
   const availableEvents = [
@@ -59,31 +62,39 @@ export const WebhookManager = () => {
 
   const handleAddWebhook = () => {
     if (!newWebhook.name || !newWebhook.url || newWebhook.events.length === 0) {
-      toast({
-        title: "Validation Error",
-        description: "Please fill in all required fields",
-        variant: "destructive"
-      });
       return;
     }
 
-    const webhook: WebhookEndpoint = {
-      id: Date.now().toString(),
+    addWebhook({
       name: newWebhook.name,
       url: newWebhook.url,
       events: newWebhook.events,
-      status: 'active',
-      createdAt: new Date().toISOString()
-    };
-
-    setWebhooks([...webhooks, webhook]);
-    setNewWebhook({ name: '', url: '', events: [] });
-    setShowAddForm(false);
-    
-    toast({
-      title: "Webhook Added",
-      description: "Your webhook endpoint has been registered successfully"
+      headers: newWebhook.headers,
+      secretKey: newWebhook.secretKey || undefined
     });
+    
+    setNewWebhook({ name: '', url: '', events: [], headers: {}, secretKey: '' });
+    setShowAddForm(false);
+  };
+
+  const handleEventToggle = (event: string) => {
+    setNewWebhook(prev => ({
+      ...prev,
+      events: prev.events.includes(event)
+        ? prev.events.filter(e => e !== event)
+        : [...prev.events, event]
+    }));
+  };
+
+  const formatTimeAgo = (timestamp: string) => {
+    const now = new Date();
+    const time = new Date(timestamp);
+    const diffInMinutes = Math.floor((now.getTime() - time.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 1) return 'Just now';
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
+    return `${Math.floor(diffInMinutes / 1440)}d ago`;
   };
 
   const getStatusIcon = (status: string) => {
@@ -123,45 +134,86 @@ export const WebhookManager = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {webhooks.map((webhook) => (
-              <div key={webhook.id} className="border rounded-lg p-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      {getStatusIcon(webhook.status)}
-                      <h4 className="font-medium">{webhook.name}</h4>
-                      <Badge variant={webhook.status === 'active' ? 'default' : 'secondary'}>
-                        {webhook.status}
-                      </Badge>
-                    </div>
-                    
-                    <div className="flex items-center gap-2 mb-2">
-                      <code className="text-sm bg-gray-100 px-2 py-1 rounded">
-                        {webhook.url}
-                      </code>
-                    </div>
-                    
-                    <div className="flex flex-wrap gap-1">
-                      {webhook.events.map((event) => (
-                        <Badge key={event} variant="outline" className="text-xs">
-                          {event}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm">
-                      <Send className="w-3 h-3 mr-1" />
-                      Test
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </div>
+            {webhooks.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                No webhooks configured yet. Add your first webhook endpoint to get started.
               </div>
-            ))}
+            ) : (
+              webhooks.map((webhook) => (
+                <div key={webhook.id} className="border rounded-lg p-4 space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        {getStatusIcon(webhook.status)}
+                        <h4 className="font-medium">{webhook.name}</h4>
+                        <Badge variant={webhook.status === 'active' ? 'default' : 
+                          webhook.status === 'error' ? 'destructive' : 'secondary'}>
+                          {webhook.status}
+                        </Badge>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 mb-2">
+                        <code className="text-sm bg-gray-100 px-2 py-1 rounded break-all">
+                          {webhook.url}
+                        </code>
+                      </div>
+                      
+                      <div className="flex flex-wrap gap-1 mb-2">
+                        {webhook.events.map((event) => (
+                          <Badge key={event} variant="outline" className="text-xs">
+                            {event}
+                          </Badge>
+                        ))}
+                      </div>
+
+                      {webhook.lastTriggered && (
+                        <p className="text-xs text-gray-500">
+                          Last triggered: {formatTimeAgo(webhook.lastTriggered)}
+                        </p>
+                      )}
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => testWebhook(webhook)}
+                        disabled={isLoading}
+                      >
+                        <Send className="w-3 h-3 mr-1" />
+                        {isLoading ? 'Testing...' : 'Test'}
+                      </Button>
+                      
+                      {webhook.status === 'error' && (
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => retryFailedWebhook(webhook.id)}
+                        >
+                          <Zap className="w-3 h-3 mr-1" />
+                          Retry
+                        </Button>
+                      )}
+                      
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => deleteWebhook(webhook.id)}
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  {webhook.status === 'error' && (
+                    <div className="flex items-center gap-2 p-2 bg-red-50 rounded text-sm text-red-700">
+                      <AlertTriangle className="w-4 h-4" />
+                      This webhook has failed. Check the endpoint URL and try testing again.
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
           </div>
         </CardContent>
       </Card>
@@ -192,8 +244,39 @@ export const WebhookManager = () => {
               />
             </div>
             
+            <div className="space-y-2">
+              <Label>Events to Subscribe To</Label>
+              <div className="grid grid-cols-2 gap-2">
+                {availableEvents.map((event) => (
+                  <label key={event.value} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={newWebhook.events.includes(event.value)}
+                      onChange={() => handleEventToggle(event.value)}
+                    />
+                    <span className="text-sm">{event.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="secret-key">Secret Key (Optional)</Label>
+              <Input
+                id="secret-key"
+                placeholder="Your webhook secret for signature verification"
+                value={newWebhook.secretKey}
+                onChange={(e) => setNewWebhook({ ...newWebhook, secretKey: e.target.value })}
+              />
+              <p className="text-xs text-gray-500">
+                Used to generate HMAC signatures for webhook verification
+              </p>
+            </div>
+            
             <div className="flex gap-2">
-              <Button onClick={handleAddWebhook}>Add Webhook</Button>
+              <Button onClick={handleAddWebhook} disabled={!newWebhook.name || !newWebhook.url || newWebhook.events.length === 0}>
+                Add Webhook
+              </Button>
               <Button variant="outline" onClick={() => setShowAddForm(false)}>Cancel</Button>
             </div>
           </CardContent>

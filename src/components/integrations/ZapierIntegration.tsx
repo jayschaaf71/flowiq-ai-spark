@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { useZapierIntegration } from '@/hooks/useZapierIntegration';
 import { 
   Zap, 
   Copy, 
@@ -14,13 +15,19 @@ import {
   MessageSquare, 
   Bell, 
   UserPlus,
-  ExternalLink 
+  ExternalLink,
+  TestTube,
+  Plus,
+  Trash2
 } from 'lucide-react';
 
 export const ZapierIntegration = () => {
   const { toast } = useToast();
+  const { webhooks, isLoading, testWebhook, addWebhook, removeWebhook } = useZapierIntegration();
   const [apiKey, setApiKey] = useState('');
   const [copiedTrigger, setCopiedTrigger] = useState<string | null>(null);
+  const [showAddWebhook, setShowAddWebhook] = useState(false);
+  const [newWebhookUrl, setNewWebhookUrl] = useState('');
 
   const zapierTriggers = [
     {
@@ -99,6 +106,37 @@ export const ZapierIntegration = () => {
     });
   };
 
+  const handleTestWebhook = async (trigger: any) => {
+    if (!newWebhookUrl) {
+      toast({
+        title: "Error",
+        description: "Please enter a webhook URL first",
+        variant: "destructive",
+      });
+      return;
+    }
+    await testWebhook(newWebhookUrl, trigger.event);
+  };
+
+  const handleAddWebhook = () => {
+    if (!newWebhookUrl) {
+      toast({
+        title: "Error",
+        description: "Please enter a webhook URL",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    addWebhook(newWebhookUrl, ['appointment.created', 'appointment.completed']);
+    setNewWebhookUrl('');
+    setShowAddWebhook(false);
+  };
+
+  const getAPIKey = () => {
+    window.open('https://zapier.com/app/developer', '_blank');
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -126,7 +164,7 @@ export const ZapierIntegration = () => {
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
               />
-              <Button variant="outline">
+              <Button variant="outline" onClick={getAPIKey}>
                 <ExternalLink className="w-4 h-4 mr-2" />
                 Get API Key
               </Button>
@@ -268,6 +306,100 @@ export const ZapierIntegration = () => {
               </p>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Test Webhook Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TestTube className="h-5 w-5" />
+            Test Zapier Integration
+          </CardTitle>
+          <CardDescription>
+            Test your Zapier webhooks to ensure they're working correctly
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="webhook-url">Zapier Webhook URL</Label>
+            <div className="flex gap-2">
+              <Input
+                id="webhook-url"
+                value={newWebhookUrl}
+                onChange={(e) => setNewWebhookUrl(e.target.value)}
+                placeholder="https://hooks.zapier.com/hooks/catch/..."
+              />
+              <Button variant="outline" onClick={() => setShowAddWebhook(!showAddWebhook)}>
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Copy your Zapier webhook URL here to test the integration
+            </p>
+          </div>
+
+          {showAddWebhook && (
+            <div className="flex gap-2">
+              <Button onClick={handleAddWebhook}>
+                Add Webhook
+              </Button>
+              <Button variant="outline" onClick={() => setShowAddWebhook(false)}>
+                Cancel
+              </Button>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {zapierTriggers.slice(0, 3).map((trigger) => (
+              <div key={trigger.event} className="border rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <trigger.icon className="h-4 w-4 text-blue-600" />
+                  <span className="font-medium text-sm">{trigger.name}</span>
+                </div>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => handleTestWebhook(trigger)}
+                  disabled={isLoading || !newWebhookUrl}
+                >
+                  {isLoading ? 'Testing...' : 'Test Trigger'}
+                </Button>
+              </div>
+            ))}
+          </div>
+
+          {webhooks.length > 0 && (
+            <div className="mt-6">
+              <h4 className="font-medium mb-3">Active Webhooks</h4>
+              <div className="space-y-2">
+                {webhooks.map((webhook) => (
+                  <div key={webhook.id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div>
+                      <code className="text-sm bg-gray-100 px-2 py-1 rounded">
+                        {webhook.url.substring(0, 50)}...
+                      </code>
+                      <div className="flex gap-1 mt-1">
+                        {webhook.events.map(event => (
+                          <Badge key={event} variant="outline" className="text-xs">
+                            {event}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => removeWebhook(webhook.id)}
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
