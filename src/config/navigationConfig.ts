@@ -16,7 +16,8 @@ import {
   Package,
   UserPlus,
   Settings,
-  HelpCircle
+  HelpCircle,
+  Moon
 } from "lucide-react";
 import { NavItem, NavGroup } from "@/services/sidebarService";
 
@@ -39,6 +40,7 @@ export const navItems: NavItem[] = [
   // Clinical Care
   { id: "scribe-iq", label: "Scribe iQ", path: "/agents/scribe", icon: Stethoscope, badge: "AI", group: "clinical_care", order: 10 },
   { id: "appointment-iq", label: "Appointment iQ", path: "/agents/appointment", icon: Calendar, badge: "AI", group: "clinical_care", order: 20 },
+  { id: "dental-sleep-iq", label: "Dental Sleep iQ", path: "/agents/dental-sleep", icon: Moon, badge: "AI", group: "clinical_care", order: 25 },
 
   // Patient Journey
   { id: "intake-iq", label: "Intake iQ", path: "/agents/intake", icon: ClipboardList, badge: "AI", group: "patient_journey", order: 10 },

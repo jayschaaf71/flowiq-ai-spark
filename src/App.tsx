@@ -54,6 +54,7 @@ import EducationIQ from '@/pages/agents/EducationIQ';
 import MarketingIQ from '@/pages/agents/MarketingIQ';
 import RemindIQ from '@/pages/agents/RemindIQ';
 import ReferralIQ from '@/pages/agents/ReferralIQ';
+import DentalSleepIQ from '@/pages/agents/DentalSleepIQ';
 import PilotDashboard from '@/pages/PilotDashboard';
 import ExternalIntegrationsPage from '@/pages/ExternalIntegrations';
 import BookingWidgetPage from '@/pages/BookingWidget';
@@ -386,13 +387,20 @@ function App() {
                     </Layout>
                   </ChiropracticWrapper>
                 } />
-                <Route path="/agents/auth" element={
-                  <ChiropracticWrapper>
-                    <Layout>
-                      <AuthIQ />
-                    </Layout>
-                  </ChiropracticWrapper>
-                } />
+                 <Route path="/agents/auth" element={
+                   <ChiropracticWrapper>
+                     <Layout>
+                       <AuthIQ />
+                     </Layout>
+                   </ChiropracticWrapper>
+                 } />
+                 <Route path="/agents/dental-sleep" element={
+                   <DentalSleepWrapper>
+                     <Layout>
+                       <DentalSleepIQ />
+                     </Layout>
+                   </DentalSleepWrapper>
+                 } />
                 <Route path="/integrations" element={
                   <ChiropracticWrapper>
                     <Layout>
