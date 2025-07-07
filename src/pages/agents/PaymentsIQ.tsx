@@ -209,15 +209,41 @@ export const PaymentsIQ = () => {
                         </Badge>
                       </div>
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            toast({
+                              title: "Email Sent",
+                              description: `Invoice reminder sent to ${invoice.patient}`
+                            });
+                          }}
+                        >
                           <Mail className="w-4 h-4 mr-1" />
                           Email
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            toast({
+                              title: "Call Initiated",
+                              description: `Calling ${invoice.patient}...`
+                            });
+                          }}
+                        >
                           <Phone className="w-4 h-4 mr-1" />
                           Call
                         </Button>
-                        <Button size="sm">
+                        <Button 
+                          size="sm"
+                          onClick={() => {
+                            toast({
+                              title: "Invoice Sent",
+                              description: `Invoice for $${invoice.amount} sent to ${invoice.patient}`
+                            });
+                          }}
+                        >
                           <Send className="w-4 h-4 mr-1" />
                           Send Invoice
                         </Button>
@@ -254,7 +280,16 @@ export const PaymentsIQ = () => {
                           {payment.status}
                         </Badge>
                       </div>
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          toast({
+                            title: "Receipt Downloaded",
+                            description: `Receipt for $${payment.amount} downloaded`
+                          });
+                        }}
+                      >
                         <Download className="w-4 h-4 mr-1" />
                         Receipt
                       </Button>

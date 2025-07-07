@@ -20,10 +20,12 @@ import {
   Database
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 export const OpsIQ = () => {
   const [selectedTab, setSelectedTab] = useState('overview');
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   // Mock data - in production this would come from your API
   const operationalStats = {
@@ -259,7 +261,16 @@ export const OpsIQ = () => {
                       <Badge className={getStatusColor(agent.status)}>
                         {agent.status}
                       </Badge>
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          toast({
+                            title: "Configure Agent",
+                            description: `Opening configuration for ${agent.name}`
+                          });
+                        }}
+                      >
                         <Settings className="w-4 h-4 mr-1" />
                         Configure
                       </Button>
@@ -294,7 +305,16 @@ export const OpsIQ = () => {
                       <Badge className={getStatusColor(task.status)}>
                         {task.status}
                       </Badge>
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          toast({
+                            title: "Task Details",
+                            description: `Viewing details for ${task.task}`
+                          });
+                        }}
+                      >
                         View Details
                       </Button>
                     </div>
@@ -374,19 +394,50 @@ export const OpsIQ = () => {
                 <CardDescription>Configure automated workflows and triggers</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Button variant="outline" className="w-full justify-start">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={() => {
+                    toast({
+                      title: "Workflow Triggers",
+                      description: "Workflow configuration panel will be available soon"
+                    });
+                  }}
+                >
                   <Zap className="w-4 h-4 mr-2" />
                   Workflow Triggers
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={() => {
+                    toast({
+                      title: "Scheduling Rules",
+                      description: "Scheduling configuration panel will be available soon"
+                    });
+                  }}
+                >
                   <Clock className="w-4 h-4 mr-2" />
                   Scheduling Rules
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={() => navigate('/analytics')}
+                >
                   <BarChart3 className="w-4 h-4 mr-2" />
                   Analytics Settings
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={() => {
+                    toast({
+                      title: "Alert Configuration",
+                      description: "Alert configuration panel will be available soon"
+                    });
+                  }}
+                >
                   <AlertTriangle className="w-4 h-4 mr-2" />
                   Alert Configuration
                 </Button>

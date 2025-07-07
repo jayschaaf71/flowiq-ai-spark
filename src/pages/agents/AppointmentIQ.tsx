@@ -229,11 +229,22 @@ export const AppointmentIQ = () => {
                       <div className="text-xs text-gray-500">Form sent: {intake.sent}</div>
                     </div>
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          navigator.clipboard.writeText(intake.patient);
+                          console.log('Call initiated for:', intake.patient);
+                        }}
+                      >
                         <Phone className="w-4 h-4 mr-1" />
                         Call
                       </Button>
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => console.log('Resend form to:', intake.patient)}
+                      >
                         <Mail className="w-4 h-4 mr-1" />
                         Resend
                       </Button>
@@ -301,7 +312,11 @@ export const AppointmentIQ = () => {
                       <Badge className={getStatusColor(followup.status)}>
                         {followup.status}
                       </Badge>
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => navigate('/agents/remind')}
+                      >
                         Send Now
                       </Button>
                     </div>
@@ -321,15 +336,27 @@ export const AppointmentIQ = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <Button variant="outline" className="h-16 flex-col">
+            <Button 
+              variant="outline" 
+              className="h-16 flex-col"
+              onClick={() => navigate('/schedule')}
+            >
               <Calendar className="h-6 w-6 mb-1" />
               <span className="text-xs">Book Appointment</span>
             </Button>
-            <Button variant="outline" className="h-16 flex-col">
+            <Button 
+              variant="outline" 
+              className="h-16 flex-col"
+              onClick={() => navigate('/agents/remind')}
+            >
               <Bell className="h-6 w-6 mb-1" />
               <span className="text-xs">Send Reminder</span>
             </Button>
-            <Button variant="outline" className="h-16 flex-col">
+            <Button 
+              variant="outline" 
+              className="h-16 flex-col"
+              onClick={() => navigate('/agents/intake')}
+            >
               <UserCheck className="h-6 w-6 mb-1" />
               <span className="text-xs">Check Intake</span>
             </Button>
@@ -341,7 +368,11 @@ export const AppointmentIQ = () => {
               <Activity className="h-6 w-6 mb-1" />
               <span className="text-xs">External Integrations</span>
             </Button>
-            <Button variant="outline" className="h-16 flex-col">
+            <Button 
+              variant="outline" 
+              className="h-16 flex-col"
+              onClick={() => navigate('/analytics')}
+            >
               <Activity className="h-6 w-6 mb-1" />
               <span className="text-xs">View Analytics</span>
             </Button>
