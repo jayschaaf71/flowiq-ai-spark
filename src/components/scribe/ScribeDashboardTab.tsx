@@ -76,7 +76,7 @@ export const ScribeDashboardTab = () => {
         </Card>
 
         <Card 
-          className="cursor-pointer hover:shadow-md transition-shadow duration-200 hover:border-purple-300"
+          className="cursor-pointer hover:shadow-md transition-shadow duration-200 hover:border-primary/30"
           onClick={handleNavigateToSettings}
         >
           <CardHeader className="pb-3">
@@ -86,9 +86,9 @@ export const ScribeDashboardTab = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-600">2.3s</div>
-            <p className="text-sm text-gray-600">Per recording</p>
-            <p className="text-xs text-purple-600 mt-1 opacity-75">Click to adjust settings</p>
+            <div className="text-2xl font-bold text-primary">2.3s</div>
+            <p className="text-sm text-muted-foreground">Per recording</p>
+            <p className="text-xs text-primary/70 mt-1">Click to adjust settings</p>
           </CardContent>
         </Card>
 
@@ -118,7 +118,7 @@ export const ScribeDashboardTab = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Brain className="w-5 h-5 text-purple-600" />
+              <Brain className="w-5 h-5 text-primary" />
               Quick Actions
             </CardTitle>
             <CardDescription>
@@ -167,7 +167,7 @@ export const ScribeDashboardTab = () => {
                 <Badge variant="outline" className="bg-green-50 text-green-700">
                   SOAP Generation
                 </Badge>
-                <Badge variant="outline" className="bg-purple-50 text-purple-700">
+                <Badge variant="outline" className="border-primary/20 text-primary">
                   Plaud Integration
                 </Badge>
               </div>

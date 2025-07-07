@@ -151,7 +151,7 @@ ${template.plan}`;
                       <p className="text-gray-600 mt-1 line-clamp-2">{template.assessment}</p>
                     </div>
                     <div>
-                      <strong className="text-purple-700">Plan:</strong>
+                      <strong className="text-foreground">Plan:</strong>
                       <p className="text-gray-600 mt-1 line-clamp-2">{template.plan}</p>
                     </div>
                   </div>

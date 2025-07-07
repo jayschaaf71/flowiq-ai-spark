@@ -113,7 +113,7 @@ ${generatedSOAP.plan}`;
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Brain className="w-5 h-5 text-purple-600" />
+          <Brain className="w-5 h-5 text-primary" />
           AI SOAP Generation
         </CardTitle>
         <CardDescription>
@@ -124,7 +124,7 @@ ${generatedSOAP.plan}`;
         {isGenerating ? (
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
               <p className="text-lg font-medium">AI is generating SOAP note...</p>
               <p className="text-sm text-muted-foreground">Analyzing transcription and structuring medical documentation</p>
             </div>
@@ -171,8 +171,8 @@ ${generatedSOAP.plan}`;
                 </div>
               </div>
               <div>
-                <h4 className="font-medium text-sm mb-2 text-purple-700">Plan</h4>
-                <div className="p-3 bg-purple-50 rounded border text-sm whitespace-pre-line">
+                <h4 className="font-medium text-sm mb-2 text-foreground">Plan</h4>
+                <div className="p-3 bg-accent rounded border text-sm whitespace-pre-line">
                   {generatedSOAP.plan}
                 </div>
               </div>

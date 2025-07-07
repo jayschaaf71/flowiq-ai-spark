@@ -74,7 +74,7 @@ export const ScribeSettingsTab = () => {
           {/* Core Features */}
           <div className="space-y-4">
             <h3 className="font-medium flex items-center gap-2">
-              <Brain className="w-4 h-4 text-purple-600" />
+              <Brain className="w-4 h-4 text-primary" />
               AI Features
             </h3>
             
