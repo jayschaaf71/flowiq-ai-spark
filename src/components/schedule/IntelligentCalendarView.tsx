@@ -71,7 +71,11 @@ interface SmartSuggestion {
   patient?: string;
 }
 
-export const IntelligentCalendarView = () => {
+interface IntelligentCalendarViewProps {
+  onCreateAppointment?: (date: Date, time?: string) => void;
+}
+
+export const IntelligentCalendarView = ({ onCreateAppointment }: IntelligentCalendarViewProps) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<'week' | 'day' | 'month'>('week');
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -427,10 +431,16 @@ export const IntelligentCalendarView = () => {
                           variant="ghost"
                           size="sm"
                           className="mt-2 text-xs"
-                          onClick={() => toast({
-                            title: "Schedule Appointment",
-                            description: "AI suggests optimal times available for this day.",
-                          })}
+                          onClick={() => {
+                            if (onCreateAppointment) {
+                              onCreateAppointment(day);
+                            } else {
+                              toast({
+                                title: "Schedule Appointment",
+                                description: "Please navigate to the booking tab to schedule an appointment.",
+                              });
+                            }
+                          }}
                         >
                           <Plus className="h-3 w-3 mr-1" />
                           Add Appointment

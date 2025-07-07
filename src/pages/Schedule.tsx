@@ -66,7 +66,7 @@ const Schedule = () => {
         </TabsContent>
 
         <TabsContent value="calendar" className="mt-6">
-          <IntelligentCalendarView />
+          <IntelligentCalendarView onCreateAppointment={handleCreateAppointment} />
         </TabsContent>
 
         <TabsContent value="list" className="mt-6">
