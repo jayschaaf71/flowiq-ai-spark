@@ -74,7 +74,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
         }
       };
       
-      mediaRecorder.onstop = () => {
+      mediaRecorder.onstop = async () => {
         const blob = new Blob(audioChunks, { type: 'audio/webm' });
         setAudioBlob(blob);
         setHasRecording(true);
@@ -84,6 +84,9 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
           streamRef.current.getTracks().forEach(track => track.stop());
           streamRef.current = null;
         }
+        
+        // Automatically process the recording
+        await processRecordingWithBlob(blob);
       };
       
       mediaRecorder.start();
@@ -172,16 +175,13 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     }
   }, []);
 
-  const processRecording = useCallback(async () => {
-    const currentAudioBlob = audioBlob;
-    if (!currentAudioBlob) return;
-    
+  const processRecordingWithBlob = useCallback(async (blob: Blob) => {
     setIsProcessing(true);
     setError(null);
     
     try {
       // Convert blob to base64
-      const arrayBuffer = await currentAudioBlob.arrayBuffer();
+      const arrayBuffer = await blob.arrayBuffer();
       const base64Audio = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
       
       console.log('Sending audio for transcription...');
@@ -205,7 +205,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
           description: "Your voice has been converted to text successfully.",
         });
         
-        // Clean up - inline the deleteRecording logic to avoid circular dependency
+        // Clean up
         setAudioBlob(null);
         setHasRecording(false);
         setRecordingDuration(0);
@@ -233,6 +233,12 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
       setIsProcessing(false);
     }
   }, [onTranscriptionComplete, toast]);
+
+  const processRecording = useCallback(async () => {
+    const currentAudioBlob = audioBlob;
+    if (!currentAudioBlob) return;
+    await processRecordingWithBlob(currentAudioBlob);
+  }, [processRecordingWithBlob]);
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -311,7 +317,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
 
             {hasRecording && !isProcessing && (
               <>
-                 <Button
+                <Button
                   onClick={() => isPlaying ? pausePlayback() : playRecording()}
                   variant="outline"
                   size="sm"
@@ -339,7 +345,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
                   className="bg-green-600 hover:bg-green-700"
                 >
                   <Check className="h-4 w-4 mr-1" />
-                  Use This
+                  Retry Processing
                 </Button>
               </>
             )}
