@@ -33,41 +33,30 @@ export const Dashboard = () => {
   }
 
   const renderSpecialtyDashboard = () => {
-    const specialty = userProfile?.specialty;
+    // Use localStorage specialty detection instead of user profile
+    const currentSpecialty = localStorage.getItem('currentSpecialty') || 'chiropractic';
     
-    // Enhanced debug logging
     console.log('=== DASHBOARD DEBUG ===');
+    console.log('Current specialty from localStorage:', currentSpecialty);
     console.log('User Profile:', userProfile);
-    console.log('Specialty:', specialty);
-    console.log('Profile loading state:', { userProfile });
     
-    // Handle loading state
-    if (!userProfile) {
-      console.log('User profile not loaded yet, showing loading...');
-      return <div className="text-center p-6">Loading dashboard...</div>;
-    }
-    
-    // Normalize specialty for comparison
-    const normalizedSpecialty = specialty?.toLowerCase().replace(/\s+/g, '-');
-    
-    switch (normalizedSpecialty) {
-      case 'chiropractic':
-      case 'chiropractic-care':
-        console.log('Rendering ChiropracticDashboard');
-        return <ChiropracticDashboard />;
-      case 'dentistry':
-      case 'dental':
-      case 'dental-care':
-        console.log('Rendering DentalDashboard');
-        return <DentalDashboard />;
-      case 'dental-sleep-medicine':
+    // Route to correct specialty dashboard based on detected specialty
+    switch (currentSpecialty) {
       case 'dental-sleep':
+      case 'dental-sleep-medicine':
         console.log('Rendering DentalSleepDashboard');
         return <DentalSleepDashboard />;
+      case 'dental':
+      case 'dental-care':
+      case 'dentistry':
+        console.log('Rendering DentalDashboard');
+        return <DentalDashboard />;
+      case 'chiropractic':
+      case 'chiropractic-care':
       default:
-        console.log('Defaulting to ChiropracticDashboard for specialty:', specialty, 'normalized:', normalizedSpecialty);
+        console.log('Rendering ChiropracticDashboard');
         return <ChiropracticDashboard />;
-    }
+  };
   };
 
   return (

@@ -17,18 +17,39 @@ const EHR = () => {
   const { data: userProfile } = useUserProfile();
 
   const renderSpecialtyEHR = () => {
-    const specialty = userProfile?.specialty;
+    // Use localStorage specialty detection instead of user profile
+    const currentSpecialty = localStorage.getItem('currentSpecialty') || 'chiropractic';
     
-    switch (specialty) {
-      case 'Chiropractic':
-        return <ChiropracticEHR />;
-      case 'Dentistry':
-        return <DentistryEHR />;
-      case 'Dental Sleep Medicine':
+    switch (currentSpecialty) {
+      case 'dental-sleep':
+      case 'dental-sleep-medicine':
         return <DentalSleepEHR />;
-      case 'General Practice':
+      case 'dental':
+      case 'dental-care':
+      case 'dentistry':
+        return <DentistryEHR />;
+      case 'chiropractic':
+      case 'chiropractic-care':
       default:
-        return <GeneralPracticeEHR />;
+        return <ChiropracticEHR />;
+    }
+  };
+
+  const getSpecialtyDisplayName = () => {
+    const currentSpecialty = localStorage.getItem('currentSpecialty') || 'chiropractic';
+    
+    switch (currentSpecialty) {
+      case 'dental-sleep':
+      case 'dental-sleep-medicine':
+        return 'Dental Sleep Medicine';
+      case 'dental':
+      case 'dental-care':
+      case 'dentistry':
+        return 'Dentistry';
+      case 'chiropractic':
+      case 'chiropractic-care':
+      default:
+        return 'Chiropractic Care';
     }
   };
 
@@ -36,8 +57,8 @@ const EHR = () => {
     <>
       <PageHeader 
         title="Electronic Health Records"
-        subtitle={`${userProfile?.specialty || 'General Practice'} EHR System`}
-        badge={userProfile?.specialty || 'General Practice'}
+        subtitle={`${getSpecialtyDisplayName()} EHR System`}
+        badge={getSpecialtyDisplayName()}
       />
       
       <div className="space-y-6">

@@ -32,8 +32,60 @@ const IntakeIQ = () => {
     };
   });
 
-  // Redirect to Dental Sleep iQ
-  return <DentalSleepRedirect />;
+  return (
+    <div className="space-y-6">
+      <PageHeader 
+        title="Intake iQ"
+        subtitle="AI-powered patient intake and form management system"
+        badge="AI Agent"
+      />
+      
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <TabsList className="grid w-full grid-cols-8">
+          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+          <TabsTrigger value="builder">Form Builder</TabsTrigger>
+          <TabsTrigger value="submissions">Submissions</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="voice">Voice Intake</TabsTrigger>
+          <TabsTrigger value="mobile">Mobile</TabsTrigger>
+          <TabsTrigger value="staff">Staff View</TabsTrigger>
+          <TabsTrigger value="seed">Seed Data</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="dashboard" className="space-y-4">
+          <IntakeDashboard />
+        </TabsContent>
+
+        <TabsContent value="builder" className="space-y-4">
+          <FormBuilder />
+        </TabsContent>
+
+        <TabsContent value="submissions" className="space-y-4">
+          <FormSubmissionsList 
+            submissions={submissions} 
+            onViewSubmission={(submission) => console.log('View submission:', submission)}
+          />
+          <IntakeAnalyticsDashboard />
+        </TabsContent>
+
+        <TabsContent value="voice" className="space-y-4">
+          <VoiceEnabledPatientIntake />
+        </TabsContent>
+
+        <TabsContent value="mobile" className="space-y-4">
+          <MobileVoiceIntake />
+        </TabsContent>
+
+        <TabsContent value="staff" className="space-y-4">
+          <StaffIntakeDashboard />
+        </TabsContent>
+
+        <TabsContent value="seed" className="space-y-4">
+          <IntakeFormSeed />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
 };
 
 export default IntakeIQ;
