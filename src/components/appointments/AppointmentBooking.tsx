@@ -330,13 +330,14 @@ export const AppointmentBooking = ({
   };
 
   const appointmentTypes = [
-    'Consultation',
-    'Follow-up',
-    'Cleaning',
-    'Examination',
-    'Treatment',
-    'Emergency',
-    'Routine Check-up'
+    'Initial Consultation',
+    'Follow-up Visit',
+    'Spinal Adjustment',
+    'Physical Therapy',
+    'Pain Management',
+    'Wellness Check',
+    'Re-evaluation',
+    'Emergency Visit'
   ];
 
   return (
