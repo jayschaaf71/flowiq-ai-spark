@@ -281,11 +281,11 @@ function App() {
                   </TenantWrapper>
                 } />
                 <Route path="/agents/scribe" element={
-                  <DentalSleepWrapper>
+                  <TenantWrapper>
                     <Layout>
                       <ScribeIQ />
                     </Layout>
-                  </DentalSleepWrapper>
+                  </TenantWrapper>
                 } />
                 <Route path="/agents/claims" element={
                   <TenantWrapper>
