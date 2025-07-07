@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import { 
   Activity, 
   Users, 
@@ -33,6 +34,7 @@ import { ClaimsOverview } from "./widgets/ClaimsOverview";
 export const ChiroIQDashboard = () => {
   const { profile } = useAuth();
   const userRole = profile?.role || 'staff';
+  const navigate = useNavigate();
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -97,7 +99,11 @@ export const ChiroIQDashboard = () => {
               <Activity className="w-3 h-3 mr-1" />
               {userRole.replace('_', ' ').toUpperCase()}
             </Badge>
-            <Button variant="outline" className="border-green-200 text-green-700 hover:bg-green-50">
+            <Button 
+              variant="outline" 
+              className="border-green-200 text-green-700 hover:bg-green-50"
+              onClick={() => navigate('/analytics')}
+            >
               <Target className="w-4 h-4 mr-2" />
               Set Goals
             </Button>
@@ -134,19 +140,35 @@ export const ChiroIQDashboard = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Button variant="outline" className="h-auto p-4 flex flex-col items-center gap-2 border-green-200 hover:bg-green-50">
+            <Button 
+              variant="outline" 
+              className="h-auto p-4 flex flex-col items-center gap-2 border-green-200 hover:bg-green-50"
+              onClick={() => navigate('/schedule')}
+            >
               <Calendar className="w-6 h-6 text-green-600" />
               <span className="text-sm">Schedule</span>
             </Button>
-            <Button variant="outline" className="h-auto p-4 flex flex-col items-center gap-2 border-green-200 hover:bg-green-50">
+            <Button 
+              variant="outline" 
+              className="h-auto p-4 flex flex-col items-center gap-2 border-green-200 hover:bg-green-50"
+              onClick={() => navigate('/ehr')}
+            >
               <FileText className="w-6 h-6 text-green-600" />
               <span className="text-sm">SOAP Notes</span>
             </Button>
-            <Button variant="outline" className="h-auto p-4 flex flex-col items-center gap-2 border-green-200 hover:bg-green-50">
+            <Button 
+              variant="outline" 
+              className="h-auto p-4 flex flex-col items-center gap-2 border-green-200 hover:bg-green-50"
+              onClick={() => navigate('/patient-management')}
+            >
               <Users className="w-6 h-6 text-green-600" />
               <span className="text-sm">Patients</span>
             </Button>
-            <Button variant="outline" className="h-auto p-4 flex flex-col items-center gap-2 border-green-200 hover:bg-green-50">
+            <Button 
+              variant="outline" 
+              className="h-auto p-4 flex flex-col items-center gap-2 border-green-200 hover:bg-green-50"
+              onClick={() => navigate('/financial-management')}
+            >
               <DollarSign className="w-6 h-6 text-green-600" />
               <span className="text-sm">Billing</span>
             </Button>
