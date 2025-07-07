@@ -16,18 +16,14 @@ interface PatientFormData {
   gender?: string;
   phone?: string;
   email?: string;
-  address_line1?: string;
-  address_line2?: string;
+  address_line1?: string; // Will be combined into address
+  address_line2?: string; // Will be combined into address
   city?: string;
   state?: string;
   zip_code?: string;
   emergency_contact_name?: string;
   emergency_contact_phone?: string;
-  emergency_contact_relationship?: string;
-  preferred_language?: string;
-  marital_status?: string;
-  occupation?: string;
-  employer?: string;
+  // Note: emergency_contact_relationship, preferred_language, marital_status, occupation, employer are not in DB schema
 }
 
 interface PatientFormProps {
@@ -49,12 +45,7 @@ export const PatientForm = ({ onSuccess, onCancel }: PatientFormProps) => {
     state: '',
     zip_code: '',
     emergency_contact_name: '',
-    emergency_contact_phone: '',
-    emergency_contact_relationship: '',
-    preferred_language: 'English',
-    marital_status: '',
-    occupation: '',
-    employer: ''
+    emergency_contact_phone: ''
   });
   
   const [loading, setLoading] = useState(false);
@@ -293,7 +284,7 @@ export const PatientForm = ({ onSuccess, onCancel }: PatientFormProps) => {
             {/* Emergency Contact */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Emergency Contact</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="emergency_contact_name">Contact Name</Label>
                   <Input
@@ -311,86 +302,9 @@ export const PatientForm = ({ onSuccess, onCancel }: PatientFormProps) => {
                     placeholder="(555) 123-4567"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="emergency_contact_relationship">Relationship</Label>
-                  <Select 
-                    value={formData.emergency_contact_relationship} 
-                    onValueChange={(value) => handleInputChange('emergency_contact_relationship', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select relationship" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="spouse">Spouse</SelectItem>
-                      <SelectItem value="parent">Parent</SelectItem>
-                      <SelectItem value="child">Child</SelectItem>
-                      <SelectItem value="sibling">Sibling</SelectItem>
-                      <SelectItem value="friend">Friend</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
               </div>
             </div>
 
-            {/* Additional Information */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Additional Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="preferred_language">Preferred Language</Label>
-                  <Select 
-                    value={formData.preferred_language} 
-                    onValueChange={(value) => handleInputChange('preferred_language', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="English">English</SelectItem>
-                      <SelectItem value="Spanish">Spanish</SelectItem>
-                      <SelectItem value="French">French</SelectItem>
-                      <SelectItem value="German">German</SelectItem>
-                      <SelectItem value="Other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="marital_status">Marital Status</Label>
-                  <Select 
-                    value={formData.marital_status} 
-                    onValueChange={(value) => handleInputChange('marital_status', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="single">Single</SelectItem>
-                      <SelectItem value="married">Married</SelectItem>
-                      <SelectItem value="divorced">Divorced</SelectItem>
-                      <SelectItem value="widowed">Widowed</SelectItem>
-                      <SelectItem value="separated">Separated</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="occupation">Occupation</Label>
-                  <Input
-                    id="occupation"
-                    value={formData.occupation}
-                    onChange={(e) => handleInputChange('occupation', e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="employer">Employer</Label>
-                  <Input
-                    id="employer"
-                    value={formData.employer}
-                    onChange={(e) => handleInputChange('employer', e.target.value)}
-                  />
-                </div>
-              </div>
-            </div>
 
             {/* Form Actions */}
             <div className="flex justify-end gap-3 pt-6 border-t">
