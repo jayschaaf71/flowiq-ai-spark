@@ -47,11 +47,29 @@ export const SpecialtyProvider: React.FC<SpecialtyProviderProps> = ({ children }
   const { currentTenant } = useCurrentTenant();
   const { data: userProfile } = useUserProfile();
   
-  // Use user's profile specialty if available, otherwise fall back to tenant specialty
-  const effectiveSpecialty = userProfile?.specialty?.toLowerCase().replace(/\s+/g, '-') || 
-                            currentTenant?.specialty || 
-                            'chiropractic-care';
+  // Detect specialty from localStorage first (set by route detection), then fallback to other sources
+  const detectSpecialty = () => {
+    // Check localStorage first (highest priority - set by route detection)
+    const storedSpecialty = localStorage.getItem('currentSpecialty');
+    if (storedSpecialty) {
+      return storedSpecialty;
+    }
+    
+    // Fall back to user profile specialty
+    if (userProfile?.specialty) {
+      return userProfile.specialty.toLowerCase().replace(/\s+/g, '-');
+    }
+    
+    // Fall back to tenant specialty
+    if (currentTenant?.specialty) {
+      return currentTenant.specialty;
+    }
+    
+    // Default to chiropractic
+    return 'chiropractic-care';
+  };
   
+  const effectiveSpecialty = detectSpecialty();
   const [currentSpecialty, setCurrentSpecialty] = useState(effectiveSpecialty);
   
   const theme = getSpecialtyTheme(effectiveSpecialty);
