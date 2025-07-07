@@ -295,7 +295,7 @@ export const AppointmentBooking = ({
         appointment_type: formData.appointment_type,
         title: formData.title,
         notes: formData.notes,
-        status: 'pending',
+        status: 'scheduled',
         // Include contact info for new patients
         ...((!formData.patient_id) && {
           email: formData.email,
