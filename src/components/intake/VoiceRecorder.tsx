@@ -200,8 +200,16 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
           description: "Your voice has been converted to text successfully.",
         });
         
-        // Clean up
-        deleteRecording();
+        // Clean up - inline the deleteRecording logic to avoid circular dependency
+        setAudioBlob(null);
+        setHasRecording(false);
+        setRecordingDuration(0);
+        setError(null);
+        
+        if (audioRef.current) {
+          audioRef.current.pause();
+          setIsPlaying(false);
+        }
       } else {
         throw new Error('No transcription received');
       }
@@ -219,7 +227,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     } finally {
       setIsProcessing(false);
     }
-  }, [audioBlob, onTranscriptionComplete, toast, deleteRecording]);
+  }, [audioBlob, onTranscriptionComplete, toast]);
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
