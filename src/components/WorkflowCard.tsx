@@ -21,22 +21,22 @@ export const WorkflowCard = ({ workflow, isExecuting = false, onExecute }: Workf
   const getStatusColor = (status: string) => {
     switch (status) {
       case "active":
-        return "bg-emerald-100 text-emerald-700 border-emerald-200";
+        return "bg-success/10 text-success border-success/20";
       case "optimization":
-        return "bg-amber-100 text-amber-700 border-amber-200";
+        return "bg-warning/10 text-warning border-warning/20";
       case "paused":
-        return "bg-gray-100 text-gray-700 border-gray-200";
+        return "bg-muted text-muted-foreground border-border";
       case "draft":
-        return "bg-blue-100 text-blue-700 border-blue-200";
+        return "bg-primary/10 text-primary border-primary/20";
       default:
-        return "bg-blue-100 text-blue-700 border-blue-200";
+        return "bg-primary/10 text-primary border-primary/20";
     }
   };
 
   const getEfficiencyColor = (efficiency: number) => {
-    if (efficiency >= 90) return "text-emerald-600";
-    if (efficiency >= 70) return "text-amber-600";
-    return "text-red-600";
+    if (efficiency >= 90) return "text-success";
+    if (efficiency >= 70) return "text-warning";
+    return "text-destructive";
   };
 
   const handleQuickAction = (e: React.MouseEvent, action: string) => {
@@ -52,12 +52,12 @@ export const WorkflowCard = ({ workflow, isExecuting = false, onExecute }: Workf
 
   return (
     <Card className={`hover:shadow-lg transition-all duration-200 group cursor-pointer ${
-      isExecuting ? 'ring-2 ring-blue-500 animate-pulse' : ''
+      isExecuting ? 'ring-2 ring-primary animate-pulse' : ''
     }`}>
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <CardTitle className="text-lg font-semibold group-hover:text-blue-600 transition-colors">
+            <CardTitle className="text-lg font-semibold group-hover:text-primary transition-colors">
               {workflow.name}
             </CardTitle>
             <CardDescription className="mt-1">
@@ -80,7 +80,7 @@ export const WorkflowCard = ({ workflow, isExecuting = false, onExecute }: Workf
           <Badge variant="outline" className={getStatusColor(workflow.status)}>
             {isExecuting ? 'Executing...' : workflow.status}
           </Badge>
-          <span className="text-sm text-gray-500">Last run: {workflow.lastRun}</span>
+          <span className="text-sm text-muted-foreground">Last run: {workflow.lastRun}</span>
         </div>
 
         <div className="space-y-2">

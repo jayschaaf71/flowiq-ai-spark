@@ -28,21 +28,21 @@ export const PageHeader = ({ title, subtitle, badge, children }: PageHeaderProps
   };
 
   return (
-    <div className="p-6 border-b border-gray-200 bg-white/50 backdrop-blur-sm">
+    <div className="p-6 border-b border-border bg-card/50 backdrop-blur-sm">
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold text-foreground">
               {title}
             </h1>
             {badge && (
-              <Badge className="bg-purple-100 text-purple-700 border-purple-200">
+              <Badge variant="outline">
                 {badge}
               </Badge>
             )}
           </div>
           {subtitle && (
-            <p className="text-gray-600 mt-1">{subtitle}</p>
+            <p className="text-muted-foreground mt-1">{subtitle}</p>
           )}
         </div>
         
@@ -53,38 +53,38 @@ export const PageHeader = ({ title, subtitle, badge, children }: PageHeaderProps
               <Button
                 variant="outline"
                 size="icon"
-                className="relative hover:bg-blue-50 transition-colors"
+                className="relative hover:bg-accent transition-colors"
                 onClick={handleNotificationClick}
               >
                 <Bell className="h-4 w-4" />
-                <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 bg-red-500">
+                <Badge variant="destructive" className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0">
                   {notifications.length}
                 </Badge>
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-80 p-0" align="end">
-              <div className="bg-white rounded-lg shadow-lg border">
-                <div className="p-4 border-b">
-                  <h3 className="font-semibold text-gray-900">Notifications</h3>
+              <div className="bg-card rounded-lg shadow-lg border border-border">
+                <div className="p-4 border-b border-border">
+                  <h3 className="font-semibold text-foreground">Notifications</h3>
                 </div>
                 <div className="max-h-80 overflow-y-auto">
                   {notifications.map((notification) => {
                     const IconComponent = notification.icon;
                     return (
-                      <div key={notification.id} className="p-4 border-b last:border-0 hover:bg-gray-50 cursor-pointer">
+                      <div key={notification.id} className="p-4 border-b border-border last:border-0 hover:bg-accent cursor-pointer">
                         <div className="flex items-start gap-3">
-                          <IconComponent className="w-5 h-5 text-blue-600 mt-0.5" />
+                          <IconComponent className="w-5 h-5 text-primary mt-0.5" />
                           <div className="flex-1">
-                            <p className="font-medium text-gray-900 text-sm">{notification.title}</p>
-                            <p className="text-gray-600 text-sm">{notification.message}</p>
-                            <p className="text-gray-400 text-xs mt-1">{notification.time}</p>
+                            <p className="font-medium text-foreground text-sm">{notification.title}</p>
+                            <p className="text-muted-foreground text-sm">{notification.message}</p>
+                            <p className="text-muted-foreground text-xs mt-1">{notification.time}</p>
                           </div>
                         </div>
                       </div>
                     );
                   })}
                 </div>
-                <div className="p-3 border-t">
+                <div className="p-3 border-t border-border">
                   <Button variant="ghost" className="w-full text-sm">
                     View All Notifications
                   </Button>
@@ -95,7 +95,7 @@ export const PageHeader = ({ title, subtitle, badge, children }: PageHeaderProps
           
           <Avatar className="h-8 w-8">
             <AvatarImage src="/placeholder.svg" />
-            <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white">
+            <AvatarFallback className="bg-primary text-primary-foreground">
               AX
             </AvatarFallback>
           </Avatar>

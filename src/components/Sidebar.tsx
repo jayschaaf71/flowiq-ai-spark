@@ -107,7 +107,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(({ className, ...
   return (
     <div
       className={cn(
-        "flex flex-col space-y-4 border-r bg-white/50 backdrop-blur-sm shadow-sm w-64",
+        "flex flex-col space-y-4 border-r border-border bg-card backdrop-blur-sm shadow-sm w-64",
         className
       )}
       ref={ref}
@@ -115,8 +115,8 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(({ className, ...
     >
       <div className="flex items-center justify-between p-4">
         <div className="flex items-center space-x-2">
-          <Brain className="h-6 w-6 text-blue-500" />
-          <span className="font-bold text-lg">{tenantConfig.brandName}</span>
+          <Brain className="h-6 w-6 text-primary" />
+          <span className="font-bold text-lg text-foreground">{tenantConfig.brandName}</span>
         </div>
         <Button variant="ghost" size="icon" onClick={() => setIsExpanded(!isExpanded)}>
           <LayoutDashboard className="h-4 w-4" />
@@ -137,8 +137,8 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(({ className, ...
                   className={cn(
                     "justify-start px-2",
                     location.pathname === item.href
-                      ? "bg-gray-100 text-blue-600 font-semibold"
-                      : "text-gray-700 hover:bg-gray-100"
+                      ? "bg-accent text-primary font-semibold"
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground"
                   )}
                   onClick={() => navigate(item.href)}
                 >
