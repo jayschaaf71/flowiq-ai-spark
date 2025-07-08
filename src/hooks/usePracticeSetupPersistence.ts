@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { SetupData } from '@/pages/PracticeSetup';
 import { useAuth } from '@/contexts/AuthProvider';
 
@@ -12,17 +12,19 @@ export const usePracticeSetupPersistence = (
   setupData: SetupData,
   setSetupData: (data: SetupData) => void,
   currentStep: number,
-  setCurrentStep: (step: number) => void
+  setCurrentStep: (step: number) => void,
+  onDataLoaded?: () => void
 ) => {
   const { user } = useAuth();
+  const hasLoadedRef = useRef(false);
   
   // Get user-specific storage keys
   const storageKey = getStorageKey(user?.id, 'data');
   const stepStorageKey = getStorageKey(user?.id, 'step');
 
-  // Load data from localStorage on mount
+  // Load data from localStorage on mount - ONLY ONCE
   useEffect(() => {
-    if (!storageKey || !stepStorageKey || !user?.id) return;
+    if (!storageKey || !stepStorageKey || !user?.id || hasLoadedRef.current) return;
     
     console.log('Loading saved practice setup data for user:', user.id);
     const savedData = localStorage.getItem(storageKey);
@@ -31,11 +33,17 @@ export const usePracticeSetupPersistence = (
     console.log('Saved data:', savedData);
     console.log('Saved step:', savedStep);
     
+    let dataRestored = false;
+    
     if (savedData) {
       try {
         const parsedData = JSON.parse(savedData) as SetupData;
-        console.log('Restoring setup data:', parsedData);
-        setSetupData(parsedData);
+        // Only restore if it's not the default empty state
+        if (parsedData.practiceType || parsedData.practiceName || parsedData.address) {
+          console.log('Restoring setup data:', parsedData);
+          setSetupData(parsedData);
+          dataRestored = true;
+        }
       } catch (error) {
         console.error('Failed to parse saved setup data:', error);
         if (storageKey) localStorage.removeItem(storageKey);
@@ -45,8 +53,8 @@ export const usePracticeSetupPersistence = (
     if (savedStep) {
       try {
         const parsedStep = parseInt(savedStep, 10);
-        console.log('Restoring step:', parsedStep);
         if (parsedStep >= 1 && parsedStep <= 5) {
+          console.log('Restoring step:', parsedStep);
           setCurrentStep(parsedStep);
         }
       } catch (error) {
@@ -54,17 +62,26 @@ export const usePracticeSetupPersistence = (
         if (stepStorageKey) localStorage.removeItem(stepStorageKey);
       }
     }
-  }, [storageKey, stepStorageKey, user?.id, setSetupData, setCurrentStep]);
+    
+    hasLoadedRef.current = true;
+    onDataLoaded?.();
+    
+    console.log('Data loading complete. Restored:', dataRestored);
+  }, [storageKey, stepStorageKey, user?.id, setSetupData, setCurrentStep, onDataLoaded]);
 
-  // Save data to localStorage whenever setupData changes
+  // Save data to localStorage whenever setupData changes - ONLY after initial load
   useEffect(() => {
-    if (!storageKey) return;
+    if (!storageKey || !hasLoadedRef.current) return;
+    
+    console.log('Saving setup data:', setupData);
     localStorage.setItem(storageKey, JSON.stringify(setupData));
   }, [setupData, storageKey]);
 
-  // Save current step to localStorage whenever it changes
+  // Save current step to localStorage whenever it changes - ONLY after initial load
   useEffect(() => {
-    if (!stepStorageKey) return;
+    if (!stepStorageKey || !hasLoadedRef.current) return;
+    
+    console.log('Saving current step:', currentStep);
     localStorage.setItem(stepStorageKey, currentStep.toString());
   }, [currentStep, stepStorageKey]);
 
@@ -77,12 +94,23 @@ export const usePracticeSetupPersistence = (
     // Also clear any legacy global keys to prevent data leakage
     localStorage.removeItem('practice-setup-data');
     localStorage.removeItem('practice-setup-step');
+    
+    hasLoadedRef.current = false;
   }, [storageKey, stepStorageKey]);
 
   // Check if there's saved data
   const hasSavedData = useCallback(() => {
     if (!storageKey || !stepStorageKey) return false;
-    return localStorage.getItem(storageKey) !== null || localStorage.getItem(stepStorageKey) !== null;
+    const data = localStorage.getItem(storageKey);
+    if (!data) return false;
+    
+    try {
+      const parsedData = JSON.parse(data) as SetupData;
+      // Only consider it "saved data" if it has meaningful content
+      return !!(parsedData.practiceType || parsedData.practiceName || parsedData.address);
+    } catch {
+      return false;
+    }
   }, [storageKey, stepStorageKey]);
 
   return {

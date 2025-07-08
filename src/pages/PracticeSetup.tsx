@@ -37,6 +37,7 @@ const PracticeSetup = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [setupData, setSetupData] = useState<SetupData>({
     practiceType: null,
     practiceName: '',
@@ -52,8 +53,14 @@ const PracticeSetup = () => {
     },
   });
 
-  // Add persistence hooks
-  const { clearSavedData, hasSavedData } = usePracticeSetupPersistence(setupData, setSetupData, currentStep, setCurrentStep);
+  // Add persistence hooks with callback to know when data is loaded
+  const { clearSavedData, hasSavedData } = usePracticeSetupPersistence(
+    setupData, 
+    setSetupData, 
+    currentStep, 
+    setCurrentStep,
+    () => setIsDataLoaded(true)
+  );
 
   const totalSteps = 5;
   const progress = (currentStep / totalSteps) * 100;
