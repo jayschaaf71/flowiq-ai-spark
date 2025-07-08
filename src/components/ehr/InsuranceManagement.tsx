@@ -62,6 +62,7 @@ export const InsuranceManagement = ({ patientId }: InsuranceManagementProps) => 
         copay_amount: formData.copay_amount ? parseFloat(formData.copay_amount) : null,
         deductible_amount: formData.deductible_amount ? parseFloat(formData.deductible_amount) : null,
         is_active: true,
+        tenant_id: null, // Will be set automatically by database trigger
       });
 
       toast({

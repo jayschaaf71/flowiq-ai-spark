@@ -102,37 +102,66 @@ const PracticeSetup = () => {
   const handleComplete = async () => {
     console.log('Setup completed with data:', setupData);
     
-    // Update user profile with selected practice type
-    if (setupData.practiceType) {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const specialtyMapping = {
-            'dental-sleep': 'Dental Sleep Medicine',
-            'dental': 'Dentistry', 
-            'orthodontics': 'Orthodontics',
-            'oral-surgery': 'Oral Surgery',
-            'chiropractic': 'Chiropractic Care',
-            'physical-therapy': 'Physical Therapy',
-            'veterinary': 'Veterinary Medicine',
-            'med-spa': 'Medical Spa',
-            'appointment-iq': 'Appointment Scheduling'
-          };
-          
-          await supabase
-            .from('profiles')
-            .update({ specialty: specialtyMapping[setupData.practiceType] || setupData.practiceType })
-            .eq('id', user.id);
-        }
-      } catch (error) {
-        console.error('Failed to update user profile:', error);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('User not authenticated');
       }
+
+      if (setupData.practiceType && setupData.practiceName) {
+        // Generate subdomain from practice name
+        const subdomain = setupData.practiceName
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-|-$/g, '')
+          .substring(0, 50);
+
+        const specialtyMapping = {
+          'dental-sleep': 'dental-sleep-medicine',
+          'dental': 'dental-care', 
+          'orthodontics': 'orthodontics',
+          'oral-surgery': 'oral-surgery',
+          'chiropractic': 'chiropractic-care',
+          'physical-therapy': 'physical-therapy',
+          'veterinary': 'veterinary-medicine',
+          'med-spa': 'medical-spa',
+          'appointment-iq': 'appointment-scheduling'
+        };
+
+        // Create tenant using the database function
+        const { data: tenantId, error: tenantError } = await supabase
+          .rpc('create_tenant_from_onboarding', {
+            p_name: setupData.practiceName,
+            p_subdomain: subdomain,
+            p_specialty: specialtyMapping[setupData.practiceType] || setupData.practiceType,
+            p_practice_type: setupData.practiceType,
+            p_business_name: setupData.practiceName,
+            p_address: setupData.address,
+            p_phone: setupData.phone,
+            p_email: setupData.email
+          });
+
+        if (tenantError) {
+          console.error('Failed to create tenant:', tenantError);
+          throw tenantError;
+        }
+
+        console.log('Created tenant with ID:', tenantId);
+
+        // Update user's specialty in localStorage (HIPAA compliant user-specific key)
+        const userSpecificKey = `currentSpecialty_${user.id}`;
+        localStorage.setItem(userSpecificKey, specialtyMapping[setupData.practiceType] || setupData.practiceType);
+      }
+    } catch (error) {
+      console.error('Failed to complete setup:', error);
+      // You might want to show an error message to the user here
+      return;
     }
     
     // Clear saved data BEFORE setting completion to prevent restoration on redirect
     clearSavedData();
     setIsCompleted(true);
-    // Here you would save the setup data to your backend
   };
 
   const renderStepContent = () => {
