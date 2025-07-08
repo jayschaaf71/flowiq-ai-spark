@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { useAuth } from "@/contexts/AuthProvider";
 import { ChiropracticDashboard } from "@/components/chiropractic/ChiropracticDashboard";
 import { DentalDashboard } from "@/components/specialty/dashboards/DentalDashboard";
 import { DentalSleepDashboard } from "@/components/specialty/dashboards/DentalSleepDashboard";
@@ -33,8 +34,10 @@ export const Dashboard = () => {
   }
 
   const renderSpecialtyDashboard = () => {
-    // Use localStorage specialty detection instead of user profile
-    const currentSpecialty = localStorage.getItem('currentSpecialty') || 'chiropractic';
+    // HIPAA COMPLIANCE: Use user-specific localStorage key for specialty detection
+    const { user } = useAuth();
+    const userSpecificKey = user?.id ? `currentSpecialty_${user.id}` : null;
+    const currentSpecialty = (userSpecificKey ? localStorage.getItem(userSpecificKey) : null) || 'chiropractic';
     
     console.log('=== DASHBOARD DEBUG ===');
     console.log('Current specialty from localStorage:', currentSpecialty);

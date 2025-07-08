@@ -10,8 +10,14 @@ export const usePatients = (searchTerm?: string) => {
   return useQuery({
     queryKey: ['patients', searchTerm],
     queryFn: async () => {
-      // Get current specialty from localStorage to filter patients by practice
-      const currentSpecialty = localStorage.getItem('currentSpecialty') || 'chiropractic';
+      // HIPAA COMPLIANCE: Ensure user is authenticated before accessing patient data
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('Authentication required to access patient data');
+      }
+
+      // Get current specialty from user-specific storage (HIPAA compliant)
+      const currentSpecialty = localStorage.getItem(`currentSpecialty_${user.id}`) || 'chiropractic';
       
       let query = supabase
         .from('patients')
@@ -53,8 +59,14 @@ export const useCreatePatient = () => {
 
   return useMutation({
     mutationFn: async (patient: NewPatient) => {
-      // Automatically assign current specialty to new patients
-      const currentSpecialty = localStorage.getItem('currentSpecialty') || 'chiropractic';
+      // HIPAA COMPLIANCE: Ensure user is authenticated before creating patient data
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('Authentication required to create patient data');
+      }
+
+      // Get current specialty from user-specific storage (HIPAA compliant)
+      const currentSpecialty = localStorage.getItem(`currentSpecialty_${user.id}`) || 'chiropractic';
       const patientWithSpecialty = { ...patient, specialty: currentSpecialty };
       
       const { data, error } = await supabase

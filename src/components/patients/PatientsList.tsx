@@ -48,8 +48,14 @@ export const PatientsList = ({ onSelectPatient, onAddPatient }: PatientsListProp
 
   const fetchPatients = async () => {
     try {
-      // Filter patients by current specialty/practice
-      const currentSpecialty = localStorage.getItem('currentSpecialty') || 'chiropractic';
+      // HIPAA COMPLIANCE: Ensure user is authenticated before accessing patient data
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('Authentication required to access patient data');
+      }
+
+      // Filter patients by current specialty/practice using user-specific storage
+      const currentSpecialty = localStorage.getItem(`currentSpecialty_${user.id}`) || 'chiropractic';
       
       const { data, error } = await supabase
         .from('patients')

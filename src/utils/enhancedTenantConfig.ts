@@ -78,9 +78,9 @@ export function useEnhancedTenantConfig() {
       setIsLoading(true);
       console.log('Mock loading tenant config for user:', user?.id);
       
-      // Check for current specialty from different sources
-      const currentSpecialty = localStorage.getItem('currentSpecialty') || 
-                               localStorage.getItem('specialty') || 
+      // HIPAA COMPLIANCE: Use user-specific specialty storage
+      const userSpecificKey = user?.id ? `currentSpecialty_${user.id}` : null;
+      const currentSpecialty = (userSpecificKey ? localStorage.getItem(userSpecificKey) : null) || 
                                'chiropractic';
       
       console.log('Loading config for specialty:', currentSpecialty);
@@ -118,7 +118,9 @@ export function useEnhancedTenantConfig() {
   // Listen for specialty changes from localStorage - optimized to prevent excessive reloads
   useEffect(() => {
     const handleStorageChange = () => {
-      const currentSpecialty = localStorage.getItem('currentSpecialty');
+      // HIPAA COMPLIANCE: Only listen to user-specific specialty changes
+      const userSpecificKey = user?.id ? `currentSpecialty_${user.id}` : null;
+      const currentSpecialty = userSpecificKey ? localStorage.getItem(userSpecificKey) : null;
       if (currentSpecialty && tenantConfig?.specialty !== currentSpecialty) {
         loadTenantConfig();
       }
