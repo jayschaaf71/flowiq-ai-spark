@@ -1,4 +1,3 @@
-import { Layout } from "@/components/Layout";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -6,8 +5,7 @@ import { TwoFactorAuth } from "@/components/auth/TwoFactorAuth";
 
 const Settings = () => {
   return (
-    <Layout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <PageHeader 
           title="Settings"
           subtitle="Configure your FlowIQ preferences"
@@ -78,8 +76,7 @@ const Settings = () => {
           {/* Two-Factor Authentication Section */}
           <TwoFactorAuth />
         </div>
-      </div>
-    </Layout>
+    </div>
   );
 };
 
