@@ -169,9 +169,8 @@ const PracticeSetup = () => {
             <CardContent>
               <Button 
                 onClick={() => {
-                  // Force clear any remaining saved data
-                  localStorage.removeItem('practice-setup-data');
-                  localStorage.removeItem('practice-setup-step');
+                  // Force clear any remaining saved data (both user-specific and legacy)
+                  clearSavedData();
                   // Use React Router navigation instead of window.location
                   navigate('/dashboard');
                 }}

@@ -1,8 +1,12 @@
 import { useEffect, useCallback } from 'react';
 import { SetupData } from '@/pages/PracticeSetup';
+import { useAuth } from '@/contexts/AuthProvider';
 
-const STORAGE_KEY = 'practice-setup-data';
-const STEP_STORAGE_KEY = 'practice-setup-step';
+// Make storage keys user-specific to prevent HIPAA violations
+const getStorageKey = (userId: string | undefined, key: string) => {
+  if (!userId) return null;
+  return `practice-setup-${userId}-${key}`;
+};
 
 export const usePracticeSetupPersistence = (
   setupData: SetupData,
@@ -10,11 +14,19 @@ export const usePracticeSetupPersistence = (
   currentStep: number,
   setCurrentStep: (step: number) => void
 ) => {
+  const { user } = useAuth();
+  
+  // Get user-specific storage keys
+  const storageKey = getStorageKey(user?.id, 'data');
+  const stepStorageKey = getStorageKey(user?.id, 'step');
+
   // Load data from localStorage on mount
   useEffect(() => {
+    if (!storageKey || !stepStorageKey) return;
+    
     console.log('Loading saved practice setup data...');
-    const savedData = localStorage.getItem(STORAGE_KEY);
-    const savedStep = localStorage.getItem(STEP_STORAGE_KEY);
+    const savedData = localStorage.getItem(storageKey);
+    const savedStep = localStorage.getItem(stepStorageKey);
     
     console.log('Saved data:', savedData);
     console.log('Saved step:', savedStep);
@@ -26,7 +38,7 @@ export const usePracticeSetupPersistence = (
         setSetupData(parsedData);
       } catch (error) {
         console.error('Failed to parse saved setup data:', error);
-        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(storageKey);
       }
     }
     
@@ -39,31 +51,39 @@ export const usePracticeSetupPersistence = (
         }
       } catch (error) {
         console.error('Failed to parse saved step:', error);
-        localStorage.removeItem(STEP_STORAGE_KEY);
+        localStorage.removeItem(stepStorageKey);
       }
     }
-  }, []);
+  }, [user?.id]);
 
   // Save data to localStorage whenever setupData changes
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(setupData));
-  }, [setupData]);
+    if (!storageKey) return;
+    localStorage.setItem(storageKey, JSON.stringify(setupData));
+  }, [setupData, storageKey]);
 
   // Save current step to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem(STEP_STORAGE_KEY, currentStep.toString());
-  }, [currentStep]);
+    if (!stepStorageKey) return;
+    localStorage.setItem(stepStorageKey, currentStep.toString());
+  }, [currentStep, stepStorageKey]);
 
   // Clear saved data
   const clearSavedData = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem(STEP_STORAGE_KEY);
-  }, []);
+    if (!storageKey || !stepStorageKey) return;
+    localStorage.removeItem(storageKey);
+    localStorage.removeItem(stepStorageKey);
+    
+    // Also clear any legacy global keys to prevent data leakage
+    localStorage.removeItem('practice-setup-data');
+    localStorage.removeItem('practice-setup-step');
+  }, [storageKey, stepStorageKey]);
 
   // Check if there's saved data
   const hasSavedData = useCallback(() => {
-    return localStorage.getItem(STORAGE_KEY) !== null || localStorage.getItem(STEP_STORAGE_KEY) !== null;
-  }, []);
+    if (!storageKey || !stepStorageKey) return false;
+    return localStorage.getItem(storageKey) !== null || localStorage.getItem(stepStorageKey) !== null;
+  }, [storageKey, stepStorageKey]);
 
   return {
     clearSavedData,
