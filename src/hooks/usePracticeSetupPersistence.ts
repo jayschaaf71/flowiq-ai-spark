@@ -22,6 +22,34 @@ export const usePracticeSetupPersistence = (
   const storageKey = getStorageKey(user?.id, 'data');
   const stepStorageKey = getStorageKey(user?.id, 'step');
 
+  // Clear saved data - moved to top to ensure hook order consistency
+  const clearSavedData = useCallback(() => {
+    if (!storageKey || !stepStorageKey) return;
+    localStorage.removeItem(storageKey);
+    localStorage.removeItem(stepStorageKey);
+    
+    // Also clear any legacy global keys to prevent data leakage
+    localStorage.removeItem('practice-setup-data');
+    localStorage.removeItem('practice-setup-step');
+    
+    hasLoadedRef.current = false;
+  }, [storageKey, stepStorageKey]);
+
+  // Check if there's saved data - moved to top to ensure hook order consistency  
+  const hasSavedData = useCallback(() => {
+    if (!storageKey || !stepStorageKey) return false;
+    const data = localStorage.getItem(storageKey);
+    if (!data) return false;
+    
+    try {
+      const parsedData = JSON.parse(data) as SetupData;
+      // Only consider it "saved data" if it has meaningful content
+      return !!(parsedData.practiceType || parsedData.practiceName || parsedData.address);
+    } catch {
+      return false;
+    }
+  }, [storageKey, stepStorageKey]);
+
   // Load data from localStorage on mount - ONLY ONCE
   useEffect(() => {
     if (!storageKey || !stepStorageKey || !user?.id || hasLoadedRef.current) return;
@@ -84,34 +112,6 @@ export const usePracticeSetupPersistence = (
     console.log('Saving current step:', currentStep);
     localStorage.setItem(stepStorageKey, currentStep.toString());
   }, [currentStep, stepStorageKey]);
-
-  // Clear saved data
-  const clearSavedData = useCallback(() => {
-    if (!storageKey || !stepStorageKey) return;
-    localStorage.removeItem(storageKey);
-    localStorage.removeItem(stepStorageKey);
-    
-    // Also clear any legacy global keys to prevent data leakage
-    localStorage.removeItem('practice-setup-data');
-    localStorage.removeItem('practice-setup-step');
-    
-    hasLoadedRef.current = false;
-  }, [storageKey, stepStorageKey]);
-
-  // Check if there's saved data
-  const hasSavedData = useCallback(() => {
-    if (!storageKey || !stepStorageKey) return false;
-    const data = localStorage.getItem(storageKey);
-    if (!data) return false;
-    
-    try {
-      const parsedData = JSON.parse(data) as SetupData;
-      // Only consider it "saved data" if it has meaningful content
-      return !!(parsedData.practiceType || parsedData.practiceName || parsedData.address);
-    } catch {
-      return false;
-    }
-  }, [storageKey, stepStorageKey]);
 
   return {
     clearSavedData,
