@@ -10,10 +10,14 @@ export const usePatients = (searchTerm?: string) => {
   return useQuery({
     queryKey: ['patients', searchTerm],
     queryFn: async () => {
+      // Get current specialty from localStorage to filter patients by practice
+      const currentSpecialty = localStorage.getItem('currentSpecialty') || 'chiropractic';
+      
       let query = supabase
         .from('patients')
         .select('*')
         .eq('is_active', true)
+        .eq('specialty', currentSpecialty)
         .order('created_at', { ascending: false });
 
       if (searchTerm) {
@@ -49,9 +53,13 @@ export const useCreatePatient = () => {
 
   return useMutation({
     mutationFn: async (patient: NewPatient) => {
+      // Automatically assign current specialty to new patients
+      const currentSpecialty = localStorage.getItem('currentSpecialty') || 'chiropractic';
+      const patientWithSpecialty = { ...patient, specialty: currentSpecialty };
+      
       const { data, error } = await supabase
         .from('patients')
-        .insert(patient)
+        .insert(patientWithSpecialty)
         .select()
         .single();
 

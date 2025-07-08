@@ -48,10 +48,14 @@ export const PatientsList = ({ onSelectPatient, onAddPatient }: PatientsListProp
 
   const fetchPatients = async () => {
     try {
+      // Filter patients by current specialty/practice
+      const currentSpecialty = localStorage.getItem('currentSpecialty') || 'chiropractic';
+      
       const { data, error } = await supabase
         .from('patients')
         .select('*')
         .eq('is_active', true)
+        .eq('specialty', currentSpecialty)
         .order('created_at', { ascending: false });
 
       if (error) throw error;

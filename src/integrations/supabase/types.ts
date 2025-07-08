@@ -815,6 +815,7 @@ export type Database = {
           medications: string | null
           patient_number: string | null
           phone: string | null
+          specialty: string | null
           state: string | null
           updated_at: string
           zip_code: string | null
@@ -839,6 +840,7 @@ export type Database = {
           medications?: string | null
           patient_number?: string | null
           phone?: string | null
+          specialty?: string | null
           state?: string | null
           updated_at?: string
           zip_code?: string | null
@@ -863,6 +865,7 @@ export type Database = {
           medications?: string | null
           patient_number?: string | null
           phone?: string | null
+          specialty?: string | null
           state?: string | null
           updated_at?: string
           zip_code?: string | null
