@@ -115,24 +115,19 @@ export function useEnhancedTenantConfig() {
     loadTenantConfig();
   }, [user]);
 
-  // Listen for specialty changes from localStorage
+  // Listen for specialty changes from localStorage - optimized to prevent excessive reloads
   useEffect(() => {
     const handleStorageChange = () => {
-      loadTenantConfig();
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    // Also listen for manual updates to localStorage from same tab
-    const interval = setInterval(() => {
       const currentSpecialty = localStorage.getItem('currentSpecialty');
       if (currentSpecialty && tenantConfig?.specialty !== currentSpecialty) {
         loadTenantConfig();
       }
-    }, 1000);
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
     
     return () => {
       window.removeEventListener('storage', handleStorageChange);
-      clearInterval(interval);
     };
   }, [tenantConfig?.specialty]);
 
