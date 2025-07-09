@@ -5,12 +5,21 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuthState } from '@/hooks/useAuthState';
 import { useToast } from '@/hooks/use-toast';
 
+type AppRole = 
+  | 'platform_admin'
+  | 'practice_admin' 
+  | 'practice_manager'
+  | 'provider'
+  | 'staff'
+  | 'billing'
+  | 'patient';
+
 interface Profile {
   id: string;
   email: string;
   first_name?: string;
   last_name?: string;
-  role: string;
+  role: AppRole;
   tenant_id?: string;
 }
 
@@ -23,7 +32,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, firstName?: string, lastName?: string, role?: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
-  switchRole: (newRole: string) => Promise<void>;
+  switchRole: (newRole: AppRole) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -115,7 +124,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const switchRole = async (newRole: string) => {
+  const switchRole = async (newRole: AppRole) => {
     if (!user || !profile) return;
 
     try {

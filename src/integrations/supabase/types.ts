@@ -1106,7 +1106,7 @@ export type Database = {
           last_name: string | null
           notes: string | null
           preferred_channel: string | null
-          role: string | null
+          role: Database["public"]["Enums"]["app_role"] | null
           specialty: string | null
           tenant_id: string | null
           updated_at: string
@@ -1126,7 +1126,7 @@ export type Database = {
           last_name?: string | null
           notes?: string | null
           preferred_channel?: string | null
-          role?: string | null
+          role?: Database["public"]["Enums"]["app_role"] | null
           specialty?: string | null
           tenant_id?: string | null
           updated_at?: string
@@ -1146,7 +1146,7 @@ export type Database = {
           last_name?: string | null
           notes?: string | null
           preferred_channel?: string | null
-          role?: string | null
+          role?: Database["public"]["Enums"]["app_role"] | null
           specialty?: string | null
           tenant_id?: string | null
           updated_at?: string
@@ -1761,6 +1761,10 @@ export type Database = {
       }
     }
     Functions: {
+      can_access_platform_admin: {
+        Args: { user_id?: string }
+        Returns: boolean
+      }
       cleanup_expired_sessions: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -1786,13 +1790,36 @@ export type Database = {
         Args: { user_id: string }
         Returns: string
       }
+      get_user_role_text: {
+        Args: { user_id: string }
+        Returns: string
+      }
+      has_staff_access: {
+        Args: { user_id?: string }
+        Returns: boolean
+      }
+      is_platform_admin: {
+        Args: { user_id?: string }
+        Returns: boolean
+      }
+      is_practice_admin: {
+        Args: { user_id?: string; check_tenant_id?: string }
+        Returns: boolean
+      }
       user_belongs_to_tenant: {
         Args: { user_id: string; tenant_id: string }
         Returns: boolean
       }
     }
     Enums: {
-      [_ in never]: never
+      app_role:
+        | "platform_admin"
+        | "practice_admin"
+        | "practice_manager"
+        | "provider"
+        | "staff"
+        | "billing"
+        | "patient"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1919,6 +1946,16 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: [
+        "platform_admin",
+        "practice_admin",
+        "practice_manager",
+        "provider",
+        "staff",
+        "billing",
+        "patient",
+      ],
+    },
   },
 } as const
