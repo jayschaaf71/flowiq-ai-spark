@@ -7,14 +7,14 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAIHelpAssistant } from '@/hooks/useAIHelpAssistant';
 import { 
-  Bot, 
+  Sparkles, 
   X, 
   Send, 
   Minimize2, 
   Maximize2, 
   Trash2,
-  Sparkles,
-  MessageCircle
+  MessageCircle,
+  Zap
 } from 'lucide-react';
 
 export const FloatingAssistIQ: React.FC = () => {
@@ -106,7 +106,7 @@ export const FloatingAssistIQ: React.FC = () => {
               size="icon"
             >
               <div className="relative">
-                <Bot className="h-6 w-6 text-white" />
+                <Zap className="h-6 w-6 text-white" />
                 <div className="absolute -top-1 -right-1 h-3 w-3 bg-green-400 rounded-full animate-pulse" />
               </div>
             </Button>
@@ -133,7 +133,7 @@ export const FloatingAssistIQ: React.FC = () => {
         <CardHeader className="p-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white cursor-move">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Bot className="h-5 w-5" />
+              <Zap className="h-5 w-5" />
               <span className="font-semibold">Assist IQ</span>
               <Badge variant="secondary" className="bg-white/20 text-white text-xs">
                 AI
@@ -180,7 +180,7 @@ export const FloatingAssistIQ: React.FC = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="relative">
-              <Bot className="h-5 w-5" />
+              <Zap className="h-5 w-5" />
               <div className="absolute -top-1 -right-1 h-2 w-2 bg-green-400 rounded-full animate-pulse" />
             </div>
             <span className="font-semibold">Assist IQ</span>
