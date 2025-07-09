@@ -411,7 +411,7 @@ function App() {
                   </TenantWrapper>
                 } />
                 <Route path="/widget" element={<BookingWidgetPage />} />
-                <Route path="/platform-admin" element={
+                <Route path="/platform-admin/*" element={
                   <ProtectedRoute requiredRole="platform_admin">
                     <PlatformAdmin />
                   </ProtectedRoute>
