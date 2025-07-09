@@ -59,6 +59,7 @@ import PilotDashboard from '@/pages/PilotDashboard';
 import ExternalIntegrationsPage from '@/pages/ExternalIntegrations';
 import BookingWidgetPage from '@/pages/BookingWidget';
 import PlatformAdmin from '@/pages/PlatformAdmin';
+import PracticeAdmin from '@/pages/PracticeAdmin';
 import TenantOnboarding from '@/pages/TenantOnboarding';
 import PracticeSetup from '@/pages/PracticeSetup';
 // Demo imports
@@ -414,6 +415,11 @@ function App() {
                 <Route path="/platform-admin/*" element={
                   <ProtectedRoute requiredRole="platform_admin">
                     <PlatformAdmin />
+                  </ProtectedRoute>
+                } />
+                <Route path="/practice-admin/*" element={
+                  <ProtectedRoute requiredRole="practice_admin">
+                    <PracticeAdmin />
                   </ProtectedRoute>
                 } />
                 <Route path="/onboarding/:tenantId" element={
