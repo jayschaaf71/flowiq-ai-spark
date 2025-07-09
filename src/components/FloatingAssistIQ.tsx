@@ -107,7 +107,7 @@ export const FloatingAssistIQ: React.FC = () => {
             >
               <div className="relative flex flex-col items-center">
                 <Zap className="h-8 w-8 text-white mb-1" />
-                <span className="text-xs font-semibold text-white">ASSIST</span>
+                <span className="text-xs font-semibold text-white">ASSIST IQ</span>
                 <div className="absolute -top-1 -right-1 h-4 w-4 bg-green-400 rounded-full animate-pulse border-2 border-white" />
               </div>
             </Button>
