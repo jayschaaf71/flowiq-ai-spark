@@ -34,10 +34,8 @@ export const Dashboard = () => {
   }
 
   const renderSpecialtyDashboard = () => {
-    // HIPAA COMPLIANCE: Use user-specific localStorage key for specialty detection
-    const { user } = useAuth();
-    const userSpecificKey = user?.id ? `currentSpecialty_${user.id}` : null;
-    const currentSpecialty = (userSpecificKey ? localStorage.getItem(userSpecificKey) : null) || 'chiropractic';
+    // Use the same localStorage key as TenantWrapper for consistency
+    const currentSpecialty = localStorage.getItem('currentSpecialty') || 'chiropractic';
     
     console.log('=== DASHBOARD DEBUG ===');
     console.log('Current specialty from localStorage:', currentSpecialty);
