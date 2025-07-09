@@ -6,9 +6,10 @@ import { User, Shield, Mail, MoreVertical } from 'lucide-react';
 
 export const PlatformUsers = () => {
   const users = [
-    { id: 1, name: "Dr. Sarah Johnson", email: "sarah@chirowellness.com", role: "practice_admin", tenant: "ChiroWellness Center", status: "active" },
-    { id: 2, name: "Mike Chen", email: "mike@downtowndental.com", role: "staff", tenant: "Downtown Dental", status: "active" },
-    { id: 3, name: "Lisa Rodriguez", email: "lisa@elitemedspa.com", role: "tenant_admin", tenant: "Elite MedSpa", status: "pending" },
+    { id: 1, name: "Dr. Mark Thompson", email: "mark.thompson@westcountyspine.com", role: "practice_admin", tenant: "West County Spine & Joint", status: "active" },
+    { id: 2, name: "Dr. Amanda Chen", email: "amanda.chen@midwestdentalsleep.com", role: "practice_admin", tenant: "Midwest Dental Sleep Medicine", status: "active" },
+    { id: 3, name: "Sarah Wilson", email: "sarah.wilson@westcountyspine.com", role: "staff", tenant: "West County Spine & Joint", status: "pending" },
+    { id: 4, name: "James Parker", email: "james.parker@midwestdentalsleep.com", role: "staff", tenant: "Midwest Dental Sleep Medicine", status: "active" },
   ];
 
   return (
