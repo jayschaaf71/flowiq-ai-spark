@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { type AppRole } from '@/hooks/useRoleAccess';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -42,7 +43,7 @@ const roleConfig = {
 
 export const RoleSwitcher: React.FC = () => {
   const { profile, switchRole, loading } = useAuth();
-  const [selectedRole, setSelectedRole] = useState(profile?.role || 'patient');
+  const [selectedRole, setSelectedRole] = useState<AppRole>(profile?.role || 'patient');
   const [switching, setSwitching] = useState(false);
 
   if (!profile) return null;
@@ -76,7 +77,7 @@ export const RoleSwitcher: React.FC = () => {
 
         <div className="space-y-2">
           <label className="text-sm font-medium">Switch to Role:</label>
-          <Select value={selectedRole} onValueChange={setSelectedRole}>
+          <Select value={selectedRole} onValueChange={(value: AppRole) => setSelectedRole(value)}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>

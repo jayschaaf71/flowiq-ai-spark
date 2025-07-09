@@ -4,7 +4,7 @@ import { EnhancedProtectedRoute } from './EnhancedProtectedRoute';
 
 interface TenantProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: 'patient' | 'staff' | 'admin';
+  requiredRole?: 'patient' | 'staff' | 'practice_admin' | 'platform_admin';
 }
 
 export const TenantProtectedRoute: React.FC<TenantProtectedRouteProps> = ({ 

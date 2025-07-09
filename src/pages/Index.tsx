@@ -32,7 +32,7 @@ const Index = () => {
       if (profile?.role === 'patient') {
         console.log("Navigating to patient dashboard");
         navigate('/patient-dashboard');
-      } else if (profile?.role === 'admin' && !currentTenant) {
+      } else if (['practice_admin', 'platform_admin'].includes(profile?.role) && !currentTenant) {
         // New admin users without tenant - start onboarding
         console.log("Navigating to onboarding");
         navigate('/onboarding');

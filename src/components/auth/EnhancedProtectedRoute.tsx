@@ -9,7 +9,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 interface EnhancedProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: 'patient' | 'staff' | 'admin';
+  requiredRole?: 'patient' | 'staff' | 'practice_admin' | 'platform_admin';
   allowPatients?: boolean;
 }
 
@@ -35,7 +35,7 @@ export const EnhancedProtectedRoute: React.FC<EnhancedProtectedRouteProps> = ({
       }
       
       // If user is staff and trying to access patient-only areas, redirect to main dashboard
-      if ((profile.role === 'staff' || profile.role === 'admin') && location.pathname === '/patient-dashboard') {
+      if (['staff', 'provider', 'practice_manager', 'practice_admin', 'platform_admin'].includes(profile.role) && location.pathname === '/patient-dashboard') {
         console.log('Staff trying to access patient dashboard, redirecting to main dashboard');
         navigate('/', { replace: true });
         return;
@@ -62,10 +62,12 @@ export const EnhancedProtectedRoute: React.FC<EnhancedProtectedRouteProps> = ({
   if (requiredRole && profile) {
     const hasAccess = () => {
       switch (requiredRole) {
-        case 'admin':
-          return profile.role === 'admin';
+        case 'platform_admin':
+          return profile.role === 'platform_admin';
+        case 'practice_admin':
+          return ['practice_admin', 'platform_admin'].includes(profile.role);
         case 'staff':
-          return profile.role === 'staff' || profile.role === 'admin';
+          return ['staff', 'provider', 'practice_manager', 'practice_admin', 'platform_admin'].includes(profile.role);
         case 'patient':
           return allowPatients || profile.role === 'patient';
         default:

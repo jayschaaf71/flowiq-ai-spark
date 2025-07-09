@@ -412,7 +412,7 @@ function App() {
                 } />
                 <Route path="/widget" element={<BookingWidgetPage />} />
                 <Route path="/platform-admin" element={
-                  <ProtectedRoute requiredRole="admin">
+                  <ProtectedRoute requiredRole="platform_admin">
                     <PlatformAdmin />
                   </ProtectedRoute>
                 } />

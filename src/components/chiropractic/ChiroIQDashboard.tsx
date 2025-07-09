@@ -56,20 +56,20 @@ export const ChiroIQDashboard = () => {
             <PendingSOAPs />
           </>
         );
-      case 'front_desk':
+      case 'staff': // Map front_desk to staff
         return (
           <>
             <NoShowSummary />
             <VoicemailQueue />
           </>
         );
-      case 'office_manager':
+      case 'practice_manager': // Map office_manager to practice_manager
         return (
           <>
             <ComplianceAlerts />
           </>
         );
-      case 'biller':
+      case 'billing': // Map biller to billing
         return (
           <>
             <ClaimsOverview />
