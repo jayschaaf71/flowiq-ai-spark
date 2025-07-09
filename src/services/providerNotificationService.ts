@@ -1,5 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { ProviderNotificationPreferencesService } from './providerNotificationPreferencesService';
 
 export interface ProviderNotification {
   id: string;
@@ -16,9 +17,22 @@ export interface ProviderNotification {
 }
 
 export class ProviderNotificationService {
-  // Create a notification for a provider
+  // Create a notification for a provider (respecting preferences)
   static async createNotification(notification: Omit<ProviderNotification, 'id' | 'created_at' | 'is_read'>) {
     try {
+      // Check if provider should receive in-app notifications for this type
+      const shouldReceive = await ProviderNotificationPreferencesService.shouldSendNotification(
+        notification.provider_id,
+        notification.notification_type,
+        'in_app',
+        new Date()
+      );
+
+      if (!shouldReceive) {
+        console.log(`Skipping in-app notification for ${notification.provider_id} - ${notification.notification_type}`);
+        return null;
+      }
+
       const { data, error } = await supabase
         .from('provider_notifications')
         .insert({
@@ -40,7 +54,80 @@ export class ProviderNotificationService {
     }
   }
 
-  // Notify provider when patient completes intake
+  // Send notification via multiple channels based on preferences
+  static async sendNotificationWithPreferences(
+    providerId: string,
+    notificationType: string,
+    title: string,
+    message: string,
+    options?: {
+      appointmentId?: string;
+      patientId?: string;
+      actionUrl?: string;
+      scheduledTime?: Date;
+    }
+  ) {
+    const scheduledTime = options?.scheduledTime || new Date();
+    
+    // Check each channel and send accordingly
+    const channels = ['email', 'sms', 'push', 'in_app'] as const;
+    const results = [];
+
+    for (const channel of channels) {
+      const shouldSend = await ProviderNotificationPreferencesService.shouldSendNotification(
+        providerId,
+        notificationType,
+        channel,
+        scheduledTime
+      );
+
+      if (shouldSend) {
+        try {
+          switch (channel) {
+            case 'in_app':
+              const notification = await this.createNotification({
+                provider_id: providerId,
+                appointment_id: options?.appointmentId,
+                patient_id: options?.patientId,
+                notification_type: notificationType,
+                title,
+                message,
+                action_url: options?.actionUrl
+              });
+              results.push({ channel, success: !!notification, data: notification });
+              break;
+              
+            case 'email':
+              // TODO: Integrate with email service
+              console.log(`Would send email to provider ${providerId}: ${title}`);
+              results.push({ channel, success: true, data: 'email queued' });
+              break;
+              
+            case 'sms':
+              // TODO: Integrate with SMS service
+              console.log(`Would send SMS to provider ${providerId}: ${message}`);
+              results.push({ channel, success: true, data: 'sms queued' });
+              break;
+              
+            case 'push':
+              // TODO: Integrate with push notification service
+              console.log(`Would send push to provider ${providerId}: ${title}`);
+              results.push({ channel, success: true, data: 'push queued' });
+              break;
+          }
+        } catch (error) {
+          console.error(`Error sending ${channel} notification:`, error);
+          results.push({ channel, success: false, error: error.message });
+        }
+      } else {
+        results.push({ channel, success: false, reason: 'disabled by preferences' });
+      }
+    }
+
+    return results;
+  }
+
+  // Notify provider when patient completes intake (using preferences)
   static async notifyIntakeCompleted(appointmentId: string, patientId: string, providerId: string) {
     try {
       // Get patient and appointment details
@@ -55,22 +142,26 @@ export class ProviderNotificationService {
       if (!patient || !appointment) return;
 
       const patientName = `${patient.first_name} ${patient.last_name}`;
+      const title = 'Patient Intake Completed';
+      const message = `${patientName} has completed their intake for ${appointment.appointment_type} on ${appointment.date}`;
       
-      await this.createNotification({
-        provider_id: providerId,
-        appointment_id: appointmentId,
-        patient_id: patientId,
-        notification_type: 'intake_completed',
-        title: 'Patient Intake Completed',
-        message: `${patientName} has completed their intake for ${appointment.appointment_type} on ${appointment.date}`,
-        action_url: `/provider/patient-prep/${appointmentId}`
-      });
+      return await this.sendNotificationWithPreferences(
+        providerId,
+        'intake_completed',
+        title,
+        message,
+        {
+          appointmentId,
+          patientId,
+          actionUrl: `/provider/patient-prep/${appointmentId}`
+        }
+      );
     } catch (error) {
       console.error('Error notifying intake completed:', error);
     }
   }
 
-  // Notify provider of upcoming appointments with prep info
+  // Notify provider of upcoming appointments with prep info (using preferences)
   static async notifyUpcomingAppointment(appointmentId: string, providerId: string) {
     try {
       const { data: appointment, error } = await supabase
@@ -91,16 +182,20 @@ export class ProviderNotificationService {
       if (!patient) return;
 
       const patientName = `${patient.first_name} ${patient.last_name}`;
+      const title = 'Upcoming Appointment - Prep Available';
+      const message = `${patientName} - ${appointment.appointment_type} in 30 minutes. Review patient prep.`;
       
-      await this.createNotification({
-        provider_id: providerId,
-        appointment_id: appointmentId,
-        patient_id: appointment.patient_id,
-        notification_type: 'upcoming_appointment',
-        title: 'Upcoming Appointment - Prep Available',
-        message: `${patientName} - ${appointment.appointment_type} in 30 minutes. Review patient prep.`,
-        action_url: `/provider/patient-prep/${appointmentId}`
-      });
+      return await this.sendNotificationWithPreferences(
+        providerId,
+        'upcoming_appointment',
+        title,
+        message,
+        {
+          appointmentId,
+          patientId: appointment.patient_id,
+          actionUrl: `/provider/patient-prep/${appointmentId}`
+        }
+      );
     } catch (error) {
       console.error('Error notifying upcoming appointment:', error);
     }

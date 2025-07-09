@@ -1168,6 +1168,57 @@ export type Database = {
           },
         ]
       }
+      provider_notification_preferences: {
+        Row: {
+          created_at: string
+          days_of_week: number[] | null
+          email_enabled: boolean
+          id: string
+          in_app_enabled: boolean
+          notification_type: string
+          provider_id: string
+          push_enabled: boolean
+          quiet_hours_end: string | null
+          quiet_hours_start: string | null
+          sms_enabled: boolean
+          tenant_id: string | null
+          timing_minutes: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          days_of_week?: number[] | null
+          email_enabled?: boolean
+          id?: string
+          in_app_enabled?: boolean
+          notification_type: string
+          provider_id: string
+          push_enabled?: boolean
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
+          sms_enabled?: boolean
+          tenant_id?: string | null
+          timing_minutes?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          days_of_week?: number[] | null
+          email_enabled?: boolean
+          id?: string
+          in_app_enabled?: boolean
+          notification_type?: string
+          provider_id?: string
+          push_enabled?: boolean
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
+          sms_enabled?: boolean
+          tenant_id?: string | null
+          timing_minutes?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       provider_notifications: {
         Row: {
           action_url: string | null
