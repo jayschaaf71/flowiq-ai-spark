@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -37,6 +38,7 @@ export const PlatformAdminDashboard: React.FC = () => {
     insertSampleMetrics 
   } = usePlatformMetrics();
   
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
 
   if (loading) {
@@ -119,7 +121,10 @@ export const PlatformAdminDashboard: React.FC = () => {
 
       {/* High-Level Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
+        <Card 
+          className="cursor-pointer hover:bg-accent/50 transition-colors"
+          onClick={() => navigate('/platform-admin/tenants')}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Tenants</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
@@ -132,7 +137,10 @@ export const PlatformAdminDashboard: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card 
+          className="cursor-pointer hover:bg-accent/50 transition-colors"
+          onClick={() => setActiveTab('performance')}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">System Performance</CardTitle>
             <Activity className="h-4 w-4 text-muted-foreground" />
@@ -146,7 +154,10 @@ export const PlatformAdminDashboard: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card 
+          className="cursor-pointer hover:bg-accent/50 transition-colors"
+          onClick={() => navigate('/platform-admin/analytics')}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Revenue</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
@@ -160,7 +171,10 @@ export const PlatformAdminDashboard: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card 
+          className="cursor-pointer hover:bg-accent/50 transition-colors"
+          onClick={() => navigate('/platform-admin/infrastructure')}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Resource Usage</CardTitle>
             <Server className="h-4 w-4 text-muted-foreground" />
