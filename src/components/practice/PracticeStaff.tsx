@@ -4,11 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   UserCheck, 
-  Plus,
   MoreVertical,
   Clock,
   Shield
 } from 'lucide-react';
+import { PracticeUserInviteDialog } from './PracticeUserInviteDialog';
 
 export const PracticeStaff = () => {
   const staff = [
@@ -57,10 +57,7 @@ export const PracticeStaff = () => {
           <h1 className="text-3xl font-bold">Staff Management</h1>
           <p className="text-muted-foreground">Manage your practice team and permissions</p>
         </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Staff Member
-        </Button>
+        <PracticeUserInviteDialog />
       </div>
 
       {/* Staff Overview */}

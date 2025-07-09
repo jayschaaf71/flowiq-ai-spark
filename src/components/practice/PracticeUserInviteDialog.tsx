@@ -8,14 +8,13 @@ import { UserPlus, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useTenantManagement } from '@/hooks/useTenantManagement';
 
-export const UserInviteDialog: React.FC = () => {
-  const { tenants, inviteUser, isInviting } = useTenantManagement();
+export const PracticeUserInviteDialog: React.FC = () => {
+  const { currentTenant, inviteUser, isInviting } = useTenantManagement();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
-    role: 'staff' as 'platform_admin' | 'tenant_admin' | 'practice_manager' | 'staff',
-    tenantId: '',
+    role: 'staff' as 'practice_manager' | 'staff',
     firstName: '',
     lastName: ''
   });
@@ -23,7 +22,7 @@ export const UserInviteDialog: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.email || !formData.role || !formData.tenantId) {
+    if (!formData.email || !formData.role || !currentTenant) {
       toast({
         title: "Missing Information",
         description: "Please fill in all required fields",
@@ -34,7 +33,7 @@ export const UserInviteDialog: React.FC = () => {
 
     try {
       await inviteUser({
-        tenantId: formData.tenantId,
+        tenantId: currentTenant.id,
         email: formData.email,
         role: formData.role
       });
@@ -42,14 +41,13 @@ export const UserInviteDialog: React.FC = () => {
       setFormData({
         email: '',
         role: 'staff',
-        tenantId: '',
         firstName: '',
         lastName: ''
       });
       setOpen(false);
 
       toast({
-        title: "User Invited",
+        title: "Staff Member Invited",
         description: `Invitation sent to ${formData.email}`,
       });
     } catch (error) {
@@ -62,21 +60,19 @@ export const UserInviteDialog: React.FC = () => {
     }
   };
 
-  const selectedTenant = tenants?.find(t => t.id === formData.tenantId);
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
           <UserPlus className="h-4 w-4 mr-2" />
-          Invite User
+          Add Staff Member
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Mail className="h-5 w-5" />
-            Invite User to Practice
+            Invite Staff Member
           </DialogTitle>
         </DialogHeader>
         
@@ -115,44 +111,24 @@ export const UserInviteDialog: React.FC = () => {
           </div>
 
           <div>
-            <Label htmlFor="tenant">Practice *</Label>
-            <Select onValueChange={(value) => setFormData(prev => ({ ...prev, tenantId: value }))}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select practice" />
-              </SelectTrigger>
-              <SelectContent>
-                {tenants?.map((tenant) => (
-                  <SelectItem key={tenant.id} value={tenant.id}>
-                    {tenant.brand_name} ({tenant.specialty})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
             <Label htmlFor="role">Role *</Label>
             <Select onValueChange={(value: any) => setFormData(prev => ({ ...prev, role: value }))}>
               <SelectTrigger>
                 <SelectValue placeholder="Select role" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="platform_admin">Platform Admin</SelectItem>
-                <SelectItem value="tenant_admin">Practice Admin</SelectItem>
                 <SelectItem value="practice_manager">Practice Manager</SelectItem>
                 <SelectItem value="staff">Staff Member</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          {selectedTenant && (
+          {currentTenant && (
             <div className="p-3 bg-muted rounded-lg">
               <p className="text-sm text-muted-foreground">
-                User will be invited to <strong>{selectedTenant.brand_name}</strong> as a{' '}
+                User will be invited to <strong>{currentTenant.brand_name}</strong> as a{' '}
                 <strong>
-                  {formData.role === 'platform_admin' ? 'Platform Admin' : 
-                   formData.role === 'tenant_admin' ? 'Practice Admin' :
-                   formData.role === 'practice_manager' ? 'Practice Manager' : 'Staff Member'}
+                  {formData.role === 'practice_manager' ? 'Practice Manager' : 'Staff Member'}
                 </strong>
               </p>
             </div>
