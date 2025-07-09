@@ -61,22 +61,78 @@ export const useTenantManagement = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch all tenants (platform admin only) - mock data
+  // Fetch all tenants (platform admin only)
   const { data: tenants, isLoading: tenantsLoading } = useQuery({
     queryKey: ['tenants'],
     queryFn: async () => {
-      // Mock tenants data since table doesn't exist
-      console.log('Using mock tenants data');
+      const { data, error } = await supabase
+        .from('tenants')
+        .select('*')
+        .order('created_at', { ascending: false });
       
-      const mockTenants: Tenant[] = [
-        {
-          id: '1',
-          name: 'Smith Medical Practice',
-          slug: 'smith-medical',
-          brand_name: 'Smith Clinic',
-          primary_color: '#3b82f6',
-          secondary_color: '#6366f1',
-          specialty: 'general',
+      if (error) {
+        console.error('Error fetching tenants:', error);
+        throw new Error(error.message);
+      }
+      
+      // Transform to match the expected interface
+      return data.map((tenant): Tenant => ({
+        id: tenant.id,
+        name: tenant.name,
+        slug: tenant.subdomain,
+        domain: undefined,
+        subdomain: tenant.subdomain,
+        brand_name: tenant.business_name || tenant.name,
+        tagline: undefined,
+        logo_url: tenant.logo_url,
+        primary_color: tenant.primary_color || '#3b82f6',
+        secondary_color: tenant.secondary_color || '#6366f1',
+        specialty: tenant.specialty,
+        subscription_tier: 'professional', // Default value
+        max_forms: 50, // Default value
+        max_submissions: 1000, // Default value
+        max_users: 10, // Default value
+        custom_branding_enabled: true, // Default value
+        api_access_enabled: true, // Default value
+        white_label_enabled: false, // Default value
+        is_active: tenant.is_active,
+        created_at: tenant.created_at,
+        updated_at: tenant.updated_at
+      }));
+    },
+    enabled: !!user,
+  });
+
+  // Fetch user's tenant memberships
+  const { data: userTenants, isLoading: userTenantsLoading } = useQuery({
+    queryKey: ['user-tenants', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      
+      const { data, error } = await supabase
+        .from('tenant_users')
+        .select(`
+          *,
+          tenants (*)
+        `)
+        .eq('user_id', user.id)
+        .eq('is_active', true);
+      
+      if (error) {
+        console.error('Error fetching user tenants:', error);
+        throw new Error(error.message);
+      }
+      
+      return data.map(item => ({
+        ...item,
+        tenants: item.tenants ? {
+          id: item.tenants.id,
+          name: item.tenants.name,
+          slug: item.tenants.subdomain,
+          brand_name: item.tenants.business_name || item.tenants.name,
+          primary_color: item.tenants.primary_color || '#3b82f6',
+          secondary_color: item.tenants.secondary_color || '#6366f1',
+          specialty: item.tenants.specialty,
           subscription_tier: 'professional',
           max_forms: 50,
           max_submissions: 1000,
@@ -84,56 +140,11 @@ export const useTenantManagement = () => {
           custom_branding_enabled: true,
           api_access_enabled: true,
           white_label_enabled: false,
-          is_active: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }
-      ];
-      
-      return mockTenants;
-    },
-    enabled: !!user,
-  });
-
-  // Fetch user's tenant memberships - mock data
-  const { data: userTenants, isLoading: userTenantsLoading } = useQuery({
-    queryKey: ['user-tenants', user?.id],
-    queryFn: async () => {
-      // Mock user tenants data since table doesn't exist
-      console.log('Using mock user tenants data');
-      
-      const mockUserTenants = [
-        {
-          id: '1',
-          tenant_id: '1',
-          user_id: user!.id,
-          role: 'tenant_admin' as const,
-          permissions: {},
-          is_active: true,
-          created_at: new Date().toISOString(),
-          tenants: {
-            id: '1',
-            name: 'Smith Medical Practice',
-            slug: 'smith-medical',
-            brand_name: 'Smith Clinic',
-            primary_color: '#3b82f6',
-            secondary_color: '#6366f1',
-            specialty: 'general',
-            subscription_tier: 'professional',
-            max_forms: 50,
-            max_submissions: 1000,
-            max_users: 10,
-            custom_branding_enabled: true,
-            api_access_enabled: true,
-            white_label_enabled: false,
-            is_active: true,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }
-        }
-      ];
-      
-      return mockUserTenants;
+          is_active: item.tenants.is_active,
+          created_at: item.tenants.created_at,
+          updated_at: item.tenants.updated_at
+        } : null
+      }));
     },
     enabled: !!user,
   });

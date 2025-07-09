@@ -139,6 +139,13 @@ export type Database = {
             foreignKeyName: "appointments_patient_id_fkey"
             columns: ["patient_id"]
             isOneToOne: false
+            referencedRelation: "platform_user_management"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -1488,6 +1495,13 @@ export type Database = {
             foreignKeyName: "reminder_logs_patient_id_fkey"
             columns: ["patient_id"]
             isOneToOne: false
+            referencedRelation: "platform_user_management"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reminder_logs_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -1984,6 +1998,31 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_user_management: {
+        Row: {
+          created_at: string | null
+          current_tenant_id: string | null
+          email: string | null
+          first_name: string | null
+          full_name: string | null
+          id: string | null
+          last_name: string | null
+          role: Database["public"]["Enums"]["app_role"] | null
+          status: string | null
+          tenant_name: string | null
+          tenant_user_active: boolean | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_current_tenant_id_fkey"
+            columns: ["current_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       calculate_tenant_metrics: {
@@ -2033,6 +2072,10 @@ export type Database = {
       }
       is_practice_admin: {
         Args: { user_id?: string; check_tenant_id?: string }
+        Returns: boolean
+      }
+      remove_platform_user: {
+        Args: { target_user_id: string }
         Returns: boolean
       }
       user_belongs_to_tenant: {
