@@ -30,7 +30,7 @@ const practiceTypeNames = {
 const agentNames = {
   'schedule-iq': 'Schedule iQ',
   'intake-iq': 'Intake iQ',
-  'remind-iq': 'Remind iQ',
+  
   'billing-iq': 'Billing iQ',
   'claims-iq': 'Claims iQ',
   'assist-iq': 'Assist iQ',

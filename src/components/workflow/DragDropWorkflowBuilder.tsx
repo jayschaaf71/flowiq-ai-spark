@@ -50,7 +50,7 @@ export const DragDropWorkflowBuilder = () => {
     { id: "schedule-iq", name: "Schedule iQ", icon: Calendar, color: "bg-blue-100 text-blue-700", ai: "Advanced scheduling AI" },
     { id: "intake-iq", name: "Intake iQ", icon: Users, color: "bg-green-100 text-green-700", ai: "Intelligent patient onboarding" },
     { id: "scribe-iq", name: "Scribe iQ", icon: FileText, color: "bg-purple-100 text-purple-700", ai: "AI-powered documentation" },
-    { id: "remind-iq", name: "Remind iQ", icon: MessageSquare, color: "bg-orange-100 text-orange-700", ai: "Smart communications" },
+    
   ];
 
   const currentWorkflow = workflowTemplates[selectedWorkflow];

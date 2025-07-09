@@ -65,7 +65,7 @@ export const RecentActivity = () => {
       time: "20 minutes ago",
       status: "sent",
       icon: Clock,
-      onClick: () => navigate("/agents/remind-iq")
+      onClick: () => navigate("/agents/appointment")
     }
   ];
 

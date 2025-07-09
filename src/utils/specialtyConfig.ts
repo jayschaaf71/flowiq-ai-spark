@@ -26,7 +26,7 @@ export const specialtyConfigs: Record<SpecialtyType, SpecialtyConfig> = {
     primaryColor: '#16a34a',
     secondaryColor: '#22c55e', 
     accentColor: '#dcfce7',
-    defaultAgents: ['schedule-iq', 'intake-iq', 'remind-iq'],
+    defaultAgents: ['appointment-iq', 'intake-iq'],
     requiredIntegrations: ['ehr', 'scheduling'],
     templateCategories: ['intake', 'soap', 'treatment-plans'],
     workflowTemplates: ['new-patient', 'follow-up', 'treatment-series']
@@ -54,7 +54,7 @@ export const specialtyConfigs: Record<SpecialtyType, SpecialtyConfig> = {
     primaryColor: '#ec4899',
     secondaryColor: '#f472b6',
     accentColor: '#fce7f3',
-    defaultAgents: ['schedule-iq', 'remind-iq', 'assist-iq'],
+    defaultAgents: ['appointment-iq', 'assist-iq'],
     requiredIntegrations: ['pos', 'marketing'],
     templateCategories: ['consultation', 'treatment', 'aftercare'],
     workflowTemplates: ['aesthetic-consult', 'treatment-series', 'maintenance']
@@ -82,7 +82,7 @@ export const specialtyConfigs: Record<SpecialtyType, SpecialtyConfig> = {
     primaryColor: '#dc2626',
     secondaryColor: '#ef4444',
     accentColor: '#fee2e2',
-    defaultAgents: ['schedule-iq', 'intake-iq', 'remind-iq'],
+    defaultAgents: ['appointment-iq', 'intake-iq'],
     requiredIntegrations: ['ehr', 'lab', 'compounding-pharmacy'],
     templateCategories: ['hormone-assessment', 'lab-review', 'adjustment'],
     workflowTemplates: ['initial-consult', 'lab-follow-up', 'optimization']

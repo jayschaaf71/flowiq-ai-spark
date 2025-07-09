@@ -73,7 +73,6 @@ export class SidebarService {
       'scribe-iq': true,
       'appointment-iq': true,
       'intake-iq': true,
-      'remind-iq': true,
       'education-iq': true,
       'marketing-iq': true,
       'referral-iq': true,

@@ -52,7 +52,7 @@ import OpsIQ from '@/pages/agents/OpsIQ';
 import AuthIQ from '@/pages/agents/AuthIQ';
 import EducationIQ from '@/pages/agents/EducationIQ';
 import MarketingIQ from '@/pages/agents/MarketingIQ';
-import RemindIQ from '@/pages/agents/RemindIQ';
+
 import ReferralIQ from '@/pages/agents/ReferralIQ';
 import DentalSleepIQ from '@/pages/agents/DentalSleepIQ';
 import PilotDashboard from '@/pages/PilotDashboard';
@@ -381,10 +381,11 @@ function App() {
                     </Layout>
                   </TenantWrapper>
                 } />
+                {/* Legacy redirect for remind-iq */}
                 <Route path="/agents/remind" element={
                   <TenantWrapper>
                     <Layout>
-                      <RemindIQ />
+                      <AppointmentIQ />
                     </Layout>
                   </TenantWrapper>
                 } />

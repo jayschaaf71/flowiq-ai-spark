@@ -59,18 +59,6 @@ export const AgentOverview = () => {
       learningAreas: ['Medical terminology', 'Provider styles', 'Documentation standards']
     },
     {
-      id: 'remind-iq',
-      name: 'Remind iQ',
-      description: 'Intelligent communication and reminder automation',
-      icon: MessageSquare,
-      status: 'active',
-      performance: 96,
-      tasks: 2341,
-      aiLevel: 'Expert',
-      capabilities: ['Multi-Channel Messaging', 'Personalized Content', 'Optimal Timing'],
-      learningAreas: ['Patient communication preferences', 'Response patterns', 'Engagement optimization']
-    },
-    {
       id: 'billing-iq',
       name: 'Billing iQ',
       description: 'Automated billing and revenue cycle management',

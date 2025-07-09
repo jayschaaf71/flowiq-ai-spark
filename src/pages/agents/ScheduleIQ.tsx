@@ -10,6 +10,11 @@ import { ScheduleOptimizer } from "@/components/schedule/ScheduleOptimizer";
 import { WaitlistManager } from "@/components/schedule/WaitlistManager";
 import { ScheduleAnalytics } from "@/components/schedule/ScheduleAnalytics";
 import { ScheduleSettingsTab } from "@/components/schedule/ScheduleSettingsTab";
+import { MessageTemplates } from "@/components/remind/MessageTemplates";
+import { ScheduledMessages } from "@/components/remind/ScheduledMessages";
+import { RemindAutomation } from "@/components/remind/RemindAutomation";
+import { RemindAnalytics } from "@/components/remind/RemindAnalytics";
+import { RemindSettings } from "@/components/remind/RemindSettings";
 
 const ScheduleIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -18,8 +23,8 @@ const ScheduleIQ = () => {
   return (
     <div className="space-y-6">
       <PageHeader 
-        title="Schedule iQ"
-        subtitle="AI-powered appointment scheduling with intelligent optimization and auto-booking"
+        title="Appointment iQ"
+        subtitle="Complete appointment lifecycle management with AI-powered scheduling, reminders, and follow-up"
       >
         <div className="flex gap-2">
           <Badge className="bg-blue-100 text-blue-700">AI Agent</Badge>
@@ -36,11 +41,14 @@ const ScheduleIQ = () => {
       
       <div className="space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-9">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
             <TabsTrigger value="assistant">AI Assistant</TabsTrigger>
             <TabsTrigger value="optimizer">Optimizer</TabsTrigger>
             <TabsTrigger value="waitlist">Waitlist</TabsTrigger>
+            <TabsTrigger value="reminders">Reminders</TabsTrigger>
+            <TabsTrigger value="templates">Templates</TabsTrigger>
+            <TabsTrigger value="automation">Automation</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
@@ -61,12 +69,30 @@ const ScheduleIQ = () => {
             <WaitlistManager />
           </TabsContent>
 
+          <TabsContent value="reminders">
+            <ScheduledMessages />
+          </TabsContent>
+
+          <TabsContent value="templates">
+            <MessageTemplates />
+          </TabsContent>
+
+          <TabsContent value="automation">
+            <RemindAutomation />
+          </TabsContent>
+
           <TabsContent value="analytics">
-            <ScheduleAnalytics />
+            <div className="space-y-6">
+              <ScheduleAnalytics />
+              <RemindAnalytics />
+            </div>
           </TabsContent>
 
           <TabsContent value="settings">
-            <ScheduleSettingsTab />
+            <div className="space-y-6">
+              <ScheduleSettingsTab />
+              <RemindSettings />
+            </div>
           </TabsContent>
         </Tabs>
       </div>

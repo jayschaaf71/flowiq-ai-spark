@@ -44,9 +44,8 @@ export const navItems: NavItem[] = [
 
   // Patient Journey
   { id: "intake-iq", label: "Intake iQ", path: "/agents/intake", icon: ClipboardList, badge: "AI", group: "patient_journey", order: 10 },
-  { id: "remind-iq", label: "Remind iQ", path: "/agents/remind", icon: Bell, badge: "AI", group: "patient_journey", order: 20 },
-  { id: "education-iq", label: "Education iQ", path: "/agents/education", icon: GraduationCap, badge: "AI", group: "patient_journey", order: 30 },
-  { id: "marketing-iq", label: "Marketing iQ", path: "/agents/marketing", icon: Rocket, badge: "AI", group: "patient_journey", order: 40 },
+  { id: "education-iq", label: "Education iQ", path: "/agents/education", icon: GraduationCap, badge: "AI", group: "patient_journey", order: 20 },
+  { id: "marketing-iq", label: "Marketing iQ", path: "/agents/marketing", icon: Rocket, badge: "AI", group: "patient_journey", order: 30 },
   { id: "referral-iq", label: "Referral iQ", path: "/agents/referral", icon: Handshake, badge: "AI", group: "patient_journey", order: 50 },
 
   // Revenue Cycle

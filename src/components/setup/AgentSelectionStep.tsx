@@ -50,15 +50,6 @@ const availableAgents = [
     category: 'Essential'
   },
   {
-    id: 'remind-iq',
-    name: 'Remind iQ',
-    description: 'Automated appointment reminders and follow-up communications',
-    icon: Bell,
-    benefits: ['Reduces no-shows by 40%', 'Customizable reminder templates', 'Multi-channel messaging'],
-    recommended: true,
-    category: 'Essential'
-  },
-  {
     id: 'assist-iq',
     name: 'Assist iQ',
     description: 'AI-powered staff assistant for questions and workflow guidance',

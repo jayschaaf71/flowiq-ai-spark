@@ -10,7 +10,7 @@ import { SelectedAgentsSummary } from './components/SelectedAgentsSummary';
 interface AgentConfig {
   'schedule-iq': boolean;
   'intake-iq': boolean;
-  'remind-iq': boolean;
+  
   'billing-iq': boolean;
   'claims-iq': boolean;
   'assist-iq': boolean;

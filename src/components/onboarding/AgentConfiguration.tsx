@@ -7,7 +7,7 @@ interface AgentConfigurationProps {
   agentConfig: {
     'schedule-iq'?: boolean;
     'intake-iq'?: boolean;
-    'remind-iq'?: boolean;
+    
     'billing-iq'?: boolean;
     'claims-iq'?: boolean;
     'assist-iq'?: boolean;
@@ -30,7 +30,7 @@ export const AgentConfiguration: React.FC<AgentConfigurationProps> = ({
   const transformedConfig = {
     'schedule-iq': agentConfig['schedule-iq'] || false,
     'intake-iq': agentConfig['intake-iq'] || false,
-    'remind-iq': agentConfig['remind-iq'] || false,
+    
     'billing-iq': agentConfig['billing-iq'] || false,
     'claims-iq': agentConfig['claims-iq'] || false,
     'assist-iq': agentConfig['assist-iq'] || false,

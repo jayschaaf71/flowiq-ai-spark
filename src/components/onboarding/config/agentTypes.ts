@@ -51,16 +51,6 @@ export const agentTypes: AgentType[] = [
     category: 'Essential'
   },
   {
-    id: 'remind-iq',
-    name: 'Remind iQ',
-    description: 'Automated appointment reminders and follow-up communications',
-    icon: Bell,
-    color: 'orange',
-    features: ['Reduces no-shows by 40%', 'Customizable reminder templates', 'Multi-channel messaging', 'Smart timing'],
-    recommended: true,
-    category: 'Essential'
-  },
-  {
     id: 'assist-iq',
     name: 'Assist iQ',
     description: 'AI-powered staff assistant for questions and workflow guidance',
