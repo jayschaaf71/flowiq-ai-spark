@@ -73,6 +73,7 @@ import PatientJourney from '@/pages/PatientJourney';
 import ResetPassword from '@/pages/ResetPassword';
 
 import { Toaster } from '@/components/ui/toaster';
+import { FloatingAssistIQ } from '@/components/FloatingAssistIQ';
 
 const queryClient = new QueryClient();
 
@@ -451,6 +452,7 @@ function App() {
                 {/* Fallback route */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              <FloatingAssistIQ />
               <Toaster />
               </AnalyticsProvider>
             </DashboardProvider>
