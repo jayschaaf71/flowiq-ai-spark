@@ -42,40 +42,15 @@ serve(async (req) => {
     console.log('Processing help request:', message);
     console.log('Current context:', context);
 
-    // Call OpenAI with message and context
-    const aiResponse = await callOpenAI(
-      message, 
-      context, 
-      conversationHistory?.slice(-AI_CONFIG.maxHistoryMessages) || []
-    );
+    // For now, use simple AI response without function calls to avoid database issues
+    console.log('Using simple AI response (no functions)');
+    const aiResponse = await callOpenAISimple(message, context);
     
-    const choice = aiResponse.choices[0];
-    const assistantMessage = choice.message;
-    
-    let finalResponse = assistantMessage.content || '';
-    let functionResults: any[] = [];
-
-    // Handle function calls if any
-    if (assistantMessage.tool_calls) {
-      console.log('Processing function calls:', assistantMessage.tool_calls.length);
-      functionResults = await executeFunctions(supabase, assistantMessage.tool_calls);
-      
-      // If functions were called, get a follow-up response from the AI
-      if (functionResults.length > 0) {
-        console.log('Getting follow-up response from AI');
-        const followUpData = await getFollowUpResponse(
-          message,
-          context,
-          conversationHistory?.slice(-AI_CONFIG.maxHistoryMessages) || [],
-          assistantMessage,
-          functionResults
-        );
-        
-        if (followUpData) {
-          finalResponse = followUpData.choices[0].message.content;
-        }
-      }
+    if (!aiResponse || !aiResponse.choices || aiResponse.choices.length === 0) {
+      throw new Error('Invalid AI response format');
     }
+    
+    const finalResponse = aiResponse.choices[0].message?.content || 'I apologize, but I was unable to generate a response. Please try again.';
     
     console.log('AI Help response generated successfully');
 
@@ -84,7 +59,7 @@ serve(async (req) => {
         response: finalResponse,
         context: context,
         timestamp: new Date().toISOString(),
-        actions_performed: functionResults
+        actions_performed: []
       }),
       { headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } }
     );
