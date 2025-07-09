@@ -2039,6 +2039,10 @@ export type Database = {
         Args: { user_id: string; tenant_id: string }
         Returns: boolean
       }
+      user_can_access_tenant: {
+        Args: { tenant_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role:
