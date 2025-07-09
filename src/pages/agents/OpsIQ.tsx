@@ -265,10 +265,26 @@ export const OpsIQ = () => {
                         variant="outline" 
                         size="sm"
                         onClick={() => {
-                          toast({
-                            title: "Configure Agent",
-                            description: `Opening configuration for ${agent.name}`
-                          });
+                          // Navigate to the appropriate agent page based on agent name
+                          const agentRoutes: Record<string, string> = {
+                            'Appointment iQ': '/agents/appointment',
+                            'Intake iQ': '/agents/intake',
+                            'Scribe iQ': '/agents/scribe',
+                            'Billing iQ': '/agents/billing',
+                            'Claims iQ': '/agents/claims',
+                            'Education iQ': '/agents/education',
+                            'Marketing iQ': '/agents/marketing'
+                          };
+                          
+                          const route = agentRoutes[agent.name];
+                          if (route) {
+                            navigate(route);
+                          } else {
+                            toast({
+                              title: "Configuration Coming Soon",
+                              description: `Configuration for ${agent.name} will be available soon.`
+                            });
+                          }
                         }}
                       >
                         <Settings className="w-4 h-4 mr-1" />
