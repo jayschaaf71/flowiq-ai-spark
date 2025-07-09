@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { User, Shield, Mail, MoreVertical, Trash2, Loader2, AlertCircle } from 'lucide-react';
+import { User, Shield, Mail, MoreVertical, Trash2, Loader2, AlertCircle, Send } from 'lucide-react';
 import { UserInviteDialog } from './UserInviteDialog';
 import { usePlatformUsers, type PlatformUser } from '@/hooks/usePlatformUsers';
 
@@ -37,7 +37,9 @@ export const PlatformUsers = () => {
     isLoading, 
     error, 
     removeUser, 
-    isRemoving 
+    isRemoving,
+    resendInvite,
+    isResendingInvite
   } = usePlatformUsers();
   
   const [userToDelete, setUserToDelete] = useState<PlatformUser | null>(null);
@@ -158,6 +160,15 @@ export const PlatformUsers = () => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        {user.status === 'pending' && (
+                          <DropdownMenuItem 
+                            onClick={() => resendInvite(user.id)}
+                            disabled={isResendingInvite}
+                          >
+                            <Send className="h-4 w-4 mr-2" />
+                            Re-send Invite
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuItem 
                           onClick={() => handleRemoveUser(user)} 
                           className="text-destructive"

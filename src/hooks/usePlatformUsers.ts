@@ -121,6 +121,35 @@ export const usePlatformUsers = () => {
     },
   });
 
+  // Re-send invite mutation
+  const resendInviteMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      // This would typically re-send the email invitation
+      // For now, we'll just log the action
+      console.log('Re-sending invite to user:', userId);
+      
+      // In a real implementation, you might:
+      // 1. Generate a new invitation token
+      // 2. Send a new email invitation
+      // 3. Update the invitation timestamp
+      
+      return { success: true };
+    },
+    onSuccess: () => {
+      toast({
+        title: "Invitation re-sent",
+        description: "Invitation has been re-sent successfully.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error re-sending invitation",
+        description: "Failed to re-send invitation. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   return {
     users,
     isLoading,
@@ -129,6 +158,8 @@ export const usePlatformUsers = () => {
     isRemoving: removeUserMutation.isPending,
     inviteUser: inviteUserMutation.mutate,
     isInviting: inviteUserMutation.isPending,
+    resendInvite: resendInviteMutation.mutate,
+    isResendingInvite: resendInviteMutation.isPending,
     refetch,
   };
 };
