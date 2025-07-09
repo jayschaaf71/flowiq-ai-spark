@@ -22,21 +22,31 @@ export const TenantWrapper: React.FC<TenantWrapperProps> = ({ children }) => {
     
     // Route-based specialty detection (highest priority)
     if (path.includes('/agents/dental-sleep') || path.includes('/dental-sleep')) {
+      const userSpecificKey = `currentSpecialty_${userProfile?.id}`;
       localStorage.setItem('currentSpecialty', 'dental-sleep');
+      localStorage.setItem(userSpecificKey, 'dental-sleep');
       return 'dental-sleep';
     }
     if (path.includes('/dental')) {
+      const userSpecificKey = `currentSpecialty_${userProfile?.id}`;
       localStorage.setItem('currentSpecialty', 'dental');
+      localStorage.setItem(userSpecificKey, 'dental');
       return 'dental';
     }
     if (path.includes('/chiropractic') || path.includes('/chiro')) {
+      const userSpecificKey = `currentSpecialty_${userProfile?.id}`;
       localStorage.setItem('currentSpecialty', 'chiropractic');
+      localStorage.setItem(userSpecificKey, 'chiropractic');
       return 'chiropractic';
     }
     
-    // Check persistent storage
-    const storedSpecialty = localStorage.getItem('currentSpecialty');
+    // Check persistent storage (both keys for compatibility)
+    const userSpecificKey = `currentSpecialty_${userProfile?.id}`;
+    const storedSpecialty = localStorage.getItem(userSpecificKey) || localStorage.getItem('currentSpecialty');
     if (storedSpecialty) {
+      // Sync both keys
+      localStorage.setItem('currentSpecialty', storedSpecialty);
+      localStorage.setItem(userSpecificKey, storedSpecialty);
       return storedSpecialty;
     }
     
@@ -45,6 +55,7 @@ export const TenantWrapper: React.FC<TenantWrapperProps> = ({ children }) => {
     if (userSpecialty) {
       const normalizedSpecialty = userSpecialty.toLowerCase().replace(/\s+/g, '-');
       localStorage.setItem('currentSpecialty', normalizedSpecialty);
+      localStorage.setItem(userSpecificKey, normalizedSpecialty);
       return normalizedSpecialty;
     }
     
@@ -53,11 +64,13 @@ export const TenantWrapper: React.FC<TenantWrapperProps> = ({ children }) => {
     if (tenantSpecialty) {
       const normalizedSpecialty = tenantSpecialty.toLowerCase().replace(/\s+/g, '-');
       localStorage.setItem('currentSpecialty', normalizedSpecialty);
+      localStorage.setItem(userSpecificKey, normalizedSpecialty);
       return normalizedSpecialty;
     }
     
     // Default to chiropractic
     localStorage.setItem('currentSpecialty', 'chiropractic');
+    localStorage.setItem(userSpecificKey, 'chiropractic');
     return 'chiropractic';
   };
 
