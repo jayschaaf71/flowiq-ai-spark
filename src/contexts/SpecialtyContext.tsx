@@ -47,9 +47,9 @@ export const SpecialtyProvider: React.FC<SpecialtyProviderProps> = ({ children }
   const { currentTenant } = useCurrentTenant();
   const { data: userProfile } = useUserProfile();
   
-  // Detect specialty from localStorage first (set by route detection), then fallback to other sources
+  // Detect specialty from localStorage first (set by TenantWrapper), then fallback to other sources
   const detectSpecialty = () => {
-    // Check localStorage first (highest priority - set by route detection)
+    // Check localStorage first (highest priority - set by TenantWrapper)
     const storedSpecialty = localStorage.getItem('currentSpecialty');
     if (storedSpecialty) {
       return storedSpecialty;
