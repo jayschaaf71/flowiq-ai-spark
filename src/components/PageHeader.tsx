@@ -85,7 +85,17 @@ export const PageHeader = ({ title, subtitle, badge, children }: PageHeaderProps
                   })}
                 </div>
                 <div className="p-3 border-t border-border">
-                  <Button variant="ghost" className="w-full text-sm">
+                  <Button 
+                    variant="ghost" 
+                    className="w-full text-sm"
+                    onClick={() => {
+                      setNotificationOpen(false);
+                      toast({
+                        title: "All Notifications",
+                        description: "Viewing all notifications...",
+                      });
+                    }}
+                  >
                     View All Notifications
                   </Button>
                 </div>
