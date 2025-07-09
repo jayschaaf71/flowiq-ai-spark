@@ -67,9 +67,11 @@ export const FloatingAssistIQ: React.FC = () => {
       const newX = e.clientX - dragOffset.x;
       const newY = e.clientY - dragOffset.y;
       
-      // Keep within viewport bounds
-      const maxX = window.innerWidth - 400; // card width
-      const maxY = window.innerHeight - 600; // card height
+      // Keep within viewport bounds with proper boundaries
+      const cardWidth = 400; // Approximate width of the widget
+      const cardHeight = 600; // Height of the widget
+      const maxX = window.innerWidth - cardWidth;
+      const maxY = window.innerHeight - cardHeight;
       
       setPosition({
         x: Math.max(0, Math.min(newX, maxX)),
@@ -121,8 +123,11 @@ export const FloatingAssistIQ: React.FC = () => {
   if (isMinimized) {
     return (
       <Card 
-        className="fixed z-50 w-80 shadow-xl border-2 border-blue-200"
-        style={{ left: position.x, top: position.y }}
+        className="fixed z-50 w-80 shadow-xl border-2 border-blue-200 bg-white"
+        style={{ 
+          left: Math.max(0, Math.min(position.x, window.innerWidth - 320)), // 320px = w-80
+          top: Math.max(0, Math.min(position.y, window.innerHeight - 100))   // Approximate header height
+        }}
         ref={cardRef}
       >
         <CardHeader className="p-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white cursor-move">
@@ -161,8 +166,11 @@ export const FloatingAssistIQ: React.FC = () => {
   // Full widget
   return (
     <Card 
-      className="fixed z-50 w-96 h-[600px] shadow-xl border-2 border-blue-200 flex flex-col"
-      style={{ left: position.x, top: position.y }}
+      className="fixed z-50 w-96 h-[600px] shadow-xl border-2 border-blue-200 flex flex-col bg-white"
+      style={{ 
+        left: Math.max(0, Math.min(position.x, window.innerWidth - 384)), // 384px = w-96
+        top: Math.max(0, Math.min(position.y, window.innerHeight - 600))   // 600px = h-[600px]
+      }}
       ref={cardRef}
     >
       <CardHeader 

@@ -14,7 +14,7 @@ export async function addPatient(supabase: any, args: any) {
       gender
     })
     .select()
-    .single();
+    .maybeSingle();
 
   if (error) {
     return { success: false, error: error.message };
@@ -35,7 +35,7 @@ export async function updatePatient(supabase: any, args: any) {
     .update(updates)
     .eq('id', patient_id)
     .select()
-    .single();
+    .maybeSingle();
 
   if (error) {
     return { success: false, error: error.message };
@@ -56,7 +56,7 @@ export async function createAppointment(supabase: any, args: any) {
     .from('patients')
     .select('id')
     .eq('email', patient_email)
-    .single();
+    .maybeSingle();
 
   if (patientError || !patient) {
     return { success: false, error: `Patient with email ${patient_email} not found` };
@@ -74,7 +74,7 @@ export async function createAppointment(supabase: any, args: any) {
       status: 'scheduled'
     })
     .select()
-    .single();
+    .maybeSingle();
 
   if (error) {
     return { success: false, error: error.message };
@@ -95,7 +95,7 @@ export async function updateAppointment(supabase: any, args: any) {
     .update(updates)
     .eq('id', appointment_id)
     .select()
-    .single();
+    .maybeSingle();
 
   if (error) {
     return { success: false, error: error.message };
@@ -119,7 +119,7 @@ export async function cancelAppointment(supabase: any, args: any) {
     })
     .eq('id', appointment_id)
     .select()
-    .single();
+    .maybeSingle();
 
   if (error) {
     return { success: false, error: error.message };
@@ -221,7 +221,7 @@ export async function createIntakeForm(supabase: any, args: any) {
       form_fields
     })
     .select()
-    .single();
+    .maybeSingle();
 
   if (error) {
     return { success: false, error: error.message };

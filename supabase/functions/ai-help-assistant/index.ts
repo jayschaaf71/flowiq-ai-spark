@@ -42,9 +42,8 @@ serve(async (req) => {
     console.log('Processing help request:', message);
     console.log('Current context:', context);
 
-    // For now, let's disable function calling to avoid database errors
-    // Call OpenAI with message and context - without function calling
-    const aiResponse = await callOpenAISimple(
+    // Call OpenAI with message and context
+    const aiResponse = await callOpenAI(
       message, 
       context, 
       conversationHistory?.slice(-AI_CONFIG.maxHistoryMessages) || []
@@ -54,6 +53,29 @@ serve(async (req) => {
     const assistantMessage = choice.message;
     
     let finalResponse = assistantMessage.content || '';
+    let functionResults: any[] = [];
+
+    // Handle function calls if any
+    if (assistantMessage.tool_calls) {
+      console.log('Processing function calls:', assistantMessage.tool_calls.length);
+      functionResults = await executeFunctions(supabase, assistantMessage.tool_calls);
+      
+      // If functions were called, get a follow-up response from the AI
+      if (functionResults.length > 0) {
+        console.log('Getting follow-up response from AI');
+        const followUpData = await getFollowUpResponse(
+          message,
+          context,
+          conversationHistory?.slice(-AI_CONFIG.maxHistoryMessages) || [],
+          assistantMessage,
+          functionResults
+        );
+        
+        if (followUpData) {
+          finalResponse = followUpData.choices[0].message.content;
+        }
+      }
+    }
     
     console.log('AI Help response generated successfully');
 
@@ -62,7 +84,7 @@ serve(async (req) => {
         response: finalResponse,
         context: context,
         timestamp: new Date().toISOString(),
-        actions_performed: []
+        actions_performed: functionResults
       }),
       { headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } }
     );
