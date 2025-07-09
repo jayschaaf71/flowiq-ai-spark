@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { User, Shield, Mail, MoreVertical } from 'lucide-react';
+import { UserInviteDialog } from './UserInviteDialog';
 
 export const PlatformUsers = () => {
   const users = [
@@ -14,9 +15,12 @@ export const PlatformUsers = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">User Management</h1>
-        <p className="text-muted-foreground">Manage platform users across all tenants</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">User Management</h1>
+          <p className="text-muted-foreground">Manage platform users across all tenants</p>
+        </div>
+        <UserInviteDialog />
       </div>
 
       <Card>
