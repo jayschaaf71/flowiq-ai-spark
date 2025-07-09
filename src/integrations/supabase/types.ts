@@ -1656,11 +1656,64 @@ export type Database = {
         }
         Relationships: []
       }
+      user_sessions: {
+        Row: {
+          created_at: string | null
+          expires_at: string
+          id: string
+          ip_address: unknown | null
+          is_active: boolean | null
+          last_activity: string | null
+          logout_reason: string | null
+          session_token: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          ip_address?: unknown | null
+          is_active?: boolean | null
+          last_activity?: string | null
+          logout_reason?: string | null
+          session_token: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          ip_address?: unknown | null
+          is_active?: boolean | null
+          last_activity?: string | null
+          logout_reason?: string | null
+          session_token?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      phi_access_summary: {
+        Row: {
+          access_count: number | null
+          access_date: string | null
+          action: string | null
+          table_name: string | null
+          unique_records: number | null
+          unique_users: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      cleanup_expired_sessions: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       create_tenant_from_onboarding: {
         Args: {
           p_name: string
