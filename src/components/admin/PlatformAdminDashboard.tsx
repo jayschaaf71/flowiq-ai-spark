@@ -17,7 +17,8 @@ import {
   Network,
   Clock,
   TrendingUp,
-  Settings
+  Settings,
+  Loader
 } from 'lucide-react';
 import { RealTimePerformanceMonitor } from './RealTimePerformanceMonitor';
 import { TenantResourceOptimization } from './TenantResourceOptimization';
@@ -25,31 +26,65 @@ import { SecurityIncidentResponse } from './SecurityIncidentResponse';
 import { MultiLevelAdminHierarchy } from './MultiLevelAdminHierarchy';
 import { APIRateLimitingDashboard } from './APIRateLimitingDashboard';
 import { AutomatedBackupManager } from './AutomatedBackupManager';
-
-interface PlatformMetrics {
-  totalTenants: number;
-  activeTenants: number;
-  totalUsers: number;
-  systemUptime: number;
-  totalRevenue: number;
-  averageResponseTime: number;
-  criticalAlerts: number;
-  resourceUtilization: number;
-}
+import { usePlatformMetrics } from '@/hooks/usePlatformMetrics';
 
 export const PlatformAdminDashboard: React.FC = () => {
-  const [metrics] = useState<PlatformMetrics>({
-    totalTenants: 127,
-    activeTenants: 119,
-    totalUsers: 2847,
-    systemUptime: 99.97,
-    totalRevenue: 284750,
-    averageResponseTime: 142,
-    criticalAlerts: 3,
-    resourceUtilization: 73
-  });
-
+  const { 
+    metrics, 
+    alerts, 
+    loading, 
+    error, 
+    insertSampleMetrics 
+  } = usePlatformMetrics();
+  
   const [activeTab, setActiveTab] = useState('overview');
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex items-center gap-2">
+          <Loader className="h-6 w-6 animate-spin" />
+          <span>Loading platform metrics...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <Alert className="border-destructive bg-destructive/10">
+        <AlertTriangle className="h-4 w-4" />
+        <AlertDescription>
+          <strong>Error loading platform data:</strong> {error}
+          <Button 
+            variant="link" 
+            className="p-0 h-auto ml-2" 
+            onClick={insertSampleMetrics}
+          >
+            Initialize Sample Data
+          </Button>
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  if (!metrics) {
+    return (
+      <Alert>
+        <AlertTriangle className="h-4 w-4" />
+        <AlertDescription>
+          <strong>No platform data available.</strong> 
+          <Button 
+            variant="link" 
+            className="p-0 h-auto ml-2" 
+            onClick={insertSampleMetrics}
+          >
+            Initialize Sample Data
+          </Button>
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <div className="space-y-6">

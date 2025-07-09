@@ -1027,6 +1027,69 @@ export type Database = {
           },
         ]
       }
+      platform_alerts: {
+        Row: {
+          acknowledged_at: string | null
+          acknowledged_by: string | null
+          alert_type: string
+          created_at: string
+          id: string
+          message: string
+          resolved_at: string | null
+          severity: string
+          source_metric_id: string | null
+          status: string
+          tenant_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          alert_type: string
+          created_at?: string
+          id?: string
+          message: string
+          resolved_at?: string | null
+          severity: string
+          source_metric_id?: string | null
+          status?: string
+          tenant_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          alert_type?: string
+          created_at?: string
+          id?: string
+          message?: string
+          resolved_at?: string | null
+          severity?: string
+          source_metric_id?: string | null
+          status?: string
+          tenant_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_alerts_source_metric_id_fkey"
+            columns: ["source_metric_id"]
+            isOneToOne: false
+            referencedRelation: "system_metrics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "platform_alerts_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       prescriptions: {
         Row: {
           created_at: string
@@ -1437,6 +1500,71 @@ export type Database = {
           },
         ]
       }
+      security_incidents: {
+        Row: {
+          affected_systems: string[] | null
+          assigned_to: string | null
+          created_at: string
+          description: string
+          detected_at: string
+          id: string
+          impact_level: string | null
+          incident_type: string
+          resolution_time_minutes: number | null
+          resolved_at: string | null
+          response_time_minutes: number | null
+          severity: string
+          status: string
+          tenant_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          affected_systems?: string[] | null
+          assigned_to?: string | null
+          created_at?: string
+          description: string
+          detected_at?: string
+          id?: string
+          impact_level?: string | null
+          incident_type: string
+          resolution_time_minutes?: number | null
+          resolved_at?: string | null
+          response_time_minutes?: number | null
+          severity: string
+          status?: string
+          tenant_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          affected_systems?: string[] | null
+          assigned_to?: string | null
+          created_at?: string
+          description?: string
+          detected_at?: string
+          id?: string
+          impact_level?: string | null
+          incident_type?: string
+          resolution_time_minutes?: number | null
+          resolved_at?: string | null
+          response_time_minutes?: number | null
+          severity?: string
+          status?: string
+          tenant_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "security_incidents_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sms_templates: {
         Row: {
           created_at: string
@@ -1468,6 +1596,53 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "sms_templates_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      system_metrics: {
+        Row: {
+          id: string
+          metric_name: string
+          metric_type: string
+          recorded_at: string
+          status: string | null
+          tenant_id: string | null
+          threshold_critical: number | null
+          threshold_warning: number | null
+          unit: string
+          value: number
+        }
+        Insert: {
+          id?: string
+          metric_name: string
+          metric_type: string
+          recorded_at?: string
+          status?: string | null
+          tenant_id?: string | null
+          threshold_critical?: number | null
+          threshold_warning?: number | null
+          unit: string
+          value: number
+        }
+        Update: {
+          id?: string
+          metric_name?: string
+          metric_type?: string
+          recorded_at?: string
+          status?: string | null
+          tenant_id?: string | null
+          threshold_critical?: number | null
+          threshold_warning?: number | null
+          unit?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "system_metrics_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -1518,6 +1693,56 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "team_members_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenant_usage_metrics: {
+        Row: {
+          active_users: number | null
+          api_calls: number | null
+          cost_per_user: number | null
+          created_at: string
+          database_queries: number | null
+          id: string
+          metric_date: string
+          monthly_revenue: number | null
+          storage_gb: number | null
+          tenant_id: string
+          utilization_score: number | null
+        }
+        Insert: {
+          active_users?: number | null
+          api_calls?: number | null
+          cost_per_user?: number | null
+          created_at?: string
+          database_queries?: number | null
+          id?: string
+          metric_date?: string
+          monthly_revenue?: number | null
+          storage_gb?: number | null
+          tenant_id: string
+          utilization_score?: number | null
+        }
+        Update: {
+          active_users?: number | null
+          api_calls?: number | null
+          cost_per_user?: number | null
+          created_at?: string
+          database_queries?: number | null
+          id?: string
+          metric_date?: string
+          monthly_revenue?: number | null
+          storage_gb?: number | null
+          tenant_id?: string
+          utilization_score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_usage_metrics_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -1761,6 +1986,10 @@ export type Database = {
       }
     }
     Functions: {
+      calculate_tenant_metrics: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       can_access_platform_admin: {
         Args: { user_id?: string }
         Returns: boolean
