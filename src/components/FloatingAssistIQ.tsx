@@ -102,12 +102,13 @@ export const FloatingAssistIQ: React.FC = () => {
           <TooltipTrigger asChild>
             <Button
               onClick={() => setIsOpen(true)}
-              className="fixed bottom-6 right-6 h-14 w-14 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 shadow-lg z-40 group"
+              className="fixed bottom-6 right-6 h-20 w-20 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 shadow-2xl z-40 group transition-all duration-300 hover:scale-110"
               size="icon"
             >
-              <div className="relative">
-                <Zap className="h-6 w-6 text-white" />
-                <div className="absolute -top-1 -right-1 h-3 w-3 bg-green-400 rounded-full animate-pulse" />
+              <div className="relative flex flex-col items-center">
+                <Zap className="h-8 w-8 text-white mb-1" />
+                <span className="text-xs font-semibold text-white">ASSIST</span>
+                <div className="absolute -top-1 -right-1 h-4 w-4 bg-green-400 rounded-full animate-pulse border-2 border-white" />
               </div>
             </Button>
           </TooltipTrigger>
