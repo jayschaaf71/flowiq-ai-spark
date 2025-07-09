@@ -93,6 +93,8 @@ export const usePlatformUsers = () => {
       role: string; 
       tenantId?: string;
     }) => {
+      console.log('Starting invitation process for:', { email, role, tenantId });
+      
       const { data, error } = await supabase.functions.invoke('send-user-invitation', {
         body: {
           email,
@@ -101,6 +103,8 @@ export const usePlatformUsers = () => {
           inviterName: 'Platform Admin'
         }
       });
+
+      console.log('Edge function response:', { data, error });
 
       if (error) {
         console.error('Error sending invitation:', error);
