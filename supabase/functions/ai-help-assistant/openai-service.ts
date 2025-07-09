@@ -3,6 +3,11 @@ import { AI_CONFIG, SYSTEM_PROMPT } from './config.ts';
 import { AVAILABLE_FUNCTIONS } from './function-definitions.ts';
 
 export async function callOpenAI(message: string, context: string, conversationHistory: any[]) {
+  console.log('=== Calling OpenAI ===');
+  console.log('Message:', message);
+  console.log('Context:', context);
+  console.log('History length:', conversationHistory?.length || 0);
+  
   const historyContext = conversationHistory
     ?.map((msg: any) => `${msg.type}: ${msg.content}`)
     .join('\n') || '';
@@ -13,6 +18,8 @@ CURRENT USER CONTEXT: ${context}
 
 CONVERSATION HISTORY:
 ${historyContext}`;
+
+  console.log('Making OpenAI API call...');
 
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
@@ -35,10 +42,69 @@ ${historyContext}`;
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`OpenAI API error: ${errorText}`);
+    console.error('OpenAI API error response:', {
+      status: response.status,
+      statusText: response.statusText,
+      errorText
+    });
+    throw new Error(`OpenAI API error (${response.status}): ${errorText}`);
   }
 
-  return await response.json();
+  const result = await response.json();
+  console.log('OpenAI API call successful');
+  return result;
+}
+
+export async function callOpenAISimple(message: string, context: string, conversationHistory: any[]) {
+  console.log('=== Calling OpenAI Simple (no functions) ===');
+  console.log('Message:', message);
+  console.log('Context:', context);
+  
+  const historyContext = conversationHistory
+    ?.map((msg: any) => `${msg.type}: ${msg.content}`)
+    .join('\n') || '';
+
+  const fullSystemPrompt = `${SYSTEM_PROMPT}
+
+CURRENT USER CONTEXT: ${context}
+
+CONVERSATION HISTORY:
+${historyContext}
+
+NOTE: Function calling is currently disabled. Please provide helpful guidance and information instead of trying to perform actions.`;
+
+  console.log('Making OpenAI API call without functions...');
+
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: AI_CONFIG.model,
+      messages: [
+        { role: 'system', content: fullSystemPrompt },
+        { role: 'user', content: message }
+      ],
+      temperature: AI_CONFIG.temperature,
+      max_tokens: AI_CONFIG.maxTokens,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('OpenAI API error response:', {
+      status: response.status,
+      statusText: response.statusText,
+      errorText
+    });
+    throw new Error(`OpenAI API error (${response.status}): ${errorText}`);
+  }
+
+  const result = await response.json();
+  console.log('OpenAI API call successful');
+  return result;
 }
 
 export async function getFollowUpResponse(
