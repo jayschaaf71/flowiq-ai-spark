@@ -156,9 +156,8 @@ const PracticeSetup = () => {
 
         console.log('Created tenant with ID:', tenantId);
 
-        // Update user's specialty in localStorage (HIPAA compliant user-specific key)
-        const userSpecificKey = `currentSpecialty_${user.id}`;
-        localStorage.setItem(userSpecificKey, specialtyMapping[setupData.practiceType] || setupData.practiceType);
+        // Update user's specialty in localStorage - use the same key as other components
+        localStorage.setItem('currentSpecialty', specialtyMapping[setupData.practiceType] || setupData.practiceType);
       }
     } catch (error) {
       console.error('Failed to complete setup:', error);
