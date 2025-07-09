@@ -75,7 +75,7 @@ export const PlatformAdminDashboard: React.FC = () => {
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
             {metrics.criticalAlerts} critical system alerts require immediate attention. 
-            <Button variant="link" className="p-0 h-auto ml-2" onClick={() => setActiveTab('incidents')}>
+            <Button variant="link" className="p-0 h-auto ml-2" onClick={() => setActiveTab('security')}>
               View Details
             </Button>
           </AlertDescription>
