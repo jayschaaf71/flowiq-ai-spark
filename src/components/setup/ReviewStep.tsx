@@ -28,7 +28,7 @@ const practiceTypeNames = {
 };
 
 const agentNames = {
-  'schedule-iq': 'Schedule iQ',
+  'appointment-iq': 'Appointment iQ',
   'intake-iq': 'Intake iQ',
   
   'billing-iq': 'Billing iQ',
@@ -44,7 +44,7 @@ const agentNames = {
   'education-iq': 'Education iQ',
   'marketing-iq': 'Marketing iQ',
   'referral-iq': 'Referral iQ',
-  'followup-iq': 'Followup iQ'
+  
 };
 
 export const ReviewStep = ({ setupData, onComplete }: ReviewStepProps) => {

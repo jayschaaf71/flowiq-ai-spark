@@ -57,8 +57,8 @@ class AINativeCore {
   async initializeAIFoundation() {
     const coreAgents: AIAgent[] = [
       {
-        id: 'schedule-iq',
-        name: 'Schedule iQ',
+        id: 'appointment-iq',
+        name: 'Appointment iQ',
         type: 'workflow',
         status: 'active',
         capabilities: ['appointment_booking', 'schedule_optimization', 'conflict_resolution'],

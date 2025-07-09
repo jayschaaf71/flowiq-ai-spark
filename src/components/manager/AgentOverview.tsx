@@ -23,9 +23,9 @@ export const AgentOverview = () => {
   
   const coreAgents = [
     {
-      id: 'schedule-iq',
-      name: 'Schedule iQ',
-      description: 'AI-powered appointment scheduling with predictive optimization',
+      id: 'appointment-iq',
+      name: 'Appointment iQ',
+      description: 'Complete appointment lifecycle management with scheduling, reminders, and follow-up',
       icon: Calendar,
       status: 'active',
       performance: 94,

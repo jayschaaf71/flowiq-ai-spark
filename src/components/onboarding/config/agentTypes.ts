@@ -31,12 +31,12 @@ export interface AgentType {
 
 export const agentTypes: AgentType[] = [
   {
-    id: 'schedule-iq',
-    name: 'Schedule iQ',
-    description: 'Automate appointment booking, rescheduling, and calendar management',
+    id: 'appointment-iq',
+    name: 'Appointment iQ',
+    description: 'Complete appointment lifecycle management with scheduling, reminders, and follow-up',
     icon: Calendar,
     color: 'blue',
-    features: ['Reduces double bookings', '24/7 online booking', 'Smart scheduling optimization', 'Calendar integration'],
+    features: ['Smart scheduling', '24/7 booking', 'Automated reminders', 'Follow-up coordination', 'No-show reduction'],
     recommended: true,
     category: 'Essential'
   },
@@ -179,15 +179,5 @@ export const agentTypes: AgentType[] = [
     features: ['Referral tracking', 'Physician outreach', 'Relationship management', 'Communication automation'],
     recommended: false,
     category: 'Growth'
-  },
-  {
-    id: 'followup-iq',
-    name: 'Followup iQ',
-    description: 'Automated patient follow-up and care coordination',
-    icon: Bell,
-    color: 'lime',
-    features: ['Post-visit follow-up', 'Care plan reminders', 'Treatment adherence tracking', 'Outcome monitoring'],
-    recommended: false,
-    category: 'Patient Experience'
   }
 ];

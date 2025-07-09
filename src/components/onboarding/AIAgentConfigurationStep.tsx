@@ -8,7 +8,7 @@ import { AutomationSettings } from './components/AutomationSettings';
 import { SelectedAgentsSummary } from './components/SelectedAgentsSummary';
 
 interface AgentConfig {
-  'schedule-iq': boolean;
+  'appointment-iq': boolean;
   'intake-iq': boolean;
   
   'billing-iq': boolean;

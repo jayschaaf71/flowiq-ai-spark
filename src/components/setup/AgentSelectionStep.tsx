@@ -32,11 +32,11 @@ interface AgentSelectionStepProps {
 
 const availableAgents = [
   {
-    id: 'schedule-iq',
-    name: 'Schedule iQ',
-    description: 'Automate appointment booking, rescheduling, and calendar management',
+    id: 'appointment-iq',
+    name: 'Appointment iQ',
+    description: 'Complete appointment lifecycle management with scheduling, reminders, and follow-up',
     icon: Calendar,
-    benefits: ['Reduces double bookings', '24/7 online booking', 'Smart scheduling optimization'],
+    benefits: ['Smart scheduling', 'Automated reminders', 'Follow-up coordination', 'No-show reduction'],
     recommended: true,
     category: 'Essential'
   },
@@ -166,15 +166,6 @@ const availableAgents = [
     recommended: false,
     category: 'Growth'
   },
-  {
-    id: 'followup-iq',
-    name: 'Followup iQ',
-    description: 'Automated patient follow-up and care coordination',
-    icon: Bell,
-    benefits: ['Post-visit follow-up', 'Care plan reminders', 'Treatment adherence tracking'],
-    recommended: false,
-    category: 'Patient Experience'
-  }
 ];
 
 export const AgentSelectionStep = ({ setupData, updateSetupData }: AgentSelectionStepProps) => {

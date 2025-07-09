@@ -27,8 +27,8 @@ export const DragDropWorkflowBuilder = () => {
         { id: 1, name: "Initial Contact", agent: "Intake iQ", ai: "Natural language processing for initial queries", duration: "2 min" },
         { id: 2, name: "Smart Form Generation", agent: "Intake iQ", ai: "Dynamic form creation based on patient needs", duration: "5 min" },
         { id: 3, name: "Document Processing", agent: "Scribe iQ", ai: "AI-powered document analysis and validation", duration: "3 min" },
-        { id: 4, name: "Schedule Optimization", agent: "Schedule iQ", ai: "Predictive scheduling with provider matching", duration: "2 min" },
-        { id: 5, name: "Automated Communications", agent: "Remind iQ", ai: "Personalized welcome sequence", duration: "1 min" }
+        { id: 4, name: "Schedule Optimization", agent: "Appointment iQ", ai: "Predictive scheduling with provider matching", duration: "2 min" },
+        { id: 5, name: "Automated Communications", agent: "Appointment iQ", ai: "Personalized welcome sequence", duration: "1 min" }
       ],
       aiFeatures: ["Predictive form fields", "Intelligent routing", "Auto-verification", "Risk assessment"]
     },
@@ -36,10 +36,10 @@ export const DragDropWorkflowBuilder = () => {
       name: "Autonomous Appointment Management",
       description: "Complete appointment lifecycle with AI decision-making",
       steps: [
-        { id: 1, name: "Intelligent Booking", agent: "Schedule iQ", ai: "Natural language booking with conflict resolution", duration: "3 min" },
+        { id: 1, name: "Intelligent Booking", agent: "Appointment iQ", ai: "Natural language booking with conflict resolution", duration: "3 min" },
         { id: 2, name: "Pre-Visit Preparation", agent: "Intake iQ", ai: "Smart prep based on appointment type", duration: "5 min" },
         { id: 3, name: "Visit Documentation", agent: "Scribe iQ", ai: "Real-time AI scribe with clinical insights", duration: "15 min" },
-        { id: 4, name: "Follow-up Automation", agent: "Remind iQ", ai: "Personalized post-visit care plans", duration: "2 min" },
+        { id: 4, name: "Follow-up Automation", agent: "Appointment iQ", ai: "Personalized post-visit care plans", duration: "2 min" },
         { id: 5, name: "Billing Intelligence", agent: "Billing iQ", ai: "Auto-coding with accuracy optimization", duration: "1 min" }
       ],
       aiFeatures: ["Predictive no-show prevention", "Dynamic scheduling", "Clinical AI insights", "Revenue optimization"]
@@ -47,7 +47,7 @@ export const DragDropWorkflowBuilder = () => {
   };
 
   const aiAgents = [
-    { id: "schedule-iq", name: "Schedule iQ", icon: Calendar, color: "bg-blue-100 text-blue-700", ai: "Advanced scheduling AI" },
+    { id: "appointment-iq", name: "Appointment iQ", icon: Calendar, color: "bg-blue-100 text-blue-700", ai: "Complete appointment lifecycle" },
     { id: "intake-iq", name: "Intake iQ", icon: Users, color: "bg-green-100 text-green-700", ai: "Intelligent patient onboarding" },
     { id: "scribe-iq", name: "Scribe iQ", icon: FileText, color: "bg-purple-100 text-purple-700", ai: "AI-powered documentation" },
     

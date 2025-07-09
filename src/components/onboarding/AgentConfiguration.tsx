@@ -5,7 +5,7 @@ import { SpecialtyType } from '@/utils/specialtyConfig';
 
 interface AgentConfigurationProps {
   agentConfig: {
-    'schedule-iq'?: boolean;
+    'appointment-iq'?: boolean;
     'intake-iq'?: boolean;
     
     'billing-iq'?: boolean;
@@ -28,7 +28,7 @@ export const AgentConfiguration: React.FC<AgentConfigurationProps> = ({
 }) => {
   // Transform the data structure to match what AIAgentConfigurationStep expects
   const transformedConfig = {
-    'schedule-iq': agentConfig['schedule-iq'] || false,
+    'appointment-iq': agentConfig['appointment-iq'] || false,
     'intake-iq': agentConfig['intake-iq'] || false,
     
     'billing-iq': agentConfig['billing-iq'] || false,
