@@ -40,7 +40,7 @@ export const specialtyConfigs: Record<SpecialtyType, SpecialtyConfig> = {
     primaryColor: '#3b82f6',
     secondaryColor: '#60a5fa',
     accentColor: '#dbeafe',
-    defaultAgents: ['schedule-iq', 'intake-iq', 'billing-iq'],
+    defaultAgents: ['appointment-iq', 'intake-iq', 'billing-iq'],
     requiredIntegrations: ['ehr', 'dme-billing'],
     templateCategories: ['sleep-study', 'appliance-fitting', 'follow-up'],
     workflowTemplates: ['sleep-consult', 'appliance-delivery', 'maintenance']
@@ -68,7 +68,7 @@ export const specialtyConfigs: Record<SpecialtyType, SpecialtyConfig> = {
     primaryColor: '#7c3aed',
     secondaryColor: '#8b5cf6',
     accentColor: '#ede9fe',
-    defaultAgents: ['schedule-iq', 'intake-iq', 'assist-iq'],
+    defaultAgents: ['appointment-iq', 'intake-iq', 'assist-iq'],
     requiredIntegrations: ['ehr', 'telehealth'],
     templateCategories: ['wellness', 'executive-physical', 'house-call'],
     workflowTemplates: ['membership-onboard', 'annual-physical', 'urgent-care']
