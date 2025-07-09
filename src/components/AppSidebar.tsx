@@ -2,7 +2,7 @@
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Brain } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -84,8 +84,8 @@ export const AppSidebar = () => {
     <Sidebar className="border-r">
       <SidebarHeader className="border-b p-4">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground flex-shrink-0">
-            <Brain className="h-4 w-4" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 text-white flex-shrink-0">
+            <Sparkles className="h-4 w-4" />
           </div>
           {state === "expanded" && (
             <div className="flex flex-col min-w-0 flex-1">
