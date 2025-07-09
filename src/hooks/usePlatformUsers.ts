@@ -93,16 +93,21 @@ export const usePlatformUsers = () => {
       role: string; 
       tenantId?: string;
     }) => {
-      // This would typically involve creating a user invitation
-      // For now, we'll just log the action
-      console.log('Inviting user:', { email, role, tenantId });
-      
-      // In a real implementation, you might:
-      // 1. Send an email invitation
-      // 2. Create a pending user record
-      // 3. Generate an invitation token
-      
-      return { success: true };
+      const { data, error } = await supabase.functions.invoke('send-user-invitation', {
+        body: {
+          email,
+          role,
+          tenantId,
+          inviterName: 'Platform Admin'
+        }
+      });
+
+      if (error) {
+        console.error('Error sending invitation:', error);
+        throw new Error(error.message || 'Failed to send invitation');
+      }
+
+      return data;
     },
     onSuccess: () => {
       toast({
