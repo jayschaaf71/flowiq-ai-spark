@@ -41,6 +41,7 @@ export const usePlatformMetrics = () => {
 
   const fetchPlatformMetrics = async () => {
     try {
+      console.log('Fetching platform metrics...');
       // Fetch tenant counts
       const { data: tenantData, error: tenantError } = await supabase
         .from('tenants')
@@ -109,6 +110,7 @@ export const usePlatformMetrics = () => {
 
     } catch (err) {
       console.error('Error fetching platform metrics:', err);
+      console.error('Full error details:', JSON.stringify(err, null, 2));
       setError(err instanceof Error ? err.message : 'Failed to fetch metrics');
     } finally {
       setLoading(false);
