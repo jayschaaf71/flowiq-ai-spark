@@ -399,13 +399,7 @@ function App() {
                      </Layout>
                    </TenantWrapper>
                  } />
-                 <Route path="/agents/dental-sleep" element={
-                   <TenantWrapper>
-                     <Layout>
-                       <DentalSleepIQ />
-                     </Layout>
-                   </TenantWrapper>
-                 } />
+                 {/* Dental Sleep iQ moved to DentalSleepWrapper only */}
                 <Route path="/integrations" element={
                   <TenantWrapper>
                     <Layout>

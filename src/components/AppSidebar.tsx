@@ -19,7 +19,7 @@ import {
 import { useTenantConfig } from "@/utils/enhancedTenantConfig";
 import { useEnhancedAuth } from "@/hooks/useEnhancedAuth";
 import { useSpecialty } from "@/contexts/SpecialtyContext";
-import { navItems, navGroups } from "@/config/navigationConfig";
+import { getNavItems, navGroups } from "@/config/navigationConfig";
 import { sidebarService } from "@/services/sidebarService";
 
 export const AppSidebar = () => {
@@ -37,6 +37,10 @@ export const AppSidebar = () => {
     sidebarService.getAgentStatus().then(setAgentStatus);
   }, []);
 
+  // Get specialty-specific navigation items
+  const currentSpecialty = localStorage.getItem('currentSpecialty') || 'chiropractic';
+  const navItems = getNavItems(currentSpecialty);
+
   // Handle deep linking
   useEffect(() => {
     const unsubscribe = sidebarService.onOpen((itemId: string) => {
@@ -46,8 +50,8 @@ export const AppSidebar = () => {
       }
     });
     return unsubscribe;
-  }, [navigate]);
-
+  }, [navigate, navItems]);
+  
   // Filter navigation items based on role and licensing
   const filteredNavItems = navItems.filter(item => {
     // Check licensing

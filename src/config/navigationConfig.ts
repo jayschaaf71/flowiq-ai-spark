@@ -30,7 +30,8 @@ export const navGroups: NavGroup[] = [
   { id: "settings", title: "Settings", order: 60 }
 ];
 
-export const navItems: NavItem[] = [
+// Base navigation items
+const baseNavItems: NavItem[] = [
   // Overview
   { id: "dashboard", label: "Dashboard", path: "/dashboard", icon: Home, group: "overview", order: 10 },
   { id: "patients", label: "Patients", path: "/patient-management", icon: Users, group: "overview", order: 20 },
@@ -40,7 +41,6 @@ export const navItems: NavItem[] = [
   // Clinical Care
   { id: "scribe-iq", label: "Scribe iQ", path: "/agents/scribe", icon: Stethoscope, badge: "AI", group: "clinical_care", order: 10 },
   { id: "appointment-iq", label: "Appointment iQ", path: "/agents/appointment", icon: Calendar, badge: "AI", group: "clinical_care", order: 20 },
-  { id: "dental-sleep-iq", label: "Dental Sleep iQ", path: "/agents/dental-sleep", icon: Moon, badge: "AI", group: "clinical_care", order: 25 },
 
   // Patient Journey
   { id: "intake-iq", label: "Intake iQ", path: "/agents/intake", icon: ClipboardList, badge: "AI", group: "patient_journey", order: 10 },
@@ -61,3 +61,23 @@ export const navItems: NavItem[] = [
   { id: "settings", label: "Settings", path: "/settings", icon: Settings, group: "settings", order: 10 },
   { id: "help", label: "AssistIQ", path: "/help", icon: HelpCircle, group: "settings", order: 20 }
 ];
+
+// Dental-specific items (only show in dental contexts)
+const dentalNavItems: NavItem[] = [
+  { id: "dental-sleep-iq", label: "Dental Sleep iQ", path: "/agents/dental-sleep", icon: Moon, badge: "AI", group: "clinical_care", order: 25 },
+];
+
+// Function to get filtered navigation items based on specialty
+export const getNavItems = (specialty: string = 'chiropractic'): NavItem[] => {
+  const currentSpecialty = specialty || localStorage.getItem('currentSpecialty') || 'chiropractic';
+  
+  if (currentSpecialty === 'dental-sleep' || currentSpecialty === 'dental') {
+    return [...baseNavItems, ...dentalNavItems];
+  }
+  
+  // For chiropractic and all other specialties, return base items only
+  return baseNavItems;
+};
+
+// Export default for backward compatibility
+export const navItems: NavItem[] = baseNavItems;
