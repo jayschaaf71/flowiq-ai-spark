@@ -29,12 +29,15 @@ interface TeamInvitation {
 const AcceptInvitation = () => {
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const [invitation, setInvitation] = useState<TeamInvitation | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [accepting, setAccepting] = useState(false);
+
+  // Debug logging
+  console.log('AcceptInvitation - Auth state:', { user: user?.id, authLoading, userExists: !!user });
 
   useEffect(() => {
     const fetchInvitation = async () => {
@@ -205,6 +208,20 @@ const AcceptInvitation = () => {
     }
   };
 
+  // Show loading while auth is initializing
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <Card className="w-full max-w-md mx-4">
+          <CardContent className="p-8 text-center">
+            <Loader className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
+            <p className="text-gray-600">Loading...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
@@ -241,7 +258,7 @@ const AcceptInvitation = () => {
     );
   }
 
-  if (!user) {
+  if (!user && !authLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <Card className="w-full max-w-md mx-4">
