@@ -2,10 +2,12 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Brain, FileText, Copy, Download } from "lucide-react";
+import { Brain, FileText, Copy, Download, User } from "lucide-react";
 import { useSOAPContext } from "@/contexts/SOAPContext";
 import { useToast } from "@/hooks/use-toast";
 import { useSOAPNotes } from "@/hooks/useSOAPNotes";
+import { usePatientSelection } from "@/hooks/usePatientSelection";
+import { PatientSearchDialog } from "@/components/ehr/PatientSearchDialog";
 import { useState } from "react";
 
 export const ScribeSOAPGeneration = () => {
@@ -13,6 +15,7 @@ export const ScribeSOAPGeneration = () => {
   const { toast } = useToast();
   const { createSOAPNote } = useSOAPNotes();
   const [isSaving, setIsSaving] = useState(false);
+  const { selectedPatient, isSearchOpen, selectPatient, openSearch, closeSearch } = usePatientSelection();
 
   console.log('ScribeSOAPGeneration render - generatedSOAP:', generatedSOAP);
   console.log('ScribeSOAPGeneration render - isGenerating:', isGenerating);
@@ -77,8 +80,16 @@ ${generatedSOAP.plan}`;
     URL.revokeObjectURL(url);
   };
 
+  const handleSaveClick = () => {
+    if (!selectedPatient) {
+      openSearch();
+      return;
+    }
+    saveToPatientRecord();
+  };
+
   const saveToPatientRecord = async () => {
-    if (!generatedSOAP) return;
+    if (!generatedSOAP || !selectedPatient) return;
     
     setIsSaving(true);
     try {
@@ -88,15 +99,15 @@ ${generatedSOAP.plan}`;
         assessment: generatedSOAP.assessment,
         plan: generatedSOAP.plan,
         is_ai_generated: true,
-        ai_confidence_score: 85, // Default confidence score for AI-generated notes
+        ai_confidence_score: 85,
         status: 'draft',
         visit_date: new Date().toISOString().split('T')[0],
-        patient_id: 'temp-patient-id', // This should be selected by user in a real implementation
+        patient_id: selectedPatient.id,
       });
       
       toast({
         title: "SOAP Note Saved",
-        description: "The SOAP note has been saved to the patient record successfully",
+        description: `SOAP note saved to ${selectedPatient.first_name} ${selectedPatient.last_name}'s record`,
       });
     } catch (error) {
       toast({
@@ -110,16 +121,23 @@ ${generatedSOAP.plan}`;
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Brain className="w-5 h-5 text-primary" />
-          AI SOAP Generation
-        </CardTitle>
-        <CardDescription>
-          Generate structured SOAP notes from voice transcriptions using AI
-        </CardDescription>
-      </CardHeader>
+    <>
+      <PatientSearchDialog
+        open={isSearchOpen}
+        onOpenChange={closeSearch}
+        onPatientSelect={selectPatient}
+      />
+      
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Brain className="w-5 h-5 text-primary" />
+            AI SOAP Generation
+          </CardTitle>
+          <CardDescription>
+            Generate structured SOAP notes from voice transcriptions using AI
+          </CardDescription>
+        </CardHeader>
       <CardContent>
         {isGenerating ? (
           <div className="flex items-center justify-center py-12">
@@ -178,14 +196,32 @@ ${generatedSOAP.plan}`;
               </div>
             </div>
 
+            {selectedPatient && (
+              <div className="p-3 bg-blue-50 rounded border mb-4">
+                <div className="flex items-center gap-2">
+                  <User className="w-4 h-4 text-blue-600" />
+                  <span className="text-sm font-medium">Selected Patient:</span>
+                  <span className="text-sm">{selectedPatient.first_name} {selectedPatient.last_name}</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={openSearch}
+                    className="ml-auto"
+                  >
+                    Change Patient
+                  </Button>
+                </div>
+              </div>
+            )}
+
             <div className="flex gap-2 pt-4 border-t">
               <Button 
                 className="bg-green-600 hover:bg-green-700" 
-                onClick={saveToPatientRecord}
+                onClick={handleSaveClick}
                 disabled={isSaving}
               >
                 <FileText className="w-4 h-4 mr-2" />
-                {isSaving ? "Saving..." : "Save to Patient Record"}
+                {isSaving ? "Saving..." : selectedPatient ? "Save to Patient Record" : "Select Patient & Save"}
               </Button>
               <Button variant="outline">
                 Edit & Refine
@@ -201,5 +237,6 @@ ${generatedSOAP.plan}`;
         )}
       </CardContent>
     </Card>
+    </>
   );
 };
