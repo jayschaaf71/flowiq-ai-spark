@@ -6,10 +6,12 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UserPlus, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { usePlatformUsers } from '@/hooks/usePlatformUsers';
 import { useTenantManagement } from '@/hooks/useTenantManagement';
 
 export const UserInviteDialog: React.FC = () => {
-  const { tenants, inviteUser, isInviting } = useTenantManagement();
+  const { inviteUser, isInviting } = usePlatformUsers();
+  const { tenants } = useTenantManagement();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
