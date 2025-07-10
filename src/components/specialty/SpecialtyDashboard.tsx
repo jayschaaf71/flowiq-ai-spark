@@ -1,26 +1,7 @@
 
-import { useSpecialty } from '@/contexts/SpecialtyContext';
-import { ChiropracticDashboard } from './dashboards/ChiropracticDashboard';
-import { DentalSleepDashboard } from './dashboards/DentalSleepDashboard';
-import { MedSpaDashboard } from './dashboards/MedSpaDashboard';
-import { ConciergeDashboard } from './dashboards/ConciergeDashboard';
-import { HRTDashboard } from './dashboards/HRTDashboard';
+import { ChiropracticDashboard } from '@/components/chiropractic/ChiropracticDashboard';
 
 export const SpecialtyDashboard = () => {
-  const { currentSpecialty } = useSpecialty();
-
-  switch (currentSpecialty) {
-    case 'chiropractic':
-      return <ChiropracticDashboard />;
-    case 'dental-sleep':
-      return <DentalSleepDashboard />;
-    case 'med-spa':
-      return <MedSpaDashboard />;
-    case 'concierge':
-      return <ConciergeDashboard />;
-    case 'hrt':
-      return <HRTDashboard />;
-    default:
-      return <ChiropracticDashboard />;
-  }
+  // For chiropractic production pilot, always return ChiropracticDashboard
+  return <ChiropracticDashboard />;
 };
