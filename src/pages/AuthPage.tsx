@@ -19,36 +19,7 @@ export default function AuthPage() {
   const [error, setError] = useState<string | null>(null);
   const [defaultTab, setDefaultTab] = useState("signup");
 
-  // Redirect if already authenticated
-  useEffect(() => {
-    if (user) {
-      navigate('/dashboard');
-    }
-  }, [user, navigate]);
-
-  // Handle invitation parameters
-  useEffect(() => {
-    const email = searchParams.get('email');
-    const firstName = searchParams.get('firstName');
-    const lastName = searchParams.get('lastName');
-    const role = searchParams.get('role');
-    const tabParam = searchParams.get('defaultTab');
-
-    if (email && firstName && lastName) {
-      setSignUpData(prev => ({
-        ...prev,
-        email: decodeURIComponent(email),
-        firstName: decodeURIComponent(firstName),
-        lastName: decodeURIComponent(lastName),
-        role: role ? decodeURIComponent(role) : 'patient'
-      }));
-    }
-
-    if (tabParam) {
-      setDefaultTab(decodeURIComponent(tabParam));
-    }
-  }, [searchParams]);
-
+  // Initialize state first
   const [signUpData, setSignUpData] = useState({
     firstName: "",
     lastName: "",
@@ -66,6 +37,44 @@ export default function AuthPage() {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetSent, setResetSent] = useState(false);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
+
+  // Handle invitation parameters
+  useEffect(() => {
+    const email = searchParams.get('email');
+    const firstName = searchParams.get('firstName');
+    const lastName = searchParams.get('lastName');
+    const role = searchParams.get('role');
+    const tabParam = searchParams.get('defaultTab');
+
+    console.log('AuthPage URL params:', { email, firstName, lastName, role, tabParam });
+
+    if (email && firstName && lastName) {
+      const newSignUpData = {
+        email: decodeURIComponent(email),
+        firstName: decodeURIComponent(firstName),
+        lastName: decodeURIComponent(lastName),
+        role: role ? decodeURIComponent(role) : 'patient',
+        password: "",
+        confirmPassword: ""
+      };
+      console.log('Setting signUpData to:', newSignUpData);
+      setSignUpData(prev => ({
+        ...prev,
+        ...newSignUpData
+      }));
+    }
+
+    if (tabParam) {
+      setDefaultTab(decodeURIComponent(tabParam));
+    }
+  }, [searchParams]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
