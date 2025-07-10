@@ -19,11 +19,24 @@ import { PatientManager } from "@/components/core/PatientManager";
 import { AppointmentManager } from "@/components/core/AppointmentManager";
 import { useAppointments } from "@/hooks/useAppointments";
 import { usePatients } from "@/hooks/usePatients";
+import { DashboardSkeleton } from "@/components/LoadingStates";
+import { showErrorToast } from "@/components/feedback/Toast";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export const ChiropracticDashboard = () => {
   const navigate = useNavigate();
-  const { appointments, loading: appointmentsLoading } = useAppointments();
-  const { data: patients, isLoading: patientsLoading } = usePatients();
+  const { appointments, loading: appointmentsLoading, error: appointmentsError } = useAppointments();
+  const { data: patients, isLoading: patientsLoading, error: patientsError } = usePatients();
+
+  // Handle errors
+  if (appointmentsError || patientsError) {
+    showErrorToast("Failed to load dashboard data", "Please refresh the page or contact support");
+  }
+
+  // Show loading state
+  if (appointmentsLoading || patientsLoading) {
+    return <DashboardSkeleton />;
+  }
 
   // Quick stats calculations
   const todayDate = new Date().toISOString().split('T')[0];
@@ -259,11 +272,15 @@ export const ChiropracticDashboard = () => {
         </TabsList>
         
         <TabsContent value="appointments">
-          <AppointmentManager />
+          <ErrorBoundary>
+            <AppointmentManager />
+          </ErrorBoundary>
         </TabsContent>
         
         <TabsContent value="patients">
-          <PatientManager />
+          <ErrorBoundary>
+            <PatientManager />
+          </ErrorBoundary>
         </TabsContent>
       </Tabs>
     </div>

@@ -76,18 +76,20 @@ import AcceptInvitation from '@/pages/AcceptInvitation';
 
 import { Toaster } from '@/components/ui/toaster';
 import { FloatingAssistIQ } from '@/components/FloatingAssistIQ';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 const queryClient = new QueryClient();
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <QueryClientProvider client={queryClient}>
-          <SpecialtyProvider>
-            <DashboardProvider>
-              <AnalyticsProvider>
-              <Routes>
+    <ErrorBoundary>
+      <Router>
+        <AuthProvider>
+          <QueryClientProvider client={queryClient}>
+            <SpecialtyProvider>
+              <DashboardProvider>
+                <AnalyticsProvider>
+                <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/get-started" element={<AuthPage />} />
                 <Route path="/auth" element={<AuthPage />} />
@@ -454,15 +456,16 @@ function App() {
                 } />
                 {/* Fallback route */}
                 <Route path="*" element={<NotFound />} />
-              </Routes>
-              <FloatingAssistIQ />
-              <Toaster />
-              </AnalyticsProvider>
-            </DashboardProvider>
-          </SpecialtyProvider>
-        </QueryClientProvider>
-      </AuthProvider>
-    </Router>
+                </Routes>
+                <FloatingAssistIQ />
+                <Toaster />
+                </AnalyticsProvider>
+              </DashboardProvider>
+            </SpecialtyProvider>
+          </QueryClientProvider>
+        </AuthProvider>
+      </Router>
+    </ErrorBoundary>
   );
 }
 
