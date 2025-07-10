@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Building, Users, Settings, Plus, Loader } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { TenantCreateDialog } from '@/components/tenant/TenantCreateDialog';
 
 interface Tenant {
   id: string;
@@ -59,10 +60,7 @@ export const PlatformTenants = () => {
           <h1 className="text-3xl font-bold">Tenant Management</h1>
           <p className="text-muted-foreground">Manage all tenant organizations and their configurations</p>
         </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Tenant
-        </Button>
+        <TenantCreateDialog />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
