@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,9 +13,11 @@ import { supabase } from "@/integrations/supabase/client";
 
 export default function AuthPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { signIn, signUp, user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [defaultTab, setDefaultTab] = useState("signup");
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -24,12 +26,36 @@ export default function AuthPage() {
     }
   }, [user, navigate]);
 
+  // Handle invitation parameters
+  useEffect(() => {
+    const email = searchParams.get('email');
+    const firstName = searchParams.get('firstName');
+    const lastName = searchParams.get('lastName');
+    const role = searchParams.get('role');
+    const tabParam = searchParams.get('defaultTab');
+
+    if (email && firstName && lastName) {
+      setSignUpData(prev => ({
+        ...prev,
+        email: decodeURIComponent(email),
+        firstName: decodeURIComponent(firstName),
+        lastName: decodeURIComponent(lastName),
+        role: role ? decodeURIComponent(role) : 'patient'
+      }));
+    }
+
+    if (tabParam) {
+      setDefaultTab(decodeURIComponent(tabParam));
+    }
+  }, [searchParams]);
+
   const [signUpData, setSignUpData] = useState({
     firstName: "",
     lastName: "",
     email: "",
     password: "",
     confirmPassword: "",
+    role: "patient",
   });
 
   const [signInData, setSignInData] = useState({
@@ -64,7 +90,8 @@ export default function AuthPage() {
         signUpData.email,
         signUpData.password,
         signUpData.firstName,
-        signUpData.lastName
+        signUpData.lastName,
+        signUpData.role
       );
 
       if (error) {
@@ -147,7 +174,7 @@ export default function AuthPage() {
             </Alert>
           )}
 
-          <Tabs defaultValue="signup" className="w-full">
+          <Tabs defaultValue={defaultTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
               <TabsTrigger value="signin">Sign In</TabsTrigger>

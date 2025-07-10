@@ -35,7 +35,8 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const { invitation, inviterName }: InvitationRequest = await req.json();
 
-    const inviteUrl = `${Deno.env.get("SUPABASE_URL")}/auth/v1/verify?token=${invitation.invitation_token}&type=invite&redirect_to=${encodeURIComponent(`${Deno.env.get("SITE_URL")}/accept-invitation/${invitation.invitation_token}`)}`;
+    // Create a direct link to the accept invitation page with the token
+    const inviteUrl = `${Deno.env.get("SITE_URL")}/accept-invitation/${invitation.invitation_token}`;
 
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -73,7 +74,7 @@ const handler = async (req: Request): Promise<Response> => {
           <p style="font-size: 14px; color: #64748B; line-height: 1.5;">
             <strong>What happens next?</strong><br>
             • Click the button above to accept your invitation<br>
-            • Create your account or sign in if you already have one<br>
+            • Create your account if you're new, or sign in if you already have one<br>
             • Start collaborating with your team immediately
           </p>
           

@@ -220,17 +220,24 @@ const AcceptInvitation = () => {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <Card className="w-full max-w-md mx-4">
           <CardHeader className="text-center">
-            <CardTitle>Sign In Required</CardTitle>
+            <CardTitle>Join {invitation?.tenants.brand_name}</CardTitle>
             <CardDescription>
-              Please sign in to accept this team invitation
+              {invitation ? `Create your account to join as ${invitation.first_name} ${invitation.last_name}` : 'Please sign in to accept this team invitation'}
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-3">
             <Button 
-              onClick={() => navigate('/auth')} 
+              onClick={() => navigate(`/auth?email=${encodeURIComponent(invitation?.email || '')}&firstName=${encodeURIComponent(invitation?.first_name || '')}&lastName=${encodeURIComponent(invitation?.last_name || '')}&role=${encodeURIComponent(invitation?.role || '')}&defaultTab=signup`)} 
               className="w-full"
             >
-              Sign In
+              Create Account
+            </Button>
+            <Button 
+              onClick={() => navigate('/auth')} 
+              variant="outline"
+              className="w-full"
+            >
+              I Already Have an Account
             </Button>
           </CardContent>
         </Card>
