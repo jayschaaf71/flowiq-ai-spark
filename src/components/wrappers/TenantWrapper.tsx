@@ -16,59 +16,24 @@ export const TenantWrapper: React.FC<TenantWrapperProps> = ({ children }) => {
   const { currentTenant } = useCurrentTenant();
   const { data: userProfile } = useUserProfile();
 
-  // Enhanced specialty detection with route-based priority
+  // Enhanced specialty detection with route-based priority - Default to chiropractic
   const detectSpecialtyFromRoute = () => {
     const path = location.pathname;
+    const userSpecificKey = `currentSpecialty_${userProfile?.id}`;
     
-    // Route-based specialty detection (highest priority)
+    // Route-based specialty detection for specific dental routes only
     if (path.includes('/agents/dental-sleep') || path.includes('/dental-sleep')) {
-      const userSpecificKey = `currentSpecialty_${userProfile?.id}`;
       localStorage.setItem('currentSpecialty', 'dental-sleep');
       localStorage.setItem(userSpecificKey, 'dental-sleep');
       return 'dental-sleep';
     }
     if (path.includes('/dental')) {
-      const userSpecificKey = `currentSpecialty_${userProfile?.id}`;
       localStorage.setItem('currentSpecialty', 'dental');
       localStorage.setItem(userSpecificKey, 'dental');
       return 'dental';
     }
-    if (path.includes('/chiropractic') || path.includes('/chiro')) {
-      const userSpecificKey = `currentSpecialty_${userProfile?.id}`;
-      localStorage.setItem('currentSpecialty', 'chiropractic');
-      localStorage.setItem(userSpecificKey, 'chiropractic');
-      return 'chiropractic';
-    }
     
-    // Check persistent storage (both keys for compatibility)
-    const userSpecificKey = `currentSpecialty_${userProfile?.id}`;
-    const storedSpecialty = localStorage.getItem(userSpecificKey) || localStorage.getItem('currentSpecialty');
-    if (storedSpecialty) {
-      // Sync both keys
-      localStorage.setItem('currentSpecialty', storedSpecialty);
-      localStorage.setItem(userSpecificKey, storedSpecialty);
-      return storedSpecialty;
-    }
-    
-    // Use user's profile specialty if available
-    const userSpecialty = userProfile?.specialty;
-    if (userSpecialty) {
-      const normalizedSpecialty = userSpecialty.toLowerCase().replace(/\s+/g, '-');
-      localStorage.setItem('currentSpecialty', normalizedSpecialty);
-      localStorage.setItem(userSpecificKey, normalizedSpecialty);
-      return normalizedSpecialty;
-    }
-    
-    // Fall back to tenant specialty
-    const tenantSpecialty = currentTenant?.specialty;
-    if (tenantSpecialty) {
-      const normalizedSpecialty = tenantSpecialty.toLowerCase().replace(/\s+/g, '-');
-      localStorage.setItem('currentSpecialty', normalizedSpecialty);
-      localStorage.setItem(userSpecificKey, normalizedSpecialty);
-      return normalizedSpecialty;
-    }
-    
-    // Default to chiropractic
+    // Default all other routes to chiropractic
     localStorage.setItem('currentSpecialty', 'chiropractic');
     localStorage.setItem(userSpecificKey, 'chiropractic');
     return 'chiropractic';
@@ -82,19 +47,13 @@ export const TenantWrapper: React.FC<TenantWrapperProps> = ({ children }) => {
   }, [specialty, location.pathname]);
   
   switch (specialty) {
-    case 'chiropractic-care':
-    case 'chiropractic':
-      return <ChiropracticWrapper>{children}</ChiropracticWrapper>;
-    
-    case 'dental-care':
-    case 'dental':
-    case 'dentistry':
-      return <DentalWrapper>{children}</DentalWrapper>;
-    
-    case 'dental-sleep-medicine':
     case 'dental-sleep':
       return <DentalSleepWrapper>{children}</DentalSleepWrapper>;
     
+    case 'dental':
+      return <DentalWrapper>{children}</DentalWrapper>;
+    
+    case 'chiropractic':
     default:
       return <ChiropracticWrapper>{children}</ChiropracticWrapper>;
   }
