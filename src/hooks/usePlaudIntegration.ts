@@ -8,6 +8,7 @@ import { usePlaudSync } from '@/hooks/usePlaudSync';
 
 export const usePlaudIntegration = () => {
   const [isConnected, setIsConnected] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<'checking' | 'connected' | 'disconnected' | 'error'>('disconnected');
   const [config, setConfig] = useState<PlaudConfig | null>(null);
   const [recordings, setRecordings] = useState<PlaudRecording[]>([]);
   const { toast } = useToast();
@@ -29,7 +30,48 @@ export const usePlaudIntegration = () => {
     const plaudConfig = await loadPlaudConfig();
     if (plaudConfig) {
       setConfig(plaudConfig);
-      setIsConnected(!!plaudConfig.apiKey);
+      // Test the connection instead of just checking if API key exists
+      await testConnection(plaudConfig);
+    }
+  };
+
+  const testConnection = async (configToTest: PlaudConfig) => {
+    if (!configToTest.apiKey || configToTest.apiKey === 'mock-api-key') {
+      setIsConnected(false);
+      setConnectionStatus('disconnected');
+      return;
+    }
+
+    setConnectionStatus('checking');
+    try {
+      const response = await fetch('https://api.plaud.ai/v1/recordings', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${configToTest.apiKey}`,
+          'Content-Type': 'application/json',
+          'X-API-Version': '2024-01'
+        }
+      });
+
+      if (response.ok) {
+        setIsConnected(true);
+        setConnectionStatus('connected');
+      } else if (response.status === 401) {
+        setIsConnected(false);
+        setConnectionStatus('error');
+        toast({
+          title: "Invalid API Key",
+          description: "Please check your Plaud Cloud credentials",
+          variant: "destructive",
+        });
+      } else {
+        setIsConnected(false);
+        setConnectionStatus('error');
+      }
+    } catch (error) {
+      setIsConnected(false);
+      setConnectionStatus('error');
+      console.error('Connection test failed:', error);
     }
   };
 
@@ -43,7 +85,8 @@ export const usePlaudIntegration = () => {
     
     if (success) {
       setConfig(newConfig);
-      setIsConnected(!!newConfig.apiKey);
+      // Test the new configuration
+      await testConnection(newConfig);
 
       toast({
         title: "Configuration Saved",
@@ -94,6 +137,7 @@ export const usePlaudIntegration = () => {
 
   return {
     isConnected,
+    connectionStatus,
     config,
     recordings,
     isPolling,
@@ -101,6 +145,7 @@ export const usePlaudIntegration = () => {
     manualSync,
     uploadRecording: uploadRecordingFile,
     startPolling,
-    stopPolling
+    stopPolling,
+    testConnection
   };
 };

@@ -17,7 +17,7 @@ import { usePlaudIntegration } from "@/hooks/usePlaudIntegration";
 
 const ScribeIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
-  const { isConnected } = usePlaudIntegration();
+  const { isConnected, connectionStatus } = usePlaudIntegration();
   const { getBrandName } = useSpecialty();
 
   // Listen for tab change events from dashboard buttons
@@ -45,10 +45,22 @@ const ScribeIQ = () => {
               <Shield className="w-3 h-3 mr-1" />
               HIPAA Compliant
             </Badge>
-            {isConnected && (
-              <Badge variant="outline" className="border-primary text-primary">
+            {connectionStatus === 'connected' && (
+              <Badge variant="outline" className="border-green-500 text-green-700">
                 <Smartphone className="w-3 h-3 mr-1" />
                 Plaud Connected
+              </Badge>
+            )}
+            {connectionStatus === 'checking' && (
+              <Badge variant="outline" className="border-yellow-500 text-yellow-700">
+                <Smartphone className="w-3 h-3 mr-1" />
+                Checking Connection...
+              </Badge>
+            )}
+            {connectionStatus === 'error' && (
+              <Badge variant="outline" className="border-red-500 text-red-700">
+                <Smartphone className="w-3 h-3 mr-1" />
+                Connection Error
               </Badge>
             )}
           </div>
