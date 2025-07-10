@@ -31,7 +31,7 @@ const handler = async (req: Request): Promise<Response> => {
     const invitationToken = crypto.randomUUID();
 
     // Create a magic link for signup
-    const signupUrl = `${Deno.env.get('SUPABASE_URL')}/auth/v1/signup?email=${encodeURIComponent(email)}&redirect_to=${encodeURIComponent('https://jnpzabmqieceoqjypvve.supabase.co')}&token=${invitationToken}`;
+    const signupUrl = `${Deno.env.get('SUPABASE_URL')}/auth/v1/signup?email=${encodeURIComponent(email)}&redirect_to=${encodeURIComponent('https://flow-iq.ai')}&token=${invitationToken}`;
 
     // Send email using SendGrid
     const emailResponse = await fetch('https://api.sendgrid.com/v3/mail/send', {
@@ -42,7 +42,7 @@ const handler = async (req: Request): Promise<Response> => {
       },
       body: JSON.stringify({
         from: {
-          email: "noreply@flow-iq.ai",
+          email: "noreply@em8653.flow-iq.ai",
           name: "Healthcare Platform"
         },
         personalizations: [{
