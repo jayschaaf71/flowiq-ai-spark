@@ -37,7 +37,7 @@ const handler = async (req: Request): Promise<Response> => {
     const signupUrl = `${Deno.env.get('SUPABASE_URL')}/auth/v1/signup?email=${encodeURIComponent(email)}&redirect_to=${encodeURIComponent('https://jnpzabmqieceoqjypvve.supabase.co')}&token=${invitationToken}`;
 
     const emailResponse = await resend.emails.send({
-      from: "Healthcare Platform <onboarding@resend.dev>",
+      from: "Healthcare Platform <noreply@flow-iq.ai>",
       to: [email],
       subject: "You've been invited to join the Healthcare Platform",
       html: `
