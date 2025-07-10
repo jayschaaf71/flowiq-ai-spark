@@ -120,18 +120,44 @@ const AcceptInvitation = () => {
         }
       };
 
-      // Add user to tenant_users table
-      const { error: tenantUserError } = await supabase
+      // Check if user is already a member of this tenant
+      const { data: existingMembership } = await supabase
         .from('tenant_users')
-        .insert({
-          tenant_id: invitation.tenant_id,
-          user_id: user.id,
-          role: mapRole(invitation.role),
-          joined_at: new Date().toISOString()
-        });
+        .select('id, is_active')
+        .eq('tenant_id', invitation.tenant_id)
+        .eq('user_id', user.id)
+        .maybeSingle();
 
-      if (tenantUserError) {
-        throw new Error(tenantUserError.message);
+      if (existingMembership) {
+        // User is already a member - just reactivate if needed
+        if (!existingMembership.is_active) {
+          const { error: updateError } = await supabase
+            .from('tenant_users')
+            .update({ 
+              is_active: true,
+              role: mapRole(invitation.role),
+              joined_at: new Date().toISOString()
+            })
+            .eq('id', existingMembership.id);
+
+          if (updateError) {
+            throw new Error(updateError.message);
+          }
+        }
+      } else {
+        // Add user to tenant_users table for the first time
+        const { error: tenantUserError } = await supabase
+          .from('tenant_users')
+          .insert({
+            tenant_id: invitation.tenant_id,
+            user_id: user.id,
+            role: mapRole(invitation.role),
+            joined_at: new Date().toISOString()
+          });
+
+        if (tenantUserError) {
+          throw new Error(tenantUserError.message);
+        }
       }
 
       // Update invitation status to accepted
