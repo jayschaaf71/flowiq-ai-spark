@@ -38,7 +38,9 @@ export const UserInviteDialog: React.FC = () => {
       await inviteUser({
         tenantId: formData.tenantId,
         email: formData.email,
-        role: formData.role
+        role: formData.role,
+        firstName: formData.firstName,
+        lastName: formData.lastName
       });
 
       setFormData({

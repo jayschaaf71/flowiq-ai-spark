@@ -137,19 +137,25 @@ export const usePlatformUsers = () => {
     mutationFn: async ({ 
       email, 
       role, 
-      tenantId 
+      tenantId,
+      firstName,
+      lastName
     }: { 
       email: string; 
       role: string; 
       tenantId?: string;
+      firstName?: string;
+      lastName?: string;
     }) => {
-      console.log('Starting invitation process for:', { email, role, tenantId });
+      console.log('Starting invitation process for:', { email, role, tenantId, firstName, lastName });
       
       const { data, error } = await supabase.functions.invoke('send-user-invitation', {
         body: {
           email,
           role,
           tenantId,
+          firstName,
+          lastName,
           inviterName: 'Platform Admin'
         }
       });

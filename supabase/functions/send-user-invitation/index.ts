@@ -13,6 +13,8 @@ interface InvitationRequest {
   email: string;
   role: string;
   tenantId?: string;
+  firstName?: string;
+  lastName?: string;
   inviterName?: string;
 }
 
@@ -28,9 +30,9 @@ const handler = async (req: Request): Promise<Response> => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const { email, role, tenantId, inviterName }: InvitationRequest = await req.json();
+    const { email, role, tenantId, firstName, lastName, inviterName }: InvitationRequest = await req.json();
 
-    console.log('Processing invitation for:', { email, role, tenantId });
+    console.log('Processing invitation for:', { email, role, tenantId, firstName, lastName });
 
     // Create invitation record in database
     const { data: invitation, error: invitationError } = await supabase
@@ -40,8 +42,8 @@ const handler = async (req: Request): Promise<Response> => {
         email,
         role,
         invited_by: null, // We could get this from the request in a real implementation
-        first_name: '', // Could be added to the request
-        last_name: ''   // Could be added to the request
+        first_name: firstName || '',
+        last_name: lastName || ''
       })
       .select()
       .single();
