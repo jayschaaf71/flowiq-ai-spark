@@ -1,6 +1,9 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3';
 import { Resend } from "npm:resend@2.0.0";
+import React from 'npm:react@18.3.1';
+import { renderAsync } from 'npm:@react-email/components@0.0.22';
+import { InvitationEmail } from './_templates/invitation-email.tsx';
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -35,39 +38,29 @@ const handler = async (req: Request): Promise<Response> => {
     // Generate invitation token (in a real app, you'd store this in the database)
     const invitationToken = crypto.randomUUID();
 
-    // Create a magic link for signup
-    const signupUrl = `${Deno.env.get('SUPABASE_URL')}/auth/v1/signup?email=${encodeURIComponent(email)}&redirect_to=${encodeURIComponent('https://flow-iq.ai')}&token=${invitationToken}`;
+    // Create invitation URL that points to our app's accept invitation page
+    const appUrl = 'https://7e1fd4ae-99ff-4361-b2ea-69b832f99084.lovableproject.com';
+    const signupUrl = `${appUrl}/accept-invitation/${invitationToken}`;
 
     console.log('Sending email via Resend...');
 
-    // Send email using Resend
+    // Render the React Email template
+    const html = await renderAsync(
+      React.createElement(InvitationEmail, {
+        email,
+        role,
+        inviterName,
+        signupUrl,
+        tenantName: "FlowIQ Healthcare Platform"
+      })
+    );
+
+    // Send email using Resend with the React template
     const emailResponse = await resend.emails.send({
-      from: "Healthcare Platform <noreply@flow-iq.ai>",
+      from: "FlowIQ Healthcare Platform <noreply@flow-iq.ai>",
       to: [email],
-      subject: "You've been invited to join the Healthcare Platform",
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #333;">You're Invited!</h1>
-          <p>Hello,</p>
-          <p>${inviterName ? `${inviterName} has` : 'You have been'} invited you to join the Healthcare Platform as a <strong>${role}</strong>.</p>
-          
-          <div style="margin: 30px 0;">
-            <a href="${signupUrl}" 
-               style="background-color: #06b6d4; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-              Accept Invitation
-            </a>
-          </div>
-          
-          <p>Or copy and paste this link into your browser:</p>
-          <p style="background-color: #f5f5f5; padding: 10px; border-radius: 4px; word-break: break-all;">
-            ${signupUrl}
-          </p>
-          
-          <p style="color: #666; font-size: 14px; margin-top: 30px;">
-            This invitation will expire in 7 days. If you didn't expect this invitation, you can safely ignore this email.
-          </p>
-        </div>
-      `,
+      subject: "You've been invited to join FlowIQ Healthcare Platform",
+      html,
     });
 
     console.log("Invitation email sent successfully:", emailResponse);
