@@ -1,37 +1,12 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { 
-  Calendar, 
-  Users, 
-  Activity, 
-  TrendingUp, 
-  Clock,
-  CheckCircle,
-  AlertCircle,
-  Brain,
-  DollarSign,
-  Heart,
-  Shield,
-  ArrowRight
-} from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import React from 'react';
 import { useUserProfile } from "@/hooks/useUserProfile";
-import { useAuth } from "@/contexts/AuthProvider";
 import { ChiropracticDashboard } from "@/components/chiropractic/ChiropracticDashboard";
 import { DentalDashboard } from "@/components/specialty/dashboards/DentalDashboard";
-import { DentalSleepDashboard } from "@/components/specialty/dashboards/DentalSleepDashboard";
+import DentalSleepIQ from "./agents/DentalSleepIQ";
 
 export const Dashboard = () => {
-  const navigate = useNavigate();
   const { data: userProfile } = useUserProfile();
-
-  // Add loading and error states
-  if (!userProfile && !userProfile?.specialty) {
-    console.log('Loading user profile...');
-  }
 
   const renderSpecialtyDashboard = () => {
     // Use the same localStorage key as TenantWrapper for consistency
@@ -45,8 +20,8 @@ export const Dashboard = () => {
     switch (currentSpecialty) {
       case 'dental-sleep':
       case 'dental-sleep-medicine':
-        console.log('Rendering DentalSleepDashboard');
-        return <DentalSleepDashboard />;
+        console.log('Rendering DentalSleepIQ');
+        return <DentalSleepIQ />;
       case 'dental':
       case 'dental-care':
       case 'dentistry':
@@ -57,12 +32,11 @@ export const Dashboard = () => {
       default:
         console.log('Rendering ChiropracticDashboard');
         return <ChiropracticDashboard />;
-  };
+    }
   };
 
   return (
     <div className="space-y-6">
-      {/* Specialty-Specific Dashboard */}
       {renderSpecialtyDashboard()}
     </div>
   );
