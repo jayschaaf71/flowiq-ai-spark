@@ -169,13 +169,15 @@ export const usePlatformUsers = () => {
 
       return data;
     },
-    onSuccess: () => {
+    onSuccess: async (data) => {
       toast({
         title: "User invited",
         description: "Invitation sent successfully.",
       });
-      // Refetch users to show any new pending users
-      refetch();
+      // Add a small delay to ensure database transaction is committed
+      setTimeout(() => {
+        refetch();
+      }, 500);
     },
     onError: (error) => {
       toast({
