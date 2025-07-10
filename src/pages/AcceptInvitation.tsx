@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle, AlertCircle, Loader } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface TeamInvitation {
   id: string;
@@ -44,30 +45,50 @@ const AcceptInvitation = () => {
       }
 
       try {
-        // Mock invitation check since table doesn't exist
-        console.log('Mock checking invitation for token:', token);
-        const invitation = {
-          id: '1',
-          tenant_id: 'tenant-1',
-          email: 'user@example.com',
-          first_name: 'John',
-          last_name: 'Doe',
-          role: 'staff',
-          status: 'pending',
-          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-          tenants: {
-            name: 'Demo Practice',
-            brand_name: 'Demo Medical Center',
-            specialty: 'General Practice'
-          }
-        };
+        console.log('Fetching invitation for token:', token);
+        
+        const { data: invitation, error } = await supabase
+          .from('team_invitations')
+          .select(`
+            *,
+            tenants:tenant_id (
+              name,
+              business_name,
+              specialty
+            )
+          `)
+          .eq('token', token)
+          .eq('status', 'pending')
+          .single();
+
+        if (error) {
+          console.error('Error fetching invitation:', error);
+          setError('Invitation not found');
+          setLoading(false);
+          return;
+        }
+
+        if (!invitation) {
+          setError('Invitation not found');
+          setLoading(false);
+          return;
+        }
 
         if (new Date(invitation.expires_at) < new Date()) {
           setError('This invitation has expired');
         } else if (invitation.status !== 'pending') {
           setError('This invitation is no longer valid');
         } else {
-          setInvitation(invitation);
+          // Transform the data to match the expected interface
+          const transformedInvitation = {
+            ...invitation,
+            tenants: {
+              name: invitation.tenants?.name || 'FlowIQ Platform',
+              brand_name: invitation.tenants?.business_name || invitation.tenants?.name || 'FlowIQ Platform',
+              specialty: invitation.tenants?.specialty || 'Healthcare'
+            }
+          };
+          setInvitation(transformedInvitation);
         }
       } catch (error) {
         console.error('Error fetching invitation:', error);
@@ -99,15 +120,45 @@ const AcceptInvitation = () => {
         }
       };
 
-      // Mock add user to tenant
-      console.log('Mock adding user to tenant:', {
-        tenant_id: invitation.tenant_id,
-        user_id: user.id,
-        role: mapRole(invitation.role)
-      });
+      // Add user to tenant_users table
+      const { error: tenantUserError } = await supabase
+        .from('tenant_users')
+        .insert({
+          tenant_id: invitation.tenant_id,
+          user_id: user.id,
+          role: mapRole(invitation.role),
+          joined_at: new Date().toISOString()
+        });
 
-      // Mock update invitation status
-      console.log('Mock updating invitation status to accepted');
+      if (tenantUserError) {
+        throw new Error(tenantUserError.message);
+      }
+
+      // Update invitation status to accepted
+      const { error: updateError } = await supabase
+        .from('team_invitations')
+        .update({ 
+          status: 'accepted',
+          accepted_at: new Date().toISOString()
+        })
+        .eq('id', invitation.id);
+
+      if (updateError) {
+        throw new Error(updateError.message);
+      }
+
+      // Update user's current tenant
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ 
+          current_tenant_id: invitation.tenant_id,
+          tenant_id: invitation.tenant_id
+        })
+        .eq('id', user.id);
+
+      if (profileError) {
+        console.warn('Could not update user profile:', profileError.message);
+      }
 
       toast({
         title: 'Welcome to the team!',
@@ -116,11 +167,11 @@ const AcceptInvitation = () => {
 
       // Navigate to dashboard
       navigate('/');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error accepting invitation:', error);
       toast({
         title: 'Error accepting invitation',
-        description: 'There was an issue accepting your invitation. Please try again.',
+        description: error.message || 'There was an issue accepting your invitation. Please try again.',
         variant: 'destructive'
       });
     } finally {

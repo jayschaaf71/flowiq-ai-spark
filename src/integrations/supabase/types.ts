@@ -1664,6 +1664,68 @@ export type Database = {
           },
         ]
       }
+      team_invitations: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          department: string | null
+          email: string
+          expires_at: string
+          first_name: string | null
+          id: string
+          invited_by: string | null
+          last_name: string | null
+          personal_message: string | null
+          role: string
+          status: string
+          tenant_id: string
+          token: string
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          department?: string | null
+          email: string
+          expires_at?: string
+          first_name?: string | null
+          id?: string
+          invited_by?: string | null
+          last_name?: string | null
+          personal_message?: string | null
+          role: string
+          status?: string
+          tenant_id: string
+          token?: string
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          department?: string | null
+          email?: string
+          expires_at?: string
+          first_name?: string | null
+          id?: string
+          invited_by?: string | null
+          last_name?: string | null
+          personal_message?: string | null
+          role?: string
+          status?: string
+          tenant_id?: string
+          token?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_invitations_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       team_members: {
         Row: {
           created_at: string

@@ -35,12 +35,30 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log('Processing invitation for:', { email, role, tenantId });
 
-    // Generate invitation token (in a real app, you'd store this in the database)
-    const invitationToken = crypto.randomUUID();
+    // Create invitation record in database
+    const { data: invitation, error: invitationError } = await supabase
+      .from('team_invitations')
+      .insert({
+        tenant_id: tenantId,
+        email,
+        role,
+        invited_by: null, // We could get this from the request in a real implementation
+        first_name: '', // Could be added to the request
+        last_name: ''   // Could be added to the request
+      })
+      .select()
+      .single();
+
+    if (invitationError) {
+      console.error('Error creating invitation:', invitationError);
+      throw new Error(`Failed to create invitation: ${invitationError.message}`);
+    }
+
+    console.log('Created invitation:', invitation);
 
     // Create invitation URL that points to our app's accept invitation page
     const appUrl = 'https://7e1fd4ae-99ff-4361-b2ea-69b832f99084.lovableproject.com';
-    const signupUrl = `${appUrl}/accept-invitation/${invitationToken}`;
+    const signupUrl = `${appUrl}/accept-invitation/${invitation.token}`;
 
     console.log('Sending email via Resend...');
 
