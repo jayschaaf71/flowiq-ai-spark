@@ -47,28 +47,115 @@ serve(async (req) => {
     //   "filename": "...",
     //   "duration": "...",
     //   "download_url": "...",
-    //   "created_at": "..."
+    //   "created_at": "...",
+    //   "tenant_name": "..." // Added for multi-tenant support
     // }
 
     if (webhookData.recording_id || webhookData.download_url) {
       console.log('Processing Plaud recording:', webhookData.recording_id);
 
+      // Find the tenant configuration based on tenant_name or default to first active one
+      let tenantConfig = null;
+      if (webhookData.tenant_name) {
+        const { data: configs } = await supabase
+          .from('plaud_configurations')
+          .select(`
+            *,
+            tenants!inner(id, name, specialty)
+          `)
+          .eq('tenants.name', webhookData.tenant_name)
+          .eq('is_active', true)
+          .single();
+        
+        tenantConfig = configs;
+        console.log('Found tenant config for:', webhookData.tenant_name);
+      } else {
+        // Fallback to first active configuration
+        const { data: configs } = await supabase
+          .from('plaud_configurations')
+          .select(`
+            *,
+            tenants!inner(id, name, specialty)
+          `)
+          .eq('is_active', true)
+          .limit(1)
+          .single();
+        
+        tenantConfig = configs;
+        console.log('Using fallback tenant config:', tenantConfig?.tenants?.name);
+      }
+
+      if (!tenantConfig) {
+        console.error('No active Plaud configuration found');
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            message: 'No active Plaud integration found for this tenant',
+            receivedData: webhookData 
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 400 
+          }
+        );
+      }
+
       // Download the audio file if URL provided
       let audioData = null;
+      let fileSize = 0;
       if (webhookData.download_url) {
         try {
           const audioResponse = await fetch(webhookData.download_url);
           if (audioResponse.ok) {
             const audioBlob = await audioResponse.blob();
+            fileSize = audioBlob.size;
             const arrayBuffer = await audioBlob.arrayBuffer();
             const uint8Array = new Uint8Array(arrayBuffer);
             audioData = btoa(String.fromCharCode(...uint8Array));
-            console.log('Audio file downloaded successfully');
+            console.log('Audio file downloaded successfully, size:', fileSize);
           }
         } catch (error) {
           console.error('Failed to download audio:', error);
         }
       }
+
+      // Create the recording record first
+      const { data: recording, error: recordingError } = await supabase
+        .from('voice_recordings')
+        .insert({
+          tenant_id: tenantConfig.tenant_id,
+          recording_id: webhookData.recording_id,
+          original_filename: webhookData.filename,
+          source: 'plaud',
+          status: audioData ? 'processing' : 'failed',
+          duration_seconds: webhookData.duration ? parseInt(webhookData.duration) : null,
+          file_size_bytes: fileSize,
+          audio_url: webhookData.download_url,
+          metadata: {
+            zapier_data: webhookData,
+            tenant_name: tenantConfig.tenants.name,
+            received_at: new Date().toISOString()
+          }
+        })
+        .select()
+        .single();
+
+      if (recordingError) {
+        console.error('Failed to create recording record:', recordingError);
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error: 'Failed to store recording data',
+            details: recordingError.message 
+          }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
+
+      console.log('Recording record created:', recording.id);
 
       // If we have audio data, send it for transcription
       if (audioData) {
@@ -76,25 +163,59 @@ serve(async (req) => {
           const { data: transcriptionData, error: transcriptionError } = await supabase.functions.invoke('ai-voice-transcription', {
             body: {
               audio: audioData,
-              userId: 'webhook-user', // You might want to associate with a specific user
+              userId: tenantConfig.user_id || 'webhook-user',
+              tenantId: tenantConfig.tenant_id,
+              recordingId: recording.id,
               source: 'plaud',
-              recordingId: webhookData.recording_id,
               metadata: {
                 filename: webhookData.filename,
                 duration: webhookData.duration,
                 originalUrl: webhookData.download_url,
-                created_at: webhookData.created_at
+                created_at: webhookData.created_at,
+                tenant_name: tenantConfig.tenants.name
               }
             }
           });
 
           if (transcriptionError) {
             console.error('Transcription error:', transcriptionError);
+            // Update recording status to failed
+            await supabase
+              .from('voice_recordings')
+              .update({ 
+                status: 'failed',
+                metadata: { 
+                  ...recording.metadata, 
+                  transcription_error: transcriptionError.message 
+                }
+              })
+              .eq('id', recording.id);
           } else {
-            console.log('Transcription completed:', transcriptionData.transcription);
+            console.log('Transcription completed for recording:', recording.id);
+            // Update recording with transcription data
+            await supabase
+              .from('voice_recordings')
+              .update({ 
+                status: 'completed',
+                transcription: transcriptionData?.transcription,
+                ai_summary: transcriptionData?.summary,
+                soap_notes: transcriptionData?.soap_notes,
+                processed_at: new Date().toISOString()
+              })
+              .eq('id', recording.id);
           }
         } catch (error) {
           console.error('Failed to process transcription:', error);
+          await supabase
+            .from('voice_recordings')
+            .update({ 
+              status: 'failed',
+              metadata: { 
+                ...recording.metadata, 
+                processing_error: error.message 
+              }
+            })
+            .eq('id', recording.id);
         }
       }
 
@@ -102,7 +223,9 @@ serve(async (req) => {
         JSON.stringify({ 
           success: true, 
           message: 'Plaud recording processed successfully',
-          recordingId: webhookData.recording_id 
+          recordingId: recording.id,
+          tenantName: tenantConfig.tenants.name,
+          status: audioData ? 'processing' : 'stored'
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
