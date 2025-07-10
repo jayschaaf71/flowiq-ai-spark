@@ -72,6 +72,7 @@ import PatientSettings from '@/pages/PatientSettings';
 import PatientMessages from '@/pages/PatientMessages';
 import PatientJourney from '@/pages/PatientJourney';
 import ResetPassword from '@/pages/ResetPassword';
+import AcceptInvitation from '@/pages/AcceptInvitation';
 
 import { Toaster } from '@/components/ui/toaster';
 import { FloatingAssistIQ } from '@/components/FloatingAssistIQ';
@@ -91,6 +92,7 @@ function App() {
                 <Route path="/get-started" element={<AuthPage />} />
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/accept-invitation/:token" element={<AcceptInvitation />} />
                 <Route path="/auth-testing" element={<AuthTesting />} />
                 <Route path="/dental-sleep-demo" element={
                   <DentalSleepWrapper>
