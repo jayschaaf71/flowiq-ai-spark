@@ -1097,6 +1097,59 @@ export type Database = {
           },
         ]
       }
+      plaud_configurations: {
+        Row: {
+          api_key: string | null
+          auto_sync: boolean
+          created_at: string
+          id: string
+          is_active: boolean
+          metadata: Json | null
+          sync_frequency_minutes: number | null
+          tenant_id: string
+          transcription_settings: Json | null
+          updated_at: string
+          user_id: string | null
+          webhook_url: string | null
+        }
+        Insert: {
+          api_key?: string | null
+          auto_sync?: boolean
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          metadata?: Json | null
+          sync_frequency_minutes?: number | null
+          tenant_id: string
+          transcription_settings?: Json | null
+          updated_at?: string
+          user_id?: string | null
+          webhook_url?: string | null
+        }
+        Update: {
+          api_key?: string | null
+          auto_sync?: boolean
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          metadata?: Json | null
+          sync_frequency_minutes?: number | null
+          tenant_id?: string
+          transcription_settings?: Json | null
+          updated_at?: string
+          user_id?: string | null
+          webhook_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plaud_configurations_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       prescriptions: {
         Row: {
           created_at: string
@@ -2046,6 +2099,84 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      voice_recordings: {
+        Row: {
+          ai_summary: string | null
+          audio_url: string | null
+          created_at: string
+          duration_seconds: number | null
+          file_size_bytes: number | null
+          id: string
+          metadata: Json | null
+          original_filename: string | null
+          patient_id: string | null
+          processed_at: string | null
+          recording_id: string | null
+          soap_notes: Json | null
+          source: string
+          status: string
+          tenant_id: string
+          transcription: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          ai_summary?: string | null
+          audio_url?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          file_size_bytes?: number | null
+          id?: string
+          metadata?: Json | null
+          original_filename?: string | null
+          patient_id?: string | null
+          processed_at?: string | null
+          recording_id?: string | null
+          soap_notes?: Json | null
+          source?: string
+          status?: string
+          tenant_id: string
+          transcription?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          ai_summary?: string | null
+          audio_url?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          file_size_bytes?: number | null
+          id?: string
+          metadata?: Json | null
+          original_filename?: string | null
+          patient_id?: string | null
+          processed_at?: string | null
+          recording_id?: string | null
+          soap_notes?: Json | null
+          source?: string
+          status?: string
+          tenant_id?: string
+          transcription?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "voice_recordings_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "voice_recordings_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
