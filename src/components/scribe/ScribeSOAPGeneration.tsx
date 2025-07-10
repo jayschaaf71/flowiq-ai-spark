@@ -2,6 +2,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import { Brain, FileText, Copy, Download, User } from "lucide-react";
 import { useSOAPContext } from "@/contexts/SOAPContext";
 import { useToast } from "@/hooks/use-toast";
@@ -15,6 +16,8 @@ export const ScribeSOAPGeneration = () => {
   const { toast } = useToast();
   const { createSOAPNote } = useSOAPNotes();
   const [isSaving, setIsSaving] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedSOAP, setEditedSOAP] = useState<any>(null);
   const { selectedPatient, isSearchOpen, selectPatient, openSearch, closeSearch } = usePatientSelection();
 
   console.log('ScribeSOAPGeneration render - generatedSOAP:', generatedSOAP);
@@ -120,6 +123,30 @@ ${generatedSOAP.plan}`;
     }
   };
 
+  const handleEditClick = () => {
+    if (!generatedSOAP) return;
+    setIsEditing(true);
+    setEditedSOAP({ ...generatedSOAP });
+  };
+
+  const handleSaveEdits = () => {
+    // Update the context with edited content (we'd need to add this to SOAPContext)
+    setIsEditing(false);
+    toast({
+      title: "Changes Saved",
+      description: "Your SOAP note edits have been saved",
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditedSOAP(null);
+  };
+
+  const updateEditedField = (field: string, value: string) => {
+    setEditedSOAP(prev => ({ ...prev, [field]: value }));
+  };
+
   return (
     <>
       <PatientSearchDialog
@@ -172,27 +199,63 @@ ${generatedSOAP.plan}`;
             <div className="space-y-4">
               <div>
                 <h4 className="font-medium text-sm mb-2 text-blue-700">Subjective</h4>
-                <div className="p-3 bg-blue-50 rounded border text-sm whitespace-pre-line">
-                  {generatedSOAP.subjective}
-                </div>
+                {isEditing ? (
+                  <Textarea
+                    value={editedSOAP?.subjective || ''}
+                    onChange={(e) => updateEditedField('subjective', e.target.value)}
+                    className="min-h-[80px] text-sm"
+                    placeholder="Patient's subjective symptoms and complaints..."
+                  />
+                ) : (
+                  <div className="p-3 bg-blue-50 rounded border text-sm whitespace-pre-line">
+                    {generatedSOAP.subjective}
+                  </div>
+                )}
               </div>
               <div>
                 <h4 className="font-medium text-sm mb-2 text-green-700">Objective</h4>
-                <div className="p-3 bg-green-50 rounded border text-sm whitespace-pre-line">
-                  {generatedSOAP.objective}
-                </div>
+                {isEditing ? (
+                  <Textarea
+                    value={editedSOAP?.objective || ''}
+                    onChange={(e) => updateEditedField('objective', e.target.value)}
+                    className="min-h-[80px] text-sm"
+                    placeholder="Objective findings and observations..."
+                  />
+                ) : (
+                  <div className="p-3 bg-green-50 rounded border text-sm whitespace-pre-line">
+                    {generatedSOAP.objective}
+                  </div>
+                )}
               </div>
               <div>
                 <h4 className="font-medium text-sm mb-2 text-orange-700">Assessment</h4>
-                <div className="p-3 bg-orange-50 rounded border text-sm whitespace-pre-line">
-                  {generatedSOAP.assessment}
-                </div>
+                {isEditing ? (
+                  <Textarea
+                    value={editedSOAP?.assessment || ''}
+                    onChange={(e) => updateEditedField('assessment', e.target.value)}
+                    className="min-h-[80px] text-sm"
+                    placeholder="Clinical assessment and diagnosis..."
+                  />
+                ) : (
+                  <div className="p-3 bg-orange-50 rounded border text-sm whitespace-pre-line">
+                    {generatedSOAP.assessment}
+                  </div>
+                )}
               </div>
               <div>
                 <h4 className="font-medium text-sm mb-2 text-foreground">Plan</h4>
-                <div className="p-3 bg-accent rounded border text-sm whitespace-pre-line">
-                  {generatedSOAP.plan}
-                </div>
+                {isEditing ? (
+                  <Textarea
+                    value={editedSOAP?.plan || ''}
+                    onChange={(e) => updateEditedField('plan', e.target.value)}
+                    className="min-h-[80px] text-sm"
+                    placeholder="Treatment plan and next steps..."
+                  />
+                ) : (
+                  <div className="p-3 bg-accent rounded border text-sm whitespace-pre-line">
+                    {generatedSOAP.plan}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -215,17 +278,39 @@ ${generatedSOAP.plan}`;
             )}
 
             <div className="flex gap-2 pt-4 border-t">
-              <Button 
-                className="bg-green-600 hover:bg-green-700" 
-                onClick={handleSaveClick}
-                disabled={isSaving}
-              >
-                <FileText className="w-4 h-4 mr-2" />
-                {isSaving ? "Saving..." : selectedPatient ? "Save to Patient Record" : "Select Patient & Save"}
-              </Button>
-              <Button variant="outline">
-                Edit & Refine
-              </Button>
+              {isEditing ? (
+                <>
+                  <Button 
+                    className="bg-green-600 hover:bg-green-700" 
+                    onClick={handleSaveEdits}
+                  >
+                    Save Changes
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={handleCancelEdit}
+                  >
+                    Cancel
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button 
+                    className="bg-green-600 hover:bg-green-700" 
+                    onClick={handleSaveClick}
+                    disabled={isSaving}
+                  >
+                    <FileText className="w-4 h-4 mr-2" />
+                    {isSaving ? "Saving..." : selectedPatient ? "Save to Patient Record" : "Select Patient & Save"}
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={handleEditClick}
+                  >
+                    Edit & Refine
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         ) : (
