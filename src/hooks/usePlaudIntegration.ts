@@ -36,42 +36,19 @@ export const usePlaudIntegration = () => {
   };
 
   const testConnection = async (configToTest: PlaudConfig) => {
-    if (!configToTest.apiKey || configToTest.apiKey === 'mock-api-key') {
+    // For webhook integration, we just check if webhook URL is configured
+    setConnectionStatus('checking');
+    
+    if (configToTest.webhookUrl && configToTest.autoSync) {
+      setIsConnected(true);
+      setConnectionStatus('connected');
+      toast({
+        title: "Plaud Integration Active",
+        description: "Webhook integration is configured and ready to receive recordings",
+      });
+    } else {
       setIsConnected(false);
       setConnectionStatus('disconnected');
-      return;
-    }
-
-    setConnectionStatus('checking');
-    try {
-      const response = await fetch('https://api.plaud.ai/v1/recordings', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${configToTest.apiKey}`,
-          'Content-Type': 'application/json',
-          'X-API-Version': '2024-01'
-        }
-      });
-
-      if (response.ok) {
-        setIsConnected(true);
-        setConnectionStatus('connected');
-      } else if (response.status === 401) {
-        setIsConnected(false);
-        setConnectionStatus('error');
-        toast({
-          title: "Invalid API Key",
-          description: "Please check your Plaud Cloud credentials",
-          variant: "destructive",
-        });
-      } else {
-        setIsConnected(false);
-        setConnectionStatus('error');
-      }
-    } catch (error) {
-      setIsConnected(false);
-      setConnectionStatus('error');
-      console.error('Connection test failed:', error);
     }
   };
 

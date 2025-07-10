@@ -10,7 +10,7 @@ export interface PlaudRecording {
 }
 
 export interface PlaudConfig {
-  apiKey: string;
+  apiKey: string; // Not used for webhook integration but kept for compatibility
   webhookUrl: string;
   autoSync: boolean;
 }

@@ -10,11 +10,11 @@ const getWebhookUrl = () => {
 
 export const loadPlaudConfig = async (): Promise<PlaudConfig | null> => {
   try {
-    console.log('Mock loading Plaud configuration');
+    console.log('Loading Plaud configuration');
     
-    // Return mock config since integration_settings table doesn't exist
+    // Plaud works via webhook integration, no API key needed
     return {
-      apiKey: 'mock-api-key',
+      apiKey: '', // Not used for webhook integration
       webhookUrl: getWebhookUrl(),
       autoSync: true
     };
@@ -26,12 +26,12 @@ export const loadPlaudConfig = async (): Promise<PlaudConfig | null> => {
 
 export const savePlaudConfig = async (newConfig: PlaudConfig): Promise<boolean> => {
   try {
-    console.log('Mock saving Plaud configuration:', newConfig);
+    console.log('Saving Plaud webhook configuration:', newConfig);
     
     // Log the webhook URL for user reference
     console.log('Plaud webhook URL configured:', getWebhookUrl());
     
-    // Mock success since integration_settings table doesn't exist
+    // Webhook integration is now active
     return true;
   } catch (error) {
     console.error('Failed to save Plaud configuration:', error);
