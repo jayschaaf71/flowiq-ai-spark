@@ -258,6 +258,7 @@ const AcceptInvitation = () => {
     );
   }
 
+  // If user is not authenticated, show signup/login options
   if (!user && !authLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
@@ -281,6 +282,44 @@ const AcceptInvitation = () => {
               className="w-full"
             >
               I Already Have an Account
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // If user is authenticated but with a different email, show email mismatch message
+  if (user && invitation && user.email !== invitation.email) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <Card className="w-full max-w-md mx-4">
+          <CardHeader className="text-center">
+            <AlertCircle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
+            <CardTitle>Email Mismatch</CardTitle>
+            <CardDescription>
+              This invitation is for {invitation.email}, but you're logged in as {user.email}.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button 
+              onClick={async () => {
+                await supabase.auth.signOut();
+                navigate(`/auth?email=${encodeURIComponent(invitation.email)}&firstName=${encodeURIComponent(invitation.first_name || '')}&lastName=${encodeURIComponent(invitation.last_name || '')}&role=${encodeURIComponent(invitation.role || '')}&defaultTab=signup`);
+              }}
+              className="w-full"
+            >
+              Sign Out & Create Account for {invitation.email}
+            </Button>
+            <Button 
+              onClick={async () => {
+                await supabase.auth.signOut();
+                navigate(`/auth?email=${encodeURIComponent(invitation.email)}`);
+              }}
+              variant="outline"
+              className="w-full"
+            >
+              Sign Out & Login as {invitation.email}
             </Button>
           </CardContent>
         </Card>

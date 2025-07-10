@@ -36,7 +36,7 @@ const handler = async (req: Request): Promise<Response> => {
     const { invitation, inviterName }: InvitationRequest = await req.json();
 
     // Create a direct link to the accept invitation page with the token
-    const inviteUrl = `${Deno.env.get("SITE_URL")}/accept-invitation/${invitation.invitation_token}`;
+    const inviteUrl = `${Deno.env.get("SITE_URL")}/accept-invitation/${invitation.token}`;
 
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
