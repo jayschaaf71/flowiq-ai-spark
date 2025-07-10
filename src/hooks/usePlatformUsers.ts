@@ -31,16 +31,66 @@ export const usePlatformUsers = () => {
   } = useQuery({
     queryKey: ['platform-users'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Fetch existing users from platform_user_management view
+      const { data: existingUsers, error: usersError } = await supabase
         .from('platform_user_management')
         .select('*');
       
-      if (error) {
-        console.error('Error fetching platform users:', error);
-        throw new Error(error.message);
+      if (usersError) {
+        console.error('Error fetching platform users:', usersError);
+        throw new Error(usersError.message);
       }
-      
-      return data as PlatformUser[];
+
+      // Fetch pending invitations from team_invitations table
+      const { data: pendingInvitations, error: invitationsError } = await supabase
+        .from('team_invitations')
+        .select(`
+          id,
+          email,
+          first_name,
+          last_name,
+          role,
+          created_at,
+          updated_at,
+          status,
+          tenant_id,
+          tenants:tenant_id (
+            name,
+            business_name
+          )
+        `)
+        .eq('status', 'pending');
+
+      if (invitationsError) {
+        console.error('Error fetching pending invitations:', invitationsError);
+        // Don't throw here, just log and continue with existing users
+      }
+
+      // Transform pending invitations to match PlatformUser interface
+      const pendingUsers: PlatformUser[] = (pendingInvitations || []).map(invitation => ({
+        id: invitation.id,
+        first_name: invitation.first_name || null,
+        last_name: invitation.last_name || null,
+        full_name: invitation.first_name && invitation.last_name 
+          ? `${invitation.first_name} ${invitation.last_name}` 
+          : null,
+        email: invitation.email,
+        role: invitation.role,
+        created_at: invitation.created_at,
+        updated_at: invitation.updated_at,
+        current_tenant_id: invitation.tenant_id,
+        tenant_name: invitation.tenants?.business_name || invitation.tenants?.name || null,
+        tenant_user_active: null,
+        status: 'pending' as const
+      }));
+
+      // Combine existing users with pending invitations
+      const allUsers = [
+        ...(existingUsers || []).map(user => ({ ...user, status: user.status || 'active' })),
+        ...pendingUsers
+      ];
+
+      return allUsers as PlatformUser[];
     },
     staleTime: 30000, // Consider data fresh for 30 seconds
     refetchOnWindowFocus: false,
@@ -130,19 +180,35 @@ export const usePlatformUsers = () => {
     },
   });
 
-  // Re-send invite mutation
+  // Re-send invite mutation for pending invitations
   const resendInviteMutation = useMutation({
-    mutationFn: async (userId: string) => {
-      // This would typically re-send the email invitation
-      // For now, we'll just log the action
-      console.log('Re-sending invite to user:', userId);
-      
-      // In a real implementation, you might:
-      // 1. Generate a new invitation token
-      // 2. Send a new email invitation
-      // 3. Update the invitation timestamp
-      
-      return { success: true };
+    mutationFn: async (invitationId: string) => {
+      // Get the invitation details first
+      const { data: invitation, error: fetchError } = await supabase
+        .from('team_invitations')
+        .select('*')
+        .eq('id', invitationId)
+        .single();
+
+      if (fetchError || !invitation) {
+        throw new Error('Invitation not found');
+      }
+
+      // Call the edge function to resend the invitation
+      const { data, error } = await supabase.functions.invoke('send-user-invitation', {
+        body: {
+          email: invitation.email,
+          role: invitation.role,
+          tenantId: invitation.tenant_id,
+          inviterName: 'Platform Admin'
+        }
+      });
+
+      if (error) {
+        throw new Error(error.message || 'Failed to resend invitation');
+      }
+
+      return data;
     },
     onSuccess: () => {
       toast({
@@ -153,7 +219,42 @@ export const usePlatformUsers = () => {
     onError: (error) => {
       toast({
         title: "Error re-sending invitation",
-        description: "Failed to re-send invitation. Please try again.",
+        description: error.message || "Failed to re-send invitation. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Cancel invitation mutation
+  const cancelInviteMutation = useMutation({
+    mutationFn: async (invitationId: string) => {
+      const { error } = await supabase
+        .from('team_invitations')
+        .update({ status: 'cancelled' })
+        .eq('id', invitationId);
+
+      if (error) {
+        throw new Error(error.message || 'Failed to cancel invitation');
+      }
+
+      return { success: true };
+    },
+    onSuccess: (_, invitationId) => {
+      // Update the cache to remove the cancelled invitation
+      queryClient.setQueryData(['platform-users'], (oldData: PlatformUser[] | undefined) => {
+        if (!oldData) return [];
+        return oldData.filter(user => user.id !== invitationId);
+      });
+      
+      toast({
+        title: "Invitation cancelled",
+        description: "Invitation has been cancelled successfully.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error cancelling invitation",
+        description: error.message || "Failed to cancel invitation. Please try again.",
         variant: "destructive",
       });
     },
@@ -169,6 +270,8 @@ export const usePlatformUsers = () => {
     isInviting: inviteUserMutation.isPending,
     resendInvite: resendInviteMutation.mutate,
     isResendingInvite: resendInviteMutation.isPending,
+    cancelInvite: cancelInviteMutation.mutate,
+    isCancellingInvite: cancelInviteMutation.isPending,
     refetch,
   };
 };
