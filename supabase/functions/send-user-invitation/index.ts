@@ -1,11 +1,8 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3';
-import { Resend } from "npm:resend@2.0.0";
 import React from 'npm:react@18.3.1';
 import { renderAsync } from 'npm:@react-email/components@0.0.22';
 import { InvitationEmail } from './_templates/invitation-email.tsx';
-
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -60,7 +57,7 @@ const handler = async (req: Request): Promise<Response> => {
     const appUrl = 'https://7e1fd4ae-99ff-4361-b2ea-69b832f99084.lovableproject.com';
     const signupUrl = `${appUrl}/accept-invitation/${invitation.token}`;
 
-    console.log('Sending email via Resend...');
+    console.log('Sending email via SendGrid...');
 
     // Render the React Email template
     const html = await renderAsync(
@@ -73,20 +70,40 @@ const handler = async (req: Request): Promise<Response> => {
       })
     );
 
-    // Send email using Resend with the React template
-    const emailResponse = await resend.emails.send({
-      from: "FlowIQ Healthcare Platform <noreply@flow-iq.ai>",
-      to: [email],
-      subject: "You've been invited to join FlowIQ Healthcare Platform",
-      html,
+    // Send email using SendGrid with the React template
+    const emailResponse = await fetch('https://api.sendgrid.com/v3/mail/send', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${Deno.env.get('SENDGRID_API_KEY')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: {
+          email: "noreply@em8653.flow-iq.ai",
+          name: "FlowIQ Healthcare Platform"
+        },
+        personalizations: [{
+          to: [{ email }],
+          subject: "You've been invited to join FlowIQ Healthcare Platform"
+        }],
+        content: [{
+          type: "text/html",
+          value: html
+        }]
+      })
     });
 
-    console.log("Invitation email sent successfully:", emailResponse);
+    if (!emailResponse.ok) {
+      const errorText = await emailResponse.text();
+      throw new Error(`SendGrid API error: ${errorText}`);
+    }
+
+    console.log("Invitation email sent successfully via SendGrid");
 
     return new Response(JSON.stringify({ 
       success: true, 
       message: "Invitation sent successfully",
-      emailId: emailResponse.data?.id
+      emailService: "SendGrid"
     }), {
       status: 200,
       headers: {
