@@ -100,11 +100,11 @@ export const PlatformAlerts = () => {
                     </Badge>
                   ) : (
                     <div className="flex space-x-1">
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" onClick={() => console.log('Resolving alert', alert.id)}>
                         <Check className="h-4 w-4 mr-1" />
                         Resolve
                       </Button>
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" onClick={() => console.log('Dismissing alert', alert.id)}>
                         <X className="h-4 w-4 mr-1" />
                         Dismiss
                       </Button>

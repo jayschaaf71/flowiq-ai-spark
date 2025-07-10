@@ -277,7 +277,7 @@ export const APIRateLimitingDashboard: React.FC = () => {
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
             <strong>Rate Limit Exceeded:</strong> {criticalEndpoints.length} endpoint(s) are over their rate limits.
-            <Button variant="link" className="p-0 h-auto ml-2">
+            <Button variant="link" className="p-0 h-auto ml-2" onClick={() => console.log('Viewing rate limit details...')}>
               View Details
             </Button>
           </AlertDescription>
@@ -366,7 +366,7 @@ export const APIRateLimitingDashboard: React.FC = () => {
                   <CardTitle>Rate Limiting Rules</CardTitle>
                   <CardDescription>Configure and manage API rate limiting policies</CardDescription>
                 </div>
-                <Button>
+                <Button onClick={() => console.log('Adding new rate limit rule...')}>
                   <Settings className="h-4 w-4 mr-2" />
                   Add Rule
                 </Button>
@@ -402,7 +402,7 @@ export const APIRateLimitingDashboard: React.FC = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" onClick={() => console.log('Configure rule', rule.id)}>
                             <Settings className="h-4 w-4" />
                           </Button>
                           <Switch

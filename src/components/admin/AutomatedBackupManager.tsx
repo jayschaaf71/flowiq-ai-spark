@@ -334,7 +334,7 @@ export const AutomatedBackupManager: React.FC = () => {
                   <CardTitle>Automated Backup Jobs</CardTitle>
                   <CardDescription>Monitor and manage scheduled backup operations</CardDescription>
                 </div>
-                <Button>
+                <Button onClick={() => console.log('Creating new backup job...')}>
                   <Play className="h-4 w-4 mr-2" />
                   New Backup Job
                 </Button>
@@ -376,13 +376,13 @@ export const AutomatedBackupManager: React.FC = () => {
                       <TableCell className="text-sm">{job.nextRun}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" onClick={() => console.log('Running backup job', job.id)}>
                             <Play className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" onClick={() => console.log('Configuring backup job', job.id)}>
                             <Settings className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" onClick={() => console.log('Downloading backup', job.id)}>
                             <Download className="h-4 w-4" />
                           </Button>
                         </div>
@@ -505,10 +505,10 @@ export const AutomatedBackupManager: React.FC = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" onClick={() => console.log('Testing disaster recovery plan', plan.id)}>
                             <Play className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" onClick={() => console.log('Configuring disaster recovery plan', plan.id)}>
                             <Settings className="h-4 w-4" />
                           </Button>
                         </div>

@@ -36,13 +36,13 @@ export const PlatformDatabase = () => {
                 <div>Memory: {db.memory}</div>
               </div>
               <div className="flex space-x-1">
-                <Button variant="outline" size="icon">
+                <Button variant="outline" size="icon" onClick={() => console.log('Start database', db.name)}>
                   <Play className="h-3 w-3" />
                 </Button>
-                <Button variant="outline" size="icon">
+                <Button variant="outline" size="icon" onClick={() => console.log('Pause database', db.name)}>
                   <Pause className="h-3 w-3" />
                 </Button>
-                <Button variant="outline" size="icon">
+                <Button variant="outline" size="icon" onClick={() => console.log('Configure database', db.name)}>
                   <Settings className="h-3 w-3" />
                 </Button>
               </div>
@@ -74,7 +74,7 @@ export const PlatformDatabase = () => {
               <span>Next Scheduled</span>
               <span className="text-sm font-medium">In 4 hours</span>
             </div>
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full" onClick={() => console.log('Creating manual backup...')}>
               <Archive className="h-4 w-4 mr-2" />
               Create Manual Backup
             </Button>

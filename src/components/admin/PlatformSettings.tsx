@@ -55,11 +55,11 @@ export const PlatformSettings = () => {
                   {category.items.map((item) => (
                     <div key={item} className="flex items-center justify-between p-2 rounded border">
                       <span className="text-sm">{item}</span>
-                      <Button variant="ghost" size="sm">Configure</Button>
+                      <Button variant="ghost" size="sm" onClick={() => console.log('Configure', item)}>Configure</Button>
                     </div>
                   ))}
                 </div>
-                <Button className="w-full" variant="outline">
+                <Button className="w-full" variant="outline" onClick={() => console.log('View all settings for', category.title)}>
                   View All Settings
                 </Button>
               </CardContent>
@@ -92,8 +92,8 @@ export const PlatformSettings = () => {
             </div>
           </div>
           <div className="flex justify-end space-x-2">
-            <Button variant="outline">Reset to Defaults</Button>
-            <Button>Save Changes</Button>
+            <Button variant="outline" onClick={() => console.log('Resetting to defaults...')}>Reset to Defaults</Button>
+            <Button onClick={() => console.log('Saving changes...')}>Save Changes</Button>
           </div>
         </CardContent>
       </Card>
