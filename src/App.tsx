@@ -1,82 +1,50 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { Dashboard } from './pages/Dashboard';
-import Index from './pages/Index';
-import Schedule from './pages/Schedule';
-import Analytics from './pages/Analytics';
-import EHR from './pages/EHR';
-import Settings from './pages/Settings';
 import { AuthProvider } from './contexts/AuthProvider';
 import { DashboardProvider } from './contexts/DashboardContext';
 import { SpecialtyProvider } from './contexts/SpecialtyContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AdvancedAnalytics } from '@/pages/AdvancedAnalytics';
-import { ComplianceSecurityPage } from '@/pages/ComplianceSecurityPage';
-import { AnalyticsProvider } from '@/contexts/AnalyticsContext';
-import { PatientPortal } from '@/pages/PatientPortal';
-import { ProviderMobile } from '@/pages/ProviderMobile';
-import { CompleteIntakeFlow } from '@/components/intake/CompleteIntakeFlow';
-import { BookingWidgetDemo } from '@/pages/BookingWidgetDemo';
-import { PatientPrepPage } from '@/pages/PatientPrepPage';
-import { TenantWrapper, DentalSleepWrapper, ChiropracticWrapper } from '@/components/wrappers';
-import AuthPage from '@/pages/AuthPage';
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import { PatientDashboard } from '@/pages/PatientDashboard';
-import AuthTesting from '@/pages/AuthTesting';
-import DentalSleepDemo from '@/pages/DentalSleepDemo';
-import { FinancialManagementPage } from '@/pages/FinancialManagementPage';
-import { AIAutomationHub } from '@/pages/AIAutomationHub';
-import { PatientExperiencePage } from '@/pages/PatientExperiencePage';
-import PatientIntakeForm from '@/pages/PatientIntakeForm';
-import { EmbeddedPortal } from '@/pages/EmbeddedPortal';
-import { Layout } from '@/components/Layout';
-import PatientManagement from '@/pages/PatientManagement';
-import ProviderManagement from '@/pages/ProviderManagement';
-import NotFound from '@/pages/NotFound';
-import Team from '@/pages/Team';
-import Help from '@/pages/Help';
-import Insights from '@/pages/Insights';
-import Notifications from '@/pages/Notifications';
-import CheckIn from '@/pages/CheckIn';
-import ProviderSchedulingPage from '@/pages/ProviderScheduling';
-// AI Agent imports
-import AppointmentIQ from '@/pages/agents/AppointmentIQ';
-import IntakeIQ from '@/pages/agents/IntakeIQ';
-import ScribeIQ from '@/pages/agents/ScribeIQ';
-import ClaimsIQ from '@/pages/agents/ClaimsIQ';
-import PaymentsIQ from '@/pages/agents/PaymentsIQ';
-import InventoryIQ from '@/pages/agents/InventoryIQ';
-import InsightIQ from '@/pages/agents/InsightIQ';
-import OpsIQ from '@/pages/agents/OpsIQ';
-import AuthIQ from '@/pages/agents/AuthIQ';
-import EducationIQ from '@/pages/agents/EducationIQ';
-import MarketingIQ from '@/pages/agents/MarketingIQ';
+import { AnalyticsProvider } from './contexts/AnalyticsContext';
 
-import ReferralIQ from '@/pages/agents/ReferralIQ';
-import DentalSleepIQ from '@/pages/agents/DentalSleepIQ';
-import PilotDashboard from '@/pages/PilotDashboard';
-import ExternalIntegrationsPage from '@/pages/ExternalIntegrations';
-import BookingWidgetPage from '@/pages/BookingWidget';
-import PlatformAdmin from '@/pages/PlatformAdmin';
-import PracticeAdmin from '@/pages/PracticeAdmin';
-import TenantOnboarding from '@/pages/TenantOnboarding';
-import PracticeSetup from '@/pages/PracticeSetup';
-// Demo imports
-import { DemoHub } from '@/pages/demo/DemoHub';
-import { DemoChiropractic } from '@/pages/demo/DemoChiropractic';
-import { DemoDental } from '@/pages/demo/DemoDental';
-import { DemoMedSpa } from '@/pages/demo/DemoMedSpa';
-import PatientNotifications from '@/pages/PatientNotifications';
-import PatientSettings from '@/pages/PatientSettings';
-import PatientMessages from '@/pages/PatientMessages';
-import PatientJourney from '@/pages/PatientJourney';
-import ResetPassword from '@/pages/ResetPassword';
-import AcceptInvitation from '@/pages/AcceptInvitation';
+// Dedicated Specialty Apps
+import ChiropracticApp from './apps/ChiropracticApp';
+import DentalSleepApp from './apps/DentalSleepApp';
 
-import { Toaster } from '@/components/ui/toaster';
-import { FloatingAssistIQ } from '@/components/FloatingAssistIQ';
-import { ErrorBoundary } from '@/components/ErrorBoundary';
+// Shared pages
+import Index from './pages/Index';
+import AuthPage from './pages/AuthPage';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { PatientDashboard } from './pages/PatientDashboard';
+import PatientJourney from './pages/PatientJourney';
+import PatientNotifications from './pages/PatientNotifications';
+import PatientSettings from './pages/PatientSettings';
+import PatientMessages from './pages/PatientMessages';
+import ResetPassword from './pages/ResetPassword';
+import AcceptInvitation from './pages/AcceptInvitation';
+import AuthTesting from './pages/AuthTesting';
+
+// Platform Admin
+import PlatformAdmin from './pages/PlatformAdmin';
+import PracticeAdmin from './pages/PracticeAdmin';
+import TenantOnboarding from './pages/TenantOnboarding';
+
+// Public pages
+import { PatientPortal } from './pages/PatientPortal';
+import PatientIntakeForm from './pages/PatientIntakeForm';
+import { EmbeddedPortal } from './pages/EmbeddedPortal';
+import { BookingWidgetDemo } from './pages/BookingWidgetDemo';
+import BookingWidgetPage from './pages/BookingWidget';
+
+// Demo pages
+import { DemoHub } from './pages/demo/DemoHub';
+import { DemoChiropractic } from './pages/demo/DemoChiropractic';
+import { DemoDental } from './pages/demo/DemoDental';
+import { DemoMedSpa } from './pages/demo/DemoMedSpa';
+import DentalSleepDemo from './pages/DentalSleepDemo';
+
+import { Toaster } from './components/ui/toaster';
+import { FloatingAssistIQ } from './components/FloatingAssistIQ';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 const queryClient = new QueryClient();
 
@@ -89,385 +57,103 @@ function App() {
             <SpecialtyProvider>
               <DashboardProvider>
                 <AnalyticsProvider>
-                <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/get-started" element={<AuthPage />} />
-                <Route path="/auth" element={<AuthPage />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/accept-invitation/:token" element={<AcceptInvitation />} />
-                <Route path="/auth-testing" element={<AuthTesting />} />
-                <Route path="/dental-sleep-demo" element={
-                  <DentalSleepWrapper>
-                    <DentalSleepDemo />
-                  </DentalSleepWrapper>
-                } />
-                <Route path="/patient-dashboard" element={
-                  <ProtectedRoute>
-                    <PatientDashboard />
-                  </ProtectedRoute>
-                } />
-                <Route path="/patient-journey" element={
-                  <ProtectedRoute>
-                    <PatientJourney />
-                  </ProtectedRoute>
-                } />
-                <Route path="/patient/notifications" element={
-                  <ProtectedRoute>
-                    <PatientNotifications />
-                  </ProtectedRoute>
-                } />
-                <Route path="/patient/settings" element={
-                  <ProtectedRoute>
-                    <PatientSettings />
-                  </ProtectedRoute>
-                } />
-                <Route path="/patient/messages" element={
-                  <ProtectedRoute>
-                    <PatientMessages />
-                  </ProtectedRoute>
-                } />
-                <Route path="/dashboard" element={
-                  <ProtectedRoute requiredRole="staff">
-                    <TenantWrapper>
-                      <Layout>
-                        <Dashboard />
-                      </Layout>
-                    </TenantWrapper>
-                  </ProtectedRoute>
-                } />
-                 <Route path="/financial" element={
-                   <ProtectedRoute requiredRole="staff">
-                     <TenantWrapper>
-                       <Layout>
-                         <FinancialManagementPage />
-                       </Layout>
-                     </TenantWrapper>
-                   </ProtectedRoute>
-                 } />
-                 <Route path="/financial-management" element={
-                   <ProtectedRoute requiredRole="staff">
-                     <TenantWrapper>
-                       <Layout>
-                         <FinancialManagementPage />
-                       </Layout>
-                     </TenantWrapper>
-                   </ProtectedRoute>
-                 } />
-                <Route path="/patient-experience" element={
-                  <ProtectedRoute requiredRole="staff">
-                    <TenantWrapper>
-                      <Layout>
-                        <PatientExperiencePage />
-                      </Layout>
-                    </TenantWrapper>
-                  </ProtectedRoute>
-                } />
-                <Route path="/analytics" element={
-                  <ProtectedRoute requiredRole="staff">
-                    <TenantWrapper>
-                      <Layout>
-                        <Analytics />
-                      </Layout>
-                    </TenantWrapper>
-                  </ProtectedRoute>
-                } />
-                <Route path="/advanced-analytics" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <AdvancedAnalytics />
-                    </Layout>
-                  </TenantWrapper>
-                } />
-                <Route path="/compliance" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <ComplianceSecurityPage />
-                    </Layout>
-                  </TenantWrapper>
-                } />
-                <Route path="/patient-portal" element={<PatientPortal />} />
-                <Route path="/patient-intake/:formId" element={<PatientIntakeForm />} />
-                <Route path="/embedded-portal" element={<EmbeddedPortal />} />
-                <Route path="/provider-mobile" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <ProviderMobile />
-                    </Layout>
-                  </TenantWrapper>
-                } />
-                <Route path="/provider/patient-prep/:appointmentId" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <PatientPrepPage />
-                    </Layout>
-                  </TenantWrapper>
-                } />
-                <Route path="/complete-intake" element={<CompleteIntakeFlow />} />
-                <Route path="/booking-widget" element={<BookingWidgetDemo />} />
-                <Route path="/schedule" element={
-                  <ProtectedRoute requiredRole="staff">
-                    <TenantWrapper>
-                      <Layout>
-                        <Schedule />
-                      </Layout>
-                    </TenantWrapper>
-                  </ProtectedRoute>
-                } />
-                <Route path="/ehr" element={
-                  <ProtectedRoute requiredRole="staff">
-                    <TenantWrapper>
-                      <Layout>
-                        <EHR />
-                      </Layout>
-                    </TenantWrapper>
-                  </ProtectedRoute>
-                } />
-                <Route path="/patient-management" element={
-                  <ProtectedRoute requiredRole="staff">
-                    <TenantWrapper>
-                      <Layout>
-                        <PatientManagement />
-                      </Layout>
-                    </TenantWrapper>
-                  </ProtectedRoute>
-                 } />
-                 <Route path="/provider-management" element={
-                   <ProtectedRoute requiredRole="staff">
-                     <TenantWrapper>
-                       <Layout>
-                         <ProviderManagement />
-                       </Layout>
-                     </TenantWrapper>
-                   </ProtectedRoute>
-                 } />
-                <Route path="/insights" element={
-                  <ProtectedRoute requiredRole="staff">
-                    <TenantWrapper>
-                      <Layout>
-                        <Insights />
-                      </Layout>
-                    </TenantWrapper>
-                  </ProtectedRoute>
-                } />
-                <Route path="/notifications" element={
-                  <ProtectedRoute requiredRole="staff">
-                    <TenantWrapper>
-                      <Layout>
-                        <Notifications />
-                      </Layout>
-                    </TenantWrapper>
-                  </ProtectedRoute>
-                } />
-                <Route path="/team" element={
-                  <ProtectedRoute requiredRole="staff">
-                    <TenantWrapper>
-                      <Layout>
-                        <Team />
-                      </Layout>
-                    </TenantWrapper>
-                  </ProtectedRoute>
-                } />
-                <Route path="/help" element={
-                  <ProtectedRoute requiredRole="staff">
-                    <TenantWrapper>
-                      <Layout>
-                        <Help />
-                      </Layout>
-                    </TenantWrapper>
-                  </ProtectedRoute>
-                } />
-                <Route path="/checkin" element={
-                  <ProtectedRoute requiredRole="staff">
-                    <TenantWrapper>
-                      <Layout>
-                        <CheckIn />
-                      </Layout>
-                    </TenantWrapper>
-                  </ProtectedRoute>
-                } />
-                <Route path="/provider-scheduling" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <ProviderSchedulingPage />
-                    </Layout>
-                  </TenantWrapper>
-                 } />
-                <Route path="/ai-automation" element={
-                  <ProtectedRoute requiredRole="staff">
-                    <TenantWrapper>
-                      <Layout>
-                        <AIAutomationHub />
-                      </Layout>
-                    </TenantWrapper>
-                  </ProtectedRoute>
-                } />
-                <Route path="/ops" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <OpsIQ />
-                    </Layout>
-                  </TenantWrapper>
-                } />
-                <Route path="/pilot" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <PilotDashboard />
-                    </Layout>
-                  </TenantWrapper>
-                } />
-                {/* AI Agent Routes */}
-                <Route path="/agents/appointment" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <AppointmentIQ />
-                    </Layout>
-                  </TenantWrapper>
-                } />
-                <Route path="/agents/intake" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <IntakeIQ />
-                    </Layout>
-                  </TenantWrapper>
-                } />
-                <Route path="/agents/scribe" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <ScribeIQ />
-                    </Layout>
-                  </TenantWrapper>
-                } />
-                <Route path="/agents/claims" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <ClaimsIQ />
-                    </Layout>
-                  </TenantWrapper>
-                } />
-                <Route path="/agents/referral" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <ReferralIQ />
-                    </Layout>
-                  </TenantWrapper>
-                } />
-                <Route path="/agents/payments" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <PaymentsIQ />
-                    </Layout>
-                  </TenantWrapper>
-                } />
-                <Route path="/agents/inventory" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <InventoryIQ />
-                    </Layout>
-                  </TenantWrapper>
-                } />
-                <Route path="/agents/insights" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <InsightIQ />
-                    </Layout>
-                  </TenantWrapper>
-                } />
-                <Route path="/agents/education" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <EducationIQ />
-                    </Layout>
-                  </TenantWrapper>
-                } />
-                <Route path="/agents/marketing" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <MarketingIQ />
-                    </Layout>
-                  </TenantWrapper>
-                } />
-                 {/* Legacy redirect for remind-iq */}
-                <Route path="/agents/remind" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <AppointmentIQ />
-                    </Layout>
-                  </TenantWrapper>
-                } />
-                 <Route path="/agents/auth" element={
-                   <TenantWrapper>
-                     <Layout>
-                       <AuthIQ />
-                     </Layout>
-                   </TenantWrapper>
-                 } />
-                 {/* Dental Sleep IQ Route */}
-                 <Route path="/agents/dental-sleep" element={
-                   <ProtectedRoute requiredRole="staff">
-                     <TenantWrapper>
-                       <Layout>
-                         <DentalSleepIQ />
-                       </Layout>
-                     </TenantWrapper>
-                   </ProtectedRoute>
-                 } />
-                <Route path="/integrations" element={
-                  <TenantWrapper>
-                    <Layout>
-                      <ExternalIntegrationsPage />
-                    </Layout>
-                  </TenantWrapper>
-                } />
-                <Route path="/widget" element={<BookingWidgetPage />} />
-                <Route path="/platform-admin/*" element={
-                  <ProtectedRoute requiredRole="platform_admin">
-                    <PlatformAdmin />
-                  </ProtectedRoute>
-                } />
-                <Route path="/practice-admin/*" element={
-                  <ProtectedRoute requiredRole="practice_admin">
-                    <PracticeAdmin />
-                  </ProtectedRoute>
-                } />
-                <Route path="/onboarding/:tenantId" element={
-                  <ProtectedRoute>
-                    <TenantOnboarding />
-                  </ProtectedRoute>
-                } />
-                <Route path="/onboarding" element={
-                  <ProtectedRoute>
-                    <TenantOnboarding />
-                  </ProtectedRoute>
-                } />
-                <Route path="/setup" element={
-                  <ProtectedRoute>
-                    <PracticeSetup />
-                  </ProtectedRoute>
-                } />
-                <Route path="/practice-setup" element={
-                  <ProtectedRoute>
-                    <PracticeSetup />
-                  </ProtectedRoute>
-                } />
-                {/* Demo Routes - Public Access */}
-                <Route path="/demo" element={<DemoHub />} />
-                <Route path="/demo/chiropractic" element={<DemoChiropractic />} />
-                <Route path="/demo/dental" element={<DemoDental />} />
-                <Route path="/demo/medspa" element={<DemoMedSpa />} />
-                <Route path="/settings" element={
-                  <ProtectedRoute>
-                    <TenantWrapper>
-                      <Layout>
-                        <Settings />
-                      </Layout>
-                    </TenantWrapper>
-                  </ProtectedRoute>
-                } />
-                {/* Fallback route */}
-                <Route path="*" element={<NotFound />} />
-                </Routes>
-                <FloatingAssistIQ />
-                <Toaster />
+                  <Routes>
+                    {/* Landing and Auth Routes */}
+                    <Route path="/" element={<Index />} />
+                    <Route path="/get-started" element={<AuthPage />} />
+                    <Route path="/auth" element={<AuthPage />} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
+                    <Route path="/accept-invitation/:token" element={<AcceptInvitation />} />
+                    <Route path="/auth-testing" element={<AuthTesting />} />
+
+                    {/* Dedicated Specialty Apps */}
+                    <Route path="/chiropractic/*" element={<ChiropracticApp />} />
+                    <Route path="/dental-sleep/*" element={<DentalSleepApp />} />
+
+                    {/* Patient Routes */}
+                    <Route path="/patient-dashboard" element={
+                      <ProtectedRoute>
+                        <PatientDashboard />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/patient-journey" element={
+                      <ProtectedRoute>
+                        <PatientJourney />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/patient/notifications" element={
+                      <ProtectedRoute>
+                        <PatientNotifications />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/patient/settings" element={
+                      <ProtectedRoute>
+                        <PatientSettings />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/patient/messages" element={
+                      <ProtectedRoute>
+                        <PatientMessages />
+                      </ProtectedRoute>
+                    } />
+
+                    {/* Public Patient-facing Routes */}
+                    <Route path="/patient-portal" element={<PatientPortal />} />
+                    <Route path="/patient-intake/:formId" element={<PatientIntakeForm />} />
+                    <Route path="/embedded-portal" element={<EmbeddedPortal />} />
+                    <Route path="/booking-widget" element={<BookingWidgetDemo />} />
+                    <Route path="/widget" element={<BookingWidgetPage />} />
+
+                    {/* Platform Administration */}
+                    <Route path="/platform-admin/*" element={
+                      <ProtectedRoute requiredRole="platform_admin">
+                        <PlatformAdmin />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/practice-admin/*" element={
+                      <ProtectedRoute requiredRole="practice_admin">
+                        <PracticeAdmin />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/onboarding/:tenantId" element={
+                      <ProtectedRoute>
+                        <TenantOnboarding />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/onboarding" element={
+                      <ProtectedRoute>
+                        <TenantOnboarding />
+                      </ProtectedRoute>
+                    } />
+
+                    {/* Demo Routes */}
+                    <Route path="/demo" element={<DemoHub />} />
+                    <Route path="/demo/chiropractic" element={<DemoChiropractic />} />
+                    <Route path="/demo/dental" element={<DemoDental />} />
+                    <Route path="/demo/medspa" element={<DemoMedSpa />} />
+                    <Route path="/dental-sleep-demo" element={<DentalSleepDemo />} />
+
+                    {/* Legacy Route Redirects - for backwards compatibility */}
+                    <Route path="/dashboard" element={
+                      <ProtectedRoute requiredRole="staff">
+                        <div className="flex items-center justify-center min-h-screen">
+                          <div className="text-center">
+                            <h1 className="text-2xl font-bold mb-4">Choose Your Specialty</h1>
+                            <div className="space-y-4">
+                              <a href="/chiropractic/dashboard" className="block p-4 bg-blue-100 rounded-lg hover:bg-blue-200">
+                                Go to Chiropractic Dashboard
+                              </a>
+                              <a href="/dental-sleep/dashboard" className="block p-4 bg-green-100 rounded-lg hover:bg-green-200">
+                                Go to Dental Sleep Dashboard
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      </ProtectedRoute>
+                    } />
+                  </Routes>
+                  <FloatingAssistIQ />
+                  <Toaster />
                 </AnalyticsProvider>
               </DashboardProvider>
             </SpecialtyProvider>

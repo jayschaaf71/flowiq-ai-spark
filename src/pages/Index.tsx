@@ -37,8 +37,8 @@ const Index = () => {
         console.log("Navigating to onboarding");
         navigate('/onboarding');
       } else {
-        console.log("Navigating to main dashboard");
-        navigate('/dashboard');
+        console.log("Navigating to specialty selection");
+        navigate('/dashboard'); // This will show specialty selection
       }
     } else {
       console.log("Navigating to auth page");
