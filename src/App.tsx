@@ -9,6 +9,17 @@ import { AnalyticsProvider } from './contexts/AnalyticsContext';
 // Dedicated Specialty Apps
 import ChiropracticApp from './apps/ChiropracticApp';
 import DentalSleepApp from './apps/DentalSleepApp';
+import GeneralDentistryApp from './apps/GeneralDentistryApp';
+import OrthodonticsApp from './apps/OrthodonticsApp';
+import VeterinaryApp from './apps/VeterinaryApp';
+import ConciergeMedicineApp from './apps/ConciergeMedicineApp';
+import HRTApp from './apps/HRTApp';
+import MedspaApp from './apps/MedspaApp';
+import PhysicalTherapyApp from './apps/PhysicalTherapyApp';
+import MentalHealthApp from './apps/MentalHealthApp';
+import DermatologyApp from './apps/DermatologyApp';
+import UrgentCareApp from './apps/UrgentCareApp';
+import AppointmentIQApp from './apps/AppointmentIQApp';
 
 // Shared pages
 import Index from './pages/Index';
@@ -69,6 +80,17 @@ function App() {
                     {/* Dedicated Specialty Apps */}
                     <Route path="/chiropractic/*" element={<ChiropracticApp />} />
                     <Route path="/dental-sleep/*" element={<DentalSleepApp />} />
+                    <Route path="/general-dentistry/*" element={<GeneralDentistryApp />} />
+                    <Route path="/orthodontics/*" element={<OrthodonticsApp />} />
+                    <Route path="/veterinary/*" element={<VeterinaryApp />} />
+                    <Route path="/concierge-medicine/*" element={<ConciergeMedicineApp />} />
+                    <Route path="/hrt/*" element={<HRTApp />} />
+                    <Route path="/medspa/*" element={<MedspaApp />} />
+                    <Route path="/physical-therapy/*" element={<PhysicalTherapyApp />} />
+                    <Route path="/mental-health/*" element={<MentalHealthApp />} />
+                    <Route path="/dermatology/*" element={<DermatologyApp />} />
+                    <Route path="/urgent-care/*" element={<UrgentCareApp />} />
+                    <Route path="/appointment-iq/*" element={<AppointmentIQApp />} />
 
                     {/* Patient Routes */}
                     <Route path="/patient-dashboard" element={
@@ -136,15 +158,61 @@ function App() {
                     {/* Legacy Route Redirects - for backwards compatibility */}
                     <Route path="/dashboard" element={
                       <ProtectedRoute requiredRole="staff">
-                        <div className="flex items-center justify-center min-h-screen">
-                          <div className="text-center">
-                            <h1 className="text-2xl font-bold mb-4">Choose Your Specialty</h1>
-                            <div className="space-y-4">
-                              <a href="/chiropractic/dashboard" className="block p-4 bg-blue-100 rounded-lg hover:bg-blue-200">
-                                Go to Chiropractic Dashboard
+                        <div className="flex items-center justify-center min-h-screen bg-gray-50">
+                          <div className="text-center max-w-4xl mx-auto p-8">
+                            <h1 className="text-3xl font-bold mb-8">Choose Your Specialty</h1>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                              <a href="/chiropractic/dashboard" className="block p-4 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors">
+                                <h3 className="font-semibold text-blue-800">Chiropractic</h3>
+                                <p className="text-sm text-blue-600">Spine & musculoskeletal care</p>
                               </a>
-                              <a href="/dental-sleep/dashboard" className="block p-4 bg-green-100 rounded-lg hover:bg-green-200">
-                                Go to Dental Sleep Dashboard
+                              <a href="/dental-sleep/dashboard" className="block p-4 bg-green-100 rounded-lg hover:bg-green-200 transition-colors">
+                                <h3 className="font-semibold text-green-800">Dental Sleep Medicine</h3>
+                                <p className="text-sm text-green-600">Sleep apnea & oral appliances</p>
+                              </a>
+                              <a href="/general-dentistry/dashboard" className="block p-4 bg-purple-100 rounded-lg hover:bg-purple-200 transition-colors">
+                                <h3 className="font-semibold text-purple-800">General Dentistry</h3>
+                                <p className="text-sm text-purple-600">Comprehensive dental care</p>
+                              </a>
+                              <a href="/orthodontics/dashboard" className="block p-4 bg-pink-100 rounded-lg hover:bg-pink-200 transition-colors">
+                                <h3 className="font-semibold text-pink-800">Orthodontics</h3>
+                                <p className="text-sm text-pink-600">Braces & teeth alignment</p>
+                              </a>
+                              <a href="/veterinary/dashboard" className="block p-4 bg-yellow-100 rounded-lg hover:bg-yellow-200 transition-colors">
+                                <h3 className="font-semibold text-yellow-800">Veterinary</h3>
+                                <p className="text-sm text-yellow-600">Animal healthcare</p>
+                              </a>
+                              <a href="/concierge-medicine/dashboard" className="block p-4 bg-indigo-100 rounded-lg hover:bg-indigo-200 transition-colors">
+                                <h3 className="font-semibold text-indigo-800">Concierge Medicine</h3>
+                                <p className="text-sm text-indigo-600">Personalized healthcare</p>
+                              </a>
+                              <a href="/hrt/dashboard" className="block p-4 bg-red-100 rounded-lg hover:bg-red-200 transition-colors">
+                                <h3 className="font-semibold text-red-800">HRT Clinics</h3>
+                                <p className="text-sm text-red-600">Hormone replacement therapy</p>
+                              </a>
+                              <a href="/medspa/dashboard" className="block p-4 bg-teal-100 rounded-lg hover:bg-teal-200 transition-colors">
+                                <h3 className="font-semibold text-teal-800">Medspa</h3>
+                                <p className="text-sm text-teal-600">Medical aesthetics</p>
+                              </a>
+                              <a href="/physical-therapy/dashboard" className="block p-4 bg-orange-100 rounded-lg hover:bg-orange-200 transition-colors">
+                                <h3 className="font-semibold text-orange-800">Physical Therapy</h3>
+                                <p className="text-sm text-orange-600">Rehabilitation & movement</p>
+                              </a>
+                              <a href="/mental-health/dashboard" className="block p-4 bg-cyan-100 rounded-lg hover:bg-cyan-200 transition-colors">
+                                <h3 className="font-semibold text-cyan-800">Mental Health</h3>
+                                <p className="text-sm text-cyan-600">Therapy & counseling</p>
+                              </a>
+                              <a href="/dermatology/dashboard" className="block p-4 bg-lime-100 rounded-lg hover:bg-lime-200 transition-colors">
+                                <h3 className="font-semibold text-lime-800">Dermatology</h3>
+                                <p className="text-sm text-lime-600">Skin health & aesthetics</p>
+                              </a>
+                              <a href="/urgent-care/dashboard" className="block p-4 bg-amber-100 rounded-lg hover:bg-amber-200 transition-colors">
+                                <h3 className="font-semibold text-amber-800">Urgent Care</h3>
+                                <p className="text-sm text-amber-600">Immediate medical care</p>
+                              </a>
+                              <a href="/appointment-iq" className="col-span-full block p-6 bg-gradient-to-r from-blue-100 to-purple-100 rounded-lg hover:from-blue-200 hover:to-purple-200 border-2 border-dashed border-blue-300 transition-colors">
+                                <h3 className="font-semibold text-blue-800 text-lg">AppointmentIQ Standalone</h3>
+                                <p className="text-blue-600">AI-powered scheduling system for any practice</p>
                               </a>
                             </div>
                           </div>
