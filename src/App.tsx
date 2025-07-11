@@ -386,7 +386,7 @@ function App() {
                     </Layout>
                   </TenantWrapper>
                 } />
-                {/* Legacy redirect for remind-iq */}
+                 {/* Legacy redirect for remind-iq */}
                 <Route path="/agents/remind" element={
                   <TenantWrapper>
                     <Layout>
@@ -401,7 +401,16 @@ function App() {
                      </Layout>
                    </TenantWrapper>
                  } />
-                 {/* Dental Sleep iQ moved to DentalSleepWrapper only */}
+                 {/* Dental Sleep IQ Route */}
+                 <Route path="/agents/dental-sleep" element={
+                   <ProtectedRoute requiredRole="staff">
+                     <TenantWrapper>
+                       <Layout>
+                         <DentalSleepIQ />
+                       </Layout>
+                     </TenantWrapper>
+                   </ProtectedRoute>
+                 } />
                 <Route path="/integrations" element={
                   <TenantWrapper>
                     <Layout>

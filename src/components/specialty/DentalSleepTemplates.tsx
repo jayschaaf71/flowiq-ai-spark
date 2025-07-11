@@ -1,303 +1,318 @@
-
-import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import { 
-  Moon,
-  FileText,
-  Stethoscope,
-  Plus,
-  Save,
-  Activity
-} from "lucide-react";
-
-interface DentalSleepTemplate {
-  id: string;
-  name: string;
-  type: 'evaluation' | 'appliance_delivery' | 'follow_up' | 'titration';
-  template: {
-    subjective: string;
-    objective: string;
-    assessment: string;
-    plan: string;
-  };
-  billingCodes: string[];
-}
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { FileText, Plus, Search, Edit, Copy } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export const DentalSleepTemplates = () => {
-  const [selectedTemplate, setSelectedTemplate] = useState<DentalSleepTemplate | null>(null);
-  const [currentSOAP, setCurrentSOAP] = useState({
-    subjective: '',
-    objective: '',
-    assessment: '',
-    plan: ''
-  });
-  const { toast } = useToast();
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const dentalSleepTemplates: DentalSleepTemplate[] = [
+  // Mock data for dental sleep templates
+  const templates = [
     {
       id: '1',
-      name: 'Sleep Apnea - Initial Evaluation',
-      type: 'evaluation',
-      template: {
-        subjective: 'Patient referred for evaluation of obstructive sleep apnea. Sleep study results: AHI [AHI_VALUE], RDI [RDI_VALUE]. Primary symptoms: [SYMPTOMS]. ESS score: [ESS_SCORE]. Snoring frequency: [FREQUENCY]. Witnessed apneas: [Y/N]. Daytime sleepiness: [SEVERITY]. Previous treatments: [PREVIOUS_TX]. CPAP compliance issues: [CPAP_ISSUES].',
-        objective: 'Extraoral exam: BMI [BMI], neck circumference [NECK_CM] cm. Intraoral exam: Mallampati class [CLASS], tongue size [SIZE], tonsillar grade [GRADE], soft palate length [LENGTH]. Dental exam: [DENTAL_FINDINGS]. Occlusion: [OCCLUSION]. TMJ: [TMJ_FINDINGS]. Airway assessment: [AIRWAY_FINDINGS].',
-        assessment: 'OSA with AHI [AHI_VALUE] - [MILD/MODERATE/SEVERE]. Candidate for oral appliance therapy per AASM guidelines. Dental status: [ADEQUATE/INADEQUATE] for appliance. Contraindications: [NONE/LIST].',
-        plan: '1. Fabricate mandibular advancement device\n2. Impressions and bite registration (D0350, D0470)\n3. Custom oral appliance (E0486)\n4. Patient education on appliance use\n5. Follow-up in 2-3 weeks for delivery\n6. Coordinate with sleep physician\n7. Follow-up sleep study in 3 months'
-      },
-      billingCodes: ['D0350', 'D0470', 'E0486', 'D9946', 'D9975']
+      name: 'Initial Sleep Apnea Consultation',
+      category: 'consultation',
+      description: 'Comprehensive initial evaluation template for sleep apnea patients',
+      lastModified: '2024-01-15',
+      usage: 45,
+      content: 'Patient presents with symptoms of sleep apnea including...'
     },
     {
       id: '2',
-      name: 'Oral Appliance Delivery',
-      type: 'appliance_delivery',
-      template: {
-        subjective: 'Patient returns for delivery of custom mandibular advancement device. Sleep symptoms since last visit: [SYMPTOMS]. Expectations discussed: [EXPECTATIONS]. Compliance with pre-delivery instructions: [COMPLIANCE].',
-        objective: 'Appliance fit: [EXCELLENT/GOOD/FAIR]. Comfort level: [COMFORTABLE/MILD DISCOMFORT/SIGNIFICANT]. Retention: [ADEQUATE/INADEQUATE]. Speech clarity: [NORMAL/SLIGHTLY AFFECTED/SIGNIFICANTLY AFFECTED]. Bite changes: [NONE/MINIMAL/CONCERNING]. Initial protrusion: [MM] mm.',
-        assessment: 'Successful delivery of mandibular advancement device. Patient demonstrates understanding of insertion/removal. Baseline position established at [MM] mm protrusion.',
-        plan: '1. Home use instructions provided\n2. Cleaning and care instructions\n3. Gradual titration protocol\n4. Return in 1 week for adjustment\n5. Side effects monitoring\n6. Sleep study in 6-8 weeks\n7. Coordinate with sleep physician'
-      },
-      billingCodes: ['D9946', 'D9975', 'E0486']
+      name: 'Oral Appliance Fitting Note',
+      category: 'treatment',
+      description: 'Template for documenting oral appliance fitting procedures',
+      lastModified: '2024-01-12',
+      usage: 32,
+      content: 'Oral appliance fitting completed today. Patient reports...'
     },
     {
       id: '3',
-      name: 'Appliance Titration & Follow-up',
-      type: 'titration',
-      template: {
-        subjective: 'Patient using oral appliance for [DURATION]. Symptom improvement: [IMPROVEMENT]. Snoring: [REDUCED/ELIMINATED/UNCHANGED]. Sleep quality: [IMPROVED/UNCHANGED/WORSE]. Comfort level: [RATING]. Side effects: [SIDE_EFFECTS]. Compliance: [HOURS_PER_NIGHT] hours/night.',
-        objective: 'Appliance condition: [CONDITION]. Retention: [ADEQUATE/NEEDS_ADJUSTMENT]. Current protrusion: [MM] mm. Dental changes: [NONE/MINIMAL/SIGNIFICANT]. Bite relationship: [STABLE/CHANGED]. TMJ status: [NORMAL/TENDER/PAINFUL].',
-        assessment: 'Patient responding [WELL/PARTIALLY/POORLY] to oral appliance therapy. Current titration: [MM] mm protrusion. [FURTHER_TITRATION/OPTIMIZATION] needed.',
-        plan: '1. Advance appliance [MM] mm\n2. Continue current position\n3. Home sleep test in [WEEKS] weeks\n4. Monitor for side effects\n5. Bite registration if needed\n6. Return visit in [WEEKS] weeks\n7. Communicate with sleep physician'
-      },
-      billingCodes: ['D9946', 'D9975', 'D0350']
+      name: 'Sleep Study Review',
+      category: 'assessment',
+      description: 'Template for reviewing and interpreting sleep study results',
+      lastModified: '2024-01-10',
+      usage: 28,
+      content: 'Sleep study results reviewed. AHI of [value] indicates...'
+    },
+    {
+      id: '4',
+      name: 'Titration Follow-up',
+      category: 'follow-up',
+      description: 'Follow-up template for oral appliance titration sessions',
+      lastModified: '2024-01-08',
+      usage: 22,
+      content: 'Patient returns for titration adjustment. Current setting...'
+    },
+    {
+      id: '5',
+      name: 'Treatment Progress Note',
+      category: 'progress',
+      description: 'Template for documenting treatment progress and outcomes',
+      lastModified: '2024-01-05',
+      usage: 18,
+      content: 'Patient reports improved sleep quality since beginning treatment...'
     }
   ];
 
-  const dentalSleepBillingCodes = [
-    { code: 'E0486', description: 'Oral device/appliance for sleep apnea', fee: 2800 },
-    { code: 'D9946', description: 'Fabrication of oral appliance', fee: 2500 },
-    { code: 'D9975', description: 'External bleaching - per arch', fee: 150 },
-    { code: 'D0350', description: 'Oral/facial images', fee: 85 },
-    { code: 'D0470', description: 'Diagnostic casts', fee: 125 },
-    { code: 'D7880', description: 'Occlusal orthotic device', fee: 650 },
-    { code: 'D9951', description: 'Occlusal adjustment - limited', fee: 95 },
-    { code: 'D9952', description: 'Occlusal adjustment - complete', fee: 285 }
-  ];
-
-  const sleepStudyParameters = [
-    { parameter: 'AHI (Apnea-Hypopnea Index)', normal: '<5', mild: '5-14', moderate: '15-29', severe: '≥30' },
-    { parameter: 'RDI (Respiratory Disturbance Index)', normal: '<5', mild: '5-14', moderate: '15-29', severe: '≥30' },
-    { parameter: 'ESS (Epworth Sleepiness Scale)', normal: '0-7', mild: '8-10', moderate: '11-15', severe: '16-24' },
-    { parameter: 'O2 Saturation', normal: '>95%', mild: '90-95%', moderate: '85-90%', severe: '<85%' }
-  ];
-
-  const handleTemplateSelect = (template: DentalSleepTemplate) => {
-    setSelectedTemplate(template);
-    setCurrentSOAP(template.template);
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'consultation': return 'bg-blue-100 text-blue-800';
+      case 'treatment': return 'bg-green-100 text-green-800';
+      case 'assessment': return 'bg-purple-100 text-purple-800';
+      case 'follow-up': return 'bg-orange-100 text-orange-800';
+      case 'progress': return 'bg-teal-100 text-teal-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
   };
 
-  const handleSave = () => {
-    toast({
-      title: "Sleep Medicine Note Saved",
-      description: "Dental sleep medicine documentation has been saved to patient record",
-    });
-  };
+  const filteredTemplates = templates.filter(template =>
+    template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    template.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold flex items-center gap-2">
-            <Moon className="w-5 h-5 text-blue-600" />
-            Midwest Dental Sleep Medicine - Templates
-          </h3>
-          <p className="text-gray-600">
-            Specialized templates and billing codes for dental sleep medicine
-          </p>
+          <h2 className="text-2xl font-bold text-foreground">Dental Sleep Templates</h2>
+          <p className="text-muted-foreground">Standardized documentation templates for sleep medicine practice</p>
         </div>
-        <Button onClick={() => window.location.href = '/agents/scribe-iq'}>
+        <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
           <Plus className="w-4 h-4 mr-2" />
-          Create New Note
+          Create Template
         </Button>
       </div>
 
-      <Tabs defaultValue="templates" className="space-y-6">
+      <Tabs defaultValue="all" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="templates">Sleep Templates</TabsTrigger>
-          <TabsTrigger value="billing">Billing Codes</TabsTrigger>
-          <TabsTrigger value="parameters">Sleep Parameters</TabsTrigger>
-          <TabsTrigger value="editor">Note Editor</TabsTrigger>
+          <TabsTrigger value="all">All Templates</TabsTrigger>
+          <TabsTrigger value="consultation">Consultation</TabsTrigger>
+          <TabsTrigger value="treatment">Treatment</TabsTrigger>
+          <TabsTrigger value="assessment">Assessment</TabsTrigger>
+          <TabsTrigger value="follow-up">Follow-up</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="templates" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {dentalSleepTemplates.map((template) => (
-              <Card key={template.id} className="cursor-pointer hover:shadow-md transition-shadow"
-                    onClick={() => handleTemplateSelect(template)}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-base">{template.name}</CardTitle>
-                    <Badge variant="outline">{template.type}</Badge>
-                  </div>
-                  <CardDescription>
-                    Template for {template.type.replace('_', ' ')} visits
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <p className="text-sm text-gray-600">
-                      <strong>Billing Codes:</strong> {template.billingCodes.join(', ')}
-                    </p>
-                    <Button variant="outline" size="sm" className="w-full">
-                      <FileText className="w-3 h-3 mr-1" />
-                      Use Template
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="billing" className="space-y-4">
+        <TabsContent value="all">
           <Card>
             <CardHeader>
-              <CardTitle>Dental Sleep Medicine Billing Codes</CardTitle>
+              <CardTitle>Documentation Templates</CardTitle>
               <CardDescription>
-                CPT/DME codes and fees for sleep apnea treatment
+                Pre-built templates for common dental sleep medicine documentation
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {dentalSleepBillingCodes.map((code) => (
-                  <div key={code.code} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3">
-                        <Badge variant="outline">{code.code}</Badge>
-                        <span className="font-medium">${code.fee}</span>
-                      </div>
-                      <p className="text-sm text-gray-600 mt-1">{code.description}</p>
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Search className="w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search templates..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="max-w-sm"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredTemplates.map((template) => (
+                    <Card key={template.id} className="hover:shadow-md transition-shadow">
+                      <CardContent className="p-4">
+                        <div className="space-y-3">
+                          <div className="flex items-start justify-between">
+                            <div className="space-y-1">
+                              <h3 className="font-semibold text-foreground">{template.name}</h3>
+                              <Badge className={getCategoryColor(template.category)}>
+                                {template.category}
+                              </Badge>
+                            </div>
+                            <FileText className="w-5 h-5 text-muted-foreground" />
+                          </div>
+                          
+                          <p className="text-sm text-muted-foreground">
+                            {template.description}
+                          </p>
+                          
+                          <div className="text-xs text-muted-foreground space-y-1">
+                            <p>Used {template.usage} times</p>
+                            <p>Modified: {template.lastModified}</p>
+                          </div>
+                          
+                          <div className="flex space-x-2">
+                            <Button variant="outline" size="sm" className="flex-1">
+                              <Edit className="w-3 h-3 mr-1" />
+                              Edit
+                            </Button>
+                            <Button variant="outline" size="sm" className="flex-1">
+                              <Copy className="w-3 h-3 mr-1" />
+                              Use
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="consultation">
+          <Card>
+            <CardHeader>
+              <CardTitle>Consultation Templates</CardTitle>
+              <CardDescription>
+                Templates for initial consultations and patient evaluations
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <Card>
+                  <CardContent className="p-4">
+                    <h3 className="font-semibold mb-2">Initial Sleep Apnea Consultation</h3>
+                    <div className="space-y-2 text-sm">
+                      <p><strong>Chief Complaint:</strong> [Patient's primary sleep-related concerns]</p>
+                      <p><strong>Sleep History:</strong> [Duration and quality of sleep issues]</p>
+                      <p><strong>Symptoms:</strong> [Snoring, witnessed apneas, daytime fatigue, etc.]</p>
+                      <p><strong>Medical History:</strong> [Relevant medical conditions]</p>
+                      <p><strong>Examination:</strong> [Oral and airway examination findings]</p>
+                      <p><strong>Assessment:</strong> [Clinical impression]</p>
+                      <p><strong>Plan:</strong> [Recommended next steps]</p>
                     </div>
-                    <Button variant="ghost" size="sm">
-                      <Plus className="w-3 h-3" />
-                    </Button>
-                  </div>
-                ))}
+                    <div className="flex space-x-2 mt-4">
+                      <Button variant="outline" size="sm">
+                        <Edit className="w-3 h-3 mr-1" />
+                        Edit Template
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        <Copy className="w-3 h-3 mr-1" />
+                        Use Template
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="parameters" className="space-y-4">
+        <TabsContent value="treatment">
           <Card>
             <CardHeader>
-              <CardTitle>Sleep Study Parameters Reference</CardTitle>
+              <CardTitle>Treatment Templates</CardTitle>
               <CardDescription>
-                Normal ranges and severity classifications for sleep studies
+                Templates for treatment planning and procedure documentation
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left p-2">Parameter</th>
-                      <th className="text-left p-2">Normal</th>
-                      <th className="text-left p-2">Mild</th>
-                      <th className="text-left p-2">Moderate</th>
-                      <th className="text-left p-2">Severe</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {sleepStudyParameters.map((param, index) => (
-                      <tr key={index} className="border-b">
-                        <td className="p-2 font-medium">{param.parameter}</td>
-                        <td className="p-2"><Badge variant="outline" className="bg-green-50">{param.normal}</Badge></td>
-                        <td className="p-2"><Badge variant="outline" className="bg-yellow-50">{param.mild}</Badge></td>
-                        <td className="p-2"><Badge variant="outline" className="bg-orange-50">{param.moderate}</Badge></td>
-                        <td className="p-2"><Badge variant="outline" className="bg-red-50">{param.severe}</Badge></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="space-y-4">
+                <Card>
+                  <CardContent className="p-4">
+                    <h3 className="font-semibold mb-2">Oral Appliance Treatment Plan</h3>
+                    <div className="space-y-2 text-sm">
+                      <p><strong>Appliance Type:</strong> [Mandibular Advancement Device]</p>
+                      <p><strong>Manufacturer:</strong> [Device manufacturer and model]</p>
+                      <p><strong>Fitting Schedule:</strong> [Timeline for impressions, delivery, adjustments]</p>
+                      <p><strong>Expected Outcomes:</strong> [Treatment goals and success criteria]</p>
+                      <p><strong>Follow-up Plan:</strong> [Schedule for titration and monitoring]</p>
+                      <p><strong>Patient Education:</strong> [Care instructions and expectations]</p>
+                    </div>
+                    <div className="flex space-x-2 mt-4">
+                      <Button variant="outline" size="sm">
+                        <Edit className="w-3 h-3 mr-1" />
+                        Edit Template
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        <Copy className="w-3 h-3 mr-1" />
+                        Use Template
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="editor" className="space-y-4">
-          {selectedTemplate && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Editing: {selectedTemplate.name}</CardTitle>
-                <CardDescription>
-                  Customize the template with patient-specific information
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <Label htmlFor="subjective">Subjective</Label>
-                    <Textarea
-                      id="subjective"
-                      value={currentSOAP.subjective}
-                      onChange={(e) => setCurrentSOAP(prev => ({ ...prev, subjective: e.target.value }))}
-                      className="min-h-[120px]"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="objective">Objective</Label>
-                    <Textarea
-                      id="objective"
-                      value={currentSOAP.objective}
-                      onChange={(e) => setCurrentSOAP(prev => ({ ...prev, objective: e.target.value }))}
-                      className="min-h-[120px]"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="assessment">Assessment</Label>
-                    <Textarea
-                      id="assessment"
-                      value={currentSOAP.assessment}
-                      onChange={(e) => setCurrentSOAP(prev => ({ ...prev, assessment: e.target.value }))}
-                      className="min-h-[120px]"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="plan">Plan</Label>
-                    <Textarea
-                      id="plan"
-                      value={currentSOAP.plan}
-                      onChange={(e) => setCurrentSOAP(prev => ({ ...prev, plan: e.target.value }))}
-                      className="min-h-[120px]"
-                    />
-                  </div>
-                </div>
+        <TabsContent value="assessment">
+          <Card>
+            <CardHeader>
+              <CardTitle>Assessment Templates</CardTitle>
+              <CardDescription>
+                Templates for sleep study reviews and clinical assessments
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <Card>
+                  <CardContent className="p-4">
+                    <h3 className="font-semibold mb-2">Sleep Study Assessment</h3>
+                    <div className="space-y-2 text-sm">
+                      <p><strong>Study Type:</strong> [In-lab PSG, Home Sleep Test, etc.]</p>
+                      <p><strong>AHI Score:</strong> [Apnea-Hypopnea Index value]</p>
+                      <p><strong>Severity:</strong> [Normal, Mild, Moderate, Severe]</p>
+                      <p><strong>Sleep Architecture:</strong> [Sleep stage distribution]</p>
+                      <p><strong>Oxygen Saturation:</strong> [Minimum and average levels]</p>
+                      <p><strong>Interpretation:</strong> [Clinical significance of findings]</p>
+                      <p><strong>Recommendations:</strong> [Treatment recommendations]</p>
+                    </div>
+                    <div className="flex space-x-2 mt-4">
+                      <Button variant="outline" size="sm">
+                        <Edit className="w-3 h-3 mr-1" />
+                        Edit Template
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        <Copy className="w-3 h-3 mr-1" />
+                        Use Template
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-                <div className="flex justify-end gap-2">
-                  <Button variant="outline">Save as Template</Button>
-                  <Button onClick={handleSave}>
-                    <Save className="w-4 h-4 mr-2" />
-                    Save SOAP Note
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {!selectedTemplate && (
-            <div className="text-center py-12 text-muted-foreground">
-              <FileText className="w-12 h-12 mx-auto mb-4" />
-              <p>Select a template from the Sleep Templates tab to begin editing</p>
-            </div>
-          )}
+        <TabsContent value="follow-up">
+          <Card>
+            <CardHeader>
+              <CardTitle>Follow-up Templates</CardTitle>
+              <CardDescription>
+                Templates for monitoring progress and ongoing care
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <Card>
+                  <CardContent className="p-4">
+                    <h3 className="font-semibold mb-2">Titration Follow-up Visit</h3>
+                    <div className="space-y-2 text-sm">
+                      <p><strong>Current Setting:</strong> [Appliance advancement in mm]</p>
+                      <p><strong>Comfort Level:</strong> [Patient comfort rating 1-10]</p>
+                      <p><strong>Symptom Improvement:</strong> [Changes in sleep quality, snoring, fatigue]</p>
+                      <p><strong>Side Effects:</strong> [Any reported adverse effects]</p>
+                      <p><strong>Objective Measures:</strong> [Home sleep test results if available]</p>
+                      <p><strong>Adjustment:</strong> [Changes made to appliance]</p>
+                      <p><strong>Next Steps:</strong> [Follow-up plan and timeline]</p>
+                    </div>
+                    <div className="flex space-x-2 mt-4">
+                      <Button variant="outline" size="sm">
+                        <Edit className="w-3 h-3 mr-1" />
+                        Edit Template
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        <Copy className="w-3 h-3 mr-1" />
+                        Use Template
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>

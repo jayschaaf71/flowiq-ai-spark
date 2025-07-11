@@ -361,6 +361,105 @@ export type Database = {
           },
         ]
       }
+      dme_orders: {
+        Row: {
+          actual_delivery_date: string | null
+          appeal_status: string | null
+          authorization_number: string | null
+          cost_estimate: number | null
+          created_at: string
+          created_by: string | null
+          denial_reason: string | null
+          expected_delivery_date: string | null
+          follow_up_date: string | null
+          id: string
+          insurance_authorization: string | null
+          insurance_coverage: number | null
+          notes: string | null
+          order_date: string | null
+          order_type: string
+          patient_id: string
+          patient_responsibility: number | null
+          prescription_details: Json | null
+          priority: string | null
+          status: string | null
+          supplier_contact: string | null
+          supplier_name: string | null
+          tenant_id: string | null
+          tracking_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          actual_delivery_date?: string | null
+          appeal_status?: string | null
+          authorization_number?: string | null
+          cost_estimate?: number | null
+          created_at?: string
+          created_by?: string | null
+          denial_reason?: string | null
+          expected_delivery_date?: string | null
+          follow_up_date?: string | null
+          id?: string
+          insurance_authorization?: string | null
+          insurance_coverage?: number | null
+          notes?: string | null
+          order_date?: string | null
+          order_type: string
+          patient_id: string
+          patient_responsibility?: number | null
+          prescription_details?: Json | null
+          priority?: string | null
+          status?: string | null
+          supplier_contact?: string | null
+          supplier_name?: string | null
+          tenant_id?: string | null
+          tracking_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          actual_delivery_date?: string | null
+          appeal_status?: string | null
+          authorization_number?: string | null
+          cost_estimate?: number | null
+          created_at?: string
+          created_by?: string | null
+          denial_reason?: string | null
+          expected_delivery_date?: string | null
+          follow_up_date?: string | null
+          id?: string
+          insurance_authorization?: string | null
+          insurance_coverage?: number | null
+          notes?: string | null
+          order_date?: string | null
+          order_type?: string
+          patient_id?: string
+          patient_responsibility?: number | null
+          prescription_details?: Json | null
+          priority?: string | null
+          status?: string | null
+          supplier_contact?: string | null
+          supplier_name?: string | null
+          tenant_id?: string | null
+          tracking_number?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dme_orders_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dme_orders_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_templates: {
         Row: {
           body: string
@@ -735,6 +834,102 @@ export type Database = {
           },
           {
             foreignKeyName: "medical_records_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      oral_appliances: {
+        Row: {
+          adjustment_history: Json | null
+          appliance_type: string
+          comfort_rating: number | null
+          created_at: string
+          created_by: string | null
+          current_setting: number | null
+          delivery_date: string | null
+          effectiveness_rating: number | null
+          fitting_date: string | null
+          id: string
+          manufacturer: string | null
+          model: string | null
+          notes: string | null
+          patient_id: string
+          replacement_due_date: string | null
+          serial_number: string | null
+          side_effects: string[] | null
+          status: string | null
+          target_setting: number | null
+          tenant_id: string | null
+          titration_range_max: number | null
+          titration_range_min: number | null
+          updated_at: string
+          warranty_expiration: string | null
+        }
+        Insert: {
+          adjustment_history?: Json | null
+          appliance_type: string
+          comfort_rating?: number | null
+          created_at?: string
+          created_by?: string | null
+          current_setting?: number | null
+          delivery_date?: string | null
+          effectiveness_rating?: number | null
+          fitting_date?: string | null
+          id?: string
+          manufacturer?: string | null
+          model?: string | null
+          notes?: string | null
+          patient_id: string
+          replacement_due_date?: string | null
+          serial_number?: string | null
+          side_effects?: string[] | null
+          status?: string | null
+          target_setting?: number | null
+          tenant_id?: string | null
+          titration_range_max?: number | null
+          titration_range_min?: number | null
+          updated_at?: string
+          warranty_expiration?: string | null
+        }
+        Update: {
+          adjustment_history?: Json | null
+          appliance_type?: string
+          comfort_rating?: number | null
+          created_at?: string
+          created_by?: string | null
+          current_setting?: number | null
+          delivery_date?: string | null
+          effectiveness_rating?: number | null
+          fitting_date?: string | null
+          id?: string
+          manufacturer?: string | null
+          model?: string | null
+          notes?: string | null
+          patient_id?: string
+          replacement_due_date?: string | null
+          serial_number?: string | null
+          side_effects?: string[] | null
+          status?: string | null
+          target_setting?: number | null
+          tenant_id?: string | null
+          titration_range_max?: number | null
+          titration_range_min?: number | null
+          updated_at?: string
+          warranty_expiration?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "oral_appliances_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "oral_appliances_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -1632,6 +1827,99 @@ export type Database = {
           },
         ]
       }
+      sleep_studies: {
+        Row: {
+          ahi_score: number | null
+          arousal_index: number | null
+          created_at: string
+          created_by: string | null
+          deep_sleep_time: number | null
+          id: string
+          interpretation: string | null
+          oxygen_saturation: number | null
+          patient_id: string
+          physician_notes: string | null
+          rdi_score: number | null
+          recommendations: string | null
+          rem_sleep_time: number | null
+          severity: string | null
+          sleep_efficiency: number | null
+          status: string | null
+          study_date: string
+          study_file_path: string | null
+          study_type: string
+          technician_notes: string | null
+          tenant_id: string | null
+          total_sleep_time: number | null
+          updated_at: string
+        }
+        Insert: {
+          ahi_score?: number | null
+          arousal_index?: number | null
+          created_at?: string
+          created_by?: string | null
+          deep_sleep_time?: number | null
+          id?: string
+          interpretation?: string | null
+          oxygen_saturation?: number | null
+          patient_id: string
+          physician_notes?: string | null
+          rdi_score?: number | null
+          recommendations?: string | null
+          rem_sleep_time?: number | null
+          severity?: string | null
+          sleep_efficiency?: number | null
+          status?: string | null
+          study_date: string
+          study_file_path?: string | null
+          study_type: string
+          technician_notes?: string | null
+          tenant_id?: string | null
+          total_sleep_time?: number | null
+          updated_at?: string
+        }
+        Update: {
+          ahi_score?: number | null
+          arousal_index?: number | null
+          created_at?: string
+          created_by?: string | null
+          deep_sleep_time?: number | null
+          id?: string
+          interpretation?: string | null
+          oxygen_saturation?: number | null
+          patient_id?: string
+          physician_notes?: string | null
+          rdi_score?: number | null
+          recommendations?: string | null
+          rem_sleep_time?: number | null
+          severity?: string | null
+          sleep_efficiency?: number | null
+          status?: string | null
+          study_date?: string
+          study_file_path?: string | null
+          study_type?: string
+          technician_notes?: string | null
+          tenant_id?: string | null
+          total_sleep_time?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sleep_studies_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sleep_studies_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sms_templates: {
         Row: {
           created_at: string
@@ -1994,6 +2282,112 @@ export type Database = {
           zip_code?: string | null
         }
         Relationships: []
+      }
+      titration_sessions: {
+        Row: {
+          adjustment_reason: string | null
+          appliance_id: string | null
+          created_at: string
+          created_by: string | null
+          dry_mouth: boolean | null
+          excessive_salivation: boolean | null
+          goals_met: boolean | null
+          id: string
+          jaw_discomfort: boolean | null
+          new_setting: number | null
+          next_appointment_date: string | null
+          patient_comfort: number | null
+          patient_feedback: string | null
+          patient_id: string
+          previous_setting: number | null
+          provider_notes: string | null
+          session_date: string
+          session_type: string
+          side_effects: string[] | null
+          sleep_quality_rating: number | null
+          status: string | null
+          symptom_improvement: number | null
+          teeth_movement: boolean | null
+          tenant_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          adjustment_reason?: string | null
+          appliance_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          dry_mouth?: boolean | null
+          excessive_salivation?: boolean | null
+          goals_met?: boolean | null
+          id?: string
+          jaw_discomfort?: boolean | null
+          new_setting?: number | null
+          next_appointment_date?: string | null
+          patient_comfort?: number | null
+          patient_feedback?: string | null
+          patient_id: string
+          previous_setting?: number | null
+          provider_notes?: string | null
+          session_date: string
+          session_type: string
+          side_effects?: string[] | null
+          sleep_quality_rating?: number | null
+          status?: string | null
+          symptom_improvement?: number | null
+          teeth_movement?: boolean | null
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          adjustment_reason?: string | null
+          appliance_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          dry_mouth?: boolean | null
+          excessive_salivation?: boolean | null
+          goals_met?: boolean | null
+          id?: string
+          jaw_discomfort?: boolean | null
+          new_setting?: number | null
+          next_appointment_date?: string | null
+          patient_comfort?: number | null
+          patient_feedback?: string | null
+          patient_id?: string
+          previous_setting?: number | null
+          provider_notes?: string | null
+          session_date?: string
+          session_type?: string
+          side_effects?: string[] | null
+          sleep_quality_rating?: number | null
+          status?: string | null
+          symptom_improvement?: number | null
+          teeth_movement?: boolean | null
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "titration_sessions_appliance_id_fkey"
+            columns: ["appliance_id"]
+            isOneToOne: false
+            referencedRelation: "oral_appliances"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "titration_sessions_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "titration_sessions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_2fa_attempts: {
         Row: {
