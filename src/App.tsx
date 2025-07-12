@@ -56,6 +56,7 @@ import DentalSleepDemo from './pages/DentalSleepDemo';
 import { Toaster } from './components/ui/toaster';
 import { FloatingAssistIQ } from './components/FloatingAssistIQ';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { ProductionTenantProvider } from './components/tenant/ProductionTenantProvider';
 
 const queryClient = new QueryClient();
 
@@ -65,9 +66,10 @@ function App() {
       <Router>
         <AuthProvider>
           <QueryClientProvider client={queryClient}>
-            <SpecialtyProvider>
-              <DashboardProvider>
-                <AnalyticsProvider>
+            <ProductionTenantProvider>
+              <SpecialtyProvider>
+                <DashboardProvider>
+                  <AnalyticsProvider>
                   <Routes>
                     {/* Landing and Auth Routes */}
                     <Route path="/" element={<Index />} />
@@ -222,9 +224,10 @@ function App() {
                   </Routes>
                   <FloatingAssistIQ />
                   <Toaster />
-                </AnalyticsProvider>
-              </DashboardProvider>
-            </SpecialtyProvider>
+                  </AnalyticsProvider>
+                </DashboardProvider>
+              </SpecialtyProvider>
+            </ProductionTenantProvider>
           </QueryClientProvider>
         </AuthProvider>
       </Router>

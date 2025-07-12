@@ -76,17 +76,74 @@ export function useEnhancedTenantConfig() {
   const loadTenantConfig = async () => {
     try {
       setIsLoading(true);
-      console.log('Mock loading tenant config for user:', user?.id);
+      console.log('Loading tenant config for user:', user?.id);
       
-      // HIPAA COMPLIANCE: Use user-specific specialty storage
-      const userSpecificKey = user?.id ? `currentSpecialty_${user.id}` : null;
-      const currentSpecialty = (userSpecificKey ? localStorage.getItem(userSpecificKey) : null) || 
-                               'chiropractic';
+      if (!user) {
+        // For non-authenticated users, check URL path for demo/preview mode
+        const path = window.location.pathname;
+        let defaultConfig = DEFAULT_TENANTS.chiropractic;
+        
+        if (path.includes('/dental-sleep') || path.includes('dental-sleep')) {
+          defaultConfig = DEFAULT_TENANTS['dental-sleep'];
+        } else if (path.includes('/dental')) {
+          defaultConfig = DEFAULT_TENANTS.dental;
+        }
+        
+        setTenantConfig(defaultConfig);
+        return;
+      }
+
+      // For authenticated users, fetch from database
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('current_tenant_id')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
+        setTenantConfig(DEFAULT_TENANTS.chiropractic);
+        return;
+      }
+
+      if (profile?.current_tenant_id) {
+        // Fetch tenant configuration from database
+        const { data: tenant, error: tenantError } = await supabase
+          .from('tenants')
+          .select('*')
+          .eq('id', profile.current_tenant_id)
+          .single();
+
+        if (tenantError) {
+          console.error('Error fetching tenant:', tenantError);
+          setTenantConfig(DEFAULT_TENANTS.chiropractic);
+          return;
+        }
+
+        if (tenant) {
+          // Convert database tenant to TenantConfig format
+          const settings = tenant.settings as any;
+          const config: TenantConfig = {
+            id: tenant.id,
+            name: tenant.name,
+            brand_name: tenant.business_name || tenant.name,
+            brandName: tenant.business_name || tenant.name,
+            specialty: tenant.specialty,
+            primary_color: tenant.primary_color,
+            secondary_color: tenant.secondary_color,
+            logo_url: tenant.logo_url,
+            tagline: settings?.branding?.tagline || ''
+          };
+          
+          console.log('Loaded tenant config from database:', config);
+          setTenantConfig(config);
+          return;
+        }
+      }
       
-      console.log('Loading config for specialty:', currentSpecialty);
-      const config = DEFAULT_TENANTS[currentSpecialty] || DEFAULT_TENANTS.chiropractic;
-      
-      setTenantConfig(config);
+      // Fallback to default
+      console.log('Using default tenant config');
+      setTenantConfig(DEFAULT_TENANTS.chiropractic);
     } catch (error) {
       console.error('Error loading tenant config:', error);
       setTenantConfig(DEFAULT_TENANTS.chiropractic);

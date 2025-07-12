@@ -1,32 +1,159 @@
-
-import React from 'react';
+import { useState, useEffect } from 'react';
+import { Check, ChevronsUpDown, Building2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthProvider';
 import { useCurrentTenant } from '@/utils/enhancedTenantConfig';
-import { Badge } from '@/components/ui/badge';
-import { Building2, Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-export const TenantSwitcher: React.FC = () => {
-  const { currentTenant, loading } = useCurrentTenant();
+interface Tenant {
+  id: string;
+  name: string;
+  subdomain: string;
+  specialty: string;
+  business_name?: string;
+}
 
-  if (loading) {
-    return (
-      <div className="flex items-center gap-2">
-        <Loader2 className="h-4 w-4 animate-spin" />
-        <span className="text-sm text-gray-600">Loading...</span>
-      </div>
-    );
-  }
+export function TenantSwitcher() {
+  const [open, setOpen] = useState(false);
+  const [tenants, setTenants] = useState<Tenant[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const { currentTenant, refetch } = useCurrentTenant();
 
-  if (!currentTenant) {
+  useEffect(() => {
+    if (user) {
+      loadUserTenants();
+    }
+  }, [user]);
+
+  const loadUserTenants = async () => {
+    try {
+      setLoading(true);
+      
+      // Fetch tenants the user has access to
+      const { data: tenantUsers, error } = await supabase
+        .from('tenant_users')
+        .select(`
+          tenant:tenants(
+            id,
+            name,
+            subdomain,
+            specialty,
+            business_name
+          )
+        `)
+        .eq('user_id', user?.id)
+        .eq('is_active', true);
+
+      if (error) {
+        console.error('Error loading tenants:', error);
+        return;
+      }
+
+      const tenantList = tenantUsers
+        .map(tu => tu.tenant)
+        .filter(Boolean) as Tenant[];
+      
+      setTenants(tenantList);
+    } catch (error) {
+      console.error('Error loading tenants:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const switchTenant = async (tenantId: string) => {
+    try {
+      // Update user's current tenant
+      const { error } = await supabase
+        .from('profiles')
+        .update({ current_tenant_id: tenantId })
+        .eq('id', user?.id);
+
+      if (error) {
+        console.error('Error switching tenant:', error);
+        return;
+      }
+
+      // Refetch tenant config
+      await refetch();
+      setOpen(false);
+      
+      // Optionally reload page to ensure all components pick up new tenant
+      window.location.reload();
+    } catch (error) {
+      console.error('Error switching tenant:', error);
+    }
+  };
+
+  if (!user || tenants.length <= 1) {
     return null;
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <Building2 className="h-4 w-4 text-gray-600" />
-      <span className="text-sm font-medium">{currentTenant.brand_name}</span>
-      <Badge variant="outline" className="text-xs">
-        {currentTenant.specialty.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-      </Badge>
-    </div>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-[300px] justify-between"
+        >
+          <div className="flex items-center">
+            <Building2 className="mr-2 h-4 w-4" />
+            <span className="truncate">
+              {currentTenant?.brand_name || currentTenant?.name || "Select practice..."}
+            </span>
+          </div>
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[300px] p-0">
+        <Command>
+          <CommandInput placeholder="Search practices..." />
+          <CommandEmpty>No practice found.</CommandEmpty>
+          <CommandList>
+            <CommandGroup heading="Your Practices">
+              {tenants.map((tenant) => (
+                <CommandItem
+                  key={tenant.id}
+                  value={tenant.name}
+                  onSelect={() => switchTenant(tenant.id)}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      currentTenant?.id === tenant.id ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  <div className="flex flex-col">
+                    <span className="font-medium">
+                      {tenant.business_name || tenant.name}
+                    </span>
+                    <span className="text-sm text-muted-foreground capitalize">
+                      {tenant.specialty.replace('-', ' ')}
+                    </span>
+                  </div>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
-};
+}
