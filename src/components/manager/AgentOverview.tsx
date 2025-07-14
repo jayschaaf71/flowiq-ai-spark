@@ -15,7 +15,8 @@ import {
   Calendar,
   FileText,
   Shield,
-  Settings
+  Settings,
+  Phone
 } from "lucide-react";
 
 export const AgentOverview = () => {
@@ -81,6 +82,30 @@ export const AgentOverview = () => {
       aiLevel: 'Expert',
       capabilities: ['HIPAA Monitoring', 'Audit Trail Analysis', 'Risk Detection'],
       learningAreas: ['Regulatory changes', 'Risk patterns', 'Compliance workflows']
+    },
+    {
+      id: 'sales-iq',
+      name: 'Sales iQ',
+      description: 'AI-powered voice sales agent for patient acquisition and lead qualification through intelligent inbound/outbound calling',
+      icon: Phone,
+      status: 'active',
+      performance: 94,
+      tasks: 847,
+      aiLevel: 'Advanced',
+      capabilities: [
+        'Inbound call handling and qualification',
+        'Outbound lead generation campaigns', 
+        'Sentiment analysis and conversation scoring',
+        'Automated follow-up task creation',
+        'Real-time call monitoring and analytics',
+        'HIPAA-compliant call recording and transcription'
+      ],
+      learningAreas: [
+        'Healthcare sales conversation optimization',
+        'Patient objection handling techniques',
+        'Appointment booking conversion rates',
+        'Multi-channel follow-up strategies'
+      ]
     }
   ];
 
