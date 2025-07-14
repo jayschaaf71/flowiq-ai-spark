@@ -215,6 +215,72 @@ export type Database = {
           },
         ]
       }
+      call_outcomes: {
+        Row: {
+          ai_summary: string | null
+          call_id: string
+          confidence_score: number | null
+          created_at: string
+          follow_up_date: string | null
+          follow_up_required: boolean | null
+          follow_up_type: string | null
+          id: string
+          key_topics: string[] | null
+          outcome_type: string
+          sentiment_label: string | null
+          sentiment_score: number | null
+          tenant_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          ai_summary?: string | null
+          call_id: string
+          confidence_score?: number | null
+          created_at?: string
+          follow_up_date?: string | null
+          follow_up_required?: boolean | null
+          follow_up_type?: string | null
+          id?: string
+          key_topics?: string[] | null
+          outcome_type: string
+          sentiment_label?: string | null
+          sentiment_score?: number | null
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ai_summary?: string | null
+          call_id?: string
+          confidence_score?: number | null
+          created_at?: string
+          follow_up_date?: string | null
+          follow_up_required?: boolean | null
+          follow_up_type?: string | null
+          id?: string
+          key_topics?: string[] | null
+          outcome_type?: string
+          sentiment_label?: string | null
+          sentiment_score?: number | null
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "call_outcomes_call_id_fkey"
+            columns: ["call_id"]
+            isOneToOne: false
+            referencedRelation: "voice_calls"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "call_outcomes_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       claims: {
         Row: {
           appointment_id: string | null
@@ -568,6 +634,79 @@ export type Database = {
           },
         ]
       }
+      follow_up_tasks: {
+        Row: {
+          attempts: number | null
+          call_outcome_id: string
+          completion_data: Json | null
+          created_at: string
+          id: string
+          max_attempts: number | null
+          message_template: string | null
+          message_variables: Json | null
+          patient_id: string
+          scheduled_for: string
+          task_status: string
+          task_type: string
+          tenant_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number | null
+          call_outcome_id: string
+          completion_data?: Json | null
+          created_at?: string
+          id?: string
+          max_attempts?: number | null
+          message_template?: string | null
+          message_variables?: Json | null
+          patient_id: string
+          scheduled_for: string
+          task_status?: string
+          task_type: string
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number | null
+          call_outcome_id?: string
+          completion_data?: Json | null
+          created_at?: string
+          id?: string
+          max_attempts?: number | null
+          message_template?: string | null
+          message_variables?: Json | null
+          patient_id?: string
+          scheduled_for?: string
+          task_status?: string
+          task_type?: string
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "follow_up_tasks_call_outcome_id_fkey"
+            columns: ["call_outcome_id"]
+            isOneToOne: false
+            referencedRelation: "call_outcomes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "follow_up_tasks_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "follow_up_tasks_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       insurance_providers: {
         Row: {
           address: string | null
@@ -714,6 +853,64 @@ export type Database = {
           },
           {
             foreignKeyName: "intake_submissions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_scores: {
+        Row: {
+          calculated_at: string
+          call_id: string | null
+          created_at: string
+          id: string
+          patient_id: string
+          score_factors: Json | null
+          score_type: string
+          score_value: number
+          tenant_id: string | null
+        }
+        Insert: {
+          calculated_at?: string
+          call_id?: string | null
+          created_at?: string
+          id?: string
+          patient_id: string
+          score_factors?: Json | null
+          score_type: string
+          score_value: number
+          tenant_id?: string | null
+        }
+        Update: {
+          calculated_at?: string
+          call_id?: string | null
+          created_at?: string
+          id?: string
+          patient_id?: string
+          score_factors?: Json | null
+          score_type?: string
+          score_value?: number
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_scores_call_id_fkey"
+            columns: ["call_id"]
+            isOneToOne: false
+            referencedRelation: "voice_calls"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_scores_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_scores_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -2493,6 +2690,63 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      voice_calls: {
+        Row: {
+          call_data: Json | null
+          call_duration: number | null
+          call_id: string
+          call_status: string
+          call_type: string
+          created_at: string
+          id: string
+          patient_id: string | null
+          tenant_id: string | null
+          transcript: string | null
+          updated_at: string
+        }
+        Insert: {
+          call_data?: Json | null
+          call_duration?: number | null
+          call_id: string
+          call_status: string
+          call_type: string
+          created_at?: string
+          id?: string
+          patient_id?: string | null
+          tenant_id?: string | null
+          transcript?: string | null
+          updated_at?: string
+        }
+        Update: {
+          call_data?: Json | null
+          call_duration?: number | null
+          call_id?: string
+          call_status?: string
+          call_type?: string
+          created_at?: string
+          id?: string
+          patient_id?: string | null
+          tenant_id?: string | null
+          transcript?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "voice_calls_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "voice_calls_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       voice_recordings: {
         Row: {
