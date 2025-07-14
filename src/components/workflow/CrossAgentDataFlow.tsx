@@ -18,9 +18,49 @@ import {
 } from "lucide-react";
 
 export const CrossAgentDataFlow = () => {
-  const [selectedFlow, setSelectedFlow] = useState("patient-onboarding");
+  const [selectedFlow, setSelectedFlow] = useState("voice-analytics");
 
   const dataFlows = {
+    "voice-analytics": {
+      name: "Voice Analytics Data Flow",
+      description: "AI-powered voice call analysis and workflow automation",
+      agents: [
+        {
+          name: "Voice iQ",
+          icon: MessageSquare,
+          color: "bg-indigo-100 text-indigo-700",
+          input: "Voice call recordings, transcripts, caller data",
+          processing: "Sentiment analysis, outcome detection, lead scoring",
+          output: "Call outcomes, lead scores, follow-up recommendations",
+          aiCapabilities: ["Voice transcription", "Sentiment analysis", "Lead qualification"]
+        },
+        {
+          name: "Workflow Engine",
+          icon: Zap,
+          color: "bg-purple-100 text-purple-700",
+          input: "Call outcomes, lead scores, trigger conditions",
+          processing: "Automated workflow execution, decision routing, task creation",
+          output: "Follow-up tasks, appointment bookings, automated communications",
+          aiCapabilities: ["Workflow orchestration", "Decision automation", "Task optimization"]
+        },
+        {
+          name: "Remind iQ",
+          icon: MessageSquare,
+          color: "bg-orange-100 text-orange-700",
+          input: "Follow-up requirements, patient contact preferences",
+          processing: "Personalized messaging, channel optimization, timing prediction",
+          output: "Automated follow-ups, appointment reminders, nurture sequences",
+          aiCapabilities: ["Message personalization", "Channel selection", "Timing optimization"]
+        }
+      ],
+      dataElements: [
+        { name: "Voice Recordings", sensitivity: "medium", encryption: true, aiProcessing: "Speech-to-text conversion" },
+        { name: "Call Transcripts", sensitivity: "medium", encryption: true, aiProcessing: "Natural language processing" },
+        { name: "Sentiment Scores", sensitivity: "low", encryption: false, aiProcessing: "Emotion detection" },
+        { name: "Lead Qualification Data", sensitivity: "high", encryption: true, aiProcessing: "Predictive scoring" },
+        { name: "Follow-up Actions", sensitivity: "medium", encryption: true, aiProcessing: "Workflow automation" }
+      ]
+    },
     "patient-onboarding": {
       name: "Patient Onboarding Data Flow",
       description: "AI-driven data flow through patient registration process",
@@ -116,6 +156,13 @@ export const CrossAgentDataFlow = () => {
           <p className="text-gray-600">Intelligent data flow orchestration across AI agents</p>
         </div>
         <div className="flex gap-2">
+          <Button 
+            size="sm" 
+            variant={selectedFlow === "voice-analytics" ? "default" : "outline"}
+            onClick={() => setSelectedFlow("voice-analytics")}
+          >
+            Voice Analytics
+          </Button>
           <Button 
             size="sm" 
             variant={selectedFlow === "patient-onboarding" ? "default" : "outline"}

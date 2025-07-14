@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { WorkflowExecutionEngine } from "./WorkflowExecutionEngine";
 import { DragDropWorkflowBuilder } from "./DragDropWorkflowBuilder";
 import { CrossAgentDataFlow } from "./CrossAgentDataFlow";
+import { VoiceCallDashboard } from "../voice/VoiceCallDashboard";
 import { Play, Settings, Brain } from "lucide-react";
 
 export const WorkflowBuilder = () => {
@@ -45,6 +46,7 @@ export const WorkflowBuilder = () => {
           <TabsTrigger value="builder">Visual Builder</TabsTrigger>
           <TabsTrigger value="execution">Live Execution</TabsTrigger>
           <TabsTrigger value="dataflow">Data Flow</TabsTrigger>
+          <TabsTrigger value="voice">Voice Analytics</TabsTrigger>
         </TabsList>
 
         <TabsContent value="builder" className="space-y-4">
@@ -62,6 +64,10 @@ export const WorkflowBuilder = () => {
 
         <TabsContent value="dataflow" className="space-y-4">
           <CrossAgentDataFlow />
+        </TabsContent>
+
+        <TabsContent value="voice" className="space-y-4">
+          <VoiceCallDashboard />
         </TabsContent>
       </Tabs>
     </div>
