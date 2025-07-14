@@ -17,7 +17,8 @@ import {
   UserPlus,
   Settings,
   HelpCircle,
-  Moon
+  Moon,
+  Phone
 } from "lucide-react";
 import { NavItem, NavGroup } from "@/services/sidebarService";
 
@@ -46,6 +47,7 @@ const baseNavItems: NavItem[] = [
   { id: "intake-iq", label: "Intake iQ", path: "/agents/intake", icon: ClipboardList, badge: "AI", group: "patient_journey", order: 10 },
   { id: "education-iq", label: "Education iQ", path: "/agents/education", icon: GraduationCap, badge: "AI", group: "patient_journey", order: 20 },
   { id: "marketing-iq", label: "Marketing iQ", path: "/agents/marketing", icon: Rocket, badge: "AI", group: "patient_journey", order: 30 },
+  { id: "sales-iq", label: "Sales iQ", path: "/sales-iq", icon: Phone, badge: "AI", group: "patient_journey", order: 40 },
   { id: "referral-iq", label: "Referral iQ", path: "/agents/referral", icon: Handshake, badge: "AI", group: "patient_journey", order: 50 },
 
   // Revenue Cycle

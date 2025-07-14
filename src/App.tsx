@@ -20,6 +20,7 @@ import MentalHealthApp from './apps/MentalHealthApp';
 import DermatologyApp from './apps/DermatologyApp';
 import UrgentCareApp from './apps/UrgentCareApp';
 import AppointmentIQApp from './apps/AppointmentIQApp';
+import SalesIQApp from './apps/SalesIQApp';
 
 // Shared pages
 import Index from './pages/Index';
@@ -93,6 +94,7 @@ function App() {
                     <Route path="/dermatology/*" element={<DermatologyApp />} />
                     <Route path="/urgent-care/*" element={<UrgentCareApp />} />
                     <Route path="/appointment-iq/*" element={<AppointmentIQApp />} />
+                    <Route path="/sales-iq/*" element={<SalesIQApp />} />
 
                     {/* Patient Routes */}
                     <Route path="/patient-dashboard" element={
