@@ -4,6 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { useEnhancedTenantConfig } from "@/utils/enhancedTenantConfig";
+import { AuthLoadingState } from "@/components/auth/AuthLoadingState";
 import { 
   Phone, 
   PhoneCall, 
@@ -35,6 +38,8 @@ interface RecentCall {
 }
 
 export const SalesIQDashboard = () => {
+  const { user, loading: authLoading } = useAuth();
+  const { tenantConfig, isLoading: tenantLoading } = useEnhancedTenantConfig();
   const [metrics, setMetrics] = useState<CallMetrics>({
     totalCalls: 0,
     qualifiedLeads: 0,
@@ -110,6 +115,11 @@ export const SalesIQDashboard = () => {
   };
 
   useEffect(() => {
+    // Only fetch data if user is authenticated and tenant config is loaded
+    if (!user || authLoading || tenantLoading) {
+      return;
+    }
+
     fetchCallMetrics();
 
     // Set up real-time subscription for voice_calls
@@ -131,7 +141,7 @@ export const SalesIQDashboard = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [user, authLoading, tenantLoading]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -177,6 +187,12 @@ export const SalesIQDashboard = () => {
     });
   };
 
+  // Show authentication loading state
+  if (authLoading || tenantLoading) {
+    return <AuthLoadingState message="Loading dashboard..." />;
+  }
+
+  // Show data loading state
   if (loading) {
     return (
       <div className="space-y-6 animate-fade-in">
