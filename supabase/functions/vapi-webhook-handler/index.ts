@@ -5,10 +5,11 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.0';
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const vapiWebhookSecret = Deno.env.get('VAPI_WEBHOOK_SECRET');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-vapi-secret',
 };
 
 interface VAPICallData {
@@ -184,6 +185,21 @@ serve(async (req) => {
   }
 
   try {
+    // Validate webhook secret if configured
+    if (vapiWebhookSecret) {
+      const providedSecret = req.headers.get('x-vapi-secret');
+      if (!providedSecret || providedSecret !== vapiWebhookSecret) {
+        console.error('Invalid or missing webhook secret');
+        return new Response(
+          JSON.stringify({ error: 'Unauthorized: Invalid webhook secret' }),
+          {
+            status: 401,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
+    }
+
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     const vapiData: VAPICallData = await req.json();
     
