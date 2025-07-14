@@ -105,3 +105,6 @@ verify_jwt = false
 
 [functions.voice-to-text]
 verify_jwt = false
+
+[functions.n8n-call-update]
+verify_jwt = false
