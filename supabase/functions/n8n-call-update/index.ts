@@ -83,7 +83,8 @@ Deno.serve(async (req) => {
           first_name: requestData.first_name || null,
           last_name: requestData.last_name || null,
           email: requestData.email || null,
-          phone: requestData.phone
+          phone: requestData.phone,
+          tenant_id: null
         })
         .select('id')
         .single()
