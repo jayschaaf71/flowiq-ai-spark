@@ -30,6 +30,7 @@ import AuthIQ from '@/pages/agents/AuthIQ';
 import EducationIQ from '@/pages/agents/EducationIQ';
 import MarketingIQ from '@/pages/agents/MarketingIQ';
 import ReferralIQ from '@/pages/agents/ReferralIQ';
+import ApplicationTest from '@/pages/ApplicationTest';
 
 export default function DentalSleepApp() {
   return (
@@ -206,6 +207,14 @@ export default function DentalSleepApp() {
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <AuthIQ />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/test" element={
+          <ProtectedRoute requiredRole="staff">
+            <Layout>
+              <ApplicationTest />
             </Layout>
           </ProtectedRoute>
         } />

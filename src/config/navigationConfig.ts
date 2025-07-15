@@ -73,7 +73,7 @@ const dentalNavItems: NavItem[] = [
 export const getNavItems = (specialty: string = 'chiropractic'): NavItem[] => {
   const currentSpecialty = specialty || localStorage.getItem('currentSpecialty') || 'chiropractic';
   
-  if (currentSpecialty === 'dental-sleep' || currentSpecialty === 'dental') {
+  if (currentSpecialty === 'dental-sleep-medicine' || currentSpecialty === 'dental-sleep' || currentSpecialty === 'dental') {
     return [...baseNavItems, ...dentalNavItems];
   }
   

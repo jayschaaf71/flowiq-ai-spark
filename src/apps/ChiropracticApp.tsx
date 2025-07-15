@@ -33,6 +33,7 @@ import AuthIQ from '@/pages/agents/AuthIQ';
 import EducationIQ from '@/pages/agents/EducationIQ';
 import MarketingIQ from '@/pages/agents/MarketingIQ';
 import ReferralIQ from '@/pages/agents/ReferralIQ';
+import ApplicationTest from '@/pages/ApplicationTest';
 
 export default function ChiropracticApp() {
   return (
@@ -247,6 +248,14 @@ export default function ChiropracticApp() {
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <OpsIQ />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/test" element={
+          <ProtectedRoute requiredRole="staff">
+            <Layout>
+              <ApplicationTest />
             </Layout>
           </ProtectedRoute>
         } />
