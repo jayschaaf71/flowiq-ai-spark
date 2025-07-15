@@ -80,9 +80,9 @@ Deno.serve(async (req) => {
       const { data: newPatient, error: patientCreateError } = await supabase
         .from('patients')
         .insert({
-          first_name: requestData.first_name,
-          last_name: requestData.last_name,
-          email: requestData.email,
+          first_name: requestData.first_name || null,
+          last_name: requestData.last_name || null,
+          email: requestData.email || null,
           phone: requestData.phone
         })
         .select('id')
