@@ -49,20 +49,36 @@ export const SpecialtyProvider: React.FC<SpecialtyProviderProps> = ({ children }
   
   // Detect specialty from current tenant first, then fallback to other sources
   const detectSpecialty = () => {
-    // Check localStorage first (highest priority - set by TenantWrapper)
     const storedSpecialty = localStorage.getItem('currentSpecialty');
+    const tenantSpecialty = currentTenant?.specialty;
+    const userSpecialty = userProfile?.specialty?.toLowerCase().replace(/\s+/g, '-');
+    
+    console.log('detectSpecialty - storedSpecialty:', storedSpecialty);
+    console.log('detectSpecialty - tenantSpecialty:', tenantSpecialty);
+    console.log('detectSpecialty - userSpecialty:', userSpecialty);
+    console.log('detectSpecialty - currentTenant:', currentTenant);
+    
+    // If tenant specialty exists and is different from stored, update localStorage
+    if (tenantSpecialty && tenantSpecialty !== storedSpecialty) {
+      console.log('Updating localStorage with tenant specialty:', tenantSpecialty);
+      localStorage.setItem('currentSpecialty', tenantSpecialty);
+      return tenantSpecialty;
+    }
+    
+    // Check localStorage first (highest priority - set by TenantWrapper)
     if (storedSpecialty) {
       return storedSpecialty;
     }
     
     // Prioritize current tenant specialty over user profile
-    if (currentTenant?.specialty) {
-      return currentTenant.specialty;
+    if (tenantSpecialty) {
+      localStorage.setItem('currentSpecialty', tenantSpecialty);
+      return tenantSpecialty;
     }
     
     // Fall back to user profile specialty
-    if (userProfile?.specialty) {
-      return userProfile.specialty.toLowerCase().replace(/\s+/g, '-');
+    if (userSpecialty) {
+      return userSpecialty;
     }
     
     // Default to chiropractic
@@ -75,6 +91,9 @@ export const SpecialtyProvider: React.FC<SpecialtyProviderProps> = ({ children }
   const theme = getSpecialtyTheme(effectiveSpecialty);
 
   const getBrandName = () => {
+    console.log('getBrandName - effectiveSpecialty:', effectiveSpecialty);
+    console.log('getBrandName - specialtyBrands mapping:', specialtyBrands[effectiveSpecialty]);
+    console.log('getBrandName - all specialtyBrands:', specialtyBrands);
     return specialtyBrands[effectiveSpecialty] || 'Flow IQ';
   };
 
