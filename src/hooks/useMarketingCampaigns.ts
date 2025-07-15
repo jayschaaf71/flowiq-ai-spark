@@ -6,13 +6,29 @@ export interface MarketingCampaign {
   tenant_id: string;
   name: string;
   description?: string;
-  campaign_type: 'email' | 'sms' | 'social_media' | 'google_ads' | 'facebook_ads' | 'mixed';
+  campaign_type: 'email' | 'sms' | 'social_media' | 'google_ads' | 'facebook_ads' | 'voice' | 'mixed';
   status: 'draft' | 'active' | 'paused' | 'completed' | 'cancelled';
   start_date?: string;
   end_date?: string;
   budget_amount?: number;
-  target_audience?: any;
+  target_audience?: {
+    age_range?: string;
+    location?: string;
+    interests?: string[];
+    lead_score_min?: number;
+    conversion_likelihood_min?: number;
+  };
   settings?: any;
+  voice_config?: {
+    vapi_assistant_id?: string;
+    phone_number?: string;
+    script_template?: string;
+    max_calls_per_day?: number;
+    call_window_start?: string;
+    call_window_end?: string;
+    retry_attempts?: number;
+    retry_delay_hours?: number;
+  };
   created_by?: string;
   created_at: string;
   updated_at: string;
@@ -36,7 +52,7 @@ export const useMarketingCampaigns = () => {
   return useQuery({
     queryKey: ['marketing-campaigns'],
     queryFn: async () => {
-      // Mock marketing campaigns data
+      // Mock marketing campaigns data - enhanced with voice campaigns
       const mockCampaigns: MarketingCampaign[] = [
         {
           id: '1',
@@ -47,6 +63,12 @@ export const useMarketingCampaigns = () => {
           status: 'active',
           start_date: '2024-01-01',
           budget_amount: 2000,
+          target_audience: {
+            age_range: '30-65',
+            location: 'Metropolitan area',
+            interests: ['back pain', 'chiropractic'],
+            lead_score_min: 60
+          },
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         },
@@ -59,6 +81,41 @@ export const useMarketingCampaigns = () => {
           status: 'active',
           start_date: '2024-01-15',
           budget_amount: 1500,
+          target_audience: {
+            age_range: '25-55',
+            location: 'Local area',
+            interests: ['wellness', 'pain relief'],
+            lead_score_min: 50
+          },
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: '3',
+          tenant_id: 'default-chiro',
+          name: 'Voice Outreach - Qualified Leads',
+          description: 'AI-powered voice calls to high-scoring leads',
+          campaign_type: 'voice',
+          status: 'active',
+          start_date: '2024-01-10',
+          budget_amount: 800,
+          target_audience: {
+            age_range: '25-70',
+            location: 'Service area',
+            interests: ['consultation'],
+            lead_score_min: 75,
+            conversion_likelihood_min: 60
+          },
+          voice_config: {
+            vapi_assistant_id: 'asst_qualified_leads_followup',
+            phone_number: '+1234567890',
+            script_template: 'qualified_lead_consultation',
+            max_calls_per_day: 25,
+            call_window_start: '09:00',
+            call_window_end: '17:00',
+            retry_attempts: 2,
+            retry_delay_hours: 24
+          },
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         }

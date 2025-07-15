@@ -47,8 +47,100 @@ interface VAPICallData {
   };
 }
 
-// Analyze call transcript and determine outcome using AI
-async function analyzeCallOutcome(transcript: string, callData: any) {
+// Extract contact information and appointment details using AI
+async function extractContactInformation(transcript: string) {
+  if (!openAIApiKey) {
+    throw new Error('OpenAI API key not configured');
+  }
+
+  const extractionPrompt = `
+Analyze the following call transcript and extract contact information and appointment details:
+
+TRANSCRIPT:
+${transcript}
+
+Please extract information and return a JSON object with the following structure:
+{
+  "contact": {
+    "first_name": "string or null",
+    "last_name": "string or null", 
+    "email": "string or null",
+    "phone": "string or null",
+    "preferred_contact_method": "phone" | "email" | "text" | null
+  },
+  "appointment": {
+    "requested": boolean,
+    "preferred_date": "YYYY-MM-DD or null",
+    "preferred_time": "HH:MM or null", 
+    "appointment_type": "consultation" | "follow_up" | "emergency" | "routine" | null,
+    "urgency": "low" | "medium" | "high" | "emergency",
+    "chief_complaint": "string or null",
+    "insurance_mentioned": boolean,
+    "insurance_provider": "string or null"
+  },
+  "booked_consultation": boolean
+}
+
+Extract only information that is explicitly mentioned in the transcript. If information is not provided, use null.
+Focus on identifying if this was a "Booked Consultation" - meaning the caller successfully scheduled an appointment.
+`;
+
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openAIApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4.1-2025-04-14',
+        messages: [
+          { role: 'system', content: 'You are an expert at extracting structured contact and appointment information from medical practice call transcripts.' },
+          { role: 'user', content: extractionPrompt }
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.1,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`OpenAI API error: ${await response.text()}`);
+    }
+
+    const result = await response.json();
+    const extracted = JSON.parse(result.choices[0].message.content);
+    
+    console.log('Contact extraction completed:', extracted);
+    return extracted;
+  } catch (error) {
+    console.error('Error extracting contact information:', error);
+    
+    // Return empty structure if extraction fails
+    return {
+      contact: {
+        first_name: null,
+        last_name: null,
+        email: null,
+        phone: null,
+        preferred_contact_method: null
+      },
+      appointment: {
+        requested: false,
+        preferred_date: null,
+        preferred_time: null,
+        appointment_type: null,
+        urgency: "medium",
+        chief_complaint: null,
+        insurance_mentioned: false,
+        insurance_provider: null
+      },
+      booked_consultation: false
+    };
+  }
+}
+
+// Analyze call transcript and determine outcome using AI (Enhanced with n8n logic)
+async function analyzeCallOutcome(transcript: string, callData: any, extractedInfo: any) {
   if (!openAIApiKey) {
     throw new Error('OpenAI API key not configured');
   }
@@ -58,6 +150,9 @@ Analyze the following call transcript and provide a structured assessment:
 
 TRANSCRIPT:
 ${transcript}
+
+EXTRACTED INFORMATION:
+${JSON.stringify(extractedInfo, null, 2)}
 
 Please analyze this call and return a JSON object with the following structure:
 {
@@ -72,17 +167,21 @@ Please analyze this call and return a JSON object with the following structure:
   "confidence_score": number between 0 and 1,
   "qualification_score": number between 0 and 100,
   "engagement_score": number between 0 and 100,
-  "conversion_likelihood": number between 0 and 100
+  "conversion_likelihood": number between 0 and 100,
+  "booked_consultation": boolean
 }
 
 Consider these factors:
 - Patient showed interest in services
-- Patient asked relevant questions
+- Patient asked relevant questions  
 - Patient provided contact information
 - Patient scheduled or expressed interest in scheduling
 - Overall tone and engagement level
 - Any pain points or concerns mentioned
 - Whether follow-up was requested or needed
+- Whether this was a "Booked Consultation" (successfully scheduled appointment)
+
+If the extracted information shows booked_consultation: true, set outcome_type to "appointment_scheduled".
 `;
 
   try {
@@ -93,7 +192,7 @@ Consider these factors:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4-1106-preview',
+        model: 'gpt-4.1-2025-04-14',
         messages: [
           { role: 'system', content: 'You are an expert call analyst for medical practice lead qualification. Provide accurate, structured analysis of patient calls.' },
           { role: 'user', content: analysisPrompt }
@@ -128,13 +227,14 @@ Consider these factors:
       confidence_score: 0.1,
       qualification_score: 50,
       engagement_score: 50,
-      conversion_likelihood: 50
+      conversion_likelihood: 50,
+      booked_consultation: false
     };
   }
 }
 
-// Find or create patient based on phone number
-async function findOrCreatePatient(supabase: any, phoneNumber: string, customerName?: string) {
+// Find or create patient with enhanced contact information and tenant support
+async function findOrCreatePatient(supabase: any, phoneNumber: string, customerName?: string, extractedContact?: any, tenantId?: string) {
   console.log('Finding or creating patient for phone:', phoneNumber);
   
   // First try to find existing patient by phone
@@ -150,13 +250,27 @@ async function findOrCreatePatient(supabase: any, phoneNumber: string, customerN
 
   if (existingPatient) {
     console.log('Found existing patient:', existingPatient.id);
+    
+    // Update patient with any new extracted information
+    if (extractedContact) {
+      const updateData: any = {};
+      if (extractedContact.email && !existingPatient.email) updateData.email = extractedContact.email;
+      if (extractedContact.first_name && !existingPatient.first_name) updateData.first_name = extractedContact.first_name;
+      if (extractedContact.last_name && !existingPatient.last_name) updateData.last_name = extractedContact.last_name;
+      
+      if (Object.keys(updateData).length > 0) {
+        await supabase.from('patients').update(updateData).eq('id', existingPatient.id);
+        console.log('Updated existing patient with new information:', updateData);
+      }
+    }
+    
     return existingPatient;
   }
 
   // Create new patient if not found
   const nameParts = customerName ? customerName.split(' ') : [];
-  const firstName = nameParts[0] || 'Unknown';
-  const lastName = nameParts.slice(1).join(' ') || 'Patient';
+  const firstName = extractedContact?.first_name || nameParts[0] || 'Unknown';
+  const lastName = extractedContact?.last_name || nameParts.slice(1).join(' ') || 'Patient';
 
   const { data: newPatient, error: createError } = await supabase
     .from('patients')
@@ -164,8 +278,10 @@ async function findOrCreatePatient(supabase: any, phoneNumber: string, customerN
       first_name: firstName,
       last_name: lastName,
       phone: phoneNumber,
+      email: extractedContact?.email || null,
       patient_number: `PAT-${Date.now()}`,
-      specialty: 'general'
+      specialty: 'general',
+      tenant_id: tenantId || null
     })
     .select()
     .single();
@@ -177,6 +293,15 @@ async function findOrCreatePatient(supabase: any, phoneNumber: string, customerN
 
   console.log('Created new patient:', newPatient.id);
   return newPatient;
+}
+
+// Get tenant ID from query parameters or headers
+function getTenantId(req: Request): string | null {
+  const url = new URL(req.url);
+  const tenantIdFromQuery = url.searchParams.get('tenant_id');
+  const tenantIdFromHeader = req.headers.get('x-tenant-id');
+  
+  return tenantIdFromQuery || tenantIdFromHeader || null;
 }
 
 serve(async (req) => {
@@ -200,6 +325,10 @@ serve(async (req) => {
       }
     }
 
+    // Get tenant ID for multi-tenant support
+    const tenantId = getTenantId(req);
+    console.log('Processing webhook for tenant:', tenantId);
+
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     const vapiData: VAPICallData = await req.json();
     
@@ -214,32 +343,52 @@ serve(async (req) => {
       });
     }
 
-    // Find or create patient
-    const phoneNumber = call.customer?.number || call.phoneNumber?.number;
-    if (!phoneNumber) {
-      throw new Error('No phone number provided in call data');
+    // Extract contact information and appointment details from transcript
+    const transcript = call.artifact?.transcript || '';
+    let extractedInfo = null;
+    let patient = null;
+
+    if (transcript.length > 10) {
+      console.log('Extracting contact information from transcript...');
+      extractedInfo = await extractContactInformation(transcript);
     }
 
-    const patient = await findOrCreatePatient(supabase, phoneNumber, call.customer?.name);
+    // Find or create patient with enhanced information
+    const phoneNumber = call.customer?.number || call.phoneNumber?.number || extractedInfo?.contact?.phone;
+    if (!phoneNumber) {
+      console.log('No phone number provided, creating anonymous call record');
+      // Create a minimal voice call record without patient association
+    } else {
+      patient = await findOrCreatePatient(
+        supabase, 
+        phoneNumber, 
+        call.customer?.name, 
+        extractedInfo?.contact,
+        tenantId
+      );
+    }
 
-    // Store voice call record
+    // Store voice call record with enhanced data
     const { data: voiceCall, error: callError } = await supabase
       .from('voice_calls')
       .insert({
         call_id: call.id,
-        patient_id: patient.id,
+        patient_id: patient?.id || null,
         call_type: call.type === 'inboundPhoneCall' ? 'inbound' : 'outbound',
         call_status: call.status,
         call_duration: call.duration || 0,
-        transcript: call.artifact?.transcript || '',
+        transcript: transcript,
         call_data: {
           startedAt: call.startedAt,
           endedAt: call.endedAt,
           cost: call.cost,
           recordingUrl: call.artifact?.recordingUrl,
           messages: call.messages,
-          analysis: call.analysis
-        }
+          analysis: call.analysis,
+          extractedInfo: extractedInfo,
+          phoneNumber: phoneNumber
+        },
+        tenant_id: tenantId
       })
       .select()
       .single();
@@ -252,11 +401,10 @@ serve(async (req) => {
     console.log('Stored voice call:', voiceCall.id);
 
     // Analyze call outcome if we have transcript
-    const transcript = call.artifact?.transcript || '';
     if (transcript.length > 10) {
       console.log('Analyzing call transcript...');
       
-      const analysis = await analyzeCallOutcome(transcript, call);
+      const analysis = await analyzeCallOutcome(transcript, call, extractedInfo);
       
       // Calculate follow-up date based on outcome
       let followUpDate = null;
@@ -265,7 +413,7 @@ serve(async (req) => {
         followUpDate = new Date(Date.now() + hoursToAdd * 60 * 60 * 1000).toISOString();
       }
 
-      // Store call outcome
+      // Store call outcome with enhanced data
       const { data: outcome, error: outcomeError } = await supabase
         .from('call_outcomes')
         .insert({
@@ -278,7 +426,8 @@ serve(async (req) => {
           follow_up_type: analysis.follow_up_type,
           follow_up_date: followUpDate,
           ai_summary: analysis.ai_summary,
-          confidence_score: analysis.confidence_score
+          confidence_score: analysis.confidence_score,
+          tenant_id: tenantId
         })
         .select()
         .single();
@@ -290,45 +439,68 @@ serve(async (req) => {
 
       console.log('Stored call outcome:', outcome.id);
 
-      // Store lead scores
-      const scores = [
-        { score_type: 'qualification', score_value: analysis.qualification_score },
-        { score_type: 'engagement', score_value: analysis.engagement_score },
-        { score_type: 'conversion_likelihood', score_value: analysis.conversion_likelihood }
-      ];
+      // Store lead scores (only if we have a patient)
+      if (patient) {
+        const scores = [
+          { score_type: 'qualification', score_value: analysis.qualification_score },
+          { score_type: 'engagement', score_value: analysis.engagement_score },
+          { score_type: 'conversion_likelihood', score_value: analysis.conversion_likelihood }
+        ];
 
-      for (const score of scores) {
-        const { error: scoreError } = await supabase
-          .from('lead_scores')
-          .insert({
-            patient_id: patient.id,
-            call_id: voiceCall.id,
-            score_type: score.score_type,
-            score_value: score.score_value,
-            score_factors: {
-              outcome_type: analysis.outcome_type,
-              sentiment_label: analysis.sentiment_label,
-              confidence_score: analysis.confidence_score
-            }
-          });
+        for (const score of scores) {
+          const { error: scoreError } = await supabase
+            .from('lead_scores')
+            .insert({
+              patient_id: patient.id,
+              call_id: voiceCall.id,
+              score_type: score.score_type,
+              score_value: score.score_value,
+              score_factors: {
+                outcome_type: analysis.outcome_type,
+                sentiment_label: analysis.sentiment_label,
+                confidence_score: analysis.confidence_score,
+                booked_consultation: analysis.booked_consultation || false
+              },
+              tenant_id: tenantId
+            });
 
-        if (scoreError) {
-          console.error(`Error storing ${score.score_type} score:`, scoreError);
+          if (scoreError) {
+            console.error(`Error storing ${score.score_type} score:`, scoreError);
+          }
         }
       }
 
-      // If qualified lead, trigger immediate follow-up processing
-      if (analysis.outcome_type === 'qualified' && analysis.follow_up_required) {
+      // If qualified lead or booked consultation, trigger immediate follow-up processing
+      if ((analysis.outcome_type === 'qualified' || analysis.outcome_type === 'appointment_scheduled' || analysis.booked_consultation) && analysis.follow_up_required) {
         try {
           await supabase.functions.invoke('process-follow-up-tasks', {
             body: { 
               trigger: 'immediate',
               outcome_id: outcome.id,
-              priority: 'high'
+              priority: analysis.booked_consultation ? 'urgent' : 'high',
+              tenant_id: tenantId,
+              extracted_info: extractedInfo
             }
           });
         } catch (error) {
           console.error('Error triggering follow-up processing:', error);
+        }
+      }
+
+      // If appointment was requested, trigger patient lifecycle orchestrator
+      if (extractedInfo?.appointment?.requested || analysis.booked_consultation) {
+        try {
+          await supabase.functions.invoke('book-appointment', {
+            body: {
+              patient_id: patient?.id,
+              appointment_data: extractedInfo?.appointment,
+              call_outcome_id: outcome.id,
+              tenant_id: tenantId,
+              source: 'vapi_call'
+            }
+          });
+        } catch (error) {
+          console.error('Error triggering appointment booking:', error);
         }
       }
     }
@@ -337,7 +509,9 @@ serve(async (req) => {
       JSON.stringify({ 
         success: true,
         call_id: voiceCall.id,
-        patient_id: patient.id,
+        patient_id: patient?.id || null,
+        tenant_id: tenantId,
+        extracted_info: extractedInfo,
         message: 'Call processed successfully'
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

@@ -1,307 +1,210 @@
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.0';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const vapiApiKey = Deno.env.get('VAPI_API_KEY');
+
+interface CampaignExecutionData {
+  campaign_id: string;
+  tenant_id: string;
+  execution_type: 'voice_outbound' | 'immediate_followup' | 'scheduled_followup';
+  target_criteria?: {
+    lead_score_min?: number;
+    conversion_likelihood_min?: number;
+    outcome_types?: string[];
+    last_contact_days_ago?: number;
+  };
+  voice_config?: {
+    assistant_id: string;
+    phone_number: string;
+    script_variables?: Record<string, any>;
+    max_calls?: number;
+  };
+}
+
+// Execute outbound voice campaign using VAPI
+async function executeOutboundVoiceCampaign(supabase: any, campaignData: CampaignExecutionData) {
+  if (!vapiApiKey) {
+    throw new Error('VAPI API key not configured');
+  }
+
+  console.log('Executing outbound voice campaign:', campaignData.campaign_id);
+
+  // Get qualified leads based on criteria
+  let query = supabase
+    .from('lead_scores')
+    .select(`
+      patient_id,
+      score_value,
+      score_type,
+      patients!inner (
+        id,
+        first_name,
+        last_name,
+        phone,
+        email,
+        tenant_id
+      )
+    `)
+    .eq('patients.tenant_id', campaignData.tenant_id)
+    .eq('score_type', 'conversion_likelihood');
+
+  if (campaignData.target_criteria?.conversion_likelihood_min) {
+    query = query.gte('score_value', campaignData.target_criteria.conversion_likelihood_min);
+  }
+
+  const { data: leads, error: leadsError } = await query.limit(campaignData.voice_config?.max_calls || 25);
+
+  if (leadsError) {
+    console.error('Error fetching leads:', leadsError);
+    throw leadsError;
+  }
+
+  console.log(`Found ${leads?.length || 0} qualified leads for outbound calls`);
+
+  const callResults = [];
+
+  // Process each lead for outbound calling
+  for (const lead of leads || []) {
+    const patient = lead.patients;
+    
+    if (!patient.phone) {
+      console.log(`Skipping patient ${patient.id} - no phone number`);
+      continue;
+    }
+
+    try {
+      // Create outbound call via VAPI
+      const vapiCall = await fetch('https://api.vapi.ai/call/phone', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${vapiApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phoneNumberId: campaignData.voice_config?.phone_number,
+          assistantId: campaignData.voice_config?.assistant_id,
+          customer: {
+            number: patient.phone,
+            name: `${patient.first_name} ${patient.last_name}`.trim(),
+          },
+          assistantOverrides: {
+            variableValues: {
+              patient_name: patient.first_name || 'there',
+              practice_name: 'our practice', // This could be dynamic based on tenant
+              ...campaignData.voice_config?.script_variables
+            }
+          },
+          metadata: {
+            tenant_id: campaignData.tenant_id,
+            campaign_id: campaignData.campaign_id,
+            patient_id: patient.id,
+            source: 'campaign_automation'
+          }
+        }),
+      });
+
+      if (!vapiCall.ok) {
+        const errorText = await vapiCall.text();
+        console.error(`Failed to create VAPI call for patient ${patient.id}:`, errorText);
+        continue;
+      }
+
+      const callResponse = await vapiCall.json();
+      console.log(`Created outbound call for ${patient.first_name} ${patient.last_name}:`, callResponse.id);
+
+      // Store the outbound call record
+      const { data: voiceCall, error: callError } = await supabase
+        .from('voice_calls')
+        .insert({
+          call_id: callResponse.id,
+          patient_id: patient.id,
+          call_type: 'outbound',
+          call_status: 'initiated',
+          call_data: {
+            campaign_id: campaignData.campaign_id,
+            vapi_call_data: callResponse,
+            lead_score: lead.score_value
+          },
+          tenant_id: campaignData.tenant_id
+        })
+        .select()
+        .single();
+
+      if (callError) {
+        console.error('Error storing voice call record:', callError);
+      } else {
+        callResults.push({
+          patient_id: patient.id,
+          voice_call_id: voiceCall.id,
+          vapi_call_id: callResponse.id,
+          status: 'initiated'
+        });
+      }
+
+      // Add delay between calls to avoid overwhelming the system
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+    } catch (error) {
+      console.error(`Error creating call for patient ${patient.id}:`, error);
+    }
+  }
+
+  return {
+    campaign_id: campaignData.campaign_id,
+    calls_initiated: callResults.length,
+    results: callResults
+  };
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response('ok', { headers: corsHeaders });
   }
 
   try {
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const campaignData: CampaignExecutionData = await req.json();
+    
+    console.log('Campaign automation request:', campaignData);
 
-    const { action, campaign_id, automation_data } = await req.json();
+    let result;
 
-    switch (action) {
-      case 'process_automation_rules':
-        return await processAutomationRules(supabase);
-      
-      case 'send_campaign_emails':
-        return await sendCampaignEmails(supabase, campaign_id, automation_data);
-      
-      case 'send_campaign_sms':
-        return await sendCampaignSMS(supabase, campaign_id, automation_data);
-      
-      case 'track_campaign_performance':
-        return await trackCampaignPerformance(supabase, campaign_id);
+    switch (campaignData.execution_type) {
+      case 'voice_outbound':
+        result = await executeOutboundVoiceCampaign(supabase, campaignData);
+        break;
       
       default:
-        throw new Error('Invalid action specified');
+        throw new Error(`Unsupported execution type: ${campaignData.execution_type}`);
     }
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        ...result
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
 
   } catch (error) {
     console.error('Campaign automation error:', error);
-    return new Response(JSON.stringify({ 
-      success: false, 
-      error: error.message 
-    }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({ 
+        error: error.message,
+        success: false 
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
   }
 });
-
-async function processAutomationRules(supabase: any) {
-  // Get active automation rules
-  const { data: rules, error: rulesError } = await supabase
-    .from('marketing_automation_rules')
-    .select('*')
-    .eq('is_active', true);
-
-  if (rulesError) throw rulesError;
-
-  const results = [];
-
-  for (const rule of rules) {
-    try {
-      let triggerQuery;
-      
-      switch (rule.trigger_type) {
-        case 'new_patient':
-          triggerQuery = supabase
-            .from('patients')
-            .select('*')
-            .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
-          break;
-          
-        case 'appointment_booked':
-          triggerQuery = supabase
-            .from('appointments')
-            .select('*, patients(*)')
-            .eq('status', 'scheduled')
-            .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
-          break;
-          
-        case 'birthday':
-          const today = new Date();
-          const birthdayQuery = `${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
-          triggerQuery = supabase
-            .from('patients')
-            .select('*')
-            .like('date_of_birth', `%-${birthdayQuery}`);
-          break;
-          
-        default:
-          continue;
-      }
-
-      const { data: triggerData, error: triggerError } = await triggerQuery;
-      if (triggerError) throw triggerError;
-
-      // Process actions for triggered records
-      for (const record of triggerData) {
-        await executeAutomationAction(supabase, rule, record);
-      }
-
-      results.push({
-        rule_id: rule.id,
-        rule_name: rule.name,
-        triggered_count: triggerData.length,
-        status: 'success'
-      });
-
-    } catch (error) {
-      results.push({
-        rule_id: rule.id,
-        rule_name: rule.name,
-        triggered_count: 0,
-        status: 'error',
-        error: error.message
-      });
-    }
-  }
-
-  return new Response(JSON.stringify({ 
-    success: true, 
-    results 
-  }), {
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-  });
-}
-
-async function executeAutomationAction(supabase: any, rule: any, record: any) {
-  const config = rule.action_config || {};
-  
-  switch (rule.action_type) {
-    case 'send_email':
-      await supabase.functions.invoke('send-communication', {
-        body: {
-          type: 'email',
-          recipient: record.email || record.patients?.email,
-          subject: config.subject || 'Message from your healthcare provider',
-          template: config.template || 'default',
-          variables: {
-            name: record.first_name || record.patients?.first_name,
-            ...config.variables
-          }
-        }
-      });
-      break;
-      
-    case 'send_sms':
-      await supabase.functions.invoke('send-communication', {
-        body: {
-          type: 'sms',
-          recipient: record.phone || record.patients?.phone,
-          message: config.message || 'You have a message from your healthcare provider',
-          variables: {
-            name: record.first_name || record.patients?.first_name,
-            ...config.variables
-          }
-        }
-      });
-      break;
-      
-    case 'create_task':
-      await supabase
-        .from('tasks')
-        .insert({
-          title: config.task_title || 'Automated task',
-          description: config.task_description,
-          assigned_to: config.assigned_to,
-          due_date: new Date(Date.now() + (config.due_days || 1) * 24 * 60 * 60 * 1000).toISOString(),
-          priority: config.priority || 'medium',
-          related_record_id: record.id,
-          related_record_type: rule.trigger_type
-        });
-      break;
-  }
-}
-
-async function sendCampaignEmails(supabase: any, campaignId: string, automationData: any) {
-  // Implementation for bulk email sending
-  const { data: campaign } = await supabase
-    .from('marketing_campaigns')
-    .select('*')
-    .eq('id', campaignId)
-    .single();
-
-  const recipients = automationData.recipients || [];
-  const results = [];
-
-  for (const recipient of recipients) {
-    try {
-      await supabase.functions.invoke('send-communication', {
-        body: {
-          type: 'email',
-          recipient: recipient.email,
-          subject: automationData.subject,
-          template: automationData.template,
-          variables: {
-            name: recipient.name,
-            ...automationData.variables
-          }
-        }
-      });
-
-      // Log the communication
-      await supabase
-        .from('communication_logs')
-        .insert({
-          type: 'email',
-          recipient: recipient.email,
-          subject: automationData.subject,
-          template_id: automationData.template,
-          status: 'sent',
-          metadata: { campaign_id: campaignId }
-        });
-
-      results.push({ recipient: recipient.email, status: 'sent' });
-    } catch (error) {
-      results.push({ recipient: recipient.email, status: 'failed', error: error.message });
-    }
-  }
-
-  return new Response(JSON.stringify({ 
-    success: true, 
-    results 
-  }), {
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-  });
-}
-
-async function sendCampaignSMS(supabase: any, campaignId: string, automationData: any) {
-  // Similar implementation for SMS campaigns
-  const recipients = automationData.recipients || [];
-  const results = [];
-
-  for (const recipient of recipients) {
-    try {
-      await supabase.functions.invoke('send-communication', {
-        body: {
-          type: 'sms',
-          recipient: recipient.phone,
-          message: automationData.message,
-          variables: {
-            name: recipient.name,
-            ...automationData.variables
-          }
-        }
-      });
-
-      await supabase
-        .from('communication_logs')
-        .insert({
-          type: 'sms',
-          recipient: recipient.phone,
-          message: automationData.message,
-          status: 'sent',
-          metadata: { campaign_id: campaignId }
-        });
-
-      results.push({ recipient: recipient.phone, status: 'sent' });
-    } catch (error) {
-      results.push({ recipient: recipient.phone, status: 'failed', error: error.message });
-    }
-  }
-
-  return new Response(JSON.stringify({ 
-    success: true, 
-    results 
-  }), {
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-  });
-}
-
-async function trackCampaignPerformance(supabase: any, campaignId: string) {
-  // Get recent communication logs for this campaign
-  const { data: logs } = await supabase
-    .from('communication_logs')
-    .select('*')
-    .eq('metadata->>campaign_id', campaignId)
-    .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
-
-  const emailsSent = logs?.filter(log => log.type === 'email' && log.status === 'sent').length || 0;
-  const smsSent = logs?.filter(log => log.type === 'sms' && log.status === 'sent').length || 0;
-
-  // Update campaign analytics
-  await supabase
-    .from('campaign_analytics')
-    .upsert({
-      campaign_id: campaignId,
-      metric_date: new Date().toISOString().split('T')[0],
-      leads_generated: emailsSent + smsSent, // Simplified tracking
-      metadata: {
-        emails_sent: emailsSent,
-        sms_sent: smsSent,
-        last_updated: new Date().toISOString()
-      }
-    });
-
-  return new Response(JSON.stringify({ 
-    success: true, 
-    performance: {
-      emails_sent: emailsSent,
-      sms_sent: smsSent
-    }
-  }), {
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-  });
-}
