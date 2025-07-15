@@ -120,8 +120,8 @@ export const PlatformUsers = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {users.map((user) => (
-                <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
+              {users.map((user, index) => (
+                <div key={`${user.id}-${user.status}-${index}`} className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex items-center space-x-4">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
                       <User className="h-5 w-5 text-primary" />

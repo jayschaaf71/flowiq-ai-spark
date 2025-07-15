@@ -201,9 +201,11 @@ export const useTenantManagement = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tenants'] });
+      queryClient.invalidateQueries({ queryKey: ['user-tenants'] });
       toast({ title: 'Tenant created successfully' });
     },
     onError: (error) => {
+      console.error('Create tenant error:', error);
       toast({ 
         title: 'Failed to create tenant', 
         description: error.message,
@@ -237,9 +239,11 @@ export const useTenantManagement = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tenants'] });
+      queryClient.invalidateQueries({ queryKey: ['user-tenants'] });
       toast({ title: 'Tenant updated successfully' });
     },
     onError: (error) => {
+      console.error('Update tenant error:', error);
       toast({ 
         title: 'Failed to update tenant', 
         description: error.message,

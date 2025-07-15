@@ -48,32 +48,36 @@ export const TenantCreateDialog: React.FC = () => {
 
   const { createTenant, isCreating } = useTenantManagement();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const tenantData = {
-      ...formData,
-      is_active: true
-    };
-    
-    createTenant(tenantData);
-    setOpen(false);
-    setFormData({
-      name: '',
-      slug: '',
-      brand_name: '',
-      tagline: '',
-      specialty: 'Healthcare',
-      subscription_tier: 'basic',
-      primary_color: '#3B82F6',
-      secondary_color: '#06B6D4',
-      custom_branding_enabled: false,
-      api_access_enabled: false,
-      white_label_enabled: false,
-      max_forms: 10,
-      max_submissions: 1000,
-      max_users: 5
-    });
+    try {
+      const tenantData = {
+        ...formData,
+        is_active: true
+      };
+      
+      await createTenant(tenantData);
+      setOpen(false);
+      setFormData({
+        name: '',
+        slug: '',
+        brand_name: '',
+        tagline: '',
+        specialty: 'Healthcare',
+        subscription_tier: 'basic',
+        primary_color: '#3B82F6',
+        secondary_color: '#06B6D4',
+        custom_branding_enabled: false,
+        api_access_enabled: false,
+        white_label_enabled: false,
+        max_forms: 10,
+        max_submissions: 1000,
+        max_users: 5
+      });
+    } catch (error) {
+      console.error('Error creating tenant:', error);
+    }
   };
 
   return (
