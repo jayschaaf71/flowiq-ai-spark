@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/useAuth';
 import { useTenantConfig } from '@/utils/enhancedTenantConfig';
+import { TenantSwitcher } from '@/components/tenant/TenantSwitcher';
 import { 
   Stethoscope, 
   Brain,
@@ -25,7 +26,9 @@ import {
   MessageSquare,
   Clock,
   TrendingUp,
-  CheckCircle
+  CheckCircle,
+  Settings,
+  Building2
 } from 'lucide-react';
 
 const MainDashboard = () => {
@@ -36,7 +39,7 @@ const MainDashboard = () => {
 
   const specialties = [
     {
-      id: 'chiropractic',
+      id: 'chiropractic-care',
       name: 'Chiropractic Care',
       description: 'Spine & musculoskeletal treatment',
       icon: Activity,
@@ -47,7 +50,7 @@ const MainDashboard = () => {
       satisfaction: '98%'
     },
     {
-      id: 'dental-sleep',
+      id: 'dental-sleep-medicine',
       name: 'Dental Sleep Medicine',
       description: 'Sleep apnea & oral appliance therapy',
       icon: Brain,
@@ -125,10 +128,38 @@ const MainDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      {/* Header with Tenant Switcher */}
+      <div className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg">
+                <Building2 className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold">Flow IQ Platform</h2>
+                <p className="text-sm text-muted-foreground">Multi-Specialty Practice Management</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <TenantSwitcher />
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate('/platform-admin')}
+              >
+                <Settings className="h-4 w-4 mr-2" />
+                Admin
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Hero Section */}
       <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700">
         <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative max-w-7xl mx-auto px-6 py-20">
+        <div className="relative max-w-7xl mx-auto px-6 py-16">
           <div className="text-center">
             <div className="flex justify-center mb-6">
               <div className="p-3 bg-white/10 rounded-full backdrop-blur-sm">
@@ -398,15 +429,23 @@ const MainDashboard = () => {
                     Welcome back, {profile.first_name || user?.email?.split('@')[0]}!
                   </h3>
                   <p className="text-muted-foreground">
-                    Role: {profile.role} | Current Tenant: {tenantConfig?.tenantConfig?.brand_name || 'Not selected'}
+                    Role: {profile.role} | Current Practice: {tenantConfig?.tenantConfig?.brand_name || 'Flow IQ Platform'}
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => navigate('/settings')}>
-                    Settings
+                  <Button 
+                    variant="outline" 
+                    onClick={() => navigate('/platform-admin')}
+                  >
+                    Platform Settings
                   </Button>
-                  <Button onClick={() => navigate(`/${tenantConfig?.tenantConfig?.specialty || 'chiropractic'}/dashboard`)}>
-                    Go to Dashboard
+                  <Button 
+                    onClick={() => {
+                      const specialty = tenantConfig?.tenantConfig?.specialty || 'chiropractic';
+                      navigate(`/${specialty}/dashboard`);
+                    }}
+                  >
+                    Go to Current Practice
                   </Button>
                 </div>
               </div>

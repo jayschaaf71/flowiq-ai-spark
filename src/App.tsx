@@ -85,12 +85,12 @@ function App() {
                     <Route path="/dental-sleep/*" element={<DentalSleepApp />} />
                     <Route path="/general-dentistry/*" element={<GeneralDentistryApp />} />
                     <Route path="/orthodontics/*" element={<OrthodonticsApp />} />
+                    <Route path="/physical-therapy/*" element={<PhysicalTherapyApp />} />
+                    <Route path="/mental-health/*" element={<MentalHealthApp />} />
                     <Route path="/veterinary/*" element={<VeterinaryApp />} />
                     <Route path="/concierge-medicine/*" element={<ConciergeMedicineApp />} />
                     <Route path="/hrt/*" element={<HRTApp />} />
                     <Route path="/medspa/*" element={<MedspaApp />} />
-                    <Route path="/physical-therapy/*" element={<PhysicalTherapyApp />} />
-                    <Route path="/mental-health/*" element={<MentalHealthApp />} />
                     <Route path="/dermatology/*" element={<DermatologyApp />} />
                     <Route path="/urgent-care/*" element={<UrgentCareApp />} />
                     <Route path="/communication-iq/*" element={<CommunicationIQApp />} />
