@@ -61,12 +61,45 @@ const MainDashboard = () => {
       id: 'general-dentistry',
       name: 'General Dentistry',
       description: 'Comprehensive dental care',
-      icon: Users,
+      icon: Stethoscope,
       color: 'bg-gradient-to-br from-blue-500 to-cyan-600',
       path: '/general-dentistry/dashboard',
       features: ['Preventive Care', 'Restorative', 'Cosmetic', 'Emergency'],
       patients: '3,200+',
       satisfaction: '97%'
+    },
+    {
+      id: 'orthodontics',
+      name: 'Orthodontics',
+      description: 'Teeth alignment & bite correction',
+      icon: Users,
+      color: 'bg-gradient-to-br from-orange-500 to-red-600',
+      path: '/orthodontics/dashboard',
+      features: ['Braces', 'Invisalign', 'Retainers', 'Bite Correction'],
+      patients: '1,500+',
+      satisfaction: '99%'
+    },
+    {
+      id: 'physical-therapy',
+      name: 'Physical Therapy',
+      description: 'Movement & rehabilitation therapy',
+      icon: Activity,
+      color: 'bg-gradient-to-br from-teal-500 to-green-600',
+      path: '/physical-therapy/dashboard',
+      features: ['Exercise Programs', 'Manual Therapy', 'Injury Recovery', 'Sports Medicine'],
+      patients: '2,100+',
+      satisfaction: '95%'
+    },
+    {
+      id: 'mental-health',
+      name: 'Mental Health',
+      description: 'Counseling & psychological services',
+      icon: Brain,
+      color: 'bg-gradient-to-br from-indigo-500 to-purple-600',
+      path: '/mental-health/dashboard',
+      features: ['Therapy Sessions', 'Assessment Tools', 'Treatment Plans', 'Progress Tracking'],
+      patients: '950+',
+      satisfaction: '94%'
     }
   ];
 
@@ -75,7 +108,12 @@ const MainDashboard = () => {
     { name: 'Scribe iQ', icon: Stethoscope, description: 'Clinical documentation', status: 'active' },
     { name: 'Marketing iQ', icon: TrendingUp, description: 'Patient acquisition', status: 'active' },
     { name: 'Claims iQ', icon: DollarSign, description: 'Revenue cycle', status: 'active' },
-    { name: 'Communication iQ', icon: MessageSquare, description: 'Multi-channel communication', status: 'new' }
+    { name: 'Communication iQ', icon: MessageSquare, description: 'Multi-channel communication', status: 'new' },
+    { name: 'Insurance iQ', icon: Shield, description: 'Benefits verification & authorization', status: 'active' },
+    { name: 'Analytics iQ', icon: BarChart3, description: 'Business intelligence & reporting', status: 'active' },
+    { name: 'Voice iQ', icon: Phone, description: 'AI voice assistants & call automation', status: 'active' },
+    { name: 'Workflow iQ', icon: Zap, description: 'Process automation & optimization', status: 'active' },
+    { name: 'Compliance iQ', icon: CheckCircle, description: 'Regulatory compliance monitoring', status: 'active' }
   ];
 
   const quickStats = [
@@ -90,15 +128,15 @@ const MainDashboard = () => {
       {/* Hero Section */}
       <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700">
         <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative max-w-7xl mx-auto px-6 py-16">
+        <div className="relative max-w-7xl mx-auto px-6 py-20">
           <div className="text-center">
             <div className="flex justify-center mb-6">
               <div className="p-3 bg-white/10 rounded-full backdrop-blur-sm">
                 <Sparkles className="h-8 w-8 text-white" />
               </div>
             </div>
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-              Welcome to <span className="bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">FlowIQ</span>
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-8 leading-tight">
+              Welcome to <span className="bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">Flow IQ</span>
             </h1>
             <p className="text-xl text-white/90 mb-8 max-w-3xl mx-auto">
               AI-powered practice management for healthcare professionals. Choose your specialty to access intelligent workflows, automation, and insights.
