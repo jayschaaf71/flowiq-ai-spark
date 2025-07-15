@@ -21,8 +21,24 @@ import {
 } from 'lucide-react';
 
 export const MarketingDashboard = () => {
-  const { data: analytics, isLoading } = useMarketingAnalytics();
+  const { data: analytics, isLoading, error } = useMarketingAnalytics();
   const [activeTab, setActiveTab] = useState('campaigns');
+
+  console.log('MarketingDashboard rendering:', { analytics, isLoading, error });
+
+  if (error) {
+    console.error('Marketing analytics error:', error);
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="text-center">
+          <h2 className="text-lg font-semibold text-destructive">Error Loading Marketing Dashboard</h2>
+          <p className="text-sm text-muted-foreground mt-2">
+            {error instanceof Error ? error.message : 'An unknown error occurred'}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
