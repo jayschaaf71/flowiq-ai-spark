@@ -47,7 +47,7 @@ export const SpecialtyProvider: React.FC<SpecialtyProviderProps> = ({ children }
   const { currentTenant } = useCurrentTenant();
   const { data: userProfile } = useUserProfile();
   
-  // Detect specialty from localStorage first (set by TenantWrapper), then fallback to other sources
+  // Detect specialty from current tenant first, then fallback to other sources
   const detectSpecialty = () => {
     // Check localStorage first (highest priority - set by TenantWrapper)
     const storedSpecialty = localStorage.getItem('currentSpecialty');
@@ -55,14 +55,14 @@ export const SpecialtyProvider: React.FC<SpecialtyProviderProps> = ({ children }
       return storedSpecialty;
     }
     
+    // Prioritize current tenant specialty over user profile
+    if (currentTenant?.specialty) {
+      return currentTenant.specialty;
+    }
+    
     // Fall back to user profile specialty
     if (userProfile?.specialty) {
       return userProfile.specialty.toLowerCase().replace(/\s+/g, '-');
-    }
-    
-    // Fall back to tenant specialty
-    if (currentTenant?.specialty) {
-      return currentTenant.specialty;
     }
     
     // Default to chiropractic
