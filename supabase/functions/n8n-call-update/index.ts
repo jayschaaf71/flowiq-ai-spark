@@ -3,14 +3,16 @@ import { corsHeaders } from '../_shared/cors.ts'
 
 console.log("N8N Call Update function started")
 
-interface N8NCallData {
+interface VAPICallData {
   call_id: string
   status: string
-  first_name: string
-  last_name: string
-  email: string
-  phone: string
   transcript: string
+  timestamp?: string
+  // Customer data is optional since VAPI doesn't always provide it
+  first_name?: string
+  last_name?: string
+  email?: string
+  phone?: string
 }
 
 Deno.serve(async (req) => {
@@ -32,13 +34,13 @@ Deno.serve(async (req) => {
     }
 
     // Parse request body
-    const requestData: N8NCallData = await req.json()
-    console.log('Received N8N webhook data:', requestData)
+    const requestData: VAPICallData = await req.json()
+    console.log('Received VAPI webhook data:', requestData)
 
-    // Validate required fields
-    if (!requestData.call_id || !requestData.status || !requestData.phone) {
+    // Validate required fields (only call_id and status are required now)
+    if (!requestData.call_id || !requestData.status) {
       return new Response(
-        JSON.stringify({ error: 'Missing required fields: call_id, status, and phone are required' }),
+        JSON.stringify({ error: 'Missing required fields: call_id and status are required' }),
         { 
           status: 400, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -51,39 +53,43 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     const supabase = createClient(supabaseUrl, supabaseKey)
 
-    // Step 1: Check if patient exists by phone number, if not create new patient
-    let patientId: string
+    // Step 1: Handle patient identification and creation
+    let patientId: string | null = null
     
-    const { data: existingPatient, error: patientSearchError } = await supabase
-      .from('patients')
-      .select('id')
-      .eq('phone', requestData.phone)
-      .maybeSingle()
+    // If phone number is provided, try to find existing patient
+    if (requestData.phone) {
+      const { data: existingPatient, error: patientSearchError } = await supabase
+        .from('patients')
+        .select('id')
+        .eq('phone', requestData.phone)
+        .maybeSingle()
 
-    if (patientSearchError) {
-      console.error('Error searching for patient:', patientSearchError)
-      return new Response(
-        JSON.stringify({ error: 'Failed to search for existing patient', details: patientSearchError.message }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      )
+      if (patientSearchError) {
+        console.error('Error searching for patient:', patientSearchError)
+        return new Response(
+          JSON.stringify({ error: 'Failed to search for existing patient', details: patientSearchError.message }),
+          { 
+            status: 500, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          }
+        )
+      }
+
+      if (existingPatient) {
+        patientId = existingPatient.id
+        console.log('Found existing patient:', patientId)
+      }
     }
 
-    if (existingPatient) {
-      // Patient exists, use their ID
-      patientId = existingPatient.id
-      console.log('Found existing patient:', patientId)
-    } else {
-      // Patient doesn't exist, create new one
+    // If no patient found or no phone provided, create new patient (only if we have some patient data)
+    if (!patientId && (requestData.phone || requestData.email || requestData.first_name || requestData.last_name)) {
       const { data: newPatient, error: patientCreateError } = await supabase
         .from('patients')
         .insert({
           first_name: requestData.first_name || null,
           last_name: requestData.last_name || null,
           email: requestData.email || null,
-          phone: requestData.phone,
+          phone: requestData.phone || null,
           tenant_id: null
         })
         .select('id')
