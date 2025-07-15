@@ -35,10 +35,10 @@ const specialtyOptions: SpecialtyOption[] = [
     specialty: 'dental-sleep-medicine'
   },
   {
-    id: 'appointment',
-    name: 'Smart Scheduling',
-    brandName: 'Appointment IQ',
-    description: 'AI-powered scheduling and booking',
+    id: 'communication',
+    name: 'Smart Communication',
+    brandName: 'Communication IQ',
+    description: 'AI-powered communication system for any business',
     color: 'indigo',
     specialty: 'appointment-scheduling'
   }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { StandaloneAppointmentIQ } from '@/components/standalone/StandaloneAppointmentIQ';
+import { StandaloneCommunicationIQ } from '@/components/standalone/StandaloneCommunicationIQ';
 import { Toaster } from '@/components/ui/toaster';
 import '@/index.css';
 
@@ -8,7 +8,7 @@ import '@/index.css';
 const tenantConfig = {
   branding: {
     primaryColor: '#3b82f6',
-    name: 'AppointmentIQ',
+    name: 'Communication IQ',
     logo: '/logo.png'
   },
   features: {
@@ -29,7 +29,7 @@ if (container) {
   const root = createRoot(container);
   root.render(
     <React.StrictMode>
-      <StandaloneAppointmentIQ tenantConfig={tenantConfig} />
+      <StandaloneCommunicationIQ tenantConfig={tenantConfig} />
       <Toaster />
     </React.StrictMode>
   );

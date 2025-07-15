@@ -19,7 +19,7 @@ import PhysicalTherapyApp from './apps/PhysicalTherapyApp';
 import MentalHealthApp from './apps/MentalHealthApp';
 import DermatologyApp from './apps/DermatologyApp';
 import UrgentCareApp from './apps/UrgentCareApp';
-import AppointmentIQApp from './apps/AppointmentIQApp';
+import CommunicationIQApp from './apps/CommunicationIQApp';
 import SalesIQApp from './apps/SalesIQApp';
 
 // Shared pages
@@ -93,7 +93,7 @@ function App() {
                     <Route path="/mental-health/*" element={<MentalHealthApp />} />
                     <Route path="/dermatology/*" element={<DermatologyApp />} />
                     <Route path="/urgent-care/*" element={<UrgentCareApp />} />
-                    <Route path="/appointment-iq/*" element={<AppointmentIQApp />} />
+                    <Route path="/communication-iq/*" element={<CommunicationIQApp />} />
                     <Route path="/sales-iq/*" element={<SalesIQApp />} />
 
                     {/* Patient Routes */}
@@ -214,9 +214,9 @@ function App() {
                                 <h3 className="font-semibold text-amber-800">Urgent Care</h3>
                                 <p className="text-sm text-amber-600">Immediate medical care</p>
                               </a>
-                              <a href="/appointment-iq" className="col-span-full block p-6 bg-gradient-to-r from-blue-100 to-purple-100 rounded-lg hover:from-blue-200 hover:to-purple-200 border-2 border-dashed border-blue-300 transition-colors">
-                                <h3 className="font-semibold text-blue-800 text-lg">AppointmentIQ Standalone</h3>
-                                <p className="text-blue-600">AI-powered scheduling system for any practice</p>
+                              <a href="/communication-iq" className="col-span-full block p-6 bg-gradient-to-r from-blue-100 to-purple-100 rounded-lg hover:from-blue-200 hover:to-purple-200 border-2 border-dashed border-blue-300 transition-colors">
+                                <h3 className="font-semibold text-blue-800 text-lg">Communication IQ</h3>
+                                <p className="text-blue-600">AI-powered communication system for any business</p>
                               </a>
                             </div>
                           </div>

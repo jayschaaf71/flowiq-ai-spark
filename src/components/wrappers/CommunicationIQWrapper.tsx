@@ -2,7 +2,7 @@ import React from 'react';
 import { SpecialtyProvider } from '@/contexts/SpecialtyContext';
 import { TenantProtectedRoute } from '@/components/auth/TenantProtectedRoute';
 
-interface AppointmentIQWrapperProps {
+interface CommunicationIQWrapperProps {
   children: React.ReactNode;
   mode?: 'integrated' | 'standalone';
   tenantConfig?: {
@@ -11,22 +11,10 @@ interface AppointmentIQWrapperProps {
       logo?: string;
       name?: string;
     };
-    features?: {
-      voiceBooking?: boolean;
-      aiConflictResolution?: boolean;
-      multiProvider?: boolean;
-      waitlistManagement?: boolean;
-    };
-    integrations?: {
-      calendar?: 'google' | 'outlook' | 'apple';
-      ehr?: string;
-      sms?: boolean;
-      email?: boolean;
-    };
   };
 }
 
-export const AppointmentIQWrapper: React.FC<AppointmentIQWrapperProps> = ({ 
+export const CommunicationIQWrapper: React.FC<CommunicationIQWrapperProps> = ({ 
   children, 
   mode = 'integrated',
   tenantConfig 
@@ -36,25 +24,25 @@ export const AppointmentIQWrapper: React.FC<AppointmentIQWrapperProps> = ({
   // Standalone mode has different auth requirements and styling
   if (isStandalone) {
     return (
-      <div className="appointmentiq-standalone">
+      <div className="communicationiq-standalone">
         <style>{`
-          .appointmentiq-standalone {
+          .communicationiq-standalone {
             --primary: 214 100% 59%;
             --primary-foreground: 0 0% 98%;
             --secondary: 214 95% 69%;
             --secondary-foreground: 214 10% 10%;
-            --accent: 214 100% 91%;
+            --accent: 214 100% 94%;
             --accent-foreground: 214 10% 10%;
             --muted: 214 30% 95%;
             --muted-foreground: 214 5% 45%;
             --border: 214 30% 82%;
             --card: 0 0% 100%;
             --card-foreground: 214 10% 10%;
-            --brand-name: "${tenantConfig?.branding?.name || 'AppointmentIQ'}";
-            --specialty-features: "voice-booking, ai-scheduling, conflict-resolution, waitlist";
+            --brand-name: "${tenantConfig?.branding?.name || 'Communication IQ'}";
+            --specialty-features: "smart-communication, ai-scheduling, customer-support, multi-channel";
           }
           
-          .appointmentiq-standalone-header {
+          .communicationiq-standalone-header {
             background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
             color: hsl(var(--primary-foreground));
             padding: 1.5rem;
@@ -63,36 +51,34 @@ export const AppointmentIQWrapper: React.FC<AppointmentIQWrapperProps> = ({
             margin-bottom: 2rem;
           }
           
-          .appointmentiq-standalone-content {
+          .communicationiq-standalone-content {
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 1rem;
           }
           
-          .appointmentiq-specialty-badge {
+          .communicationiq-specialty-badge {
             background: hsl(var(--accent));
             color: hsl(var(--accent-foreground));
             padding: 0.25rem 0.75rem;
             border-radius: 9999px;
             font-size: 0.875rem;
             font-weight: 500;
-            margin-top: 0.5rem;
-            display: inline-block;
           }
         `}</style>
         
         {/* Standalone header */}
-        <div className="appointmentiq-standalone-header">
+        <div className="communicationiq-standalone-header">
           <h1 className="text-3xl font-bold mb-2">
-            {tenantConfig?.branding?.name || 'AppointmentIQ'}
+            {tenantConfig?.branding?.name || 'Communication IQ'}
           </h1>
-          <p className="opacity-90 text-lg mb-3">AI-Powered Appointment Scheduling</p>
-          <span className="appointmentiq-specialty-badge">
-            Smart Scheduling Platform
+          <p className="opacity-90 text-lg mb-3">AI-Powered Communication System for Any Business</p>
+          <span className="communicationiq-specialty-badge">
+            Smart Communication Platform
           </span>
         </div>
         
-        <div className="appointmentiq-standalone-content">
+        <div className="communicationiq-standalone-content">
           {children}
         </div>
       </div>
@@ -103,28 +89,34 @@ export const AppointmentIQWrapper: React.FC<AppointmentIQWrapperProps> = ({
   return (
     <TenantProtectedRoute requiredRole="staff">
       <SpecialtyProvider>
-        <div className="appointmentiq-integrated">
+        <div className="communicationiq-integrated">
           <style>{`
-            .appointmentiq-integrated {
+            .communicationiq-integrated {
               --primary: 214 100% 59%;
               --primary-foreground: 0 0% 98%;
               --secondary: 214 95% 69%;
               --secondary-foreground: 214 10% 10%;
-              --accent: 214 100% 91%;
+              --accent: 214 100% 94%;
               --accent-foreground: 214 10% 10%;
-              --brand-name: "AppointmentIQ";
-              --specialty-features: "voice-booking, ai-scheduling, conflict-resolution";
+              --muted: 214 30% 95%;
+              --muted-foreground: 214 5% 45%;
+              --border: 214 30% 82%;
+              --card: 0 0% 100%;
+              --card-foreground: 214 10% 10%;
+              --brand-name: "Communication IQ";
+              --specialty-features: "smart-communication, ai-scheduling, customer-support, automation";
             }
             
-            .appointmentiq-integrated-header {
+            .communicationiq-integrated-header {
               background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
               color: hsl(var(--primary-foreground));
               padding: 1rem;
               border-radius: 0.5rem;
               margin-bottom: 1.5rem;
+              text-align: center;
             }
             
-            .appointmentiq-integrated-badge {
+            .communicationiq-specialty-badge {
               background: hsl(var(--accent));
               color: hsl(var(--accent-foreground));
               padding: 0.25rem 0.75rem;
@@ -134,15 +126,12 @@ export const AppointmentIQWrapper: React.FC<AppointmentIQWrapperProps> = ({
             }
           `}</style>
           
-          {/* AppointmentIQ Header */}
-          <div className="appointmentiq-integrated-header">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-xl font-bold">AppointmentIQ</h1>
-                <p className="opacity-90 text-sm">AI-powered scheduling and booking</p>
-              </div>
-              <span className="appointmentiq-integrated-badge">
-                Smart Scheduling
+          <div className="communicationiq-integrated-header">
+            <h2 className="text-xl font-semibold mb-2">Communication IQ</h2>
+            <p className="opacity-90 mb-2">AI-Powered Communication System</p>
+            <div className="flex justify-center">
+              <span className="communicationiq-specialty-badge">
+                Smart Communication Platform
               </span>
             </div>
           </div>
