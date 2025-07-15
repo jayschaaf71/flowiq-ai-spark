@@ -157,19 +157,46 @@ export const useTenantManagement = () => {
     return tenantUser?.tenants as Tenant;
   };
 
-  // Create tenant mutation - mock implementation
+  // Create tenant mutation
   const createTenantMutation = useMutation({
     mutationFn: async (tenantData: Omit<Tenant, 'id' | 'created_at' | 'updated_at'>) => {
-      // Mock tenant creation since table doesn't exist
-      console.log('Mock creating tenant:', tenantData);
+      const { data, error } = await supabase
+        .from('tenants')
+        .insert({
+          name: tenantData.name,
+          subdomain: tenantData.slug,
+          business_name: tenantData.brand_name,
+          specialty: tenantData.specialty,
+          practice_type: 'specialty_clinic',
+          primary_color: tenantData.primary_color,
+          secondary_color: tenantData.secondary_color,
+          owner_id: user!.id,
+          is_active: tenantData.is_active,
+          settings: {
+            branding: {
+              custom_colors: tenantData.custom_branding_enabled,
+              custom_logo: tenantData.custom_branding_enabled,
+              white_label: tenantData.white_label_enabled
+            },
+            features: {
+              analytics: true,
+              appointments: true,
+              communication: true,
+              intake_forms: true,
+              patients: true,
+              team_management: true
+            },
+            notifications: {
+              appointment_reminders: true,
+              email_enabled: true,
+              sms_enabled: true
+            }
+          }
+        })
+        .select()
+        .single();
       
-      const data: Tenant = {
-        ...tenantData,
-        id: Date.now().toString(),
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-      
+      if (error) throw new Error(error.message);
       return data;
     },
     onSuccess: () => {
@@ -185,18 +212,27 @@ export const useTenantManagement = () => {
     },
   });
 
-  // Update tenant mutation - mock implementation
+  // Update tenant mutation
   const updateTenantMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<Tenant> }) => {
-      // Mock tenant update since table doesn't exist
-      console.log('Mock updating tenant:', id, updates);
+      const updateData: any = {};
       
-      const data = {
-        id,
-        ...updates,
-        updated_at: new Date().toISOString()
-      };
+      if (updates.name) updateData.name = updates.name;
+      if (updates.slug) updateData.subdomain = updates.slug;
+      if (updates.brand_name) updateData.business_name = updates.brand_name;
+      if (updates.specialty) updateData.specialty = updates.specialty;
+      if (updates.primary_color) updateData.primary_color = updates.primary_color;
+      if (updates.secondary_color) updateData.secondary_color = updates.secondary_color;
+      if (updates.is_active !== undefined) updateData.is_active = updates.is_active;
       
+      const { data, error } = await supabase
+        .from('tenants')
+        .update(updateData)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw new Error(error.message);
       return data;
     },
     onSuccess: () => {

@@ -1,48 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Building, Users, Settings, Plus, Loader } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { Building, Users, Settings, Loader } from 'lucide-react';
 import { TenantCreateDialog } from '@/components/tenant/TenantCreateDialog';
-
-interface Tenant {
-  id: string;
-  name: string;
-  subdomain: string;
-  specialty: string;
-  practice_type: string;
-  is_active: boolean;
-  created_at: string;
-  owner_id: string;
-  user_count?: number;
-}
+import { useTenantManagement } from '@/hooks/useTenantManagement';
 
 export const PlatformTenants = () => {
-  const [tenants, setTenants] = useState<Tenant[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { tenants, tenantsLoading } = useTenantManagement();
 
-  useEffect(() => {
-    fetchTenants();
-  }, []);
-
-  const fetchTenants = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('tenants')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setTenants(data || []);
-    } catch (error) {
-      console.error('Error fetching tenants:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) {
+  if (tenantsLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="flex items-center gap-2">
@@ -64,7 +31,7 @@ export const PlatformTenants = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {tenants.map((tenant) => (
+        {tenants?.map((tenant) => (
           <Card key={tenant.id}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-lg">{tenant.name}</CardTitle>
@@ -75,14 +42,14 @@ export const PlatformTenants = () => {
             <CardContent className="space-y-4">
               <div className="flex items-center space-x-2">
                 <Users className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">{tenant.user_count || 0} users</span>
+                <span className="text-sm">0 users</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Building className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm">{tenant.specialty}</span>
               </div>
               <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                <span>Type: {tenant.practice_type}</span>
+                <span>Type: specialty_clinic</span>
               </div>
               <div className="flex items-center space-x-2 text-xs text-muted-foreground">
                 <span>Domain: {tenant.subdomain}</span>
@@ -96,7 +63,7 @@ export const PlatformTenants = () => {
               </div>
             </CardContent>
           </Card>
-        ))}
+        )) || []}
       </div>
     </div>
   );
