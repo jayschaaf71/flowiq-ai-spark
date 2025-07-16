@@ -1610,59 +1610,6 @@ export type Database = {
           },
         ]
       }
-      plaud_configurations: {
-        Row: {
-          api_key: string | null
-          auto_sync: boolean
-          created_at: string
-          id: string
-          is_active: boolean
-          metadata: Json | null
-          sync_frequency_minutes: number | null
-          tenant_id: string
-          transcription_settings: Json | null
-          updated_at: string
-          user_id: string | null
-          webhook_url: string | null
-        }
-        Insert: {
-          api_key?: string | null
-          auto_sync?: boolean
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          metadata?: Json | null
-          sync_frequency_minutes?: number | null
-          tenant_id: string
-          transcription_settings?: Json | null
-          updated_at?: string
-          user_id?: string | null
-          webhook_url?: string | null
-        }
-        Update: {
-          api_key?: string | null
-          auto_sync?: boolean
-          created_at?: string
-          id?: string
-          is_active?: boolean
-          metadata?: Json | null
-          sync_frequency_minutes?: number | null
-          tenant_id?: string
-          transcription_settings?: Json | null
-          updated_at?: string
-          user_id?: string | null
-          webhook_url?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "plaud_configurations_tenant_id_fkey"
-            columns: ["tenant_id"]
-            isOneToOne: true
-            referencedRelation: "tenants"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       prescriptions: {
         Row: {
           created_at: string
