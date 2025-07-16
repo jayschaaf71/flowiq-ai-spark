@@ -57,6 +57,8 @@ export const PatientsList = ({ onSelectPatient, onAddPatient }: PatientsListProp
       // Filter patients by current specialty/practice
       const currentSpecialty = localStorage.getItem('currentSpecialty') || 'chiropractic';
       
+      console.log('PatientsList - currentSpecialty from localStorage:', currentSpecialty);
+      
       // Map specialty to patient specialty values in database
       const specialtyMapping: Record<string, string> = {
         'chiropractic': 'chiropractic',
@@ -70,6 +72,8 @@ export const PatientsList = ({ onSelectPatient, onAddPatient }: PatientsListProp
       
       const patientSpecialty = specialtyMapping[currentSpecialty] || currentSpecialty;
       
+      console.log('PatientsList - mapped patientSpecialty for query:', patientSpecialty);
+      
       const { data, error } = await supabase
         .from('patients')
         .select('*')
@@ -77,7 +81,13 @@ export const PatientsList = ({ onSelectPatient, onAddPatient }: PatientsListProp
         .eq('specialty', patientSpecialty)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('PatientsList - Query error:', error);
+        throw error;
+      }
+      
+      console.log('PatientsList - Query result:', data);
+      console.log('PatientsList - Found patients count:', data?.length || 0);
       setPatients(data || []);
     } catch (error: any) {
       toast({
