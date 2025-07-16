@@ -198,6 +198,13 @@ export const useEnhancedMedicalAI = () => {
   }, []);
 
   /**
+   * Update enhanced SOAP data
+   */
+  const updateEnhancedSOAP = useCallback((updatedSOAP: Partial<EnhancedSOAPNotes>) => {
+    setEnhancedSOAP(prev => prev ? { ...prev, ...updatedSOAP } : null);
+  }, []);
+
+  /**
    * Reset all enhanced data
    */
   const resetEnhancedData = useCallback(() => {
@@ -211,6 +218,7 @@ export const useEnhancedMedicalAI = () => {
     enhancedSOAP,
     enhanceTranscription,
     generateEnhancedSOAP,
+    updateEnhancedSOAP,
     validateMedications,
     checkDrugInteractions,
     resetEnhancedData

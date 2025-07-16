@@ -25,7 +25,7 @@ interface VoiceRecording {
 }
 
 export const ScribeSOAPGeneration = () => {
-  const { enhancedSOAP, isProcessing, resetEnhancedData, generateEnhancedSOAP } = useEnhancedMedicalAI();
+  const { enhancedSOAP, isProcessing, resetEnhancedData, generateEnhancedSOAP, updateEnhancedSOAP } = useEnhancedMedicalAI();
   const { toast } = useToast();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [recentRecordings, setRecentRecordings] = useState<any[]>([]);
@@ -370,9 +370,9 @@ ${enhancedSOAP.confidence ? `\nAI Confidence: ${Math.round(enhancedSOAP.confiden
     setIsSaving(true);
     try {
       // Update the enhancedSOAP state with edited values
-      const updatedSOAP = { ...enhancedSOAP, ...editedSOAP };
+      updateEnhancedSOAP(editedSOAP);
       
-      // If there's a selected patient and recording, update the database
+      // If there's a selected patient and recording, save to database
       if (selectedPatient && selectedRecording) {
         await createSOAPNote({
           subjective: editedSOAP.subjective,
@@ -385,13 +385,19 @@ ${enhancedSOAP.confidence ? `\nAI Confidence: ${Math.round(enhancedSOAP.confiden
           visit_date: new Date().toISOString().split('T')[0],
           patient_id: selectedPatient.id,
         });
+        
+        toast({
+          title: "SOAP Note Saved",
+          description: `Updated SOAP note saved to ${selectedPatient.first_name} ${selectedPatient.last_name}'s record`,
+        });
+      } else {
+        toast({
+          title: "Changes Saved",
+          description: "Your SOAP note edits have been saved",
+        });
       }
       
       setIsEditing(false);
-      toast({
-        title: "Changes Saved",
-        description: "Your SOAP note edits have been saved",
-      });
     } catch (error) {
       toast({
         title: "Save Failed",
@@ -691,7 +697,7 @@ ${enhancedSOAP.confidence ? `\nAI Confidence: ${Math.round(enhancedSOAP.confiden
                     />
                   ) : (
                     <div className="p-3 bg-blue-50 rounded border text-sm whitespace-pre-line">
-                      {enhancedSOAP.subjective}
+                      {(isEditing ? editedSOAP?.subjective : enhancedSOAP.subjective) || enhancedSOAP.subjective}
                     </div>
                   )}
                 </div>
