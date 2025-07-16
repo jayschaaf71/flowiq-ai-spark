@@ -58,8 +58,8 @@ export const DentalSleepDashboard = () => {
         <Card 
           className="border-blue-200 cursor-pointer hover:shadow-lg transition-shadow duration-200 hover:border-blue-400"
           onClick={() => {
-            console.log("Device Deliveries card clicked - navigating to /agents/inventory");
-            navigate('/agents/inventory');
+            console.log("Device Deliveries card clicked - navigating to /dental-sleep/dme-tracker");
+            navigate('/dental-sleep/dme-tracker');
           }}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -83,8 +83,8 @@ export const DentalSleepDashboard = () => {
         <Card 
           className="border-blue-200 cursor-pointer hover:shadow-lg transition-shadow duration-200 hover:border-blue-400"
           onClick={() => {
-            console.log("Reimbursement Approval card clicked - navigating to /agents/claims");
-            navigate('/agents/claims');
+            console.log("Reimbursement Approval card clicked - navigating to /dental-sleep/claims");
+            navigate('/dental-sleep/claims');
           }}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -103,8 +103,8 @@ export const DentalSleepDashboard = () => {
         <Card 
           className="border-blue-200 cursor-pointer hover:shadow-lg transition-shadow duration-200 hover:border-blue-400"
           onClick={() => {
-            console.log("Avg Reimbursement/Case card clicked - navigating to /analytics");
-            navigate('/analytics');
+            console.log("Avg Reimbursement/Case card clicked - navigating to /dental-sleep/insights");
+            navigate('/dental-sleep/insights');
           }}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -123,8 +123,8 @@ export const DentalSleepDashboard = () => {
         <Card 
           className="border-blue-200 cursor-pointer hover:shadow-lg transition-shadow duration-200 hover:border-blue-400"
           onClick={() => {
-            console.log("AHI Reduction card clicked - navigating to /ehr");
-            navigate('/ehr');
+            console.log("AHI Reduction card clicked - navigating to /dental-sleep/sleep-studies");
+            navigate('/dental-sleep/sleep-studies');
           }}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -229,8 +229,8 @@ export const DentalSleepDashboard = () => {
             <Button 
               className="w-full justify-start bg-blue-600 hover:bg-blue-700" 
               onClick={() => {
-                console.log("Navigating to /schedule");
-                navigate('/schedule');
+                console.log("Navigating to /dental-sleep/schedule");
+                navigate('/dental-sleep/schedule');
               }}
             >
               <Calendar className="w-4 h-4 mr-2" />
@@ -240,8 +240,8 @@ export const DentalSleepDashboard = () => {
               variant="outline" 
               className="w-full justify-start border-blue-200 hover:bg-blue-50" 
               onClick={() => {
-                console.log("Navigating to /ehr");
-                navigate('/ehr');
+                console.log("Navigating to /dental-sleep/sleep-studies");
+                navigate('/dental-sleep/sleep-studies');
               }}
             >
               <Activity className="w-4 h-4 mr-2" />
@@ -251,8 +251,8 @@ export const DentalSleepDashboard = () => {
               variant="outline" 
               className="w-full justify-start border-blue-200 hover:bg-blue-50" 
               onClick={() => {
-                console.log("Navigating to /agents/claims");
-                navigate('/agents/claims');
+                console.log("Navigating to /dental-sleep/agents/claims");
+                navigate('/dental-sleep/agents/claims');
               }}
             >
               <DollarSign className="w-4 h-4 mr-2" />
@@ -271,21 +271,39 @@ export const DentalSleepDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <div className="flex items-center gap-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <div 
+                className="flex items-center gap-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg cursor-pointer hover:bg-yellow-100 transition-colors"
+                onClick={() => {
+                  console.log("Device Deliveries alert clicked - navigating to /dental-sleep/dme-tracker");
+                  navigate('/dental-sleep/dme-tracker');
+                }}
+              >
                 <AlertTriangle className="w-4 h-4 text-yellow-600" />
                 <div className="flex-1">
                   <p className="text-sm font-medium text-yellow-800">Device Deliveries Behind Goal</p>
                   <p className="text-xs text-yellow-600">14/18 delivered this month</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <div 
+                className="flex items-center gap-3 p-3 bg-red-50 border border-red-200 rounded-lg cursor-pointer hover:bg-red-100 transition-colors"
+                onClick={() => {
+                  console.log("Reimbursement alert clicked - navigating to /dental-sleep/insights");
+                  navigate('/dental-sleep/insights');
+                }}
+              >
                 <ArrowDown className="w-4 h-4 text-red-600" />
                 <div className="flex-1">
                   <p className="text-sm font-medium text-red-800">Reimbursement Per Case Down</p>
                   <p className="text-xs text-red-600">$1.9K vs $2.1K quarter average</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+              <div 
+                className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg cursor-pointer hover:bg-green-100 transition-colors"
+                onClick={() => {
+                  console.log("Clinical Outcomes alert clicked - navigating to /dental-sleep/sleep-studies");
+                  navigate('/dental-sleep/sleep-studies');
+                }}
+              >
                 <CheckCircle className="w-4 h-4 text-green-600" />
                 <div className="flex-1">
                   <p className="text-sm font-medium text-green-800">Clinical Outcomes Excellent</p>
