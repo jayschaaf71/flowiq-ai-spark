@@ -17,7 +17,7 @@ serve(async (req) => {
     const body = await req.json();
     console.log('Request body:', body);
     
-    const { message, context, conversationHistory } = body;
+    const { message, context, conversationHistory, specialty, brandName } = body;
     
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
@@ -41,10 +41,24 @@ serve(async (req) => {
 
     console.log('Processing help request:', message);
     console.log('Current context:', context);
+    console.log('Specialty:', specialty);
+    console.log('Brand:', brandName);
 
-    // For now, use simple AI response without function calls to avoid database issues
+    // Enhance context with specialty information
+    const enhancedContext = `${context} 
+    
+SPECIALTY CONTEXT: The user is working within ${brandName || 'FlowiQ'} platform, which is specifically designed for ${specialty || 'healthcare'} practices. 
+    
+Please provide responses that are:
+- Specific to ${specialty || 'healthcare'} practice workflows
+- Branded appropriately for ${brandName || 'FlowiQ'}
+- Contextually relevant to their current page/workflow
+- Professional but friendly in tone
+
+If they ask about features, focus on how they apply to ${specialty || 'healthcare'} practice management.`;
+
     console.log('Using simple AI response (no functions)');
-    const aiResponse = await callOpenAISimple(message, context, conversationHistory || []);
+    const aiResponse = await callOpenAISimple(message, enhancedContext, conversationHistory || []);
     
     if (!aiResponse || !aiResponse.choices || aiResponse.choices.length === 0) {
       throw new Error('Invalid AI response format');
@@ -58,6 +72,8 @@ serve(async (req) => {
       JSON.stringify({ 
         response: finalResponse,
         context: context,
+        specialty: specialty,
+        brandName: brandName,
         timestamp: new Date().toISOString(),
         actions_performed: []
       }),

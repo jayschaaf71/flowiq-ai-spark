@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useSpecialty } from '@/contexts/SpecialtyContext';
 
 interface ChatMessage {
   id: string;
@@ -15,6 +16,7 @@ export const useAIHelpAssistant = () => {
   const location = useLocation();
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { currentSpecialty, getBrandName } = useSpecialty();
 
   // Load messages from localStorage on component mount
   const loadPersistedMessages = (): ChatMessage[] => {
@@ -53,6 +55,8 @@ export const useAIHelpAssistant = () => {
 
   const getContextualInfo = () => {
     const currentPath = location.pathname;
+    const brandName = getBrandName();
+    
     const contextMap: Record<string, string> = {
       '/dashboard': 'User is on the main dashboard page with overview widgets and metrics.',
       '/patient-management': 'User is viewing patient management and patient records.',
@@ -65,7 +69,10 @@ export const useAIHelpAssistant = () => {
       '/help': 'User is on the help page looking for assistance.'
     };
 
-    return contextMap[currentPath] || `User is on page: ${currentPath}`;
+    const baseContext = contextMap[currentPath] || `User is on page: ${currentPath}`;
+    
+    // Add specialty and brand context
+    return `${baseContext} The user is working within ${brandName} (${currentSpecialty} specialty practice). Provide responses that are relevant to this specific specialty and brand context.`;
   };
 
   const handleSendMessage = async (messageToSend?: string) => {
@@ -101,7 +108,9 @@ export const useAIHelpAssistant = () => {
             body: {
               message: messageContent,
               context: getContextualInfo(),
-              conversationHistory: messages.slice(-5) // Last 5 messages for context
+              conversationHistory: messages.slice(-5), // Last 5 messages for context
+              specialty: currentSpecialty,
+              brandName: getBrandName()
             }
           });
 

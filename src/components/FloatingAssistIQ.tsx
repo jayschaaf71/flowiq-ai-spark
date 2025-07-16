@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAIHelpAssistant } from '@/hooks/useAIHelpAssistant';
+import { useSpecialty } from '@/contexts/SpecialtyContext';
 import { 
   Sparkles, 
   X, 
@@ -36,6 +37,9 @@ export const FloatingAssistIQ: React.FC = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [recognition, setRecognition] = useState<any>(null);
   const cardRef = useRef<HTMLDivElement>(null);
+
+  // Get specialty context for wrapper awareness
+  const { currentSpecialty, getBrandName } = useSpecialty();
 
   const {
     messages,
@@ -105,8 +109,9 @@ export const FloatingAssistIQ: React.FC = () => {
   // Handle dragging
   const handleMouseDown = (e: React.MouseEvent) => {
     if (isMinimized) return;
-    // Prevent dragging when clicking on buttons
-    if ((e.target as HTMLElement).closest('button')) return;
+    // Prevent dragging when clicking on buttons or input elements
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('input') || target.closest('[role="scrollbar"]')) return;
     
     setIsDragging(true);
     const rect = cardRef.current?.getBoundingClientRect();
@@ -116,6 +121,13 @@ export const FloatingAssistIQ: React.FC = () => {
         y: e.clientY - rect.top
       });
     }
+  };
+
+  // Enhanced close function with proper event handling
+  const handleClose = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsOpen(false);
   };
 
   useEffect(() => {
@@ -208,9 +220,9 @@ export const FloatingAssistIQ: React.FC = () => {
                 <Maximize2 className="h-3 w-3" />
               </Button>
               <Button
-                variant="ghost" 
+                variant="ghost"
                 size="icon"
-                onClick={() => setIsOpen(false)}
+                onClick={handleClose}
                 className="h-6 w-6 text-white hover:bg-white/20"
               >
                 <X className="h-3 w-3" />
@@ -269,7 +281,7 @@ export const FloatingAssistIQ: React.FC = () => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setIsOpen(false)}
+              onClick={handleClose}
               className="h-6 w-6 text-white hover:bg-white/20"
             >
               <X className="h-3 w-3" />
@@ -304,8 +316,33 @@ export const FloatingAssistIQ: React.FC = () => {
         )}
 
         {/* Messages */}
-        <ScrollArea className="flex-1 p-3">
-          <div className="space-y-3">
+        <ScrollArea 
+          className="flex-1 p-3"
+          style={{ 
+            touchAction: 'pan-y',
+            overscrollBehavior: 'contain'
+          }}
+        >
+          <div 
+            className="space-y-3"
+            onWheel={(e) => {
+              // Prevent event from bubbling to parent
+              e.stopPropagation();
+              
+              // Get the scrollable area viewport
+              const scrollArea = e.currentTarget.closest('[data-radix-scroll-area-viewport]');
+              if (scrollArea) {
+                const { scrollTop, scrollHeight, clientHeight } = scrollArea;
+                const atTop = scrollTop === 0;
+                const atBottom = scrollTop >= scrollHeight - clientHeight - 1;
+                
+                // Allow scrolling within bounds, prevent at edges
+                if ((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom)) {
+                  e.preventDefault();
+                }
+              }
+            }}
+          >
             {messages.map((message) => (
               <div
                 key={message.id}
@@ -379,7 +416,7 @@ export const FloatingAssistIQ: React.FC = () => {
           </div>
           <div className="flex justify-between items-center mt-1">
             <div className="text-xs text-gray-500">
-              Current page: {currentPath}
+              {getBrandName()} • {currentPath}
             </div>
             {isRecording && (
               <div className="text-xs text-red-500 animate-pulse">
