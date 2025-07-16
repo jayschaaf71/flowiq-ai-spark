@@ -1,348 +1,278 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { 
-  Activity, 
-  AlertTriangle, 
-  Bell, 
-  Database, 
-  Network, 
-  Server, 
-  Zap,
-  Clock,
-  TrendingUp,
-  TrendingDown,
-  Settings
-} from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { Activity, Cpu, Database, Network, Users, Zap, Loader } from 'lucide-react';
+import { usePlatformMetrics } from '@/hooks/usePlatformMetrics';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { format } from 'date-fns';
 
-interface PerformanceMetric {
+interface PerformanceData {
   id: string;
-  name: string;
-  value: number;
-  unit: string;
-  threshold: number;
-  status: 'optimal' | 'warning' | 'critical';
-  trend: 'up' | 'down' | 'stable';
-  icon: React.ComponentType<any>;
+  response_time_ms: number;
+  cpu_usage_percent: number;
+  memory_usage_percent: number;
+  database_connections: number;
+  active_sessions: number;
+  api_calls_count: number;
+  error_rate_percent: number;
+  recorded_at: string;
 }
 
-interface AlertThreshold {
-  metricId: string;
-  warningThreshold: number;
-  criticalThreshold: number;
-  enabled: boolean;
-}
+export const RealTimePerformanceMonitor = () => {
+  const { metrics } = usePlatformMetrics();
 
-export const RealTimePerformanceMonitor: React.FC = () => {
-  const [metrics, setMetrics] = useState<PerformanceMetric[]>([
-    {
-      id: 'cpu',
-      name: 'CPU Usage',
-      value: 45,
-      unit: '%',
-      threshold: 80,
-      status: 'optimal',
-      trend: 'stable',
-      icon: Server
+  // Fetch performance data (last 24 hours)
+  const { data: performanceData } = useQuery({
+    queryKey: ['platform-performance'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('platform_performance')
+        .select('*')
+        .gte('recorded_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
+        .order('recorded_at', { ascending: true });
+      
+      if (error) throw error;
+      return data as PerformanceData[];
     },
-    {
-      id: 'memory',
-      name: 'Memory Usage',
-      value: 68,
-      unit: '%',
-      threshold: 85,
-      status: 'optimal',
-      trend: 'up',
-      icon: Activity
-    },
-    {
-      id: 'database',
-      name: 'Database Response',
-      value: 23,
-      unit: 'ms',
-      threshold: 100,
-      status: 'optimal',
-      trend: 'down',
-      icon: Database
-    },
-    {
-      id: 'api',
-      name: 'API Response Time',
-      value: 156,
-      unit: 'ms',
-      threshold: 200,
-      status: 'warning',
-      trend: 'up',
-      icon: Zap
-    },
-    {
-      id: 'network',
-      name: 'Network Latency',
-      value: 34,
-      unit: 'ms',
-      threshold: 50,
-      status: 'optimal',
-      trend: 'stable',
-      icon: Network
-    }
-  ]);
+    refetchInterval: 60000, // Refresh every minute
+  });
 
-  const [alertThresholds, setAlertThresholds] = useState<AlertThreshold[]>([
-    { metricId: 'cpu', warningThreshold: 70, criticalThreshold: 90, enabled: true },
-    { metricId: 'memory', warningThreshold: 80, criticalThreshold: 95, enabled: true },
-    { metricId: 'database', warningThreshold: 100, criticalThreshold: 200, enabled: true },
-    { metricId: 'api', warningThreshold: 200, criticalThreshold: 500, enabled: true },
-    { metricId: 'network', warningThreshold: 50, criticalThreshold: 100, enabled: true }
-  ]);
+  if (!performanceData || !metrics) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex items-center gap-2">
+          <Loader className="h-6 w-6 animate-spin" />
+          <span>Loading performance data...</span>
+        </div>
+      </div>
+    );
+  }
 
-  const [realTimeEnabled, setRealTimeEnabled] = useState(true);
-  const [alertsEnabled, setAlertsEnabled] = useState(true);
+  const latestMetrics = performanceData[performanceData.length - 1];
 
-  // Simulate real-time data updates
-  useEffect(() => {
-    if (!realTimeEnabled) return;
+  const chartData = performanceData.slice(-24).map((data) => ({
+    time: format(new Date(data.recorded_at), 'HH:mm'),
+    responseTime: data.response_time_ms,
+    cpuUsage: data.cpu_usage_percent,
+    memoryUsage: data.memory_usage_percent,
+    activeSessions: data.active_sessions,
+    apiCalls: data.api_calls_count,
+    errorRate: data.error_rate_percent,
+  }));
 
-    const interval = setInterval(() => {
-      setMetrics(prev => prev.map(metric => {
-        const variance = (Math.random() - 0.5) * 10;
-        const newValue = Math.max(0, metric.value + variance);
-        
-        const threshold = alertThresholds.find(t => t.metricId === metric.id);
-        let status: 'optimal' | 'warning' | 'critical' = 'optimal';
-        
-        if (threshold) {
-          if (newValue >= threshold.criticalThreshold) {
-            status = 'critical';
-          } else if (newValue >= threshold.warningThreshold) {
-            status = 'warning';
-          }
-        }
-
-        const trend = newValue > metric.value ? 'up' : newValue < metric.value ? 'down' : 'stable';
-
-        return {
-          ...metric,
-          value: Math.round(newValue),
-          status,
-          trend
-        };
-      }));
-    }, 2000);
-
-    return () => clearInterval(interval);
-  }, [realTimeEnabled, alertThresholds]);
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'critical': return 'destructive';
-      case 'warning': return 'warning';
-      default: return 'success';
-    }
+  const getStatusColor = (value: number, thresholds: { warning: number; critical: number }) => {
+    if (value >= thresholds.critical) return 'destructive';
+    if (value >= thresholds.warning) return 'secondary';
+    return 'default';
   };
-
-  const getTrendIcon = (trend: string) => {
-    switch (trend) {
-      case 'up': return <TrendingUp className="h-3 w-3 text-warning" />;
-      case 'down': return <TrendingDown className="h-3 w-3 text-success" />;
-      default: return <div className="h-3 w-3" />;
-    }
-  };
-
-  const criticalMetrics = metrics.filter(m => m.status === 'critical');
-  const warningMetrics = metrics.filter(m => m.status === 'warning');
 
   return (
     <div className="space-y-6">
-      {/* Real-time Controls */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Activity className="h-5 h-5" />
-            Real-Time Performance Monitoring
-          </CardTitle>
-          <CardDescription>
-            Live system performance metrics with configurable alerts and thresholds
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-2">
-                <Switch
-                  id="realtime"
-                  checked={realTimeEnabled}
-                  onCheckedChange={setRealTimeEnabled}
-                />
-                <Label htmlFor="realtime">Real-time Updates</Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Switch
-                  id="alerts"
-                  checked={alertsEnabled}
-                  onCheckedChange={setAlertsEnabled}
-                />
-                <Label htmlFor="alerts">Performance Alerts</Label>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant={realTimeEnabled ? 'success' : 'secondary'}>
-                {realTimeEnabled ? 'Live' : 'Paused'}
-              </Badge>
-              {realTimeEnabled && (
-                <div className="flex items-center gap-1">
-                  <div className="h-2 w-2 bg-success rounded-full animate-pulse"></div>
-                  <span className="text-sm text-muted-foreground">Updating</span>
-                </div>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Critical Alerts */}
-      {alertsEnabled && (criticalMetrics.length > 0 || warningMetrics.length > 0) && (
-        <div className="space-y-3">
-          {criticalMetrics.map(metric => (
-            <Alert key={metric.id} className="border-destructive bg-destructive/10">
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>
-                <strong>CRITICAL:</strong> {metric.name} is at {metric.value}{metric.unit} 
-                (threshold: {alertThresholds.find(t => t.metricId === metric.id)?.criticalThreshold}{metric.unit})
-                <Button variant="link" className="p-0 h-auto ml-2">
-                  Investigate
-                </Button>
-              </AlertDescription>
-            </Alert>
-          ))}
-          
-          {warningMetrics.map(metric => (
-            <Alert key={metric.id} className="border-warning bg-warning/10">
-              <Bell className="h-4 w-4" />
-              <AlertDescription>
-                <strong>WARNING:</strong> {metric.name} is at {metric.value}{metric.unit}
-                (threshold: {alertThresholds.find(t => t.metricId === metric.id)?.warningThreshold}{metric.unit})
-              </AlertDescription>
-            </Alert>
-          ))}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">Real-Time Performance Monitor</h2>
+          <p className="text-muted-foreground">Live system performance metrics and resource utilization</p>
         </div>
-      )}
-
-      {/* Performance Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {metrics.map(metric => {
-          const Icon = metric.icon;
-          const threshold = alertThresholds.find(t => t.metricId === metric.id);
-          const progressValue = threshold ? (metric.value / threshold.criticalThreshold) * 100 : 50;
-          
-          return (
-            <Card key={metric.id}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{metric.name}</CardTitle>
-                <div className="flex items-center gap-2">
-                  {getTrendIcon(metric.trend)}
-                  <Icon className="h-4 w-4 text-muted-foreground" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{metric.value}{metric.unit}</div>
-                <Progress 
-                  value={progressValue} 
-                  className="mt-2"
-                  // @ts-ignore
-                  variant={getStatusColor(metric.status)}
-                />
-                <div className="flex items-center justify-between mt-2">
-                  <Badge variant={getStatusColor(metric.status) as any}>
-                    {metric.status.toUpperCase()}
-                  </Badge>
-                  <span className="text-xs text-muted-foreground">
-                    Threshold: {threshold?.warningThreshold}{metric.unit}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+        <Badge variant="outline" className="font-mono">
+          Updated: {format(new Date(latestMetrics.recorded_at), 'HH:mm:ss')}
+        </Badge>
       </div>
 
-      {/* Threshold Configuration */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Settings className="h-5 w-5" />
-            Alert Thresholds Configuration
-          </CardTitle>
-          <CardDescription>
-            Configure warning and critical thresholds for performance alerts
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {alertThresholds.map(threshold => {
-              const metric = metrics.find(m => m.id === threshold.metricId);
-              if (!metric) return null;
+      {/* Current Status Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-xs font-medium">Response Time</CardTitle>
+            <Activity className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-xl font-bold">{latestMetrics.response_time_ms}ms</div>
+            <Badge variant={getStatusColor(latestMetrics.response_time_ms, { warning: 200, critical: 500 })} className="text-xs">
+              {latestMetrics.response_time_ms < 200 ? 'Good' : latestMetrics.response_time_ms < 500 ? 'Warning' : 'Critical'}
+            </Badge>
+          </CardContent>
+        </Card>
 
-              return (
-                <div key={threshold.metricId} className="flex items-center gap-4 p-4 border rounded-lg">
-                  <div className="flex-1">
-                    <h4 className="font-medium">{metric.name}</h4>
-                    <p className="text-sm text-muted-foreground">Current: {metric.value}{metric.unit}</p>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2">
-                      <Label className="text-xs">Warning</Label>
-                      <Input
-                        type="number"
-                        value={threshold.warningThreshold}
-                        onChange={(e) => {
-                          const newThresholds = alertThresholds.map(t =>
-                            t.metricId === threshold.metricId
-                              ? { ...t, warningThreshold: Number(e.target.value) }
-                              : t
-                          );
-                          setAlertThresholds(newThresholds);
-                        }}
-                        className="w-20"
-                      />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Label className="text-xs">Critical</Label>
-                      <Input
-                        type="number"
-                        value={threshold.criticalThreshold}
-                        onChange={(e) => {
-                          const newThresholds = alertThresholds.map(t =>
-                            t.metricId === threshold.metricId
-                              ? { ...t, criticalThreshold: Number(e.target.value) }
-                              : t
-                          );
-                          setAlertThresholds(newThresholds);
-                        }}
-                        className="w-20"
-                      />
-                    </div>
-                    <Switch
-                      checked={threshold.enabled}
-                      onCheckedChange={(enabled) => {
-                        const newThresholds = alertThresholds.map(t =>
-                          t.metricId === threshold.metricId ? { ...t, enabled } : t
-                        );
-                        setAlertThresholds(newThresholds);
-                      }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-xs font-medium">CPU Usage</CardTitle>
+            <Cpu className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-xl font-bold">{latestMetrics.cpu_usage_percent}%</div>
+            <Progress value={latestMetrics.cpu_usage_percent} className="mt-1" />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-xs font-medium">Memory Usage</CardTitle>
+            <Database className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-xl font-bold">{latestMetrics.memory_usage_percent}%</div>
+            <Progress value={latestMetrics.memory_usage_percent} className="mt-1" />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-xs font-medium">DB Connections</CardTitle>
+            <Network className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-xl font-bold">{latestMetrics.database_connections}</div>
+            <p className="text-xs text-muted-foreground">Active connections</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-xs font-medium">Active Sessions</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-xl font-bold">{latestMetrics.active_sessions}</div>
+            <p className="text-xs text-muted-foreground">Current users</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-xs font-medium">Error Rate</CardTitle>
+            <Zap className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-xl font-bold">{latestMetrics.error_rate_percent}%</div>
+            <Badge variant={getStatusColor(latestMetrics.error_rate_percent, { warning: 1, critical: 5 })} className="text-xs">
+              {latestMetrics.error_rate_percent < 1 ? 'Good' : latestMetrics.error_rate_percent < 5 ? 'Warning' : 'Critical'}
+            </Badge>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Performance Charts */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        {/* Response Time Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Response Time Trend</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="time" />
+                <YAxis />
+                <Tooltip 
+                  labelFormatter={(label) => `Time: ${label}`}
+                  formatter={(value) => [`${value}ms`, 'Response Time']}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="responseTime" 
+                  stroke="hsl(var(--primary))" 
+                  strokeWidth={2}
+                  dot={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Resource Usage Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Resource Utilization</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="time" />
+                <YAxis />
+                <Tooltip 
+                  labelFormatter={(label) => `Time: ${label}`}
+                  formatter={(value, name) => [`${value}%`, name === 'cpuUsage' ? 'CPU' : 'Memory']}
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="cpuUsage" 
+                  stackId="1"
+                  stroke="hsl(var(--primary))" 
+                  fill="hsl(var(--primary))"
+                  fillOpacity={0.6}
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="memoryUsage" 
+                  stackId="1"
+                  stroke="hsl(var(--secondary))" 
+                  fill="hsl(var(--secondary))"
+                  fillOpacity={0.6}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* API Calls Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle>API Activity</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="time" />
+                <YAxis />
+                <Tooltip 
+                  labelFormatter={(label) => `Time: ${label}`}
+                  formatter={(value) => [value, 'API Calls/Hour']}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="apiCalls" 
+                  stroke="hsl(var(--accent))" 
+                  strokeWidth={2}
+                  dot={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Active Sessions Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle>User Activity</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="time" />
+                <YAxis />
+                <Tooltip 
+                  labelFormatter={(label) => `Time: ${label}`}
+                  formatter={(value) => [value, 'Active Sessions']}
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="activeSessions" 
+                  stroke="hsl(var(--success))" 
+                  fill="hsl(var(--success))"
+                  fillOpacity={0.6}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

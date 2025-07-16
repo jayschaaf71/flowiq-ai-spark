@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface PlatformMetrics {
   totalTenants: number;
@@ -27,166 +29,198 @@ interface PlatformAlert {
   alert_type: string;
   title: string;
   message: string;
-  severity: string;
-  status: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  status: 'active' | 'acknowledged' | 'resolved';
   created_at: string;
+  acknowledged_at?: string;
+  resolved_at?: string;
 }
 
 export const usePlatformMetrics = () => {
-  const [metrics, setMetrics] = useState<PlatformMetrics | null>(null);
-  const [systemMetrics, setSystemMetrics] = useState<SystemMetric[]>([]);
-  const [alerts, setAlerts] = useState<PlatformAlert[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  const fetchPlatformMetrics = async () => {
-    try {
-      console.log('Fetching platform metrics...');
-      // Fetch tenant counts
-      const { data: tenantData, error: tenantError } = await supabase
-        .from('tenants')
-        .select('id, is_active');
+  // Use React Query for better data management
+  const { data: metrics, isLoading, error } = useQuery({
+    queryKey: ['platform-stats'],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('get_platform_stats');
+      if (error) throw error;
+      return data as unknown as PlatformMetrics;
+    },
+    refetchInterval: 30000,
+    staleTime: 10000,
+  });
 
-      if (tenantError) throw tenantError;
-
-      const totalTenants = tenantData?.length || 0;
-      const activeTenants = tenantData?.filter(t => t.is_active).length || 0;
-
-      // Fetch user count
-      const { data: userData, error: userError } = await supabase
-        .from('profiles')
-        .select('id');
-
-      if (userError) throw userError;
-
-      const totalUsers = userData?.length || 0;
-
-      // Fetch recent system metrics
-      const { data: metricsData, error: metricsError } = await supabase
+  const { data: systemMetrics = [] } = useQuery({
+    queryKey: ['system-metrics'],
+    queryFn: async () => {
+      const { data, error } = await supabase
         .from('system_metrics')
         .select('*')
         .order('recorded_at', { ascending: false })
         .limit(50);
+      if (error) throw error;
+      return data as SystemMetric[];
+    },
+    refetchInterval: 60000,
+  });
 
-      if (metricsError) throw metricsError;
-
-      setSystemMetrics(metricsData || []);
-
-      // Calculate average response time from API metrics
-      const apiMetrics = metricsData?.filter(m => m.metric_type === 'api') || [];
-      const avgResponseTime = apiMetrics.length > 0 
-        ? apiMetrics.reduce((sum, m) => sum + m.value, 0) / apiMetrics.length 
-        : 142; // fallback value
-
-      // Fetch active alerts
-      const { data: alertsData, error: alertsError } = await supabase
+  const { data: alerts = [] } = useQuery({
+    queryKey: ['platform-alerts'],
+    queryFn: async () => {
+      const { data, error } = await supabase
         .from('platform_alerts')
         .select('*')
-        .eq('status', 'active')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      return data as PlatformAlert[];
+    },
+    refetchInterval: 15000,
+  });
 
-      if (alertsError) throw alertsError;
-
-      setAlerts(alertsData || []);
-
-      const criticalAlerts = alertsData?.filter(a => a.severity === 'critical').length || 0;
-
-      // Calculate resource utilization (simplified)
-      const cpuMetrics = metricsData?.filter(m => m.metric_type === 'cpu') || [];
-      const avgCpuUsage = cpuMetrics.length > 0 
-        ? cpuMetrics.reduce((sum, m) => sum + m.value, 0) / cpuMetrics.length 
-        : 73; // fallback value
-
-      setMetrics({
-        totalTenants,
-        activeTenants,
-        totalUsers,
-        systemUptime: 99.97, // This would come from uptime monitoring service
-        totalRevenue: 284750, // This would come from billing/payment system
-        averageResponseTime: Math.round(avgResponseTime),
-        criticalAlerts,
-        resourceUtilization: Math.round(avgCpuUsage)
+  // Mutation to resolve alerts
+  const resolveAlertMutation = useMutation({
+    mutationFn: async (alertId: string) => {
+      const { error } = await supabase
+        .from('platform_alerts')
+        .update({
+          status: 'resolved',
+          resolved_at: new Date().toISOString(),
+          acknowledged_by: (await supabase.auth.getUser()).data.user?.id
+        })
+        .eq('id', alertId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['platform-alerts'] });
+      queryClient.invalidateQueries({ queryKey: ['platform-stats'] });
+      toast({
+        title: "Alert Resolved",
+        description: "The alert has been successfully resolved.",
       });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to resolve alert: ${error.message}`,
+        variant: "destructive",
+      });
+    },
+  });
 
-    } catch (err) {
-      console.error('Error fetching platform metrics:', err);
-      console.error('Full error details:', JSON.stringify(err, null, 2));
-      setError(err instanceof Error ? err.message : 'Failed to fetch metrics');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Mutation to acknowledge alerts
+  const acknowledgeAlertMutation = useMutation({
+    mutationFn: async (alertId: string) => {
+      const { error } = await supabase
+        .from('platform_alerts')
+        .update({
+          status: 'acknowledged',
+          acknowledged_at: new Date().toISOString(),
+          acknowledged_by: (await supabase.auth.getUser()).data.user?.id
+        })
+        .eq('id', alertId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['platform-alerts'] });
+      toast({
+        title: "Alert Acknowledged",
+        description: "The alert has been acknowledged.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to acknowledge alert: ${error.message}`,
+        variant: "destructive",
+      });
+    },
+  });
 
   const insertSampleMetrics = async () => {
     try {
-      // Insert some sample metrics for demonstration
-      const sampleMetrics = [
-        { metric_type: 'cpu', metric_name: 'CPU Usage', value: 45, unit: '%', threshold_warning: 70, threshold_critical: 90 },
-        { metric_type: 'memory', metric_name: 'Memory Usage', value: 68, unit: '%', threshold_warning: 80, threshold_critical: 95 },
-        { metric_type: 'database', metric_name: 'Database Response', value: 23, unit: 'ms', threshold_warning: 100, threshold_critical: 200 },
-        { metric_type: 'api', metric_name: 'API Response Time', value: 156, unit: 'ms', threshold_warning: 200, threshold_critical: 500 },
-        { metric_type: 'network', metric_name: 'Network Latency', value: 34, unit: 'ms', threshold_warning: 50, threshold_critical: 100 }
-      ];
+      // Insert sample performance data
+      const sampleMetrics = Array.from({ length: 24 }, (_, i) => ({
+        response_time_ms: Math.floor(80 + Math.random() * 80),
+        cpu_usage_percent: parseFloat((30 + Math.random() * 40).toFixed(2)),
+        memory_usage_percent: parseFloat((40 + Math.random() * 30).toFixed(2)),
+        database_connections: Math.floor(10 + Math.random() * 20),
+        active_sessions: Math.floor(50 + Math.random() * 200),
+        api_calls_count: Math.floor(1000 + Math.random() * 5000),
+        error_rate_percent: parseFloat((Math.random() * 2).toFixed(2)),
+        recorded_at: new Date(Date.now() - (i * 60 * 60 * 1000)).toISOString(),
+      }));
 
-      const { error } = await supabase
-        .from('system_metrics')
+      const { error: perfError } = await supabase
+        .from('platform_performance')
         .insert(sampleMetrics);
 
-      if (error) throw error;
+      if (perfError) throw perfError;
 
-      // Insert sample alert
+      // Insert some sample alerts
+      const sampleAlerts = [
+        {
+          title: 'High CPU Usage Detected',
+          message: 'CPU usage has exceeded 80% for the past 10 minutes',
+          severity: 'warning' as const,
+          alert_type: 'performance',
+          status: 'active' as const,
+        },
+        {
+          title: 'Database Connection Spike',
+          message: 'Unusual spike in database connections detected',
+          severity: 'critical' as const,
+          alert_type: 'database',
+          status: 'active' as const,
+        },
+        {
+          title: 'API Rate Limit Exceeded',
+          message: 'Several tenants are approaching API rate limits',
+          severity: 'medium' as const,
+          alert_type: 'api',
+          status: 'resolved' as const,
+          resolved_at: new Date().toISOString(),
+        },
+      ];
+
       const { error: alertError } = await supabase
         .from('platform_alerts')
-        .insert({
-          alert_type: 'performance',
-          title: 'High API Response Time',
-          message: 'API response time is above normal threshold',
-          severity: 'warning'
-        });
+        .insert(sampleAlerts);
 
       if (alertError) throw alertError;
 
-      // Refresh metrics
-      fetchPlatformMetrics();
-    } catch (err) {
-      console.error('Error inserting sample metrics:', err);
+      // Refresh all queries
+      queryClient.invalidateQueries({ queryKey: ['platform-stats'] });
+      queryClient.invalidateQueries({ queryKey: ['platform-alerts'] });
+
+      toast({
+        title: "Sample Data Created",
+        description: "Sample metrics and alerts have been inserted.",
+      });
+
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: `Failed to insert sample data: ${error.message}`,
+        variant: "destructive",
+      });
     }
   };
-
-  useEffect(() => {
-    fetchPlatformMetrics();
-
-    // Set up real-time updates
-    const metricsChannel = supabase
-      .channel('platform-metrics-changes')
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'system_metrics'
-      }, () => {
-        fetchPlatformMetrics();
-      })
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'platform_alerts'
-      }, () => {
-        fetchPlatformMetrics();
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(metricsChannel);
-    };
-  }, []);
 
   return {
     metrics,
     systemMetrics,
     alerts,
-    loading,
-    error,
-    refreshMetrics: fetchPlatformMetrics,
-    insertSampleMetrics
+    loading: isLoading,
+    error: error?.message,
+    resolveAlert: resolveAlertMutation.mutate,
+    acknowledgeAlert: acknowledgeAlertMutation.mutate,
+    insertSampleMetrics,
+    isResolvingAlert: resolveAlertMutation.isPending,
+    isAcknowledgingAlert: acknowledgeAlertMutation.isPending,
   };
 };

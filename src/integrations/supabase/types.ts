@@ -1489,6 +1489,127 @@ export type Database = {
           },
         ]
       }
+      platform_metrics: {
+        Row: {
+          created_at: string
+          id: string
+          metadata: Json | null
+          metric_name: string
+          metric_type: string
+          metric_value: number
+          recorded_at: string
+          tenant_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          metric_name: string
+          metric_type: string
+          metric_value: number
+          recorded_at?: string
+          tenant_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          metric_name?: string
+          metric_type?: string
+          metric_value?: number
+          recorded_at?: string
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_metrics_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      platform_performance: {
+        Row: {
+          active_sessions: number | null
+          api_calls_count: number | null
+          cpu_usage_percent: number | null
+          created_at: string
+          database_connections: number | null
+          error_rate_percent: number | null
+          id: string
+          memory_usage_percent: number | null
+          recorded_at: string
+          response_time_ms: number
+        }
+        Insert: {
+          active_sessions?: number | null
+          api_calls_count?: number | null
+          cpu_usage_percent?: number | null
+          created_at?: string
+          database_connections?: number | null
+          error_rate_percent?: number | null
+          id?: string
+          memory_usage_percent?: number | null
+          recorded_at?: string
+          response_time_ms: number
+        }
+        Update: {
+          active_sessions?: number | null
+          api_calls_count?: number | null
+          cpu_usage_percent?: number | null
+          created_at?: string
+          database_connections?: number | null
+          error_rate_percent?: number | null
+          id?: string
+          memory_usage_percent?: number | null
+          recorded_at?: string
+          response_time_ms?: number
+        }
+        Relationships: []
+      }
+      platform_revenue: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          period_end: string
+          period_start: string
+          recorded_at: string
+          revenue_type: string
+          tenant_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          period_end: string
+          period_start: string
+          recorded_at?: string
+          revenue_type: string
+          tenant_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          period_end?: string
+          period_start?: string
+          recorded_at?: string
+          revenue_type?: string
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_revenue_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plaud_configurations: {
         Row: {
           api_key: string | null
@@ -2890,6 +3011,10 @@ export type Database = {
           p_email?: string
         }
         Returns: string
+      }
+      get_platform_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
       }
       get_user_current_tenant: {
         Args: { user_id: string }
