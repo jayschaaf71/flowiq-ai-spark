@@ -78,6 +78,9 @@ export function TenantSwitcher() {
 
   const switchTenant = async (tenantId: string) => {
     try {
+      // Find the selected tenant to get its specialty
+      const selectedTenant = tenants.find(t => t.id === tenantId);
+      
       // Update user's current tenant
       const { error } = await supabase
         .from('profiles')
@@ -89,12 +92,34 @@ export function TenantSwitcher() {
         return;
       }
 
+      // Update localStorage with the new specialty
+      if (selectedTenant?.specialty) {
+        localStorage.setItem('currentSpecialty', selectedTenant.specialty);
+      }
+
       // Refetch tenant config
       await refetch();
       setOpen(false);
       
-      // Optionally reload page to ensure all components pick up new tenant
-      window.location.reload();
+      // Navigate to the appropriate specialty dashboard instead of reloading
+      if (selectedTenant?.specialty) {
+        const specialtyRoutes: Record<string, string> = {
+          'chiropractic-care': '/chiropractic/dashboard',
+          'chiropractic': '/chiropractic/dashboard',
+          'dental-sleep-medicine': '/dental-sleep/dashboard',
+          'dental-sleep': '/dental-sleep/dashboard',
+          'dental': '/general-dentistry/dashboard',
+          'med-spa': '/medspa/dashboard',
+          'concierge': '/concierge-medicine/dashboard',
+          'hrt': '/hrt/dashboard'
+        };
+        
+        const targetRoute = specialtyRoutes[selectedTenant.specialty] || '/chiropractic/dashboard';
+        window.location.href = targetRoute;
+      } else {
+        // Fallback to reload if no specialty found
+        window.location.reload();
+      }
     } catch (error) {
       console.error('Error switching tenant:', error);
     }
