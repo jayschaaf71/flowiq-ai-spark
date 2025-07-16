@@ -148,7 +148,12 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
           </Button>
           
           <Button 
-            onClick={onSendMessage}
+            onClick={(e) => {
+              console.log('🔵 Send button clicked!', { inputMessage, isLoading });
+              e.preventDefault();
+              e.stopPropagation();
+              onSendMessage();
+            }}
             size="icon"
             disabled={isLoading || !inputMessage.trim()}
             className="bg-blue-500 hover:bg-blue-600"

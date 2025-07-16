@@ -25,7 +25,7 @@ export const useAIHelpAssistant = () => {
       {
         id: '1',
         type: 'assistant' as const,
-        content: "Hi! I'm your FlowiQ AI assistant. I can help you navigate the app, explain features, and guide you through workflows. What would you like to know?",
+        content: "Hi! I'm Sage, your FlowiQ AI assistant. I can help you navigate the app, explain features, and guide you through workflows. What would you like to know?",
         timestamp: new Date()
       }
     ];
@@ -233,7 +233,7 @@ export const useAIHelpAssistant = () => {
       {
         id: '1',
         type: 'assistant' as const,
-        content: "Hi! I'm your FlowiQ AI assistant. I can help you navigate the app, explain features, and guide you through workflows. What would you like to know?",
+        content: "Hi! I'm Sage, your FlowiQ AI assistant. I can help you navigate the app, explain features, and guide you through workflows. What would you like to know?",
         timestamp: new Date()
       }
     ];
