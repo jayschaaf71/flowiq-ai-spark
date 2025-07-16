@@ -48,11 +48,27 @@ export const useScribeSettings = () => {
         return;
       }
 
-      // Mock scribe settings since table doesn't exist
-      console.log('Using mock scribe settings data');
-      setSettings(defaultSettings);
+      // Try to load settings from database
+      const { data: settingsRecord, error } = await supabase
+        .from('scribe_settings')
+        .select('settings')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error loading settings:', error);
+        setSettings(defaultSettings);
+      } else if (settingsRecord?.settings) {
+        // Merge saved settings with defaults to ensure all properties exist
+        const savedSettings = { ...defaultSettings, ...(settingsRecord.settings as Partial<ScribeSettings>) };
+        setSettings(savedSettings);
+      } else {
+        // No saved settings found, use defaults
+        setSettings(defaultSettings);
+      }
     } catch (error) {
       console.error('Error loading settings:', error);
+      setSettings(defaultSettings);
     } finally {
       setIsLoading(false);
     }
@@ -69,8 +85,19 @@ export const useScribeSettings = () => {
       // Convert settings to a plain object that matches Supabase Json type
       const settingsData = JSON.parse(JSON.stringify(newSettings));
 
-      // Mock settings save since table doesn't exist
-      console.log('Mock saving scribe settings:', settingsData);
+      // Insert or update settings in database
+      const { error } = await supabase
+        .from('scribe_settings')
+        .upsert({
+          user_id: user.id,
+          settings: settingsData
+        }, {
+          onConflict: 'user_id'
+        });
+
+      if (error) {
+        throw error;
+      }
 
       setSettings(newSettings);
       toast({
