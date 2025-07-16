@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -11,11 +11,36 @@ interface SOAPNote {
   plan: string;
 }
 
+// Use sessionStorage to persist SOAP state across tab switches
+const SOAP_STORAGE_KEY = 'scribe_generated_soap';
+
 export const useSOAPGeneration = () => {
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedSOAP, setGeneratedSOAP] = useState<SOAPNote | null>(null);
+  const [generatedSOAP, setGeneratedSOAP] = useState<SOAPNote | null>(() => {
+    // Initialize from sessionStorage if available
+    if (typeof window !== 'undefined') {
+      const stored = sessionStorage.getItem(SOAP_STORAGE_KEY);
+      if (stored) {
+        try {
+          return JSON.parse(stored);
+        } catch {
+          return null;
+        }
+      }
+    }
+    return null;
+  });
   const { toast } = useToast();
   const { user } = useAuth();
+
+  // Persist SOAP to sessionStorage whenever it changes
+  useEffect(() => {
+    if (generatedSOAP) {
+      sessionStorage.setItem(SOAP_STORAGE_KEY, JSON.stringify(generatedSOAP));
+    } else {
+      sessionStorage.removeItem(SOAP_STORAGE_KEY);
+    }
+  }, [generatedSOAP]);
 
   const generateSOAPFromTranscription = async (transcription: string): Promise<SOAPNote> => {
     console.log('useSOAPGeneration: Starting generation process');
@@ -74,6 +99,7 @@ export const useSOAPGeneration = () => {
   const clearSOAP = () => {
     console.log('useSOAPGeneration: Clearing SOAP note');
     setGeneratedSOAP(null);
+    sessionStorage.removeItem(SOAP_STORAGE_KEY);
   };
 
   console.log('useSOAPGeneration: Current state - isGenerating:', isGenerating, 'generatedSOAP:', !!generatedSOAP);
