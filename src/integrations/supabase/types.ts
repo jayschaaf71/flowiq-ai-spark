@@ -2027,6 +2027,42 @@ export type Database = {
           },
         ]
       }
+      sage_interactions: {
+        Row: {
+          action_type: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          question: string
+          response: string
+          tenant_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          question: string
+          response: string
+          tenant_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          question?: string
+          response?: string
+          tenant_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       scribe_settings: {
         Row: {
           created_at: string
