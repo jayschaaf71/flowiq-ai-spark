@@ -2,6 +2,8 @@ import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { medicalTerminologyService, type MedicalTerm } from '@/services/medicalTerminologyService';
 import { useToast } from '@/hooks/use-toast';
+import { useSpecialty } from '@/contexts/SpecialtyContext';
+import type { SpecialtyType } from '@/utils/specialtyConfig';
 
 interface EnhancedTranscription {
   originalText: string;
@@ -10,7 +12,10 @@ interface EnhancedTranscription {
   confidence: number;
   spellingSuggestions: { term: string; suggestions: string[] }[];
   icd10Suggestions: { condition: string; icd10: string; confidence: number }[];
+  procedureSuggestions: { name: string; cptCode: string; confidence: number }[];
+  clinicalFlags: string[];
   processingTime: number;
+  specialty?: SpecialtyType;
 }
 
 interface EnhancedSOAPNotes {
@@ -22,6 +27,7 @@ interface EnhancedSOAPNotes {
   suggestedCPTCodes: string[];
   clinicalFlags: string[];
   confidence: number;
+  specialty?: SpecialtyType;
 }
 
 export const useEnhancedMedicalAI = () => {
@@ -29,6 +35,7 @@ export const useEnhancedMedicalAI = () => {
   const [enhancedTranscription, setEnhancedTranscription] = useState<EnhancedTranscription | null>(null);
   const [enhancedSOAP, setEnhancedSOAP] = useState<EnhancedSOAPNotes | null>(null);
   const { toast } = useToast();
+  const { specialty } = useSpecialty();
 
   /**
    * Enhanced transcription with medical terminology processing
@@ -49,8 +56,8 @@ export const useEnhancedMedicalAI = () => {
     try {
       console.log('🔬 Enhancing transcription with medical AI...');
       
-      // Process with medical terminology service
-      const processed = medicalTerminologyService.processText(rawTranscription);
+      // Process with medical terminology service (specialty-aware)
+      const processed = medicalTerminologyService.processText(rawTranscription, specialty as SpecialtyType);
       
       const enhancement: EnhancedTranscription = {
         originalText: rawTranscription,
@@ -59,7 +66,10 @@ export const useEnhancedMedicalAI = () => {
         confidence: processed.confidence,
         spellingSuggestions: processed.spellingSuggestions,
         icd10Suggestions: processed.icd10Suggestions,
-        processingTime: Date.now() - startTime
+        procedureSuggestions: processed.procedureSuggestions,
+        clinicalFlags: processed.clinicalFlags,
+        processingTime: Date.now() - startTime,
+        specialty: processed.specialty
       };
 
       setEnhancedTranscription(enhancement);
@@ -112,7 +122,8 @@ export const useEnhancedMedicalAI = () => {
           medicalTerms: enhanced.medicalTerms,
           icd10Suggestions: enhanced.icd10Suggestions,
           patientContext,
-          enhancedProcessing: true
+          enhancedProcessing: true,
+          specialty: specialty
         }
       });
 
