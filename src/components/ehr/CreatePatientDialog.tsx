@@ -92,6 +92,10 @@ export const CreatePatientDialog = ({
     setIsCreating(true);
     
     try {
+      // Get current specialty from user-specific storage for HIPAA compliance
+      const { data: { user } } = await supabase.auth.getUser();
+      const currentSpecialty = localStorage.getItem(`currentSpecialty_${user?.id}`) || 'dental-sleep';
+      
       const { data, error } = await supabase
         .from('patients')
         .insert([{
@@ -103,6 +107,7 @@ export const CreatePatientDialog = ({
           gender: formData.gender || null,
           patient_number: `PAT-${Date.now()}`, // Generate a unique patient number
           tenant_id: userTenantId, // Add the tenant_id to satisfy RLS policy
+          specialty: currentSpecialty, // Add specialty to match the filter in usePatients
         }])
         .select()
         .single();
