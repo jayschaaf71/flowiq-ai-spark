@@ -390,7 +390,7 @@ export const FloatingAssistIQ: React.FC = () => {
               {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
             </Button>
             <Button 
-              onClick={handleSendMessage}
+              onClick={() => handleSendMessage()}
               size="icon"
               disabled={isLoading || !inputMessage.trim()}
               className="bg-blue-500 hover:bg-blue-600"

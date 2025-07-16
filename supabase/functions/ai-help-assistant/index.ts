@@ -44,7 +44,7 @@ serve(async (req) => {
 
     // For now, use simple AI response without function calls to avoid database issues
     console.log('Using simple AI response (no functions)');
-    const aiResponse = await callOpenAISimple(message, context);
+    const aiResponse = await callOpenAISimple(message, context, conversationHistory || []);
     
     if (!aiResponse || !aiResponse.choices || aiResponse.choices.length === 0) {
       throw new Error('Invalid AI response format');
