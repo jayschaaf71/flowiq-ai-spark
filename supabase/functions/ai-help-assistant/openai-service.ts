@@ -75,36 +75,52 @@ NOTE: Function calling is currently disabled. Please provide helpful guidance an
 
   console.log('Making OpenAI API call without functions...');
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: AI_CONFIG.model,
-      messages: [
-        { role: 'system', content: fullSystemPrompt },
-        { role: 'user', content: message }
-      ],
-      temperature: AI_CONFIG.temperature,
-      max_tokens: AI_CONFIG.maxTokens,
-    }),
-  });
+  // Add timeout to OpenAI request to prevent hanging
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 second timeout
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error('OpenAI API error response:', {
-      status: response.status,
-      statusText: response.statusText,
-      errorText
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: AI_CONFIG.model,
+        messages: [
+          { role: 'system', content: fullSystemPrompt },
+          { role: 'user', content: message }
+        ],
+        temperature: AI_CONFIG.temperature,
+        max_tokens: AI_CONFIG.maxTokens,
+      }),
+      signal: controller.signal,
     });
-    throw new Error(`OpenAI API error (${response.status}): ${errorText}`);
-  }
+    
+    clearTimeout(timeoutId);
 
-  const result = await response.json();
-  console.log('OpenAI API call successful');
-  return result;
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('OpenAI API error response:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorText
+      });
+      throw new Error(`OpenAI API error (${response.status}): ${errorText}`);
+    }
+
+    const result = await response.json();
+    console.log('OpenAI API call successful');
+    return result;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      console.error('OpenAI API request timed out');
+      throw new Error('AI request timed out - please try again');
+    }
+    throw error;
+  }
 }
 
 export async function getFollowUpResponse(

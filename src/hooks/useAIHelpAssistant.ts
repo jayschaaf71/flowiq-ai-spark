@@ -85,20 +85,27 @@ export const useAIHelpAssistant = () => {
     setIsLoading(true);
 
     try {
-      // Add retry logic for better reliability
+      // Add retry logic with timeout for better reliability
       let retryCount = 0;
       const maxRetries = 2;
       let lastError;
 
       while (retryCount <= maxRetries) {
         try {
-          const { data, error } = await supabase.functions.invoke('ai-help-assistant', {
+          // Add a timeout wrapper for the request
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Request timeout after 30 seconds')), 30000);
+          });
+
+          const requestPromise = supabase.functions.invoke('ai-help-assistant', {
             body: {
               message: messageContent,
               context: getContextualInfo(),
               conversationHistory: messages.slice(-5) // Last 5 messages for context
             }
           });
+
+          const { data, error } = await Promise.race([requestPromise, timeoutPromise]) as any;
 
           if (error) {
             throw new Error(error.message || 'Edge Function error');
