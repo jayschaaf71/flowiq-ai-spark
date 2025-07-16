@@ -51,6 +51,11 @@ export const ScribeSOAPGeneration = () => {
     // Cleanup audio elements on unmount
     return () => {
       Object.values(audioElements).forEach(audio => {
+        // Remove event listeners to prevent random errors
+        audio.onended = null;
+        audio.onerror = null;
+        audio.onloadedmetadata = null;
+        audio.ontimeupdate = null;
         audio.pause();
         audio.src = '';
       });
@@ -172,21 +177,31 @@ export const ScribeSOAPGeneration = () => {
           setPlayingRecordingId(null);
         };
 
-        audio.onerror = () => {
-          toast({
-            title: "Playback Error",
-            description: "Could not play the audio file",
-            variant: "destructive"
-          });
+        audio.onerror = (e) => {
+          console.log('Audio error for recording:', recording.id, e);
+          // Only show toast if the user was actively trying to play this audio
+          if (playingRecordingId === recording.id) {
+            toast({
+              title: "Playback Error",
+              description: "Could not play the audio file",
+              variant: "destructive"
+            });
+          }
           setPlayingRecordingId(null);
         };
 
         audio.onloadedmetadata = () => {
-          setDuration(prev => ({ ...prev, [recording.id]: audio.duration }));
+          // Only update duration if this recording is still relevant
+          if (recordings.some(r => r.id === recording.id)) {
+            setDuration(prev => ({ ...prev, [recording.id]: audio.duration }));
+          }
         };
 
         audio.ontimeupdate = () => {
-          setCurrentTime(prev => ({ ...prev, [recording.id]: audio.currentTime }));
+          // Only update time if this recording is still relevant and playing
+          if (recordings.some(r => r.id === recording.id) && playingRecordingId === recording.id) {
+            setCurrentTime(prev => ({ ...prev, [recording.id]: audio.currentTime }));
+          }
         };
 
         // Store the audio element
