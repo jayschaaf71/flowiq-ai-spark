@@ -10,13 +10,36 @@ const getWebhookUrl = () => {
 
 export const loadPlaudConfig = async (): Promise<PlaudConfig | null> => {
   try {
-    console.log('Loading Plaud configuration');
+    console.log('Loading Plaud configuration from database');
     
-    // Plaud works via webhook integration, no API key needed
+    // Get current user's tenant ID from their profile
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('current_tenant_id')
+      .single();
+    
+    if (!profile?.current_tenant_id) {
+      console.log('No tenant found for user');
+      return null;
+    }
+    
+    // Load configuration from database
+    const { data: config, error } = await supabase
+      .from('plaud_configurations')
+      .select('*')
+      .eq('tenant_id', profile.current_tenant_id)
+      .eq('is_active', true)
+      .single();
+    
+    if (error) {
+      console.log('No Plaud configuration found in database:', error.message);
+      return null;
+    }
+    
     return {
-      apiKey: '', // Not used for webhook integration
-      webhookUrl: getWebhookUrl(),
-      autoSync: true
+      apiKey: config.api_key || '',
+      webhookUrl: config.webhook_url || getWebhookUrl(),
+      autoSync: config.auto_sync
     };
   } catch (error) {
     console.error('Failed to load Plaud configuration:', error);
@@ -26,12 +49,44 @@ export const loadPlaudConfig = async (): Promise<PlaudConfig | null> => {
 
 export const savePlaudConfig = async (newConfig: PlaudConfig): Promise<boolean> => {
   try {
-    console.log('Saving Plaud webhook configuration:', newConfig);
+    console.log('Saving Plaud webhook configuration to database:', newConfig);
     
-    // Log the webhook URL for user reference
-    console.log('Plaud webhook URL configured:', getWebhookUrl());
+    // Get current user's tenant ID and user ID
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('current_tenant_id, id')
+      .single();
     
-    // Webhook integration is now active
+    if (!profile?.current_tenant_id) {
+      console.error('No tenant found for user');
+      return false;
+    }
+    
+    // Save or update configuration in database
+    const { error } = await supabase
+      .from('plaud_configurations')
+      .upsert({
+        tenant_id: profile.current_tenant_id,
+        user_id: profile.id,
+        api_key: newConfig.apiKey,
+        webhook_url: newConfig.webhookUrl,
+        auto_sync: newConfig.autoSync,
+        is_active: true,
+        transcription_settings: {},
+        metadata: {
+          configured_at: new Date().toISOString(),
+          integration_type: 'zapier'
+        }
+      }, {
+        onConflict: 'tenant_id'
+      });
+    
+    if (error) {
+      console.error('Failed to save Plaud configuration:', error);
+      return false;
+    }
+    
+    console.log('Plaud configuration saved successfully');
     return true;
   } catch (error) {
     console.error('Failed to save Plaud configuration:', error);
