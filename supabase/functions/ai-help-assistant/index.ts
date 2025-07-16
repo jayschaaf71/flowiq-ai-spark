@@ -47,37 +47,57 @@ serve(async (req) => {
 
     let finalResponse: string;
 
-    // Always use OpenAI for intelligent, actionable responses
-    const enhancedContext = `${context} 
+    console.log('Processing AI request with enhanced error handling');
 
-SPECIALTY CONTEXT: The user is working within ${brandName || 'FlowiQ'} platform, which is specifically designed for ${specialty || 'healthcare'} practices. 
+    try {
+      // Enhanced context for better responses
+      const enhancedContext = `${context} 
 
-IMPORTANT: You are Sage AI, a highly capable assistant that can help users accomplish real tasks. When users ask for help:
+IMPORTANT INSTRUCTIONS FOR SAGE AI:
+- You are Sage AI, a highly capable practice management assistant
+- ALWAYS provide specific, actionable steps with exact navigation paths
+- For appointment scheduling: "Navigate to Schedule iQ → Click 'New Appointment' → Select patient → Choose time slot → Confirm"
+- For patient management: "Go to Patient Management → Click 'Add Patient' → Fill required fields → Save"
+- Be specific about button names, menu locations, and exact steps
+- Keep responses under 200 words but make them actionable
+- Focus on getting the user to their goal quickly
 
-1. For appointment scheduling: Provide specific navigation steps like "Go to Schedule iQ → Click 'New Appointment' → Select patient from dropdown → Choose available time slot"
-
-2. For patient management: Give exact steps like "Navigate to Patient Management → Click 'Add Patient' → Fill required fields (Name, DOB, Contact) → Save"
-
-3. For specific questions about features: Explain exactly how to use them with step-by-step guidance
-
-4. For workflow questions: Provide the complete process from start to finish
-
-Be specific, actionable, and helpful. Don't just list features - tell them exactly what to do next to accomplish their goal.
-
-Current page context: ${context}
+Context: ${context}
 Specialty: ${specialty || 'healthcare'}
-Brand: ${brandName || 'FlowiQ'}
+Brand: ${brandName || 'FlowiQ'}`;
 
-Keep responses practical and under 200 words.`;
-
-    console.log('Using OpenAI for intelligent, actionable response');
-    const aiResponse = await callOpenAISimple(message, enhancedContext, conversationHistory || []);
-    
-    if (!aiResponse || !aiResponse.choices || aiResponse.choices.length === 0) {
-      throw new Error('Invalid AI response format');
+      console.log('Calling OpenAI with enhanced context');
+      
+      // Set a reasonable timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+      
+      const aiResponse = await callOpenAISimple(message, enhancedContext, conversationHistory || [], controller.signal);
+      clearTimeout(timeoutId);
+      
+      if (!aiResponse || !aiResponse.choices || aiResponse.choices.length === 0) {
+        console.error('Invalid AI response structure:', aiResponse);
+        throw new Error('Invalid response from AI service');
+      }
+      
+      finalResponse = aiResponse.choices[0].message?.content || 
+        `I'm here to help with ${brandName}! Could you please rephrase your question so I can provide specific guidance?`;
+      
+      console.log('Successfully generated AI response');
+      
+    } catch (error) {
+      console.error('AI processing error:', error);
+      
+      // Provide helpful fallback responses
+      const lowerMessage = message.toLowerCase();
+      if (lowerMessage.includes('appointment') || lowerMessage.includes('schedule')) {
+        finalResponse = `To schedule an appointment in ${brandName}:\n\n1. Navigate to Schedule iQ in the sidebar\n2. Click "New Appointment"\n3. Select the patient from the dropdown\n4. Choose an available time slot\n5. Click "Save Appointment"\n\nThe system will automatically handle conflicts and send confirmations.`;
+      } else if (lowerMessage.includes('patient') && lowerMessage.includes('add')) {
+        finalResponse = `To add a new patient in ${brandName}:\n\n1. Go to Patient Management\n2. Click "Add New Patient"\n3. Fill in required fields (Name, DOB, Contact info)\n4. Add insurance information if available\n5. Click "Save Patient"\n\nYou can also use voice input for faster data entry!`;
+      } else {
+        finalResponse = `I'm having trouble connecting to my AI services right now. Here are some quick help options:\n\n• Check the help documentation\n• Try rephrasing your question\n• Contact support if the issue persists\n\nWhat specific ${brandName} feature would you like help with?`;
+      }
     }
-    
-    finalResponse = aiResponse.choices[0].message?.content || 'I apologize, but I was unable to generate a response. Please try again.';
     
     console.log('AI Help response generated successfully');
 

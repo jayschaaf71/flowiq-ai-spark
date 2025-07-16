@@ -55,7 +55,12 @@ ${historyContext}`;
   return result;
 }
 
-export async function callOpenAISimple(message: string, context: string, conversationHistory: any[]) {
+export async function callOpenAISimple(
+  message: string, 
+  context: string, 
+  conversationHistory: any[] = [],
+  signal?: AbortSignal
+) {
   console.log('=== Calling OpenAI Simple (no functions) ===');
   console.log('Message:', message);
   console.log('Context:', context);
@@ -73,11 +78,12 @@ ${historyContext}
 
 NOTE: Function calling is currently disabled. Please provide helpful guidance and information instead of trying to perform actions.`;
 
-  console.log('Making OpenAI API call without functions...');
+  console.log('Making robust OpenAI API call...');
 
-  // Add timeout to OpenAI request to prevent hanging
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout for faster response
+  // Use provided signal or create new one with timeout
+  const controller = signal ? undefined : new AbortController();
+  const timeoutId = controller ? setTimeout(() => controller.abort(), 12000) : undefined; // 12 second timeout
+  const requestSignal = signal || controller?.signal;
 
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -95,10 +101,10 @@ NOTE: Function calling is currently disabled. Please provide helpful guidance an
         temperature: 0.3, // Lower temperature for faster, more focused responses
         max_tokens: 500, // Reduced token limit for faster responses
       }),
-      signal: controller.signal,
+      signal: requestSignal,
     });
     
-    clearTimeout(timeoutId);
+    if (timeoutId) clearTimeout(timeoutId);
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -114,7 +120,7 @@ NOTE: Function calling is currently disabled. Please provide helpful guidance an
     console.log('OpenAI API call successful');
     return result;
   } catch (error) {
-    clearTimeout(timeoutId);
+    if (timeoutId) clearTimeout(timeoutId);
     if (error.name === 'AbortError') {
       console.error('OpenAI API request timed out');
       throw new Error('AI request timed out - please try again');

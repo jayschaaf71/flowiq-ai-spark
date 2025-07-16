@@ -1,32 +1,18 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { ChatWindow } from './chat/ChatWindow';
 import { useAIHelpAssistant } from '@/hooks/useAIHelpAssistant';
 import { useSpecialty } from '@/contexts/SpecialtyContext';
 import { 
-  Sparkles, 
   X, 
-  Send, 
   Minimize2, 
   Maximize2, 
   Trash2,
   MessageCircle,
-  Zap,
-  Mic,
-  MicOff
+  Zap
 } from 'lucide-react';
-
-// Extend Window interface for Speech Recognition
-declare global {
-  interface Window {
-    SpeechRecognition: any;
-    webkitSpeechRecognition: any;
-  }
-}
 
 export const FloatingAssistIQ: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -34,19 +20,14 @@ export const FloatingAssistIQ: React.FC = () => {
   const [position, setPosition] = useState({ x: 20, y: 20 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [isRecording, setIsRecording] = useState(false);
-  const [recognition, setRecognition] = useState<any>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
+  const windowRef = useRef<HTMLDivElement>(null);
 
-  // Get specialty context for wrapper awareness
   const { currentSpecialty, getBrandName } = useSpecialty();
 
   const {
     messages,
     inputMessage,
     isLoading,
-    messagesEndRef,
-    currentPath,
     setInputMessage,
     handleSendMessage,
     handleKeyPress,
@@ -54,67 +35,26 @@ export const FloatingAssistIQ: React.FC = () => {
     handleQuickQuestion
   } = useAIHelpAssistant();
 
-  // Initialize speech recognition
-  useEffect(() => {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const recognitionInstance = new SpeechRecognition();
-      recognitionInstance.continuous = false;
-      recognitionInstance.interimResults = false;
-      recognitionInstance.lang = 'en-US';
-
-      recognitionInstance.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        setInputMessage(transcript);
-        setIsRecording(false);
-      };
-
-      recognitionInstance.onerror = (event) => {
-        console.error('Speech recognition error:', event.error);
-        setIsRecording(false);
-      };
-
-      recognitionInstance.onend = () => {
-        setIsRecording(false);
-      };
-
-      setRecognition(recognitionInstance);
-    }
-  }, [setInputMessage]);
-
-  // Voice recording functions
-  const startRecording = () => {
-    if (recognition) {
-      setIsRecording(true);
-      recognition.start();
-    }
-  };
-
-  const stopRecording = () => {
-    if (recognition) {
-      recognition.stop();
-      setIsRecording(false);
-    }
-  };
-
   const quickQuestions = [
-    "How do I add a new patient?",
-    "How does voice intake work?", 
-    "How do I schedule an appointment?",
-    "Show me today's appointments",
-    "What are the AI agents?",
-    "How do I process insurance claims?"
+    "Set up an appointment for a new patient",
+    "Walk me through adding a patient record", 
+    "How do I process a voice intake form?",
+    "Show me how to submit an insurance claim",
+    "Help me schedule a follow-up appointment",
+    "Guide me through the patient check-in process"
   ];
 
-  // Handle dragging
+  // Dragging logic
   const handleMouseDown = (e: React.MouseEvent) => {
     if (isMinimized) return;
-    // Prevent dragging when clicking on buttons or input elements
+    
     const target = e.target as HTMLElement;
-    if (target.closest('button') || target.closest('input') || target.closest('[role="scrollbar"]')) return;
+    if (target.closest('button') || target.closest('input') || target.closest('[data-radix-scroll-area-viewport]')) {
+      return;
+    }
     
     setIsDragging(true);
-    const rect = cardRef.current?.getBoundingClientRect();
+    const rect = windowRef.current?.getBoundingClientRect();
     if (rect) {
       setDragOffset({
         x: e.clientX - rect.left,
@@ -123,27 +63,15 @@ export const FloatingAssistIQ: React.FC = () => {
     }
   };
 
-  // Enhanced close function with proper event handling
-  const handleClose = (e?: React.MouseEvent) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    setIsOpen(false);
-  };
-
-  useEffect(() => {
+  React.useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDragging) return;
       
       const newX = e.clientX - dragOffset.x;
       const newY = e.clientY - dragOffset.y;
       
-      // Keep within viewport bounds with proper boundaries
-      const cardWidth = 400; // Approximate width of the widget
-      const cardHeight = 600; // Height of the widget
-      const maxX = window.innerWidth - cardWidth;
-      const maxY = window.innerHeight - cardHeight;
+      const maxX = window.innerWidth - 400;
+      const maxY = window.innerHeight - 600;
       
       setPosition({
         x: Math.max(0, Math.min(newX, maxX)),
@@ -166,6 +94,12 @@ export const FloatingAssistIQ: React.FC = () => {
     };
   }, [isDragging, dragOffset]);
 
+  // Close with proper cleanup
+  const handleClose = () => {
+    setIsOpen(false);
+    setIsMinimized(false);
+  };
+
   // Floating trigger button
   if (!isOpen) {
     return (
@@ -174,7 +108,7 @@ export const FloatingAssistIQ: React.FC = () => {
           <TooltipTrigger asChild>
             <Button
               onClick={() => setIsOpen(true)}
-              className="fixed bottom-6 right-6 h-20 w-20 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 shadow-2xl z-40 group transition-all duration-300 hover:scale-110"
+              className="fixed bottom-6 right-6 h-20 w-20 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 shadow-2xl z-50 group transition-all duration-300 hover:scale-110"
               size="icon"
             >
               <div className="relative flex flex-col items-center">
@@ -185,7 +119,7 @@ export const FloatingAssistIQ: React.FC = () => {
             </Button>
           </TooltipTrigger>
           <TooltipContent side="left">
-            <p>Sage AI - Your Friendly AI Assistant</p>
+            <p>Sage AI - Your Practice Assistant</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -195,15 +129,15 @@ export const FloatingAssistIQ: React.FC = () => {
   // Minimized state
   if (isMinimized) {
     return (
-      <Card 
+      <div 
         className="fixed z-50 w-80 shadow-2xl border-2 border-blue-200 bg-white rounded-lg overflow-hidden"
         style={{ 
-          left: Math.max(20, Math.min(position.x, window.innerWidth - 340)), // 340px = w-80 + padding
-          top: Math.max(20, Math.min(position.y, window.innerHeight - 120))   // 120px for header height + padding
+          left: Math.max(20, Math.min(position.x, window.innerWidth - 340)),
+          top: Math.max(20, Math.min(position.y, window.innerHeight - 120))
         }}
-        ref={cardRef}
+        ref={windowRef}
       >
-        <CardHeader className="p-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white cursor-move">
+        <div className="p-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white cursor-move">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Zap className="h-5 w-5" />
@@ -224,38 +158,31 @@ export const FloatingAssistIQ: React.FC = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleClose();
-                }}
-                className="h-6 w-6 text-white hover:bg-white/20 cursor-pointer"
-                style={{ pointerEvents: 'auto' }}
+                onClick={handleClose}
+                className="h-6 w-6 text-white hover:bg-white/20"
               >
                 <X className="h-3 w-3" />
               </Button>
             </div>
           </div>
-        </CardHeader>
-      </Card>
+        </div>
+      </div>
     );
   }
 
-  // Full widget
+  // Full window
   return (
     <div
       className="fixed z-50 w-96 h-[600px] shadow-2xl border-2 border-blue-200 flex flex-col bg-white rounded-lg overflow-hidden"
       style={{ 
-        left: Math.max(20, Math.min(position.x, window.innerWidth - 400)), // 400px = w-96 + padding
-        top: Math.max(20, Math.min(position.y, window.innerHeight - 620))   // 620px = h-[600px] + padding
+        left: Math.max(20, Math.min(position.x, window.innerWidth - 400)),
+        top: Math.max(20, Math.min(position.y, window.innerHeight - 620))
       }}
-      ref={cardRef}
-      onWheel={(e) => e.stopPropagation()} // Prevent scroll bubbling
-      onClick={(e) => e.stopPropagation()} // Prevent event bubbling
-      onPointerDown={(e) => e.stopPropagation()} // Prevent pointer events bubbling
+      ref={windowRef}
     >
-      <CardHeader 
-        className="p-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white cursor-move"
+      {/* Header */}
+      <div 
+        className="p-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white cursor-move select-none"
         onMouseDown={handleMouseDown}
       >
         <div className="flex items-center justify-between">
@@ -290,158 +217,52 @@ export const FloatingAssistIQ: React.FC = () => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handleClose();
-              }}
-              className="h-6 w-6 text-white hover:bg-white/20 cursor-pointer"
-              style={{ pointerEvents: 'auto' }}
+              onClick={handleClose}
+              className="h-6 w-6 text-white hover:bg-white/20"
             >
               <X className="h-3 w-3" />
             </Button>
           </div>
         </div>
-      </CardHeader>
+      </div>
 
-      <CardContent className="flex-1 flex flex-col p-0">
-        {/* Quick Questions */}
-        {messages.length <= 1 && (
-          <div className="p-3 border-b bg-gray-50">
-            <div className="flex items-center gap-1 mb-2">
-              <Sparkles className="h-3 w-3 text-blue-500" />
-              <span className="text-xs font-medium text-gray-600">Quick Start</span>
-            </div>
-            <div className="grid grid-cols-1 gap-1">
-              {quickQuestions.slice(0, 3).map((question, index) => (
-                <Button
-                  key={index}
-                  variant="ghost"
-                  size="sm"
-                  className="justify-start text-xs h-auto p-2 text-gray-600 hover:text-gray-800 hover:bg-white"
-                  onClick={() => handleQuickQuestion(question)}
-                >
-                  <MessageCircle className="h-3 w-3 mr-1" />
-                  {question}
-                </Button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Messages */}
-        <ScrollArea 
-          className="flex-1 p-3"
-          style={{ 
-            touchAction: 'pan-y',
-            overscrollBehavior: 'contain'
-          }}
-          onWheel={(e) => e.stopPropagation()} // Prevent scroll bubbling
-        >
-          <div 
-            className="space-y-3"
-            onWheel={(e) => {
-              // Prevent event from bubbling to parent
-              e.stopPropagation();
-              
-              // Get the scrollable area viewport
-              const scrollArea = e.currentTarget.closest('[data-radix-scroll-area-viewport]');
-              if (scrollArea) {
-                const { scrollTop, scrollHeight, clientHeight } = scrollArea;
-                const atTop = scrollTop === 0;
-                const atBottom = scrollTop >= scrollHeight - clientHeight - 1;
-                
-                // Allow scrolling within bounds, prevent at edges
-                if ((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom)) {
-                  e.preventDefault();
-                }
-              }
-            }}
-          >
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+      {/* Quick Questions */}
+      {messages.length <= 1 && (
+        <div className="p-3 border-b bg-gray-50">
+          <div className="text-xs font-medium text-gray-600 mb-2">Quick Start</div>
+          <div className="grid grid-cols-1 gap-1">
+            {quickQuestions.slice(0, 3).map((question, index) => (
+              <Button
+                key={index}
+                variant="ghost"
+                size="sm"
+                className="justify-start text-xs h-auto p-2 text-gray-600 hover:text-gray-800 hover:bg-white"
+                onClick={() => handleQuickQuestion(question)}
               >
-                <div
-                  className={`max-w-[85%] p-3 rounded-lg text-sm ${
-                    message.type === 'user'
-                      ? 'bg-blue-500 text-white'
-                      : message.type === 'system' 
-                        ? 'bg-orange-100 text-orange-800 border border-orange-200'
-                        : 'bg-gray-100 text-gray-800'
-                  }`}
-                >
-                  <div className="whitespace-pre-wrap break-words">{message.content}</div>
-                  <div className={`text-xs mt-1 ${
-                    message.type === 'user' ? 'text-blue-100' : 'text-gray-500'
-                  }`}>
-                    {message.timestamp.toLocaleTimeString()}
-                  </div>
-                </div>
-              </div>
+                <MessageCircle className="h-3 w-3 mr-1" />
+                {question}
+              </Button>
             ))}
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg max-w-[85%]">
-                  <div className="flex items-center gap-2">
-                    <div className="flex space-x-1">
-                      <div className="h-2 w-2 bg-blue-500 rounded-full animate-bounce"></div>
-                      <div className="h-2 w-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                      <div className="h-2 w-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-                    </div>
-                    <span className="text-sm text-blue-700 font-medium">Sage is thinking...</span>
-                  </div>
-                  <div className="text-xs text-blue-600 mt-1">Usually responds in 3-8 seconds</div>
-                </div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-        </ScrollArea>
-
-        {/* Input */}
-        <div className="p-3 border-t bg-white">
-          <div className="flex gap-2">
-            <Input
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              placeholder="Ask Sage anything about your practice..."
-              onKeyPress={handleKeyPress}
-              className="flex-1 text-sm"
-              disabled={isLoading}
-            />
-            <Button 
-              onClick={isRecording ? stopRecording : startRecording}
-              size="icon"
-              variant={isRecording ? "destructive" : "outline"}
-              disabled={isLoading}
-              className={isRecording ? "animate-pulse" : ""}
-              title={isRecording ? "Stop recording" : "Start voice input"}
-            >
-              {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-            </Button>
-            <Button 
-              onClick={() => handleSendMessage()}
-              size="icon"
-              disabled={isLoading || !inputMessage.trim()}
-              className="bg-blue-500 hover:bg-blue-600"
-            >
-              <Send className="h-4 w-4" />
-            </Button>
-          </div>
-          <div className="flex justify-between items-center mt-1">
-            <div className="text-xs text-gray-500">
-              {getBrandName()} • {currentPath}
-            </div>
-            {isRecording && (
-              <div className="text-xs text-red-500 animate-pulse">
-                🎤 Recording...
-              </div>
-            )}
           </div>
         </div>
-      </CardContent>
+      )}
+
+      {/* Chat Window */}
+      <div className="flex-1 overflow-hidden">
+        <ChatWindow
+          messages={messages}
+          inputMessage={inputMessage}
+          isLoading={isLoading}
+          onInputChange={setInputMessage}
+          onSendMessage={handleSendMessage}
+          onKeyPress={handleKeyPress}
+        />
+      </div>
+
+      {/* Status Bar */}
+      <div className="px-3 py-1 border-t bg-gray-50 text-xs text-gray-500">
+        {getBrandName()} • {currentSpecialty}
+      </div>
     </div>
   );
 };
