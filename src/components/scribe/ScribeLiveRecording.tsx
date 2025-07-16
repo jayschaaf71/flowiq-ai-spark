@@ -57,8 +57,7 @@ export const ScribeLiveRecording = () => {
 
     try {
       await generateSOAPFromTranscription(transcription);
-      // After successful generation, switch to SOAP tab
-      window.dispatchEvent(new CustomEvent('changeScribeTab', { detail: 'soap' }));
+      // Let user stay on current tab to continue workflow (e.g., patient selection)
     } catch (error) {
       console.error('Failed to generate SOAP:', error);
     }
