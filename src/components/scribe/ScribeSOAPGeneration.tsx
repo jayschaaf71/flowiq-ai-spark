@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Brain, FileText, Copy, Download, User, Stethoscope, Code, Clock } from "lucide-react";
+import { Brain, FileText, Copy, Download, User, Stethoscope, Code, Clock, AlertTriangle, Check, Loader } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useSOAPNotes } from "@/hooks/useSOAPNotes";
 import { usePatientSelection } from "@/hooks/usePatientSelection";
@@ -25,6 +25,10 @@ interface VoiceRecording {
 export const ScribeSOAPGeneration = () => {
   const { enhancedSOAP, isProcessing, resetEnhancedData, generateEnhancedSOAP } = useEnhancedMedicalAI();
   const { toast } = useToast();
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [recentRecordings, setRecentRecordings] = useState<any[]>([]);
+  const [appointmentType, setAppointmentType] = useState<string>('');
+  const [appointmentSpecialty, setAppointmentSpecialty] = useState<string>('');
   const { createSOAPNote } = useSOAPNotes();
   const [isSaving, setIsSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -32,6 +36,7 @@ export const ScribeSOAPGeneration = () => {
   const [recordings, setRecordings] = useState<VoiceRecording[]>([]);
   const [loadingRecordings, setLoadingRecordings] = useState(true);
   const [selectedRecording, setSelectedRecording] = useState<VoiceRecording | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
   const { selectedPatient, isSearchOpen, selectPatient, openSearch, closeSearch } = usePatientSelection();
 
   useEffect(() => {
@@ -71,13 +76,48 @@ export const ScribeSOAPGeneration = () => {
 
     setSelectedRecording(recording);
     try {
+      setIsGenerating(true);
       await generateEnhancedSOAP(recording.transcription);
+      
+      // Analyze appointment type after SOAP generation
+      setIsAnalyzing(true);
+      try {
+        const analysisResult = await supabase.functions.invoke('analyze-soap-appointment-type', {
+          body: { 
+            transcription: recording.transcription, 
+            soapNotes: enhancedSOAP,
+            recordingId: recording.id 
+          }
+        });
+
+        if (analysisResult.data) {
+          setAppointmentType(analysisResult.data.appointmentType);
+          setAppointmentSpecialty(analysisResult.data.specialty);
+          
+          toast({
+            title: "SOAP Note Generated",
+            description: `Categorized as: ${analysisResult.data.appointmentType}${analysisResult.data.medicalRecordCreated ? ' • Added to patient record' : ''}`,
+          });
+        }
+      } catch (analysisError) {
+        console.error('Error analyzing appointment type:', analysisError);
+        toast({
+          title: "SOAP Note Generated",
+          description: "Note generated successfully, but appointment type analysis failed",
+          variant: "destructive"
+        });
+      } finally {
+        setIsAnalyzing(false);
+      }
+      
     } catch (error) {
       toast({
         title: "Generation Failed", 
         description: "Failed to generate SOAP notes from this recording.",
         variant: "destructive",
       });
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -305,10 +345,24 @@ ${enhancedSOAP.confidence ? `\nAI Confidence: ${Math.round(enhancedSOAP.confiden
                       <Button
                         size="sm"
                         onClick={() => handleGenerateSOAP(recording)}
-                        disabled={!recording.transcription || recording.status !== 'completed'}
+                        disabled={!recording.transcription || recording.status !== 'completed' || isGenerating || isAnalyzing}
                       >
-                        <Brain className="w-4 h-4 mr-2" />
-                        Generate SOAP
+                        {isGenerating ? (
+                          <>
+                            <Loader className="w-4 h-4 mr-2 animate-spin" />
+                            Generating...
+                          </>
+                        ) : isAnalyzing ? (
+                          <>
+                            <Loader className="w-4 h-4 mr-2 animate-spin" />
+                            Analyzing...
+                          </>
+                        ) : (
+                          <>
+                            <Brain className="w-4 h-4 mr-2" />
+                            Generate SOAP
+                          </>
+                        )}
                       </Button>
                     </div>
                   </div>
@@ -347,6 +401,20 @@ ${enhancedSOAP.confidence ? `\nAI Confidence: ${Math.round(enhancedSOAP.confiden
                   <Badge className="bg-green-100 text-green-700">
                     <Brain className="w-3 h-3 mr-1" />
                     Enhanced AI Generated
+                  </Badge>
+                  {appointmentType && (
+                    <Badge variant="outline" className="text-blue-700 border-blue-200 bg-blue-50">
+                      {appointmentType}
+                    </Badge>
+                  )}
+                  {appointmentSpecialty && (
+                    <Badge variant="outline" className="text-purple-700 border-purple-200 bg-purple-50">
+                      {appointmentSpecialty}
+                    </Badge>
+                  )}
+                  <Badge variant="outline" className="text-yellow-700 border-yellow-200 bg-yellow-50">
+                    <AlertTriangle className="w-3 h-3 mr-1" />
+                    Critical Flags
                   </Badge>
                   {enhancedSOAP.specialty && (
                     <Badge className="bg-blue-100 text-blue-700">

@@ -108,3 +108,9 @@ verify_jwt = false
 
 [functions.n8n-call-update]
 verify_jwt = false
+
+[functions.analyze-soap-appointment-type]
+verify_jwt = false
+
+[functions.generate-soap-note]
+verify_jwt = false
