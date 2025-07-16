@@ -55,6 +55,22 @@ export const ScribeRecentSOAPNotes = ({ onEditSOAP }: ScribeRecentSOAPNotesProps
     }
   };
 
+  // Add a function to refresh data when needed
+  useEffect(() => {
+    const handleRefresh = () => {
+      fetchRecentSOAPNotes();
+    };
+
+    // Listen for custom events to refresh when SOAP notes are created/updated
+    window.addEventListener('soapNoteCreated', handleRefresh);
+    window.addEventListener('soapNoteUpdated', handleRefresh);
+    
+    return () => {
+      window.removeEventListener('soapNoteCreated', handleRefresh);
+      window.removeEventListener('soapNoteUpdated', handleRefresh);
+    };
+  }, []);
+
   const handleEditSOAP = (soapNote: SOAPNote) => {
     if (onEditSOAP) {
       onEditSOAP(soapNote);

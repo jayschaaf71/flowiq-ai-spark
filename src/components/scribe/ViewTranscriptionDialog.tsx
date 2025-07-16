@@ -71,6 +71,9 @@ export const ViewTranscriptionDialog: React.FC<ViewTranscriptionDialogProps> = (
           
           if (error) {
             console.error('Error saving SOAP note:', error);
+          } else {
+            // Dispatch event to refresh Recent SOAP Notes component
+            window.dispatchEvent(new CustomEvent('soapNoteCreated'));
           }
         }
         

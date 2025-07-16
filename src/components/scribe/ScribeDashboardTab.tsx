@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { 
   FileText, 
   Mic, 
-  Clock, 
+  Activity, 
   TrendingUp, 
   Brain,
   Smartphone,
@@ -26,9 +26,9 @@ export const ScribeDashboardTab = () => {
   const [selectedTranscription, setSelectedTranscription] = useState(null);
   const [showTesting, setShowTesting] = useState(false);
   const [dashboardStats, setDashboardStats] = useState({
-    soapNotesToday: 0,
     recordingsToday: 0,
-    avgProcessingTime: "0.0s",
+    soapNotesCreated: 0,
+    activePatientsToday: 0,
     transcriptionAccuracy: "0%"
   });
 
@@ -51,11 +51,12 @@ export const ScribeDashboardTab = () => {
         console.error('Error fetching recordings:', recordingsError);
       }
 
-      // Calculate average processing time
-      const completedRecordings = recordings?.filter(r => r.status === 'completed' && r.processing_time_ms) || [];
-      const avgTime = completedRecordings.length > 0 
-        ? completedRecordings.reduce((sum, r) => sum + (r.processing_time_ms || 0), 0) / completedRecordings.length / 1000
-        : 0;
+      // Count SOAP notes created (recordings with soap_notes)
+      const soapNotesCount = recordings?.filter(r => r.soap_notes && r.soap_notes !== null) || [];
+      
+      // Count unique patients today (by patient_id if available)
+      const uniquePatients = recordings?.filter(r => r.patient_id) || [];
+      const uniquePatientIds = new Set(uniquePatients.map(r => r.patient_id));
 
       // Calculate accuracy from confidence scores
       const recordingsWithConfidence = recordings?.filter(r => r.confidence_score) || [];
@@ -64,9 +65,9 @@ export const ScribeDashboardTab = () => {
         : 98.7; // Fallback to good default
 
       setDashboardStats({
-        soapNotesToday: recordings?.length || 0, // For now, using recordings count as SOAP count
         recordingsToday: recordings?.length || 0,
-        avgProcessingTime: `${avgTime.toFixed(1)}s`,
+        soapNotesCreated: soapNotesCount.length,
+        activePatientsToday: uniquePatientIds.size,
         transcriptionAccuracy: `${avgAccuracy.toFixed(1)}%`
       });
     } catch (error) {
@@ -155,25 +156,8 @@ export const ScribeDashboardTab = () => {
 
   return (
     <div className="space-y-6">
-      {/* Stats Overview - Now Clickable */}
+      {/* Stats Overview - Improved and Actionable */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card 
-          className="cursor-pointer hover:shadow-md transition-shadow duration-200 hover:border-blue-300"
-          onClick={handleNavigateToSOAP}
-        >
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <FileText className="w-4 h-4" />
-              SOAP Notes
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{dashboardStats.soapNotesToday}</div>
-            <p className="text-sm text-gray-600">Generated today</p>
-            <p className="text-xs text-blue-600 mt-1 opacity-75">Click to view SOAP generation</p>
-          </CardContent>
-        </Card>
-
         <Card 
           className="cursor-pointer hover:shadow-md transition-shadow duration-200 hover:border-green-300"
           onClick={handleNavigateToRecordings}
@@ -181,7 +165,7 @@ export const ScribeDashboardTab = () => {
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
               <Mic className="w-4 h-4" />
-              Recordings
+              Total Recordings
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -192,19 +176,36 @@ export const ScribeDashboardTab = () => {
         </Card>
 
         <Card 
-          className="cursor-pointer hover:shadow-md transition-shadow duration-200 hover:border-primary/30"
-          onClick={handleNavigateToSettings}
+          className="cursor-pointer hover:shadow-md transition-shadow duration-200 hover:border-blue-300"
+          onClick={handleNavigateToSOAP}
         >
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
-              <Clock className="w-4 h-4" />
-              Avg. Processing
+              <FileText className="w-4 h-4" />
+              SOAP Notes Created
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-primary">{dashboardStats.avgProcessingTime}</div>
-            <p className="text-sm text-muted-foreground">Per recording</p>
-            <p className="text-xs text-primary/70 mt-1">Click to adjust settings</p>
+            <div className="text-2xl font-bold text-blue-600">{dashboardStats.soapNotesCreated}</div>
+            <p className="text-sm text-gray-600">Generated today</p>
+            <p className="text-xs text-blue-600 mt-1 opacity-75">Click to view SOAP generation</p>
+          </CardContent>
+        </Card>
+
+        <Card 
+          className="cursor-pointer hover:shadow-md transition-shadow duration-200 hover:border-purple-300"
+          onClick={handleNavigateToSOAP}
+        >
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <TrendingUp className="w-4 h-4" />
+              Active Patients
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-purple-600">{dashboardStats.activePatientsToday}</div>
+            <p className="text-sm text-gray-600">Recorded today</p>
+            <p className="text-xs text-purple-600 mt-1 opacity-75">Click to view patients</p>
           </CardContent>
         </Card>
 
@@ -214,13 +215,13 @@ export const ScribeDashboardTab = () => {
         >
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
-              <TrendingUp className="w-4 h-4" />
-              Accuracy
+              <Activity className="w-4 h-4" />
+              Accuracy Rate
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-orange-600">{dashboardStats.transcriptionAccuracy}</div>
-            <p className="text-sm text-gray-600">Transcription rate</p>
+            <p className="text-sm text-gray-600">Transcription quality</p>
             <p className="text-xs text-orange-600 mt-1 opacity-75">Click to view settings</p>
           </CardContent>
         </Card>
