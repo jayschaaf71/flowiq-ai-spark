@@ -107,13 +107,13 @@ export const FloatingAssistIQ: React.FC = () => {
             >
               <div className="relative flex flex-col items-center">
                 <Zap className="h-8 w-8 text-white mb-1" />
-                <span className="text-xs font-semibold text-white">ASSIST IQ</span>
+                <span className="text-xs font-semibold text-white">SAGE AI</span>
                 <div className="absolute -top-1 -right-1 h-4 w-4 bg-green-400 rounded-full animate-pulse border-2 border-white" />
               </div>
             </Button>
           </TooltipTrigger>
           <TooltipContent side="left">
-            <p>Assist IQ - AI Help Assistant</p>
+            <p>Sage AI - Your Friendly AI Assistant</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -135,7 +135,7 @@ export const FloatingAssistIQ: React.FC = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Zap className="h-5 w-5" />
-              <span className="font-semibold">Assist IQ</span>
+              <span className="font-semibold">Sage AI</span>
               <Badge variant="secondary" className="bg-white/20 text-white text-xs">
                 AI
               </Badge>
@@ -184,9 +184,9 @@ export const FloatingAssistIQ: React.FC = () => {
               <Zap className="h-5 w-5" />
               <div className="absolute -top-1 -right-1 h-2 w-2 bg-green-400 rounded-full animate-pulse" />
             </div>
-            <span className="font-semibold">Assist IQ</span>
+            <span className="font-semibold">Sage AI</span>
             <Badge variant="secondary" className="bg-white/20 text-white text-xs">
-              AI Assistant
+              Assistant
             </Badge>
           </div>
           <div className="flex gap-1">
@@ -279,7 +279,7 @@ export const FloatingAssistIQ: React.FC = () => {
                       <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
                       <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
                     </div>
-                    <span className="text-xs text-gray-500">Assist IQ is thinking...</span>
+                    <span className="text-xs text-gray-500">Sage is thinking...</span>
                   </div>
                 </div>
               </div>
@@ -294,7 +294,7 @@ export const FloatingAssistIQ: React.FC = () => {
             <Input
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
-              placeholder="Ask me anything about FlowIQ..."
+              placeholder="Ask Sage anything about your practice..."
               onKeyPress={handleKeyPress}
               className="flex-1 text-sm"
               disabled={isLoading}
