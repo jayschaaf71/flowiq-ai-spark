@@ -58,7 +58,7 @@ export const DentalSleepDashboard = () => {
         <Card 
           className="border-blue-200 cursor-pointer hover:shadow-lg transition-shadow duration-200 hover:border-blue-400"
           onClick={() => {
-            console.log("Device Deliveries card clicked - navigating to /dental-sleep/dme-tracker");
+            console.log("Device Deliveries card clicked - navigating to dme-tracker");
             navigate('/dental-sleep/dme-tracker');
           }}
         >
@@ -83,7 +83,7 @@ export const DentalSleepDashboard = () => {
         <Card 
           className="border-blue-200 cursor-pointer hover:shadow-lg transition-shadow duration-200 hover:border-blue-400"
           onClick={() => {
-            console.log("Reimbursement Approval card clicked - navigating to /dental-sleep/claims");
+            console.log("Reimbursement Approval card clicked - navigating to claims");
             navigate('/dental-sleep/claims');
           }}
         >
@@ -103,7 +103,7 @@ export const DentalSleepDashboard = () => {
         <Card 
           className="border-blue-200 cursor-pointer hover:shadow-lg transition-shadow duration-200 hover:border-blue-400"
           onClick={() => {
-            console.log("Avg Reimbursement/Case card clicked - navigating to /dental-sleep/insights");
+            console.log("Avg Reimbursement/Case card clicked - navigating to insights");
             navigate('/dental-sleep/insights');
           }}
         >
@@ -123,7 +123,7 @@ export const DentalSleepDashboard = () => {
         <Card 
           className="border-blue-200 cursor-pointer hover:shadow-lg transition-shadow duration-200 hover:border-blue-400"
           onClick={() => {
-            console.log("AHI Reduction card clicked - navigating to /dental-sleep/sleep-studies");
+            console.log("AHI Reduction card clicked - navigating to sleep-studies");
             navigate('/dental-sleep/sleep-studies');
           }}
         >
@@ -143,7 +143,7 @@ export const DentalSleepDashboard = () => {
         <Card 
           className="border-purple-200 cursor-pointer hover:shadow-lg transition-shadow duration-200 hover:border-purple-400"
           onClick={() => {
-            console.log("Compliance card clicked - navigating to /dental-sleep/patient-management");
+            console.log("Compliance card clicked - navigating to patient-management");
             navigate('/dental-sleep/patient-management');
           }}
         >
@@ -171,8 +171,8 @@ export const DentalSleepDashboard = () => {
         <Card 
           className="border-purple-200 cursor-pointer hover:shadow-lg transition-shadow duration-200 hover:border-purple-400"
           onClick={() => {
-            console.log("Referral-to-Schedule card clicked - navigating to /schedule");
-            navigate('/schedule');
+            console.log("Referral-to-Schedule card clicked - navigating to schedule");
+            navigate('/dental-sleep/schedule');
           }}
         >
           <CardHeader>
@@ -194,8 +194,8 @@ export const DentalSleepDashboard = () => {
         <Card 
           className="border-purple-200 cursor-pointer hover:shadow-lg transition-shadow duration-200 hover:border-purple-400"
           onClick={() => {
-            console.log("Follow-Up No-Show card clicked - navigating to /schedule");
-            navigate('/schedule');
+            console.log("Follow-Up No-Show card clicked - navigating to schedule");
+            navigate('/dental-sleep/schedule');
           }}
         >
           <CardHeader>
@@ -229,7 +229,7 @@ export const DentalSleepDashboard = () => {
             <Button 
               className="w-full justify-start bg-blue-600 hover:bg-blue-700" 
               onClick={() => {
-                console.log("Navigating to /dental-sleep/schedule");
+                console.log("Navigating to schedule");
                 navigate('/dental-sleep/schedule');
               }}
             >
@@ -240,7 +240,7 @@ export const DentalSleepDashboard = () => {
               variant="outline" 
               className="w-full justify-start border-blue-200 hover:bg-blue-50" 
               onClick={() => {
-                console.log("Navigating to /dental-sleep/sleep-studies");
+                console.log("Navigating to sleep-studies");
                 navigate('/dental-sleep/sleep-studies');
               }}
             >
@@ -251,7 +251,7 @@ export const DentalSleepDashboard = () => {
               variant="outline" 
               className="w-full justify-start border-blue-200 hover:bg-blue-50" 
               onClick={() => {
-                console.log("Navigating to /dental-sleep/agents/claims");
+                console.log("Navigating to agents/claims");
                 navigate('/dental-sleep/agents/claims');
               }}
             >
@@ -274,7 +274,7 @@ export const DentalSleepDashboard = () => {
               <div 
                 className="flex items-center gap-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg cursor-pointer hover:bg-yellow-100 transition-colors"
                 onClick={() => {
-                  console.log("Device Deliveries alert clicked - navigating to /dental-sleep/dme-tracker");
+                  console.log("Device Deliveries alert clicked - navigating to dme-tracker");
                   navigate('/dental-sleep/dme-tracker');
                 }}
               >
@@ -287,7 +287,7 @@ export const DentalSleepDashboard = () => {
               <div 
                 className="flex items-center gap-3 p-3 bg-red-50 border border-red-200 rounded-lg cursor-pointer hover:bg-red-100 transition-colors"
                 onClick={() => {
-                  console.log("Reimbursement alert clicked - navigating to /dental-sleep/insights");
+                  console.log("Reimbursement alert clicked - navigating to insights");
                   navigate('/dental-sleep/insights');
                 }}
               >
@@ -300,7 +300,7 @@ export const DentalSleepDashboard = () => {
               <div 
                 className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg cursor-pointer hover:bg-green-100 transition-colors"
                 onClick={() => {
-                  console.log("Clinical Outcomes alert clicked - navigating to /dental-sleep/sleep-studies");
+                  console.log("Clinical Outcomes alert clicked - navigating to sleep-studies");
                   navigate('/dental-sleep/sleep-studies');
                 }}
               >
