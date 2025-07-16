@@ -364,12 +364,43 @@ ${enhancedSOAP.confidence ? `\nAI Confidence: ${Math.round(enhancedSOAP.confiden
     setEditedSOAP({ ...enhancedSOAP });
   };
 
-  const handleSaveEdits = () => {
-    setIsEditing(false);
-    toast({
-      title: "Changes Saved",
-      description: "Your SOAP note edits have been saved",
-    });
+  const handleSaveEdits = async () => {
+    if (!editedSOAP) return;
+    
+    setIsSaving(true);
+    try {
+      // Update the enhancedSOAP state with edited values
+      const updatedSOAP = { ...enhancedSOAP, ...editedSOAP };
+      
+      // If there's a selected patient and recording, update the database
+      if (selectedPatient && selectedRecording) {
+        await createSOAPNote({
+          subjective: editedSOAP.subjective,
+          objective: editedSOAP.objective,
+          assessment: editedSOAP.assessment,
+          plan: editedSOAP.plan,
+          is_ai_generated: true,
+          ai_confidence_score: editedSOAP.confidence ? Math.round(editedSOAP.confidence * 100) : 85,
+          status: 'draft',
+          visit_date: new Date().toISOString().split('T')[0],
+          patient_id: selectedPatient.id,
+        });
+      }
+      
+      setIsEditing(false);
+      toast({
+        title: "Changes Saved",
+        description: "Your SOAP note edits have been saved",
+      });
+    } catch (error) {
+      toast({
+        title: "Save Failed",
+        description: "Unable to save edited SOAP note",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCancelEdit = () => {
@@ -640,6 +671,11 @@ ${enhancedSOAP.confidence ? `\nAI Confidence: ${Math.round(enhancedSOAP.confiden
                   <Button onClick={resetEnhancedData} variant="outline" size="sm">
                     Clear
                   </Button>
+                  {!isEditing && (
+                    <Button onClick={handleEditClick} variant="outline" size="sm">
+                      Edit
+                    </Button>
+                  )}
                 </div>
               </div>
               
