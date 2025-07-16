@@ -2,574 +2,504 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { PageHeader } from "@/components/PageHeader";
 import { 
-  UserCheck, 
+  User, 
+  FileText, 
   Activity, 
-  Smartphone, 
-  BarChart3, 
-  CreditCard,
-  Moon,
+  Calendar, 
+  AlertTriangle,
+  Plus,
+  Search,
+  Edit,
+  Save,
   Clock,
-  TrendingDown,
-  CheckCircle
+  Heart,
+  Thermometer,
+  Scale,
+  Moon,
+  Stethoscope,
+  Pill,
+  Archive
 } from "lucide-react";
+import { useState } from "react";
 
 export const DentalSleepEHR = () => {
+  const [activePatient, setActivePatient] = useState("John Smith");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const patients = [
+    { id: 1, name: "John Smith", mrn: "MRN-001234", lastVisit: "2024-01-15", status: "Active" },
+    { id: 2, name: "Sarah Johnson", mrn: "MRN-001235", lastVisit: "2024-01-12", status: "Follow-up" },
+    { id: 3, name: "Michael Brown", mrn: "MRN-001236", lastVisit: "2024-01-10", status: "New" }
+  ];
+
+  const vitalSigns = [
+    { date: "2024-01-15", bp: "128/82", hr: "72", temp: "98.6°F", weight: "185 lbs", bmi: "28.3" },
+    { date: "2024-01-01", bp: "132/85", hr: "75", temp: "98.4°F", weight: "187 lbs", bmi: "28.6" }
+  ];
+
+  const medications = [
+    { name: "Lisinopril", dosage: "10mg daily", prescriber: "Dr. Wilson", date: "2024-01-15" },
+    { name: "Metformin", dosage: "500mg twice daily", prescriber: "Dr. Wilson", date: "2024-01-10" }
+  ];
+
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-blue-700">Device Delivery</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-900">18</div>
-            <p className="text-xs text-blue-600">This month</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-green-700">Reimbursement</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-900">89%</div>
-            <p className="text-xs text-green-600">Approval rate</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-purple-700">AHI Reduction</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-purple-900">68%</div>
-            <p className="text-xs text-purple-600">Average improvement</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-orange-700">Referral Time</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-900">5.2</div>
-            <p className="text-xs text-orange-600">Days to schedule</p>
-          </CardContent>
-        </Card>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Electronic Health Records</h1>
+          <p className="text-gray-600">Comprehensive patient health information management</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm">
+            <Archive className="w-4 h-4 mr-2" />
+            Export Records
+          </Button>
+          <Button size="sm">
+            <Plus className="w-4 h-4 mr-2" />
+            New Patient
+          </Button>
+        </div>
       </div>
 
-      <Tabs defaultValue="referral" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="referral" className="flex items-center gap-1">
-            <UserCheck className="h-3 w-3" />
-            Referral Summary
-          </TabsTrigger>
-          <TabsTrigger value="diagnostics" className="flex items-center gap-1">
-            <Activity className="h-3 w-3" />
-            Diagnostic Tests
-          </TabsTrigger>
-          <TabsTrigger value="device" className="flex items-center gap-1">
-            <Smartphone className="h-3 w-3" />
-            Device Delivery
-          </TabsTrigger>
-          <TabsTrigger value="compliance" className="flex items-center gap-1">
-            <BarChart3 className="h-3 w-3" />
-            Compliance Data
-          </TabsTrigger>
-          <TabsTrigger value="claims" className="flex items-center gap-1">
-            <CreditCard className="h-3 w-3" />
-            Medical Claims
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="referral">
-          <Card>
-            <CardHeader>
-              <CardTitle>Referral Summary</CardTitle>
-              <CardDescription>Sleep physician referral and initial assessment</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div>
-                      <h4 className="font-medium text-sm mb-3">Referring Physician</h4>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Name:</span>
-                          <span>Dr. Sarah Johnson, MD</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Specialty:</span>
-                          <span>Sleep Medicine</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Practice:</span>
-                          <span>Metro Sleep Center</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Referral Date:</span>
-                          <span>2024-01-15</span>
-                        </div>
-                      </div>
-                    </div>
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Patient List Sidebar */}
+        <Card className="lg:col-span-1">
+          <CardHeader>
+            <CardTitle className="text-lg">Patient Search</CardTitle>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input 
+                placeholder="Search patients..." 
+                className="pl-10"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {patients.map((patient) => (
+              <div 
+                key={patient.id}
+                className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                  activePatient === patient.name ? 'bg-blue-50 border-blue-200' : 'hover:bg-gray-50'
+                }`}
+                onClick={() => setActivePatient(patient.name)}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium text-sm">{patient.name}</div>
+                    <div className="text-xs text-gray-600">{patient.mrn}</div>
+                    <div className="text-xs text-gray-500">{patient.lastVisit}</div>
                   </div>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <h4 className="font-medium text-sm mb-3">Referral Reason</h4>
-                      <div className="p-3 bg-gray-50 rounded border text-sm">
-                        <div className="mb-2">
-                          <span className="font-medium">Primary Diagnosis:</span> OSA (G47.33)
-                        </div>
-                        <div className="mb-2">
-                          <span className="font-medium">AHI:</span> 28.5 events/hour (Moderate)
-                        </div>
-                        <div className="mb-2">
-                          <span className="font-medium">CPAP Intolerance:</span> Patient reports discomfort and poor compliance
-                        </div>
-                        <div>
-                          <span className="font-medium">Notes:</span> Candidate for oral appliance therapy. Good dental health.
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="border-t pt-4">
-                  <h4 className="font-medium text-sm mb-3">Conversion Tracking</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div className="text-center p-3 border rounded">
-                      <CheckCircle className="h-6 w-6 text-green-600 mx-auto mb-1" />
-                      <div className="text-sm font-medium">Referral Received</div>
-                      <div className="text-xs text-gray-600">1/15/24</div>
-                    </div>
-                    <div className="text-center p-3 border rounded">
-                      <CheckCircle className="h-6 w-6 text-green-600 mx-auto mb-1" />
-                      <div className="text-sm font-medium">Initial Consultation</div>
-                      <div className="text-xs text-gray-600">1/18/24</div>
-                    </div>
-                    <div className="text-center p-3 border rounded">
-                      <Clock className="h-6 w-6 text-orange-600 mx-auto mb-1" />
-                      <div className="text-sm font-medium">Device Delivery</div>
-                      <div className="text-xs text-gray-600">Scheduled 1/25/24</div>
-                    </div>
-                    <div className="text-center p-3 border rounded">
-                      <Clock className="h-6 w-6 text-gray-400 mx-auto mb-1" />
-                      <div className="text-sm font-medium">90-Day Follow-up</div>
-                      <div className="text-xs text-gray-600">Pending</div>
-                    </div>
-                  </div>
+                  <Badge 
+                    variant={patient.status === 'Active' ? 'default' : 
+                            patient.status === 'Follow-up' ? 'secondary' : 'outline'}
+                    className="text-xs"
+                  >
+                    {patient.status}
+                  </Badge>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+            ))}
+          </CardContent>
+        </Card>
 
-        <TabsContent value="diagnostics">
+        {/* Main EHR Content */}
+        <div className="lg:col-span-3 space-y-6">
+          {/* Patient Header */}
           <Card>
             <CardHeader>
-              <CardTitle>Diagnostic Tests</CardTitle>
-              <CardDescription>Sleep study results and airway assessment</CardDescription>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                    <User className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-xl">{activePatient}</CardTitle>
+                    <CardDescription>
+                      DOB: 03/15/1978 • Age: 45 • MRN: MRN-001234 • Male
+                    </CardDescription>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm">
+                    <Edit className="w-4 h-4 mr-2" />
+                    Edit Demographics
+                  </Button>
+                  <Button size="sm">
+                    <Calendar className="w-4 h-4 mr-2" />
+                    Schedule Appointment
+                  </Button>
+                </div>
+              </div>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          </Card>
+
+          {/* EHR Tabs */}
+          <Tabs defaultValue="overview" className="space-y-4">
+            <TabsList className="grid w-full grid-cols-6">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="notes">Clinical Notes</TabsTrigger>
+              <TabsTrigger value="vitals">Vitals</TabsTrigger>
+              <TabsTrigger value="medications">Medications</TabsTrigger>
+              <TabsTrigger value="sleep">Sleep Studies</TabsTrigger>
+              <TabsTrigger value="documents">Documents</TabsTrigger>
+            </TabsList>
+
+            {/* Overview Tab */}
+            <TabsContent value="overview" className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Alerts & Warnings */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <AlertTriangle className="w-5 h-5 text-amber-600" />
+                      Alerts & Warnings
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4 text-red-600" />
+                        <span className="font-medium text-red-900">Drug Allergy</span>
+                      </div>
+                      <p className="text-sm text-red-700 mt-1">Penicillin - Severe reaction</p>
+                    </div>
+                    <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-yellow-600" />
+                        <span className="font-medium text-yellow-900">Overdue Follow-up</span>
+                      </div>
+                      <p className="text-sm text-yellow-700 mt-1">Sleep study follow-up due</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Recent Activity */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <Activity className="w-5 h-5 text-blue-600" />
+                      Recent Activity
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
+                      <div>
+                        <p className="text-sm font-medium">Oral appliance delivery</p>
+                        <p className="text-xs text-gray-600">Jan 15, 2024 - Dr. Smith</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                      <div>
+                        <p className="text-sm font-medium">Sleep study completed</p>
+                        <p className="text-xs text-gray-600">Jan 10, 2024 - Sleep Lab</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-purple-500 rounded-full mt-2"></div>
+                      <div>
+                        <p className="text-sm font-medium">Initial consultation</p>
+                        <p className="text-xs text-gray-600">Jan 5, 2024 - Dr. Smith</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Quick Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center gap-2">
+                      <Heart className="w-5 h-5 text-red-500" />
+                      <div>
+                        <div className="text-2xl font-bold">128/82</div>
+                        <p className="text-xs text-gray-600">Blood Pressure</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center gap-2">
+                      <Scale className="w-5 h-5 text-blue-500" />
+                      <div>
+                        <div className="text-2xl font-bold">28.3</div>
+                        <p className="text-xs text-gray-600">BMI</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center gap-2">
+                      <Moon className="w-5 h-5 text-purple-500" />
+                      <div>
+                        <div className="text-2xl font-bold">28.5</div>
+                        <p className="text-xs text-gray-600">AHI Score</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center gap-2">
+                      <Thermometer className="w-5 h-5 text-orange-500" />
+                      <div>
+                        <div className="text-2xl font-bold">98.6°F</div>
+                        <p className="text-xs text-gray-600">Temperature</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* Clinical Notes Tab */}
+            <TabsContent value="notes" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>Clinical Notes</CardTitle>
+                    <Button size="sm">
+                      <Plus className="w-4 h-4 mr-2" />
+                      New Note
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
                   <div className="border rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Moon className="h-5 w-5 text-blue-600" />
-                      <span className="font-medium">Sleep Study Results</span>
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <span className="font-medium">Progress Note - Sleep Appliance Follow-up</span>
+                        <p className="text-sm text-gray-600">Dr. Smith • Jan 15, 2024 • 10:30 AM</p>
+                      </div>
+                      <Button variant="outline" size="sm">
+                        <Edit className="w-4 h-4" />
+                      </Button>
                     </div>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Study Date:</span>
-                        <span>2024-01-10</span>
+                    <div className="prose prose-sm max-w-none">
+                      <p><strong>Chief Complaint:</strong> 2-week follow-up for oral appliance therapy</p>
+                      <p><strong>Subjective:</strong> Patient reports improved sleep quality and reduced snoring. Wife confirms significant improvement. Patient comfortable wearing device nightly. No jaw pain or tooth movement noted.</p>
+                      <p><strong>Objective:</strong> Oral appliance in good condition, proper fit maintained. No signs of tooth movement or TMJ dysfunction. Patient demonstrates proper insertion/removal technique.</p>
+                      <p><strong>Assessment:</strong> Good initial response to oral appliance therapy. Patient compliant and comfortable.</p>
+                      <p><strong>Plan:</strong> Continue current appliance settings. Return in 4 weeks for adjustment if needed. Schedule 3-month sleep study to assess treatment effectiveness.</p>
+                    </div>
+                  </div>
+
+                  <div className="border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <span className="font-medium">Initial Consultation - Sleep Apnea</span>
+                        <p className="text-sm text-gray-600">Dr. Smith • Jan 5, 2024 • 2:00 PM</p>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Study Type:</span>
-                        <span>In-Lab PSG</span>
+                      <Button variant="outline" size="sm">
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <div className="prose prose-sm max-w-none">
+                      <p><strong>Chief Complaint:</strong> Referred for oral appliance therapy for OSA</p>
+                      <p><strong>History:</strong> 45-year-old male with moderate OSA (AHI 28.5) per recent sleep study. Failed CPAP therapy due to claustrophobia and mask intolerance. Excellent dental health, no TMJ dysfunction.</p>
+                      <p><strong>Clinical Findings:</strong> Class I occlusion, adequate protrusive range (8mm), healthy periodontium. Good candidate for oral appliance therapy.</p>
+                      <p><strong>Treatment Plan:</strong> TAP 3 Elite oral appliance fabrication. Patient educated on therapy expectations and compliance requirements.</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Vitals Tab */}
+            <TabsContent value="vitals" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>Vital Signs History</CardTitle>
+                    <Button size="sm">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Vitals
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left p-2">Date</th>
+                          <th className="text-left p-2">BP</th>
+                          <th className="text-left p-2">HR</th>
+                          <th className="text-left p-2">Temp</th>
+                          <th className="text-left p-2">Weight</th>
+                          <th className="text-left p-2">BMI</th>
+                          <th className="text-left p-2">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {vitalSigns.map((vital, index) => (
+                          <tr key={index} className="border-b hover:bg-gray-50">
+                            <td className="p-2">{vital.date}</td>
+                            <td className="p-2">{vital.bp}</td>
+                            <td className="p-2">{vital.hr}</td>
+                            <td className="p-2">{vital.temp}</td>
+                            <td className="p-2">{vital.weight}</td>
+                            <td className="p-2">{vital.bmi}</td>
+                            <td className="p-2">
+                              <Button variant="outline" size="sm">
+                                <Edit className="w-3 h-3" />
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Medications Tab */}
+            <TabsContent value="medications" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                      <Pill className="w-5 h-5" />
+                      Current Medications
+                    </CardTitle>
+                    <Button size="sm">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Medication
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {medications.map((med, index) => (
+                    <div key={index} className="border rounded-lg p-4 flex items-center justify-between">
+                      <div>
+                        <span className="font-medium">{med.name}</span>
+                        <p className="text-sm text-gray-600">{med.dosage}</p>
+                        <p className="text-xs text-gray-500">Prescribed by {med.prescriber} on {med.date}</p>
                       </div>
-                      <div className="flex justify-between">
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm">
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Sleep Studies Tab */}
+            <TabsContent value="sleep" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                      <Moon className="w-5 h-5" />
+                      Sleep Study Results
+                    </CardTitle>
+                    <Button size="sm">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Upload Study
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <span className="font-medium">In-Lab Polysomnography</span>
+                        <p className="text-sm text-gray-600">Jan 10, 2024 • Metro Sleep Center</p>
+                      </div>
+                      <Badge>Completed</Badge>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                      <div>
                         <span className="text-gray-600">AHI:</span>
-                        <span className="font-medium text-orange-600">28.5/hr</span>
+                        <span className="ml-2 font-medium text-orange-600">28.5/hr</span>
                       </div>
-                      <div className="flex justify-between">
+                      <div>
                         <span className="text-gray-600">RDI:</span>
-                        <span>34.2/hr</span>
+                        <span className="ml-2 font-medium">34.2/hr</span>
                       </div>
-                      <div className="flex justify-between">
+                      <div>
                         <span className="text-gray-600">Lowest SpO2:</span>
-                        <span className="text-red-600">82%</span>
+                        <span className="ml-2 font-medium text-red-600">82%</span>
                       </div>
-                      <div className="flex justify-between">
+                      <div>
                         <span className="text-gray-600">Sleep Efficiency:</span>
-                        <span>78%</span>
+                        <span className="ml-2 font-medium">78%</span>
                       </div>
                     </div>
-                    <Button variant="outline" size="sm" className="mt-3 w-full">
+                    <Button variant="outline" size="sm" className="mt-3">
                       View Full Report
                     </Button>
                   </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-                  <div className="border rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Activity className="h-5 w-5 text-green-600" />
-                      <span className="font-medium">Airway Assessment</span>
-                    </div>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Mallampati:</span>
-                        <span>Class III</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">BMI:</span>
-                        <span>28.3 kg/m²</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Neck Circumference:</span>
-                        <span>16.5 inches</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Tonsil Size:</span>
-                        <span>Grade 2</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Dental Class:</span>
-                        <span>Class I</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">TMJ Status:</span>
-                        <span className="text-green-600">Normal</span>
-                      </div>
-                    </div>
-                    <Button variant="outline" size="sm" className="mt-3 w-full">
-                      Update Assessment
+            {/* Documents Tab */}
+            <TabsContent value="documents" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                      <FileText className="w-5 h-5" />
+                      Patient Documents
+                    </CardTitle>
+                    <Button size="sm">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Upload Document
                     </Button>
                   </div>
-                </div>
-
-                <div className="border rounded-lg p-4">
-                  <h4 className="font-medium mb-3">ESS Score Tracking</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="text-center p-3 border rounded">
-                      <div className="text-lg font-bold text-red-600">16</div>
-                      <div className="text-sm">Baseline ESS</div>
-                      <div className="text-xs text-gray-600">1/15/24</div>
-                    </div>
-                    <div className="text-center p-3 border rounded">
-                      <div className="text-lg font-bold text-orange-600">8</div>
-                      <div className="text-sm">30-Day ESS</div>
-                      <div className="text-xs text-gray-600">Pending</div>
-                    </div>
-                    <div className="text-center p-3 border rounded">
-                      <div className="text-lg font-bold text-green-600">6</div>
-                      <div className="text-sm">90-Day Target</div>
-                      <div className="text-xs text-gray-600">Goal</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="device">
-          <Card>
-            <CardHeader>
-              <CardTitle>Device Delivery & Management</CardTitle>
-              <CardDescription>Oral appliance therapy device tracking</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="border rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Smartphone className="h-5 w-5 text-blue-600" />
-                      <span className="font-medium">Prescribed Device</span>
-                    </div>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Device Type:</span>
-                        <span>TAP 3 Elite</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Manufacturer:</span>
-                        <span>Airway Management</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Serial #:</span>
-                        <span>TAP-2024-001234</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">CPT Code:</span>
-                        <span className="font-medium">E0486</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Delivery Date:</span>
-                        <Badge variant="secondary">Scheduled 1/25/24</Badge>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="border rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <CheckCircle className="h-5 w-5 text-green-600" />
-                      <span className="font-medium">Delivery Checklist</span>
-                    </div>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                        <span>Device fitting & comfort check</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                        <span>Patient education completed</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                        <span>Care instructions provided</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-orange-600" />
-                        <span>30-day follow-up scheduled</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-orange-600" />
-                        <span>90-day compliance review</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="border rounded-lg p-4">
-                  <h4 className="font-medium mb-3">Adjustment History</h4>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between p-2 border rounded">
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="border rounded-lg p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <FileText className="w-8 h-8 text-blue-500" />
                       <div>
-                        <div className="font-medium text-sm">Initial Delivery</div>
-                        <div className="text-xs text-gray-600">Base position, patient education</div>
+                        <span className="font-medium">Sleep Study Report</span>
+                        <p className="text-sm text-gray-600">PDF • 2.3 MB • Jan 10, 2024</p>
                       </div>
-                      <div className="text-sm text-gray-500">1/25/24</div>
                     </div>
-                    <div className="flex items-center justify-between p-2 border rounded bg-gray-50">
+                    <Button variant="outline" size="sm">View</Button>
+                  </div>
+                  <div className="border rounded-lg p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <FileText className="w-8 h-8 text-green-500" />
                       <div>
-                        <div className="font-medium text-sm">2-Week Adjustment</div>
-                        <div className="text-xs text-gray-600">Advanced 2mm, comfort improvement</div>
-                      </div>
-                      <div className="text-sm text-gray-500">Scheduled</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="compliance">
-          <Card>
-            <CardHeader>
-              <CardTitle>Compliance Data</CardTitle>
-              <CardDescription>Usage tracking and effectiveness monitoring</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm text-green-700">Nightly Usage</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold text-green-900">7.2h</div>
-                      <p className="text-xs text-green-600">Average per night</p>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm text-blue-700">Compliance Rate</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold text-blue-900">92%</div>
-                      <p className="text-xs text-blue-600">Nights with &gt;4h use</p>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm text-purple-700">AHI Improvement</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold text-purple-900">
-                        <TrendingDown className="h-6 w-6 inline mr-1" />
-                        68%
-                      </div>
-                      <p className="text-xs text-purple-600">From 28.5 to 9.1</p>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                <div className="border rounded-lg p-4">
-                  <h4 className="font-medium mb-3">Weekly Usage Trend</h4>
-                  <div className="h-32 bg-gray-50 rounded border flex items-center justify-center">
-                    <div className="text-gray-500">Usage trend chart would display here</div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="border rounded-lg p-4">
-                    <h4 className="font-medium mb-3">Compliance Milestones</h4>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                        <span>30-day compliance achieved</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                        <span>60-day compliance achieved</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-orange-600" />
-                        <span>90-day compliance review due</span>
+                        <span className="font-medium">Medical History Form</span>
+                        <p className="text-sm text-gray-600">PDF • 1.1 MB • Jan 5, 2024</p>
                       </div>
                     </div>
+                    <Button variant="outline" size="sm">View</Button>
                   </div>
-
-                  <div className="border rounded-lg p-4">
-                    <h4 className="font-medium mb-3">Patient Feedback</h4>
-                    <div className="space-y-2 text-sm">
-                      <div className="p-2 bg-gray-50 rounded">
-                        <div className="font-medium">Comfort: 8/10</div>
-                        <div className="text-xs text-gray-600">Much better than CPAP</div>
-                      </div>
-                      <div className="p-2 bg-gray-50 rounded">
-                        <div className="font-medium">Sleep Quality: 9/10</div>
-                        <div className="text-xs text-gray-600">Feeling more rested</div>
+                  <div className="border rounded-lg p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <FileText className="w-8 h-8 text-purple-500" />
+                      <div>
+                        <span className="font-medium">Insurance Authorization</span>
+                        <p className="text-sm text-gray-600">PDF • 800 KB • Jan 3, 2024</p>
                       </div>
                     </div>
+                    <Button variant="outline" size="sm">View</Button>
                   </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="claims">
-          <Card>
-            <CardHeader>
-              <CardTitle>Medical Claims (ANSI 837P)</CardTitle>
-              <CardDescription>Insurance billing and reimbursement tracking</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="border rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <CreditCard className="h-5 w-5 text-green-600" />
-                      <span className="font-medium">Primary Claim</span>
-                    </div>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Claim #:</span>
-                        <span>OSA-2024-001234</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">CPT Code:</span>
-                        <span className="font-medium">E0486</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Diagnosis:</span>
-                        <span>G47.33</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Billed Amount:</span>
-                        <span>$2,850.00</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Status:</span>
-                        <Badge variant="secondary">Pre-auth Required</Badge>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="border rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <CheckCircle className="h-5 w-5 text-blue-600" />
-                      <span className="font-medium">Pre-authorization</span>
-                    </div>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Auth #:</span>
-                        <span>PA-2024-567890</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Valid Through:</span>
-                        <span>12/31/2024</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Approved Amount:</span>
-                        <span className="text-green-600">$2,280.00</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Patient Responsibility:</span>
-                        <span>$570.00</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Status:</span>
-                        <Badge variant="default">Approved</Badge>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="border rounded-lg p-4">
-                  <h4 className="font-medium mb-3">Required Documentation</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                        <span className="text-sm">Sleep study report</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                        <span className="text-sm">CPAP intolerance documentation</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                        <span className="text-sm">Dental examination report</span>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-orange-600" />
-                        <span className="text-sm">90-day compliance data</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-orange-600" />
-                        <span className="text-sm">Follow-up sleep study</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-orange-600" />
-                        <span className="text-sm">Objective compliance report</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Clock className="h-5 w-5 text-yellow-600" />
-                    <span className="font-medium text-yellow-800">Compliance Alert</span>
-                  </div>
-                  <div className="text-sm text-yellow-700">
-                    90-day usage proof required (&gt;4 hours/night, 70% of nights) before submitting final claim for reimbursement.
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
     </div>
   );
 };
