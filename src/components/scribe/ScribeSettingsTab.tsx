@@ -16,7 +16,7 @@ import {
   Shield, 
   Volume2,
   Clock,
-  Zap,
+  
   Save,
   RefreshCw
 } from "lucide-react";
@@ -201,29 +201,6 @@ export const ScribeSettingsTab = () => {
             </div>
           </div>
 
-          {/* Integration Settings */}
-          <div className="space-y-4">
-            <h3 className="font-medium flex items-center gap-2">
-              <Zap className="w-4 h-4 text-orange-600" />
-              Integrations
-            </h3>
-            
-            <div className="flex items-center justify-between p-3 border rounded-lg">
-              <div>
-                <Label className="text-sm font-medium">Zapier Integration</Label>
-                <p className="text-xs text-gray-600">Connect with Plaud device via Zapier</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="bg-orange-50 text-orange-700">
-                  {settings.zapierIntegration ? 'Active' : 'Inactive'}
-                </Badge>
-                <Switch
-                  checked={settings.zapierIntegration}
-                  onCheckedChange={(checked) => updateSetting('zapierIntegration', checked)}
-                />
-              </div>
-            </div>
-          </div>
 
           {/* Compliance */}
           <Alert className="border-green-200 bg-green-50">

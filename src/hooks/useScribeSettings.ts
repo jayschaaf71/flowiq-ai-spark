@@ -13,7 +13,7 @@ export interface ScribeSettings {
   confidenceThreshold: number;
   autoSave: boolean;
   recordingQuality: string;
-  zapierIntegration: boolean;
+  
 }
 
 const defaultSettings: ScribeSettings = {
@@ -26,7 +26,7 @@ const defaultSettings: ScribeSettings = {
   confidenceThreshold: 85,
   autoSave: true,
   recordingQuality: "high",
-  zapierIntegration: true
+  
 };
 
 export const useScribeSettings = () => {
