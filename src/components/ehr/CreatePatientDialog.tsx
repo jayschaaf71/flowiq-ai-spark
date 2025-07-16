@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,7 @@ export const CreatePatientDialog = ({
 }: CreatePatientDialogProps) => {
   const { toast } = useToast();
   const [isCreating, setIsCreating] = useState(false);
+  const [userTenantId, setUserTenantId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     first_name: initialData?.first_name || "",
     last_name: initialData?.last_name || "",
@@ -34,6 +35,32 @@ export const CreatePatientDialog = ({
     gender: initialData?.gender || "",
   });
 
+  // Get user's tenant ID when component mounts
+  useEffect(() => {
+    const getCurrentUserTenant = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('current_tenant_id')
+          .eq('id', user.id)
+          .single();
+
+        if (profile?.current_tenant_id) {
+          setUserTenantId(profile.current_tenant_id);
+        }
+      } catch (error) {
+        console.error('Error getting user tenant:', error);
+      }
+    };
+
+    if (open) {
+      getCurrentUserTenant();
+    }
+  }, [open]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -41,6 +68,15 @@ export const CreatePatientDialog = ({
       toast({
         title: "Required Fields Missing",
         description: "Please enter at least first and last name.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!userTenantId) {
+      toast({
+        title: "Access Error",
+        description: "Unable to determine your organization. Please refresh and try again.",
         variant: "destructive",
       });
       return;
@@ -59,6 +95,7 @@ export const CreatePatientDialog = ({
           date_of_birth: formData.date_of_birth || null,
           gender: formData.gender || null,
           patient_number: `PAT-${Date.now()}`, // Generate a unique patient number
+          tenant_id: userTenantId, // Add the tenant_id to satisfy RLS policy
         }])
         .select()
         .single();
