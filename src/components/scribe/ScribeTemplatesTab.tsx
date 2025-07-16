@@ -127,10 +127,10 @@ ${template.plan}`;
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileText className="w-5 h-5 text-blue-600" />
-            SOAP Note Templates
+            SOAP Note Reference Templates
           </CardTitle>
           <CardDescription>
-            Pre-built templates to streamline your medical documentation
+            Reference templates to guide your medical documentation structure and content
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -138,7 +138,9 @@ ${template.plan}`;
             <p className="text-sm text-gray-600">
               {soapTemplates.length} templates available
             </p>
-            <Button type="button" onClick={(e) => e.preventDefault()}>
+            <Button type="button" onClick={() => {
+              alert('Custom template creation coming soon!');
+            }}>
               <Plus className="w-4 h-4 mr-2" />
               Create Custom Template
             </Button>
@@ -161,7 +163,9 @@ ${template.plan}`;
                         variant="outline" 
                         size="sm"
                         type="button"
-                        onClick={(e) => e.preventDefault()}
+                        onClick={() => {
+                          alert(`Preview of ${template.name} template:\n\nSubjective: ${template.subjective.substring(0, 100)}...\n\nObjective: ${template.objective.substring(0, 100)}...`);
+                        }}
                       >
                         <Eye className="w-4 h-4 mr-1" />
                         Preview
@@ -170,7 +174,9 @@ ${template.plan}`;
                         variant="outline" 
                         size="sm"
                         type="button"
-                        onClick={(e) => e.preventDefault()}
+                        onClick={() => {
+                          alert('Template editing coming soon!');
+                        }}
                       >
                         <Edit className="w-4 h-4 mr-1" />
                         Edit
