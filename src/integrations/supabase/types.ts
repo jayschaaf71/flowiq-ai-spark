@@ -2899,7 +2899,10 @@ export type Database = {
       voice_recordings: {
         Row: {
           ai_summary: string | null
+          audio_format: string | null
           audio_url: string | null
+          background_processed: boolean | null
+          confidence_score: number | null
           created_at: string
           duration_seconds: number | null
           file_size_bytes: number | null
@@ -2908,10 +2911,12 @@ export type Database = {
           original_filename: string | null
           patient_id: string | null
           processed_at: string | null
+          processing_time_ms: number | null
           recording_id: string | null
           soap_notes: Json | null
           source: string
           status: string
+          storage_path: string | null
           tenant_id: string
           transcription: string | null
           updated_at: string
@@ -2919,7 +2924,10 @@ export type Database = {
         }
         Insert: {
           ai_summary?: string | null
+          audio_format?: string | null
           audio_url?: string | null
+          background_processed?: boolean | null
+          confidence_score?: number | null
           created_at?: string
           duration_seconds?: number | null
           file_size_bytes?: number | null
@@ -2928,10 +2936,12 @@ export type Database = {
           original_filename?: string | null
           patient_id?: string | null
           processed_at?: string | null
+          processing_time_ms?: number | null
           recording_id?: string | null
           soap_notes?: Json | null
           source?: string
           status?: string
+          storage_path?: string | null
           tenant_id: string
           transcription?: string | null
           updated_at?: string
@@ -2939,7 +2949,10 @@ export type Database = {
         }
         Update: {
           ai_summary?: string | null
+          audio_format?: string | null
           audio_url?: string | null
+          background_processed?: boolean | null
+          confidence_score?: number | null
           created_at?: string
           duration_seconds?: number | null
           file_size_bytes?: number | null
@@ -2948,10 +2961,12 @@ export type Database = {
           original_filename?: string | null
           patient_id?: string | null
           processed_at?: string | null
+          processing_time_ms?: number | null
           recording_id?: string | null
           soap_notes?: Json | null
           source?: string
           status?: string
+          storage_path?: string | null
           tenant_id?: string
           transcription?: string | null
           updated_at?: string

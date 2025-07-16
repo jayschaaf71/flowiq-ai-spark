@@ -32,6 +32,8 @@ export const EnhancedVoiceRecorder = ({
     isRecording,
     isProcessing,
     transcription,
+    recordingDuration,
+    confidenceScore,
     startRecording,
     stopRecording,
     clearRecording,
@@ -131,9 +133,14 @@ export const EnhancedVoiceRecorder = ({
               <p className="text-lg font-medium">
                 {isRecording ? 'Recording...' : 'Ready to Record'}
               </p>
+              {isRecording && (
+                <p className="text-xl font-mono text-red-600">
+                  {Math.floor(recordingDuration / 60)}:{(recordingDuration % 60).toString().padStart(2, '0')}
+                </p>
+              )}
               <p className="text-sm text-gray-600">
                 {isRecording 
-                  ? 'AI is transcribing your speech in real-time' 
+                  ? 'High-quality audio capture with AI transcription' 
                   : 'Click the button below to start recording'
                 }
               </p>
@@ -205,8 +212,15 @@ export const EnhancedVoiceRecorder = ({
             </div>
 
             <div className="flex items-center justify-between pt-4 border-t">
-              <div className="text-sm text-gray-600">
-                {transcription.length} characters • AI processed
+              <div className="text-sm text-gray-600 space-y-1">
+                <div>{transcription.length} characters • AI processed</div>
+                {confidenceScore && (
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">
+                      Confidence: {Math.round(confidenceScore * 100)}%
+                    </Badge>
+                  </div>
+                )}
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" onClick={clearRecording}>
