@@ -71,7 +71,7 @@ serve(async (req) => {
         console.log('Found tenant config for:', webhookData.tenant_name);
       } else {
         // Fallback to first active configuration
-        const { data: configs } = await supabase
+        const { data: configs, error: configError } = await supabase
           .from('plaud_configurations')
           .select(`
             *,
@@ -79,7 +79,11 @@ serve(async (req) => {
           `)
           .eq('is_active', true)
           .limit(1)
-          .single();
+          .maybeSingle();
+        
+        if (configError) {
+          console.error('Error fetching plaud configurations:', configError);
+        }
         
         tenantConfig = configs;
         console.log('Using fallback tenant config:', tenantConfig?.tenants?.name);
