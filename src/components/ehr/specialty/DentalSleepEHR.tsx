@@ -141,12 +141,14 @@ export const DentalSleepEHR = () => {
 
           {/* EHR Tabs */}
           <Tabs defaultValue="overview" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full grid-cols-8">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="notes">Clinical Notes</TabsTrigger>
               <TabsTrigger value="vitals">Vitals</TabsTrigger>
               <TabsTrigger value="medications">Medications</TabsTrigger>
               <TabsTrigger value="sleep">Sleep Studies</TabsTrigger>
+              <TabsTrigger value="appliances">Appliances</TabsTrigger>
+              <TabsTrigger value="questionnaires">Questionnaires</TabsTrigger>
               <TabsTrigger value="documents">Documents</TabsTrigger>
             </TabsList>
 
