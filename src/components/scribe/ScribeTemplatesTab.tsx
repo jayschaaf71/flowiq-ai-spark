@@ -2,8 +2,10 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Plus, Eye, Edit, Copy } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { FileText, Plus, Eye, Edit, Copy, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 const soapTemplates = [
   {
@@ -90,6 +92,8 @@ const soapTemplates = [
 
 export const ScribeTemplatesTab = () => {
   const { toast } = useToast();
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<typeof soapTemplates[0] | null>(null);
 
   const copyTemplate = async (template: typeof soapTemplates[0]) => {
     const templateText = `SOAP TEMPLATE: ${template.name}
@@ -121,6 +125,25 @@ ${template.plan}`;
     }
   };
 
+  const handlePreview = (template: typeof soapTemplates[0]) => {
+    setSelectedTemplate(template);
+    setPreviewOpen(true);
+  };
+
+  const handleEdit = (template: typeof soapTemplates[0]) => {
+    toast({
+      title: "Edit Template",
+      description: "Template editing functionality will be available in a future update",
+    });
+  };
+
+  const handleCreateCustom = () => {
+    toast({
+      title: "Create Custom Template", 
+      description: "Custom template creation will be available in a future update",
+    });
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -138,9 +161,7 @@ ${template.plan}`;
             <p className="text-sm text-gray-600">
               {soapTemplates.length} templates available
             </p>
-            <Button type="button" onClick={() => {
-              alert('Custom template creation coming soon!');
-            }}>
+            <Button type="button" onClick={handleCreateCustom}>
               <Plus className="w-4 h-4 mr-2" />
               Create Custom Template
             </Button>
@@ -163,9 +184,7 @@ ${template.plan}`;
                         variant="outline" 
                         size="sm"
                         type="button"
-                        onClick={() => {
-                          alert(`Preview of ${template.name} template:\n\nSubjective: ${template.subjective.substring(0, 100)}...\n\nObjective: ${template.objective.substring(0, 100)}...`);
-                        }}
+                        onClick={() => handlePreview(template)}
                       >
                         <Eye className="w-4 h-4 mr-1" />
                         Preview
@@ -174,9 +193,7 @@ ${template.plan}`;
                         variant="outline" 
                         size="sm"
                         type="button"
-                        onClick={() => {
-                          alert('Template editing coming soon!');
-                        }}
+                        onClick={() => handleEdit(template)}
                       >
                         <Edit className="w-4 h-4 mr-1" />
                         Edit
@@ -221,6 +238,71 @@ ${template.plan}`;
           </div>
         </CardContent>
       </Card>
+
+      {/* Preview Dialog */}
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileText className="w-5 h-5 text-blue-600" />
+              {selectedTemplate?.name}
+            </DialogTitle>
+            <DialogDescription>
+              <Badge variant="outline" className="mr-2">{selectedTemplate?.specialty}</Badge>
+              {selectedTemplate?.description}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedTemplate && (
+            <div className="space-y-6 mt-4">
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-semibold text-blue-700 mb-2">Subjective:</h4>
+                  <p className="text-sm text-gray-700 bg-blue-50 p-3 rounded-lg border-l-4 border-blue-500">
+                    {selectedTemplate.subjective}
+                  </p>
+                </div>
+                
+                <div>
+                  <h4 className="font-semibold text-green-700 mb-2">Objective:</h4>
+                  <p className="text-sm text-gray-700 bg-green-50 p-3 rounded-lg border-l-4 border-green-500">
+                    {selectedTemplate.objective}
+                  </p>
+                </div>
+                
+                <div>
+                  <h4 className="font-semibold text-orange-700 mb-2">Assessment:</h4>
+                  <p className="text-sm text-gray-700 bg-orange-50 p-3 rounded-lg border-l-4 border-orange-500">
+                    {selectedTemplate.assessment}
+                  </p>
+                </div>
+                
+                <div>
+                  <h4 className="font-semibold text-foreground mb-2">Plan:</h4>
+                  <div className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg border-l-4 border-gray-500">
+                    {selectedTemplate.plan.split('\n').map((line, index) => (
+                      <div key={index} className="mb-1">{line}</div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex justify-end gap-2 pt-4 border-t">
+                <Button
+                  variant="outline"
+                  onClick={() => copyTemplate(selectedTemplate)}
+                >
+                  <Copy className="w-4 h-4 mr-2" />
+                  Copy Template
+                </Button>
+                <Button onClick={() => setPreviewOpen(false)}>
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
