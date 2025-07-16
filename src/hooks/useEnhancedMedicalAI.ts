@@ -115,10 +115,14 @@ export const useEnhancedMedicalAI = () => {
       const enhanced = await enhanceTranscription(transcription);
       if (!enhanced) return null;
 
+      // Get current user for the edge function
+      const { data: { user } } = await supabase.auth.getUser();
+      
       // Generate enhanced SOAP using AI with medical context
       const { data, error } = await supabase.functions.invoke('ai-soap-generation', {
         body: {
           transcription: enhanced.enhancedText,
+          userId: user?.id,
           medicalTerms: enhanced.medicalTerms,
           icd10Suggestions: enhanced.icd10Suggestions,
           patientContext,
