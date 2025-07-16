@@ -49,27 +49,23 @@ serve(async (req) => {
         patientId = existingPatient.id;
         console.log('Found existing patient:', patientId);
       } else {
-        // Create new patient if not found
-        const { data: newPatient, error: patientError } = await supabase
-          .from('patients')
-          .insert({
-            first_name: firstName,
-            last_name: lastName,
-            phone: patientPhone || null,
-            email: patientEmail || null,
-            patient_number: `PAT-${Date.now()}`,
-            is_active: true
-          })
-          .select('id')
-          .single();
-
-        if (patientError) {
-          console.error('Error creating patient:', patientError);
-          throw new Error(`Failed to create patient: ${patientError.message}`);
-        }
-
-        patientId = newPatient.id;
-        console.log('Created new patient:', patientId);
+        // Patient not found - return helpful error message
+        console.log('Patient not found in database:', patientName);
+        return new Response(JSON.stringify({
+          success: false,
+          error: 'patient_not_found',
+          message: `${patientName} is not in the patient database yet. Would you like me to add them as a new patient first and then schedule the appointment?`,
+          patientName: patientName,
+          appointmentDetails: {
+            date: appointmentDate,
+            time: appointmentTime,
+            type: appointmentType || 'consultation',
+            provider: provider || 'Dr. Smith'
+          }
+        }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
       }
     }
 

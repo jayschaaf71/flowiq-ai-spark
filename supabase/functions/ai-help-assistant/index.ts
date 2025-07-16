@@ -338,9 +338,14 @@ Brand: ${brandName}`;
         const followUpData = await followUpResponse.json();
         aiResponse = followUpData.choices[0].message.content;
       } else {
-        aiResponse = functionResult.success 
-          ? `✅ Action completed successfully! ${functionResult.data.message}` 
-          : `❌ Action failed: ${functionResult.error}`;
+        // Handle specific error cases with better messaging
+        if (functionResult.error === 'patient_not_found') {
+          aiResponse = functionResult.message;
+        } else {
+          aiResponse = functionResult.success 
+            ? `✅ Action completed successfully! ${functionResult.data?.message || functionResult.message}` 
+            : `❌ Action failed: ${functionResult.error || functionResult.message}`;
+        }
       }
     } else {
       // Regular response without function call
