@@ -14,11 +14,17 @@ import { ScribeSettingsTab } from "@/components/scribe/ScribeSettingsTab";
 import { SOAPProvider } from "@/contexts/SOAPContext";
 import { useSpecialty } from "@/contexts/SpecialtyContext";
 import { usePlaudIntegration } from "@/hooks/usePlaudIntegration";
+import { MobileRecordingWidget } from "@/components/scribe/MobileRecordingWidget";
 
 const ScribeIQ = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const { isConnected, connectionStatus } = usePlaudIntegration();
   const { getBrandName } = useSpecialty();
+
+  // Mobile detection
+  const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    typeof navigator !== 'undefined' ? navigator.userAgent : ''
+  );
 
   // Listen for tab change events from dashboard buttons
   useEffect(() => {
@@ -105,6 +111,16 @@ const ScribeIQ = () => {
             </TabsContent>
           </Tabs>
         </div>
+
+        {/* Mobile Quick Recording Widget - Only show on mobile and not on whisper tab */}
+        {isMobile && activeTab !== 'whisper' && (
+          <MobileRecordingWidget 
+            onTranscriptionComplete={(transcription) => {
+              // Switch to whisper tab when transcription is complete
+              setActiveTab('whisper');
+            }}
+          />
+        )}
       </div>
     </SOAPProvider>
   );
