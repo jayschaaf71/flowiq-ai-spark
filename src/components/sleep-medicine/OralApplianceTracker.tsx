@@ -24,7 +24,11 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-export const OralApplianceTracker = () => {
+interface OralApplianceTrackerProps {
+  patientId: string;
+}
+
+export const OralApplianceTracker = ({ patientId }: OralApplianceTrackerProps) => {
   const [activeTab, setActiveTab] = useState("current");
 
   const appliances = [

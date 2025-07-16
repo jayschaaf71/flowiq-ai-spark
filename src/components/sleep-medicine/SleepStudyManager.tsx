@@ -23,7 +23,11 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-export const SleepStudyManager = () => {
+interface SleepStudyManagerProps {
+  patientId: string;
+}
+
+export const SleepStudyManager = ({ patientId }: SleepStudyManagerProps) => {
   const [activeTab, setActiveTab] = useState("results");
 
   const sleepStudies = [

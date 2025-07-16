@@ -9,7 +9,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ClipboardList, FileCheck, AlertCircle, Save } from "lucide-react";
 import { useState } from "react";
 
-export const SleepQuestionnaires = () => {
+interface SleepQuestionnairesProps {
+  patientId: string;
+}
+
+export const SleepQuestionnaires = ({ patientId }: SleepQuestionnairesProps) => {
   const [epworthScore, setEpworthScore] = useState(0);
   const [stopBangScore, setStopBangScore] = useState(0);
   const [berlinScore, setBerlinScore] = useState(0);
