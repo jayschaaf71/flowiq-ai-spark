@@ -29,10 +29,10 @@ export const loadPlaudConfig = async (): Promise<PlaudConfig | null> => {
       .select('*')
       .eq('tenant_id', profile.current_tenant_id)
       .eq('is_active', true)
-      .single();
+      .maybeSingle();
     
-    if (error) {
-      console.log('No Plaud configuration found in database:', error.message);
+    if (error || !config) {
+      console.log('No Plaud configuration found in database');
       return null;
     }
     
