@@ -54,14 +54,27 @@ export const PatientsList = ({ onSelectPatient, onAddPatient }: PatientsListProp
         throw new Error('Authentication required to access patient data');
       }
 
-      // Filter patients by current specialty/practice using user-specific storage
-      const currentSpecialty = localStorage.getItem(`currentSpecialty_${user.id}`) || 'chiropractic';
+      // Filter patients by current specialty/practice
+      const currentSpecialty = localStorage.getItem('currentSpecialty') || 'chiropractic';
+      
+      // Map specialty to patient specialty values in database
+      const specialtyMapping: Record<string, string> = {
+        'chiropractic': 'chiropractic',
+        'chiropractic-care': 'chiropractic', 
+        'dental-sleep': 'dental-sleep',
+        'dental-sleep-medicine': 'dental-sleep',
+        'med-spa': 'med-spa',
+        'concierge': 'concierge',
+        'hrt': 'hrt'
+      };
+      
+      const patientSpecialty = specialtyMapping[currentSpecialty] || currentSpecialty;
       
       const { data, error } = await supabase
         .from('patients')
         .select('*')
         .eq('is_active', true)
-        .eq('specialty', currentSpecialty)
+        .eq('specialty', patientSpecialty)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
