@@ -74,8 +74,8 @@ export const ScribeRecentSOAPNotes = ({ onEditSOAP }: ScribeRecentSOAPNotesProps
     if (onEditSOAP) {
       onEditSOAP(soapNote);
     }
-    // Navigate to SOAP tab
-    window.dispatchEvent(new CustomEvent('changeScribeTab', { detail: 'soap' }));
+    // Navigate to SOAP Notes tab to view/edit existing notes
+    window.dispatchEvent(new CustomEvent('changeScribeTab', { detail: 'soap-notes' }));
   };
 
   const getPatientDisplay = (soapNote: SOAPNote) => {
@@ -204,7 +204,7 @@ export const ScribeRecentSOAPNotes = ({ onEditSOAP }: ScribeRecentSOAPNotesProps
               variant="ghost" 
               size="sm" 
               className="w-full"
-              onClick={() => window.dispatchEvent(new CustomEvent('changeScribeTab', { detail: 'soap' }))}
+              onClick={() => window.dispatchEvent(new CustomEvent('changeScribeTab', { detail: 'soap-notes' }))}
             >
               <Eye className="w-4 h-4 mr-2" />
               View All SOAP Notes
