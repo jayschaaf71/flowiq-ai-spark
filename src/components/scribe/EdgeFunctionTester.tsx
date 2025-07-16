@@ -23,13 +23,10 @@ export const EdgeFunctionTester: React.FC = () => {
   
   const [tests, setTests] = useState<EdgeFunctionTest[]>([
     {
-      name: 'Voice Transcription',
-      functionName: 'voice-to-text',
-      description: 'Tests AI voice transcription with sample audio data',
-      testData: {
-        audio: 'test-audio-base64', // This would be actual base64 in real test
-        language: 'en'
-      },
+      name: 'Health Check',
+      functionName: 'health-check',
+      description: 'Tests basic edge function connectivity',
+      testData: {},
       status: 'idle'
     },
     {
@@ -258,7 +255,7 @@ export const EdgeFunctionTester: React.FC = () => {
               onChange={(e) => setSelectedFunction(e.target.value)}
             >
               <option value="">Select function...</option>
-              <option value="voice-to-text">voice-to-text</option>
+              <option value="health-check">health-check</option>
               <option value="ai-soap-generation">ai-soap-generation</option>
               <option value="ai-help-assistant">ai-help-assistant</option>
               <option value="ai-form-processor">ai-form-processor</option>
