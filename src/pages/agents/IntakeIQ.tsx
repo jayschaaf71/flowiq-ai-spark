@@ -11,7 +11,7 @@ import { IntakeAnalyticsDashboard } from "@/components/intake/IntakeAnalyticsDas
 import { EnhancedAnalyticsDashboard } from "@/components/intake/EnhancedAnalyticsDashboard";
 import { VoiceEnabledPatientIntake } from "@/components/intake/VoiceEnabledPatientIntake";
 import { MobileVoiceIntake } from "@/components/intake/MobileVoiceIntake";
-import { IntakeFormSeed } from "@/components/intake/IntakeFormSeed";
+
 import { ConversationalVoiceIntake } from "@/components/intake/ConversationalVoiceIntake";
 import { useIntakeForms } from "@/hooks/useIntakeForms";
 import { DentalSleepRedirect } from "@/components/DentalSleepRedirect";
@@ -41,7 +41,7 @@ const IntakeIQ = () => {
       />
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-8">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           <TabsTrigger value="builder">Form Builder</TabsTrigger>
           <TabsTrigger value="submissions">Submissions</TabsTrigger>
@@ -49,7 +49,6 @@ const IntakeIQ = () => {
           <TabsTrigger value="voice">Voice Intake</TabsTrigger>
           <TabsTrigger value="mobile">Mobile</TabsTrigger>
           <TabsTrigger value="staff">Staff View</TabsTrigger>
-          <TabsTrigger value="seed">Seed Data</TabsTrigger>
         </TabsList>
 
         <TabsContent value="dashboard" className="space-y-4">
@@ -80,9 +79,6 @@ const IntakeIQ = () => {
           <StaffIntakeDashboard />
         </TabsContent>
 
-        <TabsContent value="seed" className="space-y-4">
-          <IntakeFormSeed />
-        </TabsContent>
       </Tabs>
     </div>
   );

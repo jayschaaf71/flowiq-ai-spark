@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { CheckCircle, Circle, Play, Users, Database, Settings, TestTube } from 'lucide-react';
-import { useSampleDataGenerator } from '@/hooks/useSampleDataGenerator';
+
 import { useTenantManagement } from '@/hooks/useTenantManagement';
 
 interface SetupStep {
@@ -17,7 +17,7 @@ interface SetupStep {
 }
 
 export const PilotSetupWizard: React.FC = () => {
-  const { loading, generateChiropracticData, generateDentalSleepData } = useSampleDataGenerator();
+  const loading = false; // Sample data generation removed
   const { tenants, createTenant, isCreating } = useTenantManagement();
   const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
 
@@ -53,17 +53,7 @@ export const PilotSetupWizard: React.FC = () => {
   };
 
   const handleGenerateSampleData = async () => {
-    const westCountyTenant = tenants?.find(t => t.slug === 'west-county-spine');
-    const midwestTenant = tenants?.find(t => t.name.includes('Midwest'));
-
-    if (westCountyTenant) {
-      await generateChiropracticData(westCountyTenant.id);
-    }
-
-    if (midwestTenant) {
-      await generateDentalSleepData(midwestTenant.id);
-    }
-
+    // Sample data generation removed - ready for production data
     markStepCompleted('sample-data');
   };
 
@@ -78,10 +68,10 @@ export const PilotSetupWizard: React.FC = () => {
     },
     {
       id: 'sample-data',
-      title: 'Generate Sample Data',
-      description: 'Create realistic patient data for both pilot practices',
+      title: 'Ready for Production Data',
+      description: 'Sample data cleared - ready to import real patient data',
       icon: <Database className="h-5 w-5" />,
-      completed: completedSteps.has('sample-data'),
+      completed: true, // Always completed since we cleared sample data
       action: handleGenerateSampleData
     },
     {

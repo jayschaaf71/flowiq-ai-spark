@@ -6,13 +6,13 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle, AlertCircle, Users, Calendar, Settings, Zap } from "lucide-react";
-import { useSampleData } from "@/hooks/useSampleData";
+
 import { useAvailabilitySlots } from "@/hooks/useAvailabilitySlots";
 
 export const SetupWizard = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
-  const { loading: sampleDataLoading, setupSampleData } = useSampleData();
+  const sampleDataLoading = false; // Sample data generation removed
   const { generateSlotsFromTemplate } = useAvailabilitySlots();
 
   const steps = [
@@ -22,7 +22,7 @@ export const SetupWizard = () => {
       description: "Set up demo providers and their schedules",
       icon: Users,
       action: async () => {
-        await setupSampleData();
+        // Sample data generation removed - ready for production data
         setCompletedSteps(prev => [...prev, 0]);
       }
     },
