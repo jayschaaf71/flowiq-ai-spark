@@ -73,12 +73,34 @@ const dentalNavItems: NavItem[] = [
 export const getNavItems = (specialty: string = 'chiropractic'): NavItem[] => {
   const currentSpecialty = specialty || localStorage.getItem('currentSpecialty') || 'chiropractic';
   
+  // Create specialty-specific base items with proper dashboard routes
+  const specialtyNavItems = baseNavItems.map(item => {
+    if (item.id === 'dashboard') {
+      // Update dashboard path based on specialty
+      if (currentSpecialty === 'dental-sleep-medicine' || currentSpecialty === 'dental-sleep') {
+        return { ...item, path: '/dental-sleep/dashboard' };
+      } else if (currentSpecialty === 'dental') {
+        return { ...item, path: '/general-dentistry/dashboard' };
+      } else if (currentSpecialty === 'med-spa') {
+        return { ...item, path: '/medspa/dashboard' };
+      } else if (currentSpecialty === 'concierge') {
+        return { ...item, path: '/concierge-medicine/dashboard' };
+      } else if (currentSpecialty === 'hrt') {
+        return { ...item, path: '/hrt/dashboard' };
+      } else {
+        // Default to chiropractic dashboard
+        return { ...item, path: '/chiropractic/dashboard' };
+      }
+    }
+    return item;
+  });
+
   if (currentSpecialty === 'dental-sleep-medicine' || currentSpecialty === 'dental-sleep' || currentSpecialty === 'dental') {
-    return [...baseNavItems, ...dentalNavItems];
+    return [...specialtyNavItems, ...dentalNavItems];
   }
   
-  // For chiropractic and all other specialties, return base items only
-  return baseNavItems;
+  // For chiropractic and all other specialties, return specialty-specific items
+  return specialtyNavItems;
 };
 
 // Export default for backward compatibility
