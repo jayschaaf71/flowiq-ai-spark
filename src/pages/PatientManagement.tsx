@@ -21,6 +21,7 @@ interface Patient {
 }
 
 const PatientManagement = () => {
+  console.log('PatientManagement: Component is mounting/rendering');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
 
