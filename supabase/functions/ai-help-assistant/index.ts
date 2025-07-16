@@ -67,8 +67,8 @@ Brand: ${brandName}`;
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: messages,
-        temperature: 0.7,
-        max_tokens: 200
+        temperature: 0.5,
+        max_tokens: 150
       }),
     });
 
