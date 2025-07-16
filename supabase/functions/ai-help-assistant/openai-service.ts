@@ -77,7 +77,7 @@ NOTE: Function calling is currently disabled. Please provide helpful guidance an
 
   // Add timeout to OpenAI request to prevent hanging
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 second timeout
+  const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout for faster response
 
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -92,8 +92,8 @@ NOTE: Function calling is currently disabled. Please provide helpful guidance an
           { role: 'system', content: fullSystemPrompt },
           { role: 'user', content: message }
         ],
-        temperature: AI_CONFIG.temperature,
-        max_tokens: AI_CONFIG.maxTokens,
+        temperature: 0.3, // Lower temperature for faster, more focused responses
+        max_tokens: 500, // Reduced token limit for faster responses
       }),
       signal: controller.signal,
     });

@@ -92,16 +92,16 @@ export const useAIHelpAssistant = () => {
     setIsLoading(true);
 
     try {
-      // Add retry logic with timeout for better reliability
+      // Reduce retries for faster failure feedback
       let retryCount = 0;
-      const maxRetries = 2;
+      const maxRetries = 1; // Only 1 retry instead of 2
       let lastError;
 
       while (retryCount <= maxRetries) {
         try {
-          // Add a timeout wrapper for the request
+          // Reduce timeout to 10 seconds for faster user feedback
           const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('Request timeout after 30 seconds')), 30000);
+            setTimeout(() => reject(new Error('Request timeout after 10 seconds')), 10000);
           });
 
           const requestPromise = supabase.functions.invoke('ai-help-assistant', {
@@ -152,7 +152,7 @@ export const useAIHelpAssistant = () => {
           
           if (retryCount <= maxRetries) {
             console.log(`AI Help request failed, retrying (${retryCount}/${maxRetries})...`);
-            await new Promise(resolve => setTimeout(resolve, 1000 * retryCount)); // Progressive delay
+            await new Promise(resolve => setTimeout(resolve, 500)); // Faster retry delay
           }
         }
       }

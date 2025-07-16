@@ -368,15 +368,16 @@ export const FloatingAssistIQ: React.FC = () => {
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-gray-100 p-3 rounded-lg">
+                <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg max-w-[85%]">
                   <div className="flex items-center gap-2">
                     <div className="flex space-x-1">
-                      <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce"></div>
-                      <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                      <div className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                      <div className="h-2 w-2 bg-blue-500 rounded-full animate-bounce"></div>
+                      <div className="h-2 w-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                      <div className="h-2 w-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
                     </div>
-                    <span className="text-xs text-gray-500">Sage is thinking...</span>
+                    <span className="text-sm text-blue-700 font-medium">Sage is thinking...</span>
                   </div>
+                  <div className="text-xs text-blue-600 mt-1">Usually responds in 3-8 seconds</div>
                 </div>
               </div>
             )}
