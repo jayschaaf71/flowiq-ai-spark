@@ -73,23 +73,24 @@ const dentalNavItems: NavItem[] = [
 export const getNavItems = (specialty: string = 'chiropractic'): NavItem[] => {
   const currentSpecialty = specialty || localStorage.getItem('currentSpecialty') || 'chiropractic';
   
+  // Get the specialty prefix for routes
+  let specialtyPrefix = '';
+  if (currentSpecialty === 'dental-sleep-medicine' || currentSpecialty === 'dental-sleep') {
+    specialtyPrefix = '/dental-sleep';
+  } else if (currentSpecialty === 'dental') {
+    specialtyPrefix = '/general-dentistry';
+  } else if (currentSpecialty === 'med-spa') {
+    specialtyPrefix = '/medspa';
+  } else if (currentSpecialty === 'concierge') {
+    specialtyPrefix = '/concierge-medicine';
+  } else if (currentSpecialty === 'hrt') {
+    specialtyPrefix = '/hrt';
+  } else {
+    specialtyPrefix = '/chiropractic';
+  }
+  
   // Create specialty-specific base items with proper routes
   const specialtyNavItems = baseNavItems.map(item => {
-    // Get the specialty prefix for routes
-    let specialtyPrefix = '';
-    if (currentSpecialty === 'dental-sleep-medicine' || currentSpecialty === 'dental-sleep') {
-      specialtyPrefix = '/dental-sleep';
-    } else if (currentSpecialty === 'dental') {
-      specialtyPrefix = '/general-dentistry';
-    } else if (currentSpecialty === 'med-spa') {
-      specialtyPrefix = '/medspa';
-    } else if (currentSpecialty === 'concierge') {
-      specialtyPrefix = '/concierge-medicine';
-    } else if (currentSpecialty === 'hrt') {
-      specialtyPrefix = '/hrt';
-    } else {
-      specialtyPrefix = '/chiropractic';
-    }
 
     // Handle specialty-specific routes
     if (item.id === 'dashboard') {
@@ -134,7 +135,12 @@ export const getNavItems = (specialty: string = 'chiropractic'): NavItem[] => {
   });
 
   if (currentSpecialty === 'dental-sleep-medicine' || currentSpecialty === 'dental-sleep' || currentSpecialty === 'dental') {
-    return [...specialtyNavItems, ...dentalNavItems];
+    // Apply specialty prefix to dental-specific items too
+    const specialtyDentalItems = dentalNavItems.map(item => ({
+      ...item,
+      path: `${specialtyPrefix}${item.path}`
+    }));
+    return [...specialtyNavItems, ...specialtyDentalItems];
   }
   
   // For chiropractic and all other specialties, return specialty-specific items
