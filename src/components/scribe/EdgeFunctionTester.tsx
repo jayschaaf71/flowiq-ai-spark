@@ -35,28 +35,28 @@ export const EdgeFunctionTester: React.FC = () => {
       description: 'Tests SOAP note generation from sample transcription',
       testData: {
         transcription: "Patient complains of chest pain that started this morning. Pain is sharp, 7/10 intensity, radiates to left arm. Vital signs stable. Heart rate 82, BP 120/80. Plan: EKG, troponin levels, cardiology consult.",
-        userId: null,
-        patientContext: null
+        specialty: "dental-sleep-medicine"
       },
       status: 'idle'
     },
     {
-      name: 'AI Help Assistant',
-      functionName: 'ai-help-assistant',
-      description: 'Tests the AI help assistant functionality',
+      name: 'Claims Validation',
+      functionName: 'ai-claims-validation',
+      description: 'Tests AI claims validation capabilities',
       testData: {
-        question: "How do I configure voice recording settings?",
-        context: "ScribeIQ setup"
-      },
-      status: 'idle'
-    },
-    {
-      name: 'Form Processor',
-      functionName: 'ai-form-processor',
-      description: 'Tests AI form processing capabilities',
-      testData: {
-        formData: { name: "Test Patient", age: "35", symptoms: "Headache" },
-        formType: "intake"
+        claimData: {
+          id: "test-claim-001",
+          patient_id: "test-patient",
+          claim_number: "CLM123456",
+          total_amount: 250.00,
+          payer_name: "Test Insurance",
+          status: "submitted",
+          diagnosis_codes: ["M79.1"],
+          procedure_codes: ["99213"],
+          submitted_date: "2024-01-15",
+          notes: "Routine office visit"
+        },
+        validationType: "comprehensive"
       },
       status: 'idle'
     }
@@ -257,8 +257,7 @@ export const EdgeFunctionTester: React.FC = () => {
               <option value="">Select function...</option>
               <option value="health-check">health-check</option>
               <option value="ai-soap-generation">ai-soap-generation</option>
-              <option value="ai-help-assistant">ai-help-assistant</option>
-              <option value="ai-form-processor">ai-form-processor</option>
+              <option value="ai-claims-validation">ai-claims-validation</option>
               
             </select>
           </div>
