@@ -48,7 +48,7 @@ export const ScribeDashboardTab = () => {
       id: 1,
       patientName: "Patient Visit #25",
       timestamp: new Date(Date.now() - 3600000).toLocaleTimeString(),
-      source: "From Plaud Device",
+      source: "Live Recording",
       content: "Patient complains of persistent headache lasting 3 days. Pain is throbbing, located in temporal region. No visual disturbances. Taking ibuprofen with minimal relief. No fever. Sleep pattern normal. Stress levels elevated due to work.",
       soapNote: {
         subjective: "Patient reports persistent headache for 3 days, throbbing pain in temporal region, no visual disturbances, minimal relief with ibuprofen, no fever, elevated stress due to work.",

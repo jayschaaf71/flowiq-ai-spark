@@ -105,7 +105,7 @@ const documentationGuides: Record<string, GuideSection[]> = {
       difficulty: 'Advanced',
       description: 'Generate SOAP notes automatically from voice recordings',
       content: [
-        '• Connect Plaud device for high-quality audio recording',
+        '• Connect compatible recording devices for high-quality audio',
         '• Start voice recording during patient consultations',
         '• Review AI-generated SOAP notes and clinical summaries',
         '• Edit and approve documentation before finalizing',

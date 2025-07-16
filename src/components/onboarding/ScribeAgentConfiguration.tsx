@@ -27,11 +27,9 @@ export const ScribeAgentConfiguration: React.FC<ScribeAgentConfigurationProps> =
   onConfigUpdate,
   currentConfig = {}
 }) => {
-  const [showPlaudSetup, setShowPlaudSetup] = useState(false);
+  
   const [config, setConfig] = useState({
     enableScribeAgent: currentConfig.enableScribeAgent || false,
-    enablePlaudIntegration: currentConfig.enablePlaudIntegration || false,
-    zapierWebhookUrl: currentConfig.zapierWebhookUrl || '',
     autoSOAPGeneration: currentConfig.autoSOAPGeneration || true,
     realTimeTranscription: currentConfig.realTimeTranscription || true,
     ...currentConfig
@@ -43,32 +41,11 @@ export const ScribeAgentConfiguration: React.FC<ScribeAgentConfigurationProps> =
     onConfigUpdate(newConfig);
   };
 
-  const handlePlaudSetupComplete = (zapierWebhookUrl: string) => {
-    updateConfig({
-      enablePlaudIntegration: true,
-      zapierWebhookUrl
-    });
-    setShowPlaudSetup(false);
-  };
 
   const handleEnableScribeAgent = () => {
     updateConfig({ enableScribeAgent: true });
   };
 
-  if (showPlaudSetup) {
-    return (
-      <div className="p-6 text-center">
-        <h3 className="text-lg font-semibold mb-2">Setup Not Available</h3>
-        <p className="text-gray-600">Plaud integration setup is currently unavailable.</p>
-        <Button 
-          onClick={() => setShowPlaudSetup(false)}
-          className="mt-4"
-        >
-          Go Back
-        </Button>
-      </div>
-    );
-  }
 
   // Show getting started view when Scribe Agent is not enabled
   if (!config.enableScribeAgent) {
@@ -90,8 +67,8 @@ export const ScribeAgentConfiguration: React.FC<ScribeAgentConfigurationProps> =
               <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-lg">
                 <Smartphone className="w-6 h-6 text-blue-600 mt-1" />
                 <div>
-                  <h4 className="font-semibold text-blue-900">Plaud Device Integration</h4>
-                  <p className="text-sm text-blue-700">Automatically process recordings from your Plaud device via Zapier</p>
+                  <h4 className="font-semibold text-blue-900">Live Recording</h4>
+                  <p className="text-sm text-blue-700">Real-time voice recording and transcription</p>
                 </div>
               </div>
               
@@ -123,7 +100,7 @@ export const ScribeAgentConfiguration: React.FC<ScribeAgentConfigurationProps> =
             <Alert className="border-purple-200 bg-purple-50">
               <Zap className="h-4 w-4 text-purple-600" />
               <AlertDescription className="text-purple-800">
-                <strong>How it works:</strong> Record patient encounters with your Plaud device → Zapier automatically sends recordings to FlowIQ → AI generates SOAP notes → You review and approve
+                <strong>How it works:</strong> Record patient encounters → AI transcribes and generates SOAP notes → You review and approve
               </AlertDescription>
             </Alert>
 
@@ -174,61 +151,6 @@ export const ScribeAgentConfiguration: React.FC<ScribeAgentConfigurationProps> =
             />
           </div>
 
-          {/* Plaud Integration */}
-          <div className="border rounded-lg p-4 space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Smartphone className="w-5 h-5 text-blue-600" />
-                <div>
-                  <Label className="text-base font-medium">Plaud Device Integration</Label>
-                  <p className="text-sm text-gray-600">
-                    Automatic transcription from Plaud recordings via Zapier
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                {config.enablePlaudIntegration && (
-                  <Badge className="bg-green-100 text-green-700">
-                    <Zap className="w-3 h-3 mr-1" />
-                    Connected
-                  </Badge>
-                )}
-                <Switch
-                  checked={config.enablePlaudIntegration}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      setShowPlaudSetup(true);
-                    } else {
-                      updateConfig({ 
-                        enablePlaudIntegration: false,
-                        zapierWebhookUrl: ''
-                      });
-                    }
-                  }}
-                />
-              </div>
-            </div>
-
-            {config.enablePlaudIntegration && (
-              <Alert className="border-blue-200 bg-blue-50">
-                <Shield className="h-4 w-4 text-blue-600" />
-                <AlertDescription className="text-blue-800">
-                  <strong>Automatic Workflow Active:</strong> Plaud recordings will automatically generate SOAP notes via Zapier integration.
-                </AlertDescription>
-              </Alert>
-            )}
-
-            {!config.enablePlaudIntegration && (
-              <Button 
-                variant="outline" 
-                onClick={() => setShowPlaudSetup(true)}
-                className="w-full"
-              >
-                <Smartphone className="w-4 h-4 mr-2" />
-                Set Up Plaud Integration
-              </Button>
-            )}
-          </div>
 
           {/* Additional Scribe Features */}
           <div className="space-y-4">
@@ -271,7 +193,7 @@ export const ScribeAgentConfiguration: React.FC<ScribeAgentConfigurationProps> =
             <li>• AI-powered medical transcription</li>
             <li>• Automatic SOAP note generation</li>
             <li>• HIPAA-compliant processing</li>
-            {config.enablePlaudIntegration && <li>• Automatic Plaud device integration</li>}
+            
             {config.realTimeTranscription && <li>• Real-time transcription capabilities</li>}
           </ul>
         </AlertDescription>
