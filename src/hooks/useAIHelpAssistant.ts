@@ -77,7 +77,7 @@ export const useAIHelpAssistant = () => {
 
   const handleSendMessage = async (messageToSend?: string) => {
     const messageContent = messageToSend || inputMessage;
-    if (!messageContent.trim() || isLoading) return;
+    if (!messageContent || typeof messageContent !== 'string' || !messageContent.trim() || isLoading) return;
 
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
