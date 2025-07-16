@@ -24,14 +24,14 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Check if this is a test webhook or actual Plaud data
-    if (webhookData.test || webhookData.timestamp) {
+    // Check if this is a test webhook (from Zapier test or manual testing)
+    if (webhookData.test === true || (webhookData.timestamp && !webhookData.transcript && !webhookData.summary)) {
       console.log('Test webhook received successfully');
       return new Response(
         JSON.stringify({ 
           success: true, 
-          message: 'Plaud webhook endpoint is working!',
-          receivedData: webhookData 
+          message: 'Test webhook received successfully',
+          note: 'This is a test - no processing needed'
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
