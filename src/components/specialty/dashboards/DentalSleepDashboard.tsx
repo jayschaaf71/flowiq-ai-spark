@@ -143,8 +143,8 @@ export const DentalSleepDashboard = () => {
         <Card 
           className="border-purple-200 cursor-pointer hover:shadow-lg transition-shadow duration-200 hover:border-purple-400"
           onClick={() => {
-            console.log("Compliance card clicked - navigating to /patient-management");
-            navigate('/patient-management');
+            console.log("Compliance card clicked - navigating to /dental-sleep/patient-management");
+            navigate('/dental-sleep/patient-management');
           }}
         >
           <CardHeader>
