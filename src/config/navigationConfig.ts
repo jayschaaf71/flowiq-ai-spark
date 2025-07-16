@@ -61,7 +61,7 @@ const baseNavItems: NavItem[] = [
 
   // Settings
   { id: "settings", label: "Settings", path: "/settings", icon: Settings, group: "settings", order: 10 },
-  { id: "help", label: "AssistIQ", path: "/help", icon: HelpCircle, group: "settings", order: 20 }
+  { id: "help", label: "Sage AI", path: "/help", icon: HelpCircle, group: "settings", order: 20 }
 ];
 
 // Dental-specific items (only show in dental contexts)

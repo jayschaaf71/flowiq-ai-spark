@@ -17,7 +17,10 @@ import {
   TrendingUp,
   Settings,
   Send,
-  Search
+  Search,
+  Bot,
+  Heart,
+  Sparkles
 } from "lucide-react";
 
 const AssistIQ = () => {
@@ -57,17 +60,38 @@ const AssistIQ = () => {
   return (
     <Layout>
       <PageHeader 
-        title="Assist iQ"
-        subtitle="AI assistant for staff support and queries"
+        title="Sage AI Assistant"
+        subtitle="Your friendly AI companion for practice support and guidance"
         badge="AI Agent"
       />
       
       <div className="p-6 space-y-6">
+        {/* Sage Personality Header */}
+        <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-blue-100 rounded-full">
+                <Bot className="h-8 w-8 text-blue-600" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-xl font-semibold text-blue-900 mb-1">Hi there! I'm Sage 👋</h2>
+                <p className="text-blue-700">Your AI practice companion, ready to help with questions, guidance, and support. What can I assist you with today?</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 text-sm text-green-600">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  Online & Ready
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          <Card>
+          <Card className="hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Queries Today</CardTitle>
+              <CardTitle className="text-sm font-medium">Conversations Today</CardTitle>
               <MessageSquare className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
@@ -76,29 +100,29 @@ const AssistIQ = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Response Time</CardTitle>
               <Clock className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-600">{stats.responseTime}s</div>
-              <p className="text-xs text-muted-foreground">avg response</p>
+              <p className="text-xs text-muted-foreground">lightning fast!</p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Satisfaction</CardTitle>
-              <CheckCircle className="h-4 w-4 text-purple-600" />
+              <CardTitle className="text-sm font-medium">Staff Happiness</CardTitle>
+              <Heart className="h-4 w-4 text-pink-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-purple-600">{stats.satisfactionRate}%</div>
+              <div className="text-2xl font-bold text-pink-600">{stats.satisfactionRate}%</div>
               <Progress value={stats.satisfactionRate} className="h-1 mt-1" />
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Active Chats</CardTitle>
               <Users className="h-4 w-4 text-yellow-600" />
@@ -109,25 +133,25 @@ const AssistIQ = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Knowledge Base</CardTitle>
               <BookOpen className="h-4 w-4 text-indigo-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.knowledgeBase}</div>
-              <p className="text-xs text-muted-foreground">articles available</p>
+              <p className="text-xs text-muted-foreground">articles ready</p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Auto-Resolved</CardTitle>
-              <TrendingUp className="h-4 w-4 text-orange-600" />
+              <CardTitle className="text-sm font-medium">Auto-Magic</CardTitle>
+              <Sparkles className="h-4 w-4 text-purple-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-orange-600">{stats.automatedResolutions}%</div>
-              <p className="text-xs text-muted-foreground">of queries</p>
+              <div className="text-2xl font-bold text-purple-600">{stats.automatedResolutions}%</div>
+              <p className="text-xs text-muted-foreground">resolved instantly</p>
             </CardContent>
           </Card>
         </div>
@@ -143,13 +167,13 @@ const AssistIQ = () => {
             </TabsList>
             
             <div className="flex gap-2">
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="hover:bg-blue-50">
                 <Search className="w-4 h-4 mr-2" />
-                Search KB
+                Ask Sage Anything
               </Button>
-              <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+              <Button size="sm" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
                 <Send className="w-4 h-4 mr-2" />
-                New Chat
+                Start Chatting
               </Button>
             </div>
           </div>
@@ -157,10 +181,13 @@ const AssistIQ = () => {
           <TabsContent value="dashboard" className="space-y-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Recent Queries */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Recent Staff Queries</CardTitle>
-                </CardHeader>
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <MessageSquare className="w-4 h-4 text-blue-600" />
+                      Recent Conversations with Sage
+                    </CardTitle>
+                  </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     {recentQueries.map((query, index) => (
