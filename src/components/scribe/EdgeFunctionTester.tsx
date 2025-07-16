@@ -37,9 +37,10 @@ export const EdgeFunctionTester: React.FC = () => {
       functionName: 'ai-medical-coding',
       description: 'Tests ICD-10 and CPT code suggestions for dental sleep procedures',
       testData: {
-        transcription: "Oral appliance fitting and adjustment for obstructive sleep apnea. Custom mandibular advancement device fabricated and delivered.",
-        specialty: "dental-sleep-medicine",
-        procedureType: "oral_appliance_therapy"
+        clinicalNotes: "Oral appliance fitting and adjustment for obstructive sleep apnea. Custom mandibular advancement device fabricated and delivered. Patient tolerated procedure well.",
+        procedureType: "oral_appliance_therapy",
+        diagnosis: "Obstructive sleep apnea",
+        specialty: "dental-sleep-medicine"
       },
       status: 'idle'
     }
