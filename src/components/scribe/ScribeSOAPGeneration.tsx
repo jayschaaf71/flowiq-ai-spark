@@ -57,9 +57,19 @@ export const ScribeSOAPGeneration = () => {
 
     window.addEventListener('editSOAPNote', handleEditSOAP as EventListener);
     
+    // Listen for generate SOAP from recording events
+    const handleGenerateSOAPFromRecording = (event: CustomEvent) => {
+      const recording = event.detail;
+      console.log('Generating SOAP from recording:', recording);
+      handleGenerateSOAP(recording);
+    };
+
+    window.addEventListener('generateSOAPFromRecording', handleGenerateSOAPFromRecording as EventListener);
+    
     // Cleanup function
     return () => {
       window.removeEventListener('editSOAPNote', handleEditSOAP as EventListener);
+      window.removeEventListener('generateSOAPFromRecording', handleGenerateSOAPFromRecording as EventListener);
       Object.values(audioElements).forEach(audio => {
         // Remove event listeners to prevent random errors
         audio.onended = null;
@@ -401,17 +411,44 @@ ${enhancedSOAP.confidence ? `\nAI Confidence: ${Math.round(enhancedSOAP.confiden
     
     setIsSaving(true);
     try {
-      await createSOAPNote({
-        subjective: enhancedSOAP.subjective,
-        objective: enhancedSOAP.objective,
-        assessment: enhancedSOAP.assessment,
-        plan: enhancedSOAP.plan,
-        is_ai_generated: true,
-        ai_confidence_score: enhancedSOAP.confidence ? Math.round(enhancedSOAP.confidence * 100) : 85,
-        status: 'draft',
-        visit_date: new Date().toISOString().split('T')[0],
-        patient_id: selectedPatient.id,
-      });
+      // If we have a selected recording, update it with SOAP notes instead of creating new
+      if (selectedRecording) {
+        const soapData = {
+          subjective: enhancedSOAP.subjective,
+          objective: enhancedSOAP.objective,
+          assessment: enhancedSOAP.assessment,
+          plan: enhancedSOAP.plan,
+          icd10Codes: enhancedSOAP.icd10Codes || [],
+          suggestedCPTCodes: enhancedSOAP.suggestedCPTCodes || [],
+          clinicalFlags: enhancedSOAP.clinicalFlags || [],
+          confidence: enhancedSOAP.confidence
+        };
+
+        // Update the existing voice recording with SOAP notes and patient ID
+        const { error } = await supabase
+          .from('voice_recordings')
+          .update({
+            soap_notes: soapData,
+            patient_id: selectedPatient.id,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', selectedRecording.id);
+
+        if (error) throw error;
+      } else {
+        // Fallback: create new SOAP note using the hook
+        await createSOAPNote({
+          subjective: enhancedSOAP.subjective,
+          objective: enhancedSOAP.objective,
+          assessment: enhancedSOAP.assessment,
+          plan: enhancedSOAP.plan,
+          is_ai_generated: true,
+          ai_confidence_score: enhancedSOAP.confidence ? Math.round(enhancedSOAP.confidence * 100) : 85,
+          status: 'draft',
+          visit_date: new Date().toISOString().split('T')[0],
+          patient_id: selectedPatient.id,
+        });
+      }
       
       setSavedSuccessfully(true);
       

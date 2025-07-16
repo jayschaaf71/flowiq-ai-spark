@@ -16,6 +16,7 @@ interface VoiceRecording {
   created_at: string;
   duration_seconds: number | null;
   source: string;
+  soap_notes?: any;
 }
 
 export const ScribeRecentTranscriptions = () => {
@@ -63,6 +64,12 @@ export const ScribeRecentTranscriptions = () => {
   const handleRecordingClick = (recording: VoiceRecording) => {
     setSelectedRecording(recording);
     setViewDialogOpen(true);
+  };
+
+  const handleGenerateSOAP = (recording: VoiceRecording) => {
+    // Navigate to SOAP tab and trigger SOAP generation for this recording
+    window.dispatchEvent(new CustomEvent('generateSOAPFromRecording', { detail: recording }));
+    window.dispatchEvent(new CustomEvent('changeScribeTab', { detail: 'soap' }));
   };
 
   if (loading) {
@@ -134,6 +141,20 @@ export const ScribeRecentTranscriptions = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   {getStatusBadge(recording.status)}
+                  {recording.transcription && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleGenerateSOAP(recording);
+                      }}
+                      className="h-8 px-3"
+                    >
+                      <FileText className="w-3 h-3 mr-1" />
+                      {recording.soap_notes ? 'View SOAP' : 'Generate SOAP'}
+                    </Button>
+                  )}
                 </div>
               </div>
             ))
