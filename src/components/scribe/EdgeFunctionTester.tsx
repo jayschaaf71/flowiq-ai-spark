@@ -23,40 +23,23 @@ export const EdgeFunctionTester: React.FC = () => {
   
   const [tests, setTests] = useState<EdgeFunctionTest[]>([
     {
-      name: 'Health Check',
-      functionName: 'health-check',
-      description: 'Tests basic edge function connectivity',
-      testData: {},
-      status: 'idle'
-    },
-    {
-      name: 'SOAP Generation',
+      name: 'SOAP Note Generation',
       functionName: 'ai-soap-generation',
-      description: 'Tests SOAP note generation from sample transcription',
+      description: 'Tests SOAP note generation from clinical transcription',
       testData: {
-        transcription: "Patient complains of chest pain that started this morning. Pain is sharp, 7/10 intensity, radiates to left arm. Vital signs stable. Heart rate 82, BP 120/80. Plan: EKG, troponin levels, cardiology consult.",
+        transcription: "Patient presents with excessive daytime sleepiness, loud snoring reported by spouse. AHI of 15 events per hour on home sleep study. BMI 32. Recommending oral appliance therapy. Patient agrees to treatment plan.",
         specialty: "dental-sleep-medicine"
       },
       status: 'idle'
     },
     {
-      name: 'Claims Validation',
-      functionName: 'ai-claims-validation',
-      description: 'Tests AI claims validation capabilities',
+      name: 'Medical Coding Assistant',
+      functionName: 'ai-medical-coding',
+      description: 'Tests ICD-10 and CPT code suggestions for dental sleep procedures',
       testData: {
-        claimData: {
-          id: "test-claim-001",
-          patient_id: "test-patient",
-          claim_number: "CLM123456",
-          total_amount: 250.00,
-          payer_name: "Test Insurance",
-          status: "submitted",
-          diagnosis_codes: ["M79.1"],
-          procedure_codes: ["99213"],
-          submitted_date: "2024-01-15",
-          notes: "Routine office visit"
-        },
-        validationType: "comprehensive"
+        transcription: "Oral appliance fitting and adjustment for obstructive sleep apnea. Custom mandibular advancement device fabricated and delivered.",
+        specialty: "dental-sleep-medicine",
+        procedureType: "oral_appliance_therapy"
       },
       status: 'idle'
     }
@@ -172,8 +155,9 @@ export const EdgeFunctionTester: React.FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TestTube className="w-5 h-5" />
-            Edge Function Testing Dashboard
+            Scribe Function Testing
           </CardTitle>
+          <p className="text-sm text-muted-foreground">Test core clinical documentation and transcription functions</p>
         </CardHeader>
         <CardContent>
           <div className="flex gap-4 mb-6">
@@ -241,10 +225,11 @@ export const EdgeFunctionTester: React.FC = () => {
       </Card>
 
 
-      {/* Custom Test Section */}
+      {/* Custom Test Section - For Advanced Users */}
       <Card>
         <CardHeader>
-          <CardTitle>Custom Function Test</CardTitle>
+          <CardTitle>Advanced Function Testing</CardTitle>
+          <p className="text-sm text-muted-foreground">Test any edge function with custom parameters (for developers)</p>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
@@ -256,8 +241,8 @@ export const EdgeFunctionTester: React.FC = () => {
             >
               <option value="">Select function...</option>
               <option value="health-check">health-check</option>
-              <option value="ai-soap-generation">ai-soap-generation</option>
-              <option value="ai-claims-validation">ai-claims-validation</option>
+              <option value="ai-soap-generation">SOAP Generation</option>
+              <option value="ai-medical-coding">Medical Coding</option>
               
             </select>
           </div>
