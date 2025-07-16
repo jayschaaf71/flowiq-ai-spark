@@ -40,16 +40,23 @@ export const CreatePatientDialog = ({
     const getCurrentUserTenant = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
+        console.log('Current user:', user);
+        if (!user) {
+          console.log('No authenticated user found');
+          return;
+        }
 
-        const { data: profile } = await supabase
+        const { data: profile, error: profileError } = await supabase
           .from('profiles')
-          .select('current_tenant_id')
+          .select('current_tenant_id, role')
           .eq('id', user.id)
           .single();
 
+        console.log('User profile:', profile, 'Error:', profileError);
+
         if (profile?.current_tenant_id) {
           setUserTenantId(profile.current_tenant_id);
+          console.log('Set tenant ID:', profile.current_tenant_id);
         }
       } catch (error) {
         console.error('Error getting user tenant:', error);
