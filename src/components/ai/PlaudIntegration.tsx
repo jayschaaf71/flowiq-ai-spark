@@ -50,25 +50,20 @@ export const PlaudIntegration = () => {
   }, [config]);
 
   const handleZapierSetup = async () => {
-    if (!zapierWebhookUrl) {
-      setConnectionError("Please enter your Zapier webhook URL");
-      return;
-    }
-
     setConnectionError(null);
     
     try {
       const newConfig = {
         apiKey: "", // Not needed for Zapier
-        webhookUrl: zapierWebhookUrl,
+        webhookUrl: flowiqWebhookUrl, // Use our webhook URL
         autoSync: true
       };
 
       await savePlaudConfig(newConfig);
       
       toast({
-        title: "Zapier Integration Connected",
-        description: "Your Plaud device is now connected via Zapier",
+        title: "Zapier Integration Enabled",
+        description: "ScribeIQ is now ready to receive recordings from your Plaud device via Zapier",
       });
     } catch (error) {
       setConnectionError(error instanceof Error ? error.message : 'Connection failed');
@@ -128,17 +123,18 @@ export const PlaudIntegration = () => {
                 <AlertDescription className="text-blue-800">
                   <strong>Setup Instructions:</strong>
                   <ol className="mt-2 ml-4 list-decimal space-y-1 text-sm">
-                    <li>Copy the FlowIQ webhook URL below</li>
-                    <li>Create a new Zap in Zapier with "Webhooks by Zapier" as trigger</li>
-                    <li>Use "Catch Hook" and paste our webhook URL</li>
-                    <li>Connect your Plaud device as the action step</li>
-                    <li>Paste your Zapier webhook URL below to complete setup</li>
+                    <li>Create a Zap with "Plaud" as the trigger (Transcript & Summary Ready)</li>
+                    <li>Add "Webhooks by Zapier" as the action (POST)</li>
+                    <li>Copy the ScribeIQ webhook URL below and paste it in your Zap</li>
+                    <li>Map the Plaud fields (transcript, summary, etc.) to the webhook</li>
+                    <li>Test and publish your Zap</li>
+                    <li>Click "Enable Zapier Integration" below</li>
                   </ol>
                 </AlertDescription>
               </Alert>
 
               <div className="space-y-2">
-                <Label>FlowIQ Webhook URL (Copy this to your Zap)</Label>
+                <Label>ScribeIQ Webhook URL (Copy this to your Zap action)</Label>
                 <div className="flex gap-2">
                   <Input 
                     value={flowiqWebhookUrl} 
@@ -151,28 +147,24 @@ export const PlaudIntegration = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="zapier-webhook">Your Zapier Webhook URL</Label>
-                <Input
-                  id="zapier-webhook"
-                  value={zapierWebhookUrl}
-                  onChange={(e) => setZapierWebhookUrl(e.target.value)}
-                  placeholder="https://hooks.zapier.com/hooks/catch/..."
-                />
-                {connectionError && (
-                  <p className="text-sm text-red-600">{connectionError}</p>
-                )}
-              </div>
+              {connectionError && (
+                <Alert className="border-red-200 bg-red-50">
+                  <AlertCircle className="h-4 w-4 text-red-600" />
+                  <AlertDescription className="text-red-800">
+                    {connectionError}
+                  </AlertDescription>
+                </Alert>
+              )}
 
               <div className="flex gap-2">
-                <Button onClick={handleZapierSetup} disabled={!zapierWebhookUrl}>
+                <Button onClick={handleZapierSetup}>
                   <Zap className="w-4 h-4 mr-2" />
-                  Connect Zapier Integration
+                  Enable Zapier Integration
                 </Button>
                 <Button variant="outline" asChild>
                   <a href="https://zapier.com/apps/plaud/integrations" target="_blank" rel="noopener noreferrer">
                     <ExternalLink className="w-4 h-4 mr-2" />
-                    Zapier Plaud Apps
+                    Plaud Zapier Apps
                   </a>
                 </Button>
               </div>
