@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Brain, FileText, Copy, Download, User, Stethoscope, Code, Clock, AlertTriangle, Check, Loader } from "lucide-react";
+import { Brain, FileText, Copy, Download, User, Stethoscope, Code, Clock, AlertTriangle, Check, Loader, Play, Pause, Volume2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useSOAPNotes } from "@/hooks/useSOAPNotes";
 import { usePatientSelection } from "@/hooks/usePatientSelection";
@@ -20,6 +20,8 @@ interface VoiceRecording {
   created_at: string;
   duration_seconds: number | null;
   source: string;
+  audio_url: string | null;
+  storage_path: string | null;
 }
 
 export const ScribeSOAPGeneration = () => {
@@ -37,10 +39,20 @@ export const ScribeSOAPGeneration = () => {
   const [loadingRecordings, setLoadingRecordings] = useState(true);
   const [selectedRecording, setSelectedRecording] = useState<VoiceRecording | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [playingRecordingId, setPlayingRecordingId] = useState<string | null>(null);
+  const [audioElements, setAudioElements] = useState<{[key: string]: HTMLAudioElement}>({});
   const { selectedPatient, isSearchOpen, selectPatient, openSearch, closeSearch } = usePatientSelection();
 
   useEffect(() => {
     fetchRecordings();
+    
+    // Cleanup audio elements on unmount
+    return () => {
+      Object.values(audioElements).forEach(audio => {
+        audio.pause();
+        audio.src = '';
+      });
+    };
   }, []);
 
   const fetchRecordings = async () => {
@@ -118,6 +130,82 @@ export const ScribeSOAPGeneration = () => {
       });
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handlePlayPause = async (recording: VoiceRecording) => {
+    try {
+      // Get or create audio element for this recording
+      let audio = audioElements[recording.id];
+      
+      if (!audio) {
+        if (!recording.audio_url && !recording.storage_path) {
+          toast({
+            title: "Audio Not Available",
+            description: "No audio file found for this recording",
+            variant: "destructive"
+          });
+          return;
+        }
+
+        // Create new audio element
+        audio = new Audio();
+        
+        // Try audio_url first, then storage_path with Supabase storage URL
+        if (recording.audio_url) {
+          audio.src = recording.audio_url;
+        } else if (recording.storage_path) {
+          const { data } = await supabase.storage
+            .from('voice-recordings')
+            .createSignedUrl(recording.storage_path, 3600); // 1 hour expiry
+          
+          if (data?.signedUrl) {
+            audio.src = data.signedUrl;
+          } else {
+            throw new Error('Could not generate signed URL for audio file');
+          }
+        }
+
+        // Set up audio event listeners
+        audio.onended = () => {
+          setPlayingRecordingId(null);
+        };
+
+        audio.onerror = () => {
+          toast({
+            title: "Playback Error",
+            description: "Could not play the audio file",
+            variant: "destructive"
+          });
+          setPlayingRecordingId(null);
+        };
+
+        // Store the audio element
+        setAudioElements(prev => ({
+          ...prev,
+          [recording.id]: audio
+        }));
+      }
+
+      // Toggle play/pause
+      if (playingRecordingId === recording.id) {
+        audio.pause();
+        setPlayingRecordingId(null);
+      } else {
+        // Pause any other playing audio
+        Object.values(audioElements).forEach(a => a.pause());
+        
+        await audio.play();
+        setPlayingRecordingId(recording.id);
+      }
+
+    } catch (error) {
+      console.error('Error playing audio:', error);
+      toast({
+        title: "Playback Error",
+        description: "Could not play the audio file",
+        variant: "destructive"
+      });
     }
   };
 
@@ -319,29 +407,53 @@ ${enhancedSOAP.confidence ? `\nAI Confidence: ${Math.round(enhancedSOAP.confiden
                       <div className="p-2 bg-primary/10 rounded-lg">
                         <FileText className="w-4 h-4 text-primary" />
                       </div>
-                      <div>
-                        <p className="font-medium">
-                          {recording.transcription ? 
-                            `${recording.transcription.substring(0, 50)}...` : 
-                            'Voice Recording (No transcription)'
-                          }
-                        </p>
-                        <p className="text-sm text-muted-foreground flex items-center gap-2">
-                          <span>{recording.source}</span>
-                          <span>•</span>
-                          <Clock className="w-3 h-3" />
-                          <span>{formatDistanceToNow(new Date(recording.created_at), { addSuffix: true })}</span>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="font-medium">
+                            {recording.transcription ? 
+                              recording.transcription.substring(0, 50) + "..." : 
+                              "Processing transcription..."
+                            }
+                          </h4>
+                          <Badge 
+                            variant={recording.status === 'completed' ? 'default' : 'secondary'}
+                            className="text-xs"
+                          >
+                            {recording.status}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {formatDistanceToNow(new Date(recording.created_at))} ago
+                          </span>
                           {recording.duration_seconds && (
-                            <>
-                              <span>•</span>
-                              <span>{Math.round(recording.duration_seconds)}s</span>
-                            </>
+                            <span>Duration: {Math.round(recording.duration_seconds)}s</span>
                           )}
-                        </p>
+                          <Badge variant="outline" className="text-xs">
+                            {recording.source}
+                          </Badge>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      {getStatusBadge(recording.status)}
+                    <div className="flex gap-2">
+                      {/* Audio playback button */}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handlePlayPause(recording)}
+                        disabled={!recording.audio_url && !recording.storage_path}
+                        className="p-2"
+                        title={playingRecordingId === recording.id ? "Pause audio" : "Play audio"}
+                      >
+                        {playingRecordingId === recording.id ? (
+                          <Pause className="w-4 h-4" />
+                        ) : (
+                          <Play className="w-4 h-4" />
+                        )}
+                      </Button>
+                      
+                      {/* Generate SOAP button */}
                       <Button
                         size="sm"
                         onClick={() => handleGenerateSOAP(recording)}
