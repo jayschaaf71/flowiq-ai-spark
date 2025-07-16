@@ -138,7 +138,7 @@ ${template.plan}`;
             <p className="text-sm text-gray-600">
               {soapTemplates.length} templates available
             </p>
-            <Button>
+            <Button type="button" onClick={(e) => e.preventDefault()}>
               <Plus className="w-4 h-4 mr-2" />
               Create Custom Template
             </Button>
@@ -157,18 +157,32 @@ ${template.plan}`;
                       </CardDescription>
                     </div>
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        type="button"
+                        onClick={(e) => e.preventDefault()}
+                      >
                         <Eye className="w-4 h-4 mr-1" />
                         Preview
                       </Button>
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        type="button"
+                        onClick={(e) => e.preventDefault()}
+                      >
                         <Edit className="w-4 h-4 mr-1" />
                         Edit
                       </Button>
                       <Button 
                         variant="outline" 
                         size="sm"
-                        onClick={() => copyTemplate(template)}
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          copyTemplate(template);
+                        }}
                       >
                         <Copy className="w-4 h-4 mr-1" />
                         Copy
