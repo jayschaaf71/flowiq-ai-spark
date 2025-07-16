@@ -22,18 +22,60 @@ serve(async (req) => {
       throw new Error('OpenAI API key not configured');
     }
 
-    const { transcription, userId, patientContext } = await req.json();
+    const { 
+      transcription, 
+      userId, 
+      patientContext, 
+      medicalTerms = [],
+      icd10Suggestions = [],
+      enhancedProcessing = false 
+    } = await req.json();
     
     if (!transcription) {
       throw new Error('No transcription provided');
     }
 
-    console.log('Generating SOAP note for user:', userId);
+    console.log('Generating SOAP note for user:', userId, enhancedProcessing ? '(Enhanced Mode)' : '(Standard Mode)');
 
     // Initialize Supabase client for audit logging
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const systemPrompt = `You are a medical AI assistant that converts clinical conversations into structured SOAP notes. 
+    const systemPrompt = enhancedProcessing ? 
+      `You are an advanced medical AI assistant specialized in clinical documentation. You convert clinical conversations into structured SOAP notes with enhanced medical intelligence.
+
+SOAP Format with Medical Intelligence:
+- Subjective: Patient's reported symptoms, complaints, and relevant history
+- Objective: Observable findings, vital signs, examination results
+- Assessment: Clinical diagnosis with ICD-10 codes when appropriate
+- Plan: Treatment plan, medications with dosages, follow-up instructions
+
+Enhanced Instructions:
+1. Extract and standardize medical terminology
+2. Suggest appropriate ICD-10 codes for diagnoses
+3. Recommend CPT codes for procedures mentioned
+4. Flag potential clinical concerns or drug interactions
+5. Use professional medical terminology and standard abbreviations
+6. Include confidence scoring for medical assessments
+7. Only include information that was actually mentioned
+8. Flag any missing critical information
+
+Medical Context Provided:
+- Identified Medical Terms: ${JSON.stringify(medicalTerms)}
+- ICD-10 Suggestions: ${JSON.stringify(icd10Suggestions)}
+
+Return your response as a JSON object with this exact structure:
+{
+  "subjective": "string",
+  "objective": "string", 
+  "assessment": "string",
+  "plan": "string",
+  "icd10Codes": ["array of suggested ICD-10 codes"],
+  "cptCodes": ["array of suggested CPT codes"],
+  "clinicalFlags": ["array of clinical concerns or alerts"],
+  "confidence": number,
+  "medicalTermsUsed": ["array of standardized medical terms used"]
+}` :
+      `You are a medical AI assistant that converts clinical conversations into structured SOAP notes. 
 
 SOAP Format:
 - Subjective: Patient's reported symptoms, complaints, and relevant history
@@ -92,6 +134,9 @@ Return your response as a JSON object with this exact structure:
         new_values: {
           transcriptionLength: transcription.length,
           timestamp: new Date().toISOString(),
+          enhancedProcessing: enhancedProcessing,
+          medicalTermsCount: medicalTerms.length,
+          icd10SuggestionsCount: icd10Suggestions.length,
           complianceNote: 'SOAP note generated with AI assistance'
         }
       });
@@ -102,9 +147,10 @@ Return your response as a JSON object with this exact structure:
 
     return new Response(
       JSON.stringify({ 
-        soapNote,
+        ...soapNote,
         generatedAt: new Date().toISOString(),
-        complianceStatus: 'HIPAA_COMPLIANT'
+        complianceStatus: 'HIPAA_COMPLIANT',
+        enhancedProcessing: enhancedProcessing
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
