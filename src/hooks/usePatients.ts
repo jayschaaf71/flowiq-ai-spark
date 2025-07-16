@@ -23,8 +23,12 @@ export const usePatients = (searchTerm?: string) => {
         .from('patients')
         .select('*')
         .eq('is_active', true)
-        .eq('specialty', currentSpecialty)
         .order('created_at', { ascending: false });
+      
+      // Filter by specialty if it exists, otherwise include all patients
+      if (currentSpecialty) {
+        query = query.or(`specialty.eq.${currentSpecialty},specialty.is.null`);
+      }
 
       if (searchTerm) {
         query = query.or(`first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,phone.ilike.%${searchTerm}%`);

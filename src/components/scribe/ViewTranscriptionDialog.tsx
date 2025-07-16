@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Copy, FileText, Clock, User, Brain } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useEnhancedMedicalAI } from '@/hooks/useEnhancedMedicalAI';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ViewTranscriptionDialogProps {
   open: boolean;
@@ -57,9 +58,25 @@ export const ViewTranscriptionDialog: React.FC<ViewTranscriptionDialogProps> = (
       const soapResult = await generateEnhancedSOAP(transcription.content);
       if (soapResult) {
         setGeneratedSOAP(soapResult);
+        
+        // Save the generated SOAP to the database
+        if (typeof transcription.id === 'string') {
+          const { error } = await supabase
+            .from('voice_recordings')
+            .update({ 
+              soap_notes: JSON.parse(JSON.stringify(soapResult)),
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', transcription.id);
+          
+          if (error) {
+            console.error('Error saving SOAP note:', error);
+          }
+        }
+        
         toast({
           title: "SOAP Note Generated",
-          description: "Enhanced SOAP note has been generated from the transcription.",
+          description: "Enhanced SOAP note has been generated and saved.",
         });
       }
     } catch (error) {
