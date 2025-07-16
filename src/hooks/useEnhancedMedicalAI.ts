@@ -111,9 +111,8 @@ export const useEnhancedMedicalAI = () => {
     try {
       console.log('🏥 Generating enhanced SOAP notes...');
 
-      // First enhance the transcription
-      const enhanced = await enhanceTranscription(transcription);
-      if (!enhanced) return null;
+      // Process with medical terminology service directly
+      const processed = medicalTerminologyService.processText(transcription, specialty as SpecialtyType);
 
       // Get current user for the edge function
       const { data: { user } } = await supabase.auth.getUser();
@@ -121,10 +120,10 @@ export const useEnhancedMedicalAI = () => {
       // Generate enhanced SOAP using AI with medical context
       const { data, error } = await supabase.functions.invoke('ai-soap-generation', {
         body: {
-          transcription: enhanced.enhancedText,
+          transcription: processed.processedText,
           userId: user?.id,
-          medicalTerms: enhanced.medicalTerms,
-          icd10Suggestions: enhanced.icd10Suggestions,
+          medicalTerms: processed.medicalTerms,
+          icd10Suggestions: processed.icd10Suggestions,
           patientContext,
           enhancedProcessing: true,
           specialty: specialty
@@ -132,7 +131,8 @@ export const useEnhancedMedicalAI = () => {
       });
 
       if (error) {
-        throw new Error(error.message || 'SOAP generation failed');
+        console.error('Supabase function error:', error);
+        throw new Error(`Failed to send a request to the Edge Function`);
       }
 
       // Parse and enhance the SOAP response
@@ -143,10 +143,10 @@ export const useEnhancedMedicalAI = () => {
         objective: soapData.objective || '',
         assessment: soapData.assessment || '',
         plan: soapData.plan || '',
-        icd10Codes: enhanced.icd10Suggestions.map(s => s.icd10),
+        icd10Codes: processed.icd10Suggestions.map(s => s.icd10),
         suggestedCPTCodes: soapData.cptCodes || [],
         clinicalFlags: soapData.clinicalFlags || [],
-        confidence: Math.min(enhanced.confidence, soapData.confidence || 0.8)
+        confidence: Math.min(processed.confidence, soapData.confidence || 0.8)
       };
 
       setEnhancedSOAP(enhancedSOAP);
@@ -168,7 +168,7 @@ export const useEnhancedMedicalAI = () => {
     } finally {
       setIsProcessing(false);
     }
-  }, [toast, enhanceTranscription]);
+  }, [toast, specialty]);
 
   /**
    * Validate medication mentions in text

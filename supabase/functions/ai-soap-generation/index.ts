@@ -147,7 +147,7 @@ Return your response as a JSON object with this exact structure:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4.1-2025-04-14',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: `Please convert this clinical transcription into a SOAP note:\n\n${transcription}` }
@@ -159,10 +159,17 @@ Return your response as a JSON object with this exact structure:
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`OpenAI API error: ${errorText}`);
+      console.error('OpenAI API Error:', response.status, errorText);
+      throw new Error(`OpenAI API error (${response.status}): ${errorText}`);
     }
 
     const aiResponse = await response.json();
+    console.log('OpenAI Response received:', aiResponse.choices?.[0]?.message?.content ? 'Success' : 'No content');
+    
+    if (!aiResponse.choices?.[0]?.message?.content) {
+      throw new Error('No content returned from OpenAI API');
+    }
+    
     const soapNote = JSON.parse(aiResponse.choices[0].message.content);
 
     // Log the SOAP generation event for HIPAA audit
