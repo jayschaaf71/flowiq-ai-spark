@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { AlertCircle, CheckCircle, Settings, TestTube } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { PlaudTestingPanel } from './PlaudTestingPanel';
 
 interface EdgeFunctionTest {
   name: string;
@@ -19,6 +20,7 @@ interface EdgeFunctionTest {
 
 export const EdgeFunctionTester: React.FC = () => {
   const { toast } = useToast();
+  const [showPlaudTesting, setShowPlaudTesting] = useState(false);
   const [tests, setTests] = useState<EdgeFunctionTest[]>([
     {
       name: 'Voice Transcription',
@@ -185,6 +187,13 @@ export const EdgeFunctionTester: React.FC = () => {
               <Settings className="w-4 h-4 mr-2" />
               Configure Tests
             </Button>
+            <Button 
+              variant="outline"
+              onClick={() => setShowPlaudTesting(!showPlaudTesting)}
+            >
+              <TestTube className="w-4 h-4 mr-2" />
+              {showPlaudTesting ? 'Hide' : 'Show'} Plaud Testing
+            </Button>
           </div>
 
           <div className="grid gap-4">
@@ -240,6 +249,11 @@ export const EdgeFunctionTester: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Plaud Testing Panel */}
+      {showPlaudTesting && (
+        <PlaudTestingPanel />
+      )}
 
       {/* Custom Test Section */}
       <Card>
