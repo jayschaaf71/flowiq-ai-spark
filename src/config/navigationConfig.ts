@@ -73,7 +73,7 @@ const dentalNavItems: NavItem[] = [
 export const getNavItems = (specialty: string = 'chiropractic'): NavItem[] => {
   const currentSpecialty = specialty || localStorage.getItem('currentSpecialty') || 'chiropractic';
   
-  // Create specialty-specific base items with proper dashboard routes
+  // Create specialty-specific base items with proper routes
   const specialtyNavItems = baseNavItems.map(item => {
     if (item.id === 'dashboard') {
       // Update dashboard path based on specialty
@@ -92,6 +92,25 @@ export const getNavItems = (specialty: string = 'chiropractic'): NavItem[] => {
         return { ...item, path: '/chiropractic/dashboard' };
       }
     }
+    
+    if (item.id === 'patients') {
+      // Update patient management path based on specialty
+      if (currentSpecialty === 'dental-sleep-medicine' || currentSpecialty === 'dental-sleep') {
+        return { ...item, path: '/dental-sleep/patient-management' };
+      } else if (currentSpecialty === 'dental') {
+        return { ...item, path: '/general-dentistry/patient-management' };
+      } else if (currentSpecialty === 'med-spa') {
+        return { ...item, path: '/medspa/patient-management' };
+      } else if (currentSpecialty === 'concierge') {
+        return { ...item, path: '/concierge-medicine/patient-management' };
+      } else if (currentSpecialty === 'hrt') {
+        return { ...item, path: '/hrt/patient-management' };
+      } else {
+        // Default to chiropractic patient management
+        return { ...item, path: '/chiropractic/patient-management' };
+      }
+    }
+    
     return item;
   });
 
