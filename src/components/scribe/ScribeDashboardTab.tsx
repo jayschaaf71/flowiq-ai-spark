@@ -189,16 +189,6 @@ export const ScribeDashboardTab = () => {
               <ArrowRight className="w-4 h-4 ml-auto" />
             </Button>
             
-            <Button 
-              onClick={handleAddReminder}
-              variant="outline"
-              className="w-full justify-start"
-              size="lg"
-            >
-              <Bell className="w-4 h-4 mr-2" />
-              Add Reminder
-              <ArrowRight className="w-4 h-4 ml-auto" />
-            </Button>
 
             <Button 
               onClick={() => setShowTesting(!showTesting)}
