@@ -14,8 +14,18 @@ import {
   Maximize2, 
   Trash2,
   MessageCircle,
-  Zap
+  Zap,
+  Mic,
+  MicOff
 } from 'lucide-react';
+
+// Extend Window interface for Speech Recognition
+declare global {
+  interface Window {
+    SpeechRecognition: any;
+    webkitSpeechRecognition: any;
+  }
+}
 
 export const FloatingAssistIQ: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,6 +33,8 @@ export const FloatingAssistIQ: React.FC = () => {
   const [position, setPosition] = useState({ x: 20, y: 20 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [isRecording, setIsRecording] = useState(false);
+  const [recognition, setRecognition] = useState<any>(null);
   const cardRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -37,6 +49,49 @@ export const FloatingAssistIQ: React.FC = () => {
     clearConversation,
     handleQuickQuestion
   } = useAIHelpAssistant();
+
+  // Initialize speech recognition
+  useEffect(() => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognitionInstance = new SpeechRecognition();
+      recognitionInstance.continuous = false;
+      recognitionInstance.interimResults = false;
+      recognitionInstance.lang = 'en-US';
+
+      recognitionInstance.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setInputMessage(transcript);
+        setIsRecording(false);
+      };
+
+      recognitionInstance.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        setIsRecording(false);
+      };
+
+      recognitionInstance.onend = () => {
+        setIsRecording(false);
+      };
+
+      setRecognition(recognitionInstance);
+    }
+  }, [setInputMessage]);
+
+  // Voice recording functions
+  const startRecording = () => {
+    if (recognition) {
+      setIsRecording(true);
+      recognition.start();
+    }
+  };
+
+  const stopRecording = () => {
+    if (recognition) {
+      recognition.stop();
+      setIsRecording(false);
+    }
+  };
 
   const quickQuestions = [
     "How do I add a new patient?",
@@ -300,6 +355,16 @@ export const FloatingAssistIQ: React.FC = () => {
               disabled={isLoading}
             />
             <Button 
+              onClick={isRecording ? stopRecording : startRecording}
+              size="icon"
+              variant={isRecording ? "destructive" : "outline"}
+              disabled={isLoading}
+              className={isRecording ? "animate-pulse" : ""}
+              title={isRecording ? "Stop recording" : "Start voice input"}
+            >
+              {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+            </Button>
+            <Button 
               onClick={handleSendMessage}
               size="icon"
               disabled={isLoading || !inputMessage.trim()}
@@ -308,8 +373,15 @@ export const FloatingAssistIQ: React.FC = () => {
               <Send className="h-4 w-4" />
             </Button>
           </div>
-          <div className="text-xs text-gray-500 mt-1">
-            Current page: {currentPath}
+          <div className="flex justify-between items-center mt-1">
+            <div className="text-xs text-gray-500">
+              Current page: {currentPath}
+            </div>
+            {isRecording && (
+              <div className="text-xs text-red-500 animate-pulse">
+                🎤 Recording...
+              </div>
+            )}
           </div>
         </div>
       </CardContent>

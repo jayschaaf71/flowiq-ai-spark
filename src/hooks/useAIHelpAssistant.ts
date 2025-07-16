@@ -18,29 +18,20 @@ export const useAIHelpAssistant = () => {
 
   // Load messages from localStorage on component mount
   const loadPersistedMessages = (): ChatMessage[] => {
-    try {
-      const stored = localStorage.getItem('flowiQ-ai-help-messages');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        // Convert timestamp strings back to Date objects
-        return parsed.map((msg: any) => ({
-          ...msg,
-          timestamp: new Date(msg.timestamp)
-        }));
-      }
-    } catch (error) {
-      console.error('Failed to load persisted messages:', error);
-    }
-    
-    // Return default initial message
-    return [
+    // Always start with a fresh conversation to avoid showing old messages
+    const defaultMessages = [
       {
         id: '1',
-        type: 'assistant',
+        type: 'assistant' as const,
         content: "Hi! I'm your FlowiQ AI assistant. I can help you navigate the app, explain features, and guide you through workflows. What would you like to know?",
         timestamp: new Date()
       }
     ];
+    
+    // Clear any old localStorage data
+    localStorage.removeItem('flowiQ-ai-help-messages');
+    
+    return defaultMessages;
   };
 
   const [messages, setMessages] = useState<ChatMessage[]>(loadPersistedMessages);
@@ -51,10 +42,10 @@ export const useAIHelpAssistant = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Save messages to localStorage whenever messages change
-  useEffect(() => {
-    localStorage.setItem('flowiQ-ai-help-messages', JSON.stringify(messages));
-  }, [messages]);
+  // Don't persist messages to localStorage to ensure fresh conversations
+  // useEffect(() => {
+  //   localStorage.setItem('flowiQ-ai-help-messages', JSON.stringify(messages));
+  // }, [messages]);
 
   useEffect(() => {
     scrollToBottom();
