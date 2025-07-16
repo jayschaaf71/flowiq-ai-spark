@@ -124,10 +124,10 @@ export const FloatingAssistIQ: React.FC = () => {
   if (isMinimized) {
     return (
       <Card 
-        className="fixed z-50 w-80 shadow-xl border-2 border-blue-200 bg-white"
+        className="fixed z-50 w-80 shadow-2xl border-2 border-blue-200 bg-white rounded-lg overflow-hidden"
         style={{ 
-          left: Math.max(0, Math.min(position.x, window.innerWidth - 320)), // 320px = w-80
-          top: Math.max(0, Math.min(position.y, window.innerHeight - 100))   // Approximate header height
+          left: Math.max(20, Math.min(position.x, window.innerWidth - 340)), // 340px = w-80 + padding
+          top: Math.max(20, Math.min(position.y, window.innerHeight - 120))   // 120px for header height + padding
         }}
         ref={cardRef}
       >
@@ -167,10 +167,10 @@ export const FloatingAssistIQ: React.FC = () => {
   // Full widget
   return (
     <Card 
-      className="fixed z-50 w-96 h-[600px] shadow-xl border-2 border-blue-200 flex flex-col bg-white"
+      className="fixed z-50 w-96 h-[600px] shadow-2xl border-2 border-blue-200 flex flex-col bg-white rounded-lg overflow-hidden"
       style={{ 
-        left: Math.max(0, Math.min(position.x, window.innerWidth - 384)), // 384px = w-96
-        top: Math.max(0, Math.min(position.y, window.innerHeight - 600))   // 600px = h-[600px]
+        left: Math.max(20, Math.min(position.x, window.innerWidth - 400)), // 400px = w-96 + padding
+        top: Math.max(20, Math.min(position.y, window.innerHeight - 620))   // 620px = h-[600px] + padding
       }}
       ref={cardRef}
     >

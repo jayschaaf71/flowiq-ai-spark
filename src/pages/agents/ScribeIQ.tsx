@@ -10,6 +10,7 @@ import { EnhancedVoiceRecorder } from "@/components/scribe/EnhancedVoiceRecorder
 import { ScribeSOAPGeneration } from "@/components/scribe/ScribeSOAPGeneration";
 import { ScribeTemplatesTab } from "@/components/scribe/ScribeTemplatesTab";
 import { ScribeSettingsTab } from "@/components/scribe/ScribeSettingsTab";
+import { ScribeSOAPNotesTab } from "@/components/scribe/ScribeSOAPNotesTab";
 import { SOAPProvider } from "@/contexts/SOAPContext";
 import { useSpecialty } from "@/contexts/SpecialtyContext";
 import { MobileRecordingWidget } from "@/components/scribe/MobileRecordingWidget";
@@ -53,10 +54,11 @@ const ScribeIQ = () => {
         
         <div className="space-y-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-6">
               <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
               <TabsTrigger value="whisper">AI Recording</TabsTrigger>
               <TabsTrigger value="soap">SOAP Generation</TabsTrigger>
+              <TabsTrigger value="soap-notes">SOAP Notes</TabsTrigger>
               <TabsTrigger value="templates">Templates</TabsTrigger>
               <TabsTrigger value="settings">Settings</TabsTrigger>
             </TabsList>
@@ -71,6 +73,10 @@ const ScribeIQ = () => {
 
             <TabsContent value="soap">
               <ScribeSOAPGeneration />
+            </TabsContent>
+
+            <TabsContent value="soap-notes">
+              <ScribeSOAPNotesTab />
             </TabsContent>
 
             <TabsContent value="templates">

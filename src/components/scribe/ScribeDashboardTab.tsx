@@ -99,6 +99,16 @@ export const ScribeDashboardTab = () => {
     window.dispatchEvent(new CustomEvent('changeScribeTab', { detail: 'soap' }));
   };
 
+  const handleNavigateToPatients = () => {
+    // Create a proper patients view navigation
+    window.dispatchEvent(new CustomEvent('changeScribeTab', { detail: 'patients' }));
+  };
+
+  const handleNavigateToSOAPNotes = () => {
+    // Navigate to a dedicated SOAP notes view
+    window.dispatchEvent(new CustomEvent('changeScribeTab', { detail: 'soap-notes' }));
+  };
+
   const handleNavigateToSettings = () => {
     window.dispatchEvent(new CustomEvent('changeScribeTab', { detail: 'settings' }));
   };
@@ -188,7 +198,7 @@ export const ScribeDashboardTab = () => {
 
         <Card 
           className="cursor-pointer hover:shadow-md transition-shadow duration-200 hover:border-blue-300"
-          onClick={handleNavigateToSOAP}
+          onClick={handleNavigateToSOAPNotes}
         >
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
@@ -199,13 +209,13 @@ export const ScribeDashboardTab = () => {
           <CardContent>
             <div className="text-2xl font-bold text-blue-600">{dashboardStats.soapNotesCreated}</div>
             <p className="text-sm text-gray-600">Generated today</p>
-            <p className="text-xs text-blue-600 mt-1 opacity-75">Click to view SOAP generation</p>
+            <p className="text-xs text-blue-600 mt-1 opacity-75">Click to view all SOAP notes</p>
           </CardContent>
         </Card>
 
         <Card 
           className="cursor-pointer hover:shadow-md transition-shadow duration-200 hover:border-purple-300"
-          onClick={handleNavigateToSOAP}
+          onClick={handleNavigateToPatients}
         >
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
