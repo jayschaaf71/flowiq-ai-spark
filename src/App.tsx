@@ -21,6 +21,7 @@ import DermatologyApp from './apps/DermatologyApp';
 import UrgentCareApp from './apps/UrgentCareApp';
 import CommunicationIQApp from './apps/CommunicationIQApp';
 import MainDashboard from './components/MainDashboard';
+import { FloatingTestWidget } from './components/testing/FloatingTestWidget';
 
 // Shared pages
 import Index from './pages/Index';
@@ -166,8 +167,9 @@ function App() {
                       </ProtectedRoute>
                     } />
                   </Routes>
-                  <FloatingAssistIQ />
-                  <Toaster />
+                   <FloatingAssistIQ />
+                   <FloatingTestWidget />
+                   <Toaster />
                   </AnalyticsProvider>
                 </DashboardProvider>
               </SpecialtyProvider>

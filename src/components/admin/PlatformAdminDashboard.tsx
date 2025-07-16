@@ -27,6 +27,7 @@ import { SecurityIncidentResponse } from './SecurityIncidentResponse';
 import { MultiLevelAdminHierarchy } from './MultiLevelAdminHierarchy';
 import { APIRateLimitingDashboard } from './APIRateLimitingDashboard';
 import { AutomatedBackupManager } from './AutomatedBackupManager';
+import { UserRoleTester } from '@/components/testing/UserRoleTester';
 import { usePlatformMetrics } from '@/hooks/usePlatformMetrics';
 
 export const PlatformAdminDashboard: React.FC = () => {
@@ -193,7 +194,7 @@ export const PlatformAdminDashboard: React.FC = () => {
       <div className="bg-card border border-border rounded-xl shadow-sm p-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <div className="flex justify-center">
-            <TabsList className="grid w-full max-w-5xl grid-cols-7">
+            <TabsList className="grid w-full max-w-6xl grid-cols-8">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="performance">Performance</TabsTrigger>
               <TabsTrigger value="optimization">Optimization</TabsTrigger>
@@ -201,6 +202,7 @@ export const PlatformAdminDashboard: React.FC = () => {
               <TabsTrigger value="admin">Admin Hierarchy</TabsTrigger>
               <TabsTrigger value="api">API Monitoring</TabsTrigger>
               <TabsTrigger value="backups">Backups</TabsTrigger>
+              <TabsTrigger value="testing">User Testing</TabsTrigger>
             </TabsList>
           </div>
 
@@ -301,6 +303,10 @@ export const PlatformAdminDashboard: React.FC = () => {
 
         <TabsContent value="backups">
           <AutomatedBackupManager />
+        </TabsContent>
+
+        <TabsContent value="testing">
+          <UserRoleTester />
         </TabsContent>
       </Tabs>
       </div>
