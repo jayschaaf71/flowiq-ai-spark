@@ -228,6 +228,7 @@ export const FloatingAssistIQ: React.FC = () => {
         top: Math.max(20, Math.min(position.y, window.innerHeight - 620))   // 620px = h-[600px] + padding
       }}
       ref={cardRef}
+      onClick={(e) => e.stopPropagation()} // Prevent event bubbling
     >
       <CardHeader 
         className="p-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white cursor-move"
@@ -300,8 +301,32 @@ export const FloatingAssistIQ: React.FC = () => {
         )}
 
         {/* Messages */}
-        <ScrollArea className="flex-1 p-3">
-          <div className="space-y-3">
+        <ScrollArea 
+          className="flex-1 p-3"
+          style={{ 
+            touchAction: 'pan-y',
+            overscrollBehavior: 'contain'
+          }}
+        >
+          <div 
+            className="space-y-3"
+            onWheel={(e) => {
+              // Prevent event from bubbling to parent/document
+              e.stopPropagation();
+              
+              // Allow scrolling within this container
+              const element = e.currentTarget.parentElement; // ScrollArea viewport
+              if (element) {
+                const atTop = element.scrollTop === 0;
+                const atBottom = element.scrollTop >= element.scrollHeight - element.clientHeight;
+                
+                // Only prevent default if we can scroll in the direction
+                if ((e.deltaY < 0 && !atTop) || (e.deltaY > 0 && !atBottom)) {
+                  e.preventDefault();
+                }
+              }
+            }}
+          >
             {messages.map((message) => (
               <div
                 key={message.id}
@@ -316,7 +341,7 @@ export const FloatingAssistIQ: React.FC = () => {
                         : 'bg-gray-100 text-gray-800'
                   }`}
                 >
-                  <div className="whitespace-pre-wrap">{message.content}</div>
+                  <div className="whitespace-pre-wrap break-words">{message.content}</div>
                   <div className={`text-xs mt-1 ${
                     message.type === 'user' ? 'text-blue-100' : 'text-gray-500'
                   }`}>
