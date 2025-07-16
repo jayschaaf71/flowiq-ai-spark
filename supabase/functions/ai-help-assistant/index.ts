@@ -47,41 +47,37 @@ serve(async (req) => {
 
     let finalResponse: string;
 
-    // Check if we should use simple responses (only for very basic questions)
-    const lowerMessage = message.toLowerCase();
-    const isBasicQuestion = (
-      (lowerMessage.includes('hi') || lowerMessage.includes('hello') || lowerMessage.includes('functioning')) &&
-      lowerMessage.split(' ').length < 6
-    );
+    // Always use OpenAI for intelligent, actionable responses
+    const enhancedContext = `${context} 
 
-    if (isBasicQuestion && specialty && brandName) {
-      console.log('Using simple local response for basic greeting');
-      finalResponse = getSimpleResponse(message, specialty, brandName);
-    } else {
-      // Use OpenAI for all real questions to get intelligent responses
-      const enhancedContext = `${context} 
-      
 SPECIALTY CONTEXT: The user is working within ${brandName || 'FlowiQ'} platform, which is specifically designed for ${specialty || 'healthcare'} practices. 
 
-Please provide responses that are:
-- Specific to ${specialty || 'healthcare'} practice workflows
-- Branded appropriately for ${brandName || 'FlowiQ'}
-- Contextually relevant to their current page/workflow
-- Professional but friendly in tone
-- Practical and actionable
+IMPORTANT: You are Sage AI, a highly capable assistant that can help users accomplish real tasks. When users ask for help:
 
-If they ask about features, focus on how they apply to ${specialty || 'healthcare'} practice management.
-Keep responses concise but helpful (100-200 words).`;
+1. For appointment scheduling: Provide specific navigation steps like "Go to Schedule iQ → Click 'New Appointment' → Select patient from dropdown → Choose available time slot"
 
-      console.log('Using OpenAI for intelligent response');
-      const aiResponse = await callOpenAISimple(message, enhancedContext, conversationHistory || []);
-      
-      if (!aiResponse || !aiResponse.choices || aiResponse.choices.length === 0) {
-        throw new Error('Invalid AI response format');
-      }
-      
-      finalResponse = aiResponse.choices[0].message?.content || 'I apologize, but I was unable to generate a response. Please try again.';
+2. For patient management: Give exact steps like "Navigate to Patient Management → Click 'Add Patient' → Fill required fields (Name, DOB, Contact) → Save"
+
+3. For specific questions about features: Explain exactly how to use them with step-by-step guidance
+
+4. For workflow questions: Provide the complete process from start to finish
+
+Be specific, actionable, and helpful. Don't just list features - tell them exactly what to do next to accomplish their goal.
+
+Current page context: ${context}
+Specialty: ${specialty || 'healthcare'}
+Brand: ${brandName || 'FlowiQ'}
+
+Keep responses practical and under 200 words.`;
+
+    console.log('Using OpenAI for intelligent, actionable response');
+    const aiResponse = await callOpenAISimple(message, enhancedContext, conversationHistory || []);
+    
+    if (!aiResponse || !aiResponse.choices || aiResponse.choices.length === 0) {
+      throw new Error('Invalid AI response format');
     }
+    
+    finalResponse = aiResponse.choices[0].message?.content || 'I apologize, but I was unable to generate a response. Please try again.';
     
     console.log('AI Help response generated successfully');
 

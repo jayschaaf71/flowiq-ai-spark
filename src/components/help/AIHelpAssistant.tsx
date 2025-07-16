@@ -18,18 +18,18 @@ export const AIHelpAssistant: React.FC = () => {
   } = useAIHelpAssistant();
 
   const quickQuestions = [
-    "How do I add a new patient?",
-    "How does voice intake work?",
-    "How do I schedule an appointment?",
-    "Show me today's appointments",
-    "Search for a patient named John",
-    "What are pending intake submissions?",
-    "Check recent claims status",
-    "How do I cancel an appointment?",
-    "What are the AI agents?",
-    "How do I process insurance claims?",
-    "Send a reminder to a patient",
-    "Check provider availability for tomorrow"
+    "Set up an appointment for a new patient",
+    "Walk me through adding a patient record", 
+    "How do I process a voice intake form?",
+    "Show me how to submit an insurance claim",
+    "Help me schedule a follow-up appointment",
+    "Guide me through the patient check-in process",
+    "How do I generate a sleep study report?",
+    "Walk me through scheduling a consultation",
+    "Help me set up oral appliance tracking",
+    "Show me how to send appointment reminders",
+    "Guide me through the billing workflow",
+    "How do I access today's patient schedule?"
   ];
 
   return (
