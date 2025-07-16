@@ -19,6 +19,7 @@ export const DMETracker = () => {
   };
 
   const handleViewDetails = (orderId: string) => {
+    console.log("View Details clicked for order:", orderId);
     toast.info(`Viewing details for order ${orderId}`);
     // Could open a modal with detailed order information
   };
