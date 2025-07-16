@@ -33,6 +33,7 @@ export const ScribeSOAPGeneration = () => {
   const [appointmentSpecialty, setAppointmentSpecialty] = useState<string>('');
   const { createSOAPNote } = useSOAPNotes();
   const [isSaving, setIsSaving] = useState(false);
+  const [savedSuccessfully, setSavedSuccessfully] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedSOAP, setEditedSOAP] = useState<any>(null);
   const [recordings, setRecordings] = useState<VoiceRecording[]>([]);
@@ -144,6 +145,9 @@ export const ScribeSOAPGeneration = () => {
       return;
     }
 
+    // Reset save state when generating new SOAP
+    setSavedSuccessfully(false);
+    
     setSelectedRecording(recording);
     try {
       setIsGenerating(true);
@@ -409,10 +413,16 @@ ${enhancedSOAP.confidence ? `\nAI Confidence: ${Math.round(enhancedSOAP.confiden
         patient_id: selectedPatient.id,
       });
       
+      setSavedSuccessfully(true);
+      
       toast({
         title: "Enhanced SOAP Note Saved",
         description: `SOAP note saved to ${selectedPatient.first_name} ${selectedPatient.last_name}'s record`,
       });
+
+      // Dispatch event to refresh dashboard components
+      window.dispatchEvent(new CustomEvent('soapNoteCreated'));
+      
     } catch (error) {
       toast({
         title: "Save Failed",
@@ -452,10 +462,16 @@ ${enhancedSOAP.confidence ? `\nAI Confidence: ${Math.round(enhancedSOAP.confiden
           patient_id: selectedPatient.id,
         });
         
+        setSavedSuccessfully(true);
+        
         toast({
           title: "SOAP Note Saved",
           description: `Updated SOAP note saved to ${selectedPatient.first_name} ${selectedPatient.last_name}'s record`,
         });
+
+        // Dispatch event to refresh dashboard components
+        window.dispatchEvent(new CustomEvent('soapNoteCreated'));
+        
       } else {
         toast({
           title: "Changes Saved",
@@ -907,12 +923,21 @@ ${enhancedSOAP.confidence ? `\nAI Confidence: ${Math.round(enhancedSOAP.confiden
                 ) : (
                   <>
                     <Button 
-                      className="bg-green-600 hover:bg-green-700" 
+                      className={savedSuccessfully ? "bg-green-600 hover:bg-green-700" : "bg-green-600 hover:bg-green-700"}
                       onClick={handleSaveClick}
-                      disabled={isSaving}
+                      disabled={isSaving || savedSuccessfully}
                     >
-                      <FileText className="w-4 h-4 mr-2" />
-                      {isSaving ? "Saving..." : selectedPatient ? "Save to Patient Record" : "Select Patient & Save"}
+                      {savedSuccessfully ? (
+                        <>
+                          <Check className="w-4 h-4 mr-2" />
+                          Successfully Saved
+                        </>
+                      ) : (
+                        <>
+                          <FileText className="w-4 h-4 mr-2" />
+                          {isSaving ? "Saving..." : selectedPatient ? "Save to Patient Record" : "Select Patient & Save"}
+                        </>
+                      )}
                     </Button>
                     <Button 
                       variant="outline"

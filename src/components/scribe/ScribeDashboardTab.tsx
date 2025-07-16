@@ -34,6 +34,17 @@ export const ScribeDashboardTab = () => {
 
   useEffect(() => {
     fetchDashboardStats();
+    
+    // Listen for SOAP note creation to refresh stats
+    const handleRefreshStats = () => {
+      fetchDashboardStats();
+    };
+    
+    window.addEventListener('soapNoteCreated', handleRefreshStats);
+    
+    return () => {
+      window.removeEventListener('soapNoteCreated', handleRefreshStats);
+    };
   }, []);
 
   const fetchDashboardStats = async () => {

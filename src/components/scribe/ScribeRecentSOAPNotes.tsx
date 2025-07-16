@@ -30,15 +30,12 @@ export const ScribeRecentSOAPNotes = ({ onEditSOAP }: ScribeRecentSOAPNotesProps
 
   const fetchRecentSOAPNotes = async () => {
     try {
-      // Get today's date for filtering
-      const today = new Date();
-      const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      console.log('Fetching recent SOAP notes...');
       
       const { data, error } = await supabase
         .from('voice_recordings')
         .select('*')
         .not('soap_notes', 'is', null)
-        .gte('created_at', startOfDay.toISOString())
         .order('updated_at', { ascending: false })
         .limit(8);
 
@@ -47,6 +44,7 @@ export const ScribeRecentSOAPNotes = ({ onEditSOAP }: ScribeRecentSOAPNotesProps
         return;
       }
 
+      console.log('Fetched SOAP notes:', data);
       setSoapNotes(data || []);
     } catch (error) {
       console.error('Error:', error);
@@ -58,6 +56,7 @@ export const ScribeRecentSOAPNotes = ({ onEditSOAP }: ScribeRecentSOAPNotesProps
   // Add a function to refresh data when needed
   useEffect(() => {
     const handleRefresh = () => {
+      console.log('SOAP note refresh event received');
       fetchRecentSOAPNotes();
     };
 
@@ -69,7 +68,7 @@ export const ScribeRecentSOAPNotes = ({ onEditSOAP }: ScribeRecentSOAPNotesProps
       window.removeEventListener('soapNoteCreated', handleRefresh);
       window.removeEventListener('soapNoteUpdated', handleRefresh);
     };
-  }, []);
+  }, [fetchRecentSOAPNotes]);
 
   const handleEditSOAP = (soapNote: SOAPNote) => {
     if (onEditSOAP) {
@@ -143,7 +142,7 @@ export const ScribeRecentSOAPNotes = ({ onEditSOAP }: ScribeRecentSOAPNotesProps
           Recent SOAP Notes
         </CardTitle>
         <CardDescription>
-          Today's generated SOAP notes - continue editing where you left off
+          Recent SOAP notes - continue editing where you left off
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -151,7 +150,7 @@ export const ScribeRecentSOAPNotes = ({ onEditSOAP }: ScribeRecentSOAPNotesProps
           {soapNotes.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p>No SOAP notes generated today</p>
+              <p>No SOAP notes generated recently</p>
               <p className="text-sm">Create your first SOAP note to see it here</p>
             </div>
           ) : (
