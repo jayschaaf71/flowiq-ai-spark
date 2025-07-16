@@ -48,8 +48,17 @@ export const ScribeSOAPGeneration = () => {
   useEffect(() => {
     fetchRecordings();
     
-    // Cleanup audio elements on unmount
+    // Listen for edit SOAP note events from dashboard
+    const handleEditSOAP = (event: CustomEvent) => {
+      const soapNote = event.detail;
+      loadSOAPForEditing(soapNote);
+    };
+
+    window.addEventListener('editSOAPNote', handleEditSOAP as EventListener);
+    
+    // Cleanup function
     return () => {
+      window.removeEventListener('editSOAPNote', handleEditSOAP as EventListener);
       Object.values(audioElements).forEach(audio => {
         // Remove event listeners to prevent random errors
         audio.onended = null;
@@ -61,6 +70,48 @@ export const ScribeSOAPGeneration = () => {
       });
     };
   }, []);
+
+  const loadSOAPForEditing = (soapNote: any) => {
+    try {
+      // Clear any existing SOAP data
+      resetEnhancedData();
+      
+      // Load the SOAP note for editing
+      if (soapNote.soap_notes) {
+        const soapData = typeof soapNote.soap_notes === 'string' 
+          ? JSON.parse(soapNote.soap_notes) 
+          : soapNote.soap_notes;
+        
+        // Set the enhanced SOAP data
+        updateEnhancedSOAP(soapData);
+        
+        // Set up the selected recording for context
+        setSelectedRecording({
+          id: soapNote.id,
+          transcription: soapNote.transcription,
+          ai_summary: soapNote.ai_summary,
+          status: soapNote.status,
+          created_at: soapNote.created_at,
+          duration_seconds: soapNote.duration_seconds,
+          source: soapNote.source || 'unknown',
+          audio_url: soapNote.audio_url,
+          storage_path: soapNote.storage_path
+        });
+        
+        toast({
+          title: "SOAP Note Loaded",
+          description: "You can now continue editing this SOAP note",
+        });
+      }
+    } catch (error) {
+      console.error('Error loading SOAP note for editing:', error);
+      toast({
+        title: "Load Failed",
+        description: "Unable to load SOAP note for editing",
+        variant: "destructive",
+      });
+    }
+  };
 
   const fetchRecordings = async () => {
     try {

@@ -18,6 +18,7 @@ import {
 import { ViewTranscriptionDialog } from "./ViewTranscriptionDialog";
 import { EdgeFunctionTester } from "./EdgeFunctionTester";
 import { ScribeRecentTranscriptions } from "./ScribeRecentTranscriptions";
+import { ScribeRecentSOAPNotes } from "./ScribeRecentSOAPNotes";
 import { supabase } from "@/integrations/supabase/client";
 
 export const ScribeDashboardTab = () => {
@@ -93,6 +94,12 @@ export const ScribeDashboardTab = () => {
   const handleAddReminder = () => {
     // Navigate to RemindIQ page using React Router
     window.dispatchEvent(new CustomEvent('navigate', { detail: '/agents/remind' }));
+  };
+
+  const handleEditSOAP = (soapNote: any) => {
+    // Store the SOAP note for editing and navigate to SOAP tab
+    window.dispatchEvent(new CustomEvent('editSOAPNote', { detail: soapNote }));
+    window.dispatchEvent(new CustomEvent('changeScribeTab', { detail: 'soap' }));
   };
 
   // Mock data for recent transcriptions
@@ -270,7 +277,10 @@ export const ScribeDashboardTab = () => {
       </div>
 
       {/* Recent Activity */}
-      <ScribeRecentTranscriptions />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ScribeRecentTranscriptions />
+        <ScribeRecentSOAPNotes onEditSOAP={handleEditSOAP} />
+      </div>
 
       {/* Function Testing Panel */}
       {showTesting && (
