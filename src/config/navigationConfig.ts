@@ -75,76 +75,59 @@ export const getNavItems = (specialty: string = 'chiropractic'): NavItem[] => {
   
   // Create specialty-specific base items with proper routes
   const specialtyNavItems = baseNavItems.map(item => {
+    // Get the specialty prefix for routes
+    let specialtyPrefix = '';
+    if (currentSpecialty === 'dental-sleep-medicine' || currentSpecialty === 'dental-sleep') {
+      specialtyPrefix = '/dental-sleep';
+    } else if (currentSpecialty === 'dental') {
+      specialtyPrefix = '/general-dentistry';
+    } else if (currentSpecialty === 'med-spa') {
+      specialtyPrefix = '/medspa';
+    } else if (currentSpecialty === 'concierge') {
+      specialtyPrefix = '/concierge-medicine';
+    } else if (currentSpecialty === 'hrt') {
+      specialtyPrefix = '/hrt';
+    } else {
+      specialtyPrefix = '/chiropractic';
+    }
+
+    // Handle specialty-specific routes
     if (item.id === 'dashboard') {
-      // Update dashboard path based on specialty
-      if (currentSpecialty === 'dental-sleep-medicine' || currentSpecialty === 'dental-sleep') {
-        return { ...item, path: '/dental-sleep/dashboard' };
-      } else if (currentSpecialty === 'dental') {
-        return { ...item, path: '/general-dentistry/dashboard' };
-      } else if (currentSpecialty === 'med-spa') {
-        return { ...item, path: '/medspa/dashboard' };
-      } else if (currentSpecialty === 'concierge') {
-        return { ...item, path: '/concierge-medicine/dashboard' };
-      } else if (currentSpecialty === 'hrt') {
-        return { ...item, path: '/hrt/dashboard' };
-      } else {
-        // Default to chiropractic dashboard
-        return { ...item, path: '/chiropractic/dashboard' };
-      }
+      return { ...item, path: `${specialtyPrefix}/dashboard` };
     }
     
     if (item.id === 'patients') {
-      // Update patient management path based on specialty
-      if (currentSpecialty === 'dental-sleep-medicine' || currentSpecialty === 'dental-sleep') {
-        return { ...item, path: '/dental-sleep/patient-management' };
-      } else if (currentSpecialty === 'dental') {
-        return { ...item, path: '/general-dentistry/patient-management' };
-      } else if (currentSpecialty === 'med-spa') {
-        return { ...item, path: '/medspa/patient-management' };
-      } else if (currentSpecialty === 'concierge') {
-        return { ...item, path: '/concierge-medicine/patient-management' };
-      } else if (currentSpecialty === 'hrt') {
-        return { ...item, path: '/hrt/patient-management' };
-      } else {
-        // Default to chiropractic patient management
-        return { ...item, path: '/chiropractic/patient-management' };
-      }
+      return { ...item, path: `${specialtyPrefix}/patient-management` };
     }
     
     if (item.id === 'ehr') {
-      // Update EHR path based on specialty
-      if (currentSpecialty === 'dental-sleep-medicine' || currentSpecialty === 'dental-sleep') {
-        return { ...item, path: '/dental-sleep/ehr' };
-      } else if (currentSpecialty === 'dental') {
-        return { ...item, path: '/general-dentistry/ehr' };
-      } else if (currentSpecialty === 'med-spa') {
-        return { ...item, path: '/medspa/ehr' };
-      } else if (currentSpecialty === 'concierge') {
-        return { ...item, path: '/concierge-medicine/ehr' };
-      } else if (currentSpecialty === 'hrt') {
-        return { ...item, path: '/hrt/ehr' };
-      } else {
-        // Default to chiropractic EHR
-        return { ...item, path: '/chiropractic/ehr' };
-      }
+      return { ...item, path: `${specialtyPrefix}/ehr` };
     }
     
     if (item.id === 'insights') {
-      // Update insights path based on specialty
-      if (currentSpecialty === 'dental-sleep-medicine' || currentSpecialty === 'dental-sleep') {
-        return { ...item, path: '/dental-sleep/insights' };
-      } else if (currentSpecialty === 'dental') {
-        return { ...item, path: '/general-dentistry/insights' };
-      } else if (currentSpecialty === 'med-spa') {
-        return { ...item, path: '/medspa/insights' };
-      } else if (currentSpecialty === 'concierge') {
-        return { ...item, path: '/concierge-medicine/insights' };
-      } else if (currentSpecialty === 'hrt') {
-        return { ...item, path: '/hrt/insights' };
-      } else {
-        // Default to chiropractic insights
-        return { ...item, path: '/chiropractic/insights' };
-      }
+      return { ...item, path: `${specialtyPrefix}/insights` };
+    }
+    
+    // Handle agent routes - prefix them with specialty
+    if (item.path.startsWith('/agents/')) {
+      return { ...item, path: `${specialtyPrefix}${item.path}` };
+    }
+    
+    // Handle other specialty-specific routes
+    if (item.id === 'sales-iq') {
+      return { ...item, path: `${specialtyPrefix}/sales-iq` };
+    }
+    
+    if (item.id === 'ops-iq') {
+      return { ...item, path: `${specialtyPrefix}/ops` };
+    }
+    
+    if (item.id === 'settings') {
+      return { ...item, path: `${specialtyPrefix}/settings` };
+    }
+    
+    if (item.id === 'help') {
+      return { ...item, path: `${specialtyPrefix}/help` };
     }
     
     return item;
