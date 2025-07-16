@@ -192,7 +192,7 @@ export const ScribeDashboardTab = () => {
 
             <Button 
               onClick={() => setShowTesting(!showTesting)}
-              variant="outline"
+              variant={showTesting ? "default" : "outline"}
               className="w-full justify-start"
               size="lg"
             >
