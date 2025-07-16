@@ -65,9 +65,7 @@ const baseNavItems: NavItem[] = [
 ];
 
 // Dental-specific items (only show in dental contexts)
-const dentalNavItems: NavItem[] = [
-  { id: "dental-sleep-iq", label: "Dental Sleep iQ", path: "/agents/dental-sleep", icon: Moon, badge: "AI", group: "clinical_care", order: 25 },
-];
+const dentalNavItems: NavItem[] = [];
 
 // Function to get filtered navigation items based on specialty
 export const getNavItems = (specialty: string = 'chiropractic'): NavItem[] => {
