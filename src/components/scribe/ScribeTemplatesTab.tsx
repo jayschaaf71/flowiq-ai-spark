@@ -3,6 +3,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FileText, Plus, Eye, Edit, Copy, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -92,8 +96,12 @@ const soapTemplates = [
 
 export const ScribeTemplatesTab = () => {
   const { toast } = useToast();
+  const [templates, setTemplates] = useState(soapTemplates);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<typeof soapTemplates[0] | null>(null);
+  const [editingTemplate, setEditingTemplate] = useState<typeof soapTemplates[0] | null>(null);
 
   const copyTemplate = async (template: typeof soapTemplates[0]) => {
     const templateText = `SOAP TEMPLATE: ${template.name}
@@ -131,16 +139,64 @@ ${template.plan}`;
   };
 
   const handleEdit = (template: typeof soapTemplates[0]) => {
-    toast({
-      title: "Edit Template",
-      description: "Template editing functionality will be available in a future update",
-    });
+    setEditingTemplate({ ...template });
+    setEditOpen(true);
   };
 
   const handleCreateCustom = () => {
+    setEditingTemplate({
+      id: Date.now(),
+      name: '',
+      specialty: '',
+      description: '',
+      subjective: '',
+      objective: '',
+      assessment: '',
+      plan: ''
+    });
+    setCreateOpen(true);
+  };
+
+  const handleSaveTemplate = () => {
+    if (!editingTemplate) return;
+
+    if (!editingTemplate.name.trim()) {
+      toast({
+        title: "Error",
+        description: "Template name is required",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (createOpen) {
+      // Creating new template
+      setTemplates(prev => [...prev, editingTemplate]);
+      toast({
+        title: "Template Created",
+        description: `${editingTemplate.name} has been created successfully`,
+      });
+      setCreateOpen(false);
+    } else {
+      // Editing existing template
+      setTemplates(prev => 
+        prev.map(t => t.id === editingTemplate.id ? editingTemplate : t)
+      );
+      toast({
+        title: "Template Updated", 
+        description: `${editingTemplate.name} has been updated successfully`,
+      });
+      setEditOpen(false);
+    }
+
+    setEditingTemplate(null);
+  };
+
+  const handleDeleteTemplate = (templateId: number) => {
+    setTemplates(prev => prev.filter(t => t.id !== templateId));
     toast({
-      title: "Create Custom Template", 
-      description: "Custom template creation will be available in a future update",
+      title: "Template Deleted",
+      description: "Template has been removed",
     });
   };
 
@@ -159,7 +215,7 @@ ${template.plan}`;
         <CardContent>
           <div className="flex justify-between items-center mb-6">
             <p className="text-sm text-gray-600">
-              {soapTemplates.length} templates available
+              {templates.length} templates available
             </p>
             <Button type="button" onClick={handleCreateCustom}>
               <Plus className="w-4 h-4 mr-2" />
@@ -168,7 +224,7 @@ ${template.plan}`;
           </div>
 
           <div className="grid gap-4">
-            {soapTemplates.map((template) => (
+            {templates.map((template) => (
               <Card key={template.id} className="border-l-4 border-l-blue-500">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
@@ -297,6 +353,129 @@ ${template.plan}`;
                 </Button>
                 <Button onClick={() => setPreviewOpen(false)}>
                   Close
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Create/Edit Template Dialog */}
+      <Dialog open={createOpen || editOpen} onOpenChange={(open) => {
+        if (!open) {
+          setCreateOpen(false);
+          setEditOpen(false);
+          setEditingTemplate(null);
+        }
+      }}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {createOpen ? 'Create Custom Template' : 'Edit Template'}
+            </DialogTitle>
+            <DialogDescription>
+              {createOpen ? 'Create a new SOAP template for your practice' : 'Modify the existing template'}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {editingTemplate && (
+            <div className="space-y-4 mt-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="name">Template Name</Label>
+                  <Input
+                    id="name"
+                    value={editingTemplate.name}
+                    onChange={(e) => setEditingTemplate(prev => prev ? {...prev, name: e.target.value} : null)}
+                    placeholder="e.g., Sleep Apnea Consultation"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="specialty">Specialty</Label>
+                  <Select
+                    value={editingTemplate.specialty}
+                    onValueChange={(value) => setEditingTemplate(prev => prev ? {...prev, specialty: value} : null)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select specialty" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Dental Sleep Medicine">Dental Sleep Medicine</SelectItem>
+                      <SelectItem value="Primary Care">Primary Care</SelectItem>
+                      <SelectItem value="Emergency/Urgent Care">Emergency/Urgent Care</SelectItem>
+                      <SelectItem value="General">General</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              
+              <div>
+                <Label htmlFor="description">Description</Label>
+                <Input
+                  id="description"
+                  value={editingTemplate.description}
+                  onChange={(e) => setEditingTemplate(prev => prev ? {...prev, description: e.target.value} : null)}
+                  placeholder="Brief description of when to use this template"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="subjective">Subjective</Label>
+                <Textarea
+                  id="subjective"
+                  value={editingTemplate.subjective}
+                  onChange={(e) => setEditingTemplate(prev => prev ? {...prev, subjective: e.target.value} : null)}
+                  placeholder="Patient history and symptoms..."
+                  rows={3}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="objective">Objective</Label>
+                <Textarea
+                  id="objective"
+                  value={editingTemplate.objective}
+                  onChange={(e) => setEditingTemplate(prev => prev ? {...prev, objective: e.target.value} : null)}
+                  placeholder="Physical examination findings..."
+                  rows={3}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="assessment">Assessment</Label>
+                <Textarea
+                  id="assessment"
+                  value={editingTemplate.assessment}
+                  onChange={(e) => setEditingTemplate(prev => prev ? {...prev, assessment: e.target.value} : null)}
+                  placeholder="Clinical assessment and diagnosis..."
+                  rows={2}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="plan">Plan</Label>
+                <Textarea
+                  id="plan"
+                  value={editingTemplate.plan}
+                  onChange={(e) => setEditingTemplate(prev => prev ? {...prev, plan: e.target.value} : null)}
+                  placeholder="Treatment plan and follow-up..."
+                  rows={4}
+                />
+              </div>
+              
+              <div className="flex justify-end gap-2 pt-4 border-t">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setCreateOpen(false);
+                    setEditOpen(false);
+                    setEditingTemplate(null);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button onClick={handleSaveTemplate}>
+                  {createOpen ? 'Create Template' : 'Save Changes'}
                 </Button>
               </div>
             </div>
