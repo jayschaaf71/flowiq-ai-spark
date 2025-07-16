@@ -43,7 +43,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   messagesEndRef
 }) => {
   return (
-    <Card className="h-[500px] flex flex-col">
+    <Card className="h-[500px] flex flex-col relative z-10">
       <CardHeader className="border-b">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">Chat with AI Assistant</CardTitle>
@@ -68,7 +68,26 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       </CardHeader>
 
       {/* Messages */}
-      <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
+      <CardContent 
+        className="flex-1 overflow-y-auto p-4 space-y-4 relative"
+        style={{ 
+          touchAction: 'pan-y',
+          overscrollBehavior: 'contain'
+        }}
+        onWheel={(e) => {
+          // Prevent event from bubbling to parent if we can scroll
+          const element = e.currentTarget;
+          const atTop = element.scrollTop === 0;
+          const atBottom = element.scrollTop >= element.scrollHeight - element.clientHeight;
+          
+          if ((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom)) {
+            // Allow parent scroll only at boundaries
+            return;
+          }
+          
+          e.stopPropagation();
+        }}
+      >
         {messages.map((message) => (
           <div
             key={message.id}
@@ -132,6 +151,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             placeholder="Ask me anything about FlowiQ..."
             disabled={isLoading}
             className="flex-1"
+            autoFocus={false}
           />
           <Button
             onClick={onSendMessage}

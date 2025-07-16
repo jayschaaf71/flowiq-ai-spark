@@ -68,13 +68,14 @@ export const useAIHelpAssistant = () => {
     return contextMap[currentPath] || `User is on page: ${currentPath}`;
   };
 
-  const handleSendMessage = async () => {
-    if (!inputMessage.trim() || isLoading) return;
+  const handleSendMessage = async (messageToSend?: string) => {
+    const messageContent = messageToSend || inputMessage;
+    if (!messageContent.trim() || isLoading) return;
 
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
       type: 'user',
-      content: inputMessage,
+      content: messageContent,
       timestamp: new Date(),
       context: location.pathname
     };
@@ -84,46 +85,83 @@ export const useAIHelpAssistant = () => {
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('ai-help-assistant', {
-        body: {
-          message: inputMessage,
-          context: getContextualInfo(),
-          conversationHistory: messages.slice(-5) // Last 5 messages for context
-        }
-      });
+      // Add retry logic for better reliability
+      let retryCount = 0;
+      const maxRetries = 2;
+      let lastError;
 
-      if (error) {
-        throw new Error(error.message);
+      while (retryCount <= maxRetries) {
+        try {
+          const { data, error } = await supabase.functions.invoke('ai-help-assistant', {
+            body: {
+              message: messageContent,
+              context: getContextualInfo(),
+              conversationHistory: messages.slice(-5) // Last 5 messages for context
+            }
+          });
+
+          if (error) {
+            throw new Error(error.message || 'Edge Function error');
+          }
+
+          const assistantMessage: ChatMessage = {
+            id: (Date.now() + 1).toString(),
+            type: 'assistant',
+            content: data.response || "I'm sorry, I couldn't process that request. Please try again.",
+            timestamp: new Date()
+          };
+
+          setMessages(prev => [...prev, assistantMessage]);
+
+          // If actions were performed, show them
+          if (data.actions_performed && data.actions_performed.length > 0) {
+            const actionsMessage: ChatMessage = {
+              id: (Date.now() + 2).toString(),
+              type: 'system',
+              content: `🔧 Actions performed:\n${data.actions_performed.map((action: any) => 
+                `• ${action.function}: ${action.result.success ? '✅ ' + action.result.message : '❌ ' + action.result.error}`
+              ).join('\n')}`,
+              timestamp: new Date()
+            };
+            
+            setMessages(prev => [...prev, actionsMessage]);
+          }
+
+          // Success - break out of retry loop
+          break;
+
+        } catch (retryError) {
+          lastError = retryError;
+          retryCount++;
+          
+          if (retryCount <= maxRetries) {
+            console.log(`AI Help request failed, retrying (${retryCount}/${maxRetries})...`);
+            await new Promise(resolve => setTimeout(resolve, 1000 * retryCount)); // Progressive delay
+          }
+        }
       }
 
-      const assistantMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        type: 'assistant',
-        content: data.response || "I'm sorry, I couldn't process that request. Please try again.",
-        timestamp: new Date()
-      };
-
-      setMessages(prev => [...prev, assistantMessage]);
-
-      // If actions were performed, show them
-      if (data.actions_performed && data.actions_performed.length > 0) {
-        const actionsMessage: ChatMessage = {
-          id: (Date.now() + 2).toString(),
-          type: 'system',
-          content: `🔧 Actions performed:\n${data.actions_performed.map((action: any) => 
-            `• ${action.function}: ${action.result.success ? '✅ ' + action.result.message : '❌ ' + action.result.error}`
-          ).join('\n')}`,
-          timestamp: new Date()
-        };
-        
-        setMessages(prev => [...prev, actionsMessage]);
+      // If all retries failed, throw the last error
+      if (retryCount > maxRetries && lastError) {
+        throw lastError;
       }
 
     } catch (error) {
       console.error('AI Help error:', error);
+      
+      // More specific error messages
+      let errorDescription = "Failed to get AI response. Please try again.";
+      if (error instanceof Error) {
+        if (error.message.includes('Edge Function')) {
+          errorDescription = "AI service is temporarily unavailable. Please try again in a moment.";
+        } else if (error.message.includes('network') || error.message.includes('fetch')) {
+          errorDescription = "Network connection issue. Please check your connection and try again.";
+        }
+      }
+
       toast({
         title: "Error",
-        description: "Failed to get AI response. Please try again.",
+        description: errorDescription,
         variant: "destructive"
       });
 
@@ -162,7 +200,13 @@ export const useAIHelpAssistant = () => {
   };
 
   const handleQuickQuestion = (question: string) => {
+    // Auto-send the question immediately instead of just populating the input
     setInputMessage(question);
+    
+    // Use setTimeout to ensure state update happens first
+    setTimeout(() => {
+      handleSendMessage(question);
+    }, 50);
   };
 
   return {
