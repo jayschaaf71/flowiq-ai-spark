@@ -323,11 +323,6 @@ ${enhancedSOAP.confidence ? `\nAI Confidence: ${Math.round(enhancedSOAP.confiden
           <CardTitle className="flex items-center gap-2">
             <Brain className="w-5 h-5 text-primary" />
             Enhanced AI SOAP Generation
-            {selectedRecording && (
-              <Badge variant="outline" className="ml-auto">
-                From: {selectedRecording.source}
-              </Badge>
-            )}
           </CardTitle>
           <CardDescription>
             {selectedRecording ? 
@@ -493,15 +488,23 @@ ${enhancedSOAP.confidence ? `\nAI Confidence: ${Math.round(enhancedSOAP.confiden
 
               {selectedPatient && (
                 <div className="p-3 bg-blue-50 rounded border mb-4">
-                  <div className="flex items-center gap-2">
-                    <User className="w-4 h-4 text-blue-600" />
-                    <span className="text-sm font-medium">Selected Patient:</span>
-                    <span className="text-sm">{selectedPatient.first_name} {selectedPatient.last_name}</span>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <User className="w-4 h-4 text-blue-600" />
+                      <span className="text-sm font-medium">Selected Patient:</span>
+                      <span className="text-sm font-semibold text-blue-800">
+                        {selectedPatient.first_name} {selectedPatient.last_name}
+                      </span>
+                      {selectedPatient.patient_number && (
+                        <span className="text-xs text-blue-600">
+                          (#{selectedPatient.patient_number})
+                        </span>
+                      )}
+                    </div>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={openSearch}
-                      className="ml-auto"
                     >
                       Change Patient
                     </Button>

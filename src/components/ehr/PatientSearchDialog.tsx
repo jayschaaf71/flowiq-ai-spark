@@ -4,10 +4,11 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, User, Phone, Mail, Calendar } from "lucide-react";
+import { Search, User, Phone, Mail, Calendar, Plus } from "lucide-react";
 import { usePatients } from "@/hooks/usePatients";
 import { Tables } from "@/integrations/supabase/types";
 import { format } from "date-fns";
+import { CreatePatientDialog } from "./CreatePatientDialog";
 
 type Patient = Tables<'patients'>;
 
@@ -19,10 +20,18 @@ interface PatientSearchDialogProps {
 
 export const PatientSearchDialog = ({ open, onOpenChange, onPatientSelect }: PatientSearchDialogProps) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
   const { data: patients = [], isLoading } = usePatients(searchTerm);
 
   const handlePatientSelect = (patient: Patient) => {
     onPatientSelect(patient);
+    onOpenChange(false);
+    setSearchTerm("");
+  };
+
+  const handleCreatePatient = (patient: Patient) => {
+    onPatientSelect(patient);
+    setShowCreateDialog(false);
     onOpenChange(false);
     setSearchTerm("");
   };
@@ -56,10 +65,33 @@ export const PatientSearchDialog = ({ open, onOpenChange, onPatientSelect }: Pat
             <div className="text-center py-8">
               <User className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600">No patients found</p>
-              {searchTerm && (
-                <p className="text-sm text-gray-500 mt-1">
-                  Try adjusting your search terms
-                </p>
+              {searchTerm ? (
+                <div className="space-y-3 mt-4">
+                  <p className="text-sm text-gray-500">
+                    Try adjusting your search terms or create a new patient
+                  </p>
+                  <Button 
+                    onClick={() => setShowCreateDialog(true)}
+                    className="mx-auto"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create New Patient
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-3 mt-4">
+                  <p className="text-sm text-gray-500">
+                    Start typing to search or create a new patient
+                  </p>
+                  <Button 
+                    onClick={() => setShowCreateDialog(true)}
+                    variant="outline"
+                    className="mx-auto"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create New Patient
+                  </Button>
+                </div>
               )}
             </div>
           ) : (
@@ -106,7 +138,7 @@ export const PatientSearchDialog = ({ open, onOpenChange, onPatientSelect }: Pat
                         </div>
                       </div>
                       
-                      <Button variant="outline" size="sm">
+                       <Button variant="outline" size="sm">
                         Select
                       </Button>
                     </div>
@@ -116,6 +148,13 @@ export const PatientSearchDialog = ({ open, onOpenChange, onPatientSelect }: Pat
             </div>
           )}
         </div>
+        
+        <CreatePatientDialog
+          open={showCreateDialog}
+          onOpenChange={setShowCreateDialog}
+          onPatientCreated={handleCreatePatient}
+          initialData={searchTerm ? { first_name: searchTerm } : undefined}
+        />
       </DialogContent>
     </Dialog>
   );

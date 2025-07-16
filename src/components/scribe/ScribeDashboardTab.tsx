@@ -38,8 +38,8 @@ export const ScribeDashboardTab = () => {
   };
 
   const handleAddReminder = () => {
-    // Navigate to RemindIQ page
-    window.location.href = '/agents/remind';
+    // Navigate to RemindIQ page using React Router
+    window.dispatchEvent(new CustomEvent('navigate', { detail: '/agents/remind' }));
   };
 
   // Mock data for recent transcriptions
