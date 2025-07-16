@@ -4,6 +4,8 @@ import { PatientsList } from '@/components/patients/PatientsList';
 import { PatientForm } from '@/components/patients/PatientForm';
 import { PatientProfile } from '@/components/patients/PatientProfile';
 
+console.log('PatientManagement: Module loading...');
+
 type ViewMode = 'list' | 'add' | 'profile';
 
 interface Patient {
