@@ -147,7 +147,7 @@ Return your response as a JSON object with this exact structure:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4.1-2025-04-14',
+        model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: `Please convert this clinical transcription into a SOAP note:\n\n${transcription}` }
