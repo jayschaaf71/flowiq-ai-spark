@@ -1,4 +1,3 @@
-import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -9,10 +8,10 @@ const DentalSleepInsights = () => {
 
   return (
     <>
-      <PageHeader 
-        title="Sleep Medicine Insights"
-        subtitle="AI-powered analytics and clinical intelligence for your sleep practice"
-      />
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-foreground mb-2">Sleep Medicine Insights</h1>
+        <p className="text-muted-foreground">AI-powered analytics and clinical intelligence for your sleep practice</p>
+      </div>
       
       <div className="space-y-6">
         {/* AI Insights Cards */}
