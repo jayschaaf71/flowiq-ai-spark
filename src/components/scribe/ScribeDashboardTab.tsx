@@ -15,7 +15,6 @@ import {
   Bell,
   TestTube
 } from "lucide-react";
-import { PlaudDeviceStatus } from "./PlaudDeviceStatus";
 import { ViewTranscriptionDialog } from "./ViewTranscriptionDialog";
 import { EdgeFunctionTester } from "./EdgeFunctionTester";
 

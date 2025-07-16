@@ -12,7 +12,6 @@ import {
   AlertTriangle
 } from 'lucide-react';
 
-import { ZapierIntegration } from './ZapierIntegration';
 import { IframeWidget } from './IframeWidget';
 import { WebhookManager } from './WebhookManager';
 import { EmbeddablePatientPortal } from './EmbeddablePatientPortal';
@@ -22,7 +21,6 @@ export const IntegrationsDashboard = () => {
 
   const integrationStats = {
     activeWebhooks: 3,
-    zapierConnections: 5,
     widgetEmbeds: 12,
     eventsToday: 47
   };

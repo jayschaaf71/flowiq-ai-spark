@@ -16,7 +16,7 @@ import {
   ArrowRight,
   CheckCircle
 } from 'lucide-react';
-import { PlaudZapierSetup } from './PlaudZapierSetup';
+
 
 interface ScribeAgentConfigurationProps {
   onConfigUpdate: (config: any) => void;
