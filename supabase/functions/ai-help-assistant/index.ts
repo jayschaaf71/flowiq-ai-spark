@@ -47,25 +47,33 @@ serve(async (req) => {
 
     let finalResponse: string;
 
-    // Try simple local response first for speed
-    if (specialty && brandName) {
-      console.log('Using simple local response for speed');
+    // Check if we should use simple responses (only for very basic questions)
+    const lowerMessage = message.toLowerCase();
+    const isBasicQuestion = (
+      (lowerMessage.includes('hi') || lowerMessage.includes('hello') || lowerMessage.includes('functioning')) &&
+      lowerMessage.split(' ').length < 6
+    );
+
+    if (isBasicQuestion && specialty && brandName) {
+      console.log('Using simple local response for basic greeting');
       finalResponse = getSimpleResponse(message, specialty, brandName);
     } else {
-      // Enhance context with specialty information
+      // Use OpenAI for all real questions to get intelligent responses
       const enhancedContext = `${context} 
       
 SPECIALTY CONTEXT: The user is working within ${brandName || 'FlowiQ'} platform, which is specifically designed for ${specialty || 'healthcare'} practices. 
-      
+
 Please provide responses that are:
 - Specific to ${specialty || 'healthcare'} practice workflows
 - Branded appropriately for ${brandName || 'FlowiQ'}
 - Contextually relevant to their current page/workflow
 - Professional but friendly in tone
+- Practical and actionable
 
-If they ask about features, focus on how they apply to ${specialty || 'healthcare'} practice management.`;
+If they ask about features, focus on how they apply to ${specialty || 'healthcare'} practice management.
+Keep responses concise but helpful (100-200 words).`;
 
-      console.log('Using OpenAI for enhanced response');
+      console.log('Using OpenAI for intelligent response');
       const aiResponse = await callOpenAISimple(message, enhancedContext, conversationHistory || []);
       
       if (!aiResponse || !aiResponse.choices || aiResponse.choices.length === 0) {

@@ -243,7 +243,7 @@ export const FloatingAssistIQ: React.FC = () => {
 
   // Full widget
   return (
-    <Card 
+    <div
       className="fixed z-50 w-96 h-[600px] shadow-2xl border-2 border-blue-200 flex flex-col bg-white rounded-lg overflow-hidden"
       style={{ 
         left: Math.max(20, Math.min(position.x, window.innerWidth - 400)), // 400px = w-96 + padding
@@ -252,6 +252,7 @@ export const FloatingAssistIQ: React.FC = () => {
       ref={cardRef}
       onWheel={(e) => e.stopPropagation()} // Prevent scroll bubbling
       onClick={(e) => e.stopPropagation()} // Prevent event bubbling
+      onPointerDown={(e) => e.stopPropagation()} // Prevent pointer events bubbling
     >
       <CardHeader 
         className="p-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white cursor-move"
@@ -441,6 +442,6 @@ export const FloatingAssistIQ: React.FC = () => {
           </div>
         </div>
       </CardContent>
-    </Card>
+    </div>
   );
 };
