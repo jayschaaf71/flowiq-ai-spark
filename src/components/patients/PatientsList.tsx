@@ -34,9 +34,10 @@ interface Patient {
 interface PatientsListProps {
   onSelectPatient: (patient: Patient) => void;
   onAddPatient: () => void;
+  refreshTrigger?: number;
 }
 
-export const PatientsList = ({ onSelectPatient, onAddPatient }: PatientsListProps) => {
+export const PatientsList = ({ onSelectPatient, onAddPatient, refreshTrigger }: PatientsListProps) => {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -47,7 +48,7 @@ export const PatientsList = ({ onSelectPatient, onAddPatient }: PatientsListProp
   useEffect(() => {
     console.log('PatientsList: useEffect triggered, calling fetchPatients');
     fetchPatients();
-  }, []);
+  }, [refreshTrigger]);
 
   const fetchPatients = async () => {
     try {

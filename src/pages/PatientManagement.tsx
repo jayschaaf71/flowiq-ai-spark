@@ -26,6 +26,7 @@ const PatientManagement = () => {
   console.log('PatientManagement: Component is mounting/rendering');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   console.log('PatientManagement: viewMode =', viewMode);
 
@@ -40,7 +41,8 @@ const PatientManagement = () => {
 
   const handlePatientCreated = (patient: Patient) => {
     setSelectedPatient(patient);
-    setViewMode('profile');
+    setViewMode('list'); // Go back to list to see the new patient
+    setRefreshTrigger(prev => prev + 1); // Trigger refresh of patient list
   };
 
   const handleBackToList = () => {
@@ -73,6 +75,7 @@ const PatientManagement = () => {
           <PatientsList
             onSelectPatient={handleSelectPatient}
             onAddPatient={handleAddPatient}
+            refreshTrigger={refreshTrigger}
           />
         );
     }

@@ -101,10 +101,29 @@ export const PatientForm = ({ onSuccess, onCancel }: PatientFormProps) => {
 
     setLoading(true);
     try {
+      // Get current specialty to ensure patient is associated with the correct practice
+      const currentSpecialty = localStorage.getItem('currentSpecialty') || 'dental-sleep-medicine';
+      
+      // Map specialty to patient specialty values in database (same mapping as PatientsList)
+      const specialtyMapping: Record<string, string> = {
+        'chiropractic': 'chiropractic',
+        'chiropractic-care': 'chiropractic', 
+        'dental-sleep': 'dental-sleep',
+        'dental-sleep-medicine': 'dental-sleep',
+        'med-spa': 'med-spa',
+        'concierge': 'concierge',
+        'hrt': 'hrt'
+      };
+      
+      const patientSpecialty = specialtyMapping[currentSpecialty] || currentSpecialty;
+      
+      console.log('PatientForm: Creating patient with specialty:', patientSpecialty);
+      
       // Combine address lines into single address field to match database schema
       const patientData = {
         ...formData,
         address: [formData.address_line1, formData.address_line2].filter(Boolean).join(', '),
+        specialty: patientSpecialty, // Add specialty to ensure patient appears in filtered list
       };
       
       // Remove the address_line fields since they don't exist in the database
