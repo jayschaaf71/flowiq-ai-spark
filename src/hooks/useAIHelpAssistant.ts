@@ -76,8 +76,18 @@ export const useAIHelpAssistant = () => {
   };
 
   const handleSendMessage = async (messageToSend?: string) => {
+    console.log('🔵 handleSendMessage called with:', { messageToSend, inputMessage, isLoading });
     const messageContent = messageToSend || inputMessage;
-    if (!messageContent || typeof messageContent !== 'string' || !messageContent.trim() || isLoading) return;
+    console.log('🔵 messageContent after processing:', { messageContent, type: typeof messageContent });
+    if (!messageContent || typeof messageContent !== 'string' || !messageContent.trim() || isLoading) {
+      console.log('🔴 Early return - message validation failed:', { 
+        hasContent: !!messageContent, 
+        isString: typeof messageContent === 'string',
+        hasTrimmed: messageContent && typeof messageContent === 'string' ? !!messageContent.trim() : false,
+        isLoading 
+      });
+      return;
+    }
 
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
