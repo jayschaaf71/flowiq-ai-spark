@@ -267,10 +267,10 @@ Brand: ${brandName}`;
       body: JSON.stringify({
         model: 'gpt-4.1-2025-04-14',
         messages: messages,
-        functions: availableFunctions,
-        function_call: "auto",
+        tools: availableFunctions.map(func => ({ type: "function", function: func })),
+        tool_choice: "auto",
         temperature: 0.7,
-        max_tokens: 300
+        max_tokens: 500
       }),
     });
 
@@ -287,8 +287,8 @@ Brand: ${brandName}`;
     let actionsPerformed = [];
 
     // Check if the AI wants to call a function
-    if (data.choices[0].message.function_call) {
-      const functionCall = data.choices[0].message.function_call;
+    if (data.choices[0].message.tool_calls && data.choices[0].message.tool_calls.length > 0) {
+      const functionCall = data.choices[0].message.tool_calls[0].function;
       const functionName = functionCall.name;
       let functionArgs = JSON.parse(functionCall.arguments);
 
@@ -316,8 +316,8 @@ Brand: ${brandName}`;
       const followUpMessages = [
         { role: "system", content: systemPrompt },
         { role: "user", content: message },
-        { role: "assistant", content: null, function_call: functionCall },
-        { role: "function", name: functionName, content: JSON.stringify(functionResult) }
+        { role: "assistant", content: null, tool_calls: [{ id: "call_" + Date.now(), type: "function", function: functionCall }] },
+        { role: "tool", tool_call_id: "call_" + Date.now(), content: JSON.stringify(functionResult) }
       ];
 
       const followUpResponse = await fetch('https://api.openai.com/v1/chat/completions', {

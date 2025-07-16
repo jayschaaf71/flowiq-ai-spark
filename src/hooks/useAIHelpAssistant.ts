@@ -109,9 +109,9 @@ export const useAIHelpAssistant = () => {
 
       while (retryCount <= maxRetries) {
         try {
-          // Reduce timeout to 10 seconds for faster user feedback
+          // Increase timeout for function calling
           const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('Request timeout after 10 seconds')), 10000);
+            setTimeout(() => reject(new Error('Request timeout after 30 seconds')), 30000);
           });
 
           console.log('Making AI Help request...');
