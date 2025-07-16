@@ -10,7 +10,10 @@ export const useSpecialtyDetection = () => {
     const detectSpecialtyFromRoute = (): SpecialtyType => {
       const path = location.pathname;
       
-      // Route-based specialty detection
+      // Route-based specialty detection - be more specific with chiropractic detection
+      if (path.includes('/chiropractic')) {
+        return 'chiropractic';
+      }
       if (path.includes('/agents/dental-sleep') || path.includes('/dental-sleep')) {
         return 'dental-sleep';
       }

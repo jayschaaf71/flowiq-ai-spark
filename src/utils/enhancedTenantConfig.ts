@@ -83,10 +83,14 @@ export function useEnhancedTenantConfig() {
         const path = window.location.pathname;
         let defaultConfig = DEFAULT_TENANTS.chiropractic;
         
-        if (path.includes('/dental-sleep') || path.includes('dental-sleep')) {
+        if (path.includes('/chiropractic')) {
+          defaultConfig = DEFAULT_TENANTS.chiropractic;
+        } else if (path.includes('/dental-sleep') || path.includes('dental-sleep')) {
           defaultConfig = DEFAULT_TENANTS['dental-sleep'];
         } else if (path.includes('/dental')) {
           defaultConfig = DEFAULT_TENANTS.dental;
+        } else if (path.includes('/med-spa') || path.includes('/medspa')) {
+          defaultConfig = DEFAULT_TENANTS['med-spa'];
         }
         
         setTenantConfig(defaultConfig);

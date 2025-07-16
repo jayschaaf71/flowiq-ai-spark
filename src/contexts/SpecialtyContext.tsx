@@ -33,13 +33,16 @@ interface SpecialtyProviderProps {
 }
 
 const specialtyBrands: Record<string, string> = {
-  'chiropractic-care': 'Chiropractic IQ',
-  'chiropractic': 'Chiropractic IQ',
+  'chiropractic-care': 'ChiroIQ',
+  'chiropractic': 'ChiroIQ',
   'dental-care': 'Dental IQ', 
   'dental': 'Dental IQ',
   'dentistry': 'Dental IQ',
   'dental-sleep-medicine': 'Dental Sleep IQ',
   'dental-sleep': 'Dental Sleep IQ',
+  'med-spa': 'AestheticIQ',
+  'concierge': 'ConciergeIQ',
+  'hrt': 'HormoneIQ',
   'appointment-scheduling': 'Appointment IQ'
 };
 
@@ -47,8 +50,37 @@ export const SpecialtyProvider: React.FC<SpecialtyProviderProps> = ({ children }
   const { currentTenant } = useCurrentTenant();
   const { data: userProfile } = useUserProfile();
   
-  // Detect specialty from current tenant first, then fallback to other sources
+  // Detect specialty with priority: URL route > localStorage > tenant > user profile
   const detectSpecialty = () => {
+    // Priority 1: Check URL path for route-based specialty detection
+    const path = window.location.pathname;
+    if (path.includes('/chiropractic')) {
+      const routeSpecialty = 'chiropractic';
+      localStorage.setItem('currentSpecialty', routeSpecialty);
+      return routeSpecialty;
+    }
+    if (path.includes('/dental-sleep')) {
+      const routeSpecialty = 'dental-sleep';
+      localStorage.setItem('currentSpecialty', routeSpecialty);
+      return routeSpecialty;
+    }
+    if (path.includes('/med-spa') || path.includes('/medspa')) {
+      const routeSpecialty = 'med-spa';
+      localStorage.setItem('currentSpecialty', routeSpecialty);
+      return routeSpecialty;
+    }
+    if (path.includes('/concierge')) {
+      const routeSpecialty = 'concierge';
+      localStorage.setItem('currentSpecialty', routeSpecialty);
+      return routeSpecialty;
+    }
+    if (path.includes('/hrt')) {
+      const routeSpecialty = 'hrt';
+      localStorage.setItem('currentSpecialty', routeSpecialty);
+      return routeSpecialty;
+    }
+
+    // Priority 2: Check localStorage
     const storedSpecialty = localStorage.getItem('currentSpecialty');
     const tenantSpecialty = currentTenant?.specialty;
     const userSpecialty = userProfile?.specialty?.toLowerCase().replace(/\s+/g, '-');
