@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { ViewTranscriptionDialog } from "./ViewTranscriptionDialog";
 import { EdgeFunctionTester } from "./EdgeFunctionTester";
+import { ScribeRecentTranscriptions } from "./ScribeRecentTranscriptions";
 
 export const ScribeDashboardTab = () => {
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
@@ -226,43 +227,7 @@ export const ScribeDashboardTab = () => {
       </div>
 
       {/* Recent Activity */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Transcriptions</CardTitle>
-          <CardDescription>Latest voice recordings and generated SOAP notes</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {mockTranscriptions.map((transcription) => (
-              <div key={transcription.id} className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <FileText className="w-4 h-4 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="font-medium">{transcription.patientName}</p>
-                    <p className="text-sm text-gray-600">
-                      {transcription.source} • {transcription.timestamp}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="bg-green-50 text-green-700">
-                    {transcription.status}
-                  </Badge>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleViewTranscription(transcription)}
-                  >
-                    View
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <ScribeRecentTranscriptions />
 
       {/* Function Testing Panel */}
       {showTesting && (
