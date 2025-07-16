@@ -23,9 +23,6 @@ export const ScribeDashboardTab = () => {
   const [selectedTranscription, setSelectedTranscription] = useState(null);
   const [showTesting, setShowTesting] = useState(false);
 
-  const handleNavigateToPlaud = () => {
-    window.dispatchEvent(new CustomEvent('changeScribeTab', { detail: 'plaud' }));
-  };
 
   const handleNavigateToLive = () => {
     window.dispatchEvent(new CustomEvent('changeScribeTab', { detail: 'whisper' }));
@@ -168,38 +165,7 @@ export const ScribeDashboardTab = () => {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Device Status Placeholder */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Smartphone className="w-5 h-5 text-primary" />
-              Recording Devices
-            </CardTitle>
-            <CardDescription>
-              Connected recording devices and status
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-green-100 rounded-lg">
-                    <Mic className="w-4 h-4 text-green-600" />
-                  </div>
-                  <div>
-                    <p className="font-medium">Built-in Recorder</p>
-                    <p className="text-sm text-gray-600">Ready for recording</p>
-                  </div>
-                </div>
-                <Badge className="bg-green-100 text-green-700">
-                  Active
-                </Badge>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
+      <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
         {/* Quick Actions */}
         <Card>
           <CardHeader>
@@ -208,7 +174,7 @@ export const ScribeDashboardTab = () => {
               Quick Actions
             </CardTitle>
             <CardDescription>
-              Start recording or set up your Plaud device
+              Start recording or manage your scribe settings
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -219,17 +185,6 @@ export const ScribeDashboardTab = () => {
             >
               <Mic className="w-4 h-4 mr-2" />
               Start Live Recording
-              <ArrowRight className="w-4 h-4 ml-auto" />
-            </Button>
-            
-            <Button 
-              onClick={handleNavigateToPlaud}
-              variant="outline"
-              className="w-full justify-start"
-              size="lg"
-            >
-              <Smartphone className="w-4 h-4 mr-2" />
-              Configure Plaud Device
               <ArrowRight className="w-4 h-4 ml-auto" />
             </Button>
             
@@ -263,9 +218,6 @@ export const ScribeDashboardTab = () => {
                 </Badge>
                 <Badge variant="outline" className="bg-green-50 text-green-700">
                   SOAP Generation
-                </Badge>
-                <Badge variant="outline" className="border-primary/20 text-primary">
-                  Plaud Integration
                 </Badge>
               </div>
             </div>
