@@ -8,6 +8,46 @@ import { useToast } from "@/hooks/use-toast";
 const soapTemplates = [
   {
     id: 1,
+    name: "Sleep Apnea Consultation",
+    specialty: "Dental Sleep Medicine",
+    description: "Initial consultation for suspected obstructive sleep apnea",
+    subjective: "Patient presents with chief complaint of [snoring/sleep disruption/daytime fatigue]. Partner reports [witnessed apneas/loud snoring/restless sleep]. Symptoms began [timeframe] and have [progressed/remained stable]. Epworth Sleepiness Scale: [score/15]. Sleep history: bedtime [time], wake time [time], sleep latency [minutes]. Medical history significant for [hypertension/diabetes/heart disease]. Current medications: [list]. BMI: [value].",
+    objective: "Extraoral examination: BMI [value], neck circumference [cm], Mallampati class [I-IV]. Intraoral examination: tongue position [Friedman classification], tonsil size [grade], soft palate length and thickness [normal/elongated/thick], uvula [normal/elongated/bifid]. Dental examination: [crowding/spacing], [wear patterns], periodontal status [WNL/gingivitis/periodontitis]. Airway assessment: [patent/restricted], nasal breathing [clear/congested].",
+    assessment: "Suspected obstructive sleep apnea based on clinical presentation and examination findings. [Mild/Moderate/Severe] risk based on [clinical indicators]. Patient is [candidate/not candidate] for oral appliance therapy. [Additional considerations].",
+    plan: "1. Home sleep apnea test or polysomnography referral\n2. ENT consultation if indicated\n3. Weight management counseling if BMI >30\n4. Sleep hygiene education\n5. Follow-up with sleep study results\n6. Consider oral appliance therapy pending study results\n7. [Return precautions/timeline]"
+  },
+  {
+    id: 2,
+    name: "Oral Appliance Delivery",
+    specialty: "Dental Sleep Medicine",
+    description: "Delivery and fitting of oral appliance for sleep apnea",
+    subjective: "Patient returns for delivery of [mandibular advancement device/tongue retaining device]. Sleep study results: AHI [value], lowest O2 sat [%]. Patient reports [current symptoms]. Understands oral appliance therapy goals and limitations.",
+    objective: "Oral appliance fit and function: [excellent/good/fair]. Mandibular advancement: [mm] from maximum comfortable protrusion. Vertical opening: [mm]. Retention: [adequate/needs adjustment]. Patient demonstrates proper insertion and removal. Comfort level: [comfortable/mild discomfort/needs adjustment].",
+    assessment: "Oral appliance delivered and fitted. Initial comfort and retention [satisfactory/requires modification]. Patient educated on proper use, care, and cleaning. [Side effects discussed].",
+    plan: "1. Gradual advancement protocol initiated\n2. Titration schedule: advance [0.5mm] every [timeframe]\n3. Sleep diary to monitor symptoms\n4. Follow-up in 2 weeks for adjustment\n5. Follow-up sleep study in 3-6 months\n6. Daily appliance wear as tolerated\n7. [Emergency contact information provided]"
+  },
+  {
+    id: 3,
+    name: "Oral Appliance Follow-up",
+    specialty: "Dental Sleep Medicine",
+    description: "Follow-up visit for oral appliance therapy",
+    subjective: "Patient using oral appliance for [duration]. Compliance: [hours/night, nights/week]. Current advancement: [mm]. Partner reports [snoring improved/resolved/unchanged]. Patient reports [energy improved/sleep quality better/daytime fatigue resolved]. Side effects: [TMJ discomfort/tooth movement/dry mouth/none].",
+    objective: "Oral appliance condition: [good/worn/damaged]. Fit and retention: [maintained/loose/tight]. Dental examination: [occlusal changes/tooth movement/stable]. TMJ examination: [clicking/tenderness/normal range of motion]. Titration progress: currently at [mm] advancement.",
+    assessment: "Oral appliance therapy [well-tolerated/partially effective/needs adjustment]. Subjective improvement in [symptoms]. [Compliance excellent/good/poor]. [Side effects minimal/significant/none].",
+    plan: "1. [Continue current advancement/increase to next level/maintain current position]\n2. [TMJ therapy if indicated]\n3. [Dental monitoring for tooth movement]\n4. Follow-up sleep study scheduled for [date]\n5. Continue daily wear\n6. [Appliance modifications if needed]\n7. Next appointment in [timeframe]"
+  },
+  {
+    id: 4,
+    name: "Sleep Bruxism Evaluation",
+    specialty: "Dental Sleep Medicine",
+    description: "Assessment and treatment of sleep-related bruxism",
+    subjective: "Patient/partner reports [grinding sounds/jaw clenching] during sleep. Symptoms include [morning jaw pain/headaches/tooth sensitivity]. Duration: [timeframe]. Stress level: [high/moderate/low]. Sleep quality: [poor/fair/good]. Current sleep position: [supine/side/prone]. Caffeine intake: [amount/timing].",
+    objective: "Dental examination reveals [wear facets/fractures/muscle hypertrophy]. Tooth wear pattern: [generalized/localized] affecting [anterior/posterior] teeth. TMJ examination: [muscle tenderness/clicking/limited opening]. Masseter and temporalis muscle palpation: [tender/hypertrophied/normal]. Occlusion: [stable/interferences noted].",
+    assessment: "Sleep bruxism with [mild/moderate/severe] dental wear. [Primary/secondary] bruxism related to [stress/sleep disorder/medication]. TMJ [dysfunction present/normal function]. Risk for [further dental damage/TMJ complications].",
+    plan: "1. Custom night guard fabrication\n2. Sleep hygiene counseling\n3. Stress management techniques\n4. [Medication review if applicable]\n5. TMJ therapy if needed\n6. Follow-up in 4-6 weeks\n7. Monitor dental wear progression\n8. [Sleep study if OSA suspected]"
+  },
+  {
+    id: 5,
     name: "General Consultation",
     specialty: "Primary Care",
     description: "Standard template for general medical consultations",
@@ -17,7 +57,7 @@ const soapTemplates = [
     plan: "1. [Treatment plan]\n2. [Medications if prescribed]\n3. [Follow-up instructions]\n4. [Patient education]\n5. [Return precautions]"
   },
   {
-    id: 2,
+    id: 6,
     name: "Follow-up Visit",
     specialty: "General",
     description: "Template for routine follow-up appointments",
@@ -27,7 +67,7 @@ const soapTemplates = [
     plan: "Continue current management. [Medication adjustments if needed]. Follow-up in [timeframe]. [Additional instructions]."
   },
   {
-    id: 3,
+    id: 7,
     name: "Acute Care Visit",
     specialty: "Emergency/Urgent Care",
     description: "Template for acute medical conditions",
@@ -37,7 +77,7 @@ const soapTemplates = [
     plan: "Immediate: [acute interventions]. Medications: [prescriptions]. Instructions: [discharge planning]. Return if [warning signs]."
   },
   {
-    id: 4,
+    id: 8,
     name: "Preventive Care",
     specialty: "Primary Care",
     description: "Annual physical and preventive care template",
