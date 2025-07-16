@@ -105,6 +105,9 @@ export const FloatingAssistIQ: React.FC = () => {
   // Handle dragging
   const handleMouseDown = (e: React.MouseEvent) => {
     if (isMinimized) return;
+    // Prevent dragging when clicking on buttons
+    if ((e.target as HTMLElement).closest('button')) return;
+    
     setIsDragging(true);
     const rect = cardRef.current?.getBoundingClientRect();
     if (rect) {
@@ -301,32 +304,8 @@ export const FloatingAssistIQ: React.FC = () => {
         )}
 
         {/* Messages */}
-        <ScrollArea 
-          className="flex-1 p-3"
-          style={{ 
-            touchAction: 'pan-y',
-            overscrollBehavior: 'contain'
-          }}
-        >
-          <div 
-            className="space-y-3"
-            onWheel={(e) => {
-              // Prevent event from bubbling to parent/document
-              e.stopPropagation();
-              
-              // Allow scrolling within this container
-              const element = e.currentTarget.parentElement; // ScrollArea viewport
-              if (element) {
-                const atTop = element.scrollTop === 0;
-                const atBottom = element.scrollTop >= element.scrollHeight - element.clientHeight;
-                
-                // Only prevent default if we can scroll in the direction
-                if ((e.deltaY < 0 && !atTop) || (e.deltaY > 0 && !atBottom)) {
-                  e.preventDefault();
-                }
-              }
-            }}
-          >
+        <ScrollArea className="flex-1 p-3">
+          <div className="space-y-3">
             {messages.map((message) => (
               <div
                 key={message.id}
