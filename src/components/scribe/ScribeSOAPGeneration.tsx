@@ -151,13 +151,12 @@ export const ScribeSOAPGeneration = () => {
         // Create new audio element
         audio = new Audio();
         
-        // Try audio_url first, then storage_path with Supabase storage URL
-        if (recording.audio_url) {
-          audio.src = recording.audio_url;
-        } else if (recording.storage_path) {
+        // Both audio_url and storage_path contain storage paths, so treat them as such
+        const storagePath = recording.storage_path || recording.audio_url;
+        if (storagePath) {
           const { data } = await supabase.storage
             .from('voice-recordings')
-            .createSignedUrl(recording.storage_path, 3600); // 1 hour expiry
+            .createSignedUrl(storagePath, 3600); // 1 hour expiry
           
           if (data?.signedUrl) {
             audio.src = data.signedUrl;
