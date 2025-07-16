@@ -24,6 +24,8 @@ const PatientManagement = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
 
+  console.log('PatientManagement: viewMode =', viewMode);
+
   const handleSelectPatient = (patient: Patient) => {
     setSelectedPatient(patient);
     setViewMode('profile');
@@ -44,8 +46,10 @@ const PatientManagement = () => {
   };
 
   const renderContent = () => {
+    console.log('PatientManagement: renderContent called, viewMode =', viewMode);
     switch (viewMode) {
       case 'add':
+        console.log('PatientManagement: Rendering PatientForm');
         return (
           <PatientForm
             onSuccess={handlePatientCreated}
@@ -53,6 +57,7 @@ const PatientManagement = () => {
           />
         );
       case 'profile':
+        console.log('PatientManagement: Rendering PatientProfile');
         return selectedPatient ? (
           <PatientProfile
             patientId={selectedPatient.id}
@@ -60,6 +65,7 @@ const PatientManagement = () => {
           />
         ) : null;
       default:
+        console.log('PatientManagement: Rendering PatientsList');
         return (
           <PatientsList
             onSelectPatient={handleSelectPatient}
@@ -69,6 +75,7 @@ const PatientManagement = () => {
     }
   };
 
+  console.log('PatientManagement: About to render');
   return (
     <div className="container mx-auto py-6">
       {renderContent()}

@@ -40,22 +40,30 @@ export const PatientsList = ({ onSelectPatient, onAddPatient }: PatientsListProp
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+
+  console.log('PatientsList: Component mounted/re-rendered');
   const { toast } = useToast();
 
   useEffect(() => {
+    console.log('PatientsList: useEffect triggered, calling fetchPatients');
     fetchPatients();
   }, []);
 
   const fetchPatients = async () => {
     try {
+      console.log('PatientsList: fetchPatients starting...');
       // HIPAA COMPLIANCE: Ensure user is authenticated before accessing patient data
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         throw new Error('Authentication required to access patient data');
       }
+      console.log('PatientsList: User authenticated:', user.id);
 
+      console.log('PatientsList: fetchPatients called');
+      setLoading(true);
+      
       // Filter patients by current specialty/practice
-      const currentSpecialty = localStorage.getItem('currentSpecialty') || 'chiropractic';
+      const currentSpecialty = localStorage.getItem('currentSpecialty') || 'dental-sleep-medicine';
       
       console.log('PatientsList - currentSpecialty from localStorage:', currentSpecialty);
       
