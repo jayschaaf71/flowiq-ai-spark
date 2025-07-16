@@ -127,7 +127,7 @@ export const ScribeRecentTranscriptions = () => {
                       }
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {recording.source} • {formatDistanceToNow(new Date(recording.created_at), { addSuffix: true })}
+                      {formatDistanceToNow(new Date(recording.created_at), { addSuffix: true })}
                       {recording.duration_seconds && ` • ${Math.round(recording.duration_seconds)}s`}
                     </p>
                   </div>

@@ -430,9 +430,6 @@ ${enhancedSOAP.confidence ? `\nAI Confidence: ${Math.round(enhancedSOAP.confiden
                           {recording.duration_seconds && (
                             <span>Duration: {Math.round(recording.duration_seconds)}s</span>
                           )}
-                          <Badge variant="outline" className="text-xs">
-                            {recording.source}
-                          </Badge>
                         </div>
                       </div>
                     </div>
