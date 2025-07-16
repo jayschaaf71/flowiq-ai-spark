@@ -104,6 +104,7 @@ export const useAIHelpAssistant = () => {
             setTimeout(() => reject(new Error('Request timeout after 10 seconds')), 10000);
           });
 
+          console.log('Making AI Help request...');
           const requestPromise = supabase.functions.invoke('ai-help-assistant', {
             body: {
               message: messageContent,
@@ -115,9 +116,16 @@ export const useAIHelpAssistant = () => {
           });
 
           const { data, error } = await Promise.race([requestPromise, timeoutPromise]) as any;
+          console.log('AI Help response received:', { data, error });
 
           if (error) {
-            throw new Error(error.message || 'Edge Function error');
+            console.error('Supabase function error:', error);
+            throw new Error(`Edge Function error: ${error.message || JSON.stringify(error)}`);
+          }
+
+          if (!data) {
+            console.error('No data received from Edge Function');
+            throw new Error('No response received from AI service');
           }
 
           const assistantMessage: ChatMessage = {
@@ -164,14 +172,23 @@ export const useAIHelpAssistant = () => {
 
     } catch (error) {
       console.error('AI Help error:', error);
+      console.error('Error details:', {
+        name: error?.name,
+        message: error?.message,
+        stack: error?.stack
+      });
       
       // More specific error messages
       let errorDescription = "Failed to get AI response. Please try again.";
       if (error instanceof Error) {
-        if (error.message.includes('Edge Function')) {
-          errorDescription = "AI service is temporarily unavailable. Please try again in a moment.";
+        if (error.message.includes('timeout') || error.message.includes('Request timeout')) {
+          errorDescription = "AI response timed out. The service may be busy - please try again.";
+        } else if (error.message.includes('Edge Function')) {
+          errorDescription = "AI service encountered an error. Please try again in a moment.";
         } else if (error.message.includes('network') || error.message.includes('fetch')) {
           errorDescription = "Network connection issue. Please check your connection and try again.";
+        } else if (error.message.includes('No response')) {
+          errorDescription = "AI service is not responding. Please try again.";
         }
       }
 

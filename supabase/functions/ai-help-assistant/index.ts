@@ -3,6 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 import { CORS_HEADERS, AI_CONFIG } from './config.ts';
 import { callOpenAI, callOpenAISimple, getFollowUpResponse } from './openai-service.ts';
 import { executeFunctions } from './function-executor.ts';
+import { getSimpleResponse } from './simple-response.ts';
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -44,11 +45,18 @@ serve(async (req) => {
     console.log('Specialty:', specialty);
     console.log('Brand:', brandName);
 
-    // Enhance context with specialty information
-    const enhancedContext = `${context} 
-    
+    let finalResponse: string;
+
+    // Try simple local response first for speed
+    if (specialty && brandName) {
+      console.log('Using simple local response for speed');
+      finalResponse = getSimpleResponse(message, specialty, brandName);
+    } else {
+      // Enhance context with specialty information
+      const enhancedContext = `${context} 
+      
 SPECIALTY CONTEXT: The user is working within ${brandName || 'FlowiQ'} platform, which is specifically designed for ${specialty || 'healthcare'} practices. 
-    
+      
 Please provide responses that are:
 - Specific to ${specialty || 'healthcare'} practice workflows
 - Branded appropriately for ${brandName || 'FlowiQ'}
@@ -57,14 +65,15 @@ Please provide responses that are:
 
 If they ask about features, focus on how they apply to ${specialty || 'healthcare'} practice management.`;
 
-    console.log('Using simple AI response (no functions)');
-    const aiResponse = await callOpenAISimple(message, enhancedContext, conversationHistory || []);
-    
-    if (!aiResponse || !aiResponse.choices || aiResponse.choices.length === 0) {
-      throw new Error('Invalid AI response format');
+      console.log('Using OpenAI for enhanced response');
+      const aiResponse = await callOpenAISimple(message, enhancedContext, conversationHistory || []);
+      
+      if (!aiResponse || !aiResponse.choices || aiResponse.choices.length === 0) {
+        throw new Error('Invalid AI response format');
+      }
+      
+      finalResponse = aiResponse.choices[0].message?.content || 'I apologize, but I was unable to generate a response. Please try again.';
     }
-    
-    const finalResponse = aiResponse.choices[0].message?.content || 'I apologize, but I was unable to generate a response. Please try again.';
     
     console.log('AI Help response generated successfully');
 
