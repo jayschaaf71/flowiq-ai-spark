@@ -1,0 +1,53 @@
+-- Insert sample patients for dental sleep medicine specialty
+INSERT INTO public.patients (
+  first_name, 
+  last_name, 
+  specialty, 
+  tenant_id,
+  email,
+  phone,
+  date_of_birth,
+  patient_number,
+  city,
+  state,
+  is_active
+) VALUES 
+(
+  'Michael',
+  'Johnson', 
+  'dental-sleep',
+  'd52278c3-bf0d-4731-bfa9-a40f032fa305',
+  'michael.johnson@email.com',
+  '555-0123',
+  '1975-03-15',
+  'DS001',
+  'Springfield',
+  'IL',
+  true
+),
+(
+  'Sarah',
+  'Williams',
+  'dental-sleep', 
+  'd52278c3-bf0d-4731-bfa9-a40f032fa305',
+  'sarah.williams@email.com',
+  '555-0124',
+  '1982-07-22',
+  'DS002',
+  'Springfield',
+  'IL',
+  true
+),
+(
+  'David',
+  'Brown',
+  'dental-sleep',
+  'd52278c3-bf0d-4731-bfa9-a40f032fa305', 
+  'david.brown@email.com',
+  '555-0125',
+  '1968-11-08',
+  'DS003',
+  'Springfield',
+  'IL',
+  true
+);
