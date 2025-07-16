@@ -164,10 +164,6 @@ export const EdgeFunctionTester: React.FC = () => {
             <Button onClick={runAllTests}>
               Run All Tests
             </Button>
-            <Button variant="outline">
-              <Settings className="w-4 h-4 mr-2" />
-              Configure Tests
-            </Button>
           </div>
 
           <div className="grid gap-4">
