@@ -2,22 +2,84 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Brain, FileText, Copy, Download, User, Stethoscope, Code } from "lucide-react";
+import { Brain, FileText, Copy, Download, User, Stethoscope, Code, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useSOAPNotes } from "@/hooks/useSOAPNotes";
 import { usePatientSelection } from "@/hooks/usePatientSelection";
 import { PatientSearchDialog } from "@/components/ehr/PatientSearchDialog";
 import { useEnhancedMedicalAI } from "@/hooks/useEnhancedMedicalAI";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { formatDistanceToNow } from "date-fns";
+
+interface VoiceRecording {
+  id: string;
+  transcription: string | null;
+  ai_summary: string | null;
+  status: string;
+  created_at: string;
+  duration_seconds: number | null;
+  source: string;
+}
 
 export const ScribeSOAPGeneration = () => {
-  const { enhancedSOAP, isProcessing, resetEnhancedData } = useEnhancedMedicalAI();
+  const { enhancedSOAP, isProcessing, resetEnhancedData, generateEnhancedSOAP } = useEnhancedMedicalAI();
   const { toast } = useToast();
   const { createSOAPNote } = useSOAPNotes();
   const [isSaving, setIsSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedSOAP, setEditedSOAP] = useState<any>(null);
+  const [recordings, setRecordings] = useState<VoiceRecording[]>([]);
+  const [loadingRecordings, setLoadingRecordings] = useState(true);
+  const [selectedRecording, setSelectedRecording] = useState<VoiceRecording | null>(null);
   const { selectedPatient, isSearchOpen, selectPatient, openSearch, closeSearch } = usePatientSelection();
+
+  useEffect(() => {
+    fetchRecordings();
+  }, []);
+
+  const fetchRecordings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('voice_recordings')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (error) {
+        console.error('Error fetching recordings:', error);
+        return;
+      }
+
+      setRecordings(data || []);
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoadingRecordings(false);
+    }
+  };
+
+  const handleGenerateSOAP = async (recording: VoiceRecording) => {
+    if (!recording.transcription) {
+      toast({
+        title: "No Transcription",
+        description: "This recording doesn't have a transcription to generate SOAP notes from.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSelectedRecording(recording);
+    try {
+      await generateEnhancedSOAP(recording.transcription);
+    } catch (error) {
+      toast({
+        title: "Generation Failed", 
+        description: "Failed to generate SOAP notes from this recording.",
+        variant: "destructive",
+      });
+    }
+  };
 
   console.log('ScribeSOAPGeneration render - enhancedSOAP:', enhancedSOAP);
   console.log('ScribeSOAPGeneration render - isProcessing:', isProcessing);
@@ -154,6 +216,17 @@ ${enhancedSOAP.confidence ? `\nAI Confidence: ${Math.round(enhancedSOAP.confiden
     setEditedSOAP(prev => ({ ...prev, [field]: value }));
   };
 
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return <Badge variant="outline" className="bg-green-50 text-green-700">Completed</Badge>;
+      case 'processing':
+        return <Badge variant="outline" className="bg-yellow-50 text-yellow-700">Processing</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
   return (
     <>
       <PatientSearchDialog
@@ -162,14 +235,105 @@ ${enhancedSOAP.confidence ? `\nAI Confidence: ${Math.round(enhancedSOAP.confiden
         onPatientSelect={selectPatient}
       />
       
+      {/* Available Recordings for SOAP Generation */}
+      {!enhancedSOAP && (
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="w-5 h-5 text-primary" />
+              Available Recordings
+            </CardTitle>
+            <CardDescription>
+              Select a recording to generate SOAP notes from
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {loadingRecordings ? (
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="animate-pulse">
+                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gray-200 rounded-lg"></div>
+                        <div>
+                          <div className="w-32 h-4 bg-gray-200 rounded mb-1"></div>
+                          <div className="w-24 h-3 bg-gray-200 rounded"></div>
+                        </div>
+                      </div>
+                      <div className="w-20 h-6 bg-gray-200 rounded"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : recordings.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>No recordings available</p>
+                <p className="text-sm">Start recording to create transcriptions for SOAP generation</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {recordings.map((recording) => (
+                  <div key={recording.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent/50 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-primary/10 rounded-lg">
+                        <FileText className="w-4 h-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-medium">
+                          {recording.transcription ? 
+                            `${recording.transcription.substring(0, 50)}...` : 
+                            'Voice Recording (No transcription)'
+                          }
+                        </p>
+                        <p className="text-sm text-muted-foreground flex items-center gap-2">
+                          <span>{recording.source}</span>
+                          <span>•</span>
+                          <Clock className="w-3 h-3" />
+                          <span>{formatDistanceToNow(new Date(recording.created_at), { addSuffix: true })}</span>
+                          {recording.duration_seconds && (
+                            <>
+                              <span>•</span>
+                              <span>{Math.round(recording.duration_seconds)}s</span>
+                            </>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {getStatusBadge(recording.status)}
+                      <Button
+                        size="sm"
+                        onClick={() => handleGenerateSOAP(recording)}
+                        disabled={!recording.transcription || recording.status !== 'completed'}
+                      >
+                        <Brain className="w-4 h-4 mr-2" />
+                        Generate SOAP
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Brain className="w-5 h-5 text-primary" />
             Enhanced AI SOAP Generation
+            {selectedRecording && (
+              <Badge variant="outline" className="ml-auto">
+                From: {selectedRecording.source}
+              </Badge>
+            )}
           </CardTitle>
           <CardDescription>
-            Generate structured SOAP notes with specialty-aware AI and medical intelligence
+            {selectedRecording ? 
+              `Generated from recording: ${selectedRecording.transcription?.substring(0, 50)}...` :
+              "Generate structured SOAP notes with specialty-aware AI and medical intelligence"
+            }
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -373,9 +537,12 @@ ${enhancedSOAP.confidence ? `\nAI Confidence: ${Math.round(enhancedSOAP.confiden
                     </Button>
                     <Button 
                       variant="outline"
-                      onClick={handleEditClick}
+                      onClick={() => {
+                        resetEnhancedData();
+                        setSelectedRecording(null);
+                      }}
                     >
-                      Edit & Refine
+                      Generate from Different Recording
                     </Button>
                   </>
                 )}
@@ -384,8 +551,8 @@ ${enhancedSOAP.confidence ? `\nAI Confidence: ${Math.round(enhancedSOAP.confiden
           ) : (
             <div className="text-center py-12 text-muted-foreground">
               <Brain className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p className="text-lg font-medium mb-2">Enhanced AI SOAP Generation Ready</p>
-              <p className="text-sm">Go to 'Live Recording' tab, record or load test transcription, then generate enhanced SOAP notes with medical intelligence</p>
+              <p className="text-lg font-medium mb-2">Ready to Generate SOAP Notes</p>
+              <p className="text-sm">Select a recording above to generate enhanced SOAP notes with medical intelligence</p>
             </div>
           )}
         </CardContent>
