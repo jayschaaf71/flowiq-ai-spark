@@ -21,7 +21,9 @@ import {
   Heart,
   Wind
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface SleepStudyManagerProps {
   patientId: string;

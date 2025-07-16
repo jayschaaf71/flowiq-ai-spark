@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,72 +16,96 @@ interface DMEBillingProps {
   patientId: string;
 }
 
-const mockDMEOrders = [
-  {
-    id: "dme-001",
-    orderType: "CPAP Machine",
-    status: "delivered",
-    orderDate: "2024-01-15",
-    supplierName: "ResMed Supply Co",
-    trackingNumber: "RS123456789",
-    insuranceAuthorization: "AUTH-12345",
-    costEstimate: 1200.00,
-    patientResponsibility: 240.00,
-    actualDeliveryDate: "2024-01-22"
-  },
-  {
-    id: "dme-002",
-    orderType: "Oral Appliance",
-    status: "pending_approval",
-    orderDate: "2024-01-20",
-    supplierName: "SomnoMed",
-    trackingNumber: null,
-    insuranceAuthorization: "AUTH-12346",
-    costEstimate: 2800.00,
-    patientResponsibility: 560.00,
-    actualDeliveryDate: null
-  }
-];
-
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case "delivered": return "bg-success text-success-foreground";
-    case "pending_approval": return "bg-warning text-warning-foreground";
-    case "in_transit": return "bg-primary text-primary-foreground";
-    case "denied": return "bg-destructive text-destructive-foreground";
-    default: return "bg-muted text-muted-foreground";
-  }
-};
-
-const getStatusIcon = (status: string) => {
-  switch (status) {
-    case "delivered": return <CheckCircle className="h-4 w-4" />;
-    case "pending_approval": return <Clock className="h-4 w-4" />;
-    case "in_transit": return <Package className="h-4 w-4" />;
-    case "denied": return <XCircle className="h-4 w-4" />;
-    default: return <AlertCircle className="h-4 w-4" />;
-  }
-};
-
 export const DMEBilling = ({ patientId }: DMEBillingProps) => {
-  const [orders, setOrders] = useState(mockDMEOrders);
+  const [orders, setOrders] = useState<any[]>([]);
   const [isAddingOrder, setIsAddingOrder] = useState(false);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  const handleNewOrder = (formData: any) => {
-    const newOrder = {
-      id: `dme-${Date.now()}`,
-      ...formData,
-      orderDate: new Date().toISOString().split('T')[0],
-      status: "pending_approval"
-    };
-    setOrders([...orders, newOrder]);
-    setIsAddingOrder(false);
-    toast({
-      title: "DME Order Created",
-      description: "New DME order has been submitted for approval."
-    });
+  useEffect(() => {
+    fetchDMEOrders();
+  }, [patientId]);
+
+  const fetchDMEOrders = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('dme_orders')
+        .select('*')
+        .eq('patient_id', patientId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setOrders(data || []);
+    } catch (error) {
+      console.error('Error fetching DME orders:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load DME orders.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "delivered": return "bg-success text-success-foreground";
+      case "pending_approval": return "bg-warning text-warning-foreground";
+      case "in_transit": return "bg-primary text-primary-foreground";
+      case "denied": return "bg-destructive text-destructive-foreground";
+      default: return "bg-muted text-muted-foreground";
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "delivered": return <CheckCircle className="h-4 w-4" />;
+      case "pending_approval": return <Clock className="h-4 w-4" />;
+      case "in_transit": return <Package className="h-4 w-4" />;
+      case "denied": return <XCircle className="h-4 w-4" />;
+      default: return <AlertCircle className="h-4 w-4" />;
+    }
+  };
+
+  const handleNewOrder = async (formData: any) => {
+    try {
+      const { data, error } = await supabase
+        .from('dme_orders')
+        .insert([{
+          patient_id: patientId,
+          order_date: new Date().toISOString().split('T')[0],
+          status: 'pending_approval',
+          ...formData
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setOrders([data, ...orders]);
+      setIsAddingOrder(false);
+      toast({
+        title: "DME Order Created",
+        description: "New DME order has been submitted for approval."
+      });
+    } catch (error) {
+      console.error('Error creating DME order:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create DME order.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -113,14 +138,14 @@ export const DMEBilling = ({ patientId }: DMEBillingProps) => {
             <CardHeader className="pb-3">
               <div className="flex justify-between items-start">
                 <div>
-                  <CardTitle className="text-base">{order.orderType}</CardTitle>
+                  <CardTitle className="text-base">{order.order_type}</CardTitle>
                   <CardDescription>
-                    Order #{order.id} • {order.supplierName}
+                    Order #{order.id} • {order.supplier_name}
                   </CardDescription>
                 </div>
                 <Badge className={getStatusColor(order.status)}>
                   {getStatusIcon(order.status)}
-                  <span className="ml-1 capitalize">{order.status.replace('_', ' ')}</span>
+                  <span className="ml-1 capitalize">{order.status?.replace('_', ' ')}</span>
                 </Badge>
               </div>
             </CardHeader>
@@ -128,33 +153,33 @@ export const DMEBilling = ({ patientId }: DMEBillingProps) => {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                 <div>
                   <Label className="text-xs text-muted-foreground">Order Date</Label>
-                  <p>{order.orderDate}</p>
+                  <p>{order.order_date}</p>
                 </div>
                 <div>
                   <Label className="text-xs text-muted-foreground">Authorization</Label>
-                  <p>{order.insuranceAuthorization}</p>
+                  <p>{order.insurance_authorization}</p>
                 </div>
                 <div>
                   <Label className="text-xs text-muted-foreground">Total Cost</Label>
-                  <p>${order.costEstimate.toFixed(2)}</p>
+                  <p>${order.cost_estimate ? order.cost_estimate.toFixed(2) : '0.00'}</p>
                 </div>
                 <div>
                   <Label className="text-xs text-muted-foreground">Patient Responsibility</Label>
-                  <p>${order.patientResponsibility.toFixed(2)}</p>
+                  <p>${order.patient_responsibility ? order.patient_responsibility.toFixed(2) : '0.00'}</p>
                 </div>
               </div>
               
-              {order.trackingNumber && (
+              {order.tracking_number && (
                 <div className="border-t pt-3">
                   <Label className="text-xs text-muted-foreground">Tracking Number</Label>
-                  <p className="font-mono text-sm">{order.trackingNumber}</p>
+                  <p className="font-mono text-sm">{order.tracking_number}</p>
                 </div>
               )}
               
-              {order.actualDeliveryDate && (
+              {order.actual_delivery_date && (
                 <div className="border-t pt-3">
                   <Label className="text-xs text-muted-foreground">Delivered</Label>
-                  <p>{order.actualDeliveryDate}</p>
+                  <p>{order.actual_delivery_date}</p>
                 </div>
               )}
             </CardContent>
@@ -179,11 +204,11 @@ export const DMEBilling = ({ patientId }: DMEBillingProps) => {
 
 const DMEOrderForm = ({ onSubmit, onCancel }: { onSubmit: (data: any) => void; onCancel: () => void }) => {
   const [formData, setFormData] = useState({
-    orderType: "",
-    supplierName: "",
-    insuranceAuthorization: "",
-    costEstimate: "",
-    patientResponsibility: "",
+    order_type: "",
+    supplier_name: "",
+    insurance_authorization: "",
+    cost_estimate: "",
+    patient_responsibility: "",
     notes: ""
   });
 
@@ -191,8 +216,8 @@ const DMEOrderForm = ({ onSubmit, onCancel }: { onSubmit: (data: any) => void; o
     e.preventDefault();
     onSubmit({
       ...formData,
-      costEstimate: parseFloat(formData.costEstimate) || 0,
-      patientResponsibility: parseFloat(formData.patientResponsibility) || 0
+      cost_estimate: parseFloat(formData.cost_estimate) || 0,
+      patient_responsibility: parseFloat(formData.patient_responsibility) || 0
     });
   };
 
@@ -208,8 +233,8 @@ const DMEOrderForm = ({ onSubmit, onCancel }: { onSubmit: (data: any) => void; o
         <TabsContent value="details" className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="orderType">Equipment Type</Label>
-              <Select onValueChange={(value) => setFormData({...formData, orderType: value})}>
+              <Label htmlFor="order_type">Equipment Type</Label>
+              <Select onValueChange={(value) => setFormData({...formData, order_type: value})}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select equipment type" />
                 </SelectTrigger>
@@ -223,11 +248,11 @@ const DMEOrderForm = ({ onSubmit, onCancel }: { onSubmit: (data: any) => void; o
               </Select>
             </div>
             <div>
-              <Label htmlFor="supplierName">Supplier</Label>
+              <Label htmlFor="supplier_name">Supplier</Label>
               <Input
-                id="supplierName"
-                value={formData.supplierName}
-                onChange={(e) => setFormData({...formData, supplierName: e.target.value})}
+                id="supplier_name"
+                value={formData.supplier_name}
+                onChange={(e) => setFormData({...formData, supplier_name: e.target.value})}
                 placeholder="Supplier name"
                 required
               />
@@ -238,36 +263,36 @@ const DMEOrderForm = ({ onSubmit, onCancel }: { onSubmit: (data: any) => void; o
         <TabsContent value="billing" className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="insuranceAuth">Insurance Authorization</Label>
+              <Label htmlFor="insurance_authorization">Insurance Authorization</Label>
               <Input
-                id="insuranceAuth"
-                value={formData.insuranceAuthorization}
-                onChange={(e) => setFormData({...formData, insuranceAuthorization: e.target.value})}
+                id="insurance_authorization"
+                value={formData.insurance_authorization}
+                onChange={(e) => setFormData({...formData, insurance_authorization: e.target.value})}
                 placeholder="AUTH-12345"
                 required
               />
             </div>
             <div>
-              <Label htmlFor="costEstimate">Total Cost Estimate</Label>
+              <Label htmlFor="cost_estimate">Total Cost Estimate</Label>
               <Input
-                id="costEstimate"
+                id="cost_estimate"
                 type="number"
                 step="0.01"
-                value={formData.costEstimate}
-                onChange={(e) => setFormData({...formData, costEstimate: e.target.value})}
+                value={formData.cost_estimate}
+                onChange={(e) => setFormData({...formData, cost_estimate: e.target.value})}
                 placeholder="0.00"
                 required
               />
             </div>
           </div>
           <div>
-            <Label htmlFor="patientResp">Patient Responsibility</Label>
+            <Label htmlFor="patient_responsibility">Patient Responsibility</Label>
             <Input
-              id="patientResp"
+              id="patient_responsibility"
               type="number"
               step="0.01"
-              value={formData.patientResponsibility}
-              onChange={(e) => setFormData({...formData, patientResponsibility: e.target.value})}
+              value={formData.patient_responsibility}
+              onChange={(e) => setFormData({...formData, patient_responsibility: e.target.value})}
               placeholder="0.00"
               required
             />
