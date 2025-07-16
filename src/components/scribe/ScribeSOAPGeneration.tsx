@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Brain, FileText, Copy, Download, User, Stethoscope, Code, Clock, AlertTriangle, Check, Loader, Play, Pause, Volume2 } from "lucide-react";
+import { Brain, FileText, Copy, Download, User, Stethoscope, Code, Clock, AlertTriangle, Check, Loader, Play, Pause, Volume2, SkipForward, SkipBack } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useSOAPNotes } from "@/hooks/useSOAPNotes";
 import { usePatientSelection } from "@/hooks/usePatientSelection";
@@ -41,6 +41,8 @@ export const ScribeSOAPGeneration = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [playingRecordingId, setPlayingRecordingId] = useState<string | null>(null);
   const [audioElements, setAudioElements] = useState<{[key: string]: HTMLAudioElement}>({});
+  const [currentTime, setCurrentTime] = useState<{[key: string]: number}>({});
+  const [duration, setDuration] = useState<{[key: string]: number}>({});
   const { selectedPatient, isSearchOpen, selectPatient, openSearch, closeSearch } = usePatientSelection();
 
   useEffect(() => {
@@ -179,6 +181,14 @@ export const ScribeSOAPGeneration = () => {
           setPlayingRecordingId(null);
         };
 
+        audio.onloadedmetadata = () => {
+          setDuration(prev => ({ ...prev, [recording.id]: audio.duration }));
+        };
+
+        audio.ontimeupdate = () => {
+          setCurrentTime(prev => ({ ...prev, [recording.id]: audio.currentTime }));
+        };
+
         // Store the audio element
         setAudioElements(prev => ({
           ...prev,
@@ -206,6 +216,34 @@ export const ScribeSOAPGeneration = () => {
         variant: "destructive"
       });
     }
+  };
+
+  const handleSeek = (recording: VoiceRecording, time: number) => {
+    const audio = audioElements[recording.id];
+    if (audio) {
+      audio.currentTime = time;
+    }
+  };
+
+  const handleFastForward = (recording: VoiceRecording) => {
+    const audio = audioElements[recording.id];
+    if (audio) {
+      audio.currentTime = Math.min(audio.currentTime + 15, audio.duration || 0);
+    }
+  };
+
+  const handleRewind = (recording: VoiceRecording) => {
+    const audio = audioElements[recording.id];
+    if (audio) {
+      audio.currentTime = Math.max(audio.currentTime - 15, 0);
+    }
+  };
+
+  const formatTime = (seconds: number) => {
+    if (!seconds || isNaN(seconds)) return "0:00";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   console.log('ScribeSOAPGeneration render - enhancedSOAP:', enhancedSOAP);
@@ -401,7 +439,8 @@ ${enhancedSOAP.confidence ? `\nAI Confidence: ${Math.round(enhancedSOAP.confiden
             ) : (
               <div className="space-y-3">
                 {recordings.map((recording) => (
-                  <div key={recording.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent/50 transition-colors">
+                  <div key={recording.id} className="p-3 border rounded-lg hover:bg-accent/50 transition-colors space-y-3">
+                    {/* Recording Info Row */}
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-primary/10 rounded-lg">
                         <FileText className="w-4 h-4 text-primary" />
@@ -432,22 +471,75 @@ ${enhancedSOAP.confidence ? `\nAI Confidence: ${Math.round(enhancedSOAP.confiden
                         </div>
                       </div>
                     </div>
-                    <div className="flex gap-2">
-                      {/* Audio playback button */}
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handlePlayPause(recording)}
-                        disabled={!recording.audio_url && !recording.storage_path}
-                        className="p-2"
-                        title={playingRecordingId === recording.id ? "Pause audio" : "Play audio"}
-                      >
-                        {playingRecordingId === recording.id ? (
-                          <Pause className="w-4 h-4" />
-                        ) : (
-                          <Play className="w-4 h-4" />
+                    
+                    {/* Enhanced Audio Player */}
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex flex-col gap-2 flex-1">
+                        {/* Audio Controls Row */}
+                        <div className="flex items-center gap-1">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleRewind(recording)}
+                            disabled={!audioElements[recording.id]}
+                            className="p-2"
+                            title="Rewind 15 seconds"
+                          >
+                            <SkipBack className="w-3 h-3" />
+                          </Button>
+                          
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handlePlayPause(recording)}
+                            disabled={!recording.audio_url && !recording.storage_path}
+                            className="p-2"
+                            title={playingRecordingId === recording.id ? "Pause audio" : "Play audio"}
+                          >
+                            {playingRecordingId === recording.id ? (
+                              <Pause className="w-4 h-4" />
+                            ) : (
+                              <Play className="w-4 h-4" />
+                            )}
+                          </Button>
+                          
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleFastForward(recording)}
+                            disabled={!audioElements[recording.id]}
+                            className="p-2"
+                            title="Fast forward 15 seconds"
+                          >
+                            <SkipForward className="w-3 h-3" />
+                          </Button>
+                        </div>
+                        
+                        {/* Progress Bar and Time Display */}
+                        {audioElements[recording.id] && (
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <span className="min-w-[35px]">
+                              {formatTime(currentTime[recording.id] || 0)}
+                            </span>
+                            <div className="flex-1 relative">
+                              <input
+                                type="range"
+                                min="0"
+                                max={duration[recording.id] || 0}
+                                value={currentTime[recording.id] || 0}
+                                onChange={(e) => handleSeek(recording, parseFloat(e.target.value))}
+                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                                style={{
+                                  background: `linear-gradient(to right, hsl(var(--primary)) 0%, hsl(var(--primary)) ${((currentTime[recording.id] || 0) / (duration[recording.id] || 1)) * 100}%, #e5e7eb ${((currentTime[recording.id] || 0) / (duration[recording.id] || 1)) * 100}%, #e5e7eb 100%)`
+                                }}
+                              />
+                            </div>
+                            <span className="min-w-[35px]">
+                              {formatTime(duration[recording.id] || 0)}
+                            </span>
+                          </div>
                         )}
-                      </Button>
+                      </div>
                       
                       {/* Generate SOAP button */}
                       <Button
