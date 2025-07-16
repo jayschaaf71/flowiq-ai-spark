@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatDistanceToNow } from "date-fns";
+import { ViewTranscriptionDialog } from "./ViewTranscriptionDialog";
 
 interface VoiceRecording {
   id: string;
@@ -20,6 +21,8 @@ interface VoiceRecording {
 export const ScribeRecentTranscriptions = () => {
   const [recordings, setRecordings] = useState<VoiceRecording[]>([]);
   const [loading, setLoading] = useState(true);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [selectedRecording, setSelectedRecording] = useState<VoiceRecording | null>(null);
 
   useEffect(() => {
     fetchRecentRecordings();
@@ -55,6 +58,11 @@ export const ScribeRecentTranscriptions = () => {
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
+  };
+
+  const handleRecordingClick = (recording: VoiceRecording) => {
+    setSelectedRecording(recording);
+    setViewDialogOpen(true);
   };
 
   if (loading) {
@@ -102,7 +110,11 @@ export const ScribeRecentTranscriptions = () => {
             </div>
           ) : (
             recordings.map((recording) => (
-              <div key={recording.id} className="flex items-center justify-between p-3 border rounded-lg">
+              <div 
+                key={recording.id} 
+                className="flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-accent/50 transition-colors"
+                onClick={() => handleRecordingClick(recording)}
+              >
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-primary/10 rounded-lg">
                     <FileText className="w-4 h-4 text-primary" />
@@ -128,6 +140,20 @@ export const ScribeRecentTranscriptions = () => {
           )}
         </div>
       </CardContent>
+      
+      <ViewTranscriptionDialog
+        open={viewDialogOpen}
+        onOpenChange={setViewDialogOpen}
+        transcription={selectedRecording ? {
+          id: selectedRecording.id,
+          patientName: "Voice Recording",
+          timestamp: new Date(selectedRecording.created_at).toLocaleTimeString(),
+          source: selectedRecording.source,
+          content: selectedRecording.transcription || "No transcription available",
+          status: selectedRecording.status,
+          ai_summary: selectedRecording.ai_summary
+        } : null}
+      />
     </Card>
   );
 };

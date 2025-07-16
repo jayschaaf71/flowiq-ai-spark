@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -9,14 +9,15 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Copy, FileText, Clock, User } from 'lucide-react';
+import { Copy, FileText, Clock, User, Brain } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useEnhancedMedicalAI } from '@/hooks/useEnhancedMedicalAI';
 
 interface ViewTranscriptionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   transcription: {
-    id: number;
+    id: number | string;
     patientName: string;
     timestamp: string;
     source: string;
@@ -28,6 +29,7 @@ interface ViewTranscriptionDialogProps {
       plan: string;
     };
     status: string;
+    ai_summary?: string | null;
   } | null;
 }
 
@@ -37,6 +39,8 @@ export const ViewTranscriptionDialog: React.FC<ViewTranscriptionDialogProps> = (
   transcription,
 }) => {
   const { toast } = useToast();
+  const { generateEnhancedSOAP, isProcessing } = useEnhancedMedicalAI();
+  const [generatedSOAP, setGeneratedSOAP] = useState<any>(null);
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -44,6 +48,27 @@ export const ViewTranscriptionDialog: React.FC<ViewTranscriptionDialogProps> = (
       title: "Copied to clipboard",
       description: "Text has been copied to your clipboard",
     });
+  };
+
+  const handleGenerateSOAP = async () => {
+    if (!transcription?.content) return;
+    
+    try {
+      const soapResult = await generateEnhancedSOAP(transcription.content);
+      if (soapResult) {
+        setGeneratedSOAP(soapResult);
+        toast({
+          title: "SOAP Note Generated",
+          description: "Enhanced SOAP note has been generated from the transcription.",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Generation Failed",
+        description: "Failed to generate SOAP note from transcription.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (!transcription) return null;
@@ -54,7 +79,7 @@ export const ViewTranscriptionDialog: React.FC<ViewTranscriptionDialogProps> = (
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileText className="w-5 h-5" />
-            Patient Visit #{transcription.id + 24}
+            {transcription.patientName}
           </DialogTitle>
           <DialogDescription>
             Transcription details and generated SOAP note
@@ -88,14 +113,26 @@ export const ViewTranscriptionDialog: React.FC<ViewTranscriptionDialogProps> = (
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-lg">Transcription</CardTitle>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleCopy(transcription.content)}
-              >
-                <Copy className="w-4 h-4 mr-2" />
-                Copy
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleCopy(transcription.content)}
+                >
+                  <Copy className="w-4 h-4 mr-2" />
+                  Copy
+                </Button>
+                {!transcription.soapNote && !generatedSOAP && (
+                  <Button
+                    size="sm"
+                    onClick={handleGenerateSOAP}
+                    disabled={isProcessing}
+                  >
+                    <Brain className="w-4 h-4 mr-2" />
+                    {isProcessing ? "Generating..." : "Generate SOAP"}
+                  </Button>
+                )}
+              </div>
             </CardHeader>
             <CardContent>
               <div className="p-4 bg-gray-50 rounded-lg">
@@ -106,57 +143,83 @@ export const ViewTranscriptionDialog: React.FC<ViewTranscriptionDialogProps> = (
             </CardContent>
           </Card>
 
+          {/* AI Summary */}
+          {transcription.ai_summary && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">AI Summary</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="p-4 bg-blue-50 rounded-lg">
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                    {transcription.ai_summary}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* SOAP Note */}
-          {transcription.soapNote && (
+          {(transcription.soapNote || generatedSOAP) && (
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="text-lg">Generated SOAP Note</CardTitle>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => handleCopy(`
+                  onClick={() => {
+                    const soap = transcription.soapNote || generatedSOAP;
+                    handleCopy(`
 SUBJECTIVE:
-${transcription.soapNote?.subjective}
+${soap?.subjective}
 
 OBJECTIVE:
-${transcription.soapNote?.objective}
+${soap?.objective}
 
 ASSESSMENT:
-${transcription.soapNote?.assessment}
+${soap?.assessment}
 
 PLAN:
-${transcription.soapNote?.plan}
-                  `.trim())}
+${soap?.plan}
+                    `.trim());
+                  }}
                 >
                   <Copy className="w-4 h-4 mr-2" />
                   Copy SOAP
                 </Button>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div>
-                  <h4 className="font-semibold text-primary mb-2">SUBJECTIVE</h4>
-                  <p className="text-sm bg-blue-50 p-3 rounded-lg">
-                    {transcription.soapNote.subjective}
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-primary mb-2">OBJECTIVE</h4>
-                  <p className="text-sm bg-green-50 p-3 rounded-lg">
-                    {transcription.soapNote.objective}
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-primary mb-2">ASSESSMENT</h4>
-                  <p className="text-sm bg-yellow-50 p-3 rounded-lg">
-                    {transcription.soapNote.assessment}
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-primary mb-2">PLAN</h4>
-                  <p className="text-sm bg-purple-50 p-3 rounded-lg">
-                    {transcription.soapNote.plan}
-                  </p>
-                </div>
+                {(() => {
+                  const soap = transcription.soapNote || generatedSOAP;
+                  return (
+                    <>
+                      <div>
+                        <h4 className="font-semibold text-primary mb-2">SUBJECTIVE</h4>
+                        <p className="text-sm bg-blue-50 p-3 rounded-lg">
+                          {soap?.subjective}
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-primary mb-2">OBJECTIVE</h4>
+                        <p className="text-sm bg-green-50 p-3 rounded-lg">
+                          {soap?.objective}
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-primary mb-2">ASSESSMENT</h4>
+                        <p className="text-sm bg-yellow-50 p-3 rounded-lg">
+                          {soap?.assessment}
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-primary mb-2">PLAN</h4>
+                        <p className="text-sm bg-purple-50 p-3 rounded-lg">
+                          {soap?.plan}
+                        </p>
+                      </div>
+                    </>
+                  );
+                })()}
               </CardContent>
             </Card>
           )}
