@@ -8,9 +8,45 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { FileText, Plus, Search, Calendar, BarChart3 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 export const SleepStudyManager = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
+
+  const handleNewStudy = () => {
+    console.log("New Sleep Study clicked");
+    toast.success("Opening new sleep study form...");
+    // This could navigate to a form or open a modal
+  };
+
+  const handleViewReport = (studyId: string, patientName: string) => {
+    console.log(`View Report clicked for study ${studyId}`);
+    toast.success(`Opening report for ${patientName}`);
+    // This could navigate to a detailed report view
+  };
+
+  const handleViewDetails = (studyId: string, patientName: string) => {
+    console.log(`View Details clicked for study ${studyId}`);
+    toast.success(`Opening details for ${patientName}`);
+    // This could navigate to a detailed view
+  };
+
+  const handlePatientClick = (patientName: string) => {
+    console.log(`Patient ${patientName} clicked`);
+    navigate('/dental-sleep/patient-management');
+  };
+
+  const handleScheduleStudy = () => {
+    console.log("Schedule Study clicked");
+    toast.success("Sleep study scheduled successfully!");
+  };
+
+  const handleAnalyticsClick = (metric: string) => {
+    console.log(`Analytics ${metric} clicked`);
+    navigate('/dental-sleep/insights');
+  };
 
   // Mock data for demonstration
   const sleepStudies = [
@@ -72,7 +108,10 @@ export const SleepStudyManager = () => {
           <h2 className="text-2xl font-bold text-foreground">Sleep Study Manager</h2>
           <p className="text-muted-foreground">Track and manage sleep study results</p>
         </div>
-        <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+        <Button 
+          className="bg-primary text-primary-foreground hover:bg-primary/90"
+          onClick={handleNewStudy}
+        >
           <Plus className="w-4 h-4 mr-2" />
           New Sleep Study
         </Button>
@@ -112,7 +151,12 @@ export const SleepStudyManager = () => {
                         <div className="flex items-center justify-between">
                           <div className="space-y-2">
                             <div className="flex items-center space-x-3">
-                              <h3 className="font-semibold text-foreground">{study.patientName}</h3>
+                              <h3 
+                                className="font-semibold text-foreground cursor-pointer hover:text-primary transition-colors" 
+                                onClick={() => handlePatientClick(study.patientName)}
+                              >
+                                {study.patientName}
+                              </h3>
                               <Badge className={getSeverityColor(study.severity)}>
                                 {study.severity}
                               </Badge>
@@ -140,11 +184,19 @@ export const SleepStudyManager = () => {
                             </div>
                           </div>
                           <div className="flex space-x-2">
-                            <Button variant="outline" size="sm">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleViewReport(study.id, study.patientName)}
+                            >
                               <FileText className="w-4 h-4 mr-1" />
                               View Report
                             </Button>
-                            <Button variant="outline" size="sm">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleViewDetails(study.id, study.patientName)}
+                            >
                               <BarChart3 className="w-4 h-4 mr-1" />
                               Details
                             </Button>
@@ -169,7 +221,10 @@ export const SleepStudyManager = () => {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card>
+                <Card 
+                  className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
+                  onClick={() => handleAnalyticsClick('total-studies')}
+                >
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div>
@@ -180,7 +235,10 @@ export const SleepStudyManager = () => {
                     </div>
                   </CardContent>
                 </Card>
-                <Card>
+                <Card 
+                  className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
+                  onClick={() => handleAnalyticsClick('avg-ahi')}
+                >
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div>
@@ -191,7 +249,10 @@ export const SleepStudyManager = () => {
                     </div>
                   </CardContent>
                 </Card>
-                <Card>
+                <Card 
+                  className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
+                  onClick={() => handleAnalyticsClick('severe-cases')}
+                >
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div>
@@ -257,7 +318,10 @@ export const SleepStudyManager = () => {
                   <Label htmlFor="notes">Notes</Label>
                   <Textarea placeholder="Special instructions or notes..." />
                 </div>
-                <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+                <Button 
+                  className="bg-primary text-primary-foreground hover:bg-primary/90"
+                  onClick={handleScheduleStudy}
+                >
                   <Calendar className="w-4 h-4 mr-2" />
                   Schedule Study
                 </Button>
