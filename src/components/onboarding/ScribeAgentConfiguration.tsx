@@ -57,10 +57,16 @@ export const ScribeAgentConfiguration: React.FC<ScribeAgentConfigurationProps> =
 
   if (showPlaudSetup) {
     return (
-      <PlaudZapierSetup
-        onSetupComplete={handlePlaudSetupComplete}
-        onSkip={() => setShowPlaudSetup(false)}
-      />
+      <div className="p-6 text-center">
+        <h3 className="text-lg font-semibold mb-2">Setup Not Available</h3>
+        <p className="text-gray-600">Plaud integration setup is currently unavailable.</p>
+        <Button 
+          onClick={() => setShowPlaudSetup(false)}
+          className="mt-4"
+        >
+          Go Back
+        </Button>
+      </div>
     );
   }
 

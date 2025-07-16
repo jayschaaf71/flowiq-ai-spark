@@ -94,9 +94,8 @@ export const IntegrationsDashboard = () => {
       <div className="bg-card border border-border rounded-xl shadow-sm p-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <div className="flex justify-center">
-            <TabsList className="grid w-full max-w-3xl grid-cols-5">
+            <TabsList className="grid w-full max-w-3xl grid-cols-4">
               <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="zapier">Zapier</TabsTrigger>
               <TabsTrigger value="webhooks">Webhooks</TabsTrigger>
               <TabsTrigger value="patient-portal">Patient Portal</TabsTrigger>
               <TabsTrigger value="widgets">Widgets</TabsTrigger>
@@ -105,7 +104,7 @@ export const IntegrationsDashboard = () => {
 
         <TabsContent value="overview" className="space-y-6">
           {/* Key Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
@@ -114,18 +113,6 @@ export const IntegrationsDashboard = () => {
                     <p className="text-2xl font-bold">{integrationStats.activeWebhooks}</p>
                   </div>
                   <Webhook className="h-8 w-8 text-purple-600" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Zapier Connections</p>
-                    <p className="text-2xl font-bold">{integrationStats.zapierConnections}</p>
-                  </div>
-                  <Zap className="h-8 w-8 text-orange-600" />
                 </div>
               </CardContent>
             </Card>
@@ -156,40 +143,7 @@ export const IntegrationsDashboard = () => {
           </div>
 
           {/* Integration Options */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-orange-100 rounded-lg">
-                    <Zap className="h-6 w-6 text-orange-600" />
-                  </div>
-                  <div>
-                    <CardTitle>Zapier Integration</CardTitle>
-                    <CardDescription>No-code automation workflows</CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-600 mb-4">
-                  Connect with 6,000+ apps including Google Calendar, Slack, Mailchimp, and more.
-                </p>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Active Zaps</span>
-                    <Badge variant="secondary">{integrationStats.zapierConnections}</Badge>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Available Triggers</span>
-                    <Badge variant="outline">7</Badge>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Available Actions</span>
-                    <Badge variant="outline">3</Badge>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
                 <div className="flex items-center gap-3">
@@ -293,9 +247,6 @@ export const IntegrationsDashboard = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="zapier">
-          <ZapierIntegration />
-        </TabsContent>
 
         <TabsContent value="webhooks">
           <WebhookManager />

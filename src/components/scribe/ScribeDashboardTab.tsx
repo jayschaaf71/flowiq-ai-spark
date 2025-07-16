@@ -169,8 +169,36 @@ export const ScribeDashboardTab = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Plaud Device Status */}
-        <PlaudDeviceStatus />
+        {/* Device Status Placeholder */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Smartphone className="w-5 h-5 text-primary" />
+              Recording Devices
+            </CardTitle>
+            <CardDescription>
+              Connected recording devices and status
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-3 border rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-green-100 rounded-lg">
+                    <Mic className="w-4 h-4 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="font-medium">Built-in Recorder</p>
+                    <p className="text-sm text-gray-600">Ready for recording</p>
+                  </div>
+                </div>
+                <Badge className="bg-green-100 text-green-700">
+                  Active
+                </Badge>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Quick Actions */}
         <Card>
