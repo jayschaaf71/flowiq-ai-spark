@@ -124,9 +124,11 @@ export const FloatingAssistIQ: React.FC = () => {
   };
 
   // Enhanced close function with proper event handling
-  const handleClose = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleClose = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     setIsOpen(false);
   };
 
@@ -222,8 +224,13 @@ export const FloatingAssistIQ: React.FC = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={handleClose}
-                className="h-6 w-6 text-white hover:bg-white/20"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleClose();
+                }}
+                className="h-6 w-6 text-white hover:bg-white/20 cursor-pointer"
+                style={{ pointerEvents: 'auto' }}
               >
                 <X className="h-3 w-3" />
               </Button>
@@ -243,6 +250,7 @@ export const FloatingAssistIQ: React.FC = () => {
         top: Math.max(20, Math.min(position.y, window.innerHeight - 620))   // 620px = h-[600px] + padding
       }}
       ref={cardRef}
+      onWheel={(e) => e.stopPropagation()} // Prevent scroll bubbling
       onClick={(e) => e.stopPropagation()} // Prevent event bubbling
     >
       <CardHeader 
@@ -281,8 +289,13 @@ export const FloatingAssistIQ: React.FC = () => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={handleClose}
-              className="h-6 w-6 text-white hover:bg-white/20"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleClose();
+              }}
+              className="h-6 w-6 text-white hover:bg-white/20 cursor-pointer"
+              style={{ pointerEvents: 'auto' }}
             >
               <X className="h-3 w-3" />
             </Button>
@@ -322,6 +335,7 @@ export const FloatingAssistIQ: React.FC = () => {
             touchAction: 'pan-y',
             overscrollBehavior: 'contain'
           }}
+          onWheel={(e) => e.stopPropagation()} // Prevent scroll bubbling
         >
           <div 
             className="space-y-3"
