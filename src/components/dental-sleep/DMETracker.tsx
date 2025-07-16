@@ -8,9 +8,45 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Package, Plus, Search, Truck, AlertCircle, CheckCircle } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { toast } from "sonner";
 
 export const DMETracker = () => {
   const [searchTerm, setSearchTerm] = useState('');
+
+  const handleNewDMEOrder = () => {
+    toast.success("Opening new DME order form...");
+    // Could open a modal or navigate to a form
+  };
+
+  const handleViewDetails = (orderId: string) => {
+    toast.info(`Viewing details for order ${orderId}`);
+    // Could open a modal with detailed order information
+  };
+
+  const handleTrackPackage = (trackingNumber: string) => {
+    toast.info(`Tracking package ${trackingNumber}`);
+    // Could open tracking information or external tracking link
+  };
+
+  const handleContactSupplier = (supplier: string) => {
+    toast.info(`Contacting ${supplier}...`);
+    // Could open contact form or dial number
+  };
+
+  const handleSupplierClick = (supplierName: string) => {
+    toast.info(`Opening ${supplierName} details`);
+    // Could show supplier details or contact options
+  };
+
+  const handleInsuranceTileClick = (type: string) => {
+    toast.info(`Opening ${type} details`);
+    // Could navigate to specific insurance management section
+  };
+
+  const handleSubmitAuthorization = () => {
+    toast.success("Authorization request submitted successfully!");
+    // Could submit the form and reset fields
+  };
 
   // Mock data for demonstration
   const dmeOrders = [
@@ -55,6 +91,12 @@ export const DMETracker = () => {
     }
   ];
 
+  const filteredOrders = dmeOrders.filter(order => 
+    order.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    order.orderType.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'delivered': return 'bg-green-100 text-green-800';
@@ -82,7 +124,10 @@ export const DMETracker = () => {
           <h2 className="text-2xl font-bold text-foreground">DME Tracker</h2>
           <p className="text-muted-foreground">Manage durable medical equipment orders and deliveries</p>
         </div>
-        <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+        <Button 
+          className="bg-primary text-primary-foreground hover:bg-primary/90"
+          onClick={handleNewDMEOrder}
+        >
           <Plus className="w-4 h-4 mr-2" />
           New DME Order
         </Button>
@@ -116,7 +161,7 @@ export const DMETracker = () => {
                 </div>
 
                 <div className="space-y-4">
-                  {dmeOrders.map((order) => (
+                  {filteredOrders.map((order) => (
                     <Card key={order.id} className="border-l-4 border-l-primary">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between mb-4">
@@ -169,16 +214,28 @@ export const DMETracker = () => {
                         </div>
 
                         <div className="flex space-x-2">
-                          <Button variant="outline" size="sm">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleViewDetails(order.id)}
+                          >
                             View Details
                           </Button>
                           {order.trackingNumber && (
-                            <Button variant="outline" size="sm">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleTrackPackage(order.trackingNumber)}
+                            >
                               <Truck className="w-4 h-4 mr-1" />
                               Track Package
                             </Button>
                           )}
-                          <Button variant="outline" size="sm">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleContactSupplier(order.supplier)}
+                          >
                             Contact Supplier
                           </Button>
                         </div>
@@ -202,7 +259,10 @@ export const DMETracker = () => {
             <CardContent>
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <Card>
+                  <Card 
+                    className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
+                    onClick={() => handleSupplierClick("ResMed Healthcare")}
+                  >
                     <CardContent className="p-4">
                       <h4 className="font-semibold mb-2">ResMed Healthcare</h4>
                       <div className="space-y-1 text-sm">
@@ -214,7 +274,10 @@ export const DMETracker = () => {
                     </CardContent>
                   </Card>
                   
-                  <Card>
+                  <Card 
+                    className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
+                    onClick={() => handleSupplierClick("SomnoMed")}
+                  >
                     <CardContent className="p-4">
                       <h4 className="font-semibold mb-2">SomnoMed</h4>
                       <div className="space-y-1 text-sm">
@@ -226,7 +289,10 @@ export const DMETracker = () => {
                     </CardContent>
                   </Card>
 
-                  <Card>
+                  <Card 
+                    className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
+                    onClick={() => handleSupplierClick("Phillips Healthcare")}
+                  >
                     <CardContent className="p-4">
                       <h4 className="font-semibold mb-2">Phillips Healthcare</h4>
                       <div className="space-y-1 text-sm">
@@ -254,7 +320,10 @@ export const DMETracker = () => {
             <CardContent>
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Card>
+                  <Card 
+                    className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
+                    onClick={() => handleInsuranceTileClick("Pending Authorizations")}
+                  >
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div>
@@ -266,7 +335,10 @@ export const DMETracker = () => {
                     </CardContent>
                   </Card>
                   
-                  <Card>
+                  <Card 
+                    className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
+                    onClick={() => handleInsuranceTileClick("Approved This Month")}
+                  >
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div>
@@ -278,7 +350,10 @@ export const DMETracker = () => {
                     </CardContent>
                   </Card>
 
-                  <Card>
+                  <Card 
+                    className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
+                    onClick={() => handleInsuranceTileClick("Total Coverage")}
+                  >
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div>
@@ -326,7 +401,10 @@ export const DMETracker = () => {
                     <Label htmlFor="justification">Medical Justification</Label>
                     <Textarea placeholder="Provide medical justification for the equipment..." />
                   </div>
-                  <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+                  <Button 
+                    className="bg-primary text-primary-foreground hover:bg-primary/90"
+                    onClick={handleSubmitAuthorization}
+                  >
                     Submit Authorization Request
                   </Button>
                 </div>

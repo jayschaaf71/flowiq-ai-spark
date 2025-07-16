@@ -102,7 +102,22 @@ export default function DentalSleepApp() {
         <Route path="/schedule" element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
-              <ScheduleDashboard recentActivity={[]} upcomingTasks={[]} />
+              <ScheduleDashboard 
+                recentActivity={[
+                  { time: "2 hours ago", action: "Sleep consultation scheduled for John Smith", type: "appointment" },
+                  { time: "4 hours ago", action: "DME authorization approved for Sarah Johnson", type: "authorization" },
+                  { time: "Yesterday", action: "Follow-up call completed with Mike Wilson", type: "follow-up" },
+                  { time: "Yesterday", action: "Sleep study results reviewed for Emma Davis", type: "study" },
+                  { time: "2 days ago", action: "CPAP delivery confirmed for Robert Brown", type: "delivery" }
+                ]} 
+                upcomingTasks={[
+                  { task: "Review sleep study results for 3 patients", priority: "high", eta: "Today 2:00 PM" },
+                  { task: "Follow-up call with pending DME patients", priority: "medium", eta: "Tomorrow 10:00 AM" },
+                  { task: "Submit insurance authorizations batch", priority: "medium", eta: "Tomorrow 3:00 PM" },
+                  { task: "Schedule compliance check appointments", priority: "low", eta: "This week" },
+                  { task: "Update patient education materials", priority: "low", eta: "Next week" }
+                ]} 
+              />
             </Layout>
           </ProtectedRoute>
         } />
