@@ -1,4 +1,5 @@
 
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,11 +12,18 @@ import {
   Smartphone,
   ArrowRight,
   Plus,
-  Bell
+  Bell,
+  TestTube
 } from "lucide-react";
 import { PlaudDeviceStatus } from "./PlaudDeviceStatus";
+import { ViewTranscriptionDialog } from "./ViewTranscriptionDialog";
+import { EdgeFunctionTester } from "./EdgeFunctionTester";
 
 export const ScribeDashboardTab = () => {
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [selectedTranscription, setSelectedTranscription] = useState(null);
+  const [showTesting, setShowTesting] = useState(false);
+
   const handleNavigateToPlaud = () => {
     window.dispatchEvent(new CustomEvent('changeScribeTab', { detail: 'plaud' }));
   };
@@ -35,6 +43,57 @@ export const ScribeDashboardTab = () => {
   const handleAddReminder = () => {
     // Navigate to RemindIQ page
     window.location.href = '/agents/remind';
+  };
+
+  // Mock data for recent transcriptions
+  const mockTranscriptions = [
+    {
+      id: 1,
+      patientName: "Patient Visit #25",
+      timestamp: new Date(Date.now() - 3600000).toLocaleTimeString(),
+      source: "From Plaud Device",
+      content: "Patient complains of persistent headache lasting 3 days. Pain is throbbing, located in temporal region. No visual disturbances. Taking ibuprofen with minimal relief. No fever. Sleep pattern normal. Stress levels elevated due to work.",
+      soapNote: {
+        subjective: "Patient reports persistent headache for 3 days, throbbing pain in temporal region, no visual disturbances, minimal relief with ibuprofen, no fever, elevated stress due to work.",
+        objective: "Patient alert and oriented. Vital signs stable. No obvious distress. Cranial nerves II-XII grossly intact. No neck stiffness.",
+        assessment: "Tension headache likely related to stress. Rule out migraine.",
+        plan: "Continue ibuprofen as needed. Stress management techniques. Follow up in 1 week if symptoms persist. Return if severe or associated with vision changes."
+      },
+      status: "SOAP Generated"
+    },
+    {
+      id: 2,
+      patientName: "Patient Visit #26", 
+      timestamp: new Date(Date.now() - 7200000).toLocaleTimeString(),
+      source: "Live Recording",
+      content: "Follow-up visit for hypertension. Patient reports good compliance with medications. Home blood pressure readings averaging 135/85. No side effects from lisinopril. Walking 30 minutes daily. Diet improved with less sodium.",
+      soapNote: {
+        subjective: "Follow-up for hypertension. Good medication compliance. Home BP readings average 135/85. No medication side effects. Exercising daily, improved diet.",
+        objective: "BP today 138/82. Heart rate 72, regular. Weight stable. No peripheral edema.",
+        assessment: "Hypertension, improving but not yet at goal.",
+        plan: "Continue current lisinopril dose. Increase walking to 45 minutes daily. Follow up in 6 weeks. Continue home BP monitoring."
+      },
+      status: "SOAP Generated"
+    },
+    {
+      id: 3,
+      patientName: "Patient Visit #27",
+      timestamp: new Date(Date.now() - 10800000).toLocaleTimeString(), 
+      source: "Live Recording",
+      content: "Annual physical exam. Patient feeling well overall. No new concerns. Review of systems negative except for occasional knee stiffness in the morning.",
+      soapNote: {
+        subjective: "Annual physical, feeling well, no new concerns, occasional morning knee stiffness.",
+        objective: "Well-appearing. Vital signs within normal limits. Physical exam unremarkable except mild crepitus in bilateral knees.",
+        assessment: "Healthy adult, mild osteoarthritis of knees.",
+        plan: "Continue current health maintenance. Consider glucosamine supplement for knee symptoms. Return for routine care in 1 year."
+      },
+      status: "SOAP Generated"
+    }
+  ];
+
+  const handleViewTranscription = (transcription) => {
+    setSelectedTranscription(transcription);
+    setViewDialogOpen(true);
   };
 
   return (
@@ -158,6 +217,17 @@ export const ScribeDashboardTab = () => {
               <ArrowRight className="w-4 h-4 ml-auto" />
             </Button>
 
+            <Button 
+              onClick={() => setShowTesting(!showTesting)}
+              variant="outline"
+              className="w-full justify-start"
+              size="lg"
+            >
+              <TestTube className="w-4 h-4 mr-2" />
+              {showTesting ? 'Hide' : 'Show'} Function Testing
+              <ArrowRight className="w-4 h-4 ml-auto" />
+            </Button>
+
             <div className="pt-4 space-y-2 border-t">
               <h4 className="font-medium text-sm">Pilot Program Features</h4>
               <div className="flex flex-wrap gap-2">
@@ -184,25 +254,28 @@ export const ScribeDashboardTab = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="flex items-center justify-between p-3 border rounded-lg">
+            {mockTranscriptions.map((transcription) => (
+              <div key={transcription.id} className="flex items-center justify-between p-3 border rounded-lg">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-blue-100 rounded-lg">
                     <FileText className="w-4 h-4 text-blue-600" />
                   </div>
                   <div>
-                    <p className="font-medium">Patient Visit #{i + 24}</p>
+                    <p className="font-medium">{transcription.patientName}</p>
                     <p className="text-sm text-gray-600">
-                      {i === 1 ? 'From Plaud Device' : 'Live Recording'} • 
-                      {new Date(Date.now() - i * 3600000).toLocaleTimeString()}
+                      {transcription.source} • {transcription.timestamp}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge variant="outline" className="bg-green-50 text-green-700">
-                    SOAP Generated
+                    {transcription.status}
                   </Badge>
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleViewTranscription(transcription)}
+                  >
                     View
                   </Button>
                 </div>
@@ -211,6 +284,20 @@ export const ScribeDashboardTab = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Function Testing Panel */}
+      {showTesting && (
+        <div className="mt-6">
+          <EdgeFunctionTester />
+        </div>
+      )}
+
+      {/* View Dialog */}
+      <ViewTranscriptionDialog
+        open={viewDialogOpen}
+        onOpenChange={setViewDialogOpen}
+        transcription={selectedTranscription}
+      />
     </div>
   );
 };
