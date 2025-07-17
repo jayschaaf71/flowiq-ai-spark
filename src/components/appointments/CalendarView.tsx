@@ -219,46 +219,59 @@ export const CalendarView = ({ onCreateAppointment, onViewAppointment }: Calenda
         activeFiltersCount={getActiveFiltersCount()}
       />
 
-      {/* Calendar Header */}
+      {/* Calendar Header - Only show navigation controls on calendar tab */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={() => navigate('prev')}>
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => navigate('next')}>
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
+              {activeTab === 'calendar' && (
+                <>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" onClick={() => navigate('prev')}>
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => navigate('next')}>
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <CalendarIcon className="h-5 w-5" />
+                      {getDateRange()}
+                    </CardTitle>
+                  </div>
+                </>
+              )}
               
-              <div>
+              {activeTab === 'integrations' && (
                 <CardTitle className="flex items-center gap-2">
                   <CalendarIcon className="h-5 w-5" />
-                  {getDateRange()}
+                  Calendar Integrations
                 </CardTitle>
-              </div>
+              )}
             </div>
             
-            <div className="flex items-center gap-2">
-              {/* View Toggle */}
-              <Tabs value={view} onValueChange={(value) => setView(value as any)} className="mr-4">
-                <TabsList>
-                  <TabsTrigger value="day">Day</TabsTrigger>
-                  <TabsTrigger value="week">Week</TabsTrigger>
-                  <TabsTrigger value="month">Month</TabsTrigger>
-                </TabsList>
-              </Tabs>
-              
-              <Button variant="outline" size="sm" onClick={goToToday}>
-                Today
-              </Button>
-              <Button onClick={() => handleCreateAppointment(new Date())}>
-                <Plus className="w-4 h-4 mr-2" />
-                New Appointment
-              </Button>
-            </div>
+            {activeTab === 'calendar' && (
+              <div className="flex items-center gap-2">
+                {/* View Toggle */}
+                <Tabs value={view} onValueChange={(value) => setView(value as any)} className="mr-4">
+                  <TabsList>
+                    <TabsTrigger value="day">Day</TabsTrigger>
+                    <TabsTrigger value="week">Week</TabsTrigger>
+                    <TabsTrigger value="month">Month</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+                
+                <Button variant="outline" size="sm" onClick={goToToday}>
+                  Today
+                </Button>
+                <Button onClick={() => handleCreateAppointment(new Date())}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  New Appointment
+                </Button>
+              </div>
+            )}
           </div>
         </CardHeader>
       </Card>
@@ -433,7 +446,7 @@ export const CalendarView = ({ onCreateAppointment, onViewAppointment }: Calenda
                           key={i}
                           className={`min-h-20 border-r border-b p-1 cursor-pointer hover:bg-muted/30
                             ${!isCurrentMonth ? 'bg-muted/20 text-muted-foreground' : ''}
-                            ${isToday ? 'bg-blue-50' : ''}`}
+                            ${isToday ? 'bg-blue-50 border-blue-200' : ''}`}
                           onClick={() => handleCreateAppointment(currentDate)}
                         >
                           <div className={`text-sm font-medium mb-1 
