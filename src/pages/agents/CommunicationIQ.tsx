@@ -20,7 +20,8 @@ import {
   Activity,
   ClipboardList,
   FileText,
-  Bot
+  Bot,
+  Mic
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -247,7 +248,6 @@ export const CommunicationIQ = () => {
           <TabsTrigger value="intake">Patient Intake</TabsTrigger>
           <TabsTrigger value="forms">Form Builder</TabsTrigger>
           <TabsTrigger value="communications">Communications</TabsTrigger>
-          <TabsTrigger value="voice">Voice Conversation</TabsTrigger>
           <TabsTrigger value="reminders">Auto Reminders</TabsTrigger>
           <TabsTrigger value="waitlist">Waiting List</TabsTrigger>
         </TabsList>
@@ -377,7 +377,25 @@ export const CommunicationIQ = () => {
         </TabsContent>
 
         <TabsContent value="intake" className="space-y-4">
-          <IntakeDashboard />
+          <div className="grid gap-6">
+            <IntakeDashboard />
+            
+            {/* Voice Conversation Interface */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Mic className="h-5 w-5" />
+                  Voice Conversation Intake
+                </CardTitle>
+                <CardDescription>
+                  Allow patients to provide all their information in one conversational voice session
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ConversationalVoiceIntake />
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         <TabsContent value="forms" className="space-y-4">
@@ -425,9 +443,6 @@ export const CommunicationIQ = () => {
           <StaffIntakeDashboard />
         </TabsContent>
 
-        <TabsContent value="voice" className="space-y-4">
-          <ConversationalVoiceIntake />
-        </TabsContent>
 
         <TabsContent value="reminders" className="space-y-4">
           <AutomatedReminders />
@@ -465,7 +480,7 @@ export const CommunicationIQ = () => {
             <Button 
               variant="outline" 
               className="h-16 flex-col"
-              onClick={() => setSelectedTab('voice')}
+              onClick={() => setSelectedTab('communications')}
             >
               <Phone className="h-6 w-6 mb-1" />
               <span className="text-xs">Voice Call</span>
