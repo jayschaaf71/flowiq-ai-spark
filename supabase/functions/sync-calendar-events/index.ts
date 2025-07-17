@@ -39,6 +39,9 @@ serve(async (req) => {
       case 'outlook_sync':
         return await syncWithOutlook(appointment_data)
       
+      case 'caldav_sync':
+        return await syncWithCalDAV(appointment_data)
+      
       default:
         return new Response(
           JSON.stringify({ error: 'Invalid action' }),
@@ -135,6 +138,24 @@ async function syncWithOutlook(appointmentData: any) {
       success: true, 
       message: 'Outlook integration requires Microsoft Graph API setup',
       next_steps: 'Configure Microsoft Graph API credentials in Supabase secrets'
+    }),
+    { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+  )
+}
+
+async function syncWithCalDAV(appointmentData: any) {
+  // CalDAV sync implementation
+  console.log('CalDAV sync:', appointmentData)
+  
+  // Since CalDAV is a standard protocol, clients will automatically sync
+  // when they fetch from our CalDAV server endpoint
+  
+  return new Response(
+    JSON.stringify({ 
+      success: true, 
+      message: 'CalDAV server is ready for Apple Calendar sync',
+      caldav_url: '/functions/v1/caldav-server/caldav',
+      sync_method: 'automatic'
     }),
     { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
   )

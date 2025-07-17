@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { CalDAVSetup } from '@/components/integrations/CalDAVSetup';
 import { 
   Calendar,
   Plus,
@@ -66,6 +67,7 @@ export const CalendarIntegrations = () => {
 
   const [zapierWebhook, setZapierWebhook] = useState('');
   const [showZapierDialog, setShowZapierDialog] = useState(false);
+  const [showCalDAVDialog, setShowCalDAVDialog] = useState(false);
 
   const handleGoogleCalendarConnect = async () => {
     toast({
@@ -82,10 +84,7 @@ export const CalendarIntegrations = () => {
   };
 
   const handleAppleCalendarConnect = async () => {
-    toast({
-      title: "Apple Calendar (CalDAV)",
-      description: "CalDAV integration requires server credentials. This would open a form for CalDAV server details.",
-    });
+    setShowCalDAVDialog(true);
   };
 
   const handleZapierConnect = async () => {
@@ -320,6 +319,16 @@ export const CalendarIntegrations = () => {
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* CalDAV Setup Dialog */}
+      <Dialog open={showCalDAVDialog} onOpenChange={setShowCalDAVDialog}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Apple Calendar (CalDAV) Setup</DialogTitle>
+          </DialogHeader>
+          <CalDAVSetup />
         </DialogContent>
       </Dialog>
     </div>
