@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { useAppointments } from '@/hooks/useAppointments';
 import { supabase } from '@/integrations/supabase/client';
 import { format, addDays, startOfWeek, isSameDay, parseISO, startOfMonth, endOfMonth, startOfDay, endOfDay } from 'date-fns';
 import { 
@@ -44,8 +45,6 @@ interface CalendarViewProps {
 export const CalendarView = ({ onCreateAppointment, onViewAppointment }: CalendarViewProps) => {
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [loading, setLoading] = useState(true);
   const [view, setView] = useState<'day' | 'week' | 'month'>('week');
   
   // Modal states
@@ -61,46 +60,27 @@ export const CalendarView = ({ onCreateAppointment, onViewAppointment }: Calenda
   const [appointmentTypeFilter, setAppointmentTypeFilter] = useState('all');
   
   const { toast } = useToast();
+  const { appointments, loading } = useAppointments();
 
-  useEffect(() => {
-    fetchAppointments();
-  }, [currentWeek, currentMonth, view]);
+  // Filter appointments based on view and date range
+  const getFilteredAppointmentsByView = () => {
+    let startDate, endDate;
 
-  const fetchAppointments = async () => {
-    try {
-      setLoading(true);
-      let startDate, endDate;
-
-      if (view === 'week') {
-        startDate = startOfWeek(currentWeek);
-        endDate = addDays(startDate, 7);
-      } else if (view === 'month') {
-        startDate = startOfMonth(currentMonth);
-        endDate = endOfMonth(currentMonth);
-      } else { // day view
-        startDate = startOfDay(currentWeek);
-        endDate = endOfDay(currentWeek);
-      }
-
-      const { data, error } = await supabase
-        .from('appointments')
-        .select('*')
-        .gte('date', format(startDate, 'yyyy-MM-dd'))
-        .lte('date', format(endDate, 'yyyy-MM-dd'))
-        .order('date')
-        .order('time');
-
-      if (error) throw error;
-      setAppointments(data || []);
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: "Failed to load appointments",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
+    if (view === 'week') {
+      startDate = startOfWeek(currentWeek);
+      endDate = addDays(startDate, 6);
+    } else if (view === 'month') {
+      startDate = startOfMonth(currentMonth);
+      endDate = endOfMonth(currentMonth);
+    } else { // day view
+      startDate = startOfDay(currentWeek);
+      endDate = endOfDay(currentWeek);
     }
+
+    return appointments.filter(apt => {
+      const appointmentDate = parseISO(apt.date);
+      return appointmentDate >= startDate && appointmentDate <= endDate;
+    });
   };
 
   const weekStart = startOfWeek(currentWeek);
@@ -153,7 +133,8 @@ export const CalendarView = ({ onCreateAppointment, onViewAppointment }: Calenda
   };
 
   // Filter appointments based on search and filters
-  const filteredAppointments = appointments.filter(apt => {
+  const viewFilteredAppointments = getFilteredAppointmentsByView();
+  const filteredAppointments = viewFilteredAppointments.filter(apt => {
     const matchesSearch = !searchTerm || 
       apt.patient_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       apt.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
