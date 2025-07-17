@@ -84,8 +84,12 @@ export const useAppointmentCreation = (user: any, profile: any) => {
             appointmentDetails: {
               date: appointmentData.date,
               time: appointmentData.time,
+              duration: appointmentData.duration || 60,
               providerName: appointmentData.providerName,
-              appointmentType: appointmentData.appointmentType
+              appointmentType: appointmentData.appointmentType,
+              practiceName: appointmentData.practiceName || 'Dental Practice',
+              practiceAddress: appointmentData.practiceAddress,
+              practicePhone: appointmentData.practicePhone
             }
           }
         });

@@ -1,5 +1,8 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { Resend } from "npm:resend@2.0.0";
+
+const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -14,7 +17,55 @@ interface ConfirmationRequest {
     time: string;
     providerName?: string;
     appointmentType?: string;
+    duration?: number;
+    practiceName?: string;
+    practiceAddress?: string;
+    practicePhone?: string;
   };
+}
+
+function generateICSFile(appointmentDetails: any, appointmentId: string): string {
+  const { date, time, duration = 60, appointmentType, providerName, practiceName, practiceAddress } = appointmentDetails;
+  
+  // Create start and end dates
+  const startDateTime = new Date(`${date}T${time}`);
+  const endDateTime = new Date(startDateTime.getTime() + (duration * 60 * 1000));
+  
+  // Format dates for ICS (YYYYMMDDTHHMMSSZ)
+  const formatDate = (date: Date) => {
+    return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  };
+  
+  const startFormatted = formatDate(startDateTime);
+  const endFormatted = formatDate(endDateTime);
+  const nowFormatted = formatDate(new Date());
+  
+  // Generate unique UID
+  const uid = `appointment-${appointmentId}@scheduleiq.com`;
+  
+  const icsContent = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Schedule iQ//Appointment//EN',
+    'BEGIN:VEVENT',
+    `UID:${uid}`,
+    `DTSTAMP:${nowFormatted}`,
+    `DTSTART:${startFormatted}`,
+    `DTEND:${endFormatted}`,
+    `SUMMARY:${appointmentType || 'Medical Appointment'} - ${providerName || 'Healthcare Provider'}`,
+    `DESCRIPTION:Appointment with ${providerName || 'Healthcare Provider'}\\nType: ${appointmentType || 'Consultation'}\\nDuration: ${duration} minutes`,
+    ...(practiceAddress ? [`LOCATION:${practiceName || 'Medical Practice'}\\n${practiceAddress}`] : []),
+    'STATUS:CONFIRMED',
+    'BEGIN:VALARM',
+    'TRIGGER:-PT15M',
+    'DESCRIPTION:Appointment Reminder',
+    'ACTION:DISPLAY',
+    'END:VALARM',
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ].join('\r\n');
+  
+  return icsContent;
 }
 
 serve(async (req) => {
@@ -40,38 +91,65 @@ serve(async (req) => {
       day: 'numeric'
     });
 
-    // Simulate sending confirmation email
-    // In a real implementation, you would integrate with your email service (like Resend)
-    const emailContent = {
-      to: patientEmail,
-      subject: 'Appointment Confirmation - Schedule iQ',
-      message: `
-        Your appointment has been confirmed!
-        
-        Appointment Details:
-        • Date: ${formattedDate}
-        • Time: ${appointmentDetails.time}
-        • Provider: ${appointmentDetails.providerName || 'Healthcare Provider'}
-        • Type: ${appointmentDetails.appointmentType || 'Consultation'}
-        • Appointment ID: ${appointmentId}
-        
-        You will receive reminder notifications before your appointment.
-        
-        If you need to reschedule or cancel, please contact us as soon as possible.
-        
-        Thank you for choosing our healthcare services!
-      `
-    };
-
-    console.log('Confirmation email prepared:', emailContent);
+    // Generate calendar invite (.ics file)
+    const icsContent = generateICSFile(appointmentDetails, appointmentId);
+    const icsBuffer = new TextEncoder().encode(icsContent);
     
-    // Here you would actually send the email using your preferred service
-    // For now, we'll just log it and return success
+    // Send confirmation email with calendar attachment
+    const emailResponse = await resend.emails.send({
+      from: "Schedule iQ <appointments@scheduleiq.com>",
+      to: [patientEmail],
+      subject: 'Appointment Confirmation - Schedule iQ',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #2563eb;">Your appointment has been confirmed!</h2>
+          
+          <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1e293b; margin-top: 0;">Appointment Details:</h3>
+            <ul style="line-height: 1.6;">
+              <li><strong>Date:</strong> ${formattedDate}</li>
+              <li><strong>Time:</strong> ${appointmentDetails.time}</li>
+              <li><strong>Provider:</strong> ${appointmentDetails.providerName || 'Healthcare Provider'}</li>
+              <li><strong>Type:</strong> ${appointmentDetails.appointmentType || 'Consultation'}</li>
+              <li><strong>Duration:</strong> ${appointmentDetails.duration || 60} minutes</li>
+              <li><strong>Appointment ID:</strong> ${appointmentId}</li>
+            </ul>
+          </div>
+          
+          <div style="background-color: #eff6ff; padding: 15px; border-radius: 8px; border-left: 4px solid #2563eb;">
+            <p style="margin: 0; color: #1e40af;">
+              📅 <strong>Add to Calendar:</strong> A calendar invite is attached to this email. 
+              Click on the attachment to add this appointment to your calendar.
+            </p>
+          </div>
+          
+          <p style="margin-top: 20px;">You will receive reminder notifications before your appointment.</p>
+          
+          <p>If you need to reschedule or cancel, please contact us as soon as possible.</p>
+          
+          <p style="color: #64748b;">Thank you for choosing our healthcare services!</p>
+        </div>
+      `,
+      attachments: [
+        {
+          filename: `appointment-${appointmentId}.ics`,
+          content: icsBuffer,
+          contentType: 'text/calendar; charset=utf-8; method=REQUEST'
+        }
+      ]
+    });
+
+    console.log('Confirmation email sent:', emailResponse);
+    
+    if (emailResponse.error) {
+      throw new Error(`Failed to send email: ${emailResponse.error.message}`);
+    }
     
     return new Response(JSON.stringify({ 
       success: true,
-      message: 'Confirmation sent successfully',
-      appointmentId: appointmentId
+      message: 'Confirmation sent successfully with calendar invite',
+      appointmentId: appointmentId,
+      emailId: emailResponse.data?.id
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
