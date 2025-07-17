@@ -4,12 +4,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { PublicFormViewer } from '@/components/intake/PublicFormViewer';
-import { ArrowLeft, FileText, Clock, CheckCircle, Phone, Mail } from 'lucide-react';
+import { ConversationalVoiceIntake } from '@/components/intake/ConversationalVoiceIntake';
+import { ArrowLeft, FileText, Clock, CheckCircle, Phone, Mail, Mic, MessageSquare } from 'lucide-react';
 
 const PatientIntake: React.FC = () => {
   const { formId } = useParams<{ formId?: string }>();
   const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
+  const [useConversationalIntake, setUseConversationalIntake] = useState(false);
 
   // Default form ID for demo purposes
   const defaultFormId = 'demo-form';
@@ -24,6 +26,12 @@ const PatientIntake: React.FC = () => {
 
   const handleStartForm = () => {
     setShowForm(true);
+    setUseConversationalIntake(false);
+  };
+
+  const handleStartConversationalIntake = () => {
+    setShowForm(true);
+    setUseConversationalIntake(true);
   };
 
   const handleFormSuccess = () => {
@@ -38,7 +46,7 @@ const PatientIntake: React.FC = () => {
   if (showForm) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white p-4">
-        <div className="max-w-2xl mx-auto">
+        <div className={useConversationalIntake ? "max-w-4xl mx-auto" : "max-w-2xl mx-auto"}>
           <div className="mb-6">
             <Button
               variant="ghost"
@@ -50,11 +58,15 @@ const PatientIntake: React.FC = () => {
             </Button>
           </div>
           
-          <PublicFormViewer
-            formId={activeFormId}
-            onSubmitSuccess={handleFormSuccess}
-            className="shadow-lg"
-          />
+          {useConversationalIntake ? (
+            <ConversationalVoiceIntake />
+          ) : (
+            <PublicFormViewer
+              formId={activeFormId}
+              onSubmitSuccess={handleFormSuccess}
+              className="shadow-lg"
+            />
+          )}
         </div>
       </div>
     );
@@ -107,13 +119,36 @@ const PatientIntake: React.FC = () => {
               </div>
             </div>
             
-            <Button
-              onClick={handleStartForm}
-              className="w-full bg-white text-blue-600 hover:bg-blue-50"
-              size="lg"
-            >
-              Start Your Intake Form
-            </Button>
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-center mb-4">Choose Your Intake Method</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Button
+                  onClick={handleStartConversationalIntake}
+                  className="bg-white text-blue-600 hover:bg-blue-50 h-auto p-4 flex flex-col items-center gap-2"
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <Mic className="w-5 h-5" />
+                    <MessageSquare className="w-5 h-5" />
+                  </div>
+                  <div className="text-center">
+                    <div className="font-semibold">Voice Conversation</div>
+                    <div className="text-xs">Tell me everything at once</div>
+                  </div>
+                </Button>
+                
+                <Button
+                  onClick={handleStartForm}
+                  className="bg-white text-blue-600 hover:bg-blue-50 h-auto p-4 flex flex-col items-center gap-2"
+                >
+                  <FileText className="w-5 h-5 mb-1" />
+                  <div className="text-center">
+                    <div className="font-semibold">Traditional Form</div>
+                    <div className="text-xs">Fill out step by step</div>
+                  </div>
+                </Button>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
