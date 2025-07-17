@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,8 @@ import {
   Settings,
   Clock
 } from "lucide-react";
+import { useCalendarIntegrations } from "@/hooks/useCalendarIntegrations";
+import { toast } from "sonner";
 
 interface CalendarService {
   id: string;
@@ -26,60 +28,102 @@ interface CalendarService {
 
 export const CalendarIntegration = () => {
   const [syncing, setSyncing] = useState<string | null>(null);
-  
+  const {
+    integrations,
+    loading,
+    connectCalendar,
+    deleteIntegration,
+    syncCalendar,
+    updateIntegration,
+    fetchIntegrations
+  } = useCalendarIntegrations();
+
+  useEffect(() => {
+    fetchIntegrations();
+  }, [fetchIntegrations]);
+
+  // Map integrations to calendar services format
   const calendarServices: CalendarService[] = [
     {
       id: "google",
       name: "Google Calendar",
       icon: "🗓️",
-      connected: true,
-      lastSync: "2024-01-15T10:30:00Z",
-      syncEnabled: true,
-      appointmentCount: 45
+      connected: integrations.some(int => int.provider === 'google' && int.sync_enabled),
+      lastSync: integrations.find(int => int.provider === 'google')?.last_sync_at || "",
+      syncEnabled: integrations.find(int => int.provider === 'google')?.sync_enabled || false,
+      appointmentCount: integrations.filter(int => int.provider === 'google').length
     },
     {
-      id: "outlook",
+      id: "microsoft",
       name: "Microsoft Outlook",
       icon: "📅",
-      connected: false,
-      lastSync: "",
-      syncEnabled: false,
-      appointmentCount: 0
-    },
-    {
-      id: "apple",
-      name: "Apple Calendar",
-      icon: "🍎",
-      connected: true,
-      lastSync: "2024-01-14T15:20:00Z",
-      syncEnabled: false,
-      appointmentCount: 23
+      connected: integrations.some(int => int.provider === 'microsoft' && int.sync_enabled),
+      lastSync: integrations.find(int => int.provider === 'microsoft')?.last_sync_at || "",
+      syncEnabled: integrations.find(int => int.provider === 'microsoft')?.sync_enabled || false,
+      appointmentCount: integrations.filter(int => int.provider === 'microsoft').length
     }
   ];
 
-  const handleConnect = (serviceId: string) => {
-    console.log("Connecting to:", serviceId);
-    // Implement OAuth connection logic
+  const handleConnect = async (serviceId: string) => {
+    try {
+      if (serviceId === 'google' || serviceId === 'microsoft') {
+        await connectCalendar(serviceId);
+        toast.success(`Successfully connected to ${serviceId === 'google' ? 'Google Calendar' : 'Microsoft Outlook'}`);
+        // Refresh integrations after successful connection
+        fetchIntegrations();
+      } else {
+        toast.error('This calendar provider is not yet supported');
+      }
+    } catch (error) {
+      console.error('Failed to connect calendar:', error);
+      toast.error('Failed to connect calendar. Please try again.');
+    }
   };
 
-  const handleDisconnect = (serviceId: string) => {
-    console.log("Disconnecting from:", serviceId);
-    // Implement disconnect logic
+  const handleDisconnect = async (serviceId: string) => {
+    try {
+      const integration = integrations.find(int => int.provider === serviceId);
+      if (integration) {
+        await deleteIntegration(integration.id);
+        toast.success(`Disconnected from ${serviceId === 'google' ? 'Google Calendar' : 'Microsoft Outlook'}`);
+      }
+    } catch (error) {
+      console.error('Failed to disconnect calendar:', error);
+      toast.error('Failed to disconnect calendar. Please try again.');
+    }
   };
 
   const handleSync = async (serviceId: string) => {
-    setSyncing(serviceId);
-    console.log("Syncing with:", serviceId);
-    
-    // Simulate sync process
-    setTimeout(() => {
+    try {
+      setSyncing(serviceId);
+      const integration = integrations.find(int => int.provider === serviceId);
+      if (integration) {
+        const result = await syncCalendar(integration.id);
+        if (result.success) {
+          toast.success(`Successfully synced ${serviceId === 'google' ? 'Google Calendar' : 'Microsoft Outlook'}`);
+        } else {
+          toast.error(result.error || 'Sync failed');
+        }
+      }
+    } catch (error) {
+      console.error('Failed to sync calendar:', error);
+      toast.error('Failed to sync calendar. Please try again.');
+    } finally {
       setSyncing(null);
-    }, 2000);
+    }
   };
 
-  const toggleSync = (serviceId: string, enabled: boolean) => {
-    console.log("Toggle sync for:", serviceId, enabled);
-    // Implement sync toggle logic
+  const toggleSync = async (serviceId: string, enabled: boolean) => {
+    try {
+      const integration = integrations.find(int => int.provider === serviceId);
+      if (integration) {
+        await updateIntegration(integration.id, { sync_enabled: enabled });
+        toast.success(`Auto-sync ${enabled ? 'enabled' : 'disabled'} for ${serviceId === 'google' ? 'Google Calendar' : 'Microsoft Outlook'}`);
+      }
+    } catch (error) {
+      console.error('Failed to toggle sync:', error);
+      toast.error('Failed to update sync settings. Please try again.');
+    }
   };
 
   return (
