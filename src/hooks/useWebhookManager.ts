@@ -2,16 +2,27 @@ import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
+type WebhookPlatform = 'zapier' | 'n8n' | 'custom';
+
 interface WebhookEndpoint {
   id: string;
   name: string;
   url: string;
+  platform: WebhookPlatform;
   events: string[];
   status: 'active' | 'inactive' | 'error';
   lastTriggered?: string;
   createdAt: string;
   headers?: Record<string, string>;
   secretKey?: string;
+  retryConfig?: {
+    maxRetries: number;
+    retryDelay: number;
+  };
+  destinationConfig?: {
+    dataMapping?: Record<string, string>;
+    authMethod?: 'header' | 'query' | 'body';
+  };
 }
 
 export const useWebhookManager = () => {
@@ -24,34 +35,59 @@ export const useWebhookManager = () => {
     const mockWebhooks: WebhookEndpoint[] = [
       {
         id: '1',
-        name: 'EHR System Sync',
-        url: 'https://api.ehrsystem.com/webhooks/appointments',
+        name: 'EZBIS Integration',
+        url: 'https://api.ezbis.com/webhooks/appointments',
+        platform: 'custom',
         events: ['appointment.created', 'appointment.updated'],
         status: 'active',
-        lastTriggered: new Date(Date.now() - 30 * 60 * 1000).toISOString(), // 30 minutes ago
-        createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
+        lastTriggered: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+        createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
         headers: {
           'Authorization': 'Bearer ***',
           'X-API-Key': '***'
-        }
+        },
+        retryConfig: { maxRetries: 3, retryDelay: 5000 }
       },
       {
         id: '2',
-        name: 'Slack Notifications',
-        url: 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX',
+        name: 'Zapier - Patient Notifications',
+        url: 'https://hooks.zapier.com/hooks/catch/12345/abcdef/',
+        platform: 'zapier',
         events: ['appointment.no_show', 'appointment.completed'],
         status: 'active',
-        lastTriggered: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
-        createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days ago
+        lastTriggered: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+        createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+        retryConfig: { maxRetries: 5, retryDelay: 2000 }
       },
       {
         id: '3',
-        name: 'CRM Integration',
-        url: 'https://api.crmsystem.com/webhooks/contacts',
-        events: ['intake.completed'],
+        name: 'N8N - DentalRem Sync',
+        url: 'https://n8n.example.com/webhook/dental-rem-sync',
+        platform: 'n8n',
+        events: ['intake.completed', 'appointment.created'],
+        status: 'active',
+        lastTriggered: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
+        createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+        headers: {
+          'X-API-Key': '***'
+        },
+        retryConfig: { maxRetries: 3, retryDelay: 3000 }
+      },
+      {
+        id: '4',
+        name: 'N8N - DS3 Sleep Studies',
+        url: 'https://n8n.example.com/webhook/ds3-integration',
+        platform: 'n8n',
+        events: ['sleep_study.completed', 'appliance.delivered'],
         status: 'error',
-        lastTriggered: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(), // 6 hours ago
-        createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(), // 14 days ago
+        lastTriggered: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+        createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
+        destinationConfig: {
+          dataMapping: {
+            'patient_id': 'ds3_patient_id',
+            'study_results': 'ahi_score'
+          }
+        }
       }
     ];
     setWebhooks(mockWebhooks);
@@ -127,7 +163,8 @@ export const useWebhookManager = () => {
       ...webhookData,
       id: Date.now().toString(),
       status: 'active',
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      retryConfig: webhookData.retryConfig || { maxRetries: 3, retryDelay: 5000 }
     };
 
     setWebhooks(prev => [...prev, newWebhook]);

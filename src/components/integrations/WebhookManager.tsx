@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useWebhookManager } from '@/hooks/useWebhookManager';
 import { 
@@ -18,17 +19,32 @@ import {
   Copy,
   Settings,
   AlertTriangle,
-  Zap
+  Zap,
+  Network,
+  Workflow
 } from 'lucide-react';
+
+type WebhookPlatform = 'zapier' | 'n8n' | 'custom';
 
 interface WebhookEndpoint {
   id: string;
   name: string;
   url: string;
+  platform: WebhookPlatform;
   events: string[];
   status: 'active' | 'inactive' | 'error';
   lastTriggered?: string;
   createdAt: string;
+  headers?: Record<string, string>;
+  secretKey?: string;
+  retryConfig?: {
+    maxRetries: number;
+    retryDelay: number;
+  };
+  destinationConfig?: {
+    dataMapping?: Record<string, string>;
+    authMethod?: 'header' | 'query' | 'body';
+  };
 }
 
 export const WebhookManager = () => {
@@ -46,6 +62,7 @@ export const WebhookManager = () => {
   const [newWebhook, setNewWebhook] = useState({
     name: '',
     url: '',
+    platform: 'custom' as WebhookPlatform,
     events: [] as string[],
     headers: {} as Record<string, string>,
     secretKey: ''
@@ -57,8 +74,34 @@ export const WebhookManager = () => {
     { value: 'appointment.completed', label: 'Appointment Completed' },
     { value: 'appointment.no_show', label: 'Appointment No-Show' },
     { value: 'intake.completed', label: 'Intake Completed' },
-    { value: 'followup.initiated', label: 'Follow-up Initiated' }
+    { value: 'followup.initiated', label: 'Follow-up Initiated' },
+    { value: 'sleep_study.completed', label: 'Sleep Study Completed' },
+    { value: 'appliance.delivered', label: 'Oral Appliance Delivered' },
+    { value: 'patient.referral', label: 'Patient Referral' },
+    { value: 'billing.submitted', label: 'Billing Submitted' }
   ];
+
+  const getPlatformIcon = (platform: WebhookPlatform) => {
+    switch (platform) {
+      case 'zapier':
+        return <Zap className="h-4 w-4 text-orange-600" />;
+      case 'n8n':
+        return <Workflow className="h-4 w-4 text-blue-600" />;
+      default:
+        return <Network className="h-4 w-4 text-gray-600" />;
+    }
+  };
+
+  const getPlatformBadgeColor = (platform: WebhookPlatform) => {
+    switch (platform) {
+      case 'zapier':
+        return 'bg-orange-100 text-orange-800';
+      case 'n8n':
+        return 'bg-blue-100 text-blue-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
 
   const handleAddWebhook = () => {
     if (!newWebhook.name || !newWebhook.url || newWebhook.events.length === 0) {
@@ -68,12 +111,13 @@ export const WebhookManager = () => {
     addWebhook({
       name: newWebhook.name,
       url: newWebhook.url,
+      platform: newWebhook.platform,
       events: newWebhook.events,
       headers: newWebhook.headers,
       secretKey: newWebhook.secretKey || undefined
     });
     
-    setNewWebhook({ name: '', url: '', events: [], headers: {}, secretKey: '' });
+    setNewWebhook({ name: '', url: '', platform: 'custom', events: [], headers: {}, secretKey: '' });
     setShowAddForm(false);
   };
 
@@ -146,6 +190,12 @@ export const WebhookManager = () => {
                       <div className="flex items-center gap-2 mb-2">
                         {getStatusIcon(webhook.status)}
                         <h4 className="font-medium">{webhook.name}</h4>
+                        <div className="flex items-center gap-1">
+                          {getPlatformIcon(webhook.platform)}
+                          <Badge className={`${getPlatformBadgeColor(webhook.platform)} text-xs`}>
+                            {webhook.platform.toUpperCase()}
+                          </Badge>
+                        </div>
                         <Badge variant={webhook.status === 'active' ? 'default' : 
                           webhook.status === 'error' ? 'destructive' : 'secondary'}>
                           {webhook.status}
@@ -235,13 +285,59 @@ export const WebhookManager = () => {
             </div>
             
             <div className="space-y-2">
+              <Label htmlFor="webhook-platform">Platform</Label>
+              <Select 
+                value={newWebhook.platform} 
+                onValueChange={(value) => setNewWebhook({ ...newWebhook, platform: value as WebhookPlatform })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select integration platform" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="zapier">
+                    <div className="flex items-center gap-2">
+                      <Zap className="h-4 w-4 text-orange-600" />
+                      Zapier
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="n8n">
+                    <div className="flex items-center gap-2">
+                      <Workflow className="h-4 w-4 text-blue-600" />
+                      N8N
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="custom">
+                    <div className="flex items-center gap-2">
+                      <Network className="h-4 w-4 text-gray-600" />
+                      Custom/Other
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
               <Label htmlFor="webhook-url">Endpoint URL</Label>
               <Input
                 id="webhook-url"
-                placeholder="https://your-system.com/webhook"
+                placeholder={
+                  newWebhook.platform === 'zapier' ? 'https://hooks.zapier.com/hooks/catch/...' :
+                  newWebhook.platform === 'n8n' ? 'https://your-n8n.com/webhook/...' :
+                  'https://your-system.com/webhook'
+                }
                 value={newWebhook.url}
                 onChange={(e) => setNewWebhook({ ...newWebhook, url: e.target.value })}
               />
+              {newWebhook.platform === 'zapier' && (
+                <p className="text-xs text-blue-600">
+                  Get your Zapier webhook URL from your Zap's trigger settings
+                </p>
+              )}
+              {newWebhook.platform === 'n8n' && (
+                <p className="text-xs text-blue-600">
+                  Configure a webhook node in your N8N workflow and use its URL
+                </p>
+              )}
             </div>
             
             <div className="space-y-2">
