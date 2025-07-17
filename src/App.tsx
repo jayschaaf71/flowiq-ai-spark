@@ -60,7 +60,14 @@ import { FloatingAssistIQ } from './components/FloatingAssistIQ';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ProductionTenantProvider } from './components/tenant/ProductionTenantProvider';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false, // Disable automatic retries
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 function App() {
   return (

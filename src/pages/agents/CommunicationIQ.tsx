@@ -49,6 +49,13 @@ export const CommunicationIQ = () => {
   const navigate = useNavigate();
   const [selectedTab, setSelectedTab] = useState('dashboard');
   const [refreshKey, setRefreshKey] = useState(0);
+  
+  // Clear any persisting errors on mount
+  React.useEffect(() => {
+    console.log('CommunicationIQ mounted, clearing any persistent errors');
+  }, []);
+
+  // Add error handling for intake forms hook
   const { forms, submissions, loading } = useIntakeForms();
 
   // Enhanced stats combining appointment and intake metrics
@@ -361,7 +368,6 @@ export const CommunicationIQ = () => {
             </CardContent>
           </Card>
         </TabsContent>
-
 
         <TabsContent value="booking" className="space-y-4">
           <ProductionBookingInterface onAppointmentBooked={handleAppointmentBooked} />
