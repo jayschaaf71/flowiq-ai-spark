@@ -3622,6 +3622,10 @@ export type Database = {
         Args: { user_id?: string }
         Returns: boolean
       }
+      is_platform_admin_check: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       is_practice_admin: {
         Args: { user_id?: string; check_tenant_id?: string }
         Returns: boolean
