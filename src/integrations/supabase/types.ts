@@ -337,6 +337,140 @@ export type Database = {
           },
         ]
       }
+      calendar_integrations: {
+        Row: {
+          access_token: string | null
+          calendar_id: string | null
+          calendar_name: string | null
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_primary: boolean | null
+          last_sync_at: string | null
+          provider: string
+          provider_account_id: string
+          refresh_token: string | null
+          scope: string | null
+          sync_direction: string | null
+          sync_enabled: boolean | null
+          tenant_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token?: string | null
+          calendar_id?: string | null
+          calendar_name?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_primary?: boolean | null
+          last_sync_at?: string | null
+          provider: string
+          provider_account_id: string
+          refresh_token?: string | null
+          scope?: string | null
+          sync_direction?: string | null
+          sync_enabled?: boolean | null
+          tenant_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string | null
+          calendar_id?: string | null
+          calendar_name?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_primary?: boolean | null
+          last_sync_at?: string | null
+          provider?: string
+          provider_account_id?: string
+          refresh_token?: string | null
+          scope?: string | null
+          sync_direction?: string | null
+          sync_enabled?: boolean | null
+          tenant_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_integrations_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_sync_logs: {
+        Row: {
+          appointments_created: number | null
+          appointments_deleted: number | null
+          appointments_processed: number | null
+          appointments_updated: number | null
+          completed_at: string | null
+          created_at: string
+          direction: string
+          error_message: string | null
+          id: string
+          integration_id: string
+          started_at: string
+          status: string
+          sync_type: string
+          tenant_id: string | null
+        }
+        Insert: {
+          appointments_created?: number | null
+          appointments_deleted?: number | null
+          appointments_processed?: number | null
+          appointments_updated?: number | null
+          completed_at?: string | null
+          created_at?: string
+          direction: string
+          error_message?: string | null
+          id?: string
+          integration_id: string
+          started_at?: string
+          status: string
+          sync_type: string
+          tenant_id?: string | null
+        }
+        Update: {
+          appointments_created?: number | null
+          appointments_deleted?: number | null
+          appointments_processed?: number | null
+          appointments_updated?: number | null
+          completed_at?: string | null
+          created_at?: string
+          direction?: string
+          error_message?: string | null
+          id?: string
+          integration_id?: string
+          started_at?: string
+          status?: string
+          sync_type?: string
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_sync_logs_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_integrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_sync_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       call_outcomes: {
         Row: {
           ai_summary: string | null
@@ -682,6 +816,64 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "email_templates_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      external_calendar_events: {
+        Row: {
+          appointment_id: string
+          created_at: string
+          external_calendar_id: string
+          external_event_id: string
+          id: string
+          integration_id: string
+          last_synced_at: string | null
+          tenant_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          appointment_id: string
+          created_at?: string
+          external_calendar_id: string
+          external_event_id: string
+          id?: string
+          integration_id: string
+          last_synced_at?: string | null
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          appointment_id?: string
+          created_at?: string
+          external_calendar_id?: string
+          external_event_id?: string
+          id?: string
+          integration_id?: string
+          last_synced_at?: string | null
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "external_calendar_events_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "external_calendar_events_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_integrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "external_calendar_events_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
