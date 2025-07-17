@@ -129,8 +129,25 @@ jobs:
         name: production-build
         path: dist/
         
-    - name: Deploy to production
+    - name: Deploy to Vercel
+      uses: amondnet/vercel-action@v25
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        vercel-args: '--prod'
+        working-directory: ./
+        
+    - name: Run health checks
       run: |
-        echo "Deploying to production environment"
-        # Add your production deployment commands here
-        # This should include health checks and rollback procedures
+        echo "Running health checks..."
+        curl -f https://app.flow-iq.ai/health || exit 1
+        curl -f https://midwest-dental-sleep.flow-iq.ai/health || exit 1
+        curl -f https://west-county-spine.flow-iq.ai/health || exit 1
+        
+    - name: Notify deployment success
+      run: |
+        echo "Production deployment successful"
+        echo "Main app: https://app.flow-iq.ai"
+        echo "Midwest Dental: https://midwest-dental-sleep.flow-iq.ai"
+        echo "West County Spine: https://west-county-spine.flow-iq.ai"
