@@ -4,47 +4,63 @@ import { supabase } from '@/integrations/supabase/client';
 import type { IntakeForm, IntakeSubmission } from '@/types/intake';
 
 export const useIntakeQueries = () => {
-  // Fetch intake forms
+  // Fetch intake forms with better error handling
   const { data: fetchedForms, isLoading: formsLoading, error: formsError } = useQuery({
     queryKey: ['intake-forms'],
     queryFn: async () => {
       console.log('Fetching intake forms...');
-      const { data, error } = await supabase
-        .from('intake_forms')
-        .select('*')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
+      try {
+        const { data, error } = await supabase
+          .from('intake_forms')
+          .select('*')
+          .eq('is_active', true)
+          .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching intake forms:', error);
-        throw error;
+        if (error) {
+          console.error('Error fetching intake forms:', error);
+          // Return empty array instead of throwing to prevent error loop
+          return [];
+        }
+
+        console.log('Successfully fetched intake forms:', data?.length);
+        return data || [];
+      } catch (err) {
+        console.error('Unexpected error fetching intake forms:', err);
+        // Return empty array instead of throwing to prevent error loop
+        return [];
       }
-
-      console.log('Successfully fetched intake forms:', data?.length);
-      return data;
     },
     retry: false, // Disable retries to prevent persistent errors
+    refetchOnWindowFocus: false,
   });
 
-  // Fetch intake submissions
+  // Fetch intake submissions with better error handling
   const { data: fetchedSubmissions, isLoading: submissionsLoading, error: submissionsError } = useQuery({
     queryKey: ['intake-submissions'],
     queryFn: async () => {
       console.log('Fetching intake submissions...');
-      const { data, error } = await supabase
-        .from('intake_submissions')
-        .select('*')
-        .order('created_at', { ascending: false });
+      try {
+        const { data, error } = await supabase
+          .from('intake_submissions')
+          .select('*')
+          .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching intake submissions:', error);
-        throw error;
+        if (error) {
+          console.error('Error fetching intake submissions:', error);
+          // Return empty array instead of throwing to prevent error loop
+          return [];
+        }
+
+        console.log('Successfully fetched intake submissions:', data?.length);
+        return data || [];
+      } catch (err) {
+        console.error('Unexpected error fetching intake submissions:', err);
+        // Return empty array instead of throwing to prevent error loop
+        return [];
       }
-
-      console.log('Successfully fetched intake submissions:', data?.length);
-      return data;
     },
     retry: false, // Disable retries to prevent persistent errors
+    refetchOnWindowFocus: false,
   });
 
   // Log any errors

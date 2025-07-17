@@ -145,7 +145,10 @@ export const CalendarView = ({ onCreateAppointment, onViewAppointment }: Calenda
     console.log('Setting currentMonth to:', format(today, 'yyyy-MM-dd'));
     setCurrentWeek(today);
     setCurrentMonth(today);
-    console.log('Today navigation completed');
+    // Force state updates to render properly
+    requestAnimationFrame(() => {
+      console.log('Today navigation completed and rendered');
+    });
   };
 
   const getDateRange = () => {

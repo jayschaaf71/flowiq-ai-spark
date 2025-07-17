@@ -161,10 +161,23 @@ export const EnhancedBookingFlow = ({ onComplete, preselectedDate, preselectedTi
     setLoading(true);
     try {
       // Create the appointment
+      console.log('Creating appointment with data:', {
+        title: bookingData.patientInfo.name,
+        appointment_type: bookingData.appointmentInfo.type,
+        date: bookingData.appointmentInfo.date,
+        time: bookingData.appointmentInfo.time,
+        duration: bookingData.appointmentInfo.duration,
+        notes: bookingData.appointmentInfo.notes,
+        phone: bookingData.patientInfo.phone,
+        email: bookingData.patientInfo.email,
+        status: 'pending'
+      });
+
       const { data: appointment, error: appointmentError } = await supabase
         .from('appointments')
         .insert({
           title: bookingData.patientInfo.name,
+          patient_name: bookingData.patientInfo.name,
           appointment_type: bookingData.appointmentInfo.type,
           date: bookingData.appointmentInfo.date,
           time: bookingData.appointmentInfo.time,
@@ -172,13 +185,18 @@ export const EnhancedBookingFlow = ({ onComplete, preselectedDate, preselectedTi
           notes: bookingData.appointmentInfo.notes,
           phone: bookingData.patientInfo.phone,
           email: bookingData.patientInfo.email,
-          status: 'pending',
-          patient_id: '00000000-0000-0000-0000-000000000000' // Would be actual patient ID
+          status: 'confirmed',
+          patient_id: null // For now, not linking to specific patient
         })
         .select()
         .single();
 
-      if (appointmentError) throw appointmentError;
+      if (appointmentError) {
+        console.error('Error creating appointment:', appointmentError);
+        throw appointmentError;
+      }
+      
+      console.log('Successfully created appointment:', appointment);
 
       // Schedule reminders if enabled
       if (appointment && (bookingData.preferences.reminderEmail || bookingData.preferences.reminderSms)) {

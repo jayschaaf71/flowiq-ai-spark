@@ -30,8 +30,16 @@ export const EnhancedCalendarView = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
+  const [refreshKey, setRefreshKey] = useState(0);
   
-  const { appointments, loading } = useAppointments();
+  const { appointments, loading, refetch } = useAppointments();
+
+  // Force refresh when refreshKey changes
+  React.useEffect(() => {
+    if (refreshKey > 0) {
+      refetch();
+    }
+  }, [refreshKey, refetch]);
 
   const filteredAppointments = appointments?.filter(apt => {
     const matchesSearch = apt.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -124,12 +132,10 @@ export const EnhancedCalendarView = () => {
           <Button variant="outline" size="sm" onClick={() => {
             console.log('Today button clicked! Current view:', viewMode);
             const today = new Date();
-            setCurrentDate(today);
             console.log('Setting current date to today:', today);
-            // Force a re-render to ensure the date change takes effect
-            setTimeout(() => {
-              console.log('Today navigation completed');
-            }, 0);
+            setCurrentDate(today);
+            setRefreshKey(prev => prev + 1);
+            console.log('Today navigation completed - date set and refresh triggered');
           }}>
             Today
           </Button>

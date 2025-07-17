@@ -11,15 +11,22 @@ export const useAppointments = () => {
   const query = useQuery({
     queryKey: ['appointments'],
     queryFn: async () => {
+      console.log('Fetching appointments...');
       const { data, error } = await supabase
         .from('appointments')
         .select('*')
         .order('date', { ascending: true })
         .order('time', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching appointments:', error);
+        throw error;
+      }
+      console.log('Successfully fetched appointments:', data?.length || 0);
       return data || [];
     },
+    retry: false,
+    refetchOnWindowFocus: false,
   });
 
   const updateMutation = useUpdateAppointment();
