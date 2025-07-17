@@ -88,11 +88,21 @@ export const WaitlistManagement = () => {
 
   const handleAddToWaitlist = async () => {
     try {
+      const entryWithTenant = {
+        ...newEntry,
+        tenant_id: 'd52278c3-bf0d-4731-bfa9-a40f032fa305' // Use the test tenant ID
+      };
+
+      console.log('Adding to waitlist:', entryWithTenant);
+
       const { error } = await supabase
         .from('appointment_waitlist')
-        .insert([newEntry]);
+        .insert([entryWithTenant]);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
 
       toast({
         title: "Success",
