@@ -45,7 +45,7 @@ export const CalendarView = ({ onCreateAppointment, onViewAppointment }: Calenda
 
     if (view === 'week') {
       startDate = startOfWeek(currentWeek);
-      endDate = addDays(startDate, 6);
+      endDate = endOfWeek(currentWeek);
     } else if (view === 'month') {
       startDate = startOfMonth(currentMonth);
       endDate = endOfMonth(currentMonth);
@@ -54,10 +54,37 @@ export const CalendarView = ({ onCreateAppointment, onViewAppointment }: Calenda
       endDate = endOfDay(currentWeek);
     }
 
-    return appointments.filter(apt => {
-      const appointmentDate = parseISO(apt.date);
-      return appointmentDate >= startDate && appointmentDate <= endDate;
+    console.log('Calendar view filtering:', {
+      view,
+      startDate: format(startDate, 'yyyy-MM-dd'),
+      endDate: format(endDate, 'yyyy-MM-dd'),
+      totalAppointments: appointments?.length,
+      currentWeek: format(currentWeek, 'yyyy-MM-dd'),
+      currentMonth: format(currentMonth, 'yyyy-MM-dd')
     });
+
+    if (!appointments) return [];
+
+    const filtered = appointments.filter(apt => {
+      const appointmentDate = parseISO(apt.date + 'T00:00:00');
+      const isInRange = appointmentDate >= startDate && appointmentDate <= endDate;
+      
+      if (!isInRange) {
+        console.log('Appointment outside range:', {
+          appointment: apt.patient_name,
+          date: apt.date,
+          appointmentDate: format(appointmentDate, 'yyyy-MM-dd'),
+          startDate: format(startDate, 'yyyy-MM-dd'),
+          endDate: format(endDate, 'yyyy-MM-dd')
+        });
+      }
+      
+      return isInRange;
+    });
+
+    console.log('Filtered appointments for view:', filtered.length, filtered.map(a => ({ name: a.patient_name, date: a.date })));
+    
+    return filtered;
   };
 
   // Generate time slots for day/week view
@@ -109,6 +136,10 @@ export const CalendarView = ({ onCreateAppointment, onViewAppointment }: Calenda
     const today = new Date();
     setCurrentWeek(today);
     setCurrentMonth(today);
+    // Force re-render and show today
+    if (view === 'day') {
+      setCurrentWeek(today); // Ensure day view shows today
+    }
   };
 
   const getDateRange = () => {
