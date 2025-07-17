@@ -8,6 +8,7 @@ import { AnalyticsProvider } from './contexts/AnalyticsContext';
 
 // Dedicated Specialty Apps
 import ChiropracticApp from './apps/ChiropracticApp';
+import DentalApp from './apps/DentalApp';
 import DentalSleepApp from './apps/DentalSleepApp';
 import GeneralDentistryApp from './apps/GeneralDentistryApp';
 import OrthodonticsApp from './apps/OrthodonticsApp';
@@ -90,6 +91,7 @@ function App() {
 
                     {/* Dedicated Specialty Apps */}
                     <Route path="/chiropractic/*" element={<ChiropracticApp />} />
+                    <Route path="/dental/*" element={<DentalApp />} />
                     <Route path="/dental-sleep/*" element={<DentalSleepApp />} />
                     <Route path="/general-dentistry/*" element={<GeneralDentistryApp />} />
                     <Route path="/orthodontics/*" element={<OrthodonticsApp />} />
