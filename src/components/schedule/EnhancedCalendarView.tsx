@@ -134,7 +134,11 @@ export const EnhancedCalendarView = () => {
             const today = new Date();
             console.log('Setting current date to today:', today);
             setCurrentDate(today);
+            // Force component re-render by updating key and triggering state change
             setRefreshKey(prev => prev + 1);
+            // Ensure filters are recalculated
+            setSearchTerm(prev => prev + '');
+            setTimeout(() => setSearchTerm(prev => prev.slice(0, -1)), 10);
             console.log('Today navigation completed - date set and refresh triggered');
           }}>
             Today

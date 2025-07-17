@@ -145,6 +145,10 @@ export const CalendarView = ({ onCreateAppointment, onViewAppointment }: Calenda
     console.log('Setting currentMonth to:', format(today, 'yyyy-MM-dd'));
     setCurrentWeek(today);
     setCurrentMonth(today);
+    // Force re-render by triggering filter state change
+    const currentSearch = searchTerm;
+    setSearchTerm(currentSearch + ' ');
+    setTimeout(() => setSearchTerm(currentSearch), 10);
     // Force state updates to render properly
     requestAnimationFrame(() => {
       console.log('Today navigation completed and rendered');

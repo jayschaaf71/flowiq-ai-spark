@@ -28,7 +28,7 @@ import { useNavigate } from 'react-router-dom';
 // Import scheduling components from ScheduleIQProduction
 import { ScheduleStats } from '@/components/schedule/ScheduleStats';
 import { AppointmentManager } from '@/components/schedule/AppointmentManager';
-import { ProductionBookingInterface } from '@/components/schedule/ProductionBookingInterface';
+import { TodaysAppointments } from '@/components/schedule/TodaysAppointments';
 import { CalendarView } from '@/components/schedule/CalendarView';
 import { AutomatedReminders } from '@/components/schedule/AutomatedReminders';
 
@@ -373,7 +373,7 @@ export const CommunicationIQ = () => {
         </TabsContent>
 
         <TabsContent value="booking" className="space-y-4">
-          <ProductionBookingInterface onAppointmentBooked={handleAppointmentBooked} />
+          <TodaysAppointments />
         </TabsContent>
 
         <TabsContent value="intake" className="space-y-4">
