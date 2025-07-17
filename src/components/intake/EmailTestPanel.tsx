@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,9 +8,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Mail, Send, Eye, CheckCircle, AlertCircle } from 'lucide-react';
+import { Mail, Send, Eye, CheckCircle, AlertCircle, Settings, TestTube } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Template } from '@/hooks/useTemplates';
+import { supabase } from '@/integrations/supabase/client';
+import { IntegrationService } from '@/services/integrationService';
 
 interface TestResult {
   success: boolean;
@@ -36,19 +38,63 @@ export const EmailTestPanel: React.FC<EmailTestPanelProps> = ({
   const [variableValues, setVariableValues] = useState<Record<string, string>>({});
   const [sending, setSending] = useState(false);
   const [testResults, setTestResults] = useState<TestResult[]>([]);
+  const [emailTemplates, setEmailTemplates] = useState<any[]>([]);
+  const [loadingTemplates, setLoadingTemplates] = useState(true);
+  const [emailIntegration, setEmailIntegration] = useState<any>(null);
+  const [testingConnection, setTestingConnection] = useState(false);
   const { toast } = useToast();
 
-  const emailTemplates = templates.filter(t => t.type === 'email');
+  const integrationService = new IntegrationService();
+
+  // Load email templates and integration status on component mount
+  useEffect(() => {
+    loadEmailData();
+  }, []);
+
+  const loadEmailData = async () => {
+    try {
+      setLoadingTemplates(true);
+      
+      // Load email templates from database
+      const { data: templates, error } = await supabase
+        .from('email_templates')
+        .select('*')
+        .order('name');
+      
+      if (error) throw error;
+      setEmailTemplates(templates || []);
+
+      // Check email integration status
+      const integrations = await integrationService.getIntegrations();
+      const emailInt = integrations.find(i => i.type === 'email' && i.enabled);
+      setEmailIntegration(emailInt);
+      
+    } catch (error) {
+      console.error('Error loading email data:', error);
+      toast({
+        title: "Loading Error",
+        description: "Failed to load email templates and configuration",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingTemplates(false);
+    }
+  };
 
   const getDefaultVariableValue = (variable: string): string => {
     const defaults: Record<string, string> = {
       patientName: 'John Doe',
+      patient_name: 'John Doe',
       firstName: 'John',
       lastName: 'Doe',
       appointmentDate: 'March 25, 2024',
+      appointment_date: 'March 25, 2024',
       appointmentTime: '2:00 PM',
+      appointment_time: '2:00 PM',
       doctorName: 'Dr. Smith',
       practiceName: 'Healthcare Plus',
+      practice_name: 'Healthcare Plus',
+      practice_phone: '(555) 123-4567',
       phoneNumber: '(555) 123-4567',
       address: '123 Medical Center Dr',
       confirmationLink: 'https://example.com/confirm',
@@ -63,11 +109,11 @@ export const EmailTestPanel: React.FC<EmailTestPanelProps> = ({
     if (template) {
       setSelectedTemplate(template);
       setCustomSubject(template.subject || '');
-      setCustomMessage(template.content);
+      setCustomMessage(template.body || '');
       
       // Initialize variable values
       const newVariableValues: Record<string, string> = {};
-      template.variables.forEach(variable => {
+      (template.variables || []).forEach((variable: string) => {
         newVariableValues[variable] = getDefaultVariableValue(variable);
       });
       setVariableValues(newVariableValues);
@@ -89,6 +135,43 @@ export const EmailTestPanel: React.FC<EmailTestPanelProps> = ({
     }));
   };
 
+  const testEmailConnection = async () => {
+    if (!emailIntegration) {
+      toast({
+        title: "No Email Integration",
+        description: "Email integration is not configured",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setTestingConnection(true);
+    try {
+      const result = await integrationService.testIntegration(emailIntegration.id);
+      
+      if (result.success) {
+        toast({
+          title: "Connection Test Successful",
+          description: "Email integration is working correctly",
+        });
+      } else {
+        toast({
+          title: "Connection Test Failed",
+          description: result.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Test Failed",
+        description: "Failed to test email connection",
+        variant: "destructive",
+      });
+    } finally {
+      setTestingConnection(false);
+    }
+  };
+
   const handleSendTest = async () => {
     if (!recipientEmail || !customMessage) {
       toast({
@@ -99,11 +182,28 @@ export const EmailTestPanel: React.FC<EmailTestPanelProps> = ({
       return;
     }
 
+    if (!selectedTemplate) {
+      toast({
+        title: "No Template Selected",
+        description: "Please select an email template",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setSending(true);
     
     try {
-      // Simulate API call - replace with actual email service
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Use the actual send-scheduled-email edge function
+      const { error } = await supabase.functions.invoke('send-scheduled-email', {
+        body: {
+          templateId: selectedTemplate.id,
+          recipient: recipientEmail,
+          variables: variableValues
+        }
+      });
+
+      if (error) throw error;
       
       const result: TestResult = {
         success: true,
@@ -146,6 +246,56 @@ export const EmailTestPanel: React.FC<EmailTestPanelProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Integration Status Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Settings className="w-5 h-5" />
+            Email System Status
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {emailIntegration ? (
+                <CheckCircle className="w-5 h-5 text-green-600" />
+              ) : (
+                <AlertCircle className="w-5 h-5 text-red-600" />
+              )}
+              <div>
+                <p className="font-medium">
+                  {emailIntegration ? 'Email Integration Active' : 'Email Integration Not Configured'}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {emailIntegration 
+                    ? `Provider: ${emailIntegration.settings?.provider || 'Resend'} | Status: ${emailIntegration.enabled ? 'Enabled' : 'Disabled'}`
+                    : 'Configure email integration in Settings to send emails'
+                  }
+                </p>
+              </div>
+            </div>
+            {emailIntegration && (
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={testEmailConnection}
+                disabled={testingConnection}
+              >
+                {testingConnection ? (
+                  <>Testing...</>
+                ) : (
+                  <>
+                    <TestTube className="w-4 h-4 mr-2" />
+                    Test Connection
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Main Testing Card */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -163,18 +313,23 @@ export const EmailTestPanel: React.FC<EmailTestPanelProps> = ({
             <div className="space-y-4">
               <div>
                 <Label>Select Email Template</Label>
-                <Select onValueChange={handleTemplateSelect}>
+                <Select onValueChange={handleTemplateSelect} disabled={loadingTemplates}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Choose a template..." />
+                    <SelectValue placeholder={loadingTemplates ? "Loading templates..." : "Choose a template..."} />
                   </SelectTrigger>
                   <SelectContent>
                     {emailTemplates.map((template) => (
                       <SelectItem key={template.id} value={template.id}>
-                        {template.name} ({template.category})
+                        {template.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                {emailTemplates.length === 0 && !loadingTemplates && (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    No email templates found. Create templates in the settings.
+                  </p>
+                )}
               </div>
 
               <div>
@@ -196,12 +351,12 @@ export const EmailTestPanel: React.FC<EmailTestPanelProps> = ({
                 />
               </div>
 
-              {selectedTemplate && selectedTemplate.variables.length > 0 && (
+              {selectedTemplate && selectedTemplate.variables && selectedTemplate.variables.length > 0 && (
                 <div className="space-y-3">
                   <Label>Template Variables</Label>
-                  {selectedTemplate.variables.map(variable => (
+                  {selectedTemplate.variables.map((variable: string) => (
                     <div key={variable}>
-                      <Label className="text-xs text-gray-600">{variable}</Label>
+                      <Label className="text-xs text-muted-foreground">{variable}</Label>
                       <Input
                         value={variableValues[variable] || ''}
                         onChange={(e) => handleVariableValueChange(variable, e.target.value)}
@@ -244,7 +399,7 @@ export const EmailTestPanel: React.FC<EmailTestPanelProps> = ({
 
               <Button 
                 onClick={handleSendTest}
-                disabled={sending || !recipientEmail || !customMessage}
+                disabled={sending || !recipientEmail || !customMessage || !selectedTemplate || !emailIntegration}
                 className="w-full"
               >
                 {sending ? (
@@ -256,6 +411,15 @@ export const EmailTestPanel: React.FC<EmailTestPanelProps> = ({
                   </>
                 )}
               </Button>
+              
+              {!emailIntegration && (
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    Email integration is not configured. Please set up email integration in Settings first.
+                  </AlertDescription>
+                </Alert>
+              )}
             </div>
           </div>
         </CardContent>
