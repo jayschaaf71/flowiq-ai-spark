@@ -41,15 +41,20 @@ export const EnhancedCalendarView = () => {
     }
   }, [refreshKey, refetch]);
 
-  const filteredAppointments = appointments?.filter(apt => {
-    const matchesSearch = apt.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         apt.phone?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         apt.email?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || apt.status === statusFilter;
-    const matchesType = typeFilter === 'all' || apt.appointment_type === typeFilter;
+  // Use useMemo for filtered appointments to ensure proper recalculation
+  const filteredAppointments = React.useMemo(() => {
+    if (!appointments) return [];
     
-    return matchesSearch && matchesStatus && matchesType;
-  }) || [];
+    return appointments.filter(apt => {
+      const matchesSearch = apt.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           apt.phone?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           apt.email?.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus = statusFilter === 'all' || apt.status === statusFilter;
+      const matchesType = typeFilter === 'all' || apt.appointment_type === typeFilter;
+      
+      return matchesSearch && matchesStatus && matchesType;
+    });
+  }, [appointments, searchTerm, statusFilter, typeFilter, refreshKey]);
 
   const getAppointmentsForDate = (date: Date) => {
     const dateStr = format(date, 'yyyy-MM-dd');
@@ -134,12 +139,12 @@ export const EnhancedCalendarView = () => {
             const today = new Date();
             console.log('Setting current date to today:', today);
             setCurrentDate(today);
-            // Force component re-render by updating key and triggering state change
+            // Force a complete state refresh
             setRefreshKey(prev => prev + 1);
-            // Ensure filters are recalculated
-            setSearchTerm(prev => prev + '');
-            setTimeout(() => setSearchTerm(prev => prev.slice(0, -1)), 10);
-            console.log('Today navigation completed - date set and refresh triggered');
+            // Use requestAnimationFrame to ensure DOM updates
+            requestAnimationFrame(() => {
+              console.log('Today navigation completed - forced refresh');
+            });
           }}>
             Today
           </Button>

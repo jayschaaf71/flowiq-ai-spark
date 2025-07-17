@@ -88,8 +88,11 @@ export const WaitlistManagement = () => {
 
   const handleAddToWaitlist = async () => {
     try {
+      // Convert empty strings to null for date fields to avoid Supabase errors
       const entryWithTenant = {
         ...newEntry,
+        preferred_date: newEntry.preferred_date || null,
+        preferred_time: newEntry.preferred_time || null,
         tenant_id: 'd52278c3-bf0d-4731-bfa9-a40f032fa305' // Use the test tenant ID
       };
 

@@ -31,6 +31,7 @@ import { AppointmentManager } from '@/components/schedule/AppointmentManager';
 import { TodaysAppointments } from '@/components/schedule/TodaysAppointments';
 import { CalendarView } from '@/components/schedule/CalendarView';
 import { AutomatedReminders } from '@/components/schedule/AutomatedReminders';
+import { AvailableSlots } from '@/components/schedule/AvailableSlots';
 
 // Import intake components from IntakeIQ
 import { IntakeDashboard } from '@/components/intake/IntakeDashboard';
@@ -215,7 +216,7 @@ export const CommunicationIQ = () => {
           </CardContent>
         </Card>
 
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelectedTab('booking')}>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelectedTab('available-slots')}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -244,7 +245,8 @@ export const CommunicationIQ = () => {
       <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4">
         <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-          <TabsTrigger value="booking">Book Appointment</TabsTrigger>
+          <TabsTrigger value="booking">Today's Appointments</TabsTrigger>
+          <TabsTrigger value="available-slots">Available Slots</TabsTrigger>
           <TabsTrigger value="intake">Patient Intake</TabsTrigger>
           <TabsTrigger value="forms">Form Builder</TabsTrigger>
           <TabsTrigger value="communications">Communications</TabsTrigger>
@@ -374,6 +376,10 @@ export const CommunicationIQ = () => {
 
         <TabsContent value="booking" className="space-y-4">
           <TodaysAppointments />
+        </TabsContent>
+
+        <TabsContent value="available-slots" className="space-y-4">
+          <AvailableSlots />
         </TabsContent>
 
         <TabsContent value="intake" className="space-y-4">
