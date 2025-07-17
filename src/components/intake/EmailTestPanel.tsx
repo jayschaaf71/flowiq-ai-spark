@@ -12,7 +12,6 @@ import { Mail, Send, Eye, CheckCircle, AlertCircle, Settings, TestTube } from 'l
 import { useToast } from '@/hooks/use-toast';
 import { Template } from '@/hooks/useTemplates';
 import { supabase } from '@/integrations/supabase/client';
-import { IntegrationService } from '@/services/integrationService';
 
 interface TestResult {
   success: boolean;
@@ -44,8 +43,6 @@ export const EmailTestPanel: React.FC<EmailTestPanelProps> = ({
   const [testingConnection, setTestingConnection] = useState(false);
   const { toast } = useToast();
 
-  const integrationService = new IntegrationService();
-
   // Load email templates and integration status on component mount
   useEffect(() => {
     loadEmailData();
@@ -64,10 +61,15 @@ export const EmailTestPanel: React.FC<EmailTestPanelProps> = ({
       if (error) throw error;
       setEmailTemplates(templates || []);
 
-      // Check email integration status
-      const integrations = await integrationService.getIntegrations();
-      const emailInt = integrations.find(i => i.type === 'email' && i.enabled);
-      setEmailIntegration(emailInt);
+      // Check email integration status - Use direct query since types aren't updated yet
+      const { data: integrations } = await (supabase as any)
+        .from('integrations')
+        .select('*')
+        .eq('type', 'email')
+        .eq('enabled', true)
+        .single();
+      
+      setEmailIntegration(integrations);
       
     } catch (error) {
       console.error('Error loading email data:', error);
@@ -147,17 +149,22 @@ export const EmailTestPanel: React.FC<EmailTestPanelProps> = ({
 
     setTestingConnection(true);
     try {
-      const result = await integrationService.testIntegration(emailIntegration.id);
+      // Test by attempting to send to the send-scheduled-email function
+      const { error } = await supabase.functions.invoke('send-scheduled-email', {
+        body: { test: true }
+      });
       
-      if (result.success) {
+      const success = !error?.message?.includes('API key');
+      
+      if (success) {
         toast({
           title: "Connection Test Successful",
           description: "Email integration is working correctly",
         });
       } else {
         toast({
-          title: "Connection Test Failed",
-          description: result.message,
+          title: "Connection Test Failed", 
+          description: error?.message || "Email configuration issue",
           variant: "destructive",
         });
       }

@@ -41,7 +41,8 @@ export const EmailConfigurationPanel: React.FC = () => {
 
   const loadEmailConfiguration = async () => {
     try {
-      const { data: integrations, error } = await supabase
+      // Use direct query since TypeScript types haven't been updated yet
+      const { data: integrations, error } = await (supabase as any)
         .from('integrations')
         .select('*')
         .eq('type', 'email')
@@ -81,10 +82,12 @@ export const EmailConfigurationPanel: React.FC = () => {
   const saveConfiguration = async () => {
     setSaving(true);
     try {
-      const { error } = await supabase
+      // Use direct query since TypeScript types haven't been updated yet
+      const { error } = await (supabase as any)
         .from('integrations')
         .upsert({
           type: 'email',
+          name: 'Email Integration',
           settings: {
             provider: config.provider,
             fromEmail: config.fromEmail,
