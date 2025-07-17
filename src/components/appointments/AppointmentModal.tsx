@@ -9,6 +9,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useToast } from '@/hooks/use-toast';
 import { useCreateAppointment, useUpdateAppointment } from '@/hooks/useAppointments';
+import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 import { CalendarIcon, Clock, User, Phone, Mail } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -79,6 +80,23 @@ export const AppointmentModal = ({
   const { toast } = useToast();
   const createMutation = useCreateAppointment();
   const updateMutation = useUpdateAppointment();
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  // Get current user on mount
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+        setCurrentUser({ ...user, profile });
+      }
+    };
+    getCurrentUser();
+  }, []);
 
   useEffect(() => {
     if (appointment) {
@@ -126,8 +144,18 @@ export const AppointmentModal = ({
     }
 
     try {
+      if (!currentUser?.profile?.current_tenant_id) {
+        toast({
+          title: "Authentication Error",
+          description: "User tenant not found. Please log in again.",
+          variant: "destructive"
+        });
+        return;
+      }
+
       const appointmentData = {
         ...formData,
+        tenant_id: currentUser.profile.current_tenant_id,
         updated_at: new Date().toISOString()
       };
 
@@ -147,6 +175,11 @@ export const AppointmentModal = ({
       resetForm();
     } catch (error) {
       console.error('Error saving appointment:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save appointment. Please check your permissions.",
+        variant: "destructive"
+      });
     }
   };
 
