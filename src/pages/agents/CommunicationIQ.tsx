@@ -42,6 +42,9 @@ import { StaffIntakeDashboard } from '@/components/intake/StaffIntakeDashboard';
 // Import hooks
 import { useIntakeForms } from '@/hooks/useIntakeForms';
 
+// Import waitlist components
+import { WaitlistManagement } from '@/components/waitlist/WaitlistManagement';
+
 export const CommunicationIQ = () => {
   const navigate = useNavigate();
   const [selectedTab, setSelectedTab] = useState('dashboard');
@@ -177,7 +180,7 @@ export const CommunicationIQ = () => {
 
       {/* Enhanced Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelectedTab('booking')}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -189,7 +192,7 @@ export const CommunicationIQ = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelectedTab('intake')}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -201,7 +204,7 @@ export const CommunicationIQ = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelectedTab('communications')}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -213,7 +216,7 @@ export const CommunicationIQ = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelectedTab('voice')}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -228,7 +231,7 @@ export const CommunicationIQ = () => {
 
       {/* Main Content Tabs */}
       <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-7">
+        <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           <TabsTrigger value="booking">Book Appointment</TabsTrigger>
           <TabsTrigger value="intake">Patient Intake</TabsTrigger>
@@ -236,6 +239,7 @@ export const CommunicationIQ = () => {
           <TabsTrigger value="communications">Communications</TabsTrigger>
           <TabsTrigger value="voice">Voice Intake</TabsTrigger>
           <TabsTrigger value="reminders">Auto Reminders</TabsTrigger>
+          <TabsTrigger value="waitlist">Waiting List</TabsTrigger>
         </TabsList>
 
         <TabsContent value="dashboard" className="space-y-4">
@@ -419,6 +423,10 @@ export const CommunicationIQ = () => {
         <TabsContent value="reminders" className="space-y-4">
           <AutomatedReminders />
         </TabsContent>
+
+        <TabsContent value="waitlist" className="space-y-4">
+          <WaitlistManagement />
+        </TabsContent>
       </Tabs>
 
       {/* Enhanced Quick Actions */}
@@ -472,10 +480,10 @@ export const CommunicationIQ = () => {
             <Button 
               variant="outline" 
               className="h-16 flex-col"
-              onClick={() => navigate('/analytics')}
+              onClick={() => setSelectedTab('waitlist')}
             >
-              <Activity className="h-6 w-6 mb-1" />
-              <span className="text-xs">View Analytics</span>
+              <Users className="h-6 w-6 mb-1" />
+              <span className="text-xs">Waitlist</span>
             </Button>
           </div>
         </CardContent>

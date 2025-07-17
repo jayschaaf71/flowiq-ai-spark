@@ -242,10 +242,10 @@ export const RealTimeCalendar = ({ onTimeSlotClick, onAppointmentClick }: RealTi
 
               {/* Time slots */}
               {timeSlots.map(time => (
-                <React.Fragment key={time}>
-                  <div className="p-2 text-sm font-medium text-gray-600 border-r bg-gray-50 rounded">
-                    {time}
-                  </div>
+                 <React.Fragment key={time}>
+                   <div className="p-2 text-sm font-medium text-gray-600 border-r bg-gray-50 rounded">
+                     {time}
+                   </div>
                   {weekDays.map(day => {
                     const status = getSlotStatus(day, time);
                     const slotId = getSlotId(day, time);

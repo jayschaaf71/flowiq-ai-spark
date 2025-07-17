@@ -48,7 +48,7 @@ export const ProductionBookingInterface = ({ onAppointmentBooked }: ProductionBo
     <div className="space-y-6">
       {/* Header with Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <Calendar className="w-8 h-8 text-blue-600" />
@@ -60,7 +60,7 @@ export const ProductionBookingInterface = ({ onAppointmentBooked }: ProductionBo
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <Clock className="w-8 h-8 text-green-600" />
@@ -72,7 +72,7 @@ export const ProductionBookingInterface = ({ onAppointmentBooked }: ProductionBo
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <Users className="w-8 h-8 text-purple-600" />
@@ -84,7 +84,7 @@ export const ProductionBookingInterface = ({ onAppointmentBooked }: ProductionBo
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <TrendingUp className="w-8 h-8 text-orange-600" />
