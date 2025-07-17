@@ -35,13 +35,14 @@ export const navGroups: NavGroup[] = [
 const baseNavItems: NavItem[] = [
   // Overview
   { id: "dashboard", label: "Dashboard", path: "/dashboard", icon: Home, group: "overview", order: 10 },
+  { id: "calendar", label: "Calendar", path: "/calendar", icon: Calendar, group: "overview", order: 15 },
   { id: "patients", label: "Patients", path: "/patient-management", icon: Users, group: "overview", order: 20 },
   { id: "ehr", label: "EHR", path: "/ehr", icon: Database, group: "overview", order: 30 },
   { id: "insights", label: "Insights", path: "/insights", icon: TrendingUp, group: "overview", order: 40 },
 
   // Clinical Care
   { id: "scribe-iq", label: "Scribe iQ", path: "/agents/scribe", icon: Stethoscope, badge: "AI", group: "clinical_care", order: 10 },
-  { id: "communication-iq", label: "Communication iQ", path: "/agents/communication", icon: Calendar, badge: "AI", group: "clinical_care", order: 20 },
+  { id: "communication-iq", label: "Communication iQ", path: "/agents/communication", icon: Phone, badge: "AI", group: "clinical_care", order: 20 },
 
   // Patient Journey
   { id: "education-iq", label: "Education iQ", path: "/agents/education", icon: GraduationCap, badge: "AI", group: "patient_journey", order: 20 },
@@ -103,6 +104,10 @@ export const getNavItems = (specialty: string = 'chiropractic'): NavItem[] => {
     
     if (item.id === 'insights') {
       return { ...item, path: `${specialtyPrefix}/insights` };
+    }
+    
+    if (item.id === 'calendar') {
+      return { ...item, path: `${specialtyPrefix}/calendar` };
     }
     
     // Handle agent routes - prefix them with specialty

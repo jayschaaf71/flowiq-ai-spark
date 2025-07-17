@@ -13,6 +13,7 @@ import { SleepStudyManager } from '@/components/dental-sleep/SleepStudyManager';
 import { DMETracker } from '@/components/dental-sleep/DMETracker';
 
 // Shared components
+import { Calendar } from '@/pages/Calendar';
 import { ClaimsDashboard } from '@/components/claims/ClaimsDashboard';
 import { ScheduleDashboard } from '@/components/schedule/ScheduleDashboard';
 import PatientManagement from '@/pages/PatientManagement';
@@ -45,6 +46,14 @@ export default function DentalSleepApp() {
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <DentalSleepDashboard />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/calendar" element={
+          <ProtectedRoute requiredRole="staff">
+            <Layout>
+              <Calendar />
             </Layout>
           </ProtectedRoute>
         } />

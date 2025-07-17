@@ -171,7 +171,7 @@ export const CommunicationIQ = () => {
       {/* Header */}
       <PageHeader 
         title="Communication IQ"
-        subtitle="Complete patient communication lifecycle management - from intake to follow-up"
+        subtitle="Patient communication management - intake, forms, messaging, and follow-up"
         badge="AI Agent"
       />
 
@@ -228,9 +228,8 @@ export const CommunicationIQ = () => {
 
       {/* Main Content Tabs */}
       <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-8">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-          <TabsTrigger value="calendar">Calendar</TabsTrigger>
           <TabsTrigger value="booking">Book Appointment</TabsTrigger>
           <TabsTrigger value="intake">Patient Intake</TabsTrigger>
           <TabsTrigger value="forms">Form Builder</TabsTrigger>
@@ -359,9 +358,6 @@ export const CommunicationIQ = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="calendar" className="space-y-4">
-          <CalendarView />
-        </TabsContent>
 
         <TabsContent value="booking" className="space-y-4">
           <ProductionBookingInterface onAppointmentBooked={handleAppointmentBooked} />

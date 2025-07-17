@@ -6,6 +6,7 @@ import { ChiropracticWrapper } from '@/components/wrappers/ChiropracticWrapper';
 
 // Chiropractic Pages
 import { Dashboard } from '@/pages/Dashboard';
+import { Calendar } from '@/pages/Calendar';
 import Schedule from '@/pages/Schedule';
 import Analytics from '@/pages/Analytics';
 import EHR from '@/pages/EHR';
@@ -47,6 +48,14 @@ export default function ChiropracticApp() {
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <Dashboard />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/calendar" element={
+          <ProtectedRoute requiredRole="staff">
+            <Layout>
+              <Calendar />
             </Layout>
           </ProtectedRoute>
         } />
