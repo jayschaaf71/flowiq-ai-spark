@@ -74,7 +74,7 @@ export const AppointmentModal = ({
     provider: '',
     title: '',
     notes: '',
-    status: 'pending'
+    status: 'scheduled'
   });
 
   const { toast } = useToast();
@@ -130,7 +130,7 @@ export const AppointmentModal = ({
         provider: appointment.provider || '',
         title: appointment.title || '',
         notes: appointment.notes || '',
-        status: appointment.status || 'pending'
+        status: appointment.status || 'scheduled'
       });
     } else if (defaultDate) {
       setFormData(prev => ({
@@ -214,7 +214,7 @@ export const AppointmentModal = ({
       provider: '',
       title: '',
       notes: '',
-      status: 'pending'
+      status: 'scheduled'
     });
   };
 
@@ -400,7 +400,7 @@ export const AppointmentModal = ({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="scheduled">Scheduled</SelectItem>
                   <SelectItem value="confirmed">Confirmed</SelectItem>
                   <SelectItem value="completed">Completed</SelectItem>
                   <SelectItem value="cancelled">Cancelled</SelectItem>
