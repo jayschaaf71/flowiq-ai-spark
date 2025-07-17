@@ -1,14 +1,37 @@
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TwoFactorAuth } from "@/components/auth/TwoFactorAuth";
 import { TeamManagement } from "@/components/settings/TeamManagement";
 import { ProviderNotificationPreferences } from "@/components/provider/ProviderNotificationPreferences";
+import { useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
 const Settings = () => {
+  const { toast } = useToast();
   // In a real app, you'd get this from auth context
   const providerId = 'current-provider-id'; // This should come from auth context
+  
+  // State for form persistence
+  const [practiceInfo, setPracticeInfo] = useState({
+    name: "Midwest Dental Sleep Medicine Institute",
+    phone: "",
+    email: "",
+    website: "",
+    address: "",
+    city: "",
+    state: "",
+    zipCode: ""
+  });
+
+  const handleSavePracticeInfo = () => {
+    toast({
+      title: "Practice information saved",
+      description: "Your practice details have been updated successfully.",
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -36,26 +59,30 @@ const Settings = () => {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Practice Name</label>
-                  <input className="w-full p-2 border rounded" defaultValue="FlowIQ Practice" />
+                  <input 
+                    className="w-full p-2 border rounded" 
+                    value={practiceInfo.name}
+                    onChange={(e) => setPracticeInfo(prev => ({...prev, name: e.target.value}))}
+                  />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Time Zone</label>
                   <select className="w-full p-2 border rounded">
                     <option>Eastern Time (EST)</option>
-                    <option>Central Time (CST)</option>
+                    <option selected>Central Time (CST)</option>
                     <option>Mountain Time (MST)</option>
                     <option>Pacific Time (PST)</option>
                   </select>
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Practice Type</label>
-                  <select className="w-full p-2 border rounded">
-                    <option>Primary Care</option>
-                    <option>Specialty Practice</option>
-                    <option>Multi-Specialty</option>
-                    <option>Urgent Care</option>
-                  </select>
+                  <div className="w-full p-2 border rounded bg-muted">
+                    <span className="text-sm text-muted-foreground">Dental Sleep Medicine Practice</span>
+                  </div>
                 </div>
+                <Button onClick={handleSavePracticeInfo} className="w-full mt-4">
+                  Save Practice Information
+                </Button>
               </CardContent>
             </Card>
 
@@ -67,15 +94,30 @@ const Settings = () => {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Phone Number</label>
-                  <input className="w-full p-2 border rounded" placeholder="(555) 123-4567" />
+                  <input 
+                    className="w-full p-2 border rounded" 
+                    placeholder="(555) 123-4567"
+                    value={practiceInfo.phone}
+                    onChange={(e) => setPracticeInfo(prev => ({...prev, phone: e.target.value}))}
+                  />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Email Address</label>
-                  <input className="w-full p-2 border rounded" placeholder="contact@practice.com" />
+                  <input 
+                    className="w-full p-2 border rounded" 
+                    placeholder="contact@practice.com"
+                    value={practiceInfo.email}
+                    onChange={(e) => setPracticeInfo(prev => ({...prev, email: e.target.value}))}
+                  />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Website</label>
-                  <input className="w-full p-2 border rounded" placeholder="https://practice.com" />
+                  <input 
+                    className="w-full p-2 border rounded" 
+                    placeholder="https://practice.com"
+                    value={practiceInfo.website}
+                    onChange={(e) => setPracticeInfo(prev => ({...prev, website: e.target.value}))}
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -88,21 +130,41 @@ const Settings = () => {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Street Address</label>
-                  <input className="w-full p-2 border rounded" placeholder="123 Medical Drive" />
+                  <input 
+                    className="w-full p-2 border rounded" 
+                    placeholder="123 Medical Drive"
+                    value={practiceInfo.address}
+                    onChange={(e) => setPracticeInfo(prev => ({...prev, address: e.target.value}))}
+                  />
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-2">
                     <label className="text-sm font-medium">City</label>
-                    <input className="w-full p-2 border rounded" placeholder="City" />
+                    <input 
+                      className="w-full p-2 border rounded" 
+                      placeholder="City"
+                      value={practiceInfo.city}
+                      onChange={(e) => setPracticeInfo(prev => ({...prev, city: e.target.value}))}
+                    />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium">State</label>
-                    <input className="w-full p-2 border rounded" placeholder="State" />
+                    <input 
+                      className="w-full p-2 border rounded" 
+                      placeholder="State"
+                      value={practiceInfo.state}
+                      onChange={(e) => setPracticeInfo(prev => ({...prev, state: e.target.value}))}
+                    />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">ZIP Code</label>
-                  <input className="w-full p-2 border rounded" placeholder="12345" />
+                  <input 
+                    className="w-full p-2 border rounded" 
+                    placeholder="12345"
+                    value={practiceInfo.zipCode}
+                    onChange={(e) => setPracticeInfo(prev => ({...prev, zipCode: e.target.value}))}
+                  />
                 </div>
               </CardContent>
             </Card>
