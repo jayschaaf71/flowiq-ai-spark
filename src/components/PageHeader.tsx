@@ -71,7 +71,17 @@ export const PageHeader = ({ title, subtitle, badge, children }: PageHeaderProps
                   {notifications.map((notification) => {
                     const IconComponent = notification.icon;
                     return (
-                      <div key={notification.id} className="p-4 border-b border-border last:border-0 hover:bg-accent cursor-pointer">
+                      <div 
+                        key={notification.id} 
+                        className="p-4 border-b border-border last:border-0 hover:bg-accent cursor-pointer transition-colors"
+                        onClick={() => {
+                          setNotificationOpen(false);
+                          toast({
+                            title: notification.title,
+                            description: notification.message,
+                          });
+                        }}
+                      >
                         <div className="flex items-start gap-3">
                           <IconComponent className="w-5 h-5 text-primary mt-0.5" />
                           <div className="flex-1">
@@ -103,12 +113,34 @@ export const PageHeader = ({ title, subtitle, badge, children }: PageHeaderProps
             </PopoverContent>
           </Popover>
           
-          <Avatar className="h-8 w-8">
-            <AvatarImage src="/placeholder.svg" />
-            <AvatarFallback className="bg-primary text-primary-foreground">
-              AX
-            </AvatarFallback>
-          </Avatar>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" size="icon" className="relative">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src="/placeholder.svg" />
+                  <AvatarFallback className="bg-primary text-primary-foreground">
+                    AX
+                  </AvatarFallback>
+                </Avatar>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-56" align="end">
+              <div className="space-y-2">
+                <div className="px-2 py-1.5">
+                  <p className="text-sm font-medium">Alex Smith</p>
+                  <p className="text-xs text-muted-foreground">alex@example.com</p>
+                </div>
+                <div className="border-t pt-2">
+                  <Button variant="ghost" size="sm" className="w-full justify-start">
+                    Profile Settings
+                  </Button>
+                  <Button variant="ghost" size="sm" className="w-full justify-start">
+                    Sign Out
+                  </Button>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
     </div>
