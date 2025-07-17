@@ -3,6 +3,7 @@ import { useState } from "react";
 import { EnhancedCalendarView } from "./EnhancedCalendarView";
 import { AppointmentFilters } from "./AppointmentFilters";
 import { AppointmentBulkActions } from "./AppointmentBulkActions";
+import { SageTaskPanel } from "./SageTaskPanel";
 import { useAppointments } from "@/hooks/useAppointments";
 import { format } from "date-fns";
 import { Tables } from "@/integrations/supabase/types";
@@ -98,8 +99,18 @@ export const CalendarView = () => {
         onBulkDelete={handleBulkDelete}
       />
 
-      {/* Enhanced Calendar */}
-      <EnhancedCalendarView />
+      {/* Main Calendar Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Calendar View */}
+        <div className="lg:col-span-3">
+          <EnhancedCalendarView />
+        </div>
+        
+        {/* SAGE Intelligence Panel */}
+        <div className="lg:col-span-1">
+          <SageTaskPanel />
+        </div>
+      </div>
     </div>
   );
 };

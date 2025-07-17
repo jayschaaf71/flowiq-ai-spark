@@ -115,13 +115,19 @@ export const useAIHelpAssistant = () => {
           });
 
           console.log('Making AI Help request...');
+          
+          // Get auth token for calendar intelligence
+          const { data: { session } } = await supabase.auth.getSession();
+          const authToken = session?.access_token;
+          
           const requestPromise = supabase.functions.invoke('ai-help-assistant', {
             body: {
               message: messageContent,
               context: getContextualInfo(),
               conversationHistory: messages.slice(-5), // Last 5 messages for context
               specialty: currentSpecialty,
-              brandName: getBrandName()
+              brandName: getBrandName(),
+              authToken // Pass auth token for calendar intelligence
             }
           });
 

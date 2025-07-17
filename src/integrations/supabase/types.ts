@@ -14,6 +14,128 @@ export type Database = {
   }
   public: {
     Tables: {
+      appointment_preparation_status: {
+        Row: {
+          appointment_id: string
+          contact_confirmed: boolean | null
+          created_at: string
+          forms_signed: boolean | null
+          id: string
+          insurance_verified: boolean | null
+          intake_completed: boolean | null
+          last_outreach_date: string | null
+          medical_history_complete: boolean | null
+          missing_items: string[] | null
+          outreach_count: number | null
+          preparation_score: number | null
+          tenant_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          appointment_id: string
+          contact_confirmed?: boolean | null
+          created_at?: string
+          forms_signed?: boolean | null
+          id?: string
+          insurance_verified?: boolean | null
+          intake_completed?: boolean | null
+          last_outreach_date?: string | null
+          medical_history_complete?: boolean | null
+          missing_items?: string[] | null
+          outreach_count?: number | null
+          preparation_score?: number | null
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          appointment_id?: string
+          contact_confirmed?: boolean | null
+          created_at?: string
+          forms_signed?: boolean | null
+          id?: string
+          insurance_verified?: boolean | null
+          intake_completed?: boolean | null
+          last_outreach_date?: string | null
+          medical_history_complete?: boolean | null
+          missing_items?: string[] | null
+          outreach_count?: number | null
+          preparation_score?: number | null
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointment_preparation_status_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointment_preparation_status_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      appointment_types: {
+        Row: {
+          color_code: string | null
+          created_at: string
+          duration_minutes: number
+          follow_up_required: boolean | null
+          id: string
+          name: string
+          prep_time_minutes: number | null
+          procedure_codes: string[] | null
+          requires_prep: boolean | null
+          scheduling_constraints: Json | null
+          specialty: string | null
+          tenant_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          color_code?: string | null
+          created_at?: string
+          duration_minutes?: number
+          follow_up_required?: boolean | null
+          id?: string
+          name: string
+          prep_time_minutes?: number | null
+          procedure_codes?: string[] | null
+          requires_prep?: boolean | null
+          scheduling_constraints?: Json | null
+          specialty?: string | null
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          color_code?: string | null
+          created_at?: string
+          duration_minutes?: number
+          follow_up_required?: boolean | null
+          id?: string
+          name?: string
+          prep_time_minutes?: number | null
+          procedure_codes?: string[] | null
+          requires_prep?: boolean | null
+          scheduling_constraints?: Json | null
+          specialty?: string | null
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointment_types_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       appointment_waitlist: {
         Row: {
           appointment_type: string
@@ -1751,6 +1873,63 @@ export type Database = {
           },
         ]
       }
+      provider_daily_summaries: {
+        Row: {
+          appointment_count: number | null
+          created_at: string
+          email_sent: boolean | null
+          id: string
+          provider_id: string
+          sent_at: string | null
+          sms_sent: boolean | null
+          summary_data: Json
+          summary_date: string
+          tenant_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          appointment_count?: number | null
+          created_at?: string
+          email_sent?: boolean | null
+          id?: string
+          provider_id: string
+          sent_at?: string | null
+          sms_sent?: boolean | null
+          summary_data?: Json
+          summary_date: string
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          appointment_count?: number | null
+          created_at?: string
+          email_sent?: boolean | null
+          id?: string
+          provider_id?: string
+          sent_at?: string | null
+          sms_sent?: boolean | null
+          summary_data?: Json
+          summary_date?: string
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_daily_summaries_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_daily_summaries_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       provider_notification_preferences: {
         Row: {
           created_at: string
@@ -1842,6 +2021,70 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "provider_notifications_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_procedure_schedules: {
+        Row: {
+          appointment_type_id: string
+          created_at: string
+          day_of_week: number
+          end_time: string
+          id: string
+          is_active: boolean | null
+          max_appointments: number | null
+          provider_id: string
+          start_time: string
+          tenant_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          appointment_type_id: string
+          created_at?: string
+          day_of_week: number
+          end_time: string
+          id?: string
+          is_active?: boolean | null
+          max_appointments?: number | null
+          provider_id: string
+          start_time: string
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          appointment_type_id?: string
+          created_at?: string
+          day_of_week?: number
+          end_time?: string
+          id?: string
+          is_active?: boolean | null
+          max_appointments?: number | null
+          provider_id?: string
+          start_time?: string
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_procedure_schedules_appointment_type_id_fkey"
+            columns: ["appointment_type_id"]
+            isOneToOne: false
+            referencedRelation: "appointment_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_procedure_schedules_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_procedure_schedules_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -2020,6 +2263,82 @@ export type Database = {
           },
           {
             foreignKeyName: "reminder_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sage_calendar_tasks: {
+        Row: {
+          appointment_id: string | null
+          assigned_to: string | null
+          auto_generated: boolean | null
+          completed_at: string | null
+          created_at: string
+          due_date: string | null
+          id: string
+          patient_id: string | null
+          priority: string | null
+          sage_context: Json | null
+          status: string | null
+          task_description: string
+          task_type: string
+          tenant_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          appointment_id?: string | null
+          assigned_to?: string | null
+          auto_generated?: boolean | null
+          completed_at?: string | null
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          patient_id?: string | null
+          priority?: string | null
+          sage_context?: Json | null
+          status?: string | null
+          task_description: string
+          task_type: string
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          appointment_id?: string | null
+          assigned_to?: string | null
+          auto_generated?: boolean | null
+          completed_at?: string | null
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          patient_id?: string | null
+          priority?: string | null
+          sage_context?: Json | null
+          status?: string | null
+          task_description?: string
+          task_type?: string
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sage_calendar_tasks_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sage_calendar_tasks_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sage_calendar_tasks_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
