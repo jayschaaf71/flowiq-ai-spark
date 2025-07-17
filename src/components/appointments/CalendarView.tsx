@@ -1,44 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import { format, startOfWeek, endOfWeek, addDays, startOfDay, endOfDay, 
+         startOfMonth, endOfMonth, parseISO, isSameDay, isSameMonth, addWeeks, subWeeks, addMonths, subMonths } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useAppointments } from '@/hooks/useAppointments';
-import { supabase } from '@/integrations/supabase/client';
-import { format, addDays, startOfWeek, isSameDay, parseISO, startOfMonth, endOfMonth, startOfDay, endOfDay } from 'date-fns';
-import { 
-  Calendar as CalendarIcon, 
-  ChevronLeft, 
-  ChevronRight,
-  Plus,
-  Eye,
-  Clock,
-  User,
-  Filter,
-  Settings
-} from 'lucide-react';
-import { AppointmentModal } from './AppointmentModal';
+import { CalendarIcon, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { Tables } from '@/integrations/supabase/types';
 import { CalendarFilters } from './CalendarFilters';
 import { CalendarIntegrations } from './CalendarIntegrations';
+import { AppointmentModal } from './AppointmentModal';
 
-interface Appointment {
-  id: string;
-  date: string;
-  time: string;
-  title: string;
-  appointment_type: string;
-  status: string;
-  duration: number;
-  patient_id?: string;
-  patient_name?: string;
-  provider_id?: string;
-  provider?: string;
-  notes?: string;
-}
+type Appointment = Tables<"appointments">;
 
 interface CalendarViewProps {
-  onCreateAppointment?: (date: Date, time?: string) => void;
+  onCreateAppointment?: (date?: Date, time?: string) => void;
   onViewAppointment?: (appointment: Appointment) => void;
 }
 
@@ -83,54 +60,24 @@ export const CalendarView = ({ onCreateAppointment, onViewAppointment }: Calenda
     });
   };
 
-  const weekStart = startOfWeek(currentWeek);
-  const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
-  const timeSlots = Array.from({ length: 17 }, (_, i) => {
-    const hour = i + 7; // 7 AM to 11 PM
-    return `${hour.toString().padStart(2, '0')}:00`;
+  // Generate time slots for day/week view
+  const generateTimeSlots = () => {
+    const slots = [];
+    for (let hour = 8; hour < 18; hour++) {
+      for (let minute = 0; minute < 60; minute += 30) {
+        const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        slots.push(timeString);
+      }
+    }
+    return slots;
+  };
+
+  const timeSlots = generateTimeSlots();
+
+  // Generate week days
+  const weekDays = Array.from({ length: 7 }, (_, i) => {
+    return addDays(startOfWeek(currentWeek), i);
   });
-
-  const getAppointmentsForDateTime = (date: Date, time: string) => {
-    return appointments.filter(apt => 
-      isSameDay(parseISO(apt.date), date) && 
-      apt.time.startsWith(time.slice(0, 2)) // Match hour
-    );
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'confirmed':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'completed':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'cancelled':
-        return 'bg-red-100 text-red-800 border-red-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-
-  const navigate = (direction: 'prev' | 'next') => {
-    if (view === 'week') {
-      setCurrentWeek(prev => addDays(prev, direction === 'next' ? 7 : -7));
-    } else if (view === 'month') {
-      setCurrentMonth(prev => {
-        const newDate = new Date(prev);
-        newDate.setMonth(prev.getMonth() + (direction === 'next' ? 1 : -1));
-        return newDate;
-      });
-    } else { // day
-      setCurrentWeek(prev => addDays(prev, direction === 'next' ? 1 : -1));
-    }
-  };
-
-  const goToToday = () => {
-    const today = new Date();
-    setCurrentWeek(today);
-    setCurrentMonth(today);
-  };
 
   // Filter appointments based on search and filters
   const viewFilteredAppointments = getFilteredAppointmentsByView();
@@ -147,6 +94,36 @@ export const CalendarView = ({ onCreateAppointment, onViewAppointment }: Calenda
     return matchesSearch && matchesStatus && matchesProvider && matchesType;
   });
 
+  // Navigation functions
+  const navigate = (direction: 'prev' | 'next') => {
+    if (view === 'week' || view === 'day') {
+      const change = direction === 'next' ? addWeeks : subWeeks;
+      setCurrentWeek(change(currentWeek, 1));
+    } else if (view === 'month') {
+      const change = direction === 'next' ? addMonths : subMonths;
+      setCurrentMonth(change(currentMonth, 1));
+    }
+  };
+
+  const goToToday = () => {
+    const today = new Date();
+    setCurrentWeek(today);
+    setCurrentMonth(today);
+  };
+
+  const getDateRange = () => {
+    if (view === 'day') {
+      return format(currentWeek, 'EEEE, MMMM d, yyyy');
+    } else if (view === 'week') {
+      const start = startOfWeek(currentWeek);
+      const end = endOfWeek(currentWeek);
+      return `${format(start, 'MMM d')} - ${format(end, 'MMM d, yyyy')}`;
+    } else {
+      return format(currentMonth, 'MMMM yyyy');
+    }
+  };
+
+  // Filter management
   const getActiveFiltersCount = () => {
     let count = 0;
     if (searchTerm) count++;
@@ -163,38 +140,32 @@ export const CalendarView = ({ onCreateAppointment, onViewAppointment }: Calenda
     setAppointmentTypeFilter('all');
   };
 
+  // Event handlers
   const handleCreateAppointment = (date: Date, time?: string) => {
     setDefaultDate(date);
     setDefaultTime(time);
     setSelectedAppointment(undefined);
     setShowAppointmentModal(true);
+    onCreateAppointment?.(date, time);
   };
 
   const handleViewAppointment = (appointment: Appointment) => {
     setSelectedAppointment(appointment);
-    setDefaultDate(undefined);
-    setDefaultTime(undefined);
     setShowAppointmentModal(true);
+    onViewAppointment?.(appointment);
   };
 
-  const getDateRange = () => {
-    if (view === 'week') {
-      const weekStart = startOfWeek(currentWeek);
-      return `Week of ${format(weekStart, 'MMMM d, yyyy')}`;
-    } else if (view === 'month') {
-      return format(currentMonth, 'MMMM yyyy');
-    } else {
-      return format(currentWeek, 'MMMM d, yyyy');
-    }
+  const closeModal = () => {
+    setShowAppointmentModal(false);
+    setSelectedAppointment(undefined);
+    setDefaultDate(undefined);
+    setDefaultTime(undefined);
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading calendar...</p>
-        </div>
+      <div className="flex items-center justify-center h-64">
+        <div className="text-lg">Loading calendar...</div>
       </div>
     );
   }
@@ -270,6 +241,66 @@ export const CalendarView = ({ onCreateAppointment, onViewAppointment }: Calenda
           {/* Calendar Grid */}
           <Card>
             <CardContent className="p-0">
+              {view === 'day' && (
+                <>
+                  <div className="border-b bg-muted/50 p-4">
+                    <h3 className="font-semibold text-lg">
+                      {format(currentWeek, 'EEEE, MMMM d, yyyy')}
+                    </h3>
+                  </div>
+                  
+                  {/* Day view - single column with time slots */}
+                  <div className="max-h-[600px] overflow-y-auto">
+                    {timeSlots.map((time) => {
+                      const dayDate = format(currentWeek, 'yyyy-MM-dd');
+                      const dayAppointments = filteredAppointments.filter(apt => 
+                        apt.date === dayDate && apt.time === time
+                      );
+                      
+                      return (
+                        <div key={time} className="grid grid-cols-4 border-b min-h-16 hover:bg-muted/30">
+                          {/* Time label */}
+                          <div className="p-3 border-r bg-muted/30 text-sm font-medium flex items-center">
+                            {format(new Date(`2000-01-01T${time}`), 'h:mm a')}
+                          </div>
+                          
+                          {/* Appointment slot */}
+                          <div 
+                            className="col-span-3 p-2 cursor-pointer relative"
+                            onClick={() => handleCreateAppointment(currentWeek, time)}
+                          >
+                            {dayAppointments.length > 0 ? (
+                              dayAppointments.map((apt) => (
+                                <div
+                                  key={apt.id}
+                                  className={`appointment-card p-2 rounded mb-1 text-xs cursor-pointer
+                                    ${apt.status === 'confirmed' ? 'bg-green-100 border-green-300' : 
+                                      apt.status === 'scheduled' ? 'bg-blue-100 border-blue-300' :
+                                      apt.status === 'cancelled' ? 'bg-red-100 border-red-300' :
+                                      apt.status === 'completed' ? 'bg-purple-100 border-purple-300' :
+                                      'bg-yellow-100 border-yellow-300'} border`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleViewAppointment(apt);
+                                  }}
+                                >
+                                  <div className="font-medium truncate">{apt.patient_name || 'No Name'}</div>
+                                  <div className="text-muted-foreground truncate">{apt.appointment_type}</div>
+                                </div>
+                              ))
+                            ) : (
+                              <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
+                                Click to schedule
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+
               {view === 'week' && (
                 <>
                   <div className="grid grid-cols-8 border-b">
@@ -299,50 +330,35 @@ export const CalendarView = ({ onCreateAppointment, onViewAppointment }: Calenda
                         
                         {/* Day columns */}
                         {weekDays.map((day) => {
+                          const dayDate = format(day, 'yyyy-MM-dd');
                           const dayAppointments = filteredAppointments.filter(apt => 
-                            isSameDay(parseISO(apt.date), day) && 
-                            apt.time.startsWith(time.slice(0, 2))
+                            apt.date === dayDate && apt.time === time
                           );
                           
                           return (
                             <div 
-                              key={`${day.toISOString()}-${time}`} 
-                              className="border-r p-1 min-h-16 hover:bg-muted/30 cursor-pointer relative"
+                              key={day.toISOString()} 
+                              className="border-r p-1 cursor-pointer hover:bg-muted/30 relative"
                               onClick={() => handleCreateAppointment(day, time)}
                             >
-                              {dayAppointments.length > 0 ? (
-                                <div className="space-y-1">
-                                  {dayAppointments.map((appointment) => (
-                                    <div
-                                      key={appointment.id}
-                                      className={`p-2 rounded text-xs border cursor-pointer hover:shadow-sm ${getStatusColor(appointment.status)}`}
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleViewAppointment(appointment);
-                                      }}
-                                    >
-                                      <div className="font-medium truncate">{appointment.title}</div>
-                                      <div className="flex items-center gap-1 mt-1">
-                                        <Clock className="h-3 w-3" />
-                                        <span>{appointment.time}</span>
-                                      </div>
-                                      {appointment.patient_name && (
-                                        <div className="flex items-center gap-1">
-                                          <User className="h-3 w-3" />
-                                          <span className="truncate">{appointment.patient_name}</span>
-                                        </div>
-                                      )}
-                                      <Badge variant="secondary" className="text-xs mt-1">
-                                        {appointment.status}
-                                      </Badge>
-                                    </div>
-                                  ))}
+                              {dayAppointments.map((apt) => (
+                                <div
+                                  key={apt.id}
+                                  className={`appointment-card p-1 rounded text-xs cursor-pointer
+                                    ${apt.status === 'confirmed' ? 'bg-green-100 border-green-300' : 
+                                      apt.status === 'scheduled' ? 'bg-blue-100 border-blue-300' :
+                                      apt.status === 'cancelled' ? 'bg-red-100 border-red-300' :
+                                      apt.status === 'completed' ? 'bg-purple-100 border-purple-300' :
+                                      'bg-yellow-100 border-yellow-300'} border mb-1`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleViewAppointment(apt);
+                                  }}
+                                >
+                                  <div className="font-medium truncate">{apt.patient_name || 'No Name'}</div>
+                                  <div className="text-muted-foreground truncate">{apt.appointment_type}</div>
                                 </div>
-                              ) : (
-                                <div className="h-full flex items-center justify-center opacity-0 hover:opacity-50 transition-opacity">
-                                  <Plus className="h-4 w-4 text-muted-foreground" />
-                                </div>
-                              )}
+                              ))}
                             </div>
                           );
                         })}
@@ -352,94 +368,126 @@ export const CalendarView = ({ onCreateAppointment, onViewAppointment }: Calenda
                 </>
               )}
 
-              {/* Day View */}
-              {view === 'day' && (
-                <div className="p-4">
-                  <h3 className="text-lg font-medium mb-4">
-                    {format(currentWeek, 'EEEE, MMMM d, yyyy')}
-                  </h3>
-                  <div className="space-y-2">
-                    {filteredAppointments
-                      .filter(apt => isSameDay(parseISO(apt.date), currentWeek))
-                      .map((appointment) => (
-                        <div
-                          key={appointment.id}
-                          className={`p-4 rounded border cursor-pointer hover:shadow-sm ${getStatusColor(appointment.status)}`}
-                          onClick={() => handleViewAppointment(appointment)}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <h4 className="font-medium">{appointment.title}</h4>
-                              <p className="text-sm text-muted-foreground">{appointment.patient_name}</p>
-                            </div>
-                            <div className="text-right">
-                              <p className="font-medium">{appointment.time}</p>
-                              <Badge variant="secondary">{appointment.status}</Badge>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Month View */}
               {view === 'month' && (
-                <div className="p-4">
-                  <div className="grid grid-cols-7 gap-1">
-                    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                      <div key={day} className="p-2 text-center font-medium border-b">
+                <>
+                  <div className="border-b bg-muted/50 p-4">
+                    <h3 className="font-semibold text-lg">
+                      {format(currentMonth, 'MMMM yyyy')}
+                    </h3>
+                  </div>
+                  
+                  {/* Month grid */}
+                  <div className="grid grid-cols-7">
+                    {/* Day headers */}
+                    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                      <div key={day} className="p-3 border-r border-b bg-muted/30 font-medium text-center">
                         {day}
                       </div>
                     ))}
-                    {/* Calendar days would go here - simplified for now */}
-                    <div className="col-span-7 p-8 text-center text-muted-foreground">
-                      Month view coming soon - showing week view for now
-                    </div>
+                    
+                    {/* Calendar days */}
+                    {Array.from({ length: 42 }, (_, i) => {
+                      const startOfMonthDate = startOfMonth(currentMonth);
+                      const startOfCalendar = startOfWeek(startOfMonthDate);
+                      const currentDate = addDays(startOfCalendar, i);
+                      const isCurrentMonth = isSameMonth(currentDate, currentMonth);
+                      const isToday = isSameDay(currentDate, new Date());
+                      const dayDate = format(currentDate, 'yyyy-MM-dd');
+                      const dayAppointments = filteredAppointments.filter(apt => apt.date === dayDate);
+                      
+                      return (
+                        <div
+                          key={i}
+                          className={`min-h-20 border-r border-b p-1 cursor-pointer hover:bg-muted/30
+                            ${!isCurrentMonth ? 'bg-muted/20 text-muted-foreground' : ''}
+                            ${isToday ? 'bg-blue-50' : ''}`}
+                          onClick={() => handleCreateAppointment(currentDate)}
+                        >
+                          <div className={`text-sm font-medium mb-1 
+                            ${isToday ? 'text-blue-600 font-bold' : ''}`}>
+                            {format(currentDate, 'd')}
+                          </div>
+                          
+                          {/* Show appointment count or dots */}
+                          {dayAppointments.length > 0 && (
+                            <div className="space-y-1">
+                              {dayAppointments.slice(0, 2).map((apt) => (
+                                <div
+                                  key={apt.id}
+                                  className={`text-xs p-1 rounded truncate cursor-pointer
+                                    ${apt.status === 'confirmed' ? 'bg-green-100 text-green-800' : 
+                                      apt.status === 'scheduled' ? 'bg-blue-100 text-blue-800' :
+                                      apt.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                                      apt.status === 'completed' ? 'bg-purple-100 text-purple-800' :
+                                      'bg-yellow-100 text-yellow-800'}`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleViewAppointment(apt);
+                                  }}
+                                >
+                                  {apt.patient_name}
+                                </div>
+                              ))}
+                              {dayAppointments.length > 2 && (
+                                <div className="text-xs text-muted-foreground">
+                                  +{dayAppointments.length - 2} more
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
-                </div>
+                </>
               )}
             </CardContent>
           </Card>
+          
+          {/* Status Legend */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-6 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-green-100 border border-green-300 rounded"></div>
+                  <span>Confirmed</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-blue-100 border border-blue-300 rounded"></div>
+                  <span>Scheduled</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-yellow-100 border border-yellow-300 rounded"></div>
+                  <span>No Show</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-purple-100 border border-purple-300 rounded"></div>
+                  <span>Completed</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-red-100 border border-red-300 rounded"></div>
+                  <span>Cancelled</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
-
+        
         <TabsContent value="integrations">
           <CalendarIntegrations />
         </TabsContent>
       </Tabs>
 
-      {/* Legend */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center gap-6 text-sm">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded bg-green-100 border border-green-200"></div>
-              <span>Confirmed</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded bg-yellow-100 border border-yellow-200"></div>
-              <span>Pending</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded bg-blue-100 border border-blue-200"></div>
-              <span>Completed</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded bg-red-100 border border-red-200"></div>
-              <span>Cancelled</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Appointment Modal */}
-      <AppointmentModal
-        isOpen={showAppointmentModal}
-        onClose={() => setShowAppointmentModal(false)}
-        appointment={selectedAppointment}
-        defaultDate={defaultDate}
-        defaultTime={defaultTime}
-      />
+      {showAppointmentModal && (
+        <AppointmentModal
+          isOpen={showAppointmentModal}
+          onClose={closeModal}
+          appointment={selectedAppointment}
+          defaultDate={defaultDate}
+          defaultTime={defaultTime}
+        />
+      )}
     </div>
   );
 };
