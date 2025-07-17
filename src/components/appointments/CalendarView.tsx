@@ -271,9 +271,6 @@ export const CalendarView = ({ onCreateAppointment, onViewAppointment }: Calenda
                   </TabsList>
                 </Tabs>
                 
-                <Button variant="outline" size="sm" onClick={goToToday}>
-                  Today
-                </Button>
                 <Button onClick={() => handleCreateAppointment(new Date())}>
                   <Plus className="w-4 h-4 mr-2" />
                   New Appointment

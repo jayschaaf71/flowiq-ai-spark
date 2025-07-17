@@ -134,20 +134,6 @@ export const EnhancedCalendarView = () => {
         </div>
 
         <div className="flex flex-wrap gap-2 items-center">
-          <Button variant="outline" size="sm" onClick={() => {
-            console.log('Today button clicked! Current view:', viewMode);
-            const today = new Date();
-            console.log('Setting current date to today:', today);
-            setCurrentDate(today);
-            // Force a complete state refresh
-            setRefreshKey(prev => prev + 1);
-            // Use requestAnimationFrame to ensure DOM updates
-            requestAnimationFrame(() => {
-              console.log('Today navigation completed - forced refresh');
-            });
-          }}>
-            Today
-          </Button>
           
           <Select value={viewMode} onValueChange={(value: 'week' | 'day' | 'dragdrop') => setViewMode(value)}>
             <SelectTrigger className="w-32">
