@@ -60,7 +60,7 @@ export const CommunicationIQ = () => {
 
   // Enhanced stats combining appointment and intake metrics
   const stats = {
-    todayAppointments: 12,
+    todayAppointments: 24,
     confirmationRate: 87,
     intakeCompletion: 92,
     noShowRate: 3.2,
@@ -72,7 +72,10 @@ export const CommunicationIQ = () => {
     pendingIntakes: 8,
     voiceCallsToday: 15,
     emailsSent: 43,
-    smsMessages: 67
+    smsMessages: 67,
+    scheduleUtilization: 87,
+    availableSlots: 12,
+    aiAccuracy: 94
   };
 
   // Mock data - enhanced for comprehensive communication management
@@ -199,38 +202,38 @@ export const CommunicationIQ = () => {
           </CardContent>
         </Card>
 
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelectedTab('intake')}>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelectedTab('booking')}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Intake Completion</p>
-                <p className="text-2xl font-bold">{stats.intakeCompletion}%</p>
+                <p className="text-sm text-muted-foreground">Schedule Utilization</p>
+                <p className="text-2xl font-bold">{stats.scheduleUtilization}%</p>
               </div>
-              <ClipboardList className="h-8 w-8 text-green-600" />
+              <Clock className="h-8 w-8 text-green-600" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelectedTab('communications')}>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelectedTab('booking')}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Communications Sent</p>
-                <p className="text-2xl font-bold">{stats.emailsSent + stats.smsMessages}</p>
+                <p className="text-sm text-muted-foreground">Available Slots</p>
+                <p className="text-2xl font-bold">{stats.availableSlots}</p>
               </div>
-              <MessageSquare className="h-8 w-8 text-purple-600" />
+              <Users className="h-8 w-8 text-purple-600" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelectedTab('voice')}>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelectedTab('booking')}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Voice Interactions</p>
-                <p className="text-2xl font-bold">{stats.voiceCallsToday}</p>
+                <p className="text-sm text-muted-foreground">AI Accuracy</p>
+                <p className="text-2xl font-bold">{stats.aiAccuracy}%</p>
               </div>
-              <Phone className="h-8 w-8 text-orange-600" />
+              <TrendingUp className="h-8 w-8 text-orange-600" />
             </div>
           </CardContent>
         </Card>
