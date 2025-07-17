@@ -35,7 +35,7 @@ import { AutomatedReminders } from '@/components/schedule/AutomatedReminders';
 import { IntakeDashboard } from '@/components/intake/IntakeDashboard';
 import { FormBuilder } from '@/components/intake/FormBuilder';
 import { FormSubmissionsList } from '@/components/intake/FormSubmissionsList';
-import { VoiceEnabledPatientIntake } from '@/components/intake/VoiceEnabledPatientIntake';
+import { ConversationalVoiceIntake } from '@/components/intake/ConversationalVoiceIntake';
 import { MobileVoiceIntake } from '@/components/intake/MobileVoiceIntake';
 import { StaffIntakeDashboard } from '@/components/intake/StaffIntakeDashboard';
 
@@ -247,7 +247,7 @@ export const CommunicationIQ = () => {
           <TabsTrigger value="intake">Patient Intake</TabsTrigger>
           <TabsTrigger value="forms">Form Builder</TabsTrigger>
           <TabsTrigger value="communications">Communications</TabsTrigger>
-          <TabsTrigger value="voice">Voice Intake</TabsTrigger>
+          <TabsTrigger value="voice">Voice Conversation</TabsTrigger>
           <TabsTrigger value="reminders">Auto Reminders</TabsTrigger>
           <TabsTrigger value="waitlist">Waiting List</TabsTrigger>
         </TabsList>
@@ -426,7 +426,7 @@ export const CommunicationIQ = () => {
         </TabsContent>
 
         <TabsContent value="voice" className="space-y-4">
-          <VoiceEnabledPatientIntake />
+          <ConversationalVoiceIntake />
         </TabsContent>
 
         <TabsContent value="reminders" className="space-y-4">
