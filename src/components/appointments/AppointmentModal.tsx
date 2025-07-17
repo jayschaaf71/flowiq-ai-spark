@@ -87,12 +87,31 @@ export const AppointmentModal = ({
     const getCurrentUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
+        // Get profile with role information
         const { data: profile } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', user.id)
           .single();
-        setCurrentUser({ ...user, profile });
+        
+        // Get tenant membership
+        const { data: tenantUsers } = await supabase
+          .from('tenant_users')
+          .select('tenant_id, is_active')
+          .eq('user_id', user.id)
+          .eq('is_active', true)
+          .limit(1);
+        
+        console.log('User profile:', profile);
+        console.log('User tenant membership:', tenantUsers);
+        
+        setCurrentUser({ 
+          ...user, 
+          profile: {
+            ...profile,
+            current_tenant_id: tenantUsers?.[0]?.tenant_id || profile?.current_tenant_id
+          }
+        });
       }
     };
     getCurrentUser();
