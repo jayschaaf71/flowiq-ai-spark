@@ -140,9 +140,12 @@ export const CalendarView = ({ onCreateAppointment, onViewAppointment }: Calenda
 
   const goToToday = () => {
     const today = new Date();
+    console.log('Today button clicked! Current view:', view);
+    console.log('Setting currentWeek to:', format(today, 'yyyy-MM-dd'));
+    console.log('Setting currentMonth to:', format(today, 'yyyy-MM-dd'));
     setCurrentWeek(today);
     setCurrentMonth(today);
-    console.log('Going to today:', format(today, 'yyyy-MM-dd'), 'Current view:', view);
+    console.log('Today navigation completed');
   };
 
   const getDateRange = () => {

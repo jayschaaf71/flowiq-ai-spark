@@ -1,162 +1,226 @@
-import { PageHeader } from "@/components/PageHeader";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bell, AlertCircle } from "lucide-react";
+import React, { useState } from 'react';
+import { PageHeader } from '@/components/PageHeader';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Bell, FileText, Calendar, AlertTriangle, CheckCircle, Clock, User } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
-const Notifications = () => {
+interface Notification {
+  id: string;
+  type: 'appointment' | 'system' | 'reminder' | 'alert';
+  title: string;
+  message: string;
+  timestamp: string;
+  isRead: boolean;
+  priority: 'low' | 'medium' | 'high';
+  actionUrl?: string;
+}
+
+export const Notifications = () => {
+  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState('all');
+
+  const notifications: Notification[] = [
+    {
+      id: '1',
+      type: 'appointment',
+      title: 'New SOAP Note Generated',
+      message: 'AI-generated SOAP note ready for review for Jimmy Jack',
+      timestamp: '2 minutes ago',
+      isRead: false,
+      priority: 'medium',
+      actionUrl: '/patients/jimmy-jack'
+    },
+    {
+      id: '2',
+      type: 'reminder',
+      title: 'Upcoming Appointment',
+      message: 'Gang Gang has an appointment scheduled for tomorrow at 10:00 AM',
+      timestamp: '5 minutes ago',
+      isRead: false,
+      priority: 'high',
+      actionUrl: '/calendar?date=2025-07-18'
+    },
+    {
+      id: '3',
+      type: 'system',
+      title: 'Database Backup Completed',
+      message: 'Daily database backup completed successfully at 2:00 AM',
+      timestamp: '1 hour ago',
+      isRead: true,
+      priority: 'low'
+    },
+    {
+      id: '4',
+      type: 'alert',
+      title: 'Schedule Conflict Detected',
+      message: 'Potential scheduling conflict detected for Dr. Smith on Friday',
+      timestamp: '3 hours ago',
+      isRead: false,
+      priority: 'high',
+      actionUrl: '/schedule/conflicts'
+    },
+    {
+      id: '5',
+      type: 'appointment',
+      title: 'Patient Check-in Completed',
+      message: 'Sarah Johnson has completed check-in for 3:00 PM appointment',
+      timestamp: '1 day ago',
+      isRead: true,
+      priority: 'medium'
+    }
+  ];
+
+  const getIcon = (type: string) => {
+    switch (type) {
+      case 'appointment':
+        return <Calendar className="h-5 w-5 text-blue-500" />;
+      case 'system':
+        return <AlertTriangle className="h-5 w-5 text-green-500" />;
+      case 'reminder':
+        return <Clock className="h-5 w-5 text-orange-500" />;
+      case 'alert':
+        return <Bell className="h-5 w-5 text-red-500" />;
+      default:
+        return <FileText className="h-5 w-5 text-gray-500" />;
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high':
+        return 'border-l-red-500 bg-red-50';
+      case 'medium':
+        return 'border-l-yellow-500 bg-yellow-50';
+      case 'low':
+        return 'border-l-green-500 bg-green-50';
+      default:
+        return 'border-l-gray-500 bg-gray-50';
+    }
+  };
+
+  const handleNotificationClick = (notification: Notification) => {
+    if (notification.actionUrl) {
+      window.location.href = notification.actionUrl;
+    } else {
+      toast({
+        title: notification.title,
+        description: "Notification details viewed",
+      });
+    }
+  };
+
+  const markAllAsRead = () => {
+    toast({
+      title: "All notifications marked as read",
+      description: "All notifications have been marked as read",
+    });
+  };
+
+  const clearAll = () => {
+    toast({
+      title: "All notifications cleared",
+      description: "All notifications have been cleared",
+    });
+  };
+
+  const filteredNotifications = notifications.filter(notification => {
+    if (activeTab === 'unread') return !notification.isRead;
+    if (activeTab === 'high') return notification.priority === 'high';
+    return true; // 'all' tab
+  });
+
+  const unreadCount = notifications.filter(n => !n.isRead).length;
+  const highPriorityCount = notifications.filter(n => n.priority === 'high').length;
+
   return (
-    <>
+    <div className="space-y-6">
       <PageHeader 
         title="Notifications"
-        subtitle="Manage alerts, reminders, and system notifications"
+        subtitle="Manage all your notifications and alerts"
       />
-      
-      <div className="space-y-6">
-        {/* Notification Categories */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="border-l-4 border-l-red-500">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-red-600">Urgent</p>
-                  <p className="text-2xl font-bold">3</p>
-                </div>
-                <AlertCircle className="h-8 w-8 text-red-500" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-l-4 border-l-yellow-500">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-yellow-600">Pending</p>
-                  <p className="text-2xl font-bold">12</p>
-                </div>
-                <Bell className="h-8 w-8 text-yellow-500" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-l-4 border-l-blue-500">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-blue-600">Info</p>
-                  <p className="text-2xl font-bold">8</p>
-                </div>
-                <Bell className="h-8 w-8 text-blue-500" />
-              </div>
-            </CardContent>
-          </Card>
+
+      <div className="flex justify-between items-center">
+        <div className="flex gap-2">
+          <Button onClick={markAllAsRead} variant="outline" size="sm">
+            <CheckCircle className="h-4 w-4 mr-2" />
+            Mark All Read
+          </Button>
+          <Button onClick={clearAll} variant="outline" size="sm">
+            Clear All
+          </Button>
         </div>
-
-        {/* Recent Notifications */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Bell className="w-5 h-5" />
-              Recent Notifications
-            </CardTitle>
-            <CardDescription>Latest alerts and updates</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-start gap-3 p-3 border rounded-lg bg-red-50 border-red-200">
-                <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
-                <div className="flex-1">
-                  <p className="font-medium text-red-900">Emergency: Equipment Malfunction</p>
-                  <p className="text-sm text-red-700">Dental unit #2 requires immediate attention</p>
-                  <p className="text-xs text-red-600 mt-1">2 minutes ago</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start gap-3 p-3 border rounded-lg bg-yellow-50 border-yellow-200">
-                <Bell className="w-5 h-5 text-yellow-600 mt-0.5" />
-                <div className="flex-1">
-                  <p className="font-medium text-yellow-900">Patient No-Show Alert</p>
-                  <p className="text-sm text-yellow-700">John Smith missed his 2:00 PM appointment</p>
-                  <p className="text-xs text-yellow-600 mt-1">15 minutes ago</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start gap-3 p-3 border rounded-lg">
-                <Bell className="w-5 h-5 text-blue-600 mt-0.5" />
-                <div className="flex-1">
-                  <p className="font-medium">Insurance Verification Complete</p>
-                  <p className="text-sm text-gray-600">Sarah Johnson's coverage confirmed</p>
-                  <p className="text-xs text-gray-500 mt-1">30 minutes ago</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start gap-3 p-3 border rounded-lg">
-                <Bell className="w-5 h-5 text-green-600 mt-0.5" />
-                <div className="flex-1">
-                  <p className="font-medium">Payment Received</p>
-                  <p className="text-sm text-gray-600">$250 payment processed for Michael Chen</p>
-                  <p className="text-xs text-gray-500 mt-1">1 hour ago</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start gap-3 p-3 border rounded-lg">
-                <Bell className="w-5 h-5 text-purple-600 mt-0.5" />
-                <div className="flex-1">
-                  <p className="font-medium">Appointment Reminder Sent</p>
-                  <p className="text-sm text-gray-600">Emma Wilson reminded about tomorrow's cleaning</p>
-                  <p className="text-xs text-gray-500 mt-1">2 hours ago</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Notification Settings */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Notification Preferences</CardTitle>
-            <CardDescription>Configure how you receive notifications</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <h4 className="font-medium">Email Notifications</h4>
-                <div className="space-y-3">
-                  <label className="flex items-center space-x-2">
-                    <input type="checkbox" defaultChecked className="rounded" />
-                    <span className="text-sm">Appointment cancellations</span>
-                  </label>
-                  <label className="flex items-center space-x-2">
-                    <input type="checkbox" defaultChecked className="rounded" />
-                    <span className="text-sm">Payment confirmations</span>
-                  </label>
-                  <label className="flex items-center space-x-2">
-                    <input type="checkbox" className="rounded" />
-                    <span className="text-sm">Daily summaries</span>
-                  </label>
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                <h4 className="font-medium">Push Notifications</h4>
-                <div className="space-y-3">
-                  <label className="flex items-center space-x-2">
-                    <input type="checkbox" defaultChecked className="rounded" />
-                    <span className="text-sm">Urgent alerts</span>
-                  </label>
-                  <label className="flex items-center space-x-2">
-                    <input type="checkbox" defaultChecked className="rounded" />
-                    <span className="text-sm">Patient arrivals</span>
-                  </label>
-                  <label className="flex items-center space-x-2">
-                    <input type="checkbox" className="rounded" />
-                    <span className="text-sm">System updates</span>
-                  </label>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
-    </>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList>
+          <TabsTrigger value="all">
+            All ({notifications.length})
+          </TabsTrigger>
+          <TabsTrigger value="unread">
+            Unread ({unreadCount})
+          </TabsTrigger>
+          <TabsTrigger value="high">
+            High Priority ({highPriorityCount})
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value={activeTab} className="space-y-4">
+          {filteredNotifications.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-muted-foreground">No notifications</h3>
+                <p className="text-sm text-muted-foreground">
+                  {activeTab === 'unread' ? 'All notifications have been read' : 
+                   activeTab === 'high' ? 'No high priority notifications' : 
+                   'No notifications to display'}
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-3">
+              {filteredNotifications.map((notification) => (
+                <Card 
+                  key={notification.id} 
+                  className={`border-l-4 cursor-pointer transition-all hover:shadow-md ${getPriorityColor(notification.priority)} ${!notification.isRead ? 'bg-blue-50' : ''}`}
+                  onClick={() => handleNotificationClick(notification)}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 mt-1">
+                        {getIcon(notification.type)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="text-sm font-medium truncate">
+                            {notification.title}
+                          </h4>
+                          {!notification.isRead && (
+                            <div className="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0"></div>
+                          )}
+                          <Badge variant="outline" className="text-xs">
+                            {notification.priority}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-2">
+                          {notification.message}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {notification.timestamp}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
 

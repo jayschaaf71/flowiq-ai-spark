@@ -20,6 +20,8 @@ import PatientManagement from '@/pages/PatientManagement';
 import Team from '@/pages/Team';
 import Help from '@/pages/Help';
 import Settings from '@/pages/Settings';
+import Notifications from '@/pages/Notifications';
+import ProviderSchedules from '@/pages/ProviderSchedules';
 import DentalSleepInsights from '@/components/specialty/insights/DentalSleepInsights';
 
 // AI Agents that apply to dental sleep
@@ -167,6 +169,22 @@ export default function DentalSleepApp() {
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <Settings />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/notifications" element={
+          <ProtectedRoute requiredRole="staff">
+            <Layout>
+              <Notifications />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/provider-schedules" element={
+          <ProtectedRoute requiredRole="staff">
+            <Layout>
+              <ProviderSchedules />
             </Layout>
           </ProtectedRoute>
         } />

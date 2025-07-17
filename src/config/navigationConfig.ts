@@ -18,7 +18,8 @@ import {
   Settings,
   HelpCircle,
   Moon,
-  Phone
+  Phone,
+  Clock
 } from "lucide-react";
 import { NavItem, NavGroup } from "@/services/sidebarService";
 
@@ -39,6 +40,7 @@ const baseNavItems: NavItem[] = [
   { id: "patients", label: "Patients", path: "/patient-management", icon: Users, group: "overview", order: 20 },
   { id: "ehr", label: "EHR", path: "/ehr", icon: Database, group: "overview", order: 30 },
   { id: "insights", label: "Insights", path: "/insights", icon: TrendingUp, group: "overview", order: 40 },
+  { id: "notifications", label: "Notifications", path: "/notifications", icon: Bell, group: "overview", order: 50 },
 
   // Clinical Care
   { id: "scribe-iq", label: "Scribe iQ", path: "/agents/scribe", icon: Stethoscope, badge: "AI", group: "clinical_care", order: 10 },
@@ -57,6 +59,7 @@ const baseNavItems: NavItem[] = [
   // Operations
   { id: "inventory-iq", label: "Inventory iQ", path: "/agents/inventory", icon: Package, badge: "AI", group: "operations", order: 10 },
   { id: "ops-iq", label: "Ops iQ", path: "/ops", icon: UserPlus, badge: "AI", group: "operations", order: 20 },
+  { id: "provider-schedules", label: "Provider Schedules", path: "/provider-schedules", icon: Clock, group: "operations", order: 30 },
 
   // Settings
   { id: "settings", label: "Settings", path: "/settings", icon: Settings, group: "settings", order: 10 },
@@ -108,6 +111,14 @@ export const getNavItems = (specialty: string = 'chiropractic'): NavItem[] => {
     
     if (item.id === 'calendar') {
       return { ...item, path: `${specialtyPrefix}/calendar` };
+    }
+    
+    if (item.id === 'notifications') {
+      return { ...item, path: `${specialtyPrefix}/notifications` };
+    }
+    
+    if (item.id === 'provider-schedules') {
+      return { ...item, path: `${specialtyPrefix}/provider-schedules` };
     }
     
     // Handle agent routes - prefix them with specialty

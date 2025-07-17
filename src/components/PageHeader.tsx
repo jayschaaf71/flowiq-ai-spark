@@ -100,10 +100,8 @@ export const PageHeader = ({ title, subtitle, badge, children }: PageHeaderProps
                     className="w-full text-sm"
                     onClick={() => {
                       setNotificationOpen(false);
-                      toast({
-                        title: "All Notifications",
-                        description: "Viewing all notifications...",
-                      });
+                      // Navigate to notifications page
+                      window.location.href = '/dental-sleep/notifications';
                     }}
                   >
                     View All Notifications
@@ -115,11 +113,11 @@ export const PageHeader = ({ title, subtitle, badge, children }: PageHeaderProps
           
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative">
+              <Button variant="ghost" size="icon" className="relative hover:bg-accent">
                 <Avatar className="h-8 w-8">
                   <AvatarImage src="/placeholder.svg" />
-                  <AvatarFallback className="bg-primary text-primary-foreground">
-                    AX
+                  <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
+                    AS
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -131,10 +129,30 @@ export const PageHeader = ({ title, subtitle, badge, children }: PageHeaderProps
                   <p className="text-xs text-muted-foreground">alex@example.com</p>
                 </div>
                 <div className="border-t pt-2">
-                  <Button variant="ghost" size="sm" className="w-full justify-start">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="w-full justify-start"
+                    onClick={() => {
+                      // Navigate to profile settings
+                      window.location.href = '/dental-sleep/settings';
+                    }}
+                  >
                     Profile Settings
                   </Button>
-                  <Button variant="ghost" size="sm" className="w-full justify-start">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="w-full justify-start"
+                    onClick={() => {
+                      // Implement logout functionality
+                      toast({
+                        title: "Signed Out",
+                        description: "You have been successfully signed out.",
+                      });
+                      // Add actual logout logic here
+                    }}
+                  >
                     Sign Out
                   </Button>
                 </div>
