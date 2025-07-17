@@ -180,11 +180,20 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     setError(null);
     
     try {
-      // Convert blob to base64
-      const arrayBuffer = await blob.arrayBuffer();
-      const base64Audio = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
-      
+      // Convert blob to base64 - using chunks to avoid stack overflow
       console.log('Sending audio for transcription...');
+      
+      const base64Audio = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result as string;
+          // Remove the data URL prefix (data:audio/webm;base64,)
+          const base64 = result.split(',')[1];
+          resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
       
       // Send to voice-to-text edge function
       const { data, error } = await supabase.functions.invoke('voice-to-text', {
