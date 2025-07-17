@@ -1,9 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { CommunicationIQWrapper } from '@/components/wrappers/CommunicationIQWrapper';
-import { BookingInterface } from '@/components/schedule/BookingInterface';
-import { EnhancedBookingFlow } from '@/components/schedule/EnhancedBookingFlow';
-import { AppointmentBookingModal } from '@/components/schedule/AppointmentBookingModal';
+import CommunicationIQ from '@/pages/agents/CommunicationIQ';
 
 interface StandaloneCommunicationIQProps {
   tenantConfig?: {
@@ -20,6 +18,12 @@ interface StandaloneCommunicationIQProps {
       smartCommunication?: boolean;
       automatedFollowUp?: boolean;
       customerSupport?: boolean;
+      patientIntake?: boolean;
+      formBuilder?: boolean;
+      voiceIntake?: boolean;
+      smsReminders?: boolean;
+      emailCommunication?: boolean;
+      aiAssistant?: boolean;
     };
     integrations?: {
       calendar?: 'google' | 'outlook' | 'apple';
@@ -39,11 +43,18 @@ export const StandaloneCommunicationIQ: React.FC<StandaloneCommunicationIQProps>
     <Router>
       <CommunicationIQWrapper mode="standalone" tenantConfig={tenantConfig}>
         <Routes>
-          {/* Main communication interface */}
-          <Route path="/" element={<EnhancedBookingFlow />} />
+          {/* Main communication interface - comprehensive Communication IQ */}
+          <Route path="/" element={<CommunicationIQ />} />
           
-          {/* Alternative booking interfaces */}
-          <Route path="/book" element={<BookingInterface />} />
+          {/* All routes handled by Communication IQ */}
+          <Route path="/dashboard" element={<CommunicationIQ />} />
+          <Route path="/calendar" element={<CommunicationIQ />} />
+          <Route path="/booking" element={<CommunicationIQ />} />
+          <Route path="/intake" element={<CommunicationIQ />} />
+          <Route path="/forms" element={<CommunicationIQ />} />
+          <Route path="/communications" element={<CommunicationIQ />} />
+          <Route path="/voice" element={<CommunicationIQ />} />
+          <Route path="/reminders" element={<CommunicationIQ />} />
           
           {/* Success/confirmation pages */}
           <Route path="/confirmation/:appointmentId" element={

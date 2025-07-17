@@ -16,10 +16,17 @@ const CommunicationIQApp = () => {
       waitlistManagement: true,
       smartCommunication: true,
       automatedFollowUp: true,
-      customerSupport: true
+      customerSupport: true,
+      patientIntake: true,
+      formBuilder: true,
+      voiceIntake: true,
+      smsReminders: true,
+      emailCommunication: true,
+      aiAssistant: true
     },
     integrations: {
       calendar: 'google' as const,
+      ehr: 'integrated',
       sms: true,
       email: true,
       voip: true,

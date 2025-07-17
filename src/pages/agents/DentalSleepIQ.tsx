@@ -22,13 +22,12 @@ const DentalSleepIQ = () => {
       />
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-8">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           <TabsTrigger value="ehr">Sleep EHR</TabsTrigger>
           <TabsTrigger value="studies">Sleep Studies</TabsTrigger>
           <TabsTrigger value="dme">DME Tracker</TabsTrigger>
           <TabsTrigger value="templates">Templates</TabsTrigger>
-          <TabsTrigger value="schedule">Scheduling</TabsTrigger>
           <TabsTrigger value="claims">Claims</TabsTrigger>
           <TabsTrigger value="portal">Patient Portal</TabsTrigger>
         </TabsList>
@@ -51,13 +50,6 @@ const DentalSleepIQ = () => {
 
         <TabsContent value="templates" className="space-y-4">
           <DentalSleepTemplates />
-        </TabsContent>
-
-        <TabsContent value="schedule" className="space-y-4">
-          <ScheduleDashboard 
-            recentActivity={[]}
-            upcomingTasks={[]}
-          />
         </TabsContent>
 
         <TabsContent value="claims" className="space-y-4">

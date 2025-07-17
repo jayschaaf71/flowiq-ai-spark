@@ -21,7 +21,8 @@ import {
   Activity,
   Zap,
   Shield,
-  Building2
+  Building2,
+  MessageSquare
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -46,8 +47,7 @@ export const PilotDashboard = () => {
   });
 
   const [systemHealth, setSystemHealth] = useState({
-    scheduleiq: { status: 'active', uptime: 99.9, lastProcessed: '2 min ago' },
-    intakeiq: { status: 'active', uptime: 99.7, lastProcessed: '1 min ago' },
+    communicationiq: { status: 'active', uptime: 99.9, lastProcessed: '1 min ago' },
     claimsiq: { status: 'active', uptime: 99.8, lastProcessed: '30 sec ago' },
     billingiq: { status: 'active', uptime: 99.5, lastProcessed: '5 min ago' },
     scribeiq: { status: 'active', uptime: 99.6, lastProcessed: '3 min ago' },
@@ -75,22 +75,13 @@ export const PilotDashboard = () => {
 
   const aiAgents = [
     {
-      name: 'Schedule iQ',
-      icon: Calendar,
-      path: '/agents/schedule',
-      status: systemHealth.scheduleiq.status,
-      description: 'AI-powered appointment scheduling',
-      metrics: '28 appointments booked today',
+      name: 'Communication iQ',
+      icon: MessageSquare,
+      path: '/agents/communication',
+      status: systemHealth.communicationiq.status,
+      description: 'Complete patient communication lifecycle',
+      metrics: '156 interactions today',
       color: 'blue'
-    },
-    {
-      name: 'Intake iQ',
-      icon: ClipboardList,
-      path: '/agents/intake',
-      status: systemHealth.intakeiq.status,
-      description: 'Smart patient intake processing',
-      metrics: '89 forms completed',
-      color: 'green'
     },
     {
       name: 'Claims iQ',

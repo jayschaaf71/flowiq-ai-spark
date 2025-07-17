@@ -107,7 +107,7 @@ const MainDashboard = () => {
   ];
 
   const aiAgents = [
-    { name: 'Appointment iQ', icon: Calendar, description: 'AI-powered scheduling', status: 'active' },
+    { name: 'Communication iQ', icon: Calendar, description: 'Complete patient communication lifecycle', status: 'active' },
     { name: 'Scribe iQ', icon: Stethoscope, description: 'Clinical documentation', status: 'active' },
     { name: 'Marketing iQ', icon: TrendingUp, description: 'Patient acquisition', status: 'active' },
     { name: 'Claims iQ', icon: DollarSign, description: 'Revenue cycle', status: 'active' },

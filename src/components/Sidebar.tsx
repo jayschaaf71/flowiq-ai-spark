@@ -43,8 +43,8 @@ const navigationItems = [
     description: "AI-powered appointment scheduling"
   },
   {
-    title: "Intake iQ",
-    href: "/intake-iq",
+    title: "Communication iQ",
+    href: "/agents/communication",
     icon: FileText,
     description: "AI-driven patient intake and forms"
   },

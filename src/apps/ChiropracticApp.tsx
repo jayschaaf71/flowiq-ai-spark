@@ -21,8 +21,7 @@ import { PatientExperiencePage } from '@/pages/PatientExperiencePage';
 import { AIAutomationHub } from '@/pages/AIAutomationHub';
 
 // AI Agents
-import AppointmentIQ from '@/pages/agents/AppointmentIQ';
-import IntakeIQ from '@/pages/agents/IntakeIQ';
+import CommunicationIQ from '@/pages/agents/CommunicationIQ';
 import ScribeIQ from '@/pages/agents/ScribeIQ';
 import ClaimsIQ from '@/pages/agents/ClaimsIQ';
 import PaymentsIQ from '@/pages/agents/PaymentsIQ';
@@ -156,18 +155,27 @@ export default function ChiropracticApp() {
         } />
         
         {/* AI Agent Routes */}
-        <Route path="/agents/appointment" element={
+        <Route path="/agents/communication" element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
-              <AppointmentIQ />
+              <CommunicationIQ />
             </Layout>
           </ProtectedRoute>
         } />
-        
+
+        {/* Legacy routes for backwards compatibility */}
+        <Route path="/agents/appointment" element={
+          <ProtectedRoute requiredRole="staff">
+            <Layout>
+              <CommunicationIQ />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
         <Route path="/agents/intake" element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
-              <IntakeIQ />
+              <CommunicationIQ />
             </Layout>
           </ProtectedRoute>
         } />
