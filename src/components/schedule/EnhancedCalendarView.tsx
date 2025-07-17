@@ -121,6 +121,10 @@ export const EnhancedCalendarView = () => {
         </div>
 
         <div className="flex flex-wrap gap-2 items-center">
+          <Button variant="outline" size="sm" onClick={() => setCurrentDate(new Date())}>
+            Today
+          </Button>
+          
           <Select value={viewMode} onValueChange={(value: 'week' | 'day' | 'dragdrop') => setViewMode(value)}>
             <SelectTrigger className="w-32">
               <SelectValue />

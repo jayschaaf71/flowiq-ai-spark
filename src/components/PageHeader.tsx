@@ -115,9 +115,9 @@ export const PageHeader = ({ title, subtitle, badge, children }: PageHeaderProps
             <PopoverTrigger asChild>
               <Button variant="ghost" size="icon" className="relative hover:bg-accent">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src="/placeholder.svg" />
-                  <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
-                    AS
+                  <AvatarImage src="" />
+                  <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-sm">
+                    JS
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -125,8 +125,8 @@ export const PageHeader = ({ title, subtitle, badge, children }: PageHeaderProps
             <PopoverContent className="w-56" align="end">
               <div className="space-y-2">
                 <div className="px-2 py-1.5">
-                  <p className="text-sm font-medium">Alex Smith</p>
-                  <p className="text-xs text-muted-foreground">alex@example.com</p>
+                  <p className="text-sm font-medium">Jason Schaaf</p>
+                  <p className="text-xs text-muted-foreground">jayschaaf71@gmail.com</p>
                 </div>
                 <div className="border-t pt-2">
                   <Button 

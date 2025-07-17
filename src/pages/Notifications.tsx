@@ -21,8 +21,7 @@ interface Notification {
 export const Notifications = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('all');
-
-  const notifications: Notification[] = [
+  const [notifications, setNotifications] = useState<Notification[]>([
     {
       id: '1',
       type: 'appointment',
@@ -71,7 +70,7 @@ export const Notifications = () => {
       isRead: true,
       priority: 'medium'
     }
-  ];
+  ]);
 
   const getIcon = (type: string) => {
     switch (type) {
@@ -102,17 +101,19 @@ export const Notifications = () => {
   };
 
   const handleNotificationClick = (notification: Notification) => {
-    if (notification.actionUrl) {
-      window.location.href = notification.actionUrl;
-    } else {
-      toast({
-        title: notification.title,
-        description: "Notification details viewed",
-      });
-    }
+    // Mark as read when clicked
+    setNotifications(prev => 
+      prev.map(n => n.id === notification.id ? { ...n, isRead: true } : n)
+    );
+    
+    toast({
+      title: notification.title,
+      description: notification.message,
+    });
   };
 
   const markAllAsRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
     toast({
       title: "All notifications marked as read",
       description: "All notifications have been marked as read",
@@ -120,6 +121,7 @@ export const Notifications = () => {
   };
 
   const clearAll = () => {
+    setNotifications([]);
     toast({
       title: "All notifications cleared",
       description: "All notifications have been cleared",
