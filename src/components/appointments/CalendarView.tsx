@@ -23,6 +23,7 @@ export const CalendarView = ({ onCreateAppointment, onViewAppointment }: Calenda
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [view, setView] = useState<'day' | 'week' | 'month'>('week');
+  const [activeTab, setActiveTab] = useState('calendar');
   
   // Modal states
   const [showAppointmentModal, setShowAppointmentModal] = useState(false);
@@ -123,7 +124,12 @@ export const CalendarView = ({ onCreateAppointment, onViewAppointment }: Calenda
 
   // Navigation functions
   const navigate = (direction: 'prev' | 'next') => {
-    if (view === 'week' || view === 'day') {
+    if (view === 'day') {
+      const newDate = direction === 'next' 
+        ? addDays(currentWeek, 1)
+        : addDays(currentWeek, -1);
+      setCurrentWeek(newDate);
+    } else if (view === 'week') {
       const change = direction === 'next' ? addWeeks : subWeeks;
       setCurrentWeek(change(currentWeek, 1));
     } else if (view === 'month') {
@@ -136,10 +142,6 @@ export const CalendarView = ({ onCreateAppointment, onViewAppointment }: Calenda
     const today = new Date();
     setCurrentWeek(today);
     setCurrentMonth(today);
-    // Force re-render and show today
-    if (view === 'day') {
-      setCurrentWeek(today); // Ensure day view shows today
-    }
   };
 
   const getDateRange = () => {
@@ -262,7 +264,7 @@ export const CalendarView = ({ onCreateAppointment, onViewAppointment }: Calenda
       </Card>
 
       {/* Main Calendar Content */}
-      <Tabs value="calendar" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList>
           <TabsTrigger value="calendar">Calendar</TabsTrigger>
           <TabsTrigger value="integrations">Integrations</TabsTrigger>
