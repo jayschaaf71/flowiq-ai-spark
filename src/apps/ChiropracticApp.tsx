@@ -31,6 +31,7 @@ import OpsIQ from '@/pages/agents/OpsIQ';
 import AuthIQ from '@/pages/agents/AuthIQ';
 import EducationIQ from '@/pages/agents/EducationIQ';
 import MarketingIQ from '@/pages/agents/MarketingIQ';
+import GoToMarketIQ from '@/pages/agents/GoToMarketIQ';
 import ReferralIQ from '@/pages/agents/ReferralIQ';
 import ApplicationTest from '@/pages/ApplicationTest';
 
@@ -176,6 +177,14 @@ export default function ChiropracticApp() {
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <CommunicationIQ />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/agents/go-to-market" element={
+          <ProtectedRoute requiredRole="staff">
+            <Layout>
+              <GoToMarketIQ />
             </Layout>
           </ProtectedRoute>
         } />

@@ -29,6 +29,7 @@ import PaymentsIQ from '@/pages/agents/PaymentsIQ';
 import AuthIQ from '@/pages/agents/AuthIQ';
 import EducationIQ from '@/pages/agents/EducationIQ';
 import MarketingIQ from '@/pages/agents/MarketingIQ';
+import GoToMarketIQ from '@/pages/agents/GoToMarketIQ';
 import ReferralIQ from '@/pages/agents/ReferralIQ';
 import ApplicationTest from '@/pages/ApplicationTest';
 
@@ -183,6 +184,14 @@ export default function DentalSleepApp() {
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <CommunicationIQ />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/agents/go-to-market" element={
+          <ProtectedRoute requiredRole="staff">
+            <Layout>
+              <GoToMarketIQ />
             </Layout>
           </ProtectedRoute>
         } />
