@@ -21,7 +21,7 @@ import {
 interface CalendarIntegration {
   id: string;
   name: string;
-  type: 'google' | 'outlook' | 'apple' | 'zapier' | 'caldav';
+  type: 'google' | 'outlook' | 'apple' | 'zapier' | 'n8n' | 'caldav';
   connected: boolean;
   lastSync?: Date;
   syncEnabled: boolean;
@@ -62,11 +62,21 @@ export const CalendarIntegrations = () => {
       connected: false,
       syncEnabled: false,
       description: 'Trigger automations when appointments change'
+    },
+    {
+      id: '5',
+      name: 'N8N Workflow',
+      type: 'n8n',
+      connected: false,
+      syncEnabled: false,
+      description: 'Self-hosted workflow automation with data control'
     }
   ]);
 
   const [zapierWebhook, setZapierWebhook] = useState('');
+  const [n8nWebhook, setN8nWebhook] = useState('');
   const [showZapierDialog, setShowZapierDialog] = useState(false);
+  const [showN8NDialog, setShowN8NDialog] = useState(false);
   const [showCalDAVDialog, setShowCalDAVDialog] = useState(false);
 
   const handleGoogleCalendarConnect = async () => {
@@ -135,6 +145,56 @@ export const CalendarIntegrations = () => {
     }
   };
 
+  const handleN8NConnect = async () => {
+    if (!n8nWebhook) {
+      toast({
+        title: "Error",
+        description: "Please enter your N8N webhook URL",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      // Test the webhook
+      const response = await fetch(n8nWebhook, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-N8N-Webhook": "true"
+        },
+        mode: "no-cors",
+        body: JSON.stringify({
+          test: true,
+          timestamp: new Date().toISOString(),
+          message: "Calendar integration test from Dental Sleep IQ",
+          event: "calendar.test"
+        }),
+      });
+
+      setIntegrations(prev => 
+        prev.map(integration => 
+          integration.type === 'n8n' 
+            ? { ...integration, connected: true, lastSync: new Date() }
+            : integration
+        )
+      );
+
+      toast({
+        title: "N8N Connected",
+        description: "Your N8N webhook has been connected successfully!",
+      });
+
+      setShowN8NDialog(false);
+    } catch (error) {
+      toast({
+        title: "Connection Failed",
+        description: "Failed to connect to N8N webhook. Please check the URL and try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleSyncToggle = (integrationId: string, enabled: boolean) => {
     setIntegrations(prev =>
       prev.map(integration =>
@@ -192,6 +252,8 @@ export const CalendarIntegrations = () => {
         return handleAppleCalendarConnect;
       case 'zapier':
         return () => setShowZapierDialog(true);
+      case 'n8n':
+        return () => setShowN8NDialog(true);
       default:
         return () => {};
     }
@@ -316,6 +378,47 @@ export const CalendarIntegrations = () => {
               </Button>
               <Button onClick={handleZapierConnect}>
                 Connect Zapier
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* N8N Setup Dialog */}
+      <Dialog open={showN8NDialog} onOpenChange={setShowN8NDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Connect N8N Webhook</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="p-4 bg-muted rounded-lg">
+              <h4 className="font-medium mb-2">Setup Instructions:</h4>
+              <ol className="text-sm space-y-1 list-decimal list-inside">
+                <li>Open your N8N workflow editor</li>
+                <li>Add a "Webhook" node as the trigger</li>
+                <li>Set the HTTP method to "POST"</li>
+                <li>Copy the webhook URL from the node</li>
+                <li>Paste the URL below</li>
+              </ol>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="n8n-webhook-url">N8N Webhook URL</Label>
+              <Input
+                id="n8n-webhook-url"
+                value={n8nWebhook}
+                onChange={(e) => setN8nWebhook(e.target.value)}
+                placeholder="https://your-n8n.com/webhook/..."
+              />
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowN8NDialog(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleN8NConnect}>
+                Connect N8N
               </Button>
             </div>
           </div>
