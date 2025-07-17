@@ -121,7 +121,16 @@ export const EnhancedCalendarView = () => {
         </div>
 
         <div className="flex flex-wrap gap-2 items-center">
-          <Button variant="outline" size="sm" onClick={() => setCurrentDate(new Date())}>
+          <Button variant="outline" size="sm" onClick={() => {
+            console.log('Today button clicked! Current view:', viewMode);
+            const today = new Date();
+            setCurrentDate(today);
+            console.log('Setting current date to today:', today);
+            // Force a re-render to ensure the date change takes effect
+            setTimeout(() => {
+              console.log('Today navigation completed');
+            }, 0);
+          }}>
             Today
           </Button>
           

@@ -32,6 +32,15 @@ interface ProviderSchedule {
   is_available: boolean;
 }
 
+interface AppointmentTypeRestriction {
+  id: string;
+  appointmentType: string;
+  startTime: string;
+  endTime: string;
+  daysOfWeek: number[];
+  maxSlots?: number;
+}
+
 interface TimeOff {
   id: string;
   provider_id: string;
@@ -48,6 +57,7 @@ export const ProviderScheduling = () => {
   const [selectedProvider, setSelectedProvider] = useState<string>('');
   const [schedules, setSchedules] = useState<ProviderSchedule[]>([]);
   const [timeOffs, setTimeOffs] = useState<TimeOff[]>([]);
+  const [restrictions, setRestrictions] = useState<AppointmentTypeRestriction[]>([]);
   const [newTimeOff, setNewTimeOff] = useState({
     start_date: '',
     end_date: '',
@@ -55,10 +65,28 @@ export const ProviderScheduling = () => {
     end_time: '',
     reason: ''
   });
+  const [showRestrictionDialog, setShowRestrictionDialog] = useState(false);
+  const [newRestriction, setNewRestriction] = useState({
+    appointmentType: '',
+    startTime: '',
+    endTime: '',
+    daysOfWeek: [] as number[],
+    maxSlots: ''
+  });
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  
+  const appointmentTypes = [
+    { value: 'initial-consultation', label: 'Initial Consultation' },
+    { value: 'follow-up', label: 'Follow-up Visit' },
+    { value: 'sleep-study-review', label: 'Sleep Study Review' },
+    { value: 'appliance-fitting', label: 'Appliance Fitting' },
+    { value: 'appliance-adjustment', label: 'Appliance Adjustment' },
+    { value: 'compliance-check', label: 'Compliance Check' },
+    { value: 'emergency', label: 'Emergency Visit' }
+  ];
 
   useEffect(() => {
     loadProviders();
@@ -68,6 +96,7 @@ export const ProviderScheduling = () => {
     if (selectedProvider) {
       loadProviderSchedules(selectedProvider);
       loadProviderTimeOff(selectedProvider);
+      loadAppointmentRestrictions(selectedProvider);
     }
   }, [selectedProvider]);
 
@@ -156,6 +185,33 @@ export const ProviderScheduling = () => {
         description: "Failed to load time off requests",
         variant: "destructive",
       });
+    }
+  };
+
+  const loadAppointmentRestrictions = async (providerId: string) => {
+    try {
+      // Mock data for appointment type restrictions
+      const mockRestrictions = [
+        {
+          id: '1',
+          appointmentType: 'initial-consultation',
+          startTime: '09:00',
+          endTime: '12:00',
+          daysOfWeek: [2], // Tuesday only
+          maxSlots: 4
+        },
+        {
+          id: '2',
+          appointmentType: 'sleep-study-review',
+          startTime: '14:00',
+          endTime: '17:00',
+          daysOfWeek: [2, 4], // Tuesday and Thursday
+          maxSlots: 3
+        }
+      ];
+      setRestrictions(mockRestrictions);
+    } catch (error) {
+      console.error('Error loading appointment restrictions:', error);
     }
   };
 
@@ -260,6 +316,66 @@ export const ProviderScheduling = () => {
     }
   };
 
+  const addAppointmentRestriction = async () => {
+    if (!newRestriction.appointmentType || !newRestriction.startTime || !newRestriction.endTime) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const restriction: AppointmentTypeRestriction = {
+        id: Date.now().toString(),
+        appointmentType: newRestriction.appointmentType,
+        startTime: newRestriction.startTime,
+        endTime: newRestriction.endTime,
+        daysOfWeek: newRestriction.daysOfWeek,
+        maxSlots: newRestriction.maxSlots ? parseInt(newRestriction.maxSlots) : undefined
+      };
+
+      setRestrictions(prev => [...prev, restriction]);
+      setNewRestriction({
+        appointmentType: '',
+        startTime: '',
+        endTime: '',
+        daysOfWeek: [],
+        maxSlots: ''
+      });
+      setShowRestrictionDialog(false);
+
+      toast({
+        title: "Restriction Added",
+        description: "Appointment type restriction added successfully",
+      });
+    } catch (error) {
+      console.error('Error adding restriction:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add restriction",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const removeRestriction = (restrictionId: string) => {
+    setRestrictions(prev => prev.filter(r => r.id !== restrictionId));
+    toast({
+      title: "Restriction Removed",
+      description: "Appointment type restriction removed",
+    });
+  };
+
+  const getAppointmentTypeName = (value: string) => {
+    return appointmentTypes.find(t => t.value === value)?.label || value;
+  };
+
+  const getDaysDisplay = (daysOfWeek: number[]) => {
+    return daysOfWeek.map(day => dayNames[day]).join(', ');
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -289,8 +405,12 @@ export const ProviderScheduling = () => {
               <Calendar className="w-4 h-4 mr-2" />
               Weekly Schedule
             </TabsTrigger>
-            <TabsTrigger value="timeoff">
+            <TabsTrigger value="restrictions">
               <Clock className="w-4 h-4 mr-2" />
+              Appointment Types
+            </TabsTrigger>
+            <TabsTrigger value="timeoff">
+              <User className="w-4 h-4 mr-2" />
               Time Off
             </TabsTrigger>
           </TabsList>
@@ -372,6 +492,148 @@ export const ProviderScheduling = () => {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="restrictions" className="space-y-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Appointment Type Restrictions</CardTitle>
+                <Button onClick={() => setShowRestrictionDialog(true)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Restriction
+                </Button>
+              </CardHeader>
+              <CardContent>
+                {restrictions.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    No appointment type restrictions configured. Add restrictions to limit when certain appointment types can be scheduled.
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {restrictions.map((restriction) => (
+                      <div key={restriction.id} className="border rounded-lg p-4">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <h4 className="font-medium mb-2">
+                              {getAppointmentTypeName(restriction.appointmentType)}
+                            </h4>
+                            <div className="text-sm text-gray-600 space-y-1">
+                              <p><strong>Time:</strong> {restriction.startTime} - {restriction.endTime}</p>
+                              <p><strong>Days:</strong> {getDaysDisplay(restriction.daysOfWeek)}</p>
+                              {restriction.maxSlots && (
+                                <p><strong>Max Slots:</strong> {restriction.maxSlots}</p>
+                              )}
+                            </div>
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => removeRestriction(restriction.id)}
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Add Restriction Dialog */}
+            {showRestrictionDialog && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Add Appointment Type Restriction</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Appointment Type</Label>
+                    <Select 
+                      value={newRestriction.appointmentType} 
+                      onValueChange={(value) => setNewRestriction(prev => ({ ...prev, appointmentType: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select appointment type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {appointmentTypes.map(type => (
+                          <SelectItem key={type.value} value={type.value}>
+                            {type.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Start Time</Label>
+                      <Input 
+                        type="time" 
+                        value={newRestriction.startTime}
+                        onChange={(e) => setNewRestriction(prev => ({ ...prev, startTime: e.target.value }))}
+                      />
+                    </div>
+                    <div>
+                      <Label>End Time</Label>
+                      <Input 
+                        type="time" 
+                        value={newRestriction.endTime}
+                        onChange={(e) => setNewRestriction(prev => ({ ...prev, endTime: e.target.value }))}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label>Days of Week</Label>
+                    <div className="grid grid-cols-4 gap-2 mt-2">
+                      {dayNames.map((day, index) => (
+                        <label key={index} className="flex items-center space-x-2 text-sm">
+                          <input
+                            type="checkbox"
+                            checked={newRestriction.daysOfWeek.includes(index)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setNewRestriction(prev => ({ 
+                                  ...prev, 
+                                  daysOfWeek: [...prev.daysOfWeek, index] 
+                                }));
+                              } else {
+                                setNewRestriction(prev => ({ 
+                                  ...prev, 
+                                  daysOfWeek: prev.daysOfWeek.filter(d => d !== index) 
+                                }));
+                              }
+                            }}
+                          />
+                          <span>{day}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label>Maximum Slots (Optional)</Label>
+                    <Input 
+                      type="number" 
+                      placeholder="Leave empty for unlimited"
+                      value={newRestriction.maxSlots}
+                      onChange={(e) => setNewRestriction(prev => ({ ...prev, maxSlots: e.target.value }))}
+                    />
+                  </div>
+
+                  <div className="flex gap-2 pt-4">
+                    <Button onClick={addAppointmentRestriction} disabled={loading}>
+                      Add Restriction
+                    </Button>
+                    <Button variant="outline" onClick={() => setShowRestrictionDialog(false)}>
+                      Cancel
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="timeoff" className="space-y-4">
