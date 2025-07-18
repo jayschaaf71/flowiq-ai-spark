@@ -613,6 +613,53 @@ export type Database = {
           },
         ]
       }
+      client_subscriptions: {
+        Row: {
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          plan_id: string
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          plan_id: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          plan_id?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       communication_logs: {
         Row: {
           created_at: string
@@ -1758,6 +1805,48 @@ export type Database = {
           },
         ]
       }
+      patient_payments: {
+        Row: {
+          amount_cents: number
+          appointment_id: string | null
+          created_at: string
+          id: string
+          paid_at: string | null
+          patient_id: string
+          payment_type: string
+          status: string
+          stripe_payment_intent_id: string | null
+          tenant_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount_cents: number
+          appointment_id?: string | null
+          created_at?: string
+          id?: string
+          paid_at?: string | null
+          patient_id: string
+          payment_type: string
+          status?: string
+          stripe_payment_intent_id?: string | null
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount_cents?: number
+          appointment_id?: string | null
+          created_at?: string
+          id?: string
+          paid_at?: string | null
+          patient_id?: string
+          payment_type?: string
+          status?: string
+          stripe_payment_intent_id?: string | null
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       patients: {
         Row: {
           address: string | null
@@ -1843,6 +1932,53 @@ export type Database = {
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_links: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          description: string | null
+          expires_at: string
+          id: string
+          link_token: string
+          patient_id: string
+          payment_id: string | null
+          tenant_id: string | null
+          used_at: string | null
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          description?: string | null
+          expires_at: string
+          id?: string
+          link_token: string
+          patient_id: string
+          payment_id?: string | null
+          tenant_id?: string | null
+          used_at?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          description?: string | null
+          expires_at?: string
+          id?: string
+          link_token?: string
+          patient_id?: string
+          payment_id?: string | null
+          tenant_id?: string | null
+          used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_links_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "patient_payments"
             referencedColumns: ["id"]
           },
         ]
@@ -2903,6 +3039,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      subscription_plans: {
+        Row: {
+          created_at: string
+          features: Json | null
+          id: string
+          interval: string
+          is_active: boolean
+          name: string
+          price_cents: number
+          stripe_price_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          features?: Json | null
+          id?: string
+          interval?: string
+          is_active?: boolean
+          name: string
+          price_cents: number
+          stripe_price_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          features?: Json | null
+          id?: string
+          interval?: string
+          is_active?: boolean
+          name?: string
+          price_cents?: number
+          stripe_price_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       system_metrics: {
         Row: {
