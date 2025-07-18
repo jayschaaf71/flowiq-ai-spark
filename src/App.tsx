@@ -36,6 +36,7 @@ import PatientMessages from './pages/PatientMessages';
 import ResetPassword from './pages/ResetPassword';
 import AcceptInvitation from './pages/AcceptInvitation';
 import AuthTesting from './pages/AuthTesting';
+import PracticeSetup from './pages/PracticeSetup';
 
 // Platform Admin
 import PlatformAdmin from './pages/PlatformAdmin';
@@ -160,6 +161,11 @@ function App() {
                     <Route path="/onboarding" element={
                       <ProtectedRoute>
                         <TenantOnboarding />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/practice-setup" element={
+                      <ProtectedRoute>
+                        <PracticeSetup />
                       </ProtectedRoute>
                     } />
 
