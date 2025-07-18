@@ -180,15 +180,15 @@ const Index = () => {
                     <ArrowRight className="ml-2 w-5 h-5" />
                   </Button>
                 ) : (
-                  <Button 
-                    variant="outline" 
-                    size="lg" 
-                    className="px-8 py-3 text-lg"
-                    onClick={handleSignIn}
-                  >
-                    <LogIn className="mr-2 w-5 h-5" />
-                    Sign In
-                  </Button>
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="px-8 py-3 text-lg"
+                  onClick={() => navigate('/auth?defaultTab=signin')}
+                >
+                  <LogIn className="mr-2 w-5 h-5" />
+                  Sign In
+                </Button>
                 )}
               </div>
 
