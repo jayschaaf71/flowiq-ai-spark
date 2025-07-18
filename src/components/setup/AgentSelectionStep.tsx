@@ -31,66 +31,42 @@ interface AgentSelectionStepProps {
 }
 
 const availableAgents = [
+  // Core Essential Agents
   {
-    id: 'appointment-iq',
-    name: 'Appointment iQ',
-    description: 'Complete appointment lifecycle management with scheduling, reminders, and follow-up',
+    id: 'schedule-iq',
+    name: 'Schedule iQ',
+    description: 'Intelligent appointment scheduling with AI-powered optimization',
     icon: Calendar,
-    benefits: ['Smart scheduling', 'Automated reminders', 'Follow-up coordination', 'No-show reduction'],
+    benefits: ['Smart scheduling algorithms', 'Conflict resolution', 'Automated confirmations', 'No-show prediction'],
     recommended: true,
     category: 'Essential'
   },
   {
-    id: 'intake-iq',
-    name: 'Intake iQ',
-    description: 'Digital intake forms, consent collection, and patient onboarding',
-    icon: ClipboardList,
-    benefits: ['Paperless intake process', 'E-signature collection', 'HIPAA compliant forms'],
+    id: 'communication-iq',
+    name: 'Communication iQ',
+    description: 'Multi-channel patient communication and engagement platform',
+    icon: MessageSquare,
+    benefits: ['Unified messaging', 'Automated reminders', 'Voice integration', 'Multi-language support'],
     recommended: true,
     category: 'Essential'
   },
   {
     id: 'assist-iq',
-    name: 'Assist iQ',
-    description: 'AI-powered staff assistant for questions and workflow guidance',
+    name: 'Assist iQ (Sage AI)',
+    description: 'AI-powered staff assistant for workflow guidance and support',
     icon: MessageSquare,
-    benefits: ['Instant staff support', 'Workflow optimization tips', 'Best practice recommendations'],
-    recommended: false,
-    category: 'Support'
+    benefits: ['Instant staff support', 'Workflow optimization', 'Knowledge base access', 'Practice guidance'],
+    recommended: true,
+    category: 'Essential'
   },
-  {
-    id: 'billing-iq',
-    name: 'Billing iQ',
-    description: 'Insurance verification, invoicing, and payment processing',
-    icon: CreditCard,
-    benefits: ['Real-time insurance verification', 'Automated invoicing', 'Payment plan management'],
-    recommended: false,
-    category: 'Financial'
-  },
-  {
-    id: 'claims-iq',
-    name: 'Claims iQ',
-    description: 'Insurance claims submission, tracking, and denial management',
-    icon: Receipt,
-    benefits: ['Faster claim processing', 'Denial tracking & resubmission', 'Revenue optimization'],
-    recommended: false,
-    category: 'Financial'
-  },
-  {
-    id: 'payments-iq',
-    name: 'Payments iQ',
-    description: 'Payment collection, processing, and automated billing workflows',
-    icon: TrendingUp,
-    benefits: ['Automated payment collection', 'Payment plan management', 'Revenue optimization'],
-    recommended: false,
-    category: 'Financial'
-  },
+
+  // Clinical & Documentation
   {
     id: 'scribe-iq',
     name: 'Scribe iQ',
-    description: 'AI medical scribe for appointment notes and documentation',
+    description: 'AI medical scribe for automated clinical documentation',
     icon: Stethoscope,
-    benefits: ['Automated documentation', 'Voice-to-text transcription', 'Template generation'],
+    benefits: ['Voice-to-text transcription', 'SOAP note generation', 'Template automation', 'Clinical workflow integration'],
     recommended: false,
     category: 'Clinical'
   },
@@ -99,27 +75,58 @@ const availableAgents = [
     name: 'EHR iQ',
     description: 'Electronic health records integration and management',
     icon: FileText,
-    benefits: ['EHR integration', 'Patient data synchronization', 'Clinical workflow automation'],
+    benefits: ['EHR system integration', 'Data synchronization', 'Clinical workflow automation', 'Records management'],
     recommended: false,
     category: 'Clinical'
   },
   {
-    id: 'inventory-iq',
-    name: 'Inventory iQ',
-    description: 'Smart inventory management and automated ordering',
-    icon: Package,
-    benefits: ['Automated reordering', 'Vendor management', 'Cost optimization', 'Stock tracking'],
+    id: 'dental-sleep-iq',
+    name: 'Dental Sleep iQ',
+    description: 'Specialized sleep medicine practice management for dental practices',
+    icon: Stethoscope,
+    benefits: ['Sleep study management', 'Appliance tracking', 'Treatment protocols', 'Patient education'],
     recommended: false,
-    category: 'Operations'
+    category: 'Clinical'
+  },
+
+  // Financial & Revenue Cycle
+  {
+    id: 'billing-iq',
+    name: 'Billing iQ',
+    description: 'Automated billing and revenue cycle management',
+    icon: CreditCard,
+    benefits: ['Automated invoicing', 'Insurance verification', 'Payment processing', 'Revenue optimization'],
+    recommended: false,
+    category: 'Financial'
   },
   {
-    id: 'insight-iq',
-    name: 'Insight iQ',
-    description: 'Business intelligence and practice analytics',
-    icon: BarChart3,
-    benefits: ['Performance analytics', 'Predictive insights', 'Custom reporting', 'Data visualization'],
+    id: 'claims-iq',
+    name: 'Claims iQ',
+    description: 'Insurance claims processing and denial management',
+    icon: Receipt,
+    benefits: ['Automated claim submission', 'Denial tracking', 'Resubmission workflows', 'Revenue recovery'],
     recommended: false,
-    category: 'Analytics'
+    category: 'Financial'
+  },
+  {
+    id: 'payments-iq',
+    name: 'Payments iQ',
+    description: 'Payment collection and processing automation',
+    icon: TrendingUp,
+    benefits: ['Payment plan management', 'Automated collections', 'Online payment processing', 'Financial reporting'],
+    recommended: false,
+    category: 'Financial'
+  },
+
+  // Operations & Management
+  {
+    id: 'inventory-iq',
+    name: 'Inventory iQ',
+    description: 'Smart inventory management with automated ordering',
+    icon: Package,
+    benefits: ['Automated reordering', 'Vendor management', 'Cost optimization', 'Stock level monitoring'],
+    recommended: false,
+    category: 'Operations'
   },
   {
     id: 'ops-iq',
@@ -130,6 +137,19 @@ const availableAgents = [
     recommended: false,
     category: 'Operations'
   },
+
+  // Analytics & Insights
+  {
+    id: 'insight-iq',
+    name: 'Insight iQ',
+    description: 'Business intelligence and practice analytics',
+    icon: BarChart3,
+    benefits: ['Performance analytics', 'Predictive insights', 'Custom reporting', 'Data visualization'],
+    recommended: false,
+    category: 'Analytics'
+  },
+
+  // Security & Compliance
   {
     id: 'auth-iq',
     name: 'Auth iQ',
@@ -139,15 +159,28 @@ const availableAgents = [
     recommended: false,
     category: 'Security'
   },
+
+  // Patient Experience & Education
   {
     id: 'education-iq',
     name: 'Education iQ',
     description: 'Patient education and engagement automation',
     icon: GraduationCap,
-    benefits: ['Automated patient education', 'Engagement tracking', 'Custom content delivery'],
+    benefits: ['Automated patient education', 'Engagement tracking', 'Custom content delivery', 'Health literacy improvement'],
     recommended: false,
     category: 'Patient Experience'
   },
+  {
+    id: 'followup-iq',
+    name: 'Followup iQ',
+    description: 'Automated patient follow-up and care coordination',
+    icon: UserPlus,
+    benefits: ['Post-treatment follow-ups', 'Care plan adherence', 'Recovery monitoring', 'Automated outreach'],
+    recommended: false,
+    category: 'Patient Experience'
+  },
+
+  // Growth & Marketing
   {
     id: 'marketing-iq',
     name: 'Marketing iQ',
@@ -166,6 +199,15 @@ const availableAgents = [
     recommended: false,
     category: 'Growth'
   },
+  {
+    id: 'go-to-market-iq',
+    name: 'Go-To-Market iQ',
+    description: 'Sales and marketing strategy automation',
+    icon: TrendingUp,
+    benefits: ['Sales pipeline management', 'Lead qualification', 'Marketing campaign optimization', 'ROI tracking'],
+    recommended: false,
+    category: 'Growth'
+  }
 ];
 
 export const AgentSelectionStep = ({ setupData, updateSetupData }: AgentSelectionStepProps) => {
