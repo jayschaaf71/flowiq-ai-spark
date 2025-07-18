@@ -31,22 +31,12 @@ export interface AgentType {
 
 export const agentTypes: AgentType[] = [
   {
-    id: 'appointment-iq',
-    name: 'Appointment iQ',
-    description: 'Complete appointment lifecycle management with scheduling, reminders, and follow-up',
-    icon: Calendar,
+    id: 'communication-iq',
+    name: 'Communication iQ',
+    description: 'Complete patient communication platform including scheduling, intake, follow-up, and appointment management',
+    icon: MessageSquare,
     color: 'blue',
-    features: ['Smart scheduling', '24/7 booking', 'Automated reminders', 'Follow-up coordination', 'No-show reduction'],
-    recommended: true,
-    category: 'Essential'
-  },
-  {
-    id: 'intake-iq',
-    name: 'Intake iQ',
-    description: 'Digital intake forms, consent collection, and patient onboarding',
-    icon: ClipboardList,
-    color: 'green',
-    features: ['Paperless intake process', 'E-signature collection', 'HIPAA compliant forms', 'Auto form pre-population'],
+    features: ['Multi-channel messaging', 'Smart scheduling', 'Digital intake', 'Automated follow-ups', 'Appointment management', 'No-show reduction'],
     recommended: true,
     category: 'Essential'
   },
@@ -143,12 +133,12 @@ export const agentTypes: AgentType[] = [
   {
     id: 'auth-iq',
     name: 'Auth iQ',
-    description: 'Advanced authentication and security management',
+    description: 'Insurance authorization and prior approval management',
     icon: Shield,
     color: 'rose',
-    features: ['Multi-factor authentication', 'Security monitoring', 'Access control', 'Compliance tracking'],
+    features: ['Prior authorization tracking', 'Insurance verification', 'Approval workflows', 'Compliance monitoring'],
     recommended: false,
-    category: 'Security'
+    category: 'Financial'
   },
   {
     id: 'education-iq',
@@ -161,12 +151,12 @@ export const agentTypes: AgentType[] = [
     category: 'Patient Experience'
   },
   {
-    id: 'marketing-iq',
-    name: 'Marketing iQ',
-    description: 'Practice marketing automation and patient acquisition',
-    icon: Eye,
+    id: 'go-to-market-iq',
+    name: 'Go-To-Market iQ',
+    description: 'Comprehensive marketing and sales automation for practice growth',
+    icon: TrendingUp,
     color: 'pink',
-    features: ['Lead generation', 'Campaign automation', 'Social media management', 'Review management'],
+    features: ['Lead generation', 'Sales automation', 'Campaign management', 'Social media', 'Review management', 'Patient acquisition'],
     recommended: false,
     category: 'Growth'
   },

@@ -16,7 +16,7 @@ import { ReviewStep } from "@/components/setup/ReviewStep";
 import { usePracticeSetupPersistence } from "@/hooks/usePracticeSetupPersistence";
 import { supabase } from "@/integrations/supabase/client";
 
-export type PracticeType = 'dental' | 'orthodontics' | 'oral-surgery' | 'dental-sleep' | 'chiropractic' | 'physical-therapy' | 'veterinary' | 'med-spa' | 'appointment-iq';
+export type PracticeType = 'dental' | 'orthodontics' | 'oral-surgery' | 'dental-sleep' | 'chiropractic' | 'physical-therapy' | 'veterinary' | 'med-spa' | 'communication-iq';
 
 export interface SetupData {
   practiceType: PracticeType | null;
@@ -133,7 +133,7 @@ const PracticeSetup = () => {
           'physical-therapy': 'physical-therapy',
           'veterinary': 'veterinary-medicine',
           'med-spa': 'medical-spa',
-          'appointment-iq': 'appointment-scheduling'
+          'communication-iq': 'patient-communication'
         };
 
         // Create tenant using the database function
