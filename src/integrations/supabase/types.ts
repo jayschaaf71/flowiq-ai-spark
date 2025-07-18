@@ -1021,6 +1021,63 @@ export type Database = {
           },
         ]
       }
+      insurance_cards: {
+        Row: {
+          back_image_path: string | null
+          card_type: string
+          created_at: string | null
+          extracted_data: Json | null
+          front_image_path: string | null
+          group_number: string | null
+          id: string
+          insurance_provider_name: string | null
+          member_id: string | null
+          patient_id: string
+          policy_number: string | null
+          tenant_id: string | null
+          updated_at: string | null
+          uploaded_at: string | null
+          verification_status: string | null
+          verified_at: string | null
+        }
+        Insert: {
+          back_image_path?: string | null
+          card_type?: string
+          created_at?: string | null
+          extracted_data?: Json | null
+          front_image_path?: string | null
+          group_number?: string | null
+          id?: string
+          insurance_provider_name?: string | null
+          member_id?: string | null
+          patient_id: string
+          policy_number?: string | null
+          tenant_id?: string | null
+          updated_at?: string | null
+          uploaded_at?: string | null
+          verification_status?: string | null
+          verified_at?: string | null
+        }
+        Update: {
+          back_image_path?: string | null
+          card_type?: string
+          created_at?: string | null
+          extracted_data?: Json | null
+          front_image_path?: string | null
+          group_number?: string | null
+          id?: string
+          insurance_provider_name?: string | null
+          member_id?: string | null
+          patient_id?: string
+          policy_number?: string | null
+          tenant_id?: string | null
+          updated_at?: string | null
+          uploaded_at?: string | null
+          verification_status?: string | null
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       insurance_providers: {
         Row: {
           address: string | null
