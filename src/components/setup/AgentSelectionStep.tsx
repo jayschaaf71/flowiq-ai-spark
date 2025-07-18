@@ -31,33 +31,24 @@ interface AgentSelectionStepProps {
 }
 
 const availableAgents = [
-  // Core Essential Agents
-  {
-    id: 'schedule-iq',
-    name: 'Schedule iQ',
-    description: 'Intelligent appointment scheduling with AI-powered optimization',
-    icon: Calendar,
-    benefits: ['Smart scheduling algorithms', 'Conflict resolution', 'Automated confirmations', 'No-show prediction'],
-    recommended: true,
-    category: 'Essential'
-  },
+  // Essential Agents
   {
     id: 'communication-iq',
     name: 'Communication iQ',
-    description: 'Multi-channel patient communication and engagement platform',
+    description: 'Complete patient communication platform including scheduling, intake, follow-up, and appointment management',
     icon: MessageSquare,
-    benefits: ['Unified messaging', 'Automated reminders', 'Voice integration', 'Multi-language support'],
+    benefits: ['Multi-channel messaging', 'Smart scheduling', 'Digital intake', 'Automated follow-ups', 'Appointment management', 'No-show reduction'],
     recommended: true,
     category: 'Essential'
   },
   {
     id: 'assist-iq',
-    name: 'Assist iQ (Sage AI)',
+    name: 'Assist iQ',
     description: 'AI-powered staff assistant for workflow guidance and support',
     icon: MessageSquare,
     benefits: ['Instant staff support', 'Workflow optimization', 'Knowledge base access', 'Practice guidance'],
-    recommended: true,
-    category: 'Essential'
+    recommended: false,
+    category: 'Support'
   },
 
   // Clinical & Documentation
@@ -76,15 +67,6 @@ const availableAgents = [
     description: 'Electronic health records integration and management',
     icon: FileText,
     benefits: ['EHR system integration', 'Data synchronization', 'Clinical workflow automation', 'Records management'],
-    recommended: false,
-    category: 'Clinical'
-  },
-  {
-    id: 'dental-sleep-iq',
-    name: 'Dental Sleep iQ',
-    description: 'Specialized sleep medicine practice management for dental practices',
-    icon: Stethoscope,
-    benefits: ['Sleep study management', 'Appliance tracking', 'Treatment protocols', 'Patient education'],
     recommended: false,
     category: 'Clinical'
   },
@@ -114,6 +96,15 @@ const availableAgents = [
     description: 'Payment collection and processing automation',
     icon: TrendingUp,
     benefits: ['Payment plan management', 'Automated collections', 'Online payment processing', 'Financial reporting'],
+    recommended: false,
+    category: 'Financial'
+  },
+  {
+    id: 'auth-iq',
+    name: 'Auth iQ',
+    description: 'Insurance authorization and prior approval management',
+    icon: Shield,
+    benefits: ['Prior authorization tracking', 'Insurance verification', 'Approval workflows', 'Compliance monitoring'],
     recommended: false,
     category: 'Financial'
   },
@@ -149,17 +140,6 @@ const availableAgents = [
     category: 'Analytics'
   },
 
-  // Security & Compliance
-  {
-    id: 'auth-iq',
-    name: 'Auth iQ',
-    description: 'Advanced authentication and security management',
-    icon: Shield,
-    benefits: ['Multi-factor authentication', 'Security monitoring', 'Access control', 'Compliance tracking'],
-    recommended: false,
-    category: 'Security'
-  },
-
   // Patient Experience & Education
   {
     id: 'education-iq',
@@ -170,23 +150,14 @@ const availableAgents = [
     recommended: false,
     category: 'Patient Experience'
   },
-  {
-    id: 'followup-iq',
-    name: 'Followup iQ',
-    description: 'Automated patient follow-up and care coordination',
-    icon: UserPlus,
-    benefits: ['Post-treatment follow-ups', 'Care plan adherence', 'Recovery monitoring', 'Automated outreach'],
-    recommended: false,
-    category: 'Patient Experience'
-  },
 
   // Growth & Marketing
   {
-    id: 'marketing-iq',
-    name: 'Marketing iQ',
-    description: 'Practice marketing automation and patient acquisition',
-    icon: Eye,
-    benefits: ['Lead generation', 'Campaign automation', 'Social media management', 'Review management'],
+    id: 'go-to-market-iq',
+    name: 'Go-To-Market iQ',
+    description: 'Comprehensive marketing and sales automation for practice growth',
+    icon: TrendingUp,
+    benefits: ['Lead generation', 'Sales automation', 'Campaign management', 'Social media', 'Review management', 'Patient acquisition'],
     recommended: false,
     category: 'Growth'
   },
@@ -196,15 +167,6 @@ const availableAgents = [
     description: 'Referral management and physician relationship automation',
     icon: UserPlus,
     benefits: ['Referral tracking', 'Physician outreach', 'Relationship management', 'Communication automation'],
-    recommended: false,
-    category: 'Growth'
-  },
-  {
-    id: 'go-to-market-iq',
-    name: 'Go-To-Market iQ',
-    description: 'Sales and marketing strategy automation',
-    icon: TrendingUp,
-    benefits: ['Sales pipeline management', 'Lead qualification', 'Marketing campaign optimization', 'ROI tracking'],
     recommended: false,
     category: 'Growth'
   }
