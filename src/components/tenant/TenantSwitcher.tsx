@@ -136,18 +136,18 @@ export function TenantSwitcher() {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[300px] justify-between"
+          className="w-[280px] justify-between h-10 px-3"
         >
-          <div className="flex items-center">
-            <Building2 className="mr-2 h-4 w-4" />
-            <span className="truncate">
+          <div className="flex items-center min-w-0 flex-1">
+            <Building2 className="mr-2 h-4 w-4 shrink-0" />
+            <span className="truncate text-sm">
               {currentTenant?.brand_name || currentTenant?.name || "Select practice..."}
             </span>
           </div>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[300px] p-0">
+      <PopoverContent className="w-[280px] p-0">
         <Command>
           <CommandInput placeholder="Search practices..." />
           <CommandEmpty>No practice found.</CommandEmpty>

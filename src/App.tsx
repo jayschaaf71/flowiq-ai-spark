@@ -85,6 +85,7 @@ function App() {
                     <Route path="/" element={<Index />} />
                     <Route path="/get-started" element={<AuthPage />} />
                     <Route path="/auth" element={<AuthPage />} />
+                    <Route path="/demo" element={<DemoHub />} />
                     <Route path="/reset-password" element={<ResetPassword />} />
                     <Route path="/accept-invitation/:token" element={<AcceptInvitation />} />
                     <Route path="/auth-testing" element={<AuthTesting />} />

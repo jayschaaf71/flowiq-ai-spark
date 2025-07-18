@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -9,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
-import { User, LogOut, Settings } from "lucide-react";
+import { LogOut, Settings } from "lucide-react";
 
 export const UserMenu = () => {
   const { user, profile, signOut } = useAuth();
@@ -22,13 +21,17 @@ export const UserMenu = () => {
 
   const displayName = profile.first_name && profile.last_name 
     ? `${profile.first_name} ${profile.last_name}`
-    : profile.email;
+    : profile.first_name || profile.last_name || profile.email;
+
+  const initials = profile.first_name && profile.last_name
+    ? `${profile.first_name[0]}${profile.last_name[0]}`
+    : (profile.first_name?.[0] || profile.email?.[0] || 'U').toUpperCase();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-12 w-12 rounded-full">
-          <User className="h-6 w-6" />
+        <Button variant="ghost" className="relative h-10 w-10 rounded-full bg-primary text-primary-foreground hover:bg-primary/90">
+          <span className="text-sm font-medium">{initials}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
@@ -36,10 +39,10 @@ export const UserMenu = () => {
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">{displayName}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              {profile.email}
+              {user.email}
             </p>
             <p className="text-xs leading-none text-muted-foreground capitalize">
-              {profile.role}
+              {profile.role?.replace('_', ' ')}
             </p>
           </div>
         </DropdownMenuLabel>

@@ -6,8 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { SetupLayout } from "@/components/SetupLayout";
-import { Loader2, Brain, ArrowLeft } from "lucide-react";
+import { Loader2, Zap, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/contexts/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -159,20 +158,20 @@ export default function AuthPage() {
   };
 
   return (
-    <SetupLayout>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
       <div className="min-h-screen flex items-center justify-center p-6">
         <div className="w-full max-w-md space-y-6">
           <div className="text-center space-y-2">
             <div className="flex items-center justify-center gap-3 mb-6">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <Brain className="h-6 w-6" />
+              <div className="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center">
+                <Zap className="w-8 h-8 text-white" />
               </div>
-              <div>
-                <h1 className="text-2xl font-bold">FlowIQ</h1>
-                <p className="text-sm text-muted-foreground">Practice Management Platform</p>
+              <div className="text-left">
+                <h1 className="text-4xl font-bold text-gray-900">FlowIQ</h1>
+                <p className="text-xl text-primary font-medium">The AI Business Operating System</p>
               </div>
             </div>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-lg">
               Get started with your AI-powered practice management
             </p>
           </div>
@@ -377,6 +376,6 @@ export default function AuthPage() {
           </div>
         </div>
       </div>
-    </SetupLayout>
+    </div>
   );
 }

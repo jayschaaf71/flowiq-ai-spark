@@ -13,7 +13,7 @@ import {
   Zap,
   ArrowRight,
   LogIn,
-  Moon,
+  Play,
   Loader2
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -41,19 +41,19 @@ const Index = () => {
         navigate('/dashboard'); // This will show specialty selection
       }
     } else {
-      console.log("Navigating to auth page");
-      navigate('/auth');
+      console.log("Navigating to auth page for signup");
+      navigate('/auth?defaultTab=signup');
     }
   };
 
   const handleViewDemo = () => {
     console.log("View Demo clicked");
-    navigate('/dental-sleep-demo');
+    navigate('/demo');
   };
 
   const handleSignIn = () => {
     console.log("Sign In clicked");
-    navigate('/auth');
+    navigate('/auth?defaultTab=signin');
   };
 
   // Show loading state while checking auth or tenant
@@ -123,14 +123,14 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
             <div className="flex items-center justify-center mb-6">
-              <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-green-600 rounded-2xl flex items-center justify-center mr-4">
+              <div className="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mr-4">
                 <Zap className="w-8 h-8 text-white" />
               </div>
               <div className="text-left">
                 <h1 className="text-4xl font-bold text-gray-900">
                   FlowIQ
                 </h1>
-                <p className="text-xl text-blue-600 font-medium">
+                <p className="text-xl text-primary font-medium">
                   The AI Business Operating System
                 </p>
               </div>
@@ -139,7 +139,7 @@ const Index = () => {
             <div className="max-w-3xl mx-auto">
               <h2 className="text-5xl font-bold text-gray-900 mb-6">
                 Practice Management, 
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-green-600">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary-accent">
                   {" "}Reimagined
                 </span>
               </h2>
@@ -152,8 +152,8 @@ const Index = () => {
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
                 <Button 
                   size="lg" 
-                  className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white px-8 py-3 text-lg"
-                  onClick={() => navigate('/get-started')}
+                  className="gradient-primary text-primary-foreground hover:scale-105 transition-all duration-200 px-8 py-3 text-lg shadow-lg"
+                  onClick={handleGetStarted}
                 >
                   Get Started Free
                   <ArrowRight className="ml-2 w-5 h-5" />
@@ -162,10 +162,10 @@ const Index = () => {
                 <Button 
                   variant="outline" 
                   size="lg" 
-                  className="px-8 py-3 text-lg border-blue-600 text-blue-600 hover:bg-blue-50"
+                  className="px-8 py-3 text-lg border-primary text-primary hover:bg-primary-muted"
                   onClick={handleViewDemo}
                 >
-                  <Moon className="mr-2 w-5 h-5" />
+                  <Play className="mr-2 w-5 h-5" />
                   View Demo
                 </Button>
                 
@@ -242,7 +242,7 @@ const Index = () => {
       </div>
 
       {/* CTA Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-green-600 py-16">
+      <div className="gradient-primary py-16">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-white mb-4">
             Ready to Transform Your Practice?
@@ -253,7 +253,7 @@ const Index = () => {
           <Button 
             size="lg" 
             variant="secondary"
-            className="bg-white text-blue-600 hover:bg-gray-50 px-8 py-3 text-lg font-semibold"
+            className="bg-white text-primary hover:bg-gray-50 px-8 py-3 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
             onClick={handleGetStarted}
           >
             {user ? 'Access Dashboard' : 'Start Free Trial'}
@@ -267,7 +267,7 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="flex items-center justify-center mb-4">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-green-600 rounded-lg flex items-center justify-center mr-3">
+              <div className="w-8 h-8 gradient-primary rounded-lg flex items-center justify-center mr-3">
                 <Zap className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold">FlowIQ</span>
