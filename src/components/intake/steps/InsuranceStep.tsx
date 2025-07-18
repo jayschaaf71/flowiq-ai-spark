@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
+import { InsuranceCardUpload } from '@/components/insurance/InsuranceCardUpload';
 
 interface InsuranceStepProps {
   initialData: any;
@@ -21,13 +22,33 @@ export const InsuranceStep: React.FC<InsuranceStepProps> = ({ initialData, onCom
     relationship: initialData.insurance?.relationship || 'self'
   });
 
+  const [cardData, setCardData] = useState(initialData.insuranceCards || []);
+
   const updateField = (field: string, value: string) => {
     setInsurance(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleCardUpload = (uploadedCardData: any) => {
+    setCardData(prev => [...prev, uploadedCardData]);
+    
+    // Auto-fill form fields if card data was extracted
+    if (uploadedCardData.extractedData) {
+      const extracted = uploadedCardData.extractedData;
+      setInsurance(prev => ({
+        ...prev,
+        provider: extracted.insurance_provider_name || prev.provider,
+        policyNumber: extracted.member_id || prev.policyNumber,
+        groupNumber: extracted.group_number || prev.groupNumber
+      }));
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onComplete({ insurance });
+    onComplete({ 
+      insurance,
+      insuranceCards: cardData
+    });
   };
 
   return (
@@ -89,6 +110,20 @@ export const InsuranceStep: React.FC<InsuranceStepProps> = ({ initialData, onCom
               </Select>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Insurance Card Upload Section */}
+      <Card>
+        <CardContent className="p-6">
+          <h3 className="text-lg font-semibold mb-4">Upload Insurance Card</h3>
+          <p className="text-sm text-gray-600 mb-4">
+            Take photos of both sides of your insurance card for verification and automatic data entry.
+          </p>
+          <InsuranceCardUpload
+            patientId="current-patient" // Will be replaced with actual patient ID
+            onUploadComplete={handleCardUpload}
+          />
         </CardContent>
       </Card>
 
