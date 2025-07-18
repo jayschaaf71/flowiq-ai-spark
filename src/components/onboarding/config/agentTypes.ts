@@ -1,14 +1,10 @@
 
 import { 
-  Calendar, 
-  ClipboardList, 
-  Bell,
   CreditCard,
   Receipt,
   MessageSquare,
   Stethoscope,
   Package,
-  Eye,
   Shield,
   GraduationCap,
   UserPlus,
