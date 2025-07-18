@@ -13,6 +13,8 @@ import { PlatformInfrastructure } from '@/components/admin/PlatformInfrastructur
 import { PlatformDatabase } from '@/components/admin/PlatformDatabase';
 import { PlatformAlerts } from '@/components/admin/PlatformAlerts';
 import { PlatformSettings } from '@/components/admin/PlatformSettings';
+import { CostAnalyticsDashboard } from '@/components/admin/CostAnalyticsDashboard';
+import { FinancialReportingDashboard } from '@/components/admin/FinancialReportingDashboard';
 
 const PlatformAdmin = () => {
   return (
@@ -33,6 +35,8 @@ const PlatformAdmin = () => {
               <Routes>
                 <Route index element={<PlatformAdminDashboard />} />
                 <Route path="analytics" element={<PlatformAnalytics />} />
+                <Route path="costs" element={<CostAnalyticsDashboard />} />
+                <Route path="reports" element={<FinancialReportingDashboard />} />
                 <Route path="tenants" element={<PlatformTenants />} />
                 <Route path="users" element={<PlatformUsers />} />
                 <Route path="security" element={<PlatformSecurity />} />

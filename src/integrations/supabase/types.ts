@@ -730,6 +730,56 @@ export type Database = {
           },
         ]
       }
+      cost_optimization_recommendations: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          implementation_effort: string | null
+          potential_savings: number | null
+          priority: string
+          recommendation_type: string
+          status: string
+          tenant_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          implementation_effort?: string | null
+          potential_savings?: number | null
+          priority?: string
+          recommendation_type: string
+          status?: string
+          tenant_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          implementation_effort?: string | null
+          potential_savings?: number | null
+          priority?: string
+          recommendation_type?: string
+          status?: string
+          tenant_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cost_optimization_recommendations_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dme_orders: {
         Row: {
           actual_delivery_date: string | null
@@ -921,6 +971,56 @@ export type Database = {
           },
           {
             foreignKeyName: "external_calendar_events_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feature_usage_analytics: {
+        Row: {
+          active_users: number | null
+          created_at: string
+          error_count: number | null
+          feature_name: string
+          id: string
+          performance_score: number | null
+          session_duration_minutes: number | null
+          success_rate: number | null
+          tenant_id: string
+          usage_count: number | null
+          usage_date: string
+        }
+        Insert: {
+          active_users?: number | null
+          created_at?: string
+          error_count?: number | null
+          feature_name: string
+          id?: string
+          performance_score?: number | null
+          session_duration_minutes?: number | null
+          success_rate?: number | null
+          tenant_id: string
+          usage_count?: number | null
+          usage_date: string
+        }
+        Update: {
+          active_users?: number | null
+          created_at?: string
+          error_count?: number | null
+          feature_name?: string
+          id?: string
+          performance_score?: number | null
+          session_duration_minutes?: number | null
+          success_rate?: number | null
+          tenant_id?: string
+          usage_count?: number | null
+          usage_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feature_usage_analytics_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -2046,6 +2146,36 @@ export type Database = {
           },
         ]
       }
+      platform_financial_reports: {
+        Row: {
+          generated_at: string
+          generated_by: string | null
+          id: string
+          report_data: Json
+          report_period_end: string
+          report_period_start: string
+          report_type: string
+        }
+        Insert: {
+          generated_at?: string
+          generated_by?: string | null
+          id?: string
+          report_data?: Json
+          report_period_end: string
+          report_period_start: string
+          report_type: string
+        }
+        Update: {
+          generated_at?: string
+          generated_by?: string | null
+          id?: string
+          report_data?: Json
+          report_period_end?: string
+          report_period_start?: string
+          report_type?: string
+        }
+        Relationships: []
+      }
       platform_metrics: {
         Row: {
           created_at: string
@@ -2909,6 +3039,53 @@ export type Database = {
           },
         ]
       }
+      service_usage: {
+        Row: {
+          created_at: string
+          id: string
+          metadata: Json | null
+          service_type: string
+          tenant_id: string
+          total_cost: number | null
+          unit_cost: number | null
+          usage_count: number | null
+          usage_date: string
+          usage_volume: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          service_type: string
+          tenant_id: string
+          total_cost?: number | null
+          unit_cost?: number | null
+          usage_count?: number | null
+          usage_date: string
+          usage_volume?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          service_type?: string
+          tenant_id?: string
+          total_cost?: number | null
+          unit_cost?: number | null
+          usage_count?: number | null
+          usage_date?: string
+          usage_volume?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_usage_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sleep_studies: {
         Row: {
           ahi_score: number | null
@@ -3228,6 +3405,171 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "team_members_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenant_costs: {
+        Row: {
+          ai_api_costs: number | null
+          communication_costs: number | null
+          compute_costs: number | null
+          cost_period_end: string
+          cost_period_start: string
+          created_at: string
+          id: string
+          infrastructure_costs: number | null
+          storage_costs: number | null
+          tenant_id: string
+          third_party_costs: number | null
+          total_costs: number | null
+          updated_at: string
+        }
+        Insert: {
+          ai_api_costs?: number | null
+          communication_costs?: number | null
+          compute_costs?: number | null
+          cost_period_end: string
+          cost_period_start: string
+          created_at?: string
+          id?: string
+          infrastructure_costs?: number | null
+          storage_costs?: number | null
+          tenant_id: string
+          third_party_costs?: number | null
+          total_costs?: number | null
+          updated_at?: string
+        }
+        Update: {
+          ai_api_costs?: number | null
+          communication_costs?: number | null
+          compute_costs?: number | null
+          cost_period_end?: string
+          cost_period_start?: string
+          created_at?: string
+          id?: string
+          infrastructure_costs?: number | null
+          storage_costs?: number | null
+          tenant_id?: string
+          third_party_costs?: number | null
+          total_costs?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_costs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenant_margins: {
+        Row: {
+          analysis_period_end: string
+          analysis_period_start: string
+          churn_risk_score: number | null
+          created_at: string
+          customer_acquisition_cost: number | null
+          gross_margin: number | null
+          id: string
+          lifetime_value: number | null
+          margin_percentage: number | null
+          profitability_status: string | null
+          tenant_id: string
+          total_costs: number
+          total_revenue: number
+          updated_at: string
+        }
+        Insert: {
+          analysis_period_end: string
+          analysis_period_start: string
+          churn_risk_score?: number | null
+          created_at?: string
+          customer_acquisition_cost?: number | null
+          gross_margin?: number | null
+          id?: string
+          lifetime_value?: number | null
+          margin_percentage?: number | null
+          profitability_status?: string | null
+          tenant_id: string
+          total_costs: number
+          total_revenue: number
+          updated_at?: string
+        }
+        Update: {
+          analysis_period_end?: string
+          analysis_period_start?: string
+          churn_risk_score?: number | null
+          created_at?: string
+          customer_acquisition_cost?: number | null
+          gross_margin?: number | null
+          id?: string
+          lifetime_value?: number | null
+          margin_percentage?: number | null
+          profitability_status?: string | null
+          tenant_id?: string
+          total_costs?: number
+          total_revenue?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_margins_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenant_revenue: {
+        Row: {
+          created_at: string
+          id: string
+          other_revenue: number | null
+          revenue_period_end: string
+          revenue_period_start: string
+          setup_fees: number | null
+          subscription_revenue: number | null
+          tenant_id: string
+          total_revenue: number | null
+          updated_at: string
+          usage_revenue: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          other_revenue?: number | null
+          revenue_period_end: string
+          revenue_period_start: string
+          setup_fees?: number | null
+          subscription_revenue?: number | null
+          tenant_id: string
+          total_revenue?: number | null
+          updated_at?: string
+          usage_revenue?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          other_revenue?: number | null
+          revenue_period_end?: string
+          revenue_period_start?: string
+          setup_fees?: number | null
+          subscription_revenue?: number | null
+          tenant_id?: string
+          total_revenue?: number | null
+          updated_at?: string
+          usage_revenue?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_revenue_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"

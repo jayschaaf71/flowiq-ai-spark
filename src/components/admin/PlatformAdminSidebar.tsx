@@ -9,7 +9,10 @@ import {
   Settings,
   Building,
   Activity,
-  Sparkles
+  Sparkles,
+  DollarSign,
+  FileText,
+  TrendingUp
 } from "lucide-react";
 import {
   Sidebar,
@@ -30,6 +33,13 @@ const adminNavItems = [
     items: [
       { path: "/platform-admin", icon: BarChart3, label: "Dashboard", exact: true },
       { path: "/platform-admin/analytics", icon: Activity, label: "Analytics" },
+    ]
+  },
+  {
+    group: "financial",
+    items: [
+      { path: "/platform-admin/costs", icon: DollarSign, label: "Cost Analysis" },
+      { path: "/platform-admin/reports", icon: FileText, label: "Financial Reports" },
     ]
   },
   {
@@ -93,6 +103,7 @@ export const PlatformAdminSidebar = () => {
             <SidebarGroup key={group.group}>
               <SidebarGroupLabel className="text-xs font-medium text-muted-foreground uppercase tracking-wider px-2">
                 {group.group === "overview" && "Overview"}
+                {group.group === "financial" && "Financial"}
                 {group.group === "management" && "Management"}
                 {group.group === "system" && "System"}
                 {group.group === "configuration" && "Configuration"}
