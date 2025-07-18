@@ -143,6 +143,11 @@ function App() {
                     <Route path="/widget" element={<BookingWidgetPage />} />
 
                     {/* Platform Administration */}
+                    <Route path="/admin" element={
+                      <ProtectedRoute requiredRole="platform_admin">
+                        <PlatformAdmin />
+                      </ProtectedRoute>
+                    } />
                     <Route path="/platform-admin/*" element={
                       <ProtectedRoute requiredRole="platform_admin">
                         <PlatformAdmin />

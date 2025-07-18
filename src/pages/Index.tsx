@@ -19,11 +19,13 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useCurrentTenant } from "@/utils/enhancedTenantConfig";
+import { useRoleAccess } from "@/hooks/useRoleAccess";
 
 const Index = () => {
   const navigate = useNavigate();
   const { user, profile, loading } = useAuth();
   const { currentTenant, loading: tenantLoading } = useCurrentTenant();
+  const { canAccessPlatformAdmin } = useRoleAccess();
 
   const handleGetStarted = () => {
     console.log("Get Started clicked", { user, profile });
@@ -281,6 +283,17 @@ const Index = () => {
               <span>Privacy Policy</span>
               <span>•</span>
               <span>Terms of Service</span>
+              {canAccessPlatformAdmin && (
+                <>
+                  <span>•</span>
+                  <button 
+                    onClick={() => navigate('/platform-admin')}
+                    className="hover:text-white transition-colors duration-200"
+                  >
+                    Platform Admin
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
