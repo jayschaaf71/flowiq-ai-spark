@@ -1,203 +1,192 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthProvider';
-import { DashboardProvider } from './contexts/DashboardContext';
-import { SpecialtyProvider } from './contexts/SpecialtyContext';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AnalyticsProvider } from './contexts/AnalyticsContext';
+import { Toaster } from "@/components/ui/toaster";
+import { AuthProvider } from '@/contexts/AuthProvider';
 
-// Dedicated Specialty Apps
-import ChiropracticApp from './apps/ChiropracticApp';
-import DentalApp from './apps/DentalApp';
-import DentalSleepApp from './apps/DentalSleepApp';
-import GeneralDentistryApp from './apps/GeneralDentistryApp';
-import OrthodonticsApp from './apps/OrthodonticsApp';
-import VeterinaryApp from './apps/VeterinaryApp';
-import ConciergeMedicineApp from './apps/ConciergeMedicineApp';
-import HRTApp from './apps/HRTApp';
-import MedspaApp from './apps/MedspaApp';
-import PhysicalTherapyApp from './apps/PhysicalTherapyApp';
-import MentalHealthApp from './apps/MentalHealthApp';
-import DermatologyApp from './apps/DermatologyApp';
-import UrgentCareApp from './apps/UrgentCareApp';
-import CommunicationIQApp from './apps/CommunicationIQApp';
-import MainDashboard from './components/MainDashboard';
+// Core Pages
+import Index from '@/pages/Index';
+import AuthPage from '@/pages/AuthPage';
+import Dashboard from '@/pages/Dashboard';
+import Settings from '@/pages/Settings';
+import ProfilePage from '@/pages/ProfilePage';
+import PatientPortal from '@/pages/PatientPortal';
+import ProviderPortal from '@/pages/ProviderPortal';
 
+// Onboarding & Forms
+import EnhancedOnboarding from '@/pages/EnhancedOnboarding';
+import PatientOnboarding from '@/pages/PatientOnboarding';
+import IntakeForm from '@/pages/IntakeForm';
 
-// Shared pages
-import Index from './pages/Index';
-import AuthPage from './pages/AuthPage';
-import { ProtectedRoute } from './components/auth/ProtectedRoute';
-import { PatientDashboard } from './pages/PatientDashboard';
-import PatientJourney from './pages/PatientJourney';
-import PatientNotifications from './pages/PatientNotifications';
-import PatientSettings from './pages/PatientSettings';
-import PatientMessages from './pages/PatientMessages';
-import ResetPassword from './pages/ResetPassword';
-import AcceptInvitation from './pages/AcceptInvitation';
-import AuthTesting from './pages/AuthTesting';
-import PracticeSetup from './pages/PracticeSetup';
+// Specialty Routes
+import ChiropracticRoutes from '@/routes/ChiropracticRoutes';
+import DentalSleepRoutes from '@/routes/DentalSleepRoutes';
 
-// Platform Admin
-import PlatformAdmin from './pages/PlatformAdmin';
-import PracticeAdmin from './pages/PracticeAdmin';
-import TenantOnboarding from './pages/TenantOnboarding';
+// Feature Routes
+import EHRRoutes from '@/routes/EHRRoutes';
+import BillingRoutes from '@/routes/BillingRoutes';
+import CalendarRoutes from '@/routes/CalendarRoutes';
+import AnalyticsRoutes from '@/routes/AnalyticsRoutes';
+import VoiceCallRoutes from '@/routes/VoiceCallRoutes';
+import IntegrationRoutes from '@/routes/IntegrationRoutes';
+import CommunicationRoutes from '@/routes/CommunicationRoutes';
 
-// Public pages
-import { PatientPortal } from './pages/PatientPortal';
-import PatientIntakeForm from './pages/PatientIntakeForm';
-import { EmbeddedPortal } from './pages/EmbeddedPortal';
-import { BookingWidgetDemo } from './pages/BookingWidgetDemo';
-import BookingWidgetPage from './pages/BookingWidget';
+// Admin & Platform
+import PlatformAdmin from '@/pages/PlatformAdmin';
+import ProviderMobileInterface from '@/pages/ProviderMobileInterface';
+import BookingWidgetPage from '@/pages/BookingWidgetPage';
 
-// Demo pages
-import { DemoHub } from './pages/demo/DemoHub';
-import { DemoChiropractic } from './pages/demo/DemoChiropractic';
-import { DemoDental } from './pages/demo/DemoDental';
-import { DemoMedSpa } from './pages/demo/DemoMedSpa';
-import DentalSleepDemo from './pages/DentalSleepDemo';
-
-import { Toaster } from './components/ui/toaster';
-import { FloatingAssistIQ } from './components/FloatingAssistIQ';
-import { ErrorBoundary } from './components/ErrorBoundary';
-import { ProductionTenantProvider } from './components/tenant/ProductionTenantProvider';
+// Components
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: false, // Disable automatic retries
+      retry: 1,
       refetchOnWindowFocus: false,
     },
   },
 });
 
+function QueryClient({ children }: { children: React.ReactNode }) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      {children}
+      <Toaster />
+    </QueryClientProvider>
+  );
+}
+
 function App() {
   return (
-    <ErrorBoundary>
-      <Router>
-        <AuthProvider>
-          <QueryClientProvider client={queryClient}>
-            <ProductionTenantProvider>
-              <SpecialtyProvider>
-                <DashboardProvider>
-                  <AnalyticsProvider>
-                  <Routes>
-                    {/* Landing and Auth Routes */}
-                    <Route path="/" element={<Index />} />
-                    <Route path="/get-started" element={<AuthPage />} />
-                    <Route path="/auth" element={<AuthPage />} />
-                    <Route path="/demo" element={<DemoHub />} />
-                    <Route path="/reset-password" element={<ResetPassword />} />
-                    <Route path="/accept-invitation/:token" element={<AcceptInvitation />} />
-                    <Route path="/auth-testing" element={<AuthTesting />} />
+    <QueryClient>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/auth" element={<AuthPage />} />
+            
+            {/* Tenant-specific routes */}
+            <Route path="/chiropractic/*" element={<ChiropracticRoutes />} />
+            <Route path="/dental-sleep/*" element={<DentalSleepRoutes />} />
+            
+            {/* Patient Portal */}
+            <Route path="/patient-portal" element={
+              <ProtectedRoute requiredRole="patient">
+                <PatientPortal />
+              </ProtectedRoute>
+            } />
+            
+            {/* Provider Portal */}
+            <Route path="/provider-portal" element={
+              <ProtectedRoute requiredRole="staff">
+                <ProviderPortal />
+              </ProtectedRoute>
+            } />
 
-                    {/* Dedicated Specialty Apps */}
-                    <Route path="/chiropractic/*" element={<ChiropracticApp />} />
-                    <Route path="/dental/*" element={<DentalApp />} />
-                    <Route path="/dental-sleep/*" element={<DentalSleepApp />} />
-                    <Route path="/general-dentistry/*" element={<GeneralDentistryApp />} />
-                    <Route path="/orthodontics/*" element={<OrthodonticsApp />} />
-                    <Route path="/physical-therapy/*" element={<PhysicalTherapyApp />} />
-                    <Route path="/mental-health/*" element={<MentalHealthApp />} />
-                    <Route path="/veterinary/*" element={<VeterinaryApp />} />
-                    <Route path="/concierge-medicine/*" element={<ConciergeMedicineApp />} />
-                    <Route path="/hrt/*" element={<HRTApp />} />
-                    <Route path="/medspa/*" element={<MedspaApp />} />
-                    <Route path="/dermatology/*" element={<DermatologyApp />} />
-                    <Route path="/urgent-care/*" element={<UrgentCareApp />} />
-                    <Route path="/communication-iq/*" element={<CommunicationIQApp />} />
-                    
+            {/* Enhanced Onboarding */}
+            <Route path="/enhanced-onboarding" element={<EnhancedOnboarding />} />
+            <Route path="/patient-onboarding" element={<PatientOnboarding />} />
 
-                    {/* Patient Routes */}
-                    <Route path="/patient-dashboard" element={
-                      <ProtectedRoute>
-                        <PatientDashboard />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/patient-journey" element={
-                      <ProtectedRoute>
-                        <PatientJourney />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/patient/notifications" element={
-                      <ProtectedRoute>
-                        <PatientNotifications />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/patient/settings" element={
-                      <ProtectedRoute>
-                        <PatientSettings />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/patient/messages" element={
-                      <ProtectedRoute>
-                        <PatientMessages />
-                      </ProtectedRoute>
-                    } />
+            {/* Intake Forms */}
+            <Route path="/intake/:formId" element={<IntakeForm />} />
 
-                    {/* Public Patient-facing Routes */}
-                    <Route path="/patient-portal" element={<PatientPortal />} />
-                    <Route path="/patient-intake/:formId" element={<PatientIntakeForm />} />
-                    <Route path="/embedded-portal" element={<EmbeddedPortal />} />
-                    <Route path="/booking-widget" element={<BookingWidgetDemo />} />
-                    <Route path="/widget" element={<BookingWidgetPage />} />
+            {/* Settings and Profile */}
+            <Route path="/settings" element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            } />
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            } />
 
-                    {/* Platform Administration */}
-                    <Route path="/admin" element={
-                      <ProtectedRoute requiredRole="platform_admin">
-                        <PlatformAdmin />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/platform-admin/*" element={
-                      <ProtectedRoute requiredRole="platform_admin">
-                        <PlatformAdmin />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/practice-admin/*" element={
-                      <ProtectedRoute requiredRole="practice_admin">
-                        <PracticeAdmin />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/onboarding/:tenantId" element={
-                      <ProtectedRoute>
-                        <TenantOnboarding />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/onboarding" element={
-                      <ProtectedRoute>
-                        <TenantOnboarding />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/practice-setup" element={
-                      <ProtectedRoute>
-                        <PracticeSetup />
-                      </ProtectedRoute>
-                    } />
+            {/* Dashboard Routes */}
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
 
-                    {/* Demo Routes */}
-                    <Route path="/demo" element={<DemoHub />} />
-                    <Route path="/demo/chiropractic" element={<DemoChiropractic />} />
-                    <Route path="/demo/dental" element={<DemoDental />} />
-                    <Route path="/demo/medspa" element={<DemoMedSpa />} />
-                    <Route path="/dental-sleep-demo" element={<DentalSleepDemo />} />
+            {/* Provider Mobile Interface */}
+            <Route path="/provider-mobile" element={
+              <ProtectedRoute requiredRole="staff">
+                <ProviderMobileInterface />
+              </ProtectedRoute>
+            } />
 
-                    {/* Legacy Route Redirects - for backwards compatibility */}
-                    <Route path="/dashboard" element={
-                      <ProtectedRoute requiredRole="staff">
-                        <MainDashboard />
-                      </ProtectedRoute>
-                    } />
-                  </Routes>
-                   <FloatingAssistIQ />
-                   <Toaster />
-                  </AnalyticsProvider>
-                </DashboardProvider>
-              </SpecialtyProvider>
-            </ProductionTenantProvider>
-          </QueryClientProvider>
-        </AuthProvider>
-      </Router>
-    </ErrorBoundary>
+            {/* EHR Routes */}
+            <Route path="/ehr/*" element={
+              <ProtectedRoute requiredRole="staff">
+                <EHRRoutes />
+              </ProtectedRoute>
+            } />
+
+            {/* Billing Routes */}
+            <Route path="/billing/*" element={
+              <ProtectedRoute requiredRole="staff">
+                <BillingRoutes />
+              </ProtectedRoute>
+            } />
+
+            {/* Calendar Routes */}
+            <Route path="/calendar/*" element={
+              <ProtectedRoute requiredRole="staff">
+                <CalendarRoutes />
+              </ProtectedRoute>
+            } />
+
+            {/* Analytics Routes */}
+            <Route path="/analytics/*" element={
+              <ProtectedRoute requiredRole="staff">
+                <AnalyticsRoutes />
+              </ProtectedRoute>
+            } />
+
+            {/* Voice Call Routes */}
+            <Route path="/voice-calls/*" element={
+              <ProtectedRoute requiredRole="staff">
+                <VoiceCallRoutes />
+              </ProtectedRoute>
+            } />
+
+            {/* Integration Routes */}
+            <Route path="/integrations/*" element={
+              <ProtectedRoute requiredRole="staff">
+                <IntegrationRoutes />
+              </ProtectedRoute>
+            } />
+
+            {/* Communication Routes */}
+            <Route path="/communication/*" element={
+              <ProtectedRoute requiredRole="staff">
+                <CommunicationRoutes />
+              </ProtectedRoute>
+            } />
+
+            {/* Booking Widget */}
+            <Route path="/widget" element={<BookingWidgetPage />} />
+
+            {/* Platform Administration */}
+            <Route path="/admin" element={
+              <ProtectedRoute requiredRole="platform_admin">
+                <PlatformAdmin />
+              </ProtectedRoute>
+            } />
+            <Route path="/platform-admin/*" element={
+              <ProtectedRoute requiredRole="platform_admin">
+                <PlatformAdmin />
+              </ProtectedRoute>
+            } />
+
+            {/* Catch-all route */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </QueryClient>
   );
 }
 
