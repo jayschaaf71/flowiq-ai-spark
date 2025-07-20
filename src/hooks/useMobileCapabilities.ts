@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { Device } from '@capacitor/device';
 import { Network } from '@capacitor/network';
-import { StatusBar } from '@capacitor/status-bar';
+import { StatusBar, Style } from '@capacitor/status-bar';
 import { Keyboard } from '@capacitor/keyboard';
 
 interface MobileCapabilities {
@@ -39,7 +39,7 @@ export const useMobileCapabilities = () => {
           // Configure status bar for mobile
           if (platform === 'ios' || platform === 'android') {
             await StatusBar.setBackgroundColor({ color: '#ffffff' });
-            await StatusBar.setStyle({ style: 'light' });
+            await StatusBar.setStyle({ style: Style.Light });
           }
         } catch (error) {
           console.log('Error initializing device capabilities:', error);
@@ -58,22 +58,32 @@ export const useMobileCapabilities = () => {
     initializeCapabilities();
 
     // Listen for network changes
-    const networkListener = Network.addListener('networkStatusChange', (status) => {
-      setCapabilities(prev => ({ ...prev, isOnline: status.connected }));
-    });
+    let networkListener: any;
+    
+    const setupListeners = async () => {
+      networkListener = await Network.addListener('networkStatusChange', (status) => {
+        setCapabilities(prev => ({ ...prev, isOnline: status.connected }));
+      });
+    };
 
     // Listen for keyboard changes on mobile
     let keyboardShowListener: any;
     let keyboardHideListener: any;
 
     if (Capacitor.isNativePlatform()) {
-      keyboardShowListener = Keyboard.addListener('keyboardWillShow', (info) => {
-        setCapabilities(prev => ({ ...prev, keyboardHeight: info.keyboardHeight }));
-      });
+      setupListeners();
+      
+      const setupKeyboardListeners = async () => {
+        keyboardShowListener = await Keyboard.addListener('keyboardWillShow', (info) => {
+          setCapabilities(prev => ({ ...prev, keyboardHeight: info.keyboardHeight }));
+        });
 
-      keyboardHideListener = Keyboard.addListener('keyboardWillHide', () => {
-        setCapabilities(prev => ({ ...prev, keyboardHeight: 0 }));
-      });
+        keyboardHideListener = await Keyboard.addListener('keyboardWillHide', () => {
+          setCapabilities(prev => ({ ...prev, keyboardHeight: 0 }));
+        });
+      };
+      
+      setupKeyboardListeners();
     }
 
     return () => {

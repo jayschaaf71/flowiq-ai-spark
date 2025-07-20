@@ -1,10 +1,17 @@
 
 import { useState, useEffect } from 'react';
 import { Capacitor } from '@capacitor/core';
-import { BiometricAuth, BiometryType } from '@capacitor-community/biometric-auth';
 import { Preferences } from '@capacitor/preferences';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+
+// Mock biometric types for now since the plugin is not available
+enum BiometryType {
+  NONE = 0,
+  FACE_ID = 1,
+  FINGERPRINT = 2,
+  TOUCH_ID = 3
+}
 
 interface BiometricCapabilities {
   isAvailable: boolean;
@@ -26,12 +33,12 @@ export const useBiometricAuth = () => {
 
     const checkBiometricAvailability = async () => {
       try {
-        const result = await BiometricAuth.checkBiometry();
+        // For now, simulate biometric availability check
         const isEnabled = await getBiometricPreference();
         
         setCapabilities({
-          isAvailable: result.isAvailable,
-          biometryType: result.biometryType,
+          isAvailable: false, // Will be true once biometric plugin is properly installed
+          biometryType: BiometryType.NONE,
           isEnabled
         });
       } catch (error) {
@@ -69,13 +76,10 @@ export const useBiometricAuth = () => {
     }
 
     try {
-      await BiometricAuth.authenticate({
-        reason: 'Authenticate to access FlowIQ Provider',
-        title: 'Biometric Authentication',
-        subtitle: 'Use your biometric credential to authenticate',
-        description: 'Place your finger on the sensor or look at the camera'
-      });
+      // Simulate biometric authentication for now
+      console.log('Simulating biometric authentication');
       
+      // TODO: Replace with actual BiometricAuth.authenticate() when plugin is available
       return true;
     } catch (error) {
       console.error('Biometric authentication failed:', error);
