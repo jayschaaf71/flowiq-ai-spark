@@ -113,9 +113,9 @@ export const PatientPortal = () => {
     firstName: profile?.first_name || user?.user_metadata?.first_name || 'Patient',
     lastName: profile?.last_name || user?.user_metadata?.last_name || '',
     email: user?.email || '',
-    phone: profile?.phone || '',
-    dateOfBirth: profile?.date_of_birth || '',
-    address: profile?.address || '',
+    phone: '',
+    dateOfBirth: '',
+    address: '',
     insurance: 'Blue Cross Blue Shield',
     memberID: 'BC123456789'
   };

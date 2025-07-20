@@ -57,7 +57,7 @@ export const useSecureMessaging = () => {
 
       if (error) throw error;
 
-      setConversations(data || []);
+      setConversations((data || []) as SecureConversation[]);
     } catch (error) {
       console.error('Error fetching conversations:', error);
       toast({
@@ -84,7 +84,7 @@ export const useSecureMessaging = () => {
 
       if (error) throw error;
 
-      setMessages(data || []);
+      setMessages((data || []) as SecureMessage[]);
       setActiveConversationId(conversationId);
 
       // Mark messages as read
@@ -124,7 +124,7 @@ export const useSecureMessaging = () => {
       if (error) throw error;
 
       // Add message to local state
-      setMessages(prev => [...prev, data]);
+      setMessages(prev => [...prev, data as SecureMessage]);
 
       // Update conversation last message time
       await supabase
@@ -170,7 +170,7 @@ export const useSecureMessaging = () => {
 
       if (error) throw error;
 
-      setConversations(prev => [data, ...prev]);
+      setConversations(prev => [data as SecureConversation, ...prev]);
       return data;
     } catch (error) {
       console.error('Error creating conversation:', error);
