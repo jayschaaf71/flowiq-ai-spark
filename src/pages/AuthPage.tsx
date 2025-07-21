@@ -105,8 +105,15 @@ export default function AuthPage() {
       if (error) {
         setError(error.message);
       } else {
-        // Redirect to practice setup after successful signup
-        navigate("/practice-setup");
+        // Check if user needs practice setup or redirect based on role
+        const role = signUpData.role;
+        if (role === 'patient') {
+          navigate("/patient-dashboard");
+        } else if (['staff', 'provider', 'practice_manager', 'practice_admin', 'platform_admin'].includes(role)) {
+          navigate("/staff-dashboard");
+        } else {
+          navigate("/practice-setup");
+        }
       }
     } catch (err) {
       setError("An unexpected error occurred");
@@ -126,6 +133,7 @@ export default function AuthPage() {
       if (error) {
         setError(error.message);
       } else {
+        // Let ProtectedRoute handle the redirect based on user role
         navigate("/dashboard");
       }
     } catch (err) {

@@ -14,6 +14,11 @@ import Dashboard from '@/pages/Dashboard';
 import Settings from '@/pages/Settings';
 import PatientPortal from '@/pages/PatientPortal';
 import { ProviderPortal } from '@/pages/ProviderPortal';
+import StaffDashboard from '@/pages/StaffDashboard';
+import PatientDashboard from '@/pages/PatientDashboard';
+import PracticeSetup from '@/pages/PracticeSetup';
+import PaymentSuccess from '@/pages/PaymentSuccess';
+import PaymentCanceled from '@/pages/PaymentCanceled';
 
 // Components
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
@@ -45,18 +50,35 @@ function App() {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/practice-setup" element={<PracticeSetup />} />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
+            <Route path="/payment-canceled" element={<PaymentCanceled />} />
             
-            {/* Patient Portal */}
+            {/* Patient Portal and Dashboard */}
             <Route path="/patient-portal" element={
               <ProtectedRoute requiredRole="patient">
                 <PatientPortal />
               </ProtectedRoute>
             } />
+            <Route path="/patient-dashboard" element={
+              <ProtectedRoute requiredRole="patient">
+                <Layout>
+                  <PatientDashboard />
+                </Layout>
+              </ProtectedRoute>
+            } />
             
-            {/* Provider Portal */}
+            {/* Staff Portal and Dashboard */}
             <Route path="/provider-portal" element={
               <ProtectedRoute requiredRole="staff">
                 <ProviderPortal />
+              </ProtectedRoute>
+            } />
+            <Route path="/staff-dashboard" element={
+              <ProtectedRoute requiredRole="staff">
+                <Layout>
+                  <StaffDashboard />
+                </Layout>
               </ProtectedRoute>
             } />
 
