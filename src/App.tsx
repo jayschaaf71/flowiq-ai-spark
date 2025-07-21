@@ -1,8 +1,10 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from '@/contexts/AuthProvider';
+import { Layout } from '@/components/Layout';
 
 // Core Pages
 import Index from '@/pages/Index';
@@ -56,17 +58,21 @@ function App() {
               </ProtectedRoute>
             } />
 
-            {/* Settings */}
-            <Route path="/settings" element={
+            {/* Main Dashboard with Layout */}
+            <Route path="/dashboard" element={
               <ProtectedRoute>
-                <Settings />
+                <Layout>
+                  <Dashboard />
+                </Layout>
               </ProtectedRoute>
             } />
 
-            {/* Dashboard Routes */}
-            <Route path="/dashboard" element={
+            {/* Settings with Layout */}
+            <Route path="/settings" element={
               <ProtectedRoute>
-                <Dashboard />
+                <Layout>
+                  <Settings />
+                </Layout>
               </ProtectedRoute>
             } />
 
