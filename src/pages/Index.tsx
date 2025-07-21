@@ -32,8 +32,8 @@ const Index = () => {
     if (user) {
       // Redirect authenticated users to their appropriate dashboard or onboarding
       if (profile?.role === 'patient') {
-        console.log("Navigating to patient dashboard");
-        navigate('/patient-dashboard');
+        console.log("Navigating to patient portal");
+        navigate('/patient-portal');
       } else if (['practice_admin', 'platform_admin'].includes(profile?.role) && !currentTenant) {
         // New admin users without tenant - start onboarding
         console.log("Navigating to onboarding");
