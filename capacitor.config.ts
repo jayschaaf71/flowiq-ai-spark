@@ -2,7 +2,7 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.7e1fd4ae99ff4361b2ea69b832f99084',
+  appId: 'com.flowiq.provider',
   appName: 'FlowIQ Provider',
   webDir: 'dist',
   server: {
