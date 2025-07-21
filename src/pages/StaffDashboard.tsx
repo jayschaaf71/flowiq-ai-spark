@@ -17,10 +17,16 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthProvider';
 import { StaffIntakeDashboard } from '@/components/intake/StaffIntakeDashboard';
+import { CalendarIntegrationDialog } from '@/components/calendar/CalendarIntegrationDialog';
+import { useCalendarIntegrations } from '@/hooks/useCalendarIntegrations';
+import { StaffCommunicationCenter } from '@/components/communication/StaffCommunicationCenter';
+import { PracticeOverview } from '@/components/practice/PracticeOverview';
 
 export default function StaffDashboard() {
   const { profile } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
+  const [showCalendarDialog, setShowCalendarDialog] = useState(false);
+  const { integrations, syncAllCalendars } = useCalendarIntegrations();
 
   const quickStats = [
     { label: 'Active Patients', value: '247', icon: Users, color: 'text-blue-600' },
@@ -28,6 +34,9 @@ export default function StaffDashboard() {
     { label: 'Pending Messages', value: '8', icon: MessageSquare, color: 'text-orange-600' },
     { label: 'Revenue (MTD)', value: '$24.5K', icon: DollarSign, color: 'text-purple-600' },
   ];
+
+  // Get tenant ID for practice overview
+  const tenantId = profile?.tenant_id || '024e36c1-a1bc-44d0-8805-3162ba59a0c2'; // Default to West County Spine
 
   const recentActivities = [
     { id: 1, type: 'appointment', message: 'New appointment scheduled for John Doe', time: '5 minutes ago' },
@@ -53,9 +62,13 @@ export default function StaffDashboard() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => setShowCalendarDialog(true)}>
+            <Calendar className="h-4 w-4 mr-2" />
+            Calendar Settings
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => syncAllCalendars()}>
             <Bell className="h-4 w-4 mr-2" />
-            Notifications
+            Sync Calendars
           </Button>
           <Button variant="outline" size="sm">
             <Settings className="h-4 w-4 mr-2" />
@@ -83,8 +96,9 @@ export default function StaffDashboard() {
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="practice">Practice</TabsTrigger>
           <TabsTrigger value="patients">Patients</TabsTrigger>
           <TabsTrigger value="appointments">Appointments</TabsTrigger>
           <TabsTrigger value="communications">Communications</TabsTrigger>
@@ -144,13 +158,45 @@ export default function StaffDashboard() {
           </div>
         </TabsContent>
 
+        <TabsContent value="practice">
+          <PracticeOverview practiceId={tenantId} />
+        </TabsContent>
+
         <TabsContent value="patients">
           <Card>
             <CardHeader>
               <CardTitle>Patient Management</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">Patient management interface coming soon...</p>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Card>
+                    <CardContent className="pt-4">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-blue-600">247</div>
+                        <div className="text-sm text-muted-foreground">Active Patients</div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="pt-4">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-green-600">38</div>
+                        <div className="text-sm text-muted-foreground">New This Month</div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="pt-4">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-orange-600">12</div>
+                        <div className="text-sm text-muted-foreground">Need Follow-up</div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+                <p className="text-muted-foreground">Advanced patient management interface coming soon...</p>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -158,23 +204,61 @@ export default function StaffDashboard() {
         <TabsContent value="appointments">
           <Card>
             <CardHeader>
-              <CardTitle>Appointment Management</CardTitle>
+              <CardTitle className="flex items-center justify-between">
+                Appointment Management
+                <div className="flex gap-2">
+                  <Badge variant="outline">{integrations.length} Calendar{integrations.length !== 1 ? 's' : ''} Connected</Badge>
+                  <Button size="sm" onClick={() => setShowCalendarDialog(true)}>
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Manage Calendars
+                  </Button>
+                </div>
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">Appointment management interface coming soon...</p>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <Card>
+                    <CardContent className="pt-4">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-blue-600">12</div>
+                        <div className="text-sm text-muted-foreground">Today</div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="pt-4">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-green-600">45</div>
+                        <div className="text-sm text-muted-foreground">This Week</div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="pt-4">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-purple-600">8</div>
+                        <div className="text-sm text-muted-foreground">Cancellations</div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="pt-4">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-orange-600">3</div>
+                        <div className="text-sm text-muted-foreground">No Shows</div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+                <p className="text-muted-foreground">Advanced appointment scheduling interface coming soon...</p>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="communications">
-          <Card>
-            <CardHeader>
-              <CardTitle>Communication Center</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">Communication management interface coming soon...</p>
-            </CardContent>
-          </Card>
+          <StaffCommunicationCenter />
         </TabsContent>
 
         <TabsContent value="intake">
@@ -187,11 +271,47 @@ export default function StaffDashboard() {
               <CardTitle>Analytics & Reports</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">Analytics dashboard coming soon...</p>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Card>
+                    <CardContent className="pt-4">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-green-600">94%</div>
+                        <div className="text-sm text-muted-foreground">Patient Satisfaction</div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="pt-4">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-blue-600">$24.5K</div>
+                        <div className="text-sm text-muted-foreground">Revenue (MTD)</div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="pt-4">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-purple-600">15%</div>
+                        <div className="text-sm text-muted-foreground">Growth Rate</div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+                <p className="text-muted-foreground">Detailed analytics dashboard coming soon...</p>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Calendar Integration Dialog */}
+      <CalendarIntegrationDialog 
+        open={showCalendarDialog} 
+        onOpenChange={setShowCalendarDialog} 
+      />
     </div>
   );
 }
+
+// Component moved to separate file
