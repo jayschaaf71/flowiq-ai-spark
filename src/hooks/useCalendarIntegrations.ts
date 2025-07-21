@@ -49,33 +49,22 @@ export const useCalendarIntegrations = () => {
   const syncCalendar = async (integrationId: string): Promise<SyncResult> => {
     setSyncing(integrationId);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('No active session');
-      }
-
-      const response = await fetch('/api/calendar/sync', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
-        },
-        body: JSON.stringify({ integrationId })
+      const { data, error } = await supabase.functions.invoke('calendar-sync', {
+        body: { 
+          integrationId,
+          syncType: 'bidirectional'
+        }
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Sync failed');
-      }
+      if (error) throw error;
 
-      const result = await response.json();
       await fetchIntegrations(); // Refresh the list
       
-      if (result.success) {
-        toast.success(`Calendar synced successfully! ${result.appointmentsProcessed || 0} appointments processed.`);
+      if (data?.success) {
+        toast.success(`Calendar synced successfully! ${data.appointmentsProcessed || 0} appointments processed.`);
       }
       
-      return result;
+      return data;
     } catch (error) {
       console.error('Error syncing calendar:', error);
       toast.error(`Failed to sync calendar: ${error.message}`);
@@ -134,15 +123,18 @@ export const useCalendarIntegrations = () => {
   const connectCalendar = async (provider: 'google' | 'microsoft') => {
     try {
       // Get OAuth URL from edge function
-      const response = await fetch(`/api/calendar/oauth?action=auth&provider=${provider}`);
-      if (!response.ok) {
-        throw new Error('Failed to get authorization URL');
-      }
-      
-      const { authUrl } = await response.json();
+      const { data, error } = await supabase.functions.invoke('calendar-oauth', {
+        body: { 
+          action: 'auth',
+          provider 
+        }
+      });
+
+      if (error) throw error;
+      if (!data?.authUrl) throw new Error('No authorization URL received');
       
       // Open OAuth flow in popup
-      const popup = window.open(authUrl, 'calendar-oauth', 'width=500,height=600');
+      const popup = window.open(data.authUrl, 'calendar-oauth', 'width=500,height=600');
       
       // Listen for popup messages
       return new Promise((resolve, reject) => {

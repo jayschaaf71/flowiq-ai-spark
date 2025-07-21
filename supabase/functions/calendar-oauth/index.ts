@@ -6,15 +6,14 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Google OAuth configuration
+// OAuth configuration from secrets
 const GOOGLE_CLIENT_ID = Deno.env.get('GOOGLE_OAUTH_CLIENT_ID');
 const GOOGLE_CLIENT_SECRET = Deno.env.get('GOOGLE_OAUTH_CLIENT_SECRET');
-const GOOGLE_REDIRECT_URI = Deno.env.get('GOOGLE_OAUTH_REDIRECT_URI');
-
-// Microsoft OAuth configuration
 const MICROSOFT_CLIENT_ID = Deno.env.get('MICROSOFT_OAUTH_CLIENT_ID');
 const MICROSOFT_CLIENT_SECRET = Deno.env.get('MICROSOFT_OAUTH_CLIENT_SECRET');
-const MICROSOFT_REDIRECT_URI = Deno.env.get('MICROSOFT_OAUTH_REDIRECT_URI');
+
+const BASE_URL = Deno.env.get('SUPABASE_URL');
+const REDIRECT_URI = `${BASE_URL}/functions/v1/calendar-oauth`;
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -27,22 +26,25 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const url = new URL(req.url);
-    const provider = url.searchParams.get('provider');
-    const action = url.searchParams.get('action');
-
-    if (action === 'auth' && provider) {
-      // Generate OAuth URL for initial authentication
-      return handleAuthRequest(provider);
-    } else if (action === 'callback' && provider) {
-      // Handle OAuth callback
+    
+    // Handle POST requests from frontend
+    if (req.method === 'POST') {
+      const { action, provider } = await req.json();
+      
+      if (action === 'auth' && provider) {
+        return handleAuthRequest(provider);
+      }
+    }
+    
+    // Handle GET requests (OAuth callbacks)
+    if (req.method === 'GET') {
+      const provider = url.searchParams.get('provider');
       const code = url.searchParams.get('code');
       const state = url.searchParams.get('state');
       
-      if (!code) {
-        return new Response('Missing authorization code', { status: 400, headers: corsHeaders });
+      if (code && provider) {
+        return handleOAuthCallback(supabase, provider, code, state);
       }
-
-      return handleOAuthCallback(supabase, provider, code, state);
     }
 
     return new Response('Invalid request', { status: 400, headers: corsHeaders });
@@ -58,26 +60,27 @@ serve(async (req) => {
 
 function handleAuthRequest(provider: string) {
   let authUrl: string;
+  const state = crypto.randomUUID();
   
   switch (provider) {
     case 'google':
       authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
         `client_id=${GOOGLE_CLIENT_ID}&` +
-        `redirect_uri=${encodeURIComponent(GOOGLE_REDIRECT_URI!)}&` +
+        `redirect_uri=${encodeURIComponent(REDIRECT_URI + '?provider=google')}&` +
         `scope=${encodeURIComponent('https://www.googleapis.com/auth/calendar')}&` +
         `response_type=code&` +
         `access_type=offline&` +
         `prompt=consent&` +
-        `state=${crypto.randomUUID()}`;
+        `state=${state}`;
       break;
       
     case 'microsoft':
       authUrl = `https://login.microsoftonline.com/common/oauth2/v2.0/authorize?` +
         `client_id=${MICROSOFT_CLIENT_ID}&` +
         `response_type=code&` +
-        `redirect_uri=${encodeURIComponent(MICROSOFT_REDIRECT_URI!)}&` +
+        `redirect_uri=${encodeURIComponent(REDIRECT_URI + '?provider=microsoft')}&` +
         `scope=${encodeURIComponent('https://graph.microsoft.com/calendars.readwrite')}&` +
-        `state=${crypto.randomUUID()}`;
+        `state=${state}`;
       break;
       
     default:
@@ -123,7 +126,7 @@ async function handleOAuthCallback(supabase: any, provider: string, code: string
         calendar_id: calendars[0]?.id || 'primary',
         calendar_name: calendars[0]?.name || 'Primary Calendar',
         sync_enabled: true,
-        is_primary: true // Make first integration primary
+        is_primary: true
       })
       .select()
       .single();
@@ -132,22 +135,49 @@ async function handleOAuthCallback(supabase: any, provider: string, code: string
       throw error;
     }
 
-    return new Response(JSON.stringify({
-      success: true,
-      integration,
-      calendars
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    // Return HTML that posts success message to parent window
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head><title>Calendar Connected</title></head>
+        <body>
+          <script>
+            window.opener.postMessage({
+              type: 'calendar-oauth-success',
+              integration: ${JSON.stringify(integration)}
+            }, window.location.origin);
+            window.close();
+          </script>
+        </body>
+      </html>
+    `;
+
+    return new Response(html, {
+      headers: { 'Content-Type': 'text/html' }
     });
 
   } catch (error) {
     console.error('OAuth callback error:', error);
-    return new Response(JSON.stringify({ 
-      success: false, 
-      error: error.message 
-    }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    
+    // Return HTML that posts error message to parent window
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head><title>Connection Failed</title></head>
+        <body>
+          <script>
+            window.opener.postMessage({
+              type: 'calendar-oauth-error',
+              error: '${error.message}'
+            }, window.location.origin);
+            window.close();
+          </script>
+        </body>
+      </html>
+    `;
+
+    return new Response(html, {
+      headers: { 'Content-Type': 'text/html' }
     });
   }
 }
@@ -161,7 +191,7 @@ async function exchangeGoogleCode(code: string) {
       client_secret: GOOGLE_CLIENT_SECRET!,
       code,
       grant_type: 'authorization_code',
-      redirect_uri: GOOGLE_REDIRECT_URI!
+      redirect_uri: REDIRECT_URI + '?provider=google'
     })
   });
 
@@ -181,7 +211,7 @@ async function exchangeMicrosoftCode(code: string) {
       client_secret: MICROSOFT_CLIENT_SECRET!,
       code,
       grant_type: 'authorization_code',
-      redirect_uri: MICROSOFT_REDIRECT_URI!
+      redirect_uri: REDIRECT_URI + '?provider=microsoft'
     })
   });
 
