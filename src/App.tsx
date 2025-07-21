@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from '@/contexts/AuthProvider';
+import { SpecialtyProvider } from '@/contexts/SpecialtyContext';
 import { Layout } from '@/components/Layout';
 
 // Core Pages
@@ -39,7 +40,8 @@ function App() {
   return (
     <QueryProvider>
       <AuthProvider>
-        <Router>
+        <SpecialtyProvider>
+          <Router>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<AuthPage />} />
@@ -79,7 +81,8 @@ function App() {
             {/* Catch-all route */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
-        </Router>
+          </Router>
+        </SpecialtyProvider>
       </AuthProvider>
     </QueryProvider>
   );
