@@ -151,7 +151,7 @@ export const DataExportManager: React.FC = () => {
             {/* Export Format */}
             <div>
               <label className="text-sm font-medium mb-2 block">Export Format</label>
-              <Select value={exportFormat} onValueChange={(value: any) => setExportFormat(value)}>
+              <Select value={exportFormat} onValueChange={(value: 'csv' | 'json' | 'pdf') => setExportFormat(value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -166,7 +166,7 @@ export const DataExportManager: React.FC = () => {
             {/* Date Range */}
             <div>
               <label className="text-sm font-medium mb-2 block">Date Range</label>
-              <Select value={dateRange} onValueChange={(value: any) => setDateRange(value)}>
+              <Select value={dateRange} onValueChange={(value: '7d' | '30d' | '90d' | '1y' | 'all') => setDateRange(value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

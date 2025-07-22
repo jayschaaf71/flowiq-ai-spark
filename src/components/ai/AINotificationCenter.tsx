@@ -202,7 +202,7 @@ export const AINotificationCenter = () => {
         description: `${notification.channel.toUpperCase()} notification sent successfully`,
       });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error sending notification:', error);
       toast({
         title: "Send Failed",

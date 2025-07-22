@@ -123,7 +123,7 @@ export const AnalyticsDashboard = () => {
     loadAnalytics();
   }, [loadAnalytics]);
 
-  const generateMonthlyAppointmentData = (appointments: any[]) => {
+  const generateMonthlyAppointmentData = (appointments: Array<{ status: string; created_at: string; date: string }>) => {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
     return months.map(month => ({
       month,
@@ -141,7 +141,13 @@ export const AnalyticsDashboard = () => {
     });
   };
 
-  const StatCard = ({ title, value, icon: Icon, trend, color = "text-blue-600" }: any) => (
+  const StatCard = ({ title, value, icon: Icon, trend, color = "text-blue-600" }: {
+    title: string;
+    value: string | number;
+    icon: React.ComponentType<{ className?: string }>;
+    trend?: number;
+    color?: string;
+  }) => (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>

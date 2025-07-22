@@ -28,7 +28,7 @@ import {
 } from "lucide-react"
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
-  // Additional props can be added here as needed
+  // Empty interface - serves as a placeholder for potential future props
 }
 
 const navigationItems = [

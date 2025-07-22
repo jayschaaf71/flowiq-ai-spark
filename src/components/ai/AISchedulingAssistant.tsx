@@ -26,7 +26,7 @@ interface AISchedulingMessage {
   timestamp: Date;
   actions?: {
     type: 'book_appointment' | 'suggest_times' | 'resolve_conflict';
-    data?: any;
+    data?: Record<string, unknown>;
   }[];
 }
 
@@ -99,7 +99,7 @@ export const AISchedulingAssistant = () => {
         handleAIActions(data.actions);
       }
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('AI scheduling error:', error);
       
       const errorMessage: AISchedulingMessage = {
@@ -121,7 +121,7 @@ export const AISchedulingAssistant = () => {
     }
   };
 
-  const handleAIActions = (actions: any[]) => {
+  const handleAIActions = (actions: Array<{ type: string; data?: Record<string, unknown> }>) => {
     actions.forEach(action => {
       switch (action.type) {
         case 'book_appointment':
