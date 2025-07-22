@@ -99,6 +99,92 @@
     --chart-4: 271 91% 65%;
     --chart-5: 0 84% 60%;
   }
+  }
+
+  /* Specialty Theme Overrides - Production Ready */
+  .chiropractic-iq-theme {
+    --primary: 142 60% 42%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 142 52% 54%;
+    --secondary-foreground: 142 10% 10%;
+    --accent: 142 76% 91%;
+    --accent-foreground: 142 10% 10%;
+    --muted: 142 30% 95%;
+    --muted-foreground: 142 5% 45%;
+    --border: 142 30% 82%;
+    --card: 0 0% 100%;
+    --card-foreground: 142 10% 10%;
+  }
+
+  .dental-iq-theme {
+    --primary: 198 89% 48%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 198 93% 60%;
+    --secondary-foreground: 198 10% 10%;
+    --accent: 198 100% 91%;
+    --accent-foreground: 198 10% 10%;
+    --muted: 198 30% 95%;
+    --muted-foreground: 198 5% 45%;
+    --border: 198 30% 82%;
+    --card: 0 0% 100%;
+    --card-foreground: 198 10% 10%;
+  }
+
+  .dental-sleep-iq-theme {
+    --primary: 258 92% 66%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 258 90% 76%;
+    --secondary-foreground: 258 10% 10%;
+    --accent: 258 100% 94%;
+    --accent-foreground: 258 10% 10%;
+    --muted: 258 30% 95%;
+    --muted-foreground: 258 5% 45%;
+    --border: 258 30% 82%;
+    --card: 0 0% 100%;
+    --card-foreground: 258 10% 10%;
+  }
+
+  .med-spa-iq-theme {
+    --primary: 320 85% 60%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 320 70% 75%;
+    --secondary-foreground: 320 10% 10%;
+    --accent: 320 100% 96%;
+    --accent-foreground: 320 10% 10%;
+    --muted: 320 30% 95%;
+    --muted-foreground: 320 5% 45%;
+    --border: 320 30% 82%;
+    --card: 0 0% 100%;
+    --card-foreground: 320 10% 10%;
+  }
+
+  .concierge-iq-theme {
+    --primary: 280 85% 60%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 280 70% 75%;
+    --secondary-foreground: 280 10% 10%;
+    --accent: 280 100% 96%;
+    --accent-foreground: 280 10% 10%;
+    --muted: 280 30% 95%;
+    --muted-foreground: 280 5% 45%;
+    --border: 280 30% 82%;
+    --card: 0 0% 100%;
+    --card-foreground: 280 10% 10%;
+  }
+
+  .hrt-iq-theme {
+    --primary: 15 85% 60%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 15 70% 75%;
+    --secondary-foreground: 15 10% 10%;
+    --accent: 15 100% 96%;
+    --accent-foreground: 15 10% 10%;
+    --muted: 15 30% 95%;
+    --muted-foreground: 15 5% 45%;
+    --border: 15 30% 82%;
+    --card: 0 0% 100%;
+    --card-foreground: 15 10% 10%;
+  }
 }
 
 @layer base {
