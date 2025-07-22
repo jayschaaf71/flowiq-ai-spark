@@ -37,7 +37,7 @@ const Index = () => {
     console.log('Tenant detection:', { hostname, pathname });
     
     // For development (localhost), check URL path or use demo params
-    if (hostname === 'localhost' || hostname.includes('lovable.app')) {
+    if (hostname === 'localhost' || hostname.includes('lovable')) {
       // Check URL params for demo
       const urlParams = new URLSearchParams(window.location.search);
       const demoTenant = urlParams.get('tenant');
@@ -46,9 +46,9 @@ const Index = () => {
         return demoTenant;
       }
       
-      // For this demo, default to one tenant for testing
-      console.log('Using midwest-dental-sleep for demo');
-      return 'midwest-dental-sleep';
+      // For development, always show west-county-spine to test
+      console.log('Development mode - using west-county-spine for testing');
+      return 'west-county-spine';
     }
     
     // Production: use subdomain
