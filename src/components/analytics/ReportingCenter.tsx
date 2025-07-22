@@ -49,7 +49,7 @@ interface CustomReport {
   title: string;
   dateRange: string;
   metrics: string[];
-  filters: Record<string, any>;
+  filters: Record<string, unknown>;
   visualizations: string[];
 }
 

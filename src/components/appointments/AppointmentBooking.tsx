@@ -46,7 +46,7 @@ interface Patient {
 }
 
 interface AppointmentBookingProps {
-  onSuccess?: (appointment: any) => void;
+  onSuccess?: (appointment: Record<string, unknown>) => void;
   onCancel?: () => void;
   selectedDate?: Date;
   selectedTime?: string;
@@ -193,7 +193,7 @@ export const AppointmentBooking = ({
     setAvailableSlots(slots);
   };
 
-  const generateTimeSlots = (schedule: any, existingAppointments: any[]) => {
+  const generateTimeSlots = (schedule: { start_time: string; end_time: string; break_start_time?: string; break_end_time?: string }, existingAppointments: Array<{ time: string; duration?: number }>) => {
     const slots = [];
     const startTime = schedule.start_time;
     const endTime = schedule.end_time;
@@ -246,7 +246,7 @@ export const AppointmentBooking = ({
     return slots;
   };
 
-  const handleInputChange = (field: keyof AppointmentFormData, value: any) => {
+  const handleInputChange = (field: keyof AppointmentFormData, value: string | number | Date) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -318,10 +318,11 @@ export const AppointmentBooking = ({
       });
       
       onSuccess?.(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to book appointment";
       toast({
         title: "Error",
-        description: error.message || "Failed to book appointment",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

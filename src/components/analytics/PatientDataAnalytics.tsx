@@ -117,7 +117,7 @@ export const PatientDataAnalytics: React.FC = () => {
           <p className="text-gray-600">{tenantConfig.specialty} practice insights and trends</p>
         </div>
         <div className="flex gap-2">
-          <Select value={timeRange} onValueChange={(value: any) => setTimeRange(value)}>
+          <Select value={timeRange} onValueChange={(value: '7d' | '30d' | '90d' | '1y') => setTimeRange(value)}>
             <SelectTrigger className="w-32">
               <SelectValue />
             </SelectTrigger>
