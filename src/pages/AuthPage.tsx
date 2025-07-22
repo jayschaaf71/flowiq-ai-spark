@@ -37,9 +37,10 @@ export default function AuthPage() {
   const [resetEmail, setResetEmail] = useState("");
   const [resetSent, setResetSent] = useState(false);
 
-  // Redirect if already authenticated
+  // Redirect if already authenticated - use role-based navigation
   useEffect(() => {
     if (user) {
+      console.log("User authenticated, redirecting to dashboard");
       navigate('/dashboard');
     }
   }, [user, navigate]);
@@ -105,8 +106,8 @@ export default function AuthPage() {
       if (error) {
         setError(error.message);
       } else {
-        // Redirect to practice setup after successful signup
-        navigate("/practice-setup");
+        // Success! Let the useEffect handle navigation after auth state changes
+        console.log("Signup successful, auth state will trigger navigation");
       }
     } catch (err) {
       setError("An unexpected error occurred");
@@ -126,6 +127,7 @@ export default function AuthPage() {
       if (error) {
         setError(error.message);
       } else {
+        // Let ProtectedRoute handle the redirect based on user role
         navigate("/dashboard");
       }
     } catch (err) {

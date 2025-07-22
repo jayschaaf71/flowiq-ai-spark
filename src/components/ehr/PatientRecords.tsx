@@ -18,6 +18,8 @@ import { useAllPatientsWithOnboarding, PatientWithOnboarding } from "@/hooks/use
 import { PatientFormDialog } from "./PatientFormDialog";
 import { PatientSearch } from "./PatientSearch";
 import { EnhancedPatientDetail } from "./EnhancedPatientDetail";
+import { useErrorHandler } from "@/hooks/useErrorHandler";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 export const PatientRecords = () => {
   const [searchFilters, setSearchFilters] = useState({
@@ -28,49 +30,65 @@ export const PatientRecords = () => {
     lastVisitDate: undefined,
   });
   const [selectedPatient, setSelectedPatient] = useState<PatientWithOnboarding | null>(null);
+  const { handleError } = useErrorHandler();
 
   const { data: patients = [], isLoading, error } = useAllPatientsWithOnboarding();
 
+  // Handle error state
+  if (error) {
+    handleError(error instanceof Error ? error : new Error('Failed to load patients'));
+  }
+
   // Apply filters locally
   const filteredPatients = patients.filter(patient => {
-    if (searchFilters.searchTerm) {
-      const searchLower = searchFilters.searchTerm.toLowerCase();
-      const fullName = `${patient.first_name} ${patient.last_name}`.toLowerCase();
-      const email = patient.email?.toLowerCase() || '';
-      const phone = patient.phone || '';
-      
-      if (!fullName.includes(searchLower) && 
-          !email.includes(searchLower) && 
-          !phone.includes(searchLower)) {
-        return false;
+    try {
+      if (searchFilters.searchTerm) {
+        const searchLower = searchFilters.searchTerm.toLowerCase();
+        const fullName = `${patient.first_name} ${patient.last_name}`.toLowerCase();
+        const email = patient.email?.toLowerCase() || '';
+        const phone = patient.phone || '';
+        
+        if (!fullName.includes(searchLower) && 
+            !email.includes(searchLower) && 
+            !phone.includes(searchLower)) {
+          return false;
+        }
       }
-    }
-    
-    if (searchFilters.gender && patient.gender !== searchFilters.gender) return false;
-    
-    if (searchFilters.ageRange) {
-      const age = calculateAge(patient.date_of_birth);
-      const [min, max] = searchFilters.ageRange.includes('+') 
-        ? [parseInt(searchFilters.ageRange.replace('+', '')), 999]
-        : searchFilters.ageRange.split('-').map(n => parseInt(n));
       
-      if (age < min || age > max) return false;
+      if (searchFilters.gender && patient.gender !== searchFilters.gender) return false;
+      
+      if (searchFilters.ageRange) {
+        const age = calculateAge(patient.date_of_birth);
+        const [min, max] = searchFilters.ageRange.includes('+') 
+          ? [parseInt(searchFilters.ageRange.replace('+', '')), 999]
+          : searchFilters.ageRange.split('-').map(n => parseInt(n));
+        
+        if (age < min || age > max) return false;
+      }
+      
+      return true;
+    } catch (err) {
+      handleError(err instanceof Error ? err : new Error('Error filtering patients'));
+      return true; // Include patient in results on filter error
     }
-    
-    return true;
   });
 
-  const calculateAge = (dateOfBirth: string) => {
-    const today = new Date();
-    const birthDate = new Date(dateOfBirth);
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-    
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
+  const calculateAge = (dateOfBirth: string): number => {
+    try {
+      const today = new Date();
+      const birthDate = new Date(dateOfBirth);
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      
+      return age;
+    } catch (err) {
+      handleError(err instanceof Error ? err : new Error('Error calculating age'));
+      return 0;
     }
-    
-    return age;
   };
 
   if (error) {
@@ -82,6 +100,12 @@ export const PatientRecords = () => {
           <p className="text-gray-500">
             {error instanceof Error ? error.message : 'An unexpected error occurred'}
           </p>
+          <Button 
+            onClick={() => window.location.reload()} 
+            className="mt-4"
+          >
+            Try Again
+          </Button>
         </div>
       </div>
     );
@@ -106,13 +130,7 @@ export const PatientRecords = () => {
           </div>
           
           {isLoading ? (
-            <div className="space-y-3">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="animate-pulse">
-                  <div className="bg-gray-200 rounded-lg h-24"></div>
-                </div>
-              ))}
-            </div>
+            <LoadingSpinner text="Loading patients..." />
           ) : filteredPatients.length === 0 ? (
             <Card>
               <CardContent className="text-center py-8">

@@ -4,6 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   CreditCard, 
   DollarSign, 
@@ -28,6 +30,7 @@ interface Payment {
 }
 
 export const PaymentProcessingCenter: React.FC = () => {
+  const { toast } = useToast();
   const [payments] = useState<Payment[]>([
     {
       id: '1',
@@ -78,6 +81,35 @@ export const PaymentProcessingCenter: React.FC = () => {
       case 'reconciled': return 'bg-blue-100 text-blue-800';
       case 'disputed': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const handlePaymentCollection = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: { 
+          amount: 1500, // $15.00 for demonstration
+          description: 'Medical Service Payment'
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        // Open Stripe checkout in a new tab
+        window.open(data.url, '_blank');
+        toast({
+          title: "Payment Portal Opened",
+          description: "Redirecting to secure payment processing...",
+        });
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+      toast({
+        title: "Payment Error",
+        description: "Failed to initiate payment process. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -148,9 +180,9 @@ export const PaymentProcessingCenter: React.FC = () => {
             <p className="text-gray-500 mb-4">
               Drag and drop ERA files here or click to browse
             </p>
-            <Button>
+            <Button onClick={() => handlePaymentCollection()}>
               <Upload className="h-4 w-4 mr-2" />
-              Select Files
+              Start Payment Collection
             </Button>
           </div>
           

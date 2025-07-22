@@ -38,11 +38,13 @@ const baseNavItems: NavItem[] = [
   { id: "dashboard", label: "Dashboard", path: "/dashboard", icon: Home, group: "overview", order: 10 },
   { id: "calendar", label: "Calendar", path: "/calendar", icon: Calendar, group: "overview", order: 15 },
   { id: "patients", label: "Patients", path: "/patient-management", icon: Users, group: "overview", order: 20 },
+  { id: "analytics", label: "Analytics", path: "/analytics", icon: TrendingUp, group: "overview", order: 25 },
   { id: "ehr", label: "EHR", path: "/ehr", icon: Database, group: "overview", order: 30 },
   { id: "insights", label: "Insights", path: "/insights", icon: TrendingUp, group: "overview", order: 40 },
   { id: "notifications", label: "Notifications", path: "/notifications", icon: Bell, group: "overview", order: 50 },
 
   // Clinical Care
+  { id: "clinical", label: "Clinical Tools", path: "/clinical", icon: Stethoscope, group: "clinical_care", order: 5, requiredRole: "staff" },
   { id: "scribe-iq", label: "Scribe iQ", path: "/agents/scribe", icon: Stethoscope, badge: "AI", group: "clinical_care", order: 10 },
   { id: "communication-iq", label: "Communication iQ", path: "/agents/communication", icon: Phone, badge: "AI", group: "clinical_care", order: 20 },
 
@@ -52,6 +54,7 @@ const baseNavItems: NavItem[] = [
   { id: "referral-iq", label: "Referral iQ", path: "/agents/referral", icon: Handshake, badge: "AI", group: "patient_journey", order: 50 },
 
   // Revenue Cycle
+  { id: "billing", label: "Billing & Revenue", path: "/billing", icon: CreditCard, group: "revenue_cycle", order: 5, requiredRole: "staff" },
   { id: "auth-iq", label: "Auth iQ", path: "/agents/auth", icon: CheckSquare, badge: "AI", group: "revenue_cycle", order: 10 },
   { id: "claims-iq", label: "Claims iQ", path: "/agents/claims", icon: Receipt, badge: "AI", group: "revenue_cycle", order: 20 },
   { id: "payments-iq", label: "Payments iQ", path: "/agents/payments", icon: CreditCard, badge: "AI", group: "revenue_cycle", order: 30 },

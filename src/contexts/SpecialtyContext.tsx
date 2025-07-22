@@ -1,11 +1,11 @@
 
-import React, { createContext, useContext, ReactNode, useState } from 'react';
-import { useCurrentTenant, getSpecialtyTheme } from '@/utils/enhancedTenantConfig';
-import { useUserProfile } from '@/hooks/useUserProfile';
+import React, { createContext, useContext, ReactNode } from 'react';
+import { useSpecialtyTheme } from '@/hooks/useSpecialtyTheme';
+import { useCurrentTenant } from '@/utils/enhancedTenantConfig';
 
 interface SpecialtyContextType {
   specialty: string;
-  currentSpecialty: string; // Add alias
+  currentSpecialty: string;
   setCurrentSpecialty: (specialty: string) => void;
   theme: {
     primaryColor: string;
@@ -14,7 +14,7 @@ interface SpecialtyContextType {
     theme: string;
   };
   tenantConfig: any;
-  config: any; // Add alias for compatibility
+  config: any;
   getBrandName: () => string;
 }
 
@@ -32,108 +32,22 @@ interface SpecialtyProviderProps {
   children: ReactNode;
 }
 
-const specialtyBrands: Record<string, string> = {
-  'chiropractic-care': 'ChiroIQ',
-  'chiropractic': 'ChiroIQ',
-  'dental-care': 'Dental IQ', 
-  'dental': 'Dental IQ',
-  'dentistry': 'Dental IQ',
-  'dental-sleep-medicine': 'Dental Sleep IQ',
-  'dental-sleep': 'Dental Sleep IQ',
-  'med-spa': 'AestheticIQ',
-  'concierge': 'ConciergeIQ',
-  'hrt': 'HormoneIQ',
-  'appointment-scheduling': 'Appointment IQ'
-};
-
 export const SpecialtyProvider: React.FC<SpecialtyProviderProps> = ({ children }) => {
   const { currentTenant } = useCurrentTenant();
-  const { data: userProfile } = useUserProfile();
-  
-  // Detect specialty with priority: URL route > localStorage > tenant > user profile
-  const detectSpecialty = () => {
-    // Priority 1: Check URL path for route-based specialty detection
-    const path = window.location.pathname;
-    if (path.includes('/chiropractic')) {
-      const routeSpecialty = 'chiropractic';
-      localStorage.setItem('currentSpecialty', routeSpecialty);
-      return routeSpecialty;
-    }
-    if (path.includes('/dental-sleep')) {
-      const routeSpecialty = 'dental-sleep';
-      localStorage.setItem('currentSpecialty', routeSpecialty);
-      return routeSpecialty;
-    }
-    if (path.includes('/med-spa') || path.includes('/medspa')) {
-      const routeSpecialty = 'med-spa';
-      localStorage.setItem('currentSpecialty', routeSpecialty);
-      return routeSpecialty;
-    }
-    if (path.includes('/concierge')) {
-      const routeSpecialty = 'concierge';
-      localStorage.setItem('currentSpecialty', routeSpecialty);
-      return routeSpecialty;
-    }
-    if (path.includes('/hrt')) {
-      const routeSpecialty = 'hrt';
-      localStorage.setItem('currentSpecialty', routeSpecialty);
-      return routeSpecialty;
-    }
-
-    // Priority 2: Check localStorage
-    const storedSpecialty = localStorage.getItem('currentSpecialty');
-    const tenantSpecialty = currentTenant?.specialty;
-    const userSpecialty = userProfile?.specialty?.toLowerCase().replace(/\s+/g, '-');
-    
-    console.log('detectSpecialty - storedSpecialty:', storedSpecialty);
-    console.log('detectSpecialty - tenantSpecialty:', tenantSpecialty);
-    console.log('detectSpecialty - userSpecialty:', userSpecialty);
-    console.log('detectSpecialty - currentTenant:', currentTenant);
-    
-    // If tenant specialty exists and is different from stored, update localStorage
-    if (tenantSpecialty && tenantSpecialty !== storedSpecialty) {
-      console.log('Updating localStorage with tenant specialty:', tenantSpecialty);
-      localStorage.setItem('currentSpecialty', tenantSpecialty);
-      return tenantSpecialty;
-    }
-    
-    // Check localStorage first (highest priority - set by TenantWrapper)
-    if (storedSpecialty) {
-      return storedSpecialty;
-    }
-    
-    // Prioritize current tenant specialty over user profile
-    if (tenantSpecialty) {
-      localStorage.setItem('currentSpecialty', tenantSpecialty);
-      return tenantSpecialty;
-    }
-    
-    // Fall back to user profile specialty
-    if (userSpecialty) {
-      return userSpecialty;
-    }
-    
-    // Default to chiropractic
-    return 'chiropractic-care';
-  };
-  
-  const effectiveSpecialty = detectSpecialty();
-  const [currentSpecialty, setCurrentSpecialty] = useState(effectiveSpecialty);
-  
-  const theme = getSpecialtyTheme(effectiveSpecialty);
-
-  const getBrandName = () => {
-    console.log('getBrandName - effectiveSpecialty:', effectiveSpecialty);
-    console.log('getBrandName - specialtyBrands mapping:', specialtyBrands[effectiveSpecialty]);
-    console.log('getBrandName - all specialtyBrands:', specialtyBrands);
-    return specialtyBrands[effectiveSpecialty] || 'Flow IQ';
-  };
+  const { currentTheme, specialty, switchTheme, getBrandName } = useSpecialtyTheme();
 
   const value: SpecialtyContextType = {
-    specialty: effectiveSpecialty,
-    currentSpecialty: effectiveSpecialty,
-    setCurrentSpecialty,
-    theme,
+    specialty,
+    currentSpecialty: specialty,
+    setCurrentSpecialty: (newSpecialty: string) => {
+      switchTheme(newSpecialty as any);
+    },
+    theme: {
+      primaryColor: `hsl(${currentTheme.cssVariables.primary})`,
+      secondaryColor: `hsl(${currentTheme.cssVariables.secondary})`,
+      accentColor: `hsl(${currentTheme.cssVariables.accent})`,
+      theme: currentTheme.name
+    },
     tenantConfig: currentTenant,
     config: currentTenant,
     getBrandName

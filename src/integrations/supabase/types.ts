@@ -80,6 +80,66 @@ export type Database = {
           },
         ]
       }
+      appointment_reminders: {
+        Row: {
+          appointment_id: string
+          created_at: string | null
+          error_message: string | null
+          id: string
+          message_template: string | null
+          reminder_type: string
+          retry_count: number | null
+          scheduled_for: string
+          sent_at: string | null
+          status: string
+          tenant_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          appointment_id: string
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          message_template?: string | null
+          reminder_type: string
+          retry_count?: number | null
+          scheduled_for: string
+          sent_at?: string | null
+          status?: string
+          tenant_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          appointment_id?: string
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          message_template?: string | null
+          reminder_type?: string
+          retry_count?: number | null
+          scheduled_for?: string
+          sent_at?: string | null
+          status?: string
+          tenant_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointment_reminders_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointment_reminders_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       appointment_types: {
         Row: {
           color_code: string | null
@@ -257,13 +317,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "appointments_patient_id_fkey"
-            columns: ["patient_id"]
-            isOneToOne: false
-            referencedRelation: "platform_user_management"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "appointments_patient_id_fkey"
             columns: ["patient_id"]
@@ -2899,13 +2952,6 @@ export type Database = {
             foreignKeyName: "reminder_logs_patient_id_fkey"
             columns: ["patient_id"]
             isOneToOne: false
-            referencedRelation: "platform_user_management"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "reminder_logs_patient_id_fkey"
-            columns: ["patient_id"]
-            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -4187,44 +4233,67 @@ export type Database = {
           },
         ]
       }
-    }
-    Views: {
-      phi_access_summary: {
+      waitlist_automation: {
         Row: {
-          access_count: number | null
-          access_date: string | null
-          action: string | null
-          table_name: string | null
-          unique_records: number | null
-          unique_users: number | null
-        }
-        Relationships: []
-      }
-      platform_user_management: {
-        Row: {
+          auto_book: boolean | null
           created_at: string | null
-          current_tenant_id: string | null
-          email: string | null
-          first_name: string | null
-          full_name: string | null
-          id: string | null
-          last_name: string | null
-          role: Database["public"]["Enums"]["app_role"] | null
-          status: string | null
-          tenant_name: string | null
-          tenant_user_active: boolean | null
-          updated_at: string | null
+          id: string
+          max_days_out: number | null
+          notification_sent: boolean | null
+          target_appointment_type: string
+          target_provider_id: string | null
+          tenant_id: string | null
+          waitlist_entry_id: string
+        }
+        Insert: {
+          auto_book?: boolean | null
+          created_at?: string | null
+          id?: string
+          max_days_out?: number | null
+          notification_sent?: boolean | null
+          target_appointment_type: string
+          target_provider_id?: string | null
+          tenant_id?: string | null
+          waitlist_entry_id: string
+        }
+        Update: {
+          auto_book?: boolean | null
+          created_at?: string | null
+          id?: string
+          max_days_out?: number | null
+          notification_sent?: boolean | null
+          target_appointment_type?: string
+          target_provider_id?: string | null
+          tenant_id?: string | null
+          waitlist_entry_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "profiles_current_tenant_id_fkey"
-            columns: ["current_tenant_id"]
+            foreignKeyName: "waitlist_automation_target_provider_id_fkey"
+            columns: ["target_provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waitlist_automation_tenant_id_fkey"
+            columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "waitlist_automation_waitlist_entry_id_fkey"
+            columns: ["waitlist_entry_id"]
+            isOneToOne: false
+            referencedRelation: "appointment_waitlist"
+            referencedColumns: ["id"]
+          },
         ]
       }
+    }
+    Views: {
+      [_ in never]: never
     }
     Functions: {
       calculate_tenant_metrics: {
@@ -4252,9 +4321,45 @@ export type Database = {
         }
         Returns: string
       }
+      get_available_slots: {
+        Args: { p_provider_id: string; p_date: string; p_duration?: number }
+        Returns: {
+          time_slot: string
+          is_available: boolean
+          appointment_id: string
+        }[]
+      }
+      get_phi_access_summary: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          access_date: string
+          access_count: number
+          unique_users: number
+          unique_records: number
+          table_name: string
+          action: string
+        }[]
+      }
       get_platform_stats: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      get_platform_user_management: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          created_at: string
+          updated_at: string
+          current_tenant_id: string
+          tenant_user_active: boolean
+          first_name: string
+          last_name: string
+          full_name: string
+          email: string
+          tenant_name: string
+          status: string
+        }[]
       }
       get_user_current_tenant: {
         Args: { user_id: string }

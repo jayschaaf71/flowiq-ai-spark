@@ -3,9 +3,11 @@ import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useCurrentTenant } from '@/utils/enhancedTenantConfig';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { useSpecialtyTheme } from '@/hooks/useSpecialtyTheme';
 import { ChiropracticWrapper } from './ChiropracticWrapper';
 import { DentalWrapper } from './DentalWrapper';
 import { DentalSleepWrapper } from './DentalSleepWrapper';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 interface TenantWrapperProps {
   children: React.ReactNode;
@@ -15,46 +17,52 @@ export const TenantWrapper: React.FC<TenantWrapperProps> = ({ children }) => {
   const location = useLocation();
   const { currentTenant } = useCurrentTenant();
   const { data: userProfile } = useUserProfile();
+  const { specialty, switchTheme } = useSpecialtyTheme();
 
-  // Enhanced specialty detection with route-based priority - Default to chiropractic
+  // Enhanced specialty detection with route-based priority
   const detectSpecialtyFromRoute = () => {
     const path = location.pathname;
-    const userSpecificKey = `currentSpecialty_${userProfile?.id}`;
     
-    // Route-based specialty detection for specific dental routes only
+    // Route-based specialty detection for specific routes
     if (path.includes('/agents/dental-sleep') || path.includes('/dental-sleep')) {
-      localStorage.setItem('currentSpecialty', 'dental-sleep');
-      localStorage.setItem(userSpecificKey, 'dental-sleep');
+      switchTheme('dental-sleep');
       return 'dental-sleep';
     }
     if (path.includes('/dental')) {
-      localStorage.setItem('currentSpecialty', 'dental');
-      localStorage.setItem(userSpecificKey, 'dental');
+      switchTheme('dental');
       return 'dental';
     }
+    if (path.includes('/chiropractic')) {
+      switchTheme('chiropractic');
+      return 'chiropractic';
+    }
     
-    // Default all other routes to chiropractic
-    localStorage.setItem('currentSpecialty', 'chiropractic');
-    localStorage.setItem(userSpecificKey, 'chiropractic');
-    return 'chiropractic';
+    // Default to current specialty from theme hook
+    return specialty;
   };
 
-  const specialty = detectSpecialtyFromRoute();
+  const currentSpecialty = detectSpecialtyFromRoute();
 
   // Update tenant config when specialty changes
   useEffect(() => {
-    console.log('TenantWrapper detected specialty:', specialty, 'from route:', location.pathname);
-  }, [specialty, location.pathname]);
+    console.log('TenantWrapper detected specialty:', currentSpecialty, 'from route:', location.pathname);
+  }, [currentSpecialty, location.pathname]);
   
-  switch (specialty) {
-    case 'dental-sleep':
-      return <DentalSleepWrapper>{children}</DentalSleepWrapper>;
-    
-    case 'dental':
-      return <DentalWrapper>{children}</DentalWrapper>;
-    
-    case 'chiropractic':
-    default:
-      return <ChiropracticWrapper>{children}</ChiropracticWrapper>;
-  }
+  return (
+    <ErrorBoundary>
+      {(() => {
+        switch (currentSpecialty) {
+          case 'dental-sleep':
+            return <DentalSleepWrapper>{children}</DentalSleepWrapper>;
+          
+          case 'dental':
+            return <DentalWrapper>{children}</DentalWrapper>;
+          
+          case 'chiropractic':
+          default:
+            return <ChiropracticWrapper>{children}</ChiropracticWrapper>;
+        }
+      })()}
+    </ErrorBoundary>
+  );
 };

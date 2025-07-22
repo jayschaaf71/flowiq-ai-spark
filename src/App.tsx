@@ -1,82 +1,57 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
 import { Toaster } from "@/components/ui/toaster";
-import { AuthProvider } from '@/contexts/AuthProvider';
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthProvider";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { Layout } from "@/components/Layout";
 
-// Core Pages
-import Index from '@/pages/Index';
-import AuthPage from '@/pages/AuthPage';
-import Dashboard from '@/pages/Dashboard';
-import Settings from '@/pages/Settings';
-import PatientPortal from '@/pages/PatientPortal';
-import { ProviderPortal } from '@/pages/ProviderPortal';
+// Page imports
+import Index from "./pages/Index";
+import Dashboard from "./pages/Dashboard";
+import { Calendar } from "./pages/Calendar";
+import Analytics from "./pages/Analytics";
+import Settings from "./pages/Settings";
+import PlatformAdmin from "./pages/PlatformAdmin";
+import { HealthCheck } from "@/components/health/HealthCheck";
 
-// Components
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+const queryClient = new QueryClient();
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
-
-function QueryProvider({ children }: { children: React.ReactNode }) {
+const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
-      <Toaster />
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+                <Routes>
+                  {/* Public routes */}
+                  <Route path="/" element={<Index />} />
+                  <Route path="/health" element={<HealthCheck />} />
+                  
+                  {/* Main app routes with layout */}
+                  <Route path="/*" element={
+                    <ProtectedRoute>
+                      <Layout>
+                        <Routes>
+                          <Route path="/dashboard" element={<Dashboard />} />
+                          <Route path="/calendar" element={<Calendar />} />
+                          <Route path="/analytics" element={<Analytics />} />
+                          <Route path="/settings" element={<Settings />} />
+                          <Route path="/platform-admin" element={<PlatformAdmin />} />
+                        </Routes>
+                      </Layout>
+                    </ProtectedRoute>
+                  } />
+                </Routes>
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
     </QueryClientProvider>
   );
-}
-
-function App() {
-  return (
-    <QueryProvider>
-      <AuthProvider>
-        <Router>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<AuthPage />} />
-            
-            {/* Patient Portal */}
-            <Route path="/patient-portal" element={
-              <ProtectedRoute requiredRole="patient">
-                <PatientPortal />
-              </ProtectedRoute>
-            } />
-            
-            {/* Provider Portal */}
-            <Route path="/provider-portal" element={
-              <ProtectedRoute requiredRole="staff">
-                <ProviderPortal />
-              </ProtectedRoute>
-            } />
-
-            {/* Settings */}
-            <Route path="/settings" element={
-              <ProtectedRoute>
-                <Settings />
-              </ProtectedRoute>
-            } />
-
-            {/* Dashboard Routes */}
-            <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } />
-
-            {/* Catch-all route */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Router>
-      </AuthProvider>
-    </QueryProvider>
-  );
-}
+};
 
 export default App;

@@ -17,8 +17,8 @@ export function parseTenantFromUrl(): TenantRoute | null {
   const hostname = window.location.hostname;
   const pathname = window.location.pathname;
   
-  // Production subdomain routing (e.g., midwest-dental-sleep.flow-iq.ai)
-  if (hostname !== 'localhost' && hostname.includes('flow-iq.ai')) {
+  // Production subdomain routing (e.g., midwest-dental-sleep.flowiq.com)
+  if (hostname !== 'localhost' && (hostname.includes('flowiq.com') || hostname.includes('flow-iq.ai'))) {
     const subdomain = hostname.split('.')[0];
     
     // Map known subdomains to tenant info
@@ -100,10 +100,11 @@ export function redirectToTenantDashboard(tenantRoute: TenantRoute) {
  * Get the tenant URL for a given subdomain
  */
 export function getTenantUrl(subdomain: string, path: string = ''): string {
-  const isProduction = window.location.hostname.includes('flow-iq.ai');
+  const isProduction = window.location.hostname.includes('flowiq.com') || window.location.hostname.includes('flow-iq.ai');
   
   if (isProduction) {
-    return `https://${subdomain}.flow-iq.ai${path}`;
+    const domain = window.location.hostname.includes('flowiq.com') ? 'flowiq.com' : 'flow-iq.ai';
+    return `https://${subdomain}.${domain}${path}`;
   } else {
     // Development - use path-based routing
     return `${window.location.origin}${getSpecialtyRoute(getSpecialtyFromSubdomain(subdomain))}${path}`;

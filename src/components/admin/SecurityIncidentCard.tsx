@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -36,7 +37,7 @@ export const SecurityIncidentCard: React.FC<SecurityIncidentCardProps> = ({ inci
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string): "default" | "destructive" | "outline" | "secondary" => {
     switch (status) {
       case 'open': return 'destructive';
       case 'investigating': return 'secondary';
@@ -58,7 +59,7 @@ export const SecurityIncidentCard: React.FC<SecurityIncidentCardProps> = ({ inci
             <Badge className={getSeverityColor(incident.severity)}>
               {incident.severity.toUpperCase()}
             </Badge>
-            <Badge variant={getStatusColor(incident.status) as any}>
+            <Badge variant={getStatusColor(incident.status)}>
               {incident.status}
             </Badge>
           </div>
