@@ -13,6 +13,7 @@ interface PatientRegistrationWelcomeProps {
   menstrualForm: IntakeForm | undefined;
   forms: IntakeForm[];
   onStartIntake: () => void;
+  isInitializing?: boolean;
 }
 
 export const PatientRegistrationWelcome: React.FC<PatientRegistrationWelcomeProps> = ({

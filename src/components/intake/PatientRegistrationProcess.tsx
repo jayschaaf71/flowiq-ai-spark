@@ -12,6 +12,7 @@ interface PatientRegistrationProcessProps {
   onSubmissionComplete: (submission: any) => void;
   onSkipForm: () => void;
   onExit: () => void;
+  isSubmitting?: boolean;
 }
 
 export const PatientRegistrationProcess: React.FC<PatientRegistrationProcessProps> = ({
