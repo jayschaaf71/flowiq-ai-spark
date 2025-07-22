@@ -21,7 +21,8 @@ export const PatientRegistrationWelcome: React.FC<PatientRegistrationWelcomeProp
   pregnancyForm,
   menstrualForm,
   forms,
-  onStartIntake
+  onStartIntake,
+  isInitializing = false
 }) => {
   const tenantConfig = useTenantConfig();
 
@@ -92,9 +93,10 @@ export const PatientRegistrationWelcome: React.FC<PatientRegistrationWelcomeProp
                 onClick={onStartIntake}
                 className={`bg-${tenantConfig.primaryColor}-600 hover:bg-${tenantConfig.primaryColor}-700`}
                 size="lg"
+                disabled={isInitializing}
               >
                 <Users className="w-5 h-5 mr-2" />
-                Start Patient Intake
+                {isInitializing ? 'Starting...' : 'Start Patient Intake'}
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </div>

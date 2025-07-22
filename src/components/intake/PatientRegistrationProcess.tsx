@@ -21,7 +21,8 @@ export const PatientRegistrationProcess: React.FC<PatientRegistrationProcessProp
   formSequence,
   onSubmissionComplete,
   onSkipForm,
-  onExit
+  onExit,
+  isSubmitting = false
 }) => {
   return (
     <div className="space-y-6">
