@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -79,21 +79,7 @@ export const AppointmentBooking = ({
   const [searchPatient, setSearchPatient] = useState('');
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchProviders();
-    fetchPatients();
-    if (selectedProvider) {
-      setFormData(prev => ({ ...prev, provider_id: selectedProvider }));
-    }
-  }, [selectedProvider]);
-
-  useEffect(() => {
-    if (formData.date && formData.provider_id) {
-      fetchAvailableSlots();
-    }
-  }, [formData.date, formData.provider_id]);
-
-  const fetchProviders = async () => {
+  const fetchProviders = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('providers')
@@ -115,9 +101,9 @@ export const AppointmentBooking = ({
         variant: "destructive",
       });
     }
-  };
+  }, []);
 
-  const fetchPatients = async () => {
+  const fetchPatients = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('patients')
@@ -140,9 +126,9 @@ export const AppointmentBooking = ({
         variant: "destructive",
       });
     }
-  };
+  }, []);
 
-  const fetchAvailableSlots = async () => {
+  const fetchAvailableSlots = useCallback(async () => {
     if (!formData.provider_id || !formData.date) return;
 
     try {
@@ -180,7 +166,21 @@ export const AppointmentBooking = ({
       // Fallback to basic time slots if there's an error
       generateFallbackSlots();
     }
-  };
+  }, [formData.provider_id, formData.date]);
+
+  useEffect(() => {
+    fetchProviders();
+    fetchPatients();
+    if (selectedProvider) {
+      setFormData(prev => ({ ...prev, provider_id: selectedProvider }));
+    }
+  }, [selectedProvider, fetchProviders, fetchPatients]);
+
+  useEffect(() => {
+    if (formData.date && formData.provider_id) {
+      fetchAvailableSlots();
+    }
+  }, [formData.date, formData.provider_id, fetchAvailableSlots]);
 
   const generateFallbackSlots = () => {
     const slots = [];

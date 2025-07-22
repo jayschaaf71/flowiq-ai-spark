@@ -342,7 +342,7 @@ export const APIRateLimitingDashboard: React.FC = () => {
                           <Progress 
                             value={endpoint.usage} 
                             className="w-16"
-                            // @ts-ignore
+                            // @ts-expect-error - Progress component variant prop is not typed correctly
                             variant={endpoint.status === 'critical' ? 'destructive' : endpoint.status === 'warning' ? 'warning' : 'default'}
                           />
                           <span className="text-sm">{endpoint.usage}%</span>

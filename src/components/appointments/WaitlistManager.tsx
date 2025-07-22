@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -66,11 +66,7 @@ export const WaitlistManager: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchWaitlistEntries();
-  }, []);
-
-  const fetchWaitlistEntries = async () => {
+  const fetchWaitlistEntries = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('appointment_waitlist')
@@ -94,7 +90,11 @@ export const WaitlistManager: React.FC = () => {
         variant: "destructive",
       });
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchWaitlistEntries();
+  }, [fetchWaitlistEntries]);
 
   const addToWaitlist = async () => {
     if (!newEntry.patient_name || !newEntry.appointment_type) {

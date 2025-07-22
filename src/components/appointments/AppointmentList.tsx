@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -50,11 +50,7 @@ export const AppointmentList = ({ onViewAppointment, onEditAppointment }: Appoin
   const [typeFilter, setTypeFilter] = useState('all');
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchAppointments();
-  }, []);
-
-  const fetchAppointments = async () => {
+  const fetchAppointments = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('appointments')
@@ -73,7 +69,11 @@ export const AppointmentList = ({ onViewAppointment, onEditAppointment }: Appoin
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchAppointments();
+  }, [fetchAppointments]);
 
   const updateAppointmentStatus = async (appointmentId: string, newStatus: string) => {
     try {

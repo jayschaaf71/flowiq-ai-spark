@@ -140,11 +140,11 @@ export const PlatformUsers = () => {
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Badge variant={getRoleVariant(user.role) as any}>
+                    <Badge variant={getRoleVariant(user.role) as "default" | "secondary" | "outline"}>
                       <Shield className="h-3 w-3 mr-1" />
                       {getRoleDisplayName(user.role)}
                     </Badge>
-                    <Badge variant={getStatusVariant(user.status) as any}>
+                    <Badge variant={getStatusVariant(user.status) as "default" | "secondary" | "destructive"}>
                       {user.status}
                     </Badge>
                     <DropdownMenu>

@@ -261,7 +261,7 @@ export const TenantResourceOptimization: React.FC = () => {
                           <Progress 
                             value={tenant.utilizationScore} 
                             className="w-16"
-                            // @ts-ignore
+                            // @ts-expect-error - Progress component variant prop is not typed correctly
                             variant={getUtilizationColor(tenant.utilizationScore)}
                           />
                           <span className="text-sm">{tenant.utilizationScore}%</span>

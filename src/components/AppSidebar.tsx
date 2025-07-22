@@ -78,7 +78,7 @@ export const AppSidebar = () => {
     .filter(group => group.items.length > 0)
     .sort((a, b) => a.order - b.order);
 
-  const handleNavClick = (item: any) => {
+  const handleNavClick = (item: { id?: string; path: string }) => {
     sidebarService.logNavClick(item.id || item.path, sessionStartTime);
   };
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useFormValidation } from '@/hooks/useFormValidation';
 import { appointmentFormSchema, type AppointmentFormData } from '@/utils/validation';
@@ -80,17 +80,7 @@ export const EnhancedAppointmentBooking: React.FC<EnhancedAppointmentBookingProp
     onSubmit: handleBooking
   });
 
-  useEffect(() => {
-    fetchProviders();
-  }, []);
-
-  useEffect(() => {
-    if (selectedProviderId && formData.date) {
-      fetchAvailableSlots();
-    }
-  }, [selectedProviderId, formData.date]);
-
-  const fetchProviders = async () => {
+  const fetchProviders = useCallback(async () => {
     try {
       setLoading('providers', true);
       const { data, error } = await supabase
@@ -115,9 +105,9 @@ export const EnhancedAppointmentBooking: React.FC<EnhancedAppointmentBookingProp
     } finally {
       setLoading('providers', false);
     }
-  };
+  }, []);
 
-  const fetchAvailableSlots = async () => {
+  const fetchAvailableSlots = useCallback(async () => {
     if (!selectedProviderId || !formData.date) return;
 
     try {
@@ -144,7 +134,17 @@ export const EnhancedAppointmentBooking: React.FC<EnhancedAppointmentBookingProp
     } finally {
       setLoading('slots', false);
     }
-  };
+  }, [selectedProviderId, formData.date, formData.duration]);
+
+  useEffect(() => {
+    fetchProviders();
+  }, [fetchProviders]);
+
+  useEffect(() => {
+    if (selectedProviderId && formData.date) {
+      fetchAvailableSlots();
+    }
+  }, [selectedProviderId, formData.date, fetchAvailableSlots]);
 
   async function handleBooking(validatedData: AppointmentFormData) {
     try {

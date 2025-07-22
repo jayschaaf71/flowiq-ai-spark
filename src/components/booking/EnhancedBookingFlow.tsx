@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,13 +55,7 @@ export const EnhancedBookingFlow = ({ onAppointmentBooked }: EnhancedBookingFlow
     { value: "emergency", label: "Emergency", duration: 45 }
   ];
 
-  useEffect(() => {
-    if (patientSearch.length > 2) {
-      searchPatients();
-    }
-  }, [patientSearch]);
-
-  const searchPatients = async () => {
+  const searchPatients = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('patients')
@@ -74,7 +68,13 @@ export const EnhancedBookingFlow = ({ onAppointmentBooked }: EnhancedBookingFlow
     } catch (error) {
       console.error('Error searching patients:', error);
     }
-  };
+  }, [patientSearch]);
+
+  useEffect(() => {
+    if (patientSearch.length > 2) {
+      searchPatients();
+    }
+  }, [patientSearch, searchPatients]);
 
   const createNewPatient = async () => {
     try {

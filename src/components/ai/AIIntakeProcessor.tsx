@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -32,10 +32,10 @@ interface ProcessedIntake {
     flaggedIssues: string[];
   };
   extractedData: {
-    demographics: any;
-    medicalHistory: any;
-    symptoms: any;
-    medications: any;
+    demographics: Record<string, unknown>;
+    medicalHistory: Record<string, unknown>;
+    symptoms: Record<string, unknown>;
+    medications: Record<string, unknown>;
   };
   processingTime: number;
 }
@@ -52,12 +52,7 @@ export const AIIntakeProcessor = () => {
   });
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadSubmissions();
-    loadStats();
-  }, []);
-
-  const loadSubmissions = async () => {
+  const loadSubmissions = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('intake_submissions')
@@ -69,10 +64,10 @@ export const AIIntakeProcessor = () => {
 
       // Simulate AI analysis data (in real app, this would come from the AI processing)
       const processedData: ProcessedIntake[] = data?.map(submission => {
-        const submissionData = submission.submission_data as any;
+        const submissionData = submission.submission_data as Record<string, unknown>;
         return {
           id: submission.id,
-          patientName: submissionData?.personalInfo?.name || submissionData?.name || 'Unknown Patient',
+          patientName: (submissionData as any)?.personalInfo?.name || (submissionData as any)?.name || 'Unknown Patient',
           submittedAt: new Date(submission.created_at),
           status: submission.ai_summary ? 'completed' as const : 'pending' as const,
           aiAnalysis: {
@@ -91,10 +86,10 @@ export const AIIntakeProcessor = () => {
             flaggedIssues: Math.random() > 0.8 ? ['Medication allergy conflict', 'High pain score'] : []
           },
           extractedData: {
-            demographics: submissionData?.personalInfo || {},
-            medicalHistory: submissionData?.medicalHistory || {},
-            symptoms: submissionData?.symptoms || {},
-            medications: submissionData?.medications || {}
+            demographics: (submissionData?.personalInfo as Record<string, unknown>) || {},
+            medicalHistory: (submissionData?.medicalHistory as Record<string, unknown>) || {},
+            symptoms: (submissionData?.symptoms as Record<string, unknown>) || {},
+            medications: (submissionData?.medications as Record<string, unknown>) || {}
           },
           processingTime: Math.round(Math.random() * 30 + 10)
         };
@@ -109,9 +104,9 @@ export const AIIntakeProcessor = () => {
         variant: "destructive",
       });
     }
-  };
+  }, []);
 
-  const loadStats = () => {
+  const loadStats = useCallback(() => {
     // Simulate analytics data
     setStats({
       totalProcessed: 147,
@@ -119,7 +114,12 @@ export const AIIntakeProcessor = () => {
       highRiskCount: 12,
       accuracyRate: 94.2
     });
-  };
+  }, []);
+
+  useEffect(() => {
+    loadSubmissions();
+    loadStats();
+  }, [loadSubmissions, loadStats]);
 
   const processSubmission = async (submissionId: string) => {
     setIsProcessing(true);
@@ -151,7 +151,7 @@ export const AIIntakeProcessor = () => {
         description: "Form has been analyzed and processed successfully",
       });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('AI processing error:', error);
       toast({
         title: "Processing Error",

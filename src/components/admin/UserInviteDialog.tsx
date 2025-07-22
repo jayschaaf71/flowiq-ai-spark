@@ -136,7 +136,7 @@ export const UserInviteDialog: React.FC = () => {
 
           <div>
             <Label htmlFor="role">Role *</Label>
-            <Select onValueChange={(value: any) => setFormData(prev => ({ ...prev, role: value }))}>
+            <Select onValueChange={(value: 'platform_admin' | 'tenant_admin' | 'practice_manager' | 'staff') => setFormData(prev => ({ ...prev, role: value }))}>
               <SelectTrigger>
                 <SelectValue placeholder="Select role" />
               </SelectTrigger>

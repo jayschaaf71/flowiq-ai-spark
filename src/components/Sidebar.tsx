@@ -27,7 +27,9 @@ import {
   Mic
 } from "lucide-react"
 
-interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
+interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
+  // Additional props can be added here as needed
+}
 
 const navigationItems = [
   {
