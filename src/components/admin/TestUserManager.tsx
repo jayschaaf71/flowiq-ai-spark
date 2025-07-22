@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,6 +12,21 @@ interface TestUser {
   email: string;
   role: string;
   name: string;
+}
+
+interface CreateUserResult {
+  success: boolean;
+  email: string;
+  error?: string;
+}
+
+interface CreateUsersResponse {
+  summary: {
+    total: number;
+    successful: number;
+    failed: number;
+  };
+  results: CreateUserResult[];
 }
 
 const testUsers: TestUser[] = [
@@ -28,7 +44,7 @@ const testUsers: TestUser[] = [
 
 export const TestUserManager: React.FC = () => {
   const [isCreating, setIsCreating] = useState(false);
-  const [results, setResults] = useState<any>(null);
+  const [results, setResults] = useState<CreateUsersResponse | null>(null);
   const { toast } = useToast();
 
   const createTestUsers = async () => {
@@ -42,17 +58,18 @@ export const TestUserManager: React.FC = () => {
         throw error;
       }
 
-      setResults(data);
+      setResults(data as CreateUsersResponse);
       toast({
         title: "Success",
         description: `Created ${data.summary.successful} test users successfully!`,
       });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating test users:', error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to create test users";
       toast({
         title: "Error",
-        description: error.message || "Failed to create test users",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
@@ -69,7 +86,7 @@ export const TestUserManager: React.FC = () => {
     });
   };
 
-  const getRoleBadgeVariant = (role: string) => {
+  const getRoleBadgeVariant = (role: string): "default" | "destructive" | "outline" | "secondary" => {
     switch (role) {
       case 'platform_admin': return 'destructive';
       case 'practice_admin': return 'default';
@@ -177,7 +194,7 @@ export const TestUserManager: React.FC = () => {
             </Alert>
 
             <div className="space-y-2">
-              {results.results.map((result: any, index: number) => (
+              {results.results.map((result, index) => (
                 <div key={index} className={`flex items-center justify-between p-2 rounded ${
                   result.success ? 'bg-green-50' : 'bg-red-50'
                 }`}>

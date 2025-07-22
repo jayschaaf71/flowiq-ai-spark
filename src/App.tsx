@@ -1,228 +1,81 @@
 
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from "@/components/ui/toaster";
-import { AuthProvider } from '@/contexts/AuthProvider';
-import { SpecialtyProvider } from '@/contexts/SpecialtyContext';
-import { Layout } from '@/components/Layout';
-import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { TenantProvider } from "@/contexts/TenantContext";
+import { ProfileProvider } from "@/contexts/ProfileContext";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { Layout } from "@/components/Layout";
 
-// Core Pages
-import Index from '@/pages/Index';
-import AuthPage from '@/pages/AuthPage';
-import Dashboard from '@/pages/Dashboard';
-import Settings from '@/pages/Settings';
-import PatientPortal from '@/pages/PatientPortal';
-import { ProviderPortal } from '@/pages/ProviderPortal';
-import StaffDashboard from '@/pages/StaffDashboard';
-import PatientDashboard from '@/pages/PatientDashboard';
-import PracticeSetup from '@/pages/PracticeSetup';
-import PaymentSuccess from '@/pages/PaymentSuccess';
-import PaymentCanceled from '@/pages/PaymentCanceled';
-import { BillingDashboard } from '@/pages/BillingDashboard';
-import { AnalyticsDashboard } from '@/pages/AnalyticsDashboard';
-import { ClinicalDashboard } from '@/pages/ClinicalDashboard';
-import PatientScheduling from '@/pages/PatientScheduling';
-import HealthEducation from '@/pages/HealthEducation';
-import TelemedicineDashboard from '@/pages/TelemedicineDashboard';
-import PracticeAutomation from '@/pages/PracticeAutomation';
+// Page imports
+import Index from "./pages/Index";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import Dashboard from "./pages/Dashboard";
+import Appointments from "./pages/Appointments";
+import Patients from "./pages/Patients";
+import Calendar from "./pages/Calendar";
+import Analytics from "./pages/Analytics";
+import Settings from "./pages/Settings";
+import Onboarding from "./pages/Onboarding";
+import IntakeForm from "./pages/IntakeForm";
+import PlatformAdmin from "./pages/PlatformAdmin";
+import { HealthCheck } from "@/components/health/HealthCheck";
 
-// Components
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+const queryClient = new QueryClient();
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: (failureCount, error: any) => {
-        // Don't retry on 4xx errors
-        if (error?.status >= 400 && error?.status < 500) {
-          return false;
-        }
-        return failureCount < 2;
-      },
-      refetchOnWindowFocus: false,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-    },
-    mutations: {
-      retry: false,
-    },
-  },
-});
-
-function QueryProvider({ children }: { children: React.ReactNode }) {
+const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
-      <Toaster />
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <ProfileProvider>
+              <TenantProvider>
+                <Routes>
+                  {/* Public routes */}
+                  <Route path="/" element={<Index />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
+                  <Route path="/intake/:formId" element={<IntakeForm />} />
+                  <Route path="/health" element={<HealthCheck />} />
+                  
+                  {/* Protected routes */}
+                  <Route path="/onboarding" element={
+                    <ProtectedRoute>
+                      <Onboarding />
+                    </ProtectedRoute>
+                  } />
+                  
+                  {/* Main app routes with layout */}
+                  <Route path="/*" element={
+                    <ProtectedRoute>
+                      <Layout>
+                        <Routes>
+                          <Route path="/dashboard" element={<Dashboard />} />
+                          <Route path="/appointments" element={<Appointments />} />
+                          <Route path="/patients" element={<Patients />} />
+                          <Route path="/calendar" element={<Calendar />} />
+                          <Route path="/analytics" element={<Analytics />} />
+                          <Route path="/settings" element={<Settings />} />
+                          <Route path="/platform-admin" element={<PlatformAdmin />} />
+                        </Routes>
+                      </Layout>
+                    </ProtectedRoute>
+                  } />
+                </Routes>
+              </TenantProvider>
+            </ProfileProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
     </QueryClientProvider>
   );
-}
-
-function App() {
-  return (
-    <ErrorBoundary>
-      <QueryProvider>
-        <AuthProvider>
-          <Router>
-            <Routes>
-              {/* Landing page - outside SpecialtyProvider to avoid theme override */}
-              <Route path="/" element={<Index />} />
-              <Route path="/auth" element={<AuthPage />} />
-              <Route path="/practice-setup" element={<PracticeSetup />} />
-              <Route path="/payment-success" element={<PaymentSuccess />} />
-              <Route path="/payment-canceled" element={<PaymentCanceled />} />
-              
-              {/* All other routes wrapped with SpecialtyProvider */}
-              <Route path="/*" element={
-                <SpecialtyProvider>
-                  <Routes>
-                    {/* Patient Portal and Dashboard */}
-                    <Route path="/patient-portal" element={
-                      <ProtectedRoute requiredRole="patient">
-                        <ErrorBoundary>
-                          <PatientPortal />
-                        </ErrorBoundary>
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/patient-dashboard" element={
-                      <ProtectedRoute requiredRole="patient">
-                        <ErrorBoundary>
-                          <Layout>
-                            <PatientDashboard />
-                          </Layout>
-                        </ErrorBoundary>
-                      </ProtectedRoute>
-                    } />
-                    
-                    {/* Staff Portal and Dashboard */}
-                    <Route path="/provider-portal" element={
-                      <ProtectedRoute requiredRole="staff">
-                        <ErrorBoundary>
-                          <ProviderPortal />
-                        </ErrorBoundary>
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/staff-dashboard" element={
-                      <ProtectedRoute requiredRole="staff">
-                        <ErrorBoundary>
-                          <Layout>
-                            <StaffDashboard />
-                          </Layout>
-                        </ErrorBoundary>
-                      </ProtectedRoute>
-                    } />
-
-                    {/* Main Dashboard with Layout */}
-                    <Route path="/dashboard" element={
-                      <ProtectedRoute>
-                        <ErrorBoundary>
-                          <Layout>
-                            <Dashboard />
-                          </Layout>
-                        </ErrorBoundary>
-                      </ProtectedRoute>
-                    } />
-
-                    {/* Settings with Layout */}
-                    <Route path="/settings" element={
-                      <ProtectedRoute>
-                        <ErrorBoundary>
-                          <Layout>
-                            <Settings />
-                          </Layout>
-                        </ErrorBoundary>
-                      </ProtectedRoute>
-                    } />
-
-                    {/* Billing Dashboard with Layout */}
-                    <Route path="/billing" element={
-                      <ProtectedRoute requiredRole="staff">
-                        <ErrorBoundary>
-                          <Layout>
-                            <BillingDashboard />
-                          </Layout>
-                        </ErrorBoundary>
-                      </ProtectedRoute>
-                    } />
-
-                    {/* Analytics Dashboard with Layout */}
-                    <Route path="/analytics" element={
-                      <ProtectedRoute requiredRole="staff">
-                        <ErrorBoundary>
-                          <Layout>
-                            <AnalyticsDashboard />
-                          </Layout>
-                        </ErrorBoundary>
-                      </ProtectedRoute>
-                    } />
-
-                    {/* Clinical Dashboard with Layout */}
-                    <Route path="/clinical" element={
-                      <ProtectedRoute requiredRole="staff">
-                        <ErrorBoundary>
-                          <Layout>
-                            <ClinicalDashboard />
-                          </Layout>
-                        </ErrorBoundary>
-                      </ProtectedRoute>
-                    } />
-
-                    {/* Patient Scheduling */}
-                    <Route path="/schedule" element={
-                      <ProtectedRoute requiredRole="patient">
-                        <ErrorBoundary>
-                          <Layout>
-                            <PatientScheduling />
-                          </Layout>
-                        </ErrorBoundary>
-                      </ProtectedRoute>
-                    } />
-
-                    {/* Health Education */}
-                    <Route path="/education" element={
-                      <ProtectedRoute>
-                        <ErrorBoundary>
-                          <Layout>
-                            <HealthEducation />
-                          </Layout>
-                        </ErrorBoundary>
-                      </ProtectedRoute>
-                    } />
-
-                    {/* Telemedicine Dashboard */}
-                    <Route path="/telemedicine" element={
-                      <ProtectedRoute requiredRole="staff">
-                        <ErrorBoundary>
-                          <Layout>
-                            <TelemedicineDashboard />
-                          </Layout>
-                        </ErrorBoundary>
-                      </ProtectedRoute>
-                    } />
-
-                    {/* Practice Automation */}
-                    <Route path="/automation" element={
-                      <ProtectedRoute requiredRole="staff">
-                        <ErrorBoundary>
-                          <Layout>
-                            <PracticeAutomation />
-                          </Layout>
-                        </ErrorBoundary>
-                      </ProtectedRoute>
-                    } />
-
-                    {/* Catch-all route */}
-                    <Route path="*" element={<Navigate to="/" replace />} />
-                  </Routes>
-                </SpecialtyProvider>
-              } />
-            </Routes>
-          </Router>
-        </AuthProvider>
-      </QueryProvider>
-    </ErrorBoundary>
-  );
-}
+};
 
 export default App;
