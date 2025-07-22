@@ -36,8 +36,28 @@ interface AvailableSlot {
   appointment_id?: string;
 }
 
+interface AppointmentData {
+  id: string;
+  patient_name: string;
+  email?: string;
+  phone?: string;
+  date: string;
+  time: string;
+  duration: number;
+  appointment_type: string;
+  title: string;
+  notes?: string;
+  provider_id: string;
+  status: string;
+  provider?: {
+    first_name: string;
+    last_name: string;
+    specialty?: string;
+  };
+}
+
 interface EnhancedAppointmentBookingProps {
-  onSuccess?: (appointment: Record<string, unknown>) => void;
+  onSuccess?: (appointment: AppointmentData) => void;
   onCancel?: () => void;
   selectedDate?: Date;
   selectedTime?: string;

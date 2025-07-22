@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -11,18 +11,25 @@ import { DenialAnalyticsTab } from "./denial/DenialAnalyticsTab";
 import { DenialPatternsTab } from "./denial/DenialPatternsTab";
 import { DenialAnalysisModal } from "./denial/DenialAnalysisModal";
 
+interface DenialAnalyticsData {
+  totalDenials: number;
+  totalDeniedAmount?: number;
+  autoCorrectible?: number;
+  autoCorrectRate?: number;
+  denialRate?: number;
+  topReasons?: Array<{ reason: string; count: number }>;
+  denialsByReason?: Array<{ reason: string; count: number }>;
+  trends?: Array<{ month: string; denials?: number; count?: number; amount?: number }>;
+}
+
 export const EnhancedDenialManagement = () => {
-  const [denialAnalytics, setDenialAnalytics] = useState<any>(null);
+  const [denialAnalytics, setDenialAnalytics] = useState<DenialAnalyticsData | null>(null);
   const [selectedDenial, setSelectedDenial] = useState<DenialAnalysis | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadDenialData();
-  }, []);
-
-  const loadDenialData = async () => {
+  const loadDenialData = useCallback(async () => {
     try {
       const dateRange = {
         start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -41,7 +48,12 @@ export const EnhancedDenialManagement = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    loadDenialData();
+  }, [loadDenialData]);
+
 
   const handleAutoCorrect = async (claimId: string, corrections: AutoCorrection[]) => {
     setIsProcessing(true);

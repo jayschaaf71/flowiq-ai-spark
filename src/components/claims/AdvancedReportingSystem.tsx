@@ -81,7 +81,15 @@ export const AdvancedReportingSystem = () => {
     format: 'pdf'
   });
   const [templates, setTemplates] = useState<ReportTemplate[]>([]);
-  const [reports, setReports] = useState<any[]>([]);
+  const [reports, setReports] = useState<Array<{
+    id: string;
+    name: string;
+    type: string;
+    generatedAt: Date;
+    status: string;
+    format: string;
+    size: string;
+  }>>([]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -205,7 +213,7 @@ export const AdvancedReportingSystem = () => {
     }
   };
 
-  const useTemplate = (template: ReportTemplate) => {
+  const applyTemplate = (template: ReportTemplate) => {
     setReportConfig(prev => ({
       ...prev,
       name: template.name,
@@ -303,7 +311,9 @@ export const AdvancedReportingSystem = () => {
                       <label className="text-sm font-medium mb-2 block">Report Type</label>
                       <Select 
                         value={reportConfig.type} 
-                        onValueChange={(value: any) => setReportConfig(prev => ({ ...prev, type: value }))}
+                        onValueChange={(value: 'financial' | 'operational' | 'compliance' | 'custom') => 
+                          setReportConfig(prev => ({ ...prev, type: value }))
+                        }
                       >
                         <SelectTrigger>
                           <SelectValue />
@@ -367,7 +377,9 @@ export const AdvancedReportingSystem = () => {
                     <label className="text-sm font-medium mb-2 block">Export Format</label>
                     <Select 
                       value={reportConfig.format} 
-                      onValueChange={(value: any) => setReportConfig(prev => ({ ...prev, format: value }))}
+                      onValueChange={(value: 'pdf' | 'excel' | 'csv') => 
+                        setReportConfig(prev => ({ ...prev, format: value }))
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue />
@@ -495,7 +507,7 @@ export const AdvancedReportingSystem = () => {
                   </div>
                   <Button 
                     className="w-full" 
-                    onClick={() => useTemplate(template)}
+                    onClick={() => applyTemplate(template)}
                   >
                     Use Template
                   </Button>

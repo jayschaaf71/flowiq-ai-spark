@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,14 +23,17 @@ export const PaymentPostingDashboard = () => {
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
   const [reconciliationResults, setReconciliationResults] = useState<ReconciliationResult[]>([]);
   const [loading, setLoading] = useState(false);
-  const [analytics, setAnalytics] = useState<any>(null);
+  const [analytics, setAnalytics] = useState<{
+    totalPayments: number;
+    totalAmount: number;
+    autoPostedCount: number;
+    autoPostingRate: number;
+    averagePostingTime: number;
+    topPayers: Array<{ name: string; amount: number; count: number }>;
+  } | null>(null);
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadPaymentData();
-  }, []);
-
-  const loadPaymentData = async () => {
+  const loadPaymentData = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -86,7 +89,11 @@ export const PaymentPostingDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    loadPaymentData();
+  }, [loadPaymentData]);
 
   const handleERAUpload = async (file: File) => {
     try {

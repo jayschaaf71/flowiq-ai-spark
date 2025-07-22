@@ -80,7 +80,13 @@ export const AppointmentModal = ({
   const { toast } = useToast();
   const createMutation = useCreateAppointment();
   const updateMutation = useUpdateAppointment();
-  const [currentUser, setCurrentUser] = useState<{ id: string; profile?: { current_tenant_id?: string } } | null>(null);
+  const [currentUser, setCurrentUser] = useState<{ 
+    id: string; 
+    profile?: { 
+      current_tenant_id?: string;
+      role?: string;
+    } 
+  } | null>(null);
 
   // Get current user on mount
   useEffect(() => {

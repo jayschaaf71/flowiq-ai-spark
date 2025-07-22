@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,11 +26,7 @@ export const PriorAuthorizationDashboard = () => {
   const [selectedAuth, setSelectedAuth] = useState<PriorAuthRequest | null>(null);
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadPendingAuthorizations();
-  }, []);
-
-  const loadPendingAuthorizations = async () => {
+  const loadPendingAuthorizations = useCallback(async () => {
     try {
       setLoading(true);
       const auths = await priorAuthService.getPendingAuthorizations();
@@ -45,7 +41,11 @@ export const PriorAuthorizationDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    loadPendingAuthorizations();
+  }, [loadPendingAuthorizations]);
 
   const handleSubmitAuth = async (authId: string) => {
     try {

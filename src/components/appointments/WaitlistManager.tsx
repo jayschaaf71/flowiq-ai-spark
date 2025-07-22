@@ -77,8 +77,7 @@ export const WaitlistManager: React.FC = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setWaitlistEntries((data as Array<Record<string, unknown>>)?.map(entry => ({
-        ...entry,
+      const transformedData: WaitlistEntry[] = (data || []).map(entry => ({
         id: entry.id as string,
         patient_name: entry.patient_name as string,
         phone: entry.phone as string | undefined,
@@ -93,7 +92,8 @@ export const WaitlistManager: React.FC = () => {
         automation: Array.isArray(entry.automation) && entry.automation.length > 0 
           ? entry.automation[0] as { auto_book: boolean; max_days_out: number; notification_sent: boolean }
           : undefined
-      })) || []);
+      }));
+      setWaitlistEntries(transformedData);
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : "Failed to load waitlist entries";
       toast({

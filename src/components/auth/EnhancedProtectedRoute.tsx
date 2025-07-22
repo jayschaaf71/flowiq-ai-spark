@@ -41,7 +41,7 @@ export const EnhancedProtectedRoute: React.FC<EnhancedProtectedRouteProps> = ({
         return;
       }
     }
-  }, [user, profile, loading, navigate, requiredRole, allowPatients]); // Removed location.pathname to prevent redirects on route changes
+  }, [user, profile, loading, navigate, requiredRole, allowPatients, location.pathname]);
 
   // Show loading state while checking authentication
   if (loading) {

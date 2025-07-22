@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -39,11 +39,7 @@ export const ComplianceMonitor = () => {
   const [realTimeMonitoring, setRealTimeMonitoring] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadComplianceData();
-  }, []);
-
-  const loadComplianceData = async () => {
+  const loadComplianceData = useCallback(async () => {
     setLoading(true);
     try {
       // Load audit logs
@@ -127,7 +123,11 @@ export const ComplianceMonitor = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [realTimeMonitoring, toast]);
+
+  useEffect(() => {
+    loadComplianceData();
+  }, [loadComplianceData]);
 
   const enableRealTimeMonitoring = async () => {
     try {

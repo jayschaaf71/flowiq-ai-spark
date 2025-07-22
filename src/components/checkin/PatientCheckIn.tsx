@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -44,11 +44,7 @@ export const PatientCheckIn = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadTodaysAppointments();
-  }, []);
-
-  const loadTodaysAppointments = async () => {
+  const loadTodaysAppointments = useCallback(async () => {
     try {
       const today = format(new Date(), 'yyyy-MM-dd');
       
@@ -69,7 +65,11 @@ export const PatientCheckIn = () => {
         variant: "destructive",
       });
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    loadTodaysAppointments();
+  }, [loadTodaysAppointments]);
 
   const handleCheckIn = async (appointmentId: string) => {
     if (!selectedAppointment) return;

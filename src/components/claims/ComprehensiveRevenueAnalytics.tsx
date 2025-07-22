@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { revenueAnalyticsService, RevenueMetrics, RevenueKPI } from "@/services/revenueAnalytics";
@@ -25,11 +25,7 @@ export const ComprehensiveRevenueAnalytics = () => {
   // Set up real-time updates for revenue metrics
   useClaimsRealtime();
 
-  useEffect(() => {
-    loadAnalytics();
-  }, [dateRange]);
-
-  const loadAnalytics = async () => {
+  const loadAnalytics = useCallback(async () => {
     try {
       setLoading(true);
       const [metricsData, kpiData] = await Promise.all([
@@ -49,7 +45,11 @@ export const ComprehensiveRevenueAnalytics = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [dateRange, toast]);
+
+  useEffect(() => {
+    loadAnalytics();
+  }, [loadAnalytics]);
 
   if (loading) {
     return <div className="flex justify-center p-8">Loading comprehensive revenue analytics...</div>;
