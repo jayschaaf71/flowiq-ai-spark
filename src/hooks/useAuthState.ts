@@ -15,7 +15,11 @@ export const useAuthState = () => {
         console.log('Auth state changed:', event, session?.user?.id);
         setSession(session);
         setUser(session?.user ?? null);
-        setLoading(false);
+        
+        // Add slight delay for mobile to ensure state is properly updated
+        setTimeout(() => {
+          setLoading(false);
+        }, 100);
       }
     );
 
