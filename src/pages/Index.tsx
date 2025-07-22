@@ -32,10 +32,35 @@ const Index = () => {
   // Detect tenant from subdomain
   const detectTenantFromUrl = () => {
     const hostname = window.location.hostname;
-    const subdomain = hostname.split('.')[0];
+    const pathname = window.location.pathname;
     
-    // Check if this is a tenant subdomain
+    console.log('Tenant detection:', { hostname, pathname });
+    
+    // For development (localhost), check URL path or use demo params
+    if (hostname === 'localhost' || hostname.includes('lovable.app')) {
+      // Check URL params for demo
+      const urlParams = new URLSearchParams(window.location.search);
+      const demoTenant = urlParams.get('tenant');
+      if (demoTenant) {
+        console.log('Demo tenant from URL param:', demoTenant);
+        return demoTenant;
+      }
+      
+      // For this demo, let's show different tenants based on path or default to one
+      if (pathname.includes('west-county') || Math.random() > 0.5) {
+        console.log('Using west-county-spine for demo');
+        return 'west-county-spine';
+      } else {
+        console.log('Using midwest-dental-sleep for demo');
+        return 'midwest-dental-sleep';
+      }
+    }
+    
+    // Production: use subdomain
+    const subdomain = hostname.split('.')[0];
     const tenant = getTenantBySubdomain(subdomain);
+    console.log('Found tenant:', tenant);
+    
     return tenant ? subdomain : null;
   };
 
