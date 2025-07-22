@@ -9,6 +9,14 @@ import { useEnhancedTenantConfig } from '@/utils/enhancedTenantConfig';
 export const TenantLandingPage: React.FC = () => {
   const { tenantConfig, isLoading } = useEnhancedTenantConfig();
 
+  // CRITICAL: All hooks must be called before any early returns
+  // Set page title - moved before early returns to fix hook order
+  React.useEffect(() => {
+    if (tenantConfig) {
+      document.title = `${tenantConfig.name} - Healthcare Practice Management`;
+    }
+  }, [tenantConfig]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -41,11 +49,6 @@ export const TenantLandingPage: React.FC = () => {
   };
   const primaryBorderStyle = { borderColor: tenantConfig.primary_color };
   const primaryTextStyle = { color: tenantConfig.primary_color };
-
-  // Set page title
-  React.useEffect(() => {
-    document.title = `${tenantConfig.name} - Healthcare Practice Management`;
-  }, [tenantConfig]);
 
   const getSpecialtyDescription = () => {
     switch (tenantConfig.specialty) {
