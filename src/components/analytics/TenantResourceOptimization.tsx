@@ -41,7 +41,6 @@ export const TenantResourceOptimization: React.FC = () => {
     setLoading(true);
     try {
       // Simulate loading data - in real implementation, this would come from Supabase
-      // @ts-expect-error - Simulated data for demonstration purposes
       const mockMetrics: ResourceMetric[] = [
         {
           name: 'CPU Usage',
@@ -80,7 +79,6 @@ export const TenantResourceOptimization: React.FC = () => {
         }
       ];
 
-      // @ts-expect-error - Simulated data for demonstration purposes  
       const mockRecommendations: OptimizationRecommendation[] = [
         {
           id: '1',
