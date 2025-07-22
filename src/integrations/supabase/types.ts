@@ -80,6 +80,66 @@ export type Database = {
           },
         ]
       }
+      appointment_reminders: {
+        Row: {
+          appointment_id: string
+          created_at: string | null
+          error_message: string | null
+          id: string
+          message_template: string | null
+          reminder_type: string
+          retry_count: number | null
+          scheduled_for: string
+          sent_at: string | null
+          status: string
+          tenant_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          appointment_id: string
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          message_template?: string | null
+          reminder_type: string
+          retry_count?: number | null
+          scheduled_for: string
+          sent_at?: string | null
+          status?: string
+          tenant_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          appointment_id?: string
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          message_template?: string | null
+          reminder_type?: string
+          retry_count?: number | null
+          scheduled_for?: string
+          sent_at?: string | null
+          status?: string
+          tenant_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointment_reminders_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointment_reminders_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       appointment_types: {
         Row: {
           color_code: string | null
@@ -4189,6 +4249,28 @@ export type Database = {
       }
     }
     Views: {
+      appointment_availability: {
+        Row: {
+          break_end_time: string | null
+          break_start_time: string | null
+          day_of_week: number | null
+          end_time: string | null
+          is_available: boolean | null
+          provider_id: string | null
+          provider_name: string | null
+          specialty: string | null
+          start_time: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_schedules_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       phi_access_summary: {
         Row: {
           access_count: number | null
@@ -4251,6 +4333,14 @@ export type Database = {
           p_email?: string
         }
         Returns: string
+      }
+      get_available_slots: {
+        Args: { p_provider_id: string; p_date: string; p_duration?: number }
+        Returns: {
+          time_slot: string
+          is_available: boolean
+          appointment_id: string
+        }[]
       }
       get_platform_stats: {
         Args: Record<PropertyKey, never>
