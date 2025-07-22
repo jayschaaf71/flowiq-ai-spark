@@ -31,10 +31,9 @@ export const usePlatformUsers = () => {
   } = useQuery({
     queryKey: ['platform-users'],
     queryFn: async () => {
-      // Fetch existing users from platform_user_management view
+      // Fetch existing users using the secure function
       const { data: existingUsers, error: usersError } = await supabase
-        .from('platform_user_management')
-        .select('*');
+        .rpc('get_platform_user_management');
       
       if (usersError) {
         console.error('Error fetching platform users:', usersError);
@@ -86,7 +85,7 @@ export const usePlatformUsers = () => {
 
       // Combine existing users with pending invitations
       const allUsers = [
-        ...(existingUsers || []).map(user => ({ ...user, status: user.status || 'active' })),
+        ...(existingUsers || []),
         ...pendingUsers
       ];
 

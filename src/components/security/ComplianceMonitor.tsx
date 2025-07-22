@@ -49,11 +49,9 @@ export const ComplianceMonitor: React.FC = () => {
   const loadComplianceData = async () => {
     setLoading(true);
     try {
-      // Load audit summary from database
+      // Load audit summary from database using the secure function
       const { data: auditData, error: auditError } = await supabase
-        .from('phi_access_summary')
-        .select('*')
-        .limit(30); // Last 30 days
+        .rpc('get_phi_access_summary');
 
       if (auditError) {
         console.error('Audit data error:', auditError);
