@@ -38,6 +38,7 @@ const baseNavItems: NavItem[] = [
   { id: "dashboard", label: "Dashboard", path: "/dashboard", icon: Home, group: "overview", order: 10 },
   { id: "calendar", label: "Calendar", path: "/calendar", icon: Calendar, group: "overview", order: 15 },
   { id: "patients", label: "Patients", path: "/patient-management", icon: Users, group: "overview", order: 20 },
+  { id: "analytics", label: "Analytics", path: "/analytics", icon: TrendingUp, group: "overview", order: 25 },
   { id: "ehr", label: "EHR", path: "/ehr", icon: Database, group: "overview", order: 30 },
   { id: "insights", label: "Insights", path: "/insights", icon: TrendingUp, group: "overview", order: 40 },
   { id: "notifications", label: "Notifications", path: "/notifications", icon: Bell, group: "overview", order: 50 },
