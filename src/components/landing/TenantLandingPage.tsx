@@ -33,18 +33,25 @@ export const TenantLandingPage: React.FC<TenantLandingPageProps> = ({ tenantSubd
   const primaryTextStyle = { color: practiceConfig.colors.primary };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white to-gray-50">
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #ffffff, #f8fafc)' }}>
       {/* Hero Section */}
-      <section className="relative py-20 px-4 sm:px-6 lg:px-8">
+      <section 
+        className="relative py-20 px-4 sm:px-6 lg:px-8"
+        style={{ 
+          background: `linear-gradient(135deg, ${practiceConfig.colors.primary}15, ${practiceConfig.colors.secondary}10)`
+        }}
+      >
         <div className="max-w-7xl mx-auto">
           <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+            <h1 className="text-4xl md:text-6xl font-bold mb-6" style={{ color: '#1a1a1a' }}>
               {practiceConfig.name}
             </h1>
-            <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
+            <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto" style={{ color: '#4a4a4a' }}>
               {practiceConfig.specialty === 'chiropractic-care' 
                 ? 'Expert chiropractic care for optimal spinal health and wellness'
-                : 'Advanced sleep medicine solutions for better rest and health'
+                : practiceConfig.specialty === 'dental-sleep' 
+                ? 'Advanced sleep medicine solutions for better rest and health'
+                : 'Comprehensive dental care for your oral health and wellness'
               }
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -71,14 +78,14 @@ export const TenantLandingPage: React.FC<TenantLandingPageProps> = ({ tenantSubd
       </section>
 
       {/* Services Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: '#ffffff' }}>
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: '#1a1a1a' }}>
               Our Services
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Comprehensive {practiceConfig.specialty === 'chiropractic-care' ? 'chiropractic' : 'sleep medicine'} care tailored to your needs
+            <p className="text-xl max-w-2xl mx-auto" style={{ color: '#4a4a4a' }}>
+              Comprehensive {practiceConfig.specialty === 'chiropractic-care' ? 'chiropractic' : practiceConfig.specialty === 'dental-sleep' ? 'sleep medicine' : 'dental'} care tailored to your needs
             </p>
           </div>
           
@@ -91,7 +98,7 @@ export const TenantLandingPage: React.FC<TenantLandingPageProps> = ({ tenantSubd
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <CardDescription className="text-gray-600">
+                  <CardDescription style={{ color: '#4a4a4a' }}>
                     Professional {service.toLowerCase()} services provided by our experienced team.
                   </CardDescription>
                 </CardContent>
@@ -102,10 +109,10 @@ export const TenantLandingPage: React.FC<TenantLandingPageProps> = ({ tenantSubd
       </section>
 
       {/* Features Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
+      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: '#f8fafc' }}>
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: '#1a1a1a' }}>
               Why Choose Us
             </h2>
           </div>
@@ -118,10 +125,10 @@ export const TenantLandingPage: React.FC<TenantLandingPageProps> = ({ tenantSubd
               >
                 <Users className="h-8 w-8" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              <h3 className="text-xl font-semibold mb-2" style={{ color: '#1a1a1a' }}>
                 Expert Team
               </h3>
-              <p className="text-gray-600">
+              <p style={{ color: '#4a4a4a' }}>
                 Experienced professionals dedicated to your health and wellness.
               </p>
             </div>
@@ -133,10 +140,10 @@ export const TenantLandingPage: React.FC<TenantLandingPageProps> = ({ tenantSubd
               >
                 <Award className="h-8 w-8" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              <h3 className="text-xl font-semibold mb-2" style={{ color: '#1a1a1a' }}>
                 Advanced Technology
               </h3>
-              <p className="text-gray-600">
+              <p style={{ color: '#4a4a4a' }}>
                 State-of-the-art equipment and modern treatment techniques.
               </p>
             </div>
@@ -148,10 +155,10 @@ export const TenantLandingPage: React.FC<TenantLandingPageProps> = ({ tenantSubd
               >
                 <Shield className="h-8 w-8" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              <h3 className="text-xl font-semibold mb-2" style={{ color: '#1a1a1a' }}>
                 Personalized Care
               </h3>
-              <p className="text-gray-600">
+              <p style={{ color: '#4a4a4a' }}>
                 Customized treatment plans tailored to your specific needs.
               </p>
             </div>
@@ -160,23 +167,23 @@ export const TenantLandingPage: React.FC<TenantLandingPageProps> = ({ tenantSubd
       </section>
 
       {/* Contact Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: '#ffffff' }}>
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8">
+          <h2 className="text-3xl md:text-4xl font-bold mb-8" style={{ color: '#1a1a1a' }}>
             Schedule Your Visit
           </h2>
-          <p className="text-xl text-gray-600 mb-8">
+          <p className="text-xl mb-8" style={{ color: '#4a4a4a' }}>
             Take the first step towards better health. Contact us today to schedule your appointment.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-            <div className="flex items-center gap-2 text-gray-700">
+            <div className="flex items-center gap-2" style={{ color: '#4a4a4a' }}>
               <Clock className="h-5 w-5" style={primaryTextStyle} />
               <span>Open {Object.keys(practiceConfig.workingHours).filter(day => 
                 practiceConfig.workingHours[day] !== null
               ).length} days a week</span>
             </div>
-            <div className="flex items-center gap-2 text-gray-700">
+            <div className="flex items-center gap-2" style={{ color: '#4a4a4a' }}>
               <MapPin className="h-5 w-5" style={primaryTextStyle} />
               <span>Convenient location</span>
             </div>
