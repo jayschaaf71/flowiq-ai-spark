@@ -15,18 +15,22 @@ export const logSecurityEvent = async (event: SecurityEvent) => {
       console.warn('Security Event:', event);
     }
 
-    // Log to Supabase audit system
-    const { error } = await supabase.rpc('log_security_event', {
-      event_type: event.type,
-      event_details: {
-        message: event.message,
-        severity: event.severity,
-        metadata: event.metadata || {},
-        timestamp: new Date().toISOString(),
-        user_agent: navigator.userAgent,
-        url: window.location.href
-      }
-    });
+    // Log to Supabase audit system - using direct insert since RPC may not exist
+    const { error } = await supabase
+      .from('audit_logs')
+      .insert({
+        table_name: 'security_events',
+        action: event.type,
+        record_id: crypto.randomUUID(),
+        new_values: {
+          message: event.message,
+          severity: event.severity,
+          metadata: event.metadata || {},
+          timestamp: new Date().toISOString(),
+          user_agent: navigator.userAgent,
+          url: window.location.href
+        }
+      });
 
     if (error) {
       console.error('Failed to log security event:', error);
