@@ -74,11 +74,6 @@ export const TenantLandingPage: React.FC<TenantLandingPageProps> = ({ tenantSubd
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted">
-      {/* Debug Info */}
-      <div className="bg-yellow-50 border-b border-yellow-200 p-2 text-xs">
-        <strong>Debug:</strong> Tenant: {tenantSubdomain} | Practice: {practiceConfig.name} | 
-        Specialty: {practiceConfig.specialty} | Colors: {practiceConfig.colors.primary}
-      </div>
 
       {/* Hero Section */}
       <section 
