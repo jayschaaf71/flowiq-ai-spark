@@ -9,8 +9,6 @@ on:
 
 env:
   NODE_VERSION: '18'
-  VITE_SUPABASE_URL: 'https://jnpzabmqieceoqjypvve.supabase.co'
-  VITE_SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpucHphYm1xaWVjZW9xanlwdnZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg3MTQ4NzIsImV4cCI6MjA2NDI5MDg3Mn0.RSZZj9ijOESttwNopqROh1pXqi7y4Q4TDW4_6eqcBFU'
 
 jobs:
   test:
@@ -37,9 +35,6 @@ jobs:
       
     - name: Build application
       run: npm run build
-      env:
-        VITE_GIT_HASH: ${{ github.sha }}
-        VITE_ENVIRONMENT: ${{ github.ref == 'refs/heads/main' && 'production' || github.ref == 'refs/heads/develop' && 'staging' || 'development' }}
         
   build-staging:
     needs: test
@@ -61,9 +56,6 @@ jobs:
       
     - name: Build for staging
       run: npm run build
-      env:
-        VITE_GIT_HASH: ${{ github.sha }}
-        VITE_ENVIRONMENT: staging
         
     - name: Upload staging build
       uses: actions/upload-artifact@v4
@@ -91,9 +83,6 @@ jobs:
       
     - name: Build for production
       run: npm run build
-      env:
-        VITE_GIT_HASH: ${{ github.sha }}
-        VITE_ENVIRONMENT: production
         
     - name: Upload production build
       uses: actions/upload-artifact@v4
