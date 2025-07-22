@@ -25,6 +25,7 @@ import { AnalyticsDashboard } from '@/pages/AnalyticsDashboard';
 import { ClinicalDashboard } from '@/pages/ClinicalDashboard';
 import PatientScheduling from '@/pages/PatientScheduling';
 import HealthEducation from '@/pages/HealthEducation';
+import TelemedicineDashboard from '@/pages/TelemedicineDashboard';
 
 // Components
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
@@ -179,6 +180,17 @@ function App() {
                     <ErrorBoundary>
                       <Layout>
                         <HealthEducation />
+                      </Layout>
+                    </ErrorBoundary>
+                  </ProtectedRoute>
+                } />
+
+                {/* Telemedicine Dashboard */}
+                <Route path="/telemedicine" element={
+                  <ProtectedRoute requiredRole="staff">
+                    <ErrorBoundary>
+                      <Layout>
+                        <TelemedicineDashboard />
                       </Layout>
                     </ErrorBoundary>
                   </ProtectedRoute>
