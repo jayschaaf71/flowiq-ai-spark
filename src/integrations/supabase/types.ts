@@ -4247,8 +4247,88 @@ export type Database = {
           },
         ]
       }
+      waitlist_automation: {
+        Row: {
+          auto_book: boolean | null
+          created_at: string | null
+          id: string
+          max_days_out: number | null
+          notification_sent: boolean | null
+          target_appointment_type: string
+          target_provider_id: string | null
+          tenant_id: string | null
+          waitlist_entry_id: string
+        }
+        Insert: {
+          auto_book?: boolean | null
+          created_at?: string | null
+          id?: string
+          max_days_out?: number | null
+          notification_sent?: boolean | null
+          target_appointment_type: string
+          target_provider_id?: string | null
+          tenant_id?: string | null
+          waitlist_entry_id: string
+        }
+        Update: {
+          auto_book?: boolean | null
+          created_at?: string | null
+          id?: string
+          max_days_out?: number | null
+          notification_sent?: boolean | null
+          target_appointment_type?: string
+          target_provider_id?: string | null
+          tenant_id?: string | null
+          waitlist_entry_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "waitlist_automation_target_provider_id_fkey"
+            columns: ["target_provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waitlist_automation_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waitlist_automation_waitlist_entry_id_fkey"
+            columns: ["waitlist_entry_id"]
+            isOneToOne: false
+            referencedRelation: "appointment_waitlist"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
+      appointment_analytics: {
+        Row: {
+          appointment_date: string | null
+          avg_duration: number | null
+          cancelled_count: number | null
+          completed_count: number | null
+          no_show_count: number | null
+          scheduled_count: number | null
+          show_rate: number | null
+          tenant_id: string | null
+          total_appointments: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       appointment_availability: {
         Row: {
           break_end_time: string | null
