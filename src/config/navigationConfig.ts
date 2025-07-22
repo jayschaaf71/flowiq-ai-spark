@@ -52,6 +52,7 @@ const baseNavItems: NavItem[] = [
   { id: "referral-iq", label: "Referral iQ", path: "/agents/referral", icon: Handshake, badge: "AI", group: "patient_journey", order: 50 },
 
   // Revenue Cycle
+  { id: "billing", label: "Billing & Revenue", path: "/billing", icon: CreditCard, group: "revenue_cycle", order: 5, requiredRole: "staff" },
   { id: "auth-iq", label: "Auth iQ", path: "/agents/auth", icon: CheckSquare, badge: "AI", group: "revenue_cycle", order: 10 },
   { id: "claims-iq", label: "Claims iQ", path: "/agents/claims", icon: Receipt, badge: "AI", group: "revenue_cycle", order: 20 },
   { id: "payments-iq", label: "Payments iQ", path: "/agents/payments", icon: CreditCard, badge: "AI", group: "revenue_cycle", order: 30 },

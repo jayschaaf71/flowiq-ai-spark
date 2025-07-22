@@ -20,6 +20,7 @@ import PatientDashboard from '@/pages/PatientDashboard';
 import PracticeSetup from '@/pages/PracticeSetup';
 import PaymentSuccess from '@/pages/PaymentSuccess';
 import PaymentCanceled from '@/pages/PaymentCanceled';
+import { BillingDashboard } from '@/pages/BillingDashboard';
 
 // Components
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
@@ -119,6 +120,17 @@ function App() {
                     <ErrorBoundary>
                       <Layout>
                         <Settings />
+                      </Layout>
+                    </ErrorBoundary>
+                  </ProtectedRoute>
+                } />
+
+                {/* Billing Dashboard with Layout */}
+                <Route path="/billing" element={
+                  <ProtectedRoute requiredRole="staff">
+                    <ErrorBoundary>
+                      <Layout>
+                        <BillingDashboard />
                       </Layout>
                     </ErrorBoundary>
                   </ProtectedRoute>
