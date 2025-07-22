@@ -31,6 +31,11 @@ vercel domains add app.flow-iq.ai
 vercel domains add midwest-dental-sleep.flow-iq.ai
 vercel domains add west-county-spine.flow-iq.ai
 
+# Configure project settings
+echo "⚙️ Configuring project settings..."
+vercel project add flowiq-ai-spark
+vercel alias set https://flowiq-ai-spark.vercel.app app.flow-iq.ai
+
 # Deploy to production
 echo "🚀 Deploying to production..."
 vercel --prod

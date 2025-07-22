@@ -1,0 +1,28 @@
+{
+  "name": "flowiq-ai-spark",
+  "framework": "vite",
+  "outputDirectory": "dist",
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "functions": {
+    "app/api/*.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "regions": ["iad1"],
+  "env": {
+    "VITE_SUPABASE_URL": {
+      "type": "secret",
+      "value": "@vite_supabase_url"
+    },
+    "VITE_SUPABASE_ANON_KEY": {
+      "type": "secret", 
+      "value": "@vite_supabase_anon_key"
+    },
+    "VITE_ENVIRONMENT": {
+      "type": "secret",
+      "value": "@vite_environment"
+    }
+  }
+}

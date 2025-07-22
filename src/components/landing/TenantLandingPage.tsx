@@ -35,8 +35,43 @@ export const TenantLandingPage: React.FC<TenantLandingPageProps> = ({ subdomain 
   const tenantConfig = getTenantBySubdomain(subdomain);
   const practiceConfig = getPracticeConfig(subdomain);
   
+  // Debug logging
+  console.log('TenantLandingPage Debug:', {
+    subdomain,
+    tenantConfig,
+    practiceConfig,
+    user: !!user
+  });
+  
   if (!tenantConfig || !practiceConfig) {
-    return null; // Fallback to generic page
+    console.warn('Missing tenant or practice config:', { subdomain, tenantConfig, practiceConfig });
+    
+    // Show error state instead of returning null
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-red-50 to-white flex items-center justify-center">
+        <div className="text-center max-w-lg mx-auto p-8">
+          <h1 className="text-2xl font-bold text-red-800 mb-4">
+            Configuration Error
+          </h1>
+          <p className="text-red-600 mb-4">
+            Unable to load tenant configuration for "{subdomain}"
+          </p>
+          <div className="bg-red-100 p-4 rounded-lg text-left text-sm text-red-700">
+            <p><strong>Debug Info:</strong></p>
+            <p>Subdomain: {subdomain}</p>
+            <p>Tenant Config: {tenantConfig ? 'Found' : 'Missing'}</p>
+            <p>Practice Config: {practiceConfig ? 'Found' : 'Missing'}</p>
+          </div>
+          <Button 
+            onClick={() => navigate('/')} 
+            className="mt-4"
+            variant="outline"
+          >
+            Return to Home
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   const getSpecialtyContent = () => {

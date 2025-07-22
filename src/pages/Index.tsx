@@ -46,14 +46,9 @@ const Index = () => {
         return demoTenant;
       }
       
-      // For this demo, let's show different tenants based on path or default to one
-      if (pathname.includes('west-county') || Math.random() > 0.5) {
-        console.log('Using west-county-spine for demo');
-        return 'west-county-spine';
-      } else {
-        console.log('Using midwest-dental-sleep for demo');
-        return 'midwest-dental-sleep';
-      }
+      // For this demo, default to one tenant for testing
+      console.log('Using midwest-dental-sleep for demo');
+      return 'midwest-dental-sleep';
     }
     
     // Production: use subdomain
