@@ -263,7 +263,7 @@ export const CalendarView = ({ onCreateAppointment, onViewAppointment }: Calenda
             {activeTab === 'calendar' && (
               <div className="flex items-center gap-2">
                 {/* View Toggle */}
-                <Tabs value={view} onValueChange={(value) => setView(value as any)} className="mr-4">
+                <Tabs value={view} onValueChange={(value: 'day' | 'week' | 'month') => setView(value)} className="mr-4">
                   <TabsList>
                     <TabsTrigger value="day">Day</TabsTrigger>
                     <TabsTrigger value="week">Week</TabsTrigger>

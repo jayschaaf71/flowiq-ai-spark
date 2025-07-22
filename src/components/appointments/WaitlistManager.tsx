@@ -77,20 +77,32 @@ export const WaitlistManager: React.FC = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setWaitlistEntries((data as any[])?.map(entry => ({
+      setWaitlistEntries((data as Array<Record<string, unknown>>)?.map(entry => ({
         ...entry,
+        id: entry.id as string,
+        patient_name: entry.patient_name as string,
+        phone: entry.phone as string | undefined,
+        email: entry.email as string | undefined,
+        appointment_type: entry.appointment_type as string,
+        preferred_date: entry.preferred_date as string | undefined,
+        preferred_time: entry.preferred_time as string | undefined,
         priority: entry.priority as 'low' | 'medium' | 'high',
         status: entry.status as 'active' | 'booked' | 'expired',
-        automation: entry.automation?.[0] || null
+        notes: entry.notes as string | undefined,
+        created_at: entry.created_at as string,
+        automation: Array.isArray(entry.automation) && entry.automation.length > 0 
+          ? entry.automation[0] as { auto_book: boolean; max_days_out: number; notification_sent: boolean }
+          : undefined
       })) || []);
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to load waitlist entries";
       toast({
         title: "Error",
-        description: "Failed to load waitlist entries",
+        description: errorMessage,
         variant: "destructive",
       });
     }
-  }, []);
+  }, [toast]);
 
   useEffect(() => {
     fetchWaitlistEntries();
@@ -162,10 +174,11 @@ export const WaitlistManager: React.FC = () => {
       });
 
       fetchWaitlistEntries();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to add to waitlist";
       toast({
         title: "Error",
-        description: error.message || "Failed to add to waitlist",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -188,10 +201,11 @@ export const WaitlistManager: React.FC = () => {
       });
 
       fetchWaitlistEntries();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to remove from waitlist";
       toast({
         title: "Error",
-        description: error.message || "Failed to remove from waitlist",
+        description: errorMessage,
         variant: "destructive",
       });
     }

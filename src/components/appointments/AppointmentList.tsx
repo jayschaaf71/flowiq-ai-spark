@@ -60,16 +60,17 @@ export const AppointmentList = ({ onViewAppointment, onEditAppointment }: Appoin
 
       if (error) throw error;
       setAppointments(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to load appointments";
       toast({
         title: "Error",
-        description: "Failed to load appointments",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [toast]);
 
   useEffect(() => {
     fetchAppointments();
@@ -94,10 +95,11 @@ export const AppointmentList = ({ onViewAppointment, onEditAppointment }: Appoin
         title: "Success",
         description: `Appointment ${newStatus}`,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to update appointment";
       toast({
         title: "Error",
-        description: "Failed to update appointment",
+        description: errorMessage,
         variant: "destructive",
       });
     }

@@ -37,7 +37,7 @@ interface AvailableSlot {
 }
 
 interface EnhancedAppointmentBookingProps {
-  onSuccess?: (appointment: any) => void;
+  onSuccess?: (appointment: Record<string, unknown>) => void;
   onCancel?: () => void;
   selectedDate?: Date;
   selectedTime?: string;
@@ -105,7 +105,7 @@ export const EnhancedAppointmentBooking: React.FC<EnhancedAppointmentBookingProp
     } finally {
       setLoading('providers', false);
     }
-  }, []);
+  }, [setLoading, toast]);
 
   const fetchAvailableSlots = useCallback(async () => {
     if (!selectedProviderId || !formData.date) return;
@@ -134,7 +134,7 @@ export const EnhancedAppointmentBooking: React.FC<EnhancedAppointmentBookingProp
     } finally {
       setLoading('slots', false);
     }
-  }, [selectedProviderId, formData.date, formData.duration]);
+  }, [selectedProviderId, formData.date, formData.duration, setLoading, toast]);
 
   useEffect(() => {
     fetchProviders();
@@ -184,10 +184,11 @@ export const EnhancedAppointmentBooking: React.FC<EnhancedAppointmentBookingProp
 
       onSuccess?.(data);
       
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to book appointment. Please try again.";
       toast({
         title: "Booking Failed",
-        description: error.message || "Failed to book appointment. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -195,7 +196,7 @@ export const EnhancedAppointmentBooking: React.FC<EnhancedAppointmentBookingProp
     }
   }
 
-  const handleInputChange = (field: keyof AppointmentFormData, value: any) => {
+  const handleInputChange = (field: keyof AppointmentFormData, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     clearFieldError(field);
     
