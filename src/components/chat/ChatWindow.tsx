@@ -24,8 +24,8 @@ interface ChatWindowProps {
 
 declare global {
   interface Window {
-    SpeechRecognition: any;
-    webkitSpeechRecognition: any;
+    SpeechRecognition: unknown;
+    webkitSpeechRecognition: unknown;
   }
 }
 
@@ -40,7 +40,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [isRecording, setIsRecording] = useState(false);
-  const [recognition, setRecognition] = useState<any>(null);
+  const [recognition, setRecognition] = useState<unknown>(null);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -53,7 +53,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   useEffect(() => {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const recognitionInstance = new SpeechRecognition();
+      const recognitionInstance = new (SpeechRecognition as any)();
       recognitionInstance.continuous = false;
       recognitionInstance.interimResults = false;
       recognitionInstance.lang = 'en-US';
@@ -79,13 +79,13 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   const startRecording = () => {
     if (recognition) {
       setIsRecording(true);
-      recognition.start();
+      (recognition as any).start();
     }
   };
 
   const stopRecording = () => {
     if (recognition) {
-      recognition.stop();
+      (recognition as any).stop();
       setIsRecording(false);
     }
   };

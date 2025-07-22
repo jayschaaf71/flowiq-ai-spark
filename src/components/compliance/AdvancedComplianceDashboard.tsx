@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -40,11 +40,7 @@ export const AdvancedComplianceDashboard = () => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadComplianceData();
-  }, []);
-
-  const loadComplianceData = async () => {
+  const loadComplianceData = useCallback(async () => {
     setLoading(true);
     try {
       // Load compliance metrics
@@ -126,7 +122,11 @@ export const AdvancedComplianceDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    loadComplianceData();
+  }, [loadComplianceData]);
 
   const runComplianceScan = async () => {
     try {

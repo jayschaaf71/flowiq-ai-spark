@@ -32,16 +32,16 @@ export const AIClaimsReviewEngine = () => {
   const { toast } = useToast();
 
   // Convert claim data to validation format
-  const convertClaimToValidationData = (claim: any): ClaimValidationData => {
+  const convertClaimToValidationData = (claim: { [key: string]: unknown }): ClaimValidationData => {
     return {
-      claimNumber: claim.claim_number,
+      claimNumber: String(claim.claim_number || ''),
       patientInfo: {
-        id: claim.patient_id,
-        firstName: claim.patient_name?.split(' ')[0] || 'Unknown',
-        lastName: claim.patient_name?.split(' ')[1] || 'Patient',
+        id: String(claim.patient_id || ''),
+        firstName: typeof claim.patient_name === 'string' ? claim.patient_name.split(' ')[0] : 'Unknown',
+        lastName: typeof claim.patient_name === 'string' ? claim.patient_name.split(' ')[1] || '' : 'Patient',
         dateOfBirth: '1990-01-01',
         insuranceInfo: {
-          provider: claim.insurance_name || 'Unknown Insurance',
+          provider: String(claim.insurance_name || 'Unknown Insurance'),
           policyNumber: 'POL123456',
           groupNumber: 'GRP789'
         }
@@ -54,14 +54,14 @@ export const AIClaimsReviewEngine = () => {
         specialty: 'Family Medicine'
       },
       insuranceInfo: {
-        name: claim.insurance_name || 'Unknown Insurance',
+        name: String(claim.insurance_name || 'Unknown Insurance'),
         id: 'insurance-1'
       },
-      serviceDate: claim.service_date,
+      serviceDate: String(claim.service_date || ''),
       billingCodes: [
         { code: '99213', codeType: 'CPT', description: 'Office visit', amount: 150 }
       ],
-      totalAmount: claim.total_amount,
+      totalAmount: typeof claim.total_amount === 'number' ? claim.total_amount : 0,
       diagnosis: 'Essential hypertension'
     };
   };
@@ -79,7 +79,7 @@ export const AIClaimsReviewEngine = () => {
     setIsProcessingBatch(true);
     
     try {
-      const claimsToReview = claims.slice(0, 5).map(convertClaimToValidationData);
+      const claimsToReview = claims.slice(0, 5).map(claim => convertClaimToValidationData(claim as unknown as { [key: string]: unknown }));
       const results = await aiClaimsReviewEngine.batchReviewClaims(claimsToReview);
       setReviewResults(results);
 

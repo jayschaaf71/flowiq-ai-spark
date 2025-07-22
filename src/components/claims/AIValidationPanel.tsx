@@ -12,8 +12,30 @@ import { ValidationSuggestions } from "./validation/ValidationSuggestions";
 import { ValidationActions } from "./validation/ValidationActions";
 import { ValidationRunButton } from "./validation/ValidationRunButton";
 
+interface ClaimData {
+  claim_number?: string;
+  patient_id?: string;
+  patient_first_name?: string;
+  patient_last_name?: string;
+  patient_dob?: string;
+  insurance_provider?: string;
+  policy_number?: string;
+  group_number?: string;
+  provider_id?: string;
+  provider_first_name?: string;
+  provider_last_name?: string;
+  provider_npi?: string;
+  provider_specialty?: string;
+  insurance_name?: string;
+  insurance_id?: string;
+  service_date?: string;
+  billing_codes?: Array<unknown>;
+  total_amount?: number;
+  diagnosis?: string;
+}
+
 interface AIValidationPanelProps {
-  claimData: any;
+  claimData: ClaimData;
   onValidationComplete?: (result: ValidationResult) => void;
 }
 
@@ -26,35 +48,38 @@ export const AIValidationPanel = ({ claimData, onValidationComplete }: AIValidat
     setIsValidating(true);
     try {
       const result = await aiClaimsValidationService.validateClaim({
-        claimNumber: claimData.claim_number,
+        claimNumber: claimData.claim_number || '',
         patientInfo: {
-          id: claimData.patients.id,
-          firstName: claimData.patients.first_name,
-          lastName: claimData.patients.last_name,
-          dateOfBirth: claimData.patients.date_of_birth || '1990-01-01',
+          id: claimData.patient_id || '',
+          firstName: claimData.patient_first_name || '',
+          lastName: claimData.patient_last_name || '',
+          dateOfBirth: claimData.patient_dob || '1990-01-01',
           insuranceInfo: {
-            provider: claimData.insurance_providers.name,
-            policyNumber: 'POL123456', // Mock data
-            groupNumber: 'GRP789'
+            provider: claimData.insurance_provider || '',
+            policyNumber: claimData.policy_number || 'POL123456',
+            groupNumber: claimData.group_number || 'GRP789'
           }
         },
         providerInfo: {
-          id: claimData.providers.id,
-          firstName: claimData.providers.first_name,
-          lastName: claimData.providers.last_name,
-          npi: claimData.providers.npi,
-          specialty: 'Family Medicine'
+          id: claimData.provider_id || '',
+          firstName: claimData.provider_first_name || '',
+          lastName: claimData.provider_last_name || '',
+          npi: claimData.provider_npi || '',
+          specialty: claimData.provider_specialty || 'Family Medicine'
         },
         insuranceInfo: {
-          name: claimData.insurance_providers.name,
-          id: claimData.insurance_providers.id
+          name: claimData.insurance_name || '',
+          id: claimData.insurance_id || ''
         },
-        serviceDate: claimData.service_date,
-        billingCodes: [
-          { code: 'CPT-99213', codeType: 'CPT', description: 'Office visit', amount: 150 }
-        ],
-        totalAmount: claimData.total_amount,
-        diagnosis: 'Essential hypertension'
+        serviceDate: claimData.service_date || '',
+        billingCodes: Array.isArray(claimData.billing_codes) ? claimData.billing_codes.map((code, index) => ({
+          code: `CPT-9921${index}`,
+          codeType: 'CPT' as const,
+          description: 'Office visit',
+          amount: 150
+        })) : [{ code: 'CPT-99213', codeType: 'CPT' as const, description: 'Office visit', amount: 150 }],
+        totalAmount: claimData.total_amount || 0,
+        diagnosis: claimData.diagnosis || 'Essential hypertension'
       });
 
       setValidationResult(result);

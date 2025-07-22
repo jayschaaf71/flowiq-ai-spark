@@ -29,8 +29,15 @@ interface ValidationResult {
   estimated_approval_amount?: number;
 }
 
+interface ClaimData {
+  claim_number?: string;
+  patient_name?: string;
+  total_amount?: number;
+  [key: string]: unknown;
+}
+
 interface AIClaimsValidatorProps {
-  claimData: any;
+  claimData: ClaimData;
   onValidationComplete?: (result: ValidationResult) => void;
 }
 
@@ -319,17 +326,13 @@ export const AIClaimsValidator: React.FC<AIClaimsValidatorProps> = ({
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
                   <span className="font-medium">Claim #:</span> {claimData.claim_number || 'N/A'}
-                </div>
-                <div>
                   <span className="font-medium">Amount:</span> ${claimData.total_amount?.toLocaleString() || '0'}
+                <div>
+                  <span className="font-medium">Payer:</span> {String(claimData.payer_name || 'Unknown')}
                 </div>
                 <div>
-                  <span className="font-medium">Payer:</span> {claimData.payer_name || 'Unknown'}
-                </div>
-                <div>
-                  <span className="font-medium">Status:</span> {claimData.status || 'Draft'}
+                  <span className="font-medium">Status:</span> {String(claimData.status || 'Draft')}
                 </div>
               </div>
             </CardContent>

@@ -150,9 +150,14 @@ const ClaimsIQ = () => {
               <AIValidationPanel 
                 claimData={{
                   claim_number: "CLM-2024-001",
-                  patients: { id: "1", first_name: "John", last_name: "Doe" },
-                  providers: { id: "1", first_name: "Dr. Jane", last_name: "Smith", npi: "1234567890" },
-                  insurance_providers: { name: "Blue Cross" },
+                  patient_id: "1",
+                  patient_first_name: "John", 
+                  patient_last_name: "Doe",
+                  provider_id: "1",
+                  provider_first_name: "Dr. Jane",
+                  provider_last_name: "Smith",
+                  provider_npi: "1234567890",
+                  insurance_name: "Blue Cross",
                   service_date: "2024-01-15",
                   total_amount: 350.00
                 }}
