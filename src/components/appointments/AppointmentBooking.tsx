@@ -101,7 +101,7 @@ export const AppointmentBooking = ({
         variant: "destructive",
       });
     }
-  }, []);
+  }, [toast]);
 
   const fetchPatients = useCallback(async () => {
     try {
@@ -126,7 +126,7 @@ export const AppointmentBooking = ({
         variant: "destructive",
       });
     }
-  }, []);
+  }, [toast]);
 
   const fetchAvailableSlots = useCallback(async () => {
     if (!formData.provider_id || !formData.date) return;

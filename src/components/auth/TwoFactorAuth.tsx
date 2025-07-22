@@ -34,7 +34,7 @@ export const TwoFactorAuth: React.FC = () => {
   const { toast } = useToast();
   
   const [setupStep, setSetupStep] = useState<'initial' | 'verify' | 'backup'>('initial');
-  const [qrData, setQrData] = useState<any>(null);
+  const [qrData, setQrData] = useState<{ qr_code: string; secret: string; qrUrl: string } | null>(null);
   const [verificationCode, setVerificationCode] = useState('');
   const [disablePassword, setDisablePassword] = useState('');
   const [backupCodes, setBackupCodes] = useState<string[]>([]);

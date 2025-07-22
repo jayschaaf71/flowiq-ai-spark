@@ -207,7 +207,7 @@ export const ClaimsManagement = () => {
     }]);
   };
 
-  const updateClaimLine = (index: number, field: keyof ClaimLine, value: any) => {
+  const updateClaimLine = (index: number, field: keyof ClaimLine, value: string | number) => {
     const updated = [...claimLines];
     updated[index] = { ...updated[index], [field]: value };
     

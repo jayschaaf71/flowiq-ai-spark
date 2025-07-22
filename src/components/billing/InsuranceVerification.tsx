@@ -29,7 +29,7 @@ interface InsuranceCard {
   verification_status: 'pending' | 'verified' | 'rejected' | 'expired';
   front_image_path?: string;
   back_image_path?: string;
-  extracted_data?: any;
+  extracted_data?: Record<string, unknown>;
   verified_at?: string;
 }
 

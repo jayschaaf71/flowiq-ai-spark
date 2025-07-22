@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,7 +32,7 @@ export const MobileBookingInterface = ({
   isRescheduling = false 
 }: MobileBookingInterfaceProps) => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [providers, setProviders] = useState<any[]>([]);
+  const [providers, setProviders] = useState<Array<{ id: string; name: string; specialty?: string; first_name?: string; last_name?: string }>>([]);
   const [selectedProvider, setSelectedProvider] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedTime, setSelectedTime] = useState<string>("");
@@ -65,17 +65,7 @@ export const MobileBookingInterface = ({
     }
   }, [isRescheduling, existingAppointment]);
 
-  useEffect(() => {
-    loadProviders();
-  }, []);
-
-  useEffect(() => {
-    if (selectedProvider && selectedDate) {
-      loadAvailableSlots();
-    }
-  }, [selectedProvider, selectedDate]);
-
-  const loadProviders = async () => {
+  const loadProviders = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('providers')
@@ -84,16 +74,22 @@ export const MobileBookingInterface = ({
         .limit(5);
 
       if (error) throw error;
-      setProviders(data || []);
+      setProviders(data?.map(provider => ({
+        id: provider.id,
+        name: `${provider.first_name} ${provider.last_name}`,
+        specialty: provider.specialty,
+        first_name: provider.first_name,
+        last_name: provider.last_name
+      })) || []);
       if (data && data.length > 0 && !isRescheduling) {
         setSelectedProvider(data[0].id);
       }
     } catch (error) {
       console.error('Error loading providers:', error);
     }
-  };
+  }, [isRescheduling]);
 
-  const loadAvailableSlots = async () => {
+  const loadAvailableSlots = useCallback(async () => {
     if (!selectedProvider || !selectedDate) return;
 
     setLoading(true);
@@ -141,7 +137,17 @@ export const MobileBookingInterface = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedProvider, selectedDate, isRescheduling, existingAppointment]);
+
+  useEffect(() => {
+    loadProviders();
+  }, [loadProviders]);
+
+  useEffect(() => {
+    if (selectedProvider && selectedDate) {
+      loadAvailableSlots();
+    }
+  }, [selectedProvider, selectedDate, loadAvailableSlots]);
 
   const bookAppointment = async () => {
     if (!selectedProvider || !selectedDate || !selectedTime || !patientInfo.name || !patientInfo.email) {
@@ -179,7 +185,7 @@ export const MobileBookingInterface = ({
         });
       } else {
         // Create new appointment - need to create a patient first for anonymous bookings
-        let patientId = 'temp-patient-id'; // This would be replaced with actual patient creation logic
+        const patientId = 'temp-patient-id'; // This would be replaced with actual patient creation logic
         
         const { data: appointment, error } = await supabase
           .from('appointments')
