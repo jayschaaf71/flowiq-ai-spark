@@ -44,6 +44,7 @@ const baseNavItems: NavItem[] = [
   { id: "notifications", label: "Notifications", path: "/notifications", icon: Bell, group: "overview", order: 50 },
 
   // Clinical Care
+  { id: "clinical", label: "Clinical Tools", path: "/clinical", icon: Stethoscope, group: "clinical_care", order: 5, requiredRole: "staff" },
   { id: "scribe-iq", label: "Scribe iQ", path: "/agents/scribe", icon: Stethoscope, badge: "AI", group: "clinical_care", order: 10 },
   { id: "communication-iq", label: "Communication iQ", path: "/agents/communication", icon: Phone, badge: "AI", group: "clinical_care", order: 20 },
 

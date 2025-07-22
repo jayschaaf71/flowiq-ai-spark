@@ -22,6 +22,7 @@ import PaymentSuccess from '@/pages/PaymentSuccess';
 import PaymentCanceled from '@/pages/PaymentCanceled';
 import { BillingDashboard } from '@/pages/BillingDashboard';
 import { AnalyticsDashboard } from '@/pages/AnalyticsDashboard';
+import { ClinicalDashboard } from '@/pages/ClinicalDashboard';
 
 // Components
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
@@ -143,6 +144,17 @@ function App() {
                     <ErrorBoundary>
                       <Layout>
                         <AnalyticsDashboard />
+                      </Layout>
+                    </ErrorBoundary>
+                  </ProtectedRoute>
+                } />
+
+                {/* Clinical Dashboard with Layout */}
+                <Route path="/clinical" element={
+                  <ProtectedRoute requiredRole="staff">
+                    <ErrorBoundary>
+                      <Layout>
+                        <ClinicalDashboard />
                       </Layout>
                     </ErrorBoundary>
                   </ProtectedRoute>
