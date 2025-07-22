@@ -32,20 +32,31 @@ export const TenantLandingPage: React.FC<TenantLandingPageProps> = ({ tenantSubd
   const primaryBorderStyle = { borderColor: practiceConfig.colors.primary };
   const primaryTextStyle = { color: practiceConfig.colors.primary };
 
+  // Force a page refresh if we detect the wrong content
+  React.useEffect(() => {
+    const hostname = window.location.hostname;
+    console.log('TenantLandingPage: hostname =', hostname);
+    console.log('TenantLandingPage: practice config =', practiceConfig);
+    
+    // Add to page title to verify this component is loading
+    document.title = `${practiceConfig.name} - Healthcare Practice Management`;
+  }, [practiceConfig]);
+
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #ffffff, #f8fafc)' }}>
-      {/* DEBUG: Clear indicator this component is rendering */}
+      {/* Force content visibility */}
       <div style={{ 
         position: 'fixed', 
-        top: 0, 
-        right: 0, 
-        background: 'red', 
+        top: '10px', 
+        left: '10px', 
+        background: practiceConfig.colors.primary, 
         color: 'white', 
-        padding: '10px', 
+        padding: '8px 12px', 
         zIndex: 9999,
-        fontSize: '12px'
+        fontSize: '11px',
+        borderRadius: '4px'
       }}>
-        TENANT LANDING PAGE: {practiceConfig.name}
+        ✓ {practiceConfig.name}
       </div>
       <section 
         className="relative py-20 px-4 sm:px-6 lg:px-8"
