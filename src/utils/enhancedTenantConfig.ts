@@ -68,6 +68,24 @@ const DEFAULT_TENANTS: Record<string, TenantConfig> = {
   }
 };
 
+// Helper function to get subdomain from URL
+const getCurrentSubdomain = () => {
+  const hostname = window.location.hostname;
+  const parts = hostname.split('.');
+  
+  // For localhost development
+  if (hostname.includes('localhost') || hostname.includes('127.0.0.1')) {
+    return null;
+  }
+  
+  // For production domains like tenant.domain.com
+  if (parts.length >= 3) {
+    return parts[0];
+  }
+  
+  return null;
+};
+
 export function useEnhancedTenantConfig() {
   const { user } = useAuth();
   const [tenantConfig, setTenantConfig] = useState<TenantConfig | null>(null);
@@ -76,10 +94,85 @@ export function useEnhancedTenantConfig() {
   const loadTenantConfig = async () => {
     try {
       setIsLoading(true);
-      console.log('Loading tenant config for user:', user?.id);
       
+      const subdomain = getCurrentSubdomain();
+      console.log('Loading tenant config for subdomain:', subdomain, 'user:', user?.id);
+      
+      // Priority 1: Check for subdomain-based tenant (works for both authenticated and anonymous users)
+      if (subdomain) {
+        console.log('Fetching tenant by subdomain:', subdomain);
+        
+        const { data: tenant, error } = await supabase
+          .from('tenants')
+          .select('*')
+          .eq('subdomain', subdomain)
+          .single();
+
+        if (error) {
+          console.error('Error fetching tenant by subdomain:', error);
+        } else if (tenant) {
+          console.log('Found tenant:', tenant);
+          const settings = tenant.settings as any;
+          const config: TenantConfig = {
+            id: tenant.id,
+            name: tenant.name,
+            brand_name: tenant.business_name || tenant.name,
+            brandName: tenant.business_name || tenant.name,
+            specialty: tenant.specialty,
+            primary_color: tenant.primary_color || DEFAULT_TENANTS.general.primary_color,
+            secondary_color: tenant.secondary_color || DEFAULT_TENANTS.general.secondary_color,
+            logo_url: tenant.logo_url,
+            tagline: settings?.branding?.tagline || getTenantConfigForSpecialty(tenant.specialty).tagline
+          };
+          
+          setTenantConfig(config);
+          return;
+        }
+      }
+
+      // Priority 2: For authenticated users without subdomain, use their current tenant
+      if (user) {
+        console.log('Fetching user tenant for authenticated user');
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('current_tenant_id')
+          .eq('id', user.id)
+          .single();
+
+        if (profileError) {
+          console.error('Error fetching profile:', profileError);
+        } else if (profile?.current_tenant_id) {
+          const { data: tenant, error: tenantError } = await supabase
+            .from('tenants')
+            .select('*')
+            .eq('id', profile.current_tenant_id)
+            .single();
+
+          if (tenantError) {
+            console.error('Error fetching tenant:', tenantError);
+          } else if (tenant) {
+            const settings = tenant.settings as any;
+            const config: TenantConfig = {
+              id: tenant.id,
+              name: tenant.name,
+              brand_name: tenant.business_name || tenant.name,
+              brandName: tenant.business_name || tenant.name,
+              specialty: tenant.specialty,
+              primary_color: tenant.primary_color || DEFAULT_TENANTS.general.primary_color,
+              secondary_color: tenant.secondary_color || DEFAULT_TENANTS.general.secondary_color,
+              logo_url: tenant.logo_url,
+              tagline: settings?.branding?.tagline || getTenantConfigForSpecialty(tenant.specialty).tagline
+            };
+            
+            console.log('Loaded tenant config from database:', config);
+            setTenantConfig(config);
+            return;
+          }
+        }
+      }
+
+      // Priority 3: For non-authenticated users without subdomain, check URL path for demo/preview mode
       if (!user) {
-        // For non-authenticated users, check URL path for demo/preview mode
         const path = window.location.pathname;
         let defaultConfig = DEFAULT_TENANTS.chiropractic;
         
@@ -97,55 +190,7 @@ export function useEnhancedTenantConfig() {
         return;
       }
 
-      // For authenticated users, fetch from database
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('current_tenant_id')
-        .eq('id', user.id)
-        .single();
-
-      if (profileError) {
-        console.error('Error fetching profile:', profileError);
-        setTenantConfig(DEFAULT_TENANTS.chiropractic);
-        return;
-      }
-
-      if (profile?.current_tenant_id) {
-        // Fetch tenant configuration from database
-        const { data: tenant, error: tenantError } = await supabase
-          .from('tenants')
-          .select('*')
-          .eq('id', profile.current_tenant_id)
-          .single();
-
-        if (tenantError) {
-          console.error('Error fetching tenant:', tenantError);
-          setTenantConfig(DEFAULT_TENANTS.chiropractic);
-          return;
-        }
-
-        if (tenant) {
-          // Convert database tenant to TenantConfig format
-          const settings = tenant.settings as any;
-          const config: TenantConfig = {
-            id: tenant.id,
-            name: tenant.name,
-            brand_name: tenant.business_name || tenant.name,
-            brandName: tenant.business_name || tenant.name,
-            specialty: tenant.specialty,
-            primary_color: tenant.primary_color,
-            secondary_color: tenant.secondary_color,
-            logo_url: tenant.logo_url,
-            tagline: settings?.branding?.tagline || ''
-          };
-          
-          console.log('Loaded tenant config from database:', config);
-          setTenantConfig(config);
-          return;
-        }
-      }
-      
-      // Fallback to default
+      // Priority 4: Final fallback to default
       console.log('Using default tenant config');
       setTenantConfig(DEFAULT_TENANTS.chiropractic);
     } catch (error) {
