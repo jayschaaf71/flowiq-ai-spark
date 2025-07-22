@@ -5,10 +5,16 @@ import { useFormSequence } from '@/hooks/useFormSequence';
 import { PatientRegistrationWelcome } from './PatientRegistrationWelcome';
 import { PatientRegistrationProcess } from './PatientRegistrationProcess';
 import { PatientRegistrationComplete } from './PatientRegistrationComplete';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { useLoadingState } from '@/hooks/useLoadingState';
 
 export const PatientRegistration: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const { forms, loading } = useIntakeForms();
+  const { handleError } = useErrorHandler();
+  const { setLoading, isLoading } = useLoadingState(['submission', 'initialization']);
+
   const {
     currentFormIndex,
     completedForms,
@@ -23,24 +29,41 @@ export const PatientRegistration: React.FC = () => {
     resetSequence
   } = useFormSequence();
 
-  const handleStartIntake = () => {
-    initializeFormSequence();
-    setShowForm(true);
-  };
-
-  const handleFormSubmissionComplete = (submission: any) => {
-    console.log('Form submitted successfully:', submission);
-    const isComplete = handleFormCompletion(submission);
-    
-    if (isComplete) {
-      setShowForm(false);
+  const handleStartIntake = async () => {
+    try {
+      setLoading('initialization', true);
+      await initializeFormSequence();
+      setShowForm(true);
+    } catch (error) {
+      handleError(error instanceof Error ? error : new Error('Failed to start intake process'));
+    } finally {
+      setLoading('initialization', false);
     }
   };
 
-  const handleSkip = () => {
-    const isComplete = handleSkipForm();
-    if (isComplete) {
-      setShowForm(false);
+  const handleFormSubmissionComplete = async (submission: any) => {
+    try {
+      setLoading('submission', true);
+      const isComplete = await handleFormCompletion(submission);
+      
+      if (isComplete) {
+        setShowForm(false);
+      }
+    } catch (error) {
+      handleError(error instanceof Error ? error : new Error('Failed to submit form'));
+    } finally {
+      setLoading('submission', false);
+    }
+  };
+
+  const handleSkip = async () => {
+    try {
+      const isComplete = await handleSkipForm();
+      if (isComplete) {
+        setShowForm(false);
+      }
+    } catch (error) {
+      handleError(error instanceof Error ? error : new Error('Failed to skip form'));
     }
   };
 
@@ -54,15 +77,7 @@ export const PatientRegistration: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="animate-pulse space-y-4">
-          <div className="h-6 bg-gray-200 rounded w-1/4"></div>
-          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-          <div className="h-10 bg-gray-200 rounded w-full"></div>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner text="Loading intake forms..." />;
   }
 
   // Show form process
@@ -75,6 +90,7 @@ export const PatientRegistration: React.FC = () => {
         onSubmissionComplete={handleFormSubmissionComplete}
         onSkipForm={handleSkip}
         onExit={handleExit}
+        isSubmitting={isLoading('submission')}
       />
     );
   }
@@ -98,6 +114,7 @@ export const PatientRegistration: React.FC = () => {
       menstrualForm={menstrualForm}
       forms={forms}
       onStartIntake={handleStartIntake}
+      isInitializing={isLoading('initialization')}
     />
   );
 };

@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from '@/contexts/AuthProvider';
 import { SpecialtyProvider } from '@/contexts/SpecialtyContext';
 import { Layout } from '@/components/Layout';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 // Core Pages
 import Index from '@/pages/Index';
@@ -26,8 +27,18 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 1,
+      retry: (failureCount, error: any) => {
+        // Don't retry on 4xx errors
+        if (error?.status >= 400 && error?.status < 500) {
+          return false;
+        }
+        return failureCount < 2;
+      },
       refetchOnWindowFocus: false,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+    mutations: {
+      retry: false,
     },
   },
 });
@@ -43,70 +54,84 @@ function QueryProvider({ children }: { children: React.ReactNode }) {
 
 function App() {
   return (
-    <QueryProvider>
-      <AuthProvider>
-        <SpecialtyProvider>
-          <Router>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<AuthPage />} />
-            <Route path="/practice-setup" element={<PracticeSetup />} />
-            <Route path="/payment-success" element={<PaymentSuccess />} />
-            <Route path="/payment-canceled" element={<PaymentCanceled />} />
-            
-            {/* Patient Portal and Dashboard */}
-            <Route path="/patient-portal" element={
-              <ProtectedRoute requiredRole="patient">
-                <PatientPortal />
-              </ProtectedRoute>
-            } />
-            <Route path="/patient-dashboard" element={
-              <ProtectedRoute requiredRole="patient">
-                <Layout>
-                  <PatientDashboard />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            
-            {/* Staff Portal and Dashboard */}
-            <Route path="/provider-portal" element={
-              <ProtectedRoute requiredRole="staff">
-                <ProviderPortal />
-              </ProtectedRoute>
-            } />
-            <Route path="/staff-dashboard" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <StaffDashboard />
-                </Layout>
-              </ProtectedRoute>
-            } />
+    <ErrorBoundary>
+      <QueryProvider>
+        <AuthProvider>
+          <SpecialtyProvider>
+            <Router>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/auth" element={<AuthPage />} />
+                <Route path="/practice-setup" element={<PracticeSetup />} />
+                <Route path="/payment-success" element={<PaymentSuccess />} />
+                <Route path="/payment-canceled" element={<PaymentCanceled />} />
+                
+                {/* Patient Portal and Dashboard */}
+                <Route path="/patient-portal" element={
+                  <ProtectedRoute requiredRole="patient">
+                    <ErrorBoundary>
+                      <PatientPortal />
+                    </ErrorBoundary>
+                  </ProtectedRoute>
+                } />
+                <Route path="/patient-dashboard" element={
+                  <ProtectedRoute requiredRole="patient">
+                    <ErrorBoundary>
+                      <Layout>
+                        <PatientDashboard />
+                      </Layout>
+                    </ErrorBoundary>
+                  </ProtectedRoute>
+                } />
+                
+                {/* Staff Portal and Dashboard */}
+                <Route path="/provider-portal" element={
+                  <ProtectedRoute requiredRole="staff">
+                    <ErrorBoundary>
+                      <ProviderPortal />
+                    </ErrorBoundary>
+                  </ProtectedRoute>
+                } />
+                <Route path="/staff-dashboard" element={
+                  <ProtectedRoute requiredRole="staff">
+                    <ErrorBoundary>
+                      <Layout>
+                        <StaffDashboard />
+                      </Layout>
+                    </ErrorBoundary>
+                  </ProtectedRoute>
+                } />
 
-            {/* Main Dashboard with Layout */}
-            <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <Layout>
-                  <Dashboard />
-                </Layout>
-              </ProtectedRoute>
-            } />
+                {/* Main Dashboard with Layout */}
+                <Route path="/dashboard" element={
+                  <ProtectedRoute>
+                    <ErrorBoundary>
+                      <Layout>
+                        <Dashboard />
+                      </Layout>
+                    </ErrorBoundary>
+                  </ProtectedRoute>
+                } />
 
-            {/* Settings with Layout */}
-            <Route path="/settings" element={
-              <ProtectedRoute>
-                <Layout>
-                  <Settings />
-                </Layout>
-              </ProtectedRoute>
-            } />
+                {/* Settings with Layout */}
+                <Route path="/settings" element={
+                  <ProtectedRoute>
+                    <ErrorBoundary>
+                      <Layout>
+                        <Settings />
+                      </Layout>
+                    </ErrorBoundary>
+                  </ProtectedRoute>
+                } />
 
-            {/* Catch-all route */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-          </Router>
-        </SpecialtyProvider>
-      </AuthProvider>
-    </QueryProvider>
+                {/* Catch-all route */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Router>
+          </SpecialtyProvider>
+        </AuthProvider>
+      </QueryProvider>
+    </ErrorBoundary>
   );
 }
 
