@@ -321,13 +321,6 @@ export type Database = {
             foreignKeyName: "appointments_patient_id_fkey"
             columns: ["patient_id"]
             isOneToOne: false
-            referencedRelation: "platform_user_management"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "appointments_patient_id_fkey"
-            columns: ["patient_id"]
-            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -2959,13 +2952,6 @@ export type Database = {
             foreignKeyName: "reminder_logs_patient_id_fkey"
             columns: ["patient_id"]
             isOneToOne: false
-            referencedRelation: "platform_user_management"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "reminder_logs_patient_id_fkey"
-            columns: ["patient_id"]
-            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -4307,86 +4293,7 @@ export type Database = {
       }
     }
     Views: {
-      appointment_analytics: {
-        Row: {
-          appointment_date: string | null
-          avg_duration: number | null
-          cancelled_count: number | null
-          completed_count: number | null
-          no_show_count: number | null
-          scheduled_count: number | null
-          show_rate: number | null
-          tenant_id: string | null
-          total_appointments: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "appointments_tenant_id_fkey"
-            columns: ["tenant_id"]
-            isOneToOne: false
-            referencedRelation: "tenants"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      appointment_availability: {
-        Row: {
-          break_end_time: string | null
-          break_start_time: string | null
-          day_of_week: number | null
-          end_time: string | null
-          is_available: boolean | null
-          provider_id: string | null
-          provider_name: string | null
-          specialty: string | null
-          start_time: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "provider_schedules_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "providers"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      phi_access_summary: {
-        Row: {
-          access_count: number | null
-          access_date: string | null
-          action: string | null
-          table_name: string | null
-          unique_records: number | null
-          unique_users: number | null
-        }
-        Relationships: []
-      }
-      platform_user_management: {
-        Row: {
-          created_at: string | null
-          current_tenant_id: string | null
-          email: string | null
-          first_name: string | null
-          full_name: string | null
-          id: string | null
-          last_name: string | null
-          role: Database["public"]["Enums"]["app_role"] | null
-          status: string | null
-          tenant_name: string | null
-          tenant_user_active: boolean | null
-          updated_at: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "profiles_current_tenant_id_fkey"
-            columns: ["current_tenant_id"]
-            isOneToOne: false
-            referencedRelation: "tenants"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
+      [_ in never]: never
     }
     Functions: {
       calculate_tenant_metrics: {
@@ -4422,9 +4329,37 @@ export type Database = {
           appointment_id: string
         }[]
       }
+      get_phi_access_summary: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          access_date: string
+          access_count: number
+          unique_users: number
+          unique_records: number
+          table_name: string
+          action: string
+        }[]
+      }
       get_platform_stats: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      get_platform_user_management: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          created_at: string
+          updated_at: string
+          current_tenant_id: string
+          tenant_user_active: boolean
+          first_name: string
+          last_name: string
+          full_name: string
+          email: string
+          tenant_name: string
+          status: string
+        }[]
       }
       get_user_current_tenant: {
         Args: { user_id: string }
