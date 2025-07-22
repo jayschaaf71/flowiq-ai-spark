@@ -64,155 +64,161 @@ function App() {
     <ErrorBoundary>
       <QueryProvider>
         <AuthProvider>
-          <SpecialtyProvider>
-            <Router>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/auth" element={<AuthPage />} />
-                <Route path="/practice-setup" element={<PracticeSetup />} />
-                <Route path="/payment-success" element={<PaymentSuccess />} />
-                <Route path="/payment-canceled" element={<PaymentCanceled />} />
-                
-                {/* Patient Portal and Dashboard */}
-                <Route path="/patient-portal" element={
-                  <ProtectedRoute requiredRole="patient">
-                    <ErrorBoundary>
-                      <PatientPortal />
-                    </ErrorBoundary>
-                  </ProtectedRoute>
-                } />
-                <Route path="/patient-dashboard" element={
-                  <ProtectedRoute requiredRole="patient">
-                    <ErrorBoundary>
-                      <Layout>
-                        <PatientDashboard />
-                      </Layout>
-                    </ErrorBoundary>
-                  </ProtectedRoute>
-                } />
-                
-                {/* Staff Portal and Dashboard */}
-                <Route path="/provider-portal" element={
-                  <ProtectedRoute requiredRole="staff">
-                    <ErrorBoundary>
-                      <ProviderPortal />
-                    </ErrorBoundary>
-                  </ProtectedRoute>
-                } />
-                <Route path="/staff-dashboard" element={
-                  <ProtectedRoute requiredRole="staff">
-                    <ErrorBoundary>
-                      <Layout>
-                        <StaffDashboard />
-                      </Layout>
-                    </ErrorBoundary>
-                  </ProtectedRoute>
-                } />
+          <Router>
+            <Routes>
+              {/* Landing page - outside SpecialtyProvider to avoid theme override */}
+              <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<AuthPage />} />
+              <Route path="/practice-setup" element={<PracticeSetup />} />
+              <Route path="/payment-success" element={<PaymentSuccess />} />
+              <Route path="/payment-canceled" element={<PaymentCanceled />} />
+              
+              {/* All other routes wrapped with SpecialtyProvider */}
+              <Route path="/*" element={
+                <SpecialtyProvider>
+                  <Routes>
+                    {/* Patient Portal and Dashboard */}
+                    <Route path="/patient-portal" element={
+                      <ProtectedRoute requiredRole="patient">
+                        <ErrorBoundary>
+                          <PatientPortal />
+                        </ErrorBoundary>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/patient-dashboard" element={
+                      <ProtectedRoute requiredRole="patient">
+                        <ErrorBoundary>
+                          <Layout>
+                            <PatientDashboard />
+                          </Layout>
+                        </ErrorBoundary>
+                      </ProtectedRoute>
+                    } />
+                    
+                    {/* Staff Portal and Dashboard */}
+                    <Route path="/provider-portal" element={
+                      <ProtectedRoute requiredRole="staff">
+                        <ErrorBoundary>
+                          <ProviderPortal />
+                        </ErrorBoundary>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/staff-dashboard" element={
+                      <ProtectedRoute requiredRole="staff">
+                        <ErrorBoundary>
+                          <Layout>
+                            <StaffDashboard />
+                          </Layout>
+                        </ErrorBoundary>
+                      </ProtectedRoute>
+                    } />
 
-                {/* Main Dashboard with Layout */}
-                <Route path="/dashboard" element={
-                  <ProtectedRoute>
-                    <ErrorBoundary>
-                      <Layout>
-                        <Dashboard />
-                      </Layout>
-                    </ErrorBoundary>
-                  </ProtectedRoute>
-                } />
+                    {/* Main Dashboard with Layout */}
+                    <Route path="/dashboard" element={
+                      <ProtectedRoute>
+                        <ErrorBoundary>
+                          <Layout>
+                            <Dashboard />
+                          </Layout>
+                        </ErrorBoundary>
+                      </ProtectedRoute>
+                    } />
 
-                {/* Settings with Layout */}
-                <Route path="/settings" element={
-                  <ProtectedRoute>
-                    <ErrorBoundary>
-                      <Layout>
-                        <Settings />
-                      </Layout>
-                    </ErrorBoundary>
-                  </ProtectedRoute>
-                } />
+                    {/* Settings with Layout */}
+                    <Route path="/settings" element={
+                      <ProtectedRoute>
+                        <ErrorBoundary>
+                          <Layout>
+                            <Settings />
+                          </Layout>
+                        </ErrorBoundary>
+                      </ProtectedRoute>
+                    } />
 
-                {/* Billing Dashboard with Layout */}
-                <Route path="/billing" element={
-                  <ProtectedRoute requiredRole="staff">
-                    <ErrorBoundary>
-                      <Layout>
-                        <BillingDashboard />
-                      </Layout>
-                    </ErrorBoundary>
-                  </ProtectedRoute>
-                } />
+                    {/* Billing Dashboard with Layout */}
+                    <Route path="/billing" element={
+                      <ProtectedRoute requiredRole="staff">
+                        <ErrorBoundary>
+                          <Layout>
+                            <BillingDashboard />
+                          </Layout>
+                        </ErrorBoundary>
+                      </ProtectedRoute>
+                    } />
 
-                {/* Analytics Dashboard with Layout */}
-                <Route path="/analytics" element={
-                  <ProtectedRoute requiredRole="staff">
-                    <ErrorBoundary>
-                      <Layout>
-                        <AnalyticsDashboard />
-                      </Layout>
-                    </ErrorBoundary>
-                  </ProtectedRoute>
-                } />
+                    {/* Analytics Dashboard with Layout */}
+                    <Route path="/analytics" element={
+                      <ProtectedRoute requiredRole="staff">
+                        <ErrorBoundary>
+                          <Layout>
+                            <AnalyticsDashboard />
+                          </Layout>
+                        </ErrorBoundary>
+                      </ProtectedRoute>
+                    } />
 
-                {/* Clinical Dashboard with Layout */}
-                <Route path="/clinical" element={
-                  <ProtectedRoute requiredRole="staff">
-                    <ErrorBoundary>
-                      <Layout>
-                        <ClinicalDashboard />
-                      </Layout>
-                    </ErrorBoundary>
-                  </ProtectedRoute>
-                } />
+                    {/* Clinical Dashboard with Layout */}
+                    <Route path="/clinical" element={
+                      <ProtectedRoute requiredRole="staff">
+                        <ErrorBoundary>
+                          <Layout>
+                            <ClinicalDashboard />
+                          </Layout>
+                        </ErrorBoundary>
+                      </ProtectedRoute>
+                    } />
 
-                {/* Patient Scheduling */}
-                <Route path="/schedule" element={
-                  <ProtectedRoute requiredRole="patient">
-                    <ErrorBoundary>
-                      <Layout>
-                        <PatientScheduling />
-                      </Layout>
-                    </ErrorBoundary>
-                  </ProtectedRoute>
-                } />
+                    {/* Patient Scheduling */}
+                    <Route path="/schedule" element={
+                      <ProtectedRoute requiredRole="patient">
+                        <ErrorBoundary>
+                          <Layout>
+                            <PatientScheduling />
+                          </Layout>
+                        </ErrorBoundary>
+                      </ProtectedRoute>
+                    } />
 
-                {/* Health Education */}
-                <Route path="/education" element={
-                  <ProtectedRoute>
-                    <ErrorBoundary>
-                      <Layout>
-                        <HealthEducation />
-                      </Layout>
-                    </ErrorBoundary>
-                  </ProtectedRoute>
-                } />
+                    {/* Health Education */}
+                    <Route path="/education" element={
+                      <ProtectedRoute>
+                        <ErrorBoundary>
+                          <Layout>
+                            <HealthEducation />
+                          </Layout>
+                        </ErrorBoundary>
+                      </ProtectedRoute>
+                    } />
 
-                {/* Telemedicine Dashboard */}
-                <Route path="/telemedicine" element={
-                  <ProtectedRoute requiredRole="staff">
-                    <ErrorBoundary>
-                      <Layout>
-                        <TelemedicineDashboard />
-                      </Layout>
-                    </ErrorBoundary>
-                  </ProtectedRoute>
-                } />
+                    {/* Telemedicine Dashboard */}
+                    <Route path="/telemedicine" element={
+                      <ProtectedRoute requiredRole="staff">
+                        <ErrorBoundary>
+                          <Layout>
+                            <TelemedicineDashboard />
+                          </Layout>
+                        </ErrorBoundary>
+                      </ProtectedRoute>
+                    } />
 
-                {/* Practice Automation */}
-                <Route path="/automation" element={
-                  <ProtectedRoute requiredRole="staff">
-                    <ErrorBoundary>
-                      <Layout>
-                        <PracticeAutomation />
-                      </Layout>
-                    </ErrorBoundary>
-                  </ProtectedRoute>
-                } />
+                    {/* Practice Automation */}
+                    <Route path="/automation" element={
+                      <ProtectedRoute requiredRole="staff">
+                        <ErrorBoundary>
+                          <Layout>
+                            <PracticeAutomation />
+                          </Layout>
+                        </ErrorBoundary>
+                      </ProtectedRoute>
+                    } />
 
-                {/* Catch-all route */}
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </Router>
-          </SpecialtyProvider>
+                    {/* Catch-all route */}
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                  </Routes>
+                </SpecialtyProvider>
+              } />
+            </Routes>
+          </Router>
         </AuthProvider>
       </QueryProvider>
     </ErrorBoundary>
