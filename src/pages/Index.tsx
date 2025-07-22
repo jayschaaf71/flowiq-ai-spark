@@ -20,12 +20,26 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useCurrentTenant } from "@/utils/enhancedTenantConfig";
 import { useRoleAccess } from "@/hooks/useRoleAccess";
+import { TenantLandingPage } from "@/components/landing/TenantLandingPage";
+import { getTenantBySubdomain } from "@/config/deployment";
 
 const Index = () => {
   const navigate = useNavigate();
   const { user, profile, loading } = useAuth();
   const { currentTenant, loading: tenantLoading } = useCurrentTenant();
   const { canAccessPlatformAdmin } = useRoleAccess();
+
+  // Detect tenant from subdomain
+  const detectTenantFromUrl = () => {
+    const hostname = window.location.hostname;
+    const subdomain = hostname.split('.')[0];
+    
+    // Check if this is a tenant subdomain
+    const tenant = getTenantBySubdomain(subdomain);
+    return tenant ? subdomain : null;
+  };
+
+  const tenantSubdomain = detectTenantFromUrl();
 
   const handleGetStarted = () => {
     console.log("Get Started clicked", { user, profile });
@@ -71,7 +85,12 @@ const Index = () => {
   }
 
   // Debug: Log current state
-  console.log("Index page rendering:", { user: !!user, profile, currentTenant, loading, tenantLoading });
+  console.log("Index page rendering:", { user: !!user, profile, currentTenant, loading, tenantLoading, tenantSubdomain });
+
+  // If this is a tenant subdomain, show the tenant-specific landing page
+  if (tenantSubdomain) {
+    return <TenantLandingPage subdomain={tenantSubdomain} />;
+  }
 
   const features = [
     {
