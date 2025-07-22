@@ -23,6 +23,8 @@ import PaymentCanceled from '@/pages/PaymentCanceled';
 import { BillingDashboard } from '@/pages/BillingDashboard';
 import { AnalyticsDashboard } from '@/pages/AnalyticsDashboard';
 import { ClinicalDashboard } from '@/pages/ClinicalDashboard';
+import PatientScheduling from '@/pages/PatientScheduling';
+import HealthEducation from '@/pages/HealthEducation';
 
 // Components
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
@@ -155,6 +157,28 @@ function App() {
                     <ErrorBoundary>
                       <Layout>
                         <ClinicalDashboard />
+                      </Layout>
+                    </ErrorBoundary>
+                  </ProtectedRoute>
+                } />
+
+                {/* Patient Scheduling */}
+                <Route path="/schedule" element={
+                  <ProtectedRoute requiredRole="patient">
+                    <ErrorBoundary>
+                      <Layout>
+                        <PatientScheduling />
+                      </Layout>
+                    </ErrorBoundary>
+                  </ProtectedRoute>
+                } />
+
+                {/* Health Education */}
+                <Route path="/education" element={
+                  <ProtectedRoute>
+                    <ErrorBoundary>
+                      <Layout>
+                        <HealthEducation />
                       </Layout>
                     </ErrorBoundary>
                   </ProtectedRoute>
