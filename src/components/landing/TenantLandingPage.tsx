@@ -34,7 +34,19 @@ export const TenantLandingPage: React.FC<TenantLandingPageProps> = ({ tenantSubd
 
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #ffffff, #f8fafc)' }}>
-      {/* Hero Section */}
+      {/* DEBUG: Clear indicator this component is rendering */}
+      <div style={{ 
+        position: 'fixed', 
+        top: 0, 
+        right: 0, 
+        background: 'red', 
+        color: 'white', 
+        padding: '10px', 
+        zIndex: 9999,
+        fontSize: '12px'
+      }}>
+        TENANT LANDING PAGE: {practiceConfig.name}
+      </div>
       <section 
         className="relative py-20 px-4 sm:px-6 lg:px-8"
         style={{ 
@@ -43,7 +55,16 @@ export const TenantLandingPage: React.FC<TenantLandingPageProps> = ({ tenantSubd
       >
         <div className="max-w-7xl mx-auto">
           <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6" style={{ color: '#1a1a1a' }}>
+            <h1 
+              className="text-4xl md:text-6xl font-bold mb-6" 
+              style={{ 
+                color: '#1a1a1a',
+                position: 'relative',
+                zIndex: 1000
+              }}
+              data-practice-name={practiceConfig.name}
+              title={`Debug: Should show ${practiceConfig.name}`}
+            >
               {practiceConfig.name}
             </h1>
             <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto" style={{ color: '#4a4a4a' }}>
