@@ -104,18 +104,21 @@ export const CommunicationLogViewer: React.FC<CommunicationLogViewerProps> = ({
           case 'today':
             dateMatch = logDate >= today;
             break;
-          case 'week':
+          case 'week': {
             const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
             dateMatch = logDate >= weekAgo;
             break;
-          case 'month':
+          }
+          case 'month': {
             const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
             dateMatch = logDate >= monthAgo;
             break;
-          case 'quarter':
+          }
+          case 'quarter': {
             const quarterAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
             dateMatch = logDate >= quarterAgo;
             break;
+          }
         }
       }
 

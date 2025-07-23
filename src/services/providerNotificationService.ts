@@ -84,7 +84,7 @@ export class ProviderNotificationService {
       if (shouldSend) {
         try {
           switch (channel) {
-            case 'in_app':
+            case 'in_app': {
               const notification = await this.createNotification({
                 provider_id: providerId,
                 appointment_id: options?.appointmentId,
@@ -96,6 +96,7 @@ export class ProviderNotificationService {
               });
               results.push({ channel, success: !!notification, data: notification });
               break;
+            }
               
             case 'email':
               // TODO: Integrate with email service

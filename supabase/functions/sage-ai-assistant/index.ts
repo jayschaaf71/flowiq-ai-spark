@@ -62,29 +62,33 @@ serve(async (req) => {
     let actionData = null;
 
     switch (actionResponse.type) {
-      case 'search_patients':
+      case 'search_patients': {
         const searchResults = await searchPatients(supabase, actionResponse.parameters, profile.current_tenant_id);
         responseText = formatPatientSearchResults(searchResults);
         actionData = { type: 'patient_search', data: searchResults };
         break;
+      }
 
-      case 'schedule_appointment':
+      case 'schedule_appointment': {
         const schedulingResult = await handleScheduling(supabase, actionResponse.parameters, profile.current_tenant_id);
         responseText = formatSchedulingResult(schedulingResult);
         actionData = { type: 'scheduling', data: schedulingResult };
         break;
+      }
 
-      case 'generate_document':
+      case 'generate_document': {
         const document = await generateDocument(actionResponse.parameters, specialty);
         responseText = formatDocumentResult(document);
         actionData = { type: 'document', data: document };
         break;
+      }
 
-      case 'provide_guidance':
+      case 'provide_guidance': {
         const guidance = await provideClinicalGuidance(actionResponse.parameters, specialty);
         responseText = guidance;
         actionData = { type: 'guidance', data: guidance };
         break;
+      }
 
       default:
         responseText = await generateGeneralResponse(message, specialty, conversationHistory);

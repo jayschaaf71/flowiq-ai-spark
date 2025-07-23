@@ -160,7 +160,7 @@ async function sendEmailReminder(resend: any, reminder: AppointmentReminderData)
   });
 
   // Replace template variables
-  let message = reminder.message_template
+  const message = reminder.message_template
     .replace(/\\{\\{patient_name\\}\\}/g, appointment.patient_name)
     .replace(/\\{\\{provider_name\\}\\}/g, providerName)
     .replace(/\\{\\{date\\}\\}/g, formattedDate)
