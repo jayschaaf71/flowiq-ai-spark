@@ -123,7 +123,7 @@ export const MenstrualHistoryForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  const handleInputChange = (section: string, field: string, value: any) => {
+  const handleInputChange = (section: string, field: string, value: string | number | boolean) => {
     setFormData(prev => ({
       ...prev,
       [section]: {

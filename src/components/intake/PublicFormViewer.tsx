@@ -38,9 +38,21 @@ export const PublicFormViewer: React.FC<PublicFormViewerProps> = ({
   className,
   onSubmitSuccess
 }) => {
-  const [form, setForm] = useState<any>(null);
+  const [form, setForm] = useState<{
+    id: string;
+    title: string;
+    description?: string;
+    form_fields: Array<{
+      id: string;
+      type: string;
+      label: string;
+      required?: boolean;
+      options?: string[];
+      validation?: Record<string, unknown>;
+    }>;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
-  const [formData, setFormData] = useState<Record<string, any>>({});
+  const [formData, setFormData] = useState<Record<string, unknown>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [progress, setProgress] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -82,7 +94,19 @@ export const PublicFormViewer: React.FC<PublicFormViewerProps> = ({
         return;
       }
 
-      setForm(data);
+      setForm({
+        id: data.id,
+        title: data.title,
+        description: data.description,
+        form_fields: Array.isArray(data.form_fields) ? data.form_fields as Array<{
+          id: string;
+          type: string;
+          label: string;
+          required?: boolean;
+          options?: string[];
+          validation?: Record<string, unknown>;
+        }> : []
+      });
       
       // Initialize form data with empty values
       const initialData: Record<string, any> = {};
@@ -114,8 +138,8 @@ export const PublicFormViewer: React.FC<PublicFormViewerProps> = ({
     }
 
     if (field.type === 'phone' && value) {
-      const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
-      if (!phoneRegex.test(value.replace(/[\s\-\(\)]/g, ''))) {
+      const phoneRegex = /^[+]?[1-9][\d]{0,15}$/;
+      if (!phoneRegex.test(value.replace(/[\s\-()]/g, ''))) {
         return 'Please enter a valid phone number';
       }
     }
@@ -172,8 +196,8 @@ export const PublicFormViewer: React.FC<PublicFormViewerProps> = ({
 
       const submissionData = {
         form_id: formId,
-        patient_id: null, // Public forms don't have authenticated patients
-        submission_data: formData,
+        patient_id: null,
+        submission_data: JSON.parse(JSON.stringify(formData)),
         status: 'pending',
         priority_level: 'normal',
         ai_summary: null
@@ -181,7 +205,7 @@ export const PublicFormViewer: React.FC<PublicFormViewerProps> = ({
 
       const { data, error } = await supabase
         .from('intake_submissions')
-        .insert([submissionData])
+        .insert(submissionData)
         .select()
         .single();
 
@@ -224,7 +248,7 @@ export const PublicFormViewer: React.FC<PublicFormViewerProps> = ({
               required: field.required,
               placeholder: field.placeholder,
             }}
-            value={value || ''}
+            value={String(value || '')}
             onChange={(newValue) => handleFieldChange(field.id, newValue)}
           />
           {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
@@ -244,7 +268,7 @@ export const PublicFormViewer: React.FC<PublicFormViewerProps> = ({
               {...commonProps}
               type="number"
               placeholder={field.placeholder}
-              value={value || ''}
+              value={String(value || '')}
               onChange={(e) => handleFieldChange(field.id, e.target.value)}
             />
             {error && <p className="text-sm text-red-500">{error}</p>}
@@ -258,7 +282,7 @@ export const PublicFormViewer: React.FC<PublicFormViewerProps> = ({
               {field.label}
               {field.required && <span className="text-red-500">*</span>}
             </Label>
-            <Select value={value || ''} onValueChange={(val) => handleFieldChange(field.id, val)}>
+            <Select value={String(value || '')} onValueChange={(val) => handleFieldChange(field.id, val)}>
               <SelectTrigger className={cn(error && "border-red-500")}>
                 <SelectValue placeholder={field.placeholder || `Select ${field.label}`} />
               </SelectTrigger>
@@ -282,7 +306,7 @@ export const PublicFormViewer: React.FC<PublicFormViewerProps> = ({
               {field.required && <span className="text-red-500">*</span>}
             </Label>
             <RadioGroup
-              value={value || ''}
+              value={String(value || '')}
               onValueChange={(val) => handleFieldChange(field.id, val)}
             >
               {field.options?.map((option) => (
@@ -301,7 +325,7 @@ export const PublicFormViewer: React.FC<PublicFormViewerProps> = ({
           <div key={field.id} className="flex items-center space-x-2">
             <Checkbox
               id={fieldId}
-              checked={value || false}
+              checked={Boolean(value)}
               onCheckedChange={(checked) => handleFieldChange(field.id, checked)}
               className={cn(error && "border-red-500")}
             />
@@ -331,13 +355,13 @@ export const PublicFormViewer: React.FC<PublicFormViewerProps> = ({
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {value ? format(new Date(value), 'PPP') : <span>{field.placeholder || 'Pick a date'}</span>}
+                  {value ? format(new Date(String(value)), 'PPP') : <span>{field.placeholder || 'Pick a date'}</span>}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0 bg-background border shadow-md z-50" align="start">
                 <Calendar
                   mode="single"
-                  selected={value ? new Date(value) : undefined}
+                  selected={value ? new Date(String(value)) : undefined}
                   onSelect={(date) => handleFieldChange(field.id, date?.toISOString().split('T')[0])}
                   initialFocus
                   className="pointer-events-auto"

@@ -33,7 +33,7 @@ export const MobileVoiceIntake: React.FC = () => {
     }
   ]);
   const [currentContext, setCurrentContext] = useState('personal_info');
-  const [formData, setFormData] = useState<Record<string, any>>({});
+  const [formData, setFormData] = useState<Record<string, unknown>>({});
   const [isProcessing, setIsProcessing] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const { toast } = useToast();
@@ -68,8 +68,11 @@ export const MobileVoiceIntake: React.FC = () => {
 
   const getProgressPercentage = () => {
     const allFields = Object.values(contexts).flatMap(ctx => ctx.fields);
-    const completedFields = allFields.filter(field => formData[field]?.trim()).length;
-    return Math.round((completedFields / allFields.length) * 100);
+    const filledFields = allFields.filter(field => {
+      const value = formData[field];
+      return value && typeof value === 'string' && value.trim() !== '';
+    }).length;
+    return Math.round((filledFields / allFields.length) * 100);
   };
 
   const getCurrentContextInfo = () => contexts[currentContext as keyof typeof contexts];
@@ -254,21 +257,12 @@ export const MobileVoiceIntake: React.FC = () => {
       const { data: patient, error: patientError } = await supabase
         .from('patients')
         .insert({
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          date_of_birth: formData.dateOfBirth,
-          gender: formData.gender,
-          phone: formData.phone,
-          email: formData.email,
-          address_line1: formData.address,
-          city: formData.city,
-          state: formData.state,
-          zip_code: formData.zipCode,
-          emergency_contact_name: formData.emergencyContactName,
-          emergency_contact_phone: formData.emergencyContactPhone,
-          insurance_provider: formData.insuranceProvider,
-          insurance_policy_number: formData.policyNumber,
-          onboarding_completed_at: new Date().toISOString()
+          patient_name: `${formData.firstName} ${formData.lastName}`,
+          email: formData.email as string,
+          phone: formData.phone as string,
+          address: formData.address as string,
+          emergency_contact_name: formData.emergencyContactName as string,
+          emergency_contact_phone: formData.emergencyContactPhone as string
         })
         .select()
         .single();
@@ -323,7 +317,7 @@ export const MobileVoiceIntake: React.FC = () => {
   };
 
   const determinePriorityLevel = () => {
-    const painLevel = parseInt(formData.painLevel || '0');
+    const painLevel = parseInt(String(formData.painLevel || '0'));
     if (painLevel >= 8) return 'high';
     if (painLevel >= 5) return 'medium';
     return 'normal';
@@ -437,7 +431,7 @@ export const MobileVoiceIntake: React.FC = () => {
                 Intake Complete!
               </h2>
               <p className="text-gray-600 mb-4">
-                Thank you, {formData.firstName}! Your information has been successfully submitted.
+                Thank you, {String(formData.firstName)}! Your information has been successfully submitted.
               </p>
               <Button className="bg-gradient-to-r from-blue-600 to-green-600">
                 <ArrowRight className="w-4 h-4 mr-2" />

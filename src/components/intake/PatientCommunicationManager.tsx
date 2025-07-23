@@ -18,7 +18,18 @@ import {
 } from 'lucide-react';
 
 interface PatientCommunicationManagerProps {
-  submission: any;
+  submission: {
+    id: string;
+    patient_name?: string;
+    patient_email?: string;
+    patient_phone?: string;
+    form_data?: Record<string, unknown>;
+    status?: string;
+    currentAssignment?: {
+      staff_name: string;
+      status: string;
+    };
+  };
   onSendCommunication: (
     submissionId: string,
     templateId: string,
