@@ -67,9 +67,9 @@ export const PublicFormViewer: React.FC<PublicFormViewerProps> = ({
       // Calculate progress based on filled fields
       const formFields = Array.isArray(form.form_fields) ? form.form_fields : [];
       const totalFields = formFields.length;
-      const filledFields = formFields.filter((field: any) => {
+      const filledFields = formFields.filter((field: Record<string, unknown>) => {
         if (field && typeof field === 'object' && field.id) {
-          const value = formData[field.id];
+          const value = formData[String(field.id)];
           return value !== '' && value !== false && value !== null && value !== undefined;
         }
         return false;
@@ -111,9 +111,10 @@ export const PublicFormViewer: React.FC<PublicFormViewerProps> = ({
       // Initialize form data with empty values
       const initialData: Record<string, unknown> = {};
       const formFields = Array.isArray(data.form_fields) ? data.form_fields : [];
-      formFields.forEach((field: any) => {
-        if (field && typeof field === 'object' && field.id && field.type) {
-          initialData[field.id] = field.type === 'checkbox' ? false : '';
+      formFields.forEach((field: unknown) => {
+        if (field && typeof field === 'object' && field !== null && 'id' in field && 'type' in field) {
+          const typedField = field as { id: string; type: string };
+          initialData[typedField.id] = typedField.type === 'checkbox' ? false : '';
         }
       });
       setFormData(initialData);
@@ -169,11 +170,12 @@ export const PublicFormViewer: React.FC<PublicFormViewerProps> = ({
     const formFields = Array.isArray(form.form_fields) ? form.form_fields : [];
     const newErrors: Record<string, string> = {};
     
-    formFields.forEach((field: any) => {
-      if (field && typeof field === 'object' && field.id && field.type) {
-        const error = validateField(field as FormField, formData[field.id] as string | number | boolean | File | null);
+    formFields.forEach((field: unknown) => {
+      if (field && typeof field === 'object' && field !== null && 'id' in field && 'type' in field && 'label' in field) {
+        const typedField = field as unknown as FormField;
+        const error = validateField(typedField, formData[String(typedField.id)] as string | number | boolean | File | null);
         if (error) {
-          newErrors[field.id] = error;
+          newErrors[String(typedField.id)] = error;
         }
       }
     });
@@ -188,10 +190,11 @@ export const PublicFormViewer: React.FC<PublicFormViewerProps> = ({
 
     try {
       // Extract patient contact info from form data
-      const emailField = formFields.find((f: any) => f && f.type === 'email');
-      const phoneField = formFields.find((f: any) => f && f.type === 'phone');
-      const nameField = formFields.find((f: any) => 
-        f && f.label && (f.label.toLowerCase().includes('name') || f.id.toLowerCase().includes('name'))
+      const emailField = formFields.find((f: unknown) => f && typeof f === 'object' && f !== null && 'type' in f && f.type === 'email');
+      const phoneField = formFields.find((f: unknown) => f && typeof f === 'object' && f !== null && 'type' in f && f.type === 'phone');
+      const nameField = formFields.find((f: unknown) => 
+        f && typeof f === 'object' && f !== null && 'label' in f && 'id' in f && 
+        (String(f.label).toLowerCase().includes('name') || String(f.id).toLowerCase().includes('name'))
       );
 
       const submissionData = {
@@ -469,9 +472,9 @@ export const PublicFormViewer: React.FC<PublicFormViewerProps> = ({
 
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-          {formFields.map((field: any) => {
-            if (field && typeof field === 'object' && field.id && field.type) {
-              return renderField(field as FormField);
+          {formFields.map((field: unknown, index: number) => {
+            if (field && typeof field === 'object' && field !== null && 'id' in field && 'type' in field && 'label' in field) {
+              return renderField(field as unknown as FormField);
             }
             return null;
           })}

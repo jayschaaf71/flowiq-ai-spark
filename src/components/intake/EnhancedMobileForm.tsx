@@ -21,8 +21,8 @@ import { DigitalSignatureField } from './DigitalSignatureField';
 import { FormField } from '@/types/intake';
 
 interface EnhancedMobileFormProps {
-  form: any;
-  onSubmit: (data: any) => void;
+  form: Record<string, unknown>;
+  onSubmit: (data: Record<string, unknown>) => void;
 }
 
 export const EnhancedMobileForm: React.FC<EnhancedMobileFormProps> = ({ 
@@ -37,7 +37,7 @@ export const EnhancedMobileForm: React.FC<EnhancedMobileFormProps> = ({
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
 
-  const fields = form.form_fields || [];
+  const fields = Array.isArray(form.form_fields) ? form.form_fields : [];
   const fieldsPerStep = 1; // One field per step for mobile
   const totalSteps = Math.ceil(fields.length / fieldsPerStep);
   const currentField = fields[currentStep];
@@ -171,17 +171,20 @@ export const EnhancedMobileForm: React.FC<EnhancedMobileFormProps> = ({
   const handleSubmit = () => {
     // Validate all required fields
     const errors: Record<string, string> = {};
-    fields.forEach((field: any, index: number) => {
-      const error = validateField(field, formData[field.id] as string | number | boolean | File | null);
-      if (error) {
-        errors[field.id] = error;
+    fields.forEach((field: Record<string, unknown>, index: number) => {
+      if (field && typeof field === 'object' && field.id && field.type && field.label) {
+        const fieldTyped = field as unknown as FormField;
+        const error = validateField(fieldTyped, formData[String(field.id)] as string | number | boolean | File | null);
+        if (error) {
+          errors[String(field.id)] = error;
+        }
       }
     });
 
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
       // Go to first field with error
-      const firstErrorIndex = fields.findIndex((field: any) => errors[field.id]);
+      const firstErrorIndex = fields.findIndex((field: Record<string, unknown>) => errors[String(field.id)]);
       setCurrentStep(firstErrorIndex);
       return;
     }
@@ -233,7 +236,7 @@ export const EnhancedMobileForm: React.FC<EnhancedMobileFormProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Smartphone className="w-5 h-5 text-blue-600" />
-            <h1 className="font-semibold text-lg">{form.title}</h1>
+            <h1 className="font-semibold text-lg">{String(form.title || 'Form')}</h1>
           </div>
           <div className="flex items-center gap-2">
             {isOnline ? (

@@ -1,4 +1,3 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.0';
@@ -29,41 +28,48 @@ function processBase64Chunks(base64String: string, chunkSize = 32768) {
     chunks.push(bytes);
     position += chunkSize;
   }
-
-  const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
+  
+  // Combine all chunks into a single Uint8Array
+  const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
   const result = new Uint8Array(totalLength);
   let offset = 0;
-
+  
   for (const chunk of chunks) {
     result.set(chunk, offset);
     offset += chunk.length;
   }
-
+  
   return result;
 }
 
-// HIPAA-compliant PHI anonymization
+// Anonymize PII in text
 function anonymizeTranscription(text: string): { anonymized: string; keyMap: Map<string, string> } {
   const keyMap = new Map<string, string>();
   let anonymized = text;
+  let counter = 1;
 
-  // Common PHI patterns to anonymize
-  const phiPatterns = [
-    { pattern: /\b\d{3}-\d{2}-\d{4}\b/g, type: 'SSN' },
-    { pattern: /\b[\w._%+-]+@[\w.-]+\.[A-Z|a-z]{2,}\b/g, type: 'EMAIL' },
-    { pattern: /\b\d{3}-\d{3}-\d{4}\b/g, type: 'PHONE' },
-    { pattern: /\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/g, type: 'DATE' },
-  ];
+  // Phone numbers
+  const phoneRegex = /\b\d{3}[-.]?\d{3}[-.]?\d{4}\b/g;
+  anonymized = anonymized.replace(phoneRegex, (match) => {
+    const token = `[PHONE_${counter++}]`;
+    keyMap.set(token, match);
+    return token;
+  });
 
-  phiPatterns.forEach(({ pattern, type }) => {
-    const matches = text.match(pattern);
-    if (matches) {
-      matches.forEach((match, index) => {
-        const token = `[${type}_${index + 1}]`;
-        keyMap.set(token, match);
-        anonymized = anonymized.replace(match, token);
-      });
-    }
+  // Email addresses
+  const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g;
+  anonymized = anonymized.replace(emailRegex, (match) => {
+    const token = `[EMAIL_${counter++}]`;
+    keyMap.set(token, match);
+    return token;
+  });
+
+  // Names (basic pattern - capitalize words)
+  const nameRegex = /\b[A-Z][a-z]{2,}\s+[A-Z][a-z]{2,}\b/g;
+  anonymized = anonymized.replace(nameRegex, (match) => {
+    const token = `[NAME_${counter++}]`;
+    keyMap.set(token, match);
+    return token;
   });
 
   return { anonymized, keyMap };
@@ -84,33 +90,33 @@ serve(async (req) => {
   }
 
   try {
+    const { audioData, language = 'en' } = await req.json();
+
+    if (!audioData) {
+      throw new Error('Audio data is required');
+    }
+
     if (!openAIApiKey) {
-      throw new Error('OpenAI API key not configured. Please add OPENAI_API_KEY to your secrets.');
+      throw new Error('OpenAI API key not configured');
     }
 
-    const { audio, userId, patientId } = await req.json();
+    console.log('Processing audio data...');
     
-    if (!audio) {
-      throw new Error('No audio data provided');
-    }
-
-    console.log('Processing voice transcription for user:', userId);
-
-    // Initialize Supabase client for audit logging
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-    // Process audio in chunks
-    const binaryAudio = processBase64Chunks(audio);
+    // Convert base64 to audio file using chunked processing
+    const audioBuffer = processBase64Chunks(audioData);
     
-    // Prepare form data
+    console.log(`Converted audio buffer size: ${audioBuffer.length} bytes`);
+
+    // Create form data for OpenAI Whisper API
     const formData = new FormData();
-    const blob = new Blob([binaryAudio], { type: 'audio/webm' });
-    formData.append('file', blob, 'audio.webm');
+    const audioBlob = new Blob([audioBuffer], { type: 'audio/webm' });
+    formData.append('file', audioBlob, 'audio.webm');
     formData.append('model', 'whisper-1');
-    formData.append('language', 'en');
-    formData.append('response_format', 'text');
+    formData.append('language', language);
 
-    // Send to OpenAI Whisper
+    console.log('Sending request to OpenAI Whisper API...');
+
+    // Call OpenAI Whisper API
     const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
       method: 'POST',
       headers: {
@@ -121,54 +127,56 @@ serve(async (req) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`OpenAI API error: ${errorText}`);
+      console.error('OpenAI API error:', errorText);
+      throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`);
     }
 
-    const transcriptionText = await response.text();
+    const result = await response.json();
+    console.log('Transcription successful');
 
-    // HIPAA compliance: Anonymize PHI in transcription
-    const { anonymized, keyMap } = anonymizeTranscription(transcriptionText);
+    // Anonymize PII before storing/returning
+    const { anonymized, keyMap } = anonymizeTranscription(result.text);
+    
+    // Store the anonymized version in database
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    
+    // Log the transcription request
+    await supabase.from('voice_call_transcriptions').insert({
+      original_text: anonymized, // Store anonymized version
+      confidence_score: result.confidence || 0.9,
+      language: language,
+      created_at: new Date().toISOString(),
+    });
 
-    // Log the transcription event for HIPAA audit
-    const { error: auditError } = await supabase
-      .from('audit_logs')
-      .insert({
-        user_id: userId,
-        action: 'AI_VOICE_TRANSCRIPTION',
-        resource_type: 'voice_transcription',
-        resource_id: patientId || null,
-        details: {
-          containsPHI: keyMap.size > 0,
-          transcriptionLength: transcriptionText.length,
-          anonymizedTokens: keyMap.size,
-          timestamp: new Date().toISOString(),
-          complianceNote: 'Voice transcription processed with HIPAA compliance'
-        }
-      });
+    // Return the restored (de-anonymized) text to the client
+    const restoredText = restoreTranscription(anonymized, keyMap);
 
-    if (auditError) {
-      console.error('Audit logging error:', auditError);
-    }
-
-    // For HIPAA compliance, we return the original transcription
-    // The frontend will handle additional processing
     return new Response(
       JSON.stringify({ 
-        transcription: transcriptionText,
-        containsPHI: keyMap.size > 0,
-        processedAt: new Date().toISOString(),
-        complianceStatus: 'HIPAA_COMPLIANT'
+        text: restoredText,
+        language: language,
+        confidence: result.confidence || 0.9
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { 
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
+        } 
+      }
     );
 
   } catch (error) {
-    console.error('Voice transcription error:', error);
+    console.error('Error processing transcription:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
-      {
+      JSON.stringify({ 
+        error: error.message || 'Failed to process transcription' 
+      }),
+      { 
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
+        } 
       }
     );
   }
