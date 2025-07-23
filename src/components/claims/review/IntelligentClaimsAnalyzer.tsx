@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 interface IntelligentClaimsAnalyzerProps {
-  claims: any[];
+  claims: ClaimValidationData[];
   reviewResults: ClaimReviewResult[];
   onClaimSelect: (claim: ClaimValidationData | null) => void;
 }
@@ -211,55 +211,17 @@ export const IntelligentClaimsAnalyzer = ({
           {claims && claims.length > 0 ? (
             <div className="space-y-2">
               {claims.slice(0, 5).map((claim) => {
-                const reviewResult = reviewResults.find(r => r.claimId === claim.claim_number);
+                const reviewResult = reviewResults.find(r => r.claimId === claim.claimNumber);
                 return (
                   <div 
-                    key={claim.id}
+                    key={claim.claimNumber}
                     className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 cursor-pointer"
-                    onClick={() => {
-                      const claimData: ClaimValidationData = {
-                        claimNumber: claim.claim_number,
-                        patientInfo: {
-                          id: claim.patient_id,
-                          firstName: claim.patient_name?.split(' ')[0] || 'Unknown',
-                          lastName: claim.patient_name?.split(' ')[1] || 'Patient',
-                          dateOfBirth: '1990-01-01',
-                          insuranceInfo: {
-                            provider: claim.insurance_name || 'Unknown Insurance',
-                            policyNumber: 'POL123456',
-                            groupNumber: 'GRP789'
-                          }
-                        },
-                        providerInfo: {
-                          id: 'provider-1',
-                          firstName: 'Dr. John',
-                          lastName: 'Smith',
-                          npi: '1234567890',
-                          specialty: 'Family Medicine'
-                        },
-                        insuranceInfo: {
-                          name: claim.insurance_name || 'Unknown Insurance',
-                          id: 'insurance-1'
-                        },
-                        serviceDate: claim.service_date,
-                        billingCodes: [
-                          { 
-                            code: '99213', 
-                            codeType: 'CPT' as const, 
-                            description: 'Office visit', 
-                            amount: 150 
-                          }
-                        ],
-                        totalAmount: claim.total_amount,
-                        diagnosis: 'Essential hypertension'
-                      };
-                      onClaimSelect(claimData);
-                    }}
+                    onClick={() => onClaimSelect(claim)}
                   >
                     <div>
-                      <p className="font-medium">{claim.claim_number}</p>
+                      <p className="font-medium">{claim.claimNumber}</p>
                       <p className="text-sm text-muted-foreground">
-                        {claim.patient_name} • ${claim.total_amount}
+                        {claim.patientInfo.firstName} {claim.patientInfo.lastName} • ${claim.totalAmount}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">

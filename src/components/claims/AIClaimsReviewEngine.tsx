@@ -277,7 +277,42 @@ export const AIClaimsReviewEngine = () => {
       {/* Dynamic Content Based on Active View */}
       {activeView === 'analyzer' && (
         <IntelligentClaimsAnalyzer 
-          claims={claims}
+          claims={claims.map(claim => ({
+            claimNumber: claim.claim_number,
+            patientInfo: {
+              id: claim.patient_id,
+              firstName: claim.patient_name?.split(' ')[0] || 'Unknown',
+              lastName: claim.patient_name?.split(' ')[1] || 'Patient',
+              dateOfBirth: '1990-01-01',
+              insuranceInfo: {
+                provider: claim.insurance_name || 'Unknown Insurance',
+                policyNumber: 'POL123456',
+                groupNumber: 'GRP789'
+              }
+            },
+            providerInfo: {
+              id: 'provider-1',
+              firstName: 'Dr. John',
+              lastName: 'Smith',
+              npi: '1234567890',
+              specialty: 'Family Medicine'
+            },
+            insuranceInfo: {
+              name: claim.insurance_name || 'Unknown Insurance',
+              id: 'insurance-1'
+            },
+            serviceDate: claim.service_date,
+            billingCodes: [
+              { 
+                code: '99213', 
+                codeType: 'CPT' as const, 
+                description: 'Office visit', 
+                amount: 150 
+              }
+            ],
+            totalAmount: claim.total_amount,
+            diagnosis: 'Essential hypertension'
+          }))}
           reviewResults={reviewResults}
           onClaimSelect={setSelectedClaim}
         />

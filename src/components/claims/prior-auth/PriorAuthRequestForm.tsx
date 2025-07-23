@@ -145,7 +145,7 @@ export const PriorAuthRequestForm = ({ onSuccess }: PriorAuthRequestFormProps) =
 
         <div>
           <Label htmlFor="urgency">Urgency Level</Label>
-          <Select value={formData.urgency} onValueChange={(value: any) => handleInputChange('urgency', value)}>
+          <Select value={formData.urgency} onValueChange={(value: string) => handleInputChange('urgency', value)}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>

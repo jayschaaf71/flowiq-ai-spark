@@ -36,7 +36,7 @@ export const CalendarWidget = () => {
     }
   };
 
-  const handleAppointmentClick = (appointment: any) => {
+  const handleAppointmentClick = (appointment: { id: string; title: string; time: string; patient: string; status: string }) => {
     setSelectedAppointment(appointment);
     setDetailsModalOpen(true);
   };

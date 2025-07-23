@@ -29,7 +29,7 @@ interface ClaimStatusUpdate {
   status: string;
   timestamp: Date;
   message: string;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
 }
 
 export const RealTimeClaimTracker = () => {
@@ -385,7 +385,7 @@ export const RealTimeClaimTracker = () => {
                       <p className="text-sm text-gray-700">{update.message}</p>
                       {update.metadata?.processingTime && (
                         <p className="text-xs text-gray-500 mt-1">
-                          Processing time: {update.metadata.processingTime}s
+                          Processing time: {String(update.metadata.processingTime)}s
                         </p>
                       )}
                     </div>

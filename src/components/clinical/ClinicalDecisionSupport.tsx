@@ -43,10 +43,29 @@ interface PatientData {
   allergies: string[];
 }
 
+interface DiagnosisOption {
+  diagnosis: string;
+  probability: number;
+  reasoning: string;
+}
+
+interface DiagnosticTest {
+  test: string;
+  indication: string;
+  priority: 'low' | 'medium' | 'high';
+}
+
+interface TreatmentRecommendation {
+  treatment: string;
+  dosage?: string;
+  duration?: string;
+  reasoning: string;
+}
+
 interface ClinicalSupport {
-  differentialDiagnosis: any[];
-  diagnosticTests: any[];
-  treatmentRecommendations: any[];
+  differentialDiagnosis: DiagnosisOption[];
+  diagnosticTests: DiagnosticTest[];
+  treatmentRecommendations: TreatmentRecommendation[];
   redFlags: string[];
   followUpPlan: string;
   patientEducation: string[];
@@ -390,17 +409,12 @@ export const ClinicalDecisionSupport = () => {
                         clinicalSupport.differentialDiagnosis.map((diagnosis, index) => (
                           <div key={index} className="p-3 border rounded-lg">
                             <div className="flex justify-between items-start mb-1">
-                              <h4 className="font-medium">{diagnosis.condition || `Diagnosis ${index + 1}`}</h4>
-                              <Badge variant="outline">{diagnosis.likelihood || 'High'}</Badge>
+                              <h4 className="font-medium">{diagnosis.diagnosis}</h4>
+                              <Badge variant="outline">{diagnosis.probability}%</Badge>
                             </div>
                             <p className="text-sm text-muted-foreground">
-                              {diagnosis.rationale || diagnosis.description || 'Clinical rationale provided'}
+                              {diagnosis.reasoning}
                             </p>
-                            {diagnosis.icd10 && (
-                              <code className="text-xs bg-muted px-2 py-1 rounded mt-2 inline-block">
-                                {diagnosis.icd10}
-                              </code>
-                            )}
                           </div>
                         )) :
                         <div className="text-sm whitespace-pre-wrap">{clinicalSupport.differentialDiagnosis}</div>
@@ -421,9 +435,9 @@ export const ClinicalDecisionSupport = () => {
                       {Array.isArray(clinicalSupport.diagnosticTests) ?
                         clinicalSupport.diagnosticTests.map((test, index) => (
                           <div key={index} className="flex items-center justify-between p-2 bg-secondary/50 rounded">
-                            <span className="text-sm">{test.name || test}</span>
+                            <span className="text-sm">{test.test}</span>
                             <Badge variant="outline" className="text-xs">
-                              {test.urgency || 'Routine'}
+                              {test.priority}
                             </Badge>
                           </div>
                         )) :
@@ -445,10 +459,13 @@ export const ClinicalDecisionSupport = () => {
                       {Array.isArray(clinicalSupport.treatmentRecommendations) ?
                         clinicalSupport.treatmentRecommendations.map((treatment, index) => (
                           <div key={index} className="p-2 border-l-2 border-primary pl-3">
-                            <p className="text-sm font-medium">{treatment.intervention || treatment}</p>
-                            {treatment.details && (
-                              <p className="text-xs text-muted-foreground">{treatment.details}</p>
+                            <p className="text-sm font-medium">{treatment.treatment}</p>
+                            {treatment.dosage && (
+                              <p className="text-xs text-muted-foreground">
+                                {treatment.dosage} {treatment.duration && `for ${treatment.duration}`}
+                              </p>
                             )}
+                            <p className="text-xs text-muted-foreground mt-1">{treatment.reasoning}</p>
                           </div>
                         )) :
                         <div className="text-sm whitespace-pre-wrap">{clinicalSupport.treatmentRecommendations}</div>

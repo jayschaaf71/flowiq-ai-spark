@@ -83,12 +83,12 @@ export const MedicalHistory = ({ patientId }: MedicalHistoryProps) => {
     setSelectedCondition(null);
   };
 
-  const handleEdit = (condition: any) => {
+  const handleEdit = (condition: { condition_name: string; diagnosis_date?: string; status: string; notes: string }) => {
     setSelectedCondition(condition);
     setFormData({
       condition_name: condition.condition_name,
       diagnosis_date: condition.diagnosis_date || "",
-      status: condition.status,
+      status: (condition.status as "active" | "resolved" | "chronic" | "monitoring") || "active",
       notes: condition.notes || ""
     });
     setOpen(true);
@@ -155,7 +155,7 @@ export const MedicalHistory = ({ patientId }: MedicalHistoryProps) => {
               
               <div>
                 <Label>Status</Label>
-                <Select value={formData.status} onValueChange={(value: any) => setFormData(prev => ({ ...prev, status: value }))}>
+                <Select value={formData.status} onValueChange={(value: "active" | "resolved" | "chronic" | "monitoring") => setFormData(prev => ({ ...prev, status: value }))}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>

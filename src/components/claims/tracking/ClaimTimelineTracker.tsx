@@ -22,7 +22,7 @@ interface TimelineEvent {
   title: string;
   description: string;
   user?: string;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
 }
 
 interface ClaimTimelineTrackerProps {
@@ -180,43 +180,43 @@ export const ClaimTimelineTracker = ({ claimNumber, onClose }: ClaimTimelineTrac
                           {event.metadata.confidence && (
                             <div>
                               <span className="font-medium">AI Confidence: </span>
-                              <span>{event.metadata.confidence}%</span>
+                              <span>{String(event.metadata.confidence)}%</span>
                             </div>
                           )}
                           {event.metadata.score && (
                             <div>
                               <span className="font-medium">Validation Score: </span>
-                              <span>{event.metadata.score}%</span>
+                              <span>{String(event.metadata.score)}%</span>
                             </div>
                           )}
                           {event.metadata.corrections && (
                             <div>
                               <span className="font-medium">Auto-corrections: </span>
-                              <span>{event.metadata.corrections}</span>
+                              <span>{String(event.metadata.corrections)}</span>
                             </div>
                           )}
                           {event.metadata.controlNumber && (
                             <div>
                               <span className="font-medium">Control Number: </span>
-                              <span>{event.metadata.controlNumber}</span>
+                              <span>{String(event.metadata.controlNumber)}</span>
                             </div>
                           )}
                           {event.metadata.estimatedDays && (
                             <div>
                               <span className="font-medium">Est. Processing: </span>
-                              <span>{event.metadata.estimatedDays} days</span>
+                              <span>{String(event.metadata.estimatedDays)} days</span>
                             </div>
                           )}
                           {event.metadata.approvedAmount && (
                             <div>
                               <span className="font-medium">Approved Amount: </span>
-                              <span>${event.metadata.approvedAmount}</span>
+                              <span>${String(event.metadata.approvedAmount)}</span>
                             </div>
                           )}
                           {event.metadata.paymentDate && (
                             <div>
                               <span className="font-medium">Payment Date: </span>
-                              <span>{new Date(event.metadata.paymentDate).toLocaleDateString()}</span>
+                              <span>{new Date(String(event.metadata.paymentDate)).toLocaleDateString()}</span>
                             </div>
                           )}
                         </div>

@@ -43,7 +43,7 @@ export const AutoCorrectionEngine = ({ reviewResults, onCorrectionApplied }: Aut
     return acc;
   }, {} as Record<string, any[]>);
 
-  const applyCorrection = async (correction: any) => {
+  const applyCorrection = async (correction: { claimId: string; field: string; issue: string; suggestion: string }) => {
     setApplyingCorrections(prev => [...prev, `${correction.claimId}-${correction.field}`]);
     
     try {
@@ -104,7 +104,13 @@ export const AutoCorrectionEngine = ({ reviewResults, onCorrectionApplied }: Aut
     });
 
     for (const correction of autoApplicableCorrections) {
-      await applyCorrection(correction);
+      const correctionData = {
+        claimId: correction.claimId,
+        field: correction.field,
+        issue: correction.originalValue,
+        suggestion: correction.correctedValue
+      };
+      await applyCorrection(correctionData);
       // Small delay between corrections
       await new Promise(resolve => setTimeout(resolve, 500));
     }
