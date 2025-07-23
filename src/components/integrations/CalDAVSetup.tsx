@@ -82,11 +82,11 @@ export const CalDAVSetup = () => {
       } else {
         throw new Error(`Connection failed: ${response.status} ${response.statusText}`);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       setConnectionStatus('error');
       toast({
         title: "Connection Failed",
-        description: error.message || "Failed to connect to CalDAV server",
+        description: error instanceof Error ? error.message : "Failed to connect to CalDAV server",
         variant: "destructive"
       });
     } finally {

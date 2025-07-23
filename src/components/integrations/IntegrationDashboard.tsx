@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -39,11 +39,7 @@ export const IntegrationDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [testingIntegration, setTestingIntegration] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadIntegrations();
-  }, []);
-
-  const loadIntegrations = async () => {
+  const loadIntegrations = useCallback(async () => {
     setLoading(true);
     try {
       const data = await integrationService.getIntegrations();
@@ -66,7 +62,11 @@ export const IntegrationDashboard: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    loadIntegrations();
+  }, [loadIntegrations]);
 
   const toggleIntegration = async (id: string, enabled: boolean) => {
     try {

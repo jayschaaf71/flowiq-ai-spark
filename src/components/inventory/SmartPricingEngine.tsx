@@ -24,9 +24,26 @@ interface PricingRecommendation {
   confidence_score: number;
 }
 
+interface InventoryItem {
+  id: string;
+  name: string;
+  quantity: number;
+  price: number;
+  category: string;
+  supplier?: string;
+}
+
+interface Vendor {
+  id: string;
+  name: string;
+  contact: string;
+  deliveryTime: number;
+  rating: number;
+}
+
 interface SmartPricingEngineProps {
-  inventoryItems: any[];
-  vendors: any[];
+  inventoryItems: InventoryItem[];
+  vendors: Vendor[];
 }
 
 export const SmartPricingEngine = ({ inventoryItems, vendors }: SmartPricingEngineProps) => {

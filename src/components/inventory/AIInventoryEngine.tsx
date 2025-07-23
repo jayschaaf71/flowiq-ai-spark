@@ -18,10 +18,36 @@ interface AIInsight {
   created_at: string;
 }
 
+interface InventoryItem {
+  id: string;
+  name: string;
+  quantity: number;
+  price: number;
+  category: string;
+  supplier?: string;
+}
+
+interface Vendor {
+  id: string;
+  name: string;
+  contact: string;
+  deliveryTime: number;
+  rating: number;
+}
+
+interface PurchaseOrder {
+  id: string;
+  vendorId: string;
+  items: Array<{ itemId: string; quantity: number; price: number }>;
+  status: string;
+  orderDate: string;
+  totalAmount: number;
+}
+
 interface AIInventoryEngineProps {
-  inventoryItems: any[];
-  vendors: any[];
-  purchaseOrders: any[];
+  inventoryItems: InventoryItem[];
+  vendors: Vendor[];
+  purchaseOrders: PurchaseOrder[];
 }
 
 export const AIInventoryEngine = ({ inventoryItems, vendors, purchaseOrders }: AIInventoryEngineProps) => {

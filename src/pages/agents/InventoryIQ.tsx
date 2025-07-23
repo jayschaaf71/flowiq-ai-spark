@@ -193,8 +193,21 @@ export default function InventoryIQ() {
         <TabsContent value="ai-insights" className="space-y-4">
           <AIInventoryEngine 
             inventoryItems={filteredItems}
-            vendors={vendors}
-            purchaseOrders={purchaseOrders}
+            vendors={vendors.map(vendor => ({
+              id: vendor.id,
+              name: vendor.name,
+              contact: vendor.email || vendor.phone || '',
+              deliveryTime: 7, // Default delivery time
+              rating: 4.5 // Default rating
+            }))}
+            purchaseOrders={purchaseOrders.map(order => ({
+              id: order.id,
+              vendorId: order.vendor_id,
+              items: [], // Default to empty array since items structure may differ
+              status: order.status,
+              orderDate: order.created_at,
+              totalAmount: order.total_amount || 0
+            }))}
           />
         </TabsContent>
 
@@ -273,7 +286,13 @@ export default function InventoryIQ() {
         <TabsContent value="pricing" className="space-y-4">
           <SmartPricingEngine 
             inventoryItems={filteredItems}
-            vendors={vendors}
+            vendors={vendors.map(vendor => ({
+              id: vendor.id,
+              name: vendor.name,
+              contact: vendor.email || vendor.phone || '',
+              deliveryTime: 7, // Default delivery time
+              rating: 4.5 // Default rating
+            }))}
           />
         </TabsContent>
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -58,12 +58,7 @@ export const EmbeddablePatientPortal: React.FC = () => {
   const [embedCode, setEmbedCode] = useState('');
   const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('desktop');
 
-  // Generate embed code whenever config changes
-  useEffect(() => {
-    generateEmbedCode();
-  }, [config]);
-
-  const generateEmbedCode = () => {
+  const generateEmbedCode = useCallback(() => {
     const baseUrl = window.location.origin;
     const tenantId = 'demo'; // In real implementation, this would be dynamic
     
@@ -88,7 +83,12 @@ export const EmbeddablePatientPortal: React.FC = () => {
 </iframe>`;
 
     setEmbedCode(iframeCode);
-  };
+  }, [config]);
+
+  // Generate embed code whenever config changes
+  useEffect(() => {
+    generateEmbedCode();
+  }, [generateEmbedCode]);
 
   const copyToClipboard = async (text: string) => {
     try {
