@@ -115,7 +115,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } else {
       setProfile(null);
     }
-  }, [user]);
+  }, [user, fetchProfile]);
 
   const refreshProfile = async () => {
     if (user) {

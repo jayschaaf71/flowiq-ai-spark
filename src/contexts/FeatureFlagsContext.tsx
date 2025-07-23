@@ -76,7 +76,7 @@ export const FeatureFlagsProvider: React.FC<{ children: React.ReactNode }> = ({ 
       setFlags(DEFAULT_FLAGS);
       setLoading(false);
     }
-  }, [user, profile]);
+  }, [user, profile, fetchFeatureFlags]);
 
   const isFeatureEnabled = (key: string): boolean => {
     const flag = flags.find(f => f.key === key);
