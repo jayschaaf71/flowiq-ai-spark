@@ -69,7 +69,21 @@ export const OnboardingStepsRenderer: React.FC<OnboardingStepsRendererProps> = (
     case 'agents':
       return (
         <AgentConfiguration
-          agentConfig={onboardingData.agentConfig || { 'appointment-iq': false, 'intake-iq': false, 'billing-iq': false }}
+          specialty={onboardingData.specialty as SpecialtyType || 'general' as any}
+          agentConfig={(onboardingData.agentConfig || { 
+            'appointment-iq': false,
+            'intake-iq': false,
+            'billing-iq': false,
+            'claims-iq': false,
+            'assist-iq': false,
+            'scribe-iq': false,
+            automationLevel: 1,
+            businessHours: {
+              start: '09:00',
+              end: '17:00',
+              timezone: 'America/New_York'
+            }
+          }) as Record<string, unknown>}
           onAgentConfigUpdate={(agentConfig) => updateOnboardingData({ agentConfig })}
         />
       );

@@ -14,9 +14,10 @@ import { OnboardingSkipHandler } from './OnboardingSkipHandler';
 import { useOnboardingFlow } from '@/hooks/useOnboardingFlow';
 import { useOnboardingValidation } from '@/hooks/useOnboardingValidation';
 import { useToast } from '@/hooks/use-toast';
+import { OnboardingCompletionData, OnboardingSkipOption } from '@/types/configuration';
 
 interface ComprehensiveOnboardingFlowProps {
-  onComplete: (data: any) => void;
+  onComplete: (data: OnboardingCompletionData) => void;
   onCancel: () => void;
 }
 
@@ -59,8 +60,8 @@ export const ComprehensiveOnboardingFlow: React.FC<ComprehensiveOnboardingFlowPr
     }
   };
 
-  const handleSkip = (option: any) => {
-    skipStep(currentStepData.id, option.title);
+  const handleSkip = (option: OnboardingSkipOption) => {
+    skipStep(currentStepData.id, option.reason);
     nextStep();
     setShowSkipOptions(false);
   };
@@ -97,7 +98,15 @@ export const ComprehensiveOnboardingFlow: React.FC<ComprehensiveOnboardingFlowPr
       
       setTimeout(() => {
         console.log('Submitting onboarding data:', onboardingData);
-        onComplete(onboardingData);
+        onComplete({
+          specialty: onboardingData.specialty || 'general',
+          practiceData: onboardingData.practiceData || {},
+          agentConfig: onboardingData.agentConfig || {},
+          ehrConfig: onboardingData.ehrConfig || {},
+          paymentConfig: onboardingData.paymentConfig || {},
+          templateConfig: onboardingData.templateConfig || {},
+          completedAt: new Date().toISOString()
+        } as OnboardingCompletionData);
       }, 2000);
       
     } catch (error) {
@@ -200,7 +209,7 @@ export const ComprehensiveOnboardingFlow: React.FC<ComprehensiveOnboardingFlowPr
                   <div className="max-w-2xl mx-auto">
                     <OnboardingSkipHandler
                       step={currentStepData.component}
-                      onSkip={handleSkip}
+                      onSkip={(option) => handleSkip(option as unknown as OnboardingSkipOption)}
                       onContinue={() => setShowSkipOptions(false)}
                     />
                   </div>
