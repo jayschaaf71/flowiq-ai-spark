@@ -161,11 +161,11 @@ async function sendEmailReminder(resend: any, reminder: AppointmentReminderData)
 
   // Replace template variables
   const message = reminder.message_template
-    .replace(/\\{\\{patient_name\\}\\}/g, appointment.patient_name)
-    .replace(/\\{\\{provider_name\\}\\}/g, providerName)
-    .replace(/\\{\\{date\\}\\}/g, formattedDate)
-    .replace(/\\{\\{time\\}\\}/g, formattedTime)
-    .replace(/\\{\\{appointment_type\\}\\}/g, appointment.appointment_type);
+    .replace(/\{\{patient_name\}\}/g, appointment.patient_name)
+    .replace(/\{\{provider_name\}\}/g, providerName)
+    .replace(/\{\{date\}\}/g, formattedDate)
+    .replace(/\{\{time\}\}/g, formattedTime)
+    .replace(/\{\{appointment_type\}\}/g, appointment.appointment_type);
 
   const emailHtml = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -227,11 +227,11 @@ async function sendSMSReminder(reminder: AppointmentReminderData) {
 
   // Replace template variables for SMS (keep it short)
   let message = reminder.message_template
-    .replace(/\\{\\{patient_name\\}\\}/g, appointment.patient_name)
-    .replace(/\\{\\{provider_name\\}\\}/g, providerName)
-    .replace(/\\{\\{date\\}\\}/g, formattedDate)
-    .replace(/\\{\\{time\\}\\}/g, formattedTime)
-    .replace(/\\{\\{appointment_type\\}\\}/g, appointment.appointment_type);
+    .replace(/\{\{patient_name\}\}/g, appointment.patient_name)
+    .replace(/\{\{provider_name\}\}/g, providerName)
+    .replace(/\{\{date\}\}/g, formattedDate)
+    .replace(/\{\{time\}\}/g, formattedTime)
+    .replace(/\{\{appointment_type\}\}/g, appointment.appointment_type);
 
   // Add appointment details for SMS
   message += ` Details: ${formattedDate} at ${formattedTime} with ${providerName}. Reply STOP to opt out.`;
