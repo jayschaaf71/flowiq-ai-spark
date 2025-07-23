@@ -54,7 +54,7 @@ export const PatientFormRenderer: React.FC<PatientFormRendererProps> = ({
 
   // Safely cast form_fields to array with proper type handling
   const fields: FormField[] = Array.isArray(form.form_fields) 
-    ? (form.form_fields as unknown as FormField[]).filter((field: any): field is FormField => {
+    ? (form.form_fields as unknown as FormField[]).filter((field: FormField): field is FormField => {
         return (
           typeof field === 'object' && 
           field !== null && 

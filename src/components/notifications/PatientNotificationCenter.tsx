@@ -22,7 +22,7 @@ interface PatientNotification {
   type: string;
   title: string;
   message: string;
-  metadata: any;
+  metadata: Record<string, unknown>;
   priority: string;
   is_read: boolean;
   created_at: string;
@@ -82,10 +82,16 @@ export const PatientNotificationCenter: React.FC = () => {
         .limit(20);
 
       if (error) throw error;
-      // Map read field to is_read for component interface
-      const mappedNotifications = (data || []).map(notification => ({
-        ...notification,
-        is_read: notification.read
+      // Map database fields to component interface
+      const mappedNotifications: PatientNotification[] = (data || []).map(notification => ({
+        id: notification.id,
+        type: notification.type,
+        title: notification.title,
+        message: notification.message,
+        metadata: (notification.metadata as Record<string, unknown>) || {},
+        priority: notification.priority || 'normal',
+        is_read: notification.read || false,
+        created_at: notification.created_at
       }));
       setNotifications(mappedNotifications);
     } catch (error) {
@@ -257,10 +263,10 @@ export const PatientNotificationCenter: React.FC = () => {
                             <div className="flex items-center justify-between">
                               <div>
                                 <p className="text-sm font-medium">
-                                  Amount Due: ${notification.metadata.bill_amount}
+                                  Amount Due: ${String(notification.metadata.bill_amount)}
                                 </p>
                                 <p className="text-xs text-gray-600">
-                                  Due: {new Date(notification.metadata.due_date).toLocaleDateString()}
+                                  Due: {new Date(String(notification.metadata.due_date || '')).toLocaleDateString()}
                                 </p>
                               </div>
                               <Button size="sm" className="bg-blue-600 hover:bg-blue-700">

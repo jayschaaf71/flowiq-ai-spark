@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -36,6 +36,34 @@ export const MobileOptimizedForm: React.FC<MobileOptimizedFormProps> = ({
   const totalSteps = Math.ceil(fields.length / fieldsPerStep);
   const currentField = fields[currentStep];
 
+  // Define callbacks first
+  const saveToLocalStorage = useCallback(() => {
+    try {
+      localStorage.setItem(`intake_form_${form.id}`, JSON.stringify({
+        formData,
+        currentStep,
+        timestamp: new Date().toISOString()
+      }));
+      setLastSaved(new Date());
+    } catch (error) {
+      console.error('Failed to save to localStorage:', error);
+    }
+  }, [form.id, formData, currentStep]);
+
+  const loadFromLocalStorage = useCallback(() => {
+    try {
+      const saved = localStorage.getItem(`intake_form_${form.id}`);
+      if (saved) {
+        const { formData: savedData, currentStep: savedStep } = JSON.parse(saved);
+        setFormData(savedData);
+        setCurrentStep(savedStep);
+        setLastSaved(new Date());
+      }
+    } catch (error) {
+      console.error('Failed to load from localStorage:', error);
+    }
+  }, [form.id]);
+
   // Online/offline detection
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -59,39 +87,12 @@ export const MobileOptimizedForm: React.FC<MobileOptimizedFormProps> = ({
 
       return () => clearTimeout(timer);
     }
-  }, [formData, autoSaveEnabled]);
+  }, [formData, autoSaveEnabled, saveToLocalStorage]);
 
   // Load saved data on mount
   useEffect(() => {
     loadFromLocalStorage();
-  }, []);
-
-  const saveToLocalStorage = () => {
-    try {
-      localStorage.setItem(`intake_form_${form.id}`, JSON.stringify({
-        formData,
-        currentStep,
-        timestamp: new Date().toISOString()
-      }));
-      setLastSaved(new Date());
-    } catch (error) {
-      console.error('Failed to save to localStorage:', error);
-    }
-  };
-
-  const loadFromLocalStorage = () => {
-    try {
-      const saved = localStorage.getItem(`intake_form_${form.id}`);
-      if (saved) {
-        const { formData: savedData, currentStep: savedStep } = JSON.parse(saved);
-        setFormData(savedData);
-        setCurrentStep(savedStep);
-        setLastSaved(new Date());
-      }
-    } catch (error) {
-      console.error('Failed to load from localStorage:', error);
-    }
-  };
+  }, [loadFromLocalStorage]);
 
   const handleFieldChange = (value: any) => {
     setFormData(prev => ({
