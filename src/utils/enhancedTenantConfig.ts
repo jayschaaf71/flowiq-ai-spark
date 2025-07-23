@@ -71,17 +71,19 @@ const DEFAULT_TENANTS: Record<string, TenantConfig> = {
 // Helper function to get subdomain from URL
 const getCurrentSubdomain = () => {
   const hostname = window.location.hostname;
-  const parts = hostname.split('.');
   
   // For localhost development
   if (hostname.includes('localhost') || hostname.includes('127.0.0.1')) {
     return null;
   }
   
-  // For Lovable development (UUID hostnames)
+  // For Lovable development (UUID hostnames) - check this FIRST
   if (hostname.includes('lovableproject.com')) {
+    console.log('Skipping tenant lookup for Lovable development hostname:', hostname);
     return null; // Skip tenant lookup for development
   }
+  
+  const parts = hostname.split('.');
   
   // For production domains like tenant.domain.com
   if (parts.length >= 3) {

@@ -56,7 +56,9 @@ export function EnvironmentCheck() {
     }
 
     // Check tenant configuration
-    const subdomain = hostname.includes('lovableproject.com') ? null : hostname.split('.')[0];
+    const subdomain = hostname.includes('lovableproject.com') ? null : (
+      hostname.includes('localhost') || hostname.includes('127.0.0.1') ? null : hostname.split('.')[0]
+    );
     if (subdomain) {
       try {
         const { data: tenant } = await supabase
