@@ -209,11 +209,11 @@ export const EDIManagementSystem = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {payerConnections?.map((connection: any) => (
+                  {payerConnections?.map((connection) => (
                     <div key={connection.id} className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                        <span className="font-medium">{connection.name}</span>
+                        <span className="font-medium">{connection.payerName || connection.name}</span>
                       </div>
                       <Button 
                         variant="outline" 
@@ -293,14 +293,14 @@ export const EDIManagementSystem = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {payerConnections?.map((connection: any) => (
+                {payerConnections?.map((connection) => (
                   <div key={connection.id} className="border rounded-lg p-4">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-3">
                         <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                         <div>
-                          <h4 className="font-medium">{connection.name}</h4>
-                          <p className="text-sm text-gray-500">EDI Gateway: {connection.gateway || 'Direct'}</p>
+                          <h4 className="font-medium">{connection.payerName || connection.name}</h4>
+                          <p className="text-sm text-gray-500">EDI Gateway: {connection.ediConfiguration?.gateway || 'Direct'}</p>
                         </div>
                       </div>
                       <div className="flex gap-2">

@@ -27,6 +27,10 @@ declare global {
     SpeechRecognition: unknown;
     webkitSpeechRecognition: unknown;
   }
+  
+  interface SpeechRecognitionEvent extends Event {
+    results: SpeechRecognitionResultList;
+  }
 }
 
 export const ChatWindow: React.FC<ChatWindowProps> = ({
@@ -58,7 +62,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
       recognitionInstance.interimResults = false;
       recognitionInstance.lang = 'en-US';
 
-      recognitionInstance.onresult = (event: any) => {
+      recognitionInstance.onresult = (event: SpeechRecognitionEvent) => {
         const transcript = event.results[0][0].transcript;
         onInputChange(transcript);
         setIsRecording(false);

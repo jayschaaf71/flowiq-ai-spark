@@ -3,7 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 
 interface DenialAnalyticsTabProps {
-  denialAnalytics: any;
+  denialAnalytics: {
+    trends?: Array<{ month: string; count: number }>;
+    denialsByReason?: Array<{ reason: string; count: number }>;
+    totalDenials?: number;
+  } | null;
 }
 
 export const DenialAnalyticsTab = ({ denialAnalytics }: DenialAnalyticsTabProps) => {
@@ -15,14 +19,11 @@ export const DenialAnalyticsTab = ({ denialAnalytics }: DenialAnalyticsTabProps)
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {denialAnalytics?.trends?.map((trend: any, index: number) => (
+            {denialAnalytics?.trends?.map((trend: { month: string; count: number }, index: number) => (
               <div key={index} className="flex items-center justify-between">
                 <span className="text-sm">{trend.month}</span>
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium">{trend.count} denials</span>
-                  <span className="text-sm text-muted-foreground">
-                    ${trend.amount.toLocaleString()}
-                  </span>
                 </div>
               </div>
             ))}
@@ -36,13 +37,13 @@ export const DenialAnalyticsTab = ({ denialAnalytics }: DenialAnalyticsTabProps)
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {denialAnalytics?.denialsByReason?.slice(0, 5).map((item: any, index: number) => (
+            {denialAnalytics?.denialsByReason?.slice(0, 5).map((item: { reason: string; count: number }, index: number) => (
               <div key={index} className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>{item.reason}</span>
                   <span className="font-medium">{item.count} claims</span>
                 </div>
-                <Progress value={(item.count / (denialAnalytics.totalDenials || 1)) * 100} />
+                <Progress value={(item.count / Math.max(denialAnalytics?.totalDenials || 1, 1)) * 100} />
               </div>
             ))}
           </div>

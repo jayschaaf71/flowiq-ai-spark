@@ -192,7 +192,14 @@ export const ClaimGenerationEngine = () => {
               <div>
                 <h4 className="font-medium mb-2">Generated Medical Codes</h4>
                 <div className="space-y-2">
-                  {generatedClaim.codes.map((code: any, index: number) => (
+                  {generatedClaim.codes.map((code: { 
+                    code: string; 
+                    description: string; 
+                    codeType?: string; 
+                    category?: string; 
+                    confidence?: number; 
+                    specialty?: string;
+                  }, index: number) => (
                     <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                       <div>
                         <div className="flex items-center gap-2">

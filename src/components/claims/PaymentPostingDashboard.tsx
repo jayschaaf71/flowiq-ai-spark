@@ -399,7 +399,7 @@ export const PaymentPostingDashboard = () => {
               <CardContent>
                 {analytics?.topPayers && (
                   <div className="space-y-3">
-                    {analytics.topPayers.map((payer: any, index: number) => (
+                    {analytics.topPayers.map((payer: { name: string; amount: number; count: number }, index: number) => (
                       <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                         <div>
                           <div className="font-medium">{payer.name}</div>

@@ -12,7 +12,7 @@ import { CheckCircle, XCircle, Shield, Clock, AlertTriangle } from "lucide-react
 
 interface EligibilityVerificationPanelProps {
   patientId?: string;
-  onEligibilityVerified?: (result: any) => void;
+  onEligibilityVerified?: (result: { isEligible: boolean; benefits: Record<string, unknown> }) => void;
 }
 
 export const EligibilityVerificationPanel = ({ 
@@ -39,7 +39,7 @@ export const EligibilityVerificationPanel = ({
       });
 
       setLastResult(result);
-      onEligibilityVerified?.(result);
+      onEligibilityVerified?.({ isEligible: result.isEligible, benefits: result.coverageDetails || {} });
     } catch (error) {
       console.error('Eligibility verification failed:', error);
     }

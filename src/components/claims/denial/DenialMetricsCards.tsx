@@ -3,7 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileX, DollarSign, Zap, Target } from "lucide-react";
 
 interface DenialMetricsCardsProps {
-  denialAnalytics: any;
+  denialAnalytics: {
+    totalDenials?: number;
+    totalDeniedAmount?: number;
+    autoCorrectible?: number;
+    autoCorrectRate?: number;
+  } | null;
 }
 
 export const DenialMetricsCards = ({ denialAnalytics }: DenialMetricsCardsProps) => {
