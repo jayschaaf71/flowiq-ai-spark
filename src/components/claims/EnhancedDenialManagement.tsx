@@ -19,7 +19,7 @@ interface DenialAnalyticsData {
   denialRate?: number;
   topReasons?: Array<{ reason: string; count: number }>;
   denialsByReason?: Array<{ reason: string; count: number }>;
-  trends?: Array<{ month: string; denials?: number; count?: number; amount?: number }>;
+  trends?: Array<{ month: string; count: number; amount?: number }>;
 }
 
 export const EnhancedDenialManagement = () => {

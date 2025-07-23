@@ -213,7 +213,7 @@ export const EDIManagementSystem = () => {
                     <div key={connection.id} className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                        <span className="font-medium">{connection.payerName || connection.name}</span>
+                        <span className="font-medium">{connection.payerName}</span>
                       </div>
                       <Button 
                         variant="outline" 
@@ -299,8 +299,8 @@ export const EDIManagementSystem = () => {
                       <div className="flex items-center gap-3">
                         <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                         <div>
-                          <h4 className="font-medium">{connection.payerName || connection.name}</h4>
-                          <p className="text-sm text-gray-500">EDI Gateway: {connection.ediConfiguration?.gateway || 'Direct'}</p>
+                          <h4 className="font-medium">{connection.payerName}</h4>
+                          <p className="text-sm text-gray-500">EDI Gateway: {connection.configuration?.gateway || 'Direct'}</p>
                         </div>
                       </div>
                       <div className="flex gap-2">
