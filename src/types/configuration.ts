@@ -1,10 +1,15 @@
 // Enhanced onboarding and configuration types
 
-import { OnboardingCompletionData as BaseOnboardingCompletionData } from './onboarding';
-import { PaymentConfigurationData, EHRConfigurationData } from './callbacks';
+import { OnboardingData } from '@/hooks/useOnboardingFlow';
 
-// Export OnboardingCompletionData for external use
-export type { OnboardingCompletionData } from './onboarding';
+// Completion data interface for onboarding
+export interface OnboardingCompletionData extends OnboardingData {
+  completedAt: string;
+  setupVersion: string;
+  setupCompletedAt?: string;
+  aiAssistanceUsed?: boolean;
+  completionTimeMs?: number;
+}
 
 // Agent Configuration Types
 export interface AgentConfigData {

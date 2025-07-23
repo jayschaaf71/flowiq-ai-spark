@@ -17,6 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { OnboardingCompletionData, OnboardingSkipOption } from '@/types/configuration';
 import { 
   Bot, 
   CheckCircle, 
@@ -29,7 +30,7 @@ import {
 } from 'lucide-react';
 
 interface EnhancedOnboardingFlowProps {
-  onComplete: (data: any) => void;
+  onComplete: (data: OnboardingCompletionData) => void;
   onCancel: () => void;
 }
 
@@ -111,7 +112,7 @@ export const EnhancedOnboardingFlow: React.FC<EnhancedOnboardingFlowProps> = ({
     }
   };
 
-  const handleSkip = (option: any) => {
+  const handleSkip = (option: OnboardingSkipOption) => {
     skipStep(currentStepData.id, option.title);
     nextStep();
     setShowSkipOptions(false);
@@ -152,9 +153,9 @@ export const EnhancedOnboardingFlow: React.FC<EnhancedOnboardingFlowProps> = ({
       localStorage.removeItem('flowiq_onboarding_progress');
       
       // Enhanced submission with proper data structure
-      const submissionData = {
+      const submissionData: OnboardingCompletionData = {
         ...onboardingData,
-        setupCompletedAt: new Date().toISOString(),
+        completedAt: new Date().toISOString(),
         setupVersion: '2.0',
         aiAssistanceUsed: !aiAssistantMinimized,
         completionTimeMs: Date.now() - (Date.now() - 30 * 60 * 1000) // Estimate 30 min ago
@@ -358,7 +359,7 @@ export const EnhancedOnboardingFlow: React.FC<EnhancedOnboardingFlowProps> = ({
                   <div className="max-w-2xl mx-auto">
                     <OnboardingSkipHandler
                       step={currentStepData.component}
-                      onSkip={handleSkip}
+                      onSkip={(option) => handleSkip(option as unknown as OnboardingSkipOption)}
                       onContinue={() => setShowSkipOptions(false)}
                     />
                   </div>

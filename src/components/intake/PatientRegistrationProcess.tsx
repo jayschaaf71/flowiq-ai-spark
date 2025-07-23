@@ -4,12 +4,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { IntakeForm } from '@/hooks/useIntakeForms';
 import { PatientFormRenderer } from './PatientFormRenderer';
+import { FormSubmissionData } from '@/types/intake';
 
 interface PatientRegistrationProcessProps {
   currentForm: IntakeForm;
   currentFormIndex: number;
   formSequence: string[];
-  onSubmissionComplete: (submission: any) => void;
+  onSubmissionComplete: (submission: FormSubmissionData) => void;
   onSkipForm: () => void;
   onExit: () => void;
   isSubmitting?: boolean;
@@ -66,7 +67,7 @@ export const PatientRegistrationProcess: React.FC<PatientRegistrationProcessProp
       
       <PatientFormRenderer
         form={currentForm}
-        onSubmissionComplete={onSubmissionComplete}
+        onSubmissionComplete={(data) => onSubmissionComplete(data as unknown as FormSubmissionData)}
       />
     </div>
   );

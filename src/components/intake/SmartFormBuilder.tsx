@@ -70,18 +70,18 @@ export const SmartFormBuilder = () => {
 
   const aiSuggestedFields = {
     chiro: [
-      { type: "select", label: "Chief Complaint", options: ["Lower Back Pain", "Neck Pain", "Headaches", "Sports Injury", "Other"] },
-      { type: "number", label: "Pain Level (1-10)" },
-      { type: "date", label: "When did pain start?" },
-      { type: "textarea", label: "How did the injury occur?" },
-      { type: "checkbox", label: "Previous Treatments", options: ["Chiropractic", "Physical Therapy", "Massage", "Medication"] }
+      { type: "select" as const, label: "Chief Complaint", options: ["Lower Back Pain", "Neck Pain", "Headaches", "Sports Injury", "Other"] },
+      { type: "number" as const, label: "Pain Level (1-10)" },
+      { type: "date" as const, label: "When did pain start?" },
+      { type: "textarea" as const, label: "How did the injury occur?" },
+      { type: "checkbox" as const, label: "Previous Treatments", options: ["Chiropractic", "Physical Therapy", "Massage", "Medication"] }
     ],
     dental: [
-      { type: "select", label: "Reason for Visit", options: ["Cleaning", "Pain", "Checkup", "Cosmetic", "Emergency"] },
-      { type: "date", label: "Last Dental Visit" },
-      { type: "checkbox", label: "Current Symptoms", options: ["Pain", "Sensitivity", "Bleeding Gums", "Bad Breath"] },
-      { type: "textarea", label: "Dental History" },
-      { type: "text", label: "Current Medications" }
+      { type: "select" as const, label: "Reason for Visit", options: ["Cleaning", "Pain", "Checkup", "Cosmetic", "Emergency"] },
+      { type: "date" as const, label: "Last Dental Visit" },
+      { type: "checkbox" as const, label: "Current Symptoms", options: ["Pain", "Sensitivity", "Bleeding Gums", "Bad Breath"] },
+      { type: "textarea" as const, label: "Dental History" },
+      { type: "text" as const, label: "Current Medications" }
     ]
   };
 
@@ -101,7 +101,7 @@ export const SmartFormBuilder = () => {
     setFields([...fields, newField]);
   };
 
-  const addAISuggestedField = (suggestedField: any) => {
+  const addAISuggestedField = (suggestedField: { type: FormField['type']; label: string; options?: string[] }) => {
     const newField: FormField = {
       id: Date.now().toString(),
       type: suggestedField.type,

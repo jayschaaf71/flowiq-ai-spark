@@ -8,6 +8,7 @@ import { PatientRegistrationComplete } from './PatientRegistrationComplete';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useLoadingState } from '@/hooks/useLoadingState';
+import { FormSubmissionData } from '@/types/intake';
 
 export const PatientRegistration: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
@@ -41,10 +42,10 @@ export const PatientRegistration: React.FC = () => {
     }
   };
 
-  const handleFormSubmissionComplete = async (submission: any) => {
+  const handleFormSubmissionComplete = async (submission: FormSubmissionData) => {
     try {
       setLoading('submission', true);
-      const isComplete = await handleFormCompletion(submission);
+      const isComplete = await handleFormCompletion(submission as unknown as Record<string, unknown>);
       
       if (isComplete) {
         setShowForm(false);

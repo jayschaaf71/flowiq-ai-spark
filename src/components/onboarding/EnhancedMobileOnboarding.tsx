@@ -6,9 +6,10 @@ import { MobileStepMenu } from './MobileStepMenu';
 import { ComprehensiveOnboardingFlow } from './ComprehensiveOnboardingFlow';
 import { useOnboardingFlow } from '@/hooks/useOnboardingFlow';
 import { OnboardingStepsRenderer } from './OnboardingStepsRenderer';
+import { OnboardingCompletionData } from '@/types/configuration';
 
 interface EnhancedMobileOnboardingProps {
-  onComplete: (data: any) => void;
+  onComplete: (data: OnboardingCompletionData) => void;
   onCancel: () => void;
 }
 
@@ -58,7 +59,12 @@ export const EnhancedMobileOnboarding: React.FC<EnhancedMobileOnboardingProps> =
 
   const handleComplete = () => {
     console.log('Completing onboarding with data:', onboardingData);
-    onComplete(onboardingData);
+    const completionData: OnboardingCompletionData = {
+      ...onboardingData,
+      completedAt: new Date().toISOString(),
+      setupVersion: '2.0'
+    };
+    onComplete(completionData);
   };
 
   const handleNext = () => {
