@@ -349,7 +349,7 @@ class EnhancedAISchedulingService {
     const alternatives = [];
     const baseHour = parseInt(proposedSlot.time.split(':')[0]);
     
-    for (let offset of [-1, 1, -2, 2]) {
+    for (const offset of [-1, 1, -2, 2]) {
       const newHour = baseHour + offset;
       if (newHour >= 8 && newHour <= 17) {
         const newTime = `${newHour.toString().padStart(2, '0')}:00`;

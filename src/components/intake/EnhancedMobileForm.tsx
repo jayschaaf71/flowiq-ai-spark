@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -18,11 +18,36 @@ import {
 import { ConditionalFormField } from './ConditionalFormField';
 import { FileUploadField } from './FileUploadField';
 import { DigitalSignatureField } from './DigitalSignatureField';
-import { FormField } from '@/types/intake';
+import { FormField as IntakeFormField } from '@/types/intake';
+
+interface SignatureValue {
+  signature?: string;
+  signerName?: string;
+  signedDate?: string;
+  consented?: boolean;
+}
+
+interface FormData {
+  [key: string]: string | number | boolean | File | null | SignatureValue;
+}
+
+interface MobileFormField {
+  id: string;
+  type: string;
+  label: string;
+  description?: string;
+  required?: boolean;
+}
+
+interface FormStructure {
+  id: string;
+  title?: string;
+  form_fields?: MobileFormField[];
+}
 
 interface EnhancedMobileFormProps {
-  form: Record<string, unknown>;
-  onSubmit: (data: Record<string, unknown>) => void;
+  form: FormStructure;
+  onSubmit: (data: FormData) => void;
 }
 
 export const EnhancedMobileForm: React.FC<EnhancedMobileFormProps> = ({ 
@@ -30,7 +55,7 @@ export const EnhancedMobileForm: React.FC<EnhancedMobileFormProps> = ({
   onSubmit 
 }) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [formData, setFormData] = useState<Record<string, unknown>>({});
+  const [formData, setFormData] = useState<FormData>({});
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [autoSaveEnabled, setAutoSaveEnabled] = useState(true);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
@@ -40,7 +65,7 @@ export const EnhancedMobileForm: React.FC<EnhancedMobileFormProps> = ({
   const fields = Array.isArray(form.form_fields) ? form.form_fields : [];
   const fieldsPerStep = 1; // One field per step for mobile
   const totalSteps = Math.ceil(fields.length / fieldsPerStep);
-  const currentField = fields[currentStep];
+  const currentField = fields[currentStep] as MobileFormField;
 
   // Online/offline detection
   useEffect(() => {
@@ -56,23 +81,7 @@ export const EnhancedMobileForm: React.FC<EnhancedMobileFormProps> = ({
     };
   }, []);
 
-  // Auto-save functionality
-  useEffect(() => {
-    if (autoSaveEnabled && Object.keys(formData).length > 0 && isOnline) {
-      const timer = setTimeout(() => {
-        saveToLocalStorage();
-      }, 2000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [formData, autoSaveEnabled, isOnline]);
-
-  // Load saved data on mount
-  useEffect(() => {
-    loadFromLocalStorage();
-  }, []);
-
-  const saveToLocalStorage = () => {
+  const saveToLocalStorage = useCallback(() => {
     try {
       const saveData = {
         formData,
@@ -85,9 +94,9 @@ export const EnhancedMobileForm: React.FC<EnhancedMobileFormProps> = ({
     } catch (error) {
       console.error('Failed to save to localStorage:', error);
     }
-  };
+  }, [formData, currentStep, completedSteps, form.id]);
 
-  const loadFromLocalStorage = () => {
+  const loadFromLocalStorage = useCallback(() => {
     try {
       const saved = localStorage.getItem(`intake_form_${form.id}`);
       if (saved) {
@@ -104,11 +113,34 @@ export const EnhancedMobileForm: React.FC<EnhancedMobileFormProps> = ({
     } catch (error) {
       console.error('Failed to load from localStorage:', error);
     }
-  };
+  }, [form.id]);
 
-  const validateField = (field: FormField, value: string | number | boolean | File | null) => {
-    if (field.required && (!value || String(value).trim() === '')) {
-      return `${field.label} is required`;
+  // Auto-save functionality
+  useEffect(() => {
+    if (autoSaveEnabled && Object.keys(formData).length > 0 && isOnline) {
+      const timer = setTimeout(() => {
+        saveToLocalStorage();
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [formData, autoSaveEnabled, isOnline, saveToLocalStorage]);
+
+  // Load saved data on mount
+  useEffect(() => {
+    loadFromLocalStorage();
+  }, [loadFromLocalStorage]);
+
+  const validateField = (field: MobileFormField, value: string | number | boolean | File | null | SignatureValue) => {
+    if (field.required) {
+      if (field.type === 'signature') {
+        const sigValue = value as SignatureValue;
+        if (!sigValue?.signature) {
+          return `${field.label} is required`;
+        }
+      } else if (!value || String(value).trim() === '') {
+        return `${field.label} is required`;
+      }
     }
     
     if (field.type === 'email' && value) {
@@ -119,7 +151,7 @@ export const EnhancedMobileForm: React.FC<EnhancedMobileFormProps> = ({
     }
     
     if (field.type === 'phone' && value) {
-      const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+      const phoneRegex = /^[+]?[1-9][\d]{0,15}$/;
       if (!phoneRegex.test(String(value).replace(/\D/g, ''))) {
         return 'Please enter a valid phone number';
       }
@@ -128,7 +160,7 @@ export const EnhancedMobileForm: React.FC<EnhancedMobileFormProps> = ({
     return null;
   };
 
-  const handleFieldChange = (value: string | number | boolean | File | null) => {
+  const handleFieldChange = (value: string | number | boolean | File | null | SignatureValue) => {
     const fieldId = currentField.id;
     setFormData(prev => ({
       ...prev,
@@ -145,7 +177,7 @@ export const EnhancedMobileForm: React.FC<EnhancedMobileFormProps> = ({
   };
 
   const handleNext = () => {
-    const error = validateField(currentField, formData[currentField.id] as string | number | boolean | File | null);
+    const error = validateField(currentField, formData[currentField.id]);
     if (error) {
       setValidationErrors(prev => ({
         ...prev,
@@ -171,20 +203,17 @@ export const EnhancedMobileForm: React.FC<EnhancedMobileFormProps> = ({
   const handleSubmit = () => {
     // Validate all required fields
     const errors: Record<string, string> = {};
-    fields.forEach((field: Record<string, unknown>, index: number) => {
-      if (field && typeof field === 'object' && field.id && field.type && field.label) {
-        const fieldTyped = field as unknown as FormField;
-        const error = validateField(fieldTyped, formData[String(field.id)] as string | number | boolean | File | null);
-        if (error) {
-          errors[String(field.id)] = error;
-        }
+    fields.forEach((field: MobileFormField) => {
+      const error = validateField(field, formData[field.id]);
+      if (error) {
+        errors[field.id] = error;
       }
     });
 
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
       // Go to first field with error
-      const firstErrorIndex = fields.findIndex((field: Record<string, unknown>) => errors[String(field.id)]);
+      const firstErrorIndex = fields.findIndex((field: MobileFormField) => errors[field.id]);
       setCurrentStep(firstErrorIndex);
       return;
     }
@@ -217,8 +246,13 @@ export const EnhancedMobileForm: React.FC<EnhancedMobileFormProps> = ({
         );
       case 'signature':
         return <DigitalSignatureField 
-          {...commonProps} 
-          onChange={(value) => handleFieldChange(String(value))}
+          field={{
+            id: currentField.id,
+            label: currentField.label,
+            required: currentField.required
+          }}
+          value={(formData[currentField.id] as SignatureValue) || {}}
+          onChange={handleFieldChange}
         />;
       default:
         return <ConditionalFormField {...commonProps} />;

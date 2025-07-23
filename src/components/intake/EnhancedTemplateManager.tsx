@@ -7,7 +7,14 @@ import { useTemplates } from '@/hooks/useTemplates';
 export const EnhancedTemplateManager: React.FC = () => {
   const { templates } = useTemplates();
 
-  const handleImportTemplates = (importedTemplates: any[]) => {
+  interface ImportedTemplate {
+    id: string;
+    name: string;
+    content: string;
+    type: string;
+  }
+
+  const handleImportTemplates = (importedTemplates: ImportedTemplate[]) => {
     // This will be implemented when we create the import functionality
     console.log('Importing templates:', importedTemplates);
   };
@@ -17,7 +24,7 @@ export const EnhancedTemplateManager: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Template Management</h1>
-          <p className="text-gray-600">Create, customize, and manage your communication templates</p>
+          <p className="text-muted-foreground">Create, customize, and manage your communication templates</p>
         </div>
       </div>
 

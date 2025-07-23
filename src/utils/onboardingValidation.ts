@@ -139,7 +139,7 @@ const isValidEmail = (email: string): boolean => {
 };
 
 const isValidPhone = (phone: string): boolean => {
-  const phoneRegex = /^[\+]?[1-9]?[\d\s\-\(\)]{7,15}$/;
+  const phoneRegex = /^[+]?[1-9]?[\d\s\-()]{7,15}$/;
   return phoneRegex.test(phone);
 };
 
