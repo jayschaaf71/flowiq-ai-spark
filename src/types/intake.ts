@@ -63,11 +63,25 @@ export interface AdvancedFieldData {
     min?: number;
     max?: number;
     pattern?: string;
+    minLength?: number;
+    maxLength?: number;
   };
   conditionalRules: ConditionalRuleData[];
   options?: string[];
   defaultValue?: string | number | boolean;
+  helpText?: string;
+  fileUpload?: {
+    acceptedTypes: string[];
+    maxSize: number;
+    multiple: boolean;
+  };
+  signature?: {
+    consentText?: string;
+    signerNameRequired: boolean;
+    dateRequired: boolean;
+  };
 }
+
 
 export interface CommunicationLogEntry {
   id: string;
@@ -118,7 +132,13 @@ export interface AISuggestedField {
 }
 
 export interface ConfirmationStepData {
-  personalInfo: Record<string, unknown>;
+  personalInfo?: Record<string, unknown>;
+  firstName?: string;
+  lastName?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  phone?: string;
+  email?: string;
   medicalHistory: Array<{
     condition: string;
     date: string;
@@ -135,6 +155,10 @@ export interface ConfirmationStepData {
     severity: string;
   }>;
   insurance: Record<string, unknown>;
+  symptomAssessment?: Record<string, unknown>;
+  appointmentDate?: string;
+  appointmentType?: string;
+  appointmentTime?: string;
   photoVerification?: Record<string, unknown>;
 }
 

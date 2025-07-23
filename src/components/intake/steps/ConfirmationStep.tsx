@@ -5,9 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, User, Heart, Shield, Camera, Calendar } from 'lucide-react';
 
+import { ConfirmationStepData } from '@/types/intake';
+
 interface ConfirmationStepProps {
-  formData: any;
-  onSubmit: (data: any) => void;
+  formData: ConfirmationStepData;
+  onSubmit: (data: { confirmed: boolean; submittedAt: string }) => void;
   onBack: () => void;
 }
 
@@ -66,7 +68,7 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({ formData, on
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {formData.medicalHistory.map((condition: any, index: number) => (
+              {formData.medicalHistory.map((condition, index: number) => (
                 <div key={index} className="flex items-center gap-2">
                   <Badge variant="outline">{condition.condition}</Badge>
                   {condition.date && <span className="text-sm text-gray-500">({condition.date})</span>}
@@ -88,9 +90,9 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({ formData, on
           </CardHeader>
           <CardContent>
             <div className="text-sm space-y-1">
-              <div><span className="font-medium">Provider:</span> {formData.insurance.provider}</div>
-              <div><span className="font-medium">Policy Number:</span> {formData.insurance.policyNumber}</div>
-              <div><span className="font-medium">Subscriber:</span> {formData.insurance.subscriberName}</div>
+              <div><span className="font-medium">Provider:</span> {String(formData.insurance.provider)}</div>
+              <div><span className="font-medium">Policy Number:</span> {String(formData.insurance.policyNumber)}</div>
+              <div><span className="font-medium">Subscriber:</span> {String(formData.insurance.subscriberName || 'N/A')}</div>
             </div>
           </CardContent>
         </Card>
@@ -109,12 +111,12 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({ formData, on
             <div className="text-sm space-y-2">
               {formData.symptomAssessment.primaryComplaint && (
                 <div>
-                  <span className="font-medium">Primary Complaint:</span> {formData.symptomAssessment.primaryComplaint}
+                  <span className="font-medium">Primary Complaint:</span> {String(formData.symptomAssessment.primaryComplaint)}
                 </div>
               )}
               {formData.symptomAssessment.painLevel && (
                 <div>
-                  <span className="font-medium">Pain Level:</span> {formData.symptomAssessment.painLevel}/10
+                  <span className="font-medium">Pain Level:</span> {String(formData.symptomAssessment.painLevel)}/10
                 </div>
               )}
             </div>

@@ -69,11 +69,11 @@ export const StreamlinedPatientOnboarding: React.FC<StreamlinedPatientOnboarding
   const progressPercentage = ((currentPhase + 1) / phases.length) * 100;
   const totalEstimatedTime = '10-16 minutes';
 
-  const handlePhaseComplete = (phaseId: string, data?: any) => {
+  const handlePhaseComplete = (phaseId: string, data?: Record<string, unknown>) => {
     console.log(`Phase ${phaseId} completed with data:`, data);
     
-    if (phaseId === 'intake' && data) {
-      setPatientId(data);
+    if (phaseId === 'intake' && data && typeof data === 'object' && 'patientId' in data) {
+      setPatientId(String(data.patientId));
     }
     
     setCompletedPhases(prev => new Set([...prev, currentPhase]));
@@ -108,7 +108,7 @@ export const StreamlinedPatientOnboarding: React.FC<StreamlinedPatientOnboarding
               </p>
             </div>
             <PatientOnboardingWorkflow
-              onComplete={(patientId) => handlePhaseComplete('intake', patientId)}
+              onComplete={(patientId) => handlePhaseComplete('intake', { patientId })}
               onCancel={onCancel}
             />
           </div>

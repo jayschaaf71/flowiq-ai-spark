@@ -6,9 +6,11 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 
+import { PatientInfo } from '@/types/forms';
+
 interface PatientInfoStepProps {
-  initialData: any;
-  onComplete: (data: any) => void;
+  initialData: Partial<PatientInfo>;
+  onComplete: (data: PatientInfo) => void;
 }
 
 export const PatientInfoStep: React.FC<PatientInfoStepProps> = ({ initialData, onComplete }) => {

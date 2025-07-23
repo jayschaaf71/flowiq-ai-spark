@@ -9,7 +9,7 @@ import { Plus, Trash2 } from 'lucide-react';
 interface ConditionalRule {
   dependsOn: string;
   operator: 'equals' | 'not_equals' | 'contains' | 'greater_than' | 'less_than';
-  value: any;
+  value: string | number | boolean;
 }
 
 interface AdvancedField {
@@ -73,7 +73,7 @@ export const ConditionalRuleEditor: React.FC<ConditionalRuleEditorProps> = ({
 
           <Select
             value={rule.operator}
-            onValueChange={(value: any) => onUpdateRule(selectedFieldId, index, { operator: value })}
+            onValueChange={(value) => onUpdateRule(selectedFieldId, index, { operator: value as ConditionalRule['operator'] })}
           >
             <SelectTrigger className="text-xs">
               <SelectValue />
@@ -88,7 +88,7 @@ export const ConditionalRuleEditor: React.FC<ConditionalRuleEditorProps> = ({
           </Select>
 
           <Input
-            value={rule.value}
+            value={String(rule.value)}
             onChange={(e) => onUpdateRule(selectedFieldId, index, { value: e.target.value })}
             placeholder="Enter value"
             className="text-xs"

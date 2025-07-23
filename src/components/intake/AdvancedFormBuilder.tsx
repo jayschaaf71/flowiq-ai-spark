@@ -11,7 +11,7 @@ import { FieldConfiguration } from './FieldConfiguration';
 interface ConditionalRule {
   dependsOn: string;
   operator: 'equals' | 'not_equals' | 'contains' | 'greater_than' | 'less_than';
-  value: any;
+  value: string | number | boolean;
 }
 
 interface AdvancedField {

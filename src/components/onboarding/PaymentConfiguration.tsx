@@ -9,7 +9,7 @@ interface PaymentConfigurationProps {
     enablePayments: boolean;
     subscriptionPlan: string;
   };
-  onPaymentConfigUpdate: (config: any) => void;
+  onPaymentConfigUpdate: (config: Record<string, unknown>) => void;
 }
 
 export const PaymentConfiguration: React.FC<PaymentConfigurationProps> = ({ 
@@ -33,7 +33,7 @@ export const PaymentConfiguration: React.FC<PaymentConfigurationProps> = ({
     }
   };
 
-  const handleUpdate = (updatedConfig: any) => {
+  const handleUpdate = (updatedConfig: Record<string, unknown>) => {
     // Transform back to the expected format
     const transformedBack = {
       enablePayments: updatedConfig.enablePayments,

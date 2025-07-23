@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 
 interface ReviewAndLaunchProps {
-  onboardingData: any;
+  onboardingData: Record<string, unknown>;
   onSubmit: () => void;
   onCancel: () => void;
 }
@@ -30,7 +30,10 @@ export const ReviewAndLaunch: React.FC<ReviewAndLaunchProps> = ({
       title: 'Practice Information',
       icon: Users,
       data: onboardingData.practiceData,
-      isComplete: !!(onboardingData.practiceData?.practiceName && onboardingData.practiceData?.email)
+      isComplete: !!(onboardingData.practiceData && 
+        typeof onboardingData.practiceData === 'object' && 
+        'practiceName' in onboardingData.practiceData && 
+        'email' in onboardingData.practiceData)
     },
     {
       title: 'AI Agents',
@@ -42,19 +45,28 @@ export const ReviewAndLaunch: React.FC<ReviewAndLaunchProps> = ({
       title: 'Payment Setup',
       icon: CreditCard,
       data: onboardingData.paymentConfig,
-      isComplete: onboardingData.paymentConfig?.enablePayments || false
+      isComplete: !!(onboardingData.paymentConfig && 
+        typeof onboardingData.paymentConfig === 'object' && 
+        'enablePayments' in onboardingData.paymentConfig && 
+        onboardingData.paymentConfig.enablePayments)
     },
     {
       title: 'EHR Integration',
       icon: Database,
       data: onboardingData.ehrConfig,
-      isComplete: onboardingData.ehrConfig?.enableIntegration || false
+      isComplete: !!(onboardingData.ehrConfig && 
+        typeof onboardingData.ehrConfig === 'object' && 
+        'enableIntegration' in onboardingData.ehrConfig && 
+        onboardingData.ehrConfig.enableIntegration)
     },
     {
       title: 'Templates',
       icon: FileText,
       data: onboardingData.templateConfig,
-      isComplete: onboardingData.templateConfig?.enableAutoGeneration || false
+      isComplete: !!(onboardingData.templateConfig && 
+        typeof onboardingData.templateConfig === 'object' && 
+        'enableAutoGeneration' in onboardingData.templateConfig && 
+        onboardingData.templateConfig.enableAutoGeneration)
     }
   ];
 

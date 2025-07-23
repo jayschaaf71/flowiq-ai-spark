@@ -9,7 +9,11 @@ interface AdvancedField {
   type: string;
   label: string;
   required: boolean;
-  conditionalRules?: any[];
+  conditionalRules?: Array<{
+    dependsOn: string;
+    operator: string;
+    value: string | number | boolean;
+  }>;
 }
 
 interface FieldListItemProps {

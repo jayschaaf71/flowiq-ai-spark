@@ -4,8 +4,10 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { StreamlinedPatientOnboarding } from './StreamlinedPatientOnboarding';
 import { ComprehensiveOnboardingFlow } from './ComprehensiveOnboardingFlow';
 
+import { OnboardingCompletionData } from '@/types/configuration';
+
 interface ResponsiveOnboardingWrapperProps {
-  onComplete: (data: any) => void;
+  onComplete: (data: OnboardingCompletionData | string) => void;
   onCancel: () => void;
   variant?: 'patient' | 'practice';
 }
@@ -23,7 +25,7 @@ export const ResponsiveOnboardingWrapper: React.FC<ResponsiveOnboardingWrapperPr
   if (variant === 'patient') {
     return (
       <StreamlinedPatientOnboarding
-        onComplete={onComplete}
+        onComplete={(patientId: string) => onComplete(patientId)}
         onCancel={onCancel}
       />
     );
@@ -32,7 +34,7 @@ export const ResponsiveOnboardingWrapper: React.FC<ResponsiveOnboardingWrapperPr
   // For practice setup, use the comprehensive flow
   return (
     <ComprehensiveOnboardingFlow
-      onComplete={onComplete}
+      onComplete={(data: OnboardingCompletionData) => onComplete(data)}
       onCancel={onCancel}
     />
   );

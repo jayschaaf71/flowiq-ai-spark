@@ -28,19 +28,47 @@ export interface PatientInfo {
   dateOfBirth: string;
   email: string;
   phone: string;
-  address?: string;
+  gender?: string;
+  address?: {
+    line1?: string;
+    line2?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+  };
   emergencyContact?: {
     name: string;
     relationship: string;
     phone: string;
   };
+  [key: string]: unknown; // For database compatibility
 }
 
 export interface InsuranceInfo {
   provider: string;
   policyNumber: string;
   groupNumber?: string;
+  subscriberName?: string;
+  relationship?: string;
   cardData?: string; // Base64 encoded image
+}
+
+export interface InsuranceCardData {
+  extractedData?: {
+    insuranceProvider: string;
+    policyNumber: string;
+    groupNumber: string;
+    memberId: string;
+    memberName: string;
+    insurance_provider_name?: string;
+    member_id?: string;
+    group_number?: string;
+  };
+  frontImageUrl?: string;
+  backImageUrl?: string;
+  uploadedAt: string;
+  processedAt?: string;
+  confidence?: number;
 }
 
 export interface MedicalHistoryData {

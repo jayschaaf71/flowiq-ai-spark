@@ -42,7 +42,7 @@ export const PracticeDetails: React.FC<PracticeDetailsProps> = ({
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleInputChange = (field: keyof PracticeData, value: any) => {
+  const handleInputChange = (field: keyof PracticeData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     
     // Clear error when user starts typing

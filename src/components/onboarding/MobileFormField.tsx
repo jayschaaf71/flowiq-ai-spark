@@ -20,8 +20,8 @@ interface MobileFormFieldProps {
     description?: string;
     options?: Array<{ value: string; label: string }>;
   };
-  value: any;
-  onChange: (value: any) => void;
+  value: string | number | boolean | string[];
+  onChange: (value: string | number | boolean | string[]) => void;
   error?: string;
   className?: string;
 }
@@ -41,7 +41,7 @@ export const MobileFormField: React.FC<MobileFormFieldProps> = ({
         return (
           <Input
             type={field.type}
-            value={value || ''}
+            value={String(value || '')}
             onChange={(e) => onChange(e.target.value)}
             placeholder={field.placeholder}
             className="h-12 text-base" // Larger touch targets
@@ -51,7 +51,7 @@ export const MobileFormField: React.FC<MobileFormFieldProps> = ({
       case 'textarea':
         return (
           <Textarea
-            value={value || ''}
+            value={String(value || '')}
             onChange={(e) => onChange(e.target.value)}
             placeholder={field.placeholder}
             className="min-h-[120px] text-base"
@@ -63,7 +63,7 @@ export const MobileFormField: React.FC<MobileFormFieldProps> = ({
         return (
           <div className="space-y-3">
             <RadioGroup
-              value={value}
+              value={String(value)}
               onValueChange={onChange}
             >
               {field.options?.map((option) => (
@@ -111,7 +111,7 @@ export const MobileFormField: React.FC<MobileFormFieldProps> = ({
                   )}
                 </div>
                 <Switch
-                  checked={value || false}
+                  checked={Boolean(value)}
                   onCheckedChange={onChange}
                 />
               </div>
@@ -160,7 +160,7 @@ export const MobileFormField: React.FC<MobileFormFieldProps> = ({
       default:
         return (
           <Input
-            value={value || ''}
+            value={String(value || '')}
             onChange={(e) => onChange(e.target.value)}
             placeholder={field.placeholder}
             className="h-12 text-base"

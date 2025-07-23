@@ -79,7 +79,7 @@ export const MobileAccessibilityEnhancements: React.FC = () => {
     
   }, [settings]);
 
-  const updateSetting = (key: keyof AccessibilitySettings, value: any) => {
+  const updateSetting = (key: keyof AccessibilitySettings, value: AccessibilitySettings[keyof AccessibilitySettings]) => {
     setSettings(prev => ({ ...prev, [key]: value }));
   };
 

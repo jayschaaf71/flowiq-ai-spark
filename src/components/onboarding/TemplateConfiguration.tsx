@@ -15,7 +15,7 @@ interface TemplateConfigurationProps {
       brandName?: string;
     };
   };
-  onTemplateConfigUpdate: (config: any) => void;
+  onTemplateConfigUpdate: (config: { enableAutoGeneration: boolean; customizationPreferences: any }) => void;
 }
 
 export const TemplateConfiguration: React.FC<TemplateConfigurationProps> = ({ 
@@ -38,16 +38,16 @@ export const TemplateConfiguration: React.FC<TemplateConfigurationProps> = ({
     generatedTemplates: []
   };
 
-  const handleUpdate = (updatedConfig: any) => {
+  const handleUpdate = (updatedConfig: { enableAutoGeneration?: boolean; customizationPreferences?: any; selectedTemplates?: string[]; generationProgress?: number; generatedTemplates?: any[] }) => {
     // Transform back to the expected format
     const transformedBack = {
       enableAutoGeneration: updatedConfig.enableAutoGeneration,
       customizationPreferences: {
-        includeBranding: updatedConfig.customizationPreferences.includeBranding,
-        primaryColor: updatedConfig.customizationPreferences.primaryColor || templateConfig.customizationPreferences.primaryColor,
-        secondaryColor: updatedConfig.customizationPreferences.secondaryColor || templateConfig.customizationPreferences.secondaryColor,
-        logoUrl: updatedConfig.customizationPreferences.logoUrl,
-        brandName: updatedConfig.customizationPreferences.brandName
+        includeBranding: Boolean((updatedConfig.customizationPreferences as any)?.includeBranding),
+        primaryColor: String((updatedConfig.customizationPreferences as any)?.primaryColor || templateConfig.customizationPreferences.primaryColor),
+        secondaryColor: String((updatedConfig.customizationPreferences as any)?.secondaryColor || templateConfig.customizationPreferences.secondaryColor),
+        logoUrl: String((updatedConfig.customizationPreferences as any)?.logoUrl || ''),
+        brandName: String((updatedConfig.customizationPreferences as any)?.brandName || '')
       }
     };
     onTemplateConfigUpdate(transformedBack);

@@ -10,7 +10,7 @@ interface EHRConfigurationProps {
     ehrSystem: string;
     apiEndpoint: string;
   };
-  onEHRConfigUpdate: (config: any) => void;
+  onEHRConfigUpdate: (config: { enableIntegration: boolean; ehrSystem: string; apiEndpoint: string }) => void;
 }
 
 export const EHRConfiguration: React.FC<EHRConfigurationProps> = ({ 
@@ -35,7 +35,7 @@ export const EHRConfiguration: React.FC<EHRConfigurationProps> = ({
     }
   };
 
-  const handleUpdate = (updatedConfig: any) => {
+  const handleUpdate = (updatedConfig: { enableIntegration: boolean; selectedEHR: string; apiCredentials?: { endpoint: string; apiKey: string; clientId: string } }) => {
     // Transform back to the expected format
     const transformedBack = {
       enableIntegration: updatedConfig.enableIntegration,

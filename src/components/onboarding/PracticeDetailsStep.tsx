@@ -20,7 +20,7 @@ interface PracticeDetailsStepProps {
     description: string;
     teamSize: string;
   };
-  onUpdatePracticeData: (data: any) => void;
+  onUpdatePracticeData: (data: Record<string, unknown>) => void;
 }
 
 export const PracticeDetailsStep: React.FC<PracticeDetailsStepProps> = ({

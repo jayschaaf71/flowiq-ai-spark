@@ -161,7 +161,7 @@ export const OnboardingStepsRenderer: React.FC<OnboardingStepsRendererProps> = (
     case 'review':
       return (
         <ReviewAndLaunch
-          onboardingData={onboardingData}
+          onboardingData={onboardingData as Record<string, unknown>}
           onSubmit={onSubmit}
           onCancel={onCancel}
         />

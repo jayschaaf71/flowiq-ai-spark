@@ -31,7 +31,14 @@ interface CommunicationLog {
   delivered_at?: string;
   error_message?: string;
   created_at: string;
-  metadata?: any;
+  metadata?: {
+    templateId?: string;
+    email_id?: string;
+    submissionId?: string;
+    retryCount?: number;
+    priority?: 'low' | 'normal' | 'high';
+    [key: string]: unknown;
+  };
 }
 
 interface CommunicationLogViewerProps {

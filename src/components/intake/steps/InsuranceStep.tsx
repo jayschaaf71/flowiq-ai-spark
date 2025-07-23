@@ -7,9 +7,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent } from '@/components/ui/card';
 import { InsuranceCardUpload } from '@/components/insurance/InsuranceCardUpload';
 
+import { InsuranceInfo, InsuranceCardData } from '@/types/forms';
+
 interface InsuranceStepProps {
-  initialData: any;
-  onComplete: (data: any) => void;
+  initialData: { insurance?: Partial<InsuranceInfo>; insuranceCards?: InsuranceCardData[] };
+  onComplete: (data: { insurance: InsuranceInfo; insuranceCards: InsuranceCardData[] }) => void;
   onSkip: () => void;
 }
 
@@ -28,7 +30,22 @@ export const InsuranceStep: React.FC<InsuranceStepProps> = ({ initialData, onCom
     setInsurance(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleCardUpload = (uploadedCardData: any) => {
+  const handleCardUpload = (cardData: { front_url: string; back_url?: string; extracted_data?: Record<string, unknown> }) => {
+    const uploadedCardData: InsuranceCardData = {
+      frontImageUrl: cardData.front_url,
+      backImageUrl: cardData.back_url,
+      uploadedAt: new Date().toISOString(),
+      extractedData: cardData.extracted_data ? {
+        insuranceProvider: String(cardData.extracted_data.insurance_provider_name || ''),
+        policyNumber: String(cardData.extracted_data.member_id || ''),
+        groupNumber: String(cardData.extracted_data.group_number || ''),
+        memberId: String(cardData.extracted_data.member_id || ''),
+        memberName: String(cardData.extracted_data.member_name || ''),
+        insurance_provider_name: String(cardData.extracted_data.insurance_provider_name || ''),
+        member_id: String(cardData.extracted_data.member_id || ''),
+        group_number: String(cardData.extracted_data.group_number || '')
+      } : undefined
+    };
     setCardData(prev => [...prev, uploadedCardData]);
     
     // Auto-fill form fields if card data was extracted
