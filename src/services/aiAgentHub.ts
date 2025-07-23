@@ -184,7 +184,7 @@ Focus on medical history, current concerns, and relevant patient information.`
     const { action, payload, context } = request;
     
     switch (action) {
-      case 'process_form':
+      case 'process_form': {
         // AI processing would happen here
         const summary = this.generateFormSummary(payload.formData, request.tenant);
         return {
@@ -195,8 +195,9 @@ Focus on medical history, current concerns, and relevant patient information.`
             completionScore: 95
           }
         };
+      }
         
-      case 'generate_form':
+      case 'generate_form': {
         const config = getTenantConfig(request.tenant);
         return {
           success: true,
@@ -205,6 +206,7 @@ Focus on medical history, current concerns, and relevant patient information.`
             fields: this.getVerticalFormFields(request.tenant)
           }
         };
+      }
         
       default:
         throw new Error('Unknown intake action');

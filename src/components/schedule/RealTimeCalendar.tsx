@@ -130,7 +130,7 @@ export const RealTimeCalendar = ({ onTimeSlotClick, onAppointmentClick }: RealTi
 
   const getStatusColor = (status: any) => {
     switch (status.type) {
-      case 'appointment':
+      case 'appointment': {
         const statusColors = {
           confirmed: 'bg-green-100 border-green-300 text-green-800 hover:bg-green-200',
           pending: 'bg-yellow-100 border-yellow-300 text-yellow-800 hover:bg-yellow-200',
@@ -138,6 +138,7 @@ export const RealTimeCalendar = ({ onTimeSlotClick, onAppointmentClick }: RealTi
           completed: 'bg-blue-100 border-blue-300 text-blue-800 hover:bg-blue-200'
         };
         return statusColors[status.data.status as keyof typeof statusColors] || 'bg-gray-100 border-gray-300 hover:bg-gray-200';
+      }
       case 'available':
         return 'bg-green-50 border-green-200 hover:bg-green-100 cursor-pointer border-2 border-dashed';
       default:

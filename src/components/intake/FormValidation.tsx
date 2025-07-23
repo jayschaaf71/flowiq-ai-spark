@@ -33,7 +33,7 @@ export const validateField = (field: FormField, value: unknown): string | null =
   }
 
   // Phone validation - more flexible pattern
-  if (field.type === 'phone' && !/^[\+]?[1-9][\d]{0,15}$/.test(stringValue.replace(/[\s\-\(\)]/g, ''))) {
+  if (field.type === 'phone' && !/^[+]?[1-9][\d]{0,15}$/.test(stringValue.replace(/[\s\-()]/g, ''))) {
     return 'Please enter a valid phone number';
   }
 
