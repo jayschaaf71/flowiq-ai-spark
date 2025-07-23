@@ -67,7 +67,7 @@ export const AIIntakeProcessor = () => {
         const submissionData = submission.submission_data as Record<string, unknown>;
         return {
           id: submission.id,
-          patientName: (submissionData as Record<string, any>)?.personalInfo?.name || (submissionData as Record<string, any>)?.name || 'Unknown Patient',
+          patientName: (submissionData?.personalInfo as { name?: string })?.name || (submissionData?.name as string) || 'Unknown Patient',
           submittedAt: new Date(submission.created_at),
           status: submission.ai_summary ? 'completed' as const : 'pending' as const,
           aiAnalysis: {
@@ -104,7 +104,7 @@ export const AIIntakeProcessor = () => {
         variant: "destructive",
       });
     }
-  }, []);
+  }, [toast]);
 
   const loadStats = useCallback(() => {
     // Simulate analytics data
