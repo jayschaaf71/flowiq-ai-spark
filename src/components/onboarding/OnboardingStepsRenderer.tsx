@@ -46,8 +46,11 @@ export const OnboardingStepsRenderer: React.FC<OnboardingStepsRendererProps> = (
     case 'practice':
       return (
         <PracticeDetails
-          practiceData={onboardingData.practiceData ? { ...onboardingData.practiceData, name: onboardingData.practiceData.practiceName || '' } : undefined}
-          onPracticeDetailsUpdate={(practiceData) => updateOnboardingData({ practiceData })}
+          practiceData={onboardingData.practiceData ? { 
+            ...onboardingData.practiceData, 
+            name: onboardingData.practiceData.name || onboardingData.practiceData.practiceName || '' 
+          } as any : undefined}
+          onPracticeDetailsUpdate={(practiceData) => updateOnboardingData({ practiceData: practiceData as any })}
         />
       );
 
@@ -55,8 +58,11 @@ export const OnboardingStepsRenderer: React.FC<OnboardingStepsRendererProps> = (
       return (
         <TeamConfiguration
           specialty={onboardingData.specialty || defaultSpecialty}
-          teamConfig={onboardingData.teamConfig ? { ...onboardingData.teamConfig, members: onboardingData.teamConfig.teamMembers || [] } : undefined}
-          onTeamConfigUpdate={(teamConfig) => updateOnboardingData({ teamConfig })}
+          teamConfig={onboardingData.teamConfig ? { 
+            ...onboardingData.teamConfig, 
+            members: onboardingData.teamConfig.members || onboardingData.teamConfig.teamMembers || [] 
+          } as any : undefined}
+          onTeamConfigUpdate={(teamConfig) => updateOnboardingData({ teamConfig: teamConfig as any })}
         />
       );
 
