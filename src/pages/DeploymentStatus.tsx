@@ -2,6 +2,7 @@ import React from 'react';
 import { Layout } from '@/components/Layout';
 import { HealthCheck } from '@/components/deployment/HealthCheck';
 import { VersionInfo } from '@/components/deployment/VersionInfo';
+import { EnvironmentCheck } from '@/components/deployment/EnvironmentCheck';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useFeatureFlags } from '@/contexts/FeatureFlagsContext';
 import { Badge } from '@/components/ui/badge';
@@ -27,6 +28,15 @@ const DeploymentStatus = () => {
         </div>
 
         <div className="grid gap-6">
+          {/* Environment Check Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Activity className="h-5 w-5" />
+              <h2 className="text-xl font-semibold">Environment Status</h2>
+            </div>
+            <EnvironmentCheck />
+          </div>
+
           {/* Health Check Section */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">

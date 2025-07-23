@@ -78,6 +78,11 @@ const getCurrentSubdomain = () => {
     return null;
   }
   
+  // For Lovable development (UUID hostnames)
+  if (hostname.includes('lovableproject.com')) {
+    return null; // Skip tenant lookup for development
+  }
+  
   // For production domains like tenant.domain.com
   if (parts.length >= 3) {
     return parts[0];

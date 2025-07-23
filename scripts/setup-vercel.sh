@@ -21,9 +21,9 @@ vercel link
 
 # Set environment variables
 echo "⚙️ Setting up environment variables..."
-vercel env add VITE_SUPABASE_URL production
-vercel env add VITE_SUPABASE_ANON_KEY production
-vercel env add VITE_ENVIRONMENT production
+echo "https://jnpzabmqieceoqjypvve.supabase.co" | vercel env add VITE_SUPABASE_URL production
+echo "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpucHphYm1xaWVjZW9xanlwdnZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg3MTQ4NzIsImV4cCI6MjA2NDI5MDg3Mn0.RSZZj9ijOESttwNopqROh1pXqi7y4Q4TDW4_6eqcBFU" | vercel env add VITE_SUPABASE_ANON_KEY production
+echo "production" | vercel env add VITE_ENVIRONMENT production
 
 # Add custom domains
 echo "🌐 Adding custom domains..."
