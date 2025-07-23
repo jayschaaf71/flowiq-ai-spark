@@ -58,7 +58,7 @@ export const CampaignManager = () => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    campaign_type: 'email' as const,
+    campaign_type: 'email' as 'email' | 'sms' | 'social_media' | 'google_ads' | 'facebook_ads' | 'mixed',
     budget_amount: '',
     start_date: '',
     end_date: '',
@@ -187,7 +187,7 @@ export const CampaignManager = () => {
                 <Label htmlFor="type">Campaign Type</Label>
                 <Select
                   value={formData.campaign_type}
-                  onValueChange={(value: any) => setFormData(prev => ({ ...prev, campaign_type: value }))}
+                  onValueChange={(value: 'email' | 'sms' | 'social_media' | 'google_ads' | 'facebook_ads' | 'mixed') => setFormData(prev => ({ ...prev, campaign_type: value }))}
                 >
                   <SelectTrigger>
                     <SelectValue />

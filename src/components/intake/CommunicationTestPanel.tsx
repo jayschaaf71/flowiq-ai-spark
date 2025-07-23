@@ -48,8 +48,8 @@ export const CommunicationTestPanel: React.FC<CommunicationTestPanelProps> = ({
       });
 
       setResult({ success: true, message: `Test ${type} sent successfully!` });
-    } catch (error: any) {
-      setResult({ success: false, message: error.message || 'Failed to send test message' });
+    } catch (error: unknown) {
+      setResult({ success: false, message: (error as Error)?.message || 'Failed to send test message' });
     } finally {
       setIsSending(false);
     }

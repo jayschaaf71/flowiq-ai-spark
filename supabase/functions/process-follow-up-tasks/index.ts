@@ -1,6 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.0';
+import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.50.0';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -21,7 +21,7 @@ interface FollowUpTask {
   task_status: string;
   scheduled_for: string;
   message_template: string;
-  message_variables: any;
+  message_variables: Record<string, unknown>;
   attempts: number;
   max_attempts: number;
   patient: {
@@ -100,7 +100,7 @@ async function sendEmail(to: string, subject: string, message: string) {
 }
 
 // Replace template variables in message
-function replaceTemplateVariables(template: string, variables: any, patient: any): string {
+function replaceTemplateVariables(template: string, variables: Record<string, unknown>, patient: { first_name: string; last_name: string }): string {
   let message = template;
   
   // Standard patient variables
@@ -110,14 +110,14 @@ function replaceTemplateVariables(template: string, variables: any, patient: any
   
   // Custom variables
   Object.entries(variables || {}).forEach(([key, value]) => {
-    message = message.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), String(value));
+    message = message.replace(new RegExp(`{{${key}}}`, 'g'), String(value));
   });
   
   return message;
 }
 
 // Process a single follow-up task
-async function processFollowUpTask(supabase: any, task: FollowUpTask) {
+async function processFollowUpTask(supabase: SupabaseClient, task: FollowUpTask) {
   console.log(`Processing follow-up task ${task.id} (${task.task_type})`);
   
   try {
@@ -128,7 +128,7 @@ async function processFollowUpTask(supabase: any, task: FollowUpTask) {
     );
 
     let result;
-    let completionData: any = {};
+    let completionData: Record<string, unknown> = {};
 
     switch (task.task_type) {
       case 'sms':

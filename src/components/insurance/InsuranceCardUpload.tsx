@@ -21,7 +21,7 @@ import {
 
 interface InsuranceCardUploadProps {
   patientId?: string;
-  onUploadComplete?: (cardData: any) => void;
+  onUploadComplete?: (cardData: { front_url: string; back_url?: string; extracted_data?: Record<string, unknown> }) => void;
   className?: string;
 }
 
@@ -211,13 +211,17 @@ export const InsuranceCardUpload: React.FC<InsuranceCardUploadProps> = ({
         description: "Your insurance card has been uploaded and is being processed",
       });
 
-      onUploadComplete?.(cardRecord);
+      onUploadComplete?.({
+        front_url: frontUrl.publicUrl,
+        back_url: backUrl?.publicUrl,
+        extracted_data: extractedInfo || {}
+      });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Upload error:', error);
       toast({
         title: "Upload Failed",
-        description: error.message || "Failed to upload insurance card",
+        description: (error as Error)?.message || "Failed to upload insurance card",
         variant: "destructive"
       });
     } finally {

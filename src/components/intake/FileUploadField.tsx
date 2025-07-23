@@ -10,7 +10,7 @@ import { FileUploadService } from '@/services/fileUploadService';
 
 interface FileUploadFieldProps {
   submissionId?: string;
-  onFileUploaded?: (file: any) => void;
+  onFileUploaded?: (file: File) => void;
   onFileRemoved?: (fileId: string) => void;
   maxFiles?: number;
   acceptedTypes?: string[];
@@ -64,7 +64,7 @@ export const FileUploadField: React.FC<FileUploadFieldProps> = ({
         if (result.success && result.file) {
           const newFile = result.file;
           setUploadedFiles(prev => [...prev, newFile]);
-          onFileUploaded?.(newFile);
+          onFileUploaded?.(file);
           
           toast({
             title: "File uploaded",
@@ -107,10 +107,10 @@ export const FileUploadField: React.FC<FileUploadFieldProps> = ({
       } else {
         throw new Error(result.error);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Deletion failed",
-        description: error.message,
+        description: (error as Error)?.message,
         variant: "destructive"
       });
     }

@@ -45,9 +45,9 @@ export const EnhancedMobileInterface: React.FC<EnhancedMobileInterfaceProps> = (
 
     // Monitor battery if available
     if ('getBattery' in navigator) {
-      (navigator as any).getBattery().then((battery: any) => {
+      (navigator as any).getBattery().then((battery: { level: number; charging: boolean }) => {
         setBatteryLevel(Math.round(battery.level * 100));
-        battery.addEventListener('levelchange', () => {
+        (battery as any).addEventListener('levelchange', () => {
           setBatteryLevel(Math.round(battery.level * 100));
         });
       });

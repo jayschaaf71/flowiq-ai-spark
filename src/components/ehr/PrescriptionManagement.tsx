@@ -192,7 +192,7 @@ export const PrescriptionManagement = ({ patientId }: PrescriptionManagementProp
               
               <div>
                 <Label>Status</Label>
-                <Select value={formData.status} onValueChange={(value: any) => setFormData(prev => ({ ...prev, status: value }))}>
+                <Select value={formData.status} onValueChange={(value: "active" | "discontinued" | "completed") => setFormData(prev => ({ ...prev, status: value }))}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
