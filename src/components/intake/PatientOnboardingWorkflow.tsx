@@ -104,7 +104,7 @@ export const PatientOnboardingWorkflow = ({ onComplete, onCancel }: PatientOnboa
     }
   };
 
-  const handleStepComplete = (stepData: any) => {
+  const handleStepComplete = (stepData: Record<string, unknown>) => {
     setPatientData(prev => ({ ...prev, ...stepData }));
     nextStep();
   };

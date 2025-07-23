@@ -5,15 +5,25 @@ import { EnhancedFormField } from './EnhancedFormField';
 interface ConditionalRule {
   dependsOn: string;
   operator: 'equals' | 'not_equals' | 'contains' | 'greater_than' | 'less_than';
-  value: any;
+  value: unknown;
+}
+
+interface FormField {
+  id: string;
+  type: string;
+  label: string;
+  placeholder?: string;
+  required?: boolean;
+  options?: string[];
+  conditionalRules?: ConditionalRule[];
 }
 
 interface ConditionalFormFieldProps {
-  field: any;
-  value: any;
+  field: FormField;
+  value: unknown;
   error?: string;
-  formData: Record<string, any>;
-  onChange: (value: any) => void;
+  formData: Record<string, unknown>;
+  onChange: (value: unknown) => void;
   onBlur: () => void;
   showValidation: boolean;
 }

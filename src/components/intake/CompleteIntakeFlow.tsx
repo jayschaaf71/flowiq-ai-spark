@@ -139,7 +139,7 @@ export const CompleteIntakeFlow: React.FC = () => {
     }
   }, [currentStep, patientId, appointmentId]);
 
-  const handleStepComplete = async (stepData: any) => {
+  const handleStepComplete = async (stepData: Record<string, unknown>) => {
     const updatedFormData = { ...formData, ...stepData };
     setFormData(updatedFormData);
 
@@ -161,26 +161,41 @@ export const CompleteIntakeFlow: React.FC = () => {
     }
   };
 
-  const createPatientAndAppointment = async (data: any) => {
+  const createPatientAndAppointment = async (data: Record<string, unknown>) => {
     try {
+      interface AddressData {
+        line1?: string;
+        line2?: string;
+        city?: string;
+        state?: string;
+        zipCode?: string;
+      }
+
+      interface EmergencyContactData {
+        name?: string;
+        phone?: string;
+        relationship?: string;
+      }
+
+      const addressData = data.address as AddressData;
+      const emergencyData = data.emergencyContact as EmergencyContactData;
+
       // Create patient record
       const { data: patient, error: patientError } = await supabase
         .from('patients')
         .insert({
-          first_name: data.firstName,
-          last_name: data.lastName,
-          date_of_birth: data.dateOfBirth,
-          gender: data.gender,
-          phone: data.phone,
-          email: data.email,
-          address_line1: data.address.line1,
-          address_line2: data.address.line2,
-          city: data.address.city,
-          state: data.address.state,
-          zip_code: data.address.zipCode,
-          emergency_contact_name: data.emergencyContact.name,
-          emergency_contact_phone: data.emergencyContact.phone,
-          emergency_contact_relationship: data.emergencyContact.relationship
+          full_name: `${data.firstName || ''} ${data.lastName || ''}`.trim(),
+          date_of_birth: String(data.dateOfBirth || ''),
+          gender: String(data.gender || ''),
+          phone: String(data.phone || ''),
+          email: String(data.email || ''),
+          address: `${addressData?.line1 || ''} ${addressData?.line2 || ''}`.trim(),
+          city: String(addressData?.city || ''),
+          state: String(addressData?.state || ''),
+          zip_code: String(addressData?.zipCode || ''),
+          emergency_contact_name: String(emergencyData?.name || ''),
+          emergency_contact_phone: String(emergencyData?.phone || ''),
+          emergency_contact_relationship: String(emergencyData?.relationship || '')
         })
         .select()
         .single();
@@ -197,14 +212,14 @@ export const CompleteIntakeFlow: React.FC = () => {
         const { data: appointment, error: appointmentError } = await supabase
           .from('appointments')
           .insert({
-            patient_id: patient.id,
-            date: data.appointmentDate,
-            time: data.appointmentTime,
+            patient_name: `${data.firstName || ''} ${data.lastName || ''}`.trim(),
+            date: String(data.appointmentDate),
+            time: String(data.appointmentTime),
             title: `${data.appointmentType} - ${data.firstName} ${data.lastName}`,
-            appointment_type: data.appointmentType,
+            appointment_type: String(data.appointmentType),
             status: 'pending',
-            phone: data.phone,
-            email: data.email,
+            phone: String(data.phone),
+            email: String(data.email),
             duration: 60, // Default 60 minutes
             provider: 'TBD' // Will be assigned later
           })
@@ -234,7 +249,7 @@ export const CompleteIntakeFlow: React.FC = () => {
     }
   };
 
-  const handleFinalSubmit = async (finalData: any) => {
+  const handleFinalSubmit = async (finalData: Record<string, unknown>) => {
     try {
       // First, get or create a default form to reference
       const { data: defaultForm, error: formError } = await supabase
@@ -320,33 +335,40 @@ export const CompleteIntakeFlow: React.FC = () => {
     }
   };
 
-  const generateAISummary = (data: any) => {
+  const generateAISummary = (data: Record<string, unknown>) => {
     // Simple summary generation - in real app this would use AI
     const parts = [];
     
-    if (data.symptomAssessment?.primaryComplaint) {
-      parts.push(`Chief Complaint: ${data.symptomAssessment.primaryComplaint}`);
+    const symptomAssessment = data.symptomAssessment as { primaryComplaint?: string; painLevel?: number } | undefined;
+    const medicalHistory = data.medicalHistory as unknown[] | undefined;
+    const medications = data.medications as unknown[] | undefined;
+    
+    if (symptomAssessment?.primaryComplaint) {
+      parts.push(`Chief Complaint: ${symptomAssessment.primaryComplaint}`);
     }
     
-    if (data.symptomAssessment?.painLevel) {
-      parts.push(`Pain Level: ${data.symptomAssessment.painLevel}/10`);
+    if (symptomAssessment?.painLevel) {
+      parts.push(`Pain Level: ${symptomAssessment.painLevel}/10`);
     }
     
-    if (data.medicalHistory?.length > 0) {
-      parts.push(`Medical History: ${data.medicalHistory.length} conditions`);
+    if (Array.isArray(medicalHistory) && medicalHistory.length > 0) {
+      parts.push(`Medical History: ${medicalHistory.length} conditions`);
     }
     
-    if (data.medications?.length > 0) {
-      parts.push(`Current Medications: ${data.medications.length}`);
+    if (Array.isArray(medications) && medications.length > 0) {
+      parts.push(`Current Medications: ${medications.length}`);
     }
     
     return parts.join(' | ') || 'Standard intake completed';
   };
 
-  const determinePriorityLevel = (data: any) => {
+  const determinePriorityLevel = (data: Record<string, unknown>) => {
     // Simple priority determination
-    if (data.symptomAssessment?.painLevel >= 8) return 'high';
-    if (data.symptomAssessment?.painLevel >= 5) return 'medium';
+    const symptomAssessment = data.symptomAssessment as { painLevel?: number } | undefined;
+    const painLevel = symptomAssessment?.painLevel || 0;
+    
+    if (painLevel >= 8) return 'high';
+    if (painLevel >= 5) return 'medium';
     return 'normal';
   };
 

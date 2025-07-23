@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,12 +45,7 @@ export const TenantFormBuilder = () => {
   const [fields, setFields] = useState<FormField[]>([]);
   const [loadingTemplate, setLoadingTemplate] = useState(false);
 
-  // Load tenant-specific form template on mount
-  useEffect(() => {
-    loadTenantTemplate();
-  }, [currentTenant]);
-
-  const loadTenantTemplate = async () => {
+  const loadTenantTemplate = useCallback(async () => {
     setLoadingTemplate(true);
     try {
       const response = await aiAgentHub.processRequest({
@@ -63,7 +58,14 @@ export const TenantFormBuilder = () => {
       });
 
       if (response.success && response.data.fields) {
-        const templateFields = response.data.fields.map((field: any, index: number) => ({
+        interface TemplateField {
+          type: string;
+          label: string;
+          required?: boolean;
+          placeholder?: string;
+          options?: string[];
+        }
+        const templateFields = response.data.fields.map((field: TemplateField, index: number) => ({
           id: index + 1,
           type: field.type,
           label: field.label,
@@ -85,7 +87,12 @@ export const TenantFormBuilder = () => {
     } finally {
       setLoadingTemplate(false);
     }
-  };
+  }, [currentTenant]);
+
+  // Load tenant-specific form template on mount
+  useEffect(() => {
+    loadTenantTemplate();
+  }, [loadTenantTemplate]);
 
   const fieldTypes = [
     { value: "text", label: "Text Input", icon: Type },

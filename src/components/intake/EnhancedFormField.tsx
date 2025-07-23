@@ -32,9 +32,9 @@ interface FormField {
 
 interface EnhancedFormFieldProps {
   field: FormField;
-  value: any;
+  value: unknown;
   error?: string;
-  onChange: (value: any) => void;
+  onChange: (value: unknown) => void;
   onBlur?: () => void;
   showValidation?: boolean;
 }
@@ -95,7 +95,7 @@ export const EnhancedFormField: React.FC<EnhancedFormFieldProps> = ({
             <Input
               id={field.id}
               type={field.type}
-              value={value || ''}
+              value={String(value || '')}
               onChange={(e) => onChange(e.target.value)}
               placeholder={field.placeholder}
               {...fieldProps}
@@ -111,7 +111,7 @@ export const EnhancedFormField: React.FC<EnhancedFormFieldProps> = ({
           <div className="relative">
             <Textarea
               id={field.id}
-              value={value || ''}
+              value={String(value || '')}
               onChange={(e) => onChange(e.target.value)}
               placeholder={field.placeholder}
               rows={3}
@@ -139,20 +139,20 @@ export const EnhancedFormField: React.FC<EnhancedFormFieldProps> = ({
                 onBlur={handleBlur}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                {value ? format(new Date(value), "PPP") : <span>{field.placeholder || "Pick a date"}</span>}
+                {value ? format(new Date(String(value)), "PPP") : <span>{field.placeholder || "Pick a date"}</span>}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
                 mode="single"
-                selected={value ? new Date(value) : undefined}
+                selected={value ? new Date(String(value)) : undefined}
                 onSelect={(date) => onChange(date ? format(date, 'yyyy-MM-dd') : '')}
                 initialFocus
                 className="p-3 pointer-events-auto"
                 captionLayout="dropdown-buttons"
                 fromYear={1900}
                 toYear={new Date().getFullYear()}
-                defaultMonth={value ? new Date(value) : new Date(1990, 0)}
+                defaultMonth={value ? new Date(String(value)) : new Date(1990, 0)}
               />
             </PopoverContent>
           </Popover>
@@ -161,7 +161,7 @@ export const EnhancedFormField: React.FC<EnhancedFormFieldProps> = ({
       case 'select':
         return (
           <Select
-            value={value || ''}
+            value={String(value || '')}
             onValueChange={onChange}
           >
             <SelectTrigger 
@@ -208,7 +208,7 @@ export const EnhancedFormField: React.FC<EnhancedFormFieldProps> = ({
       case 'radio':
         return (
           <RadioGroup
-            value={value || ''}
+            value={String(value || '')}
             onValueChange={onChange}
             className={cn(
               'space-y-2',

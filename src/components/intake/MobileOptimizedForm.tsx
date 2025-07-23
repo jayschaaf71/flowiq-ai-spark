@@ -16,9 +16,24 @@ import { ConditionalFormField } from './ConditionalFormField';
 import { FileUploadField } from './FileUploadField';
 import { DigitalSignatureField } from './DigitalSignatureField';
 
+interface FormField {
+  id: string;
+  type: string;
+  label: string;
+  placeholder?: string;
+  required?: boolean;
+  options?: string[];
+}
+
+interface IntakeForm {
+  id: string;
+  title: string;
+  form_fields: FormField[];
+}
+
 interface MobileOptimizedFormProps {
-  form: any;
-  onSubmit: (data: any) => void;
+  form: IntakeForm;
+  onSubmit: (data: Record<string, unknown>) => void;
 }
 
 export const MobileOptimizedForm: React.FC<MobileOptimizedFormProps> = ({ 
@@ -26,7 +41,7 @@ export const MobileOptimizedForm: React.FC<MobileOptimizedFormProps> = ({
   onSubmit 
 }) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [formData, setFormData] = useState<Record<string, any>>({});
+  const [formData, setFormData] = useState<Record<string, unknown>>({});
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [autoSaveEnabled, setAutoSaveEnabled] = useState(true);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
@@ -94,7 +109,7 @@ export const MobileOptimizedForm: React.FC<MobileOptimizedFormProps> = ({
     loadFromLocalStorage();
   }, [loadFromLocalStorage]);
 
-  const handleFieldChange = (value: any) => {
+  const handleFieldChange = (value: unknown) => {
     setFormData(prev => ({
       ...prev,
       [currentField.id]: value

@@ -33,14 +33,14 @@ interface FormField {
 
 interface PatientFormRendererProps {
   form: IntakeForm;
-  onSubmissionComplete?: (submission: any) => void;
+  onSubmissionComplete?: (submission: Record<string, unknown>) => void;
 }
 
 export const PatientFormRenderer: React.FC<PatientFormRendererProps> = ({ 
   form, 
   onSubmissionComplete 
 }) => {
-  const [formData, setFormData] = useState<Record<string, any>>({});
+  const [formData, setFormData] = useState<Record<string, unknown>>({});
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -54,14 +54,14 @@ export const PatientFormRenderer: React.FC<PatientFormRendererProps> = ({
 
   // Safely cast form_fields to array with proper type handling
   const fields: FormField[] = Array.isArray(form.form_fields) 
-    ? (form.form_fields as unknown as FormField[]).filter((field: FormField): field is FormField => {
+    ? (form.form_fields as unknown as FormField[]).filter((field: unknown): field is FormField => {
         return (
           typeof field === 'object' && 
           field !== null && 
           !Array.isArray(field) &&
-          typeof field.id === 'string' &&
-          typeof field.type === 'string' &&
-          typeof field.label === 'string'
+          typeof (field as FormField).id === 'string' &&
+          typeof (field as FormField).type === 'string' &&
+          typeof (field as FormField).label === 'string'
         );
       })
     : [];
@@ -78,7 +78,7 @@ export const PatientFormRenderer: React.FC<PatientFormRendererProps> = ({
 
   useEffect(() => {
     trackFormEvent(form.id, 'form_viewed');
-  }, [form.id]);
+  }, [form.id, trackFormEvent]);
 
   const validateCurrentStep = (): boolean => {
     const newErrors = validateFields(currentFields, formData);
@@ -97,7 +97,7 @@ export const PatientFormRenderer: React.FC<PatientFormRendererProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleFieldChange = (fieldId: string, value: any) => {
+  const handleFieldChange = (fieldId: string, value: unknown) => {
     setFormData(prev => ({ ...prev, [fieldId]: value }));
     
     // Clear error when user changes value
@@ -171,16 +171,16 @@ export const PatientFormRenderer: React.FC<PatientFormRendererProps> = ({
         form.id,
         fields,
         {
-          patient_name: formData.full_name || formData.first_name + ' ' + formData.last_name || 'Unknown Patient',
-          patient_email: formData.email || '',
-          patient_phone: formData.phone || '',
+          patient_name: String(formData.full_name || `${formData.first_name || ''} ${formData.last_name || ''}`.trim() || 'Unknown Patient'),
+          patient_email: String(formData.email || ''),
+          patient_phone: String(formData.phone || ''),
           form_data: formData
         }
       );
 
       if (result.success) {
         setSubmitted(true);
-        onSubmissionComplete?.(result);
+        onSubmissionComplete?.(result as unknown as Record<string, unknown>);
         
         toast({
           title: "Form submitted successfully!",

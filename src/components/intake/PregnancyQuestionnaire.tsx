@@ -114,7 +114,7 @@ export const PregnancyQuestionnaire = () => {
   const { submitForm } = useIntakeForms();
   const { toast } = useToast();
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: string, value: unknown) => {
     if (field.includes('.')) {
       const [parent, child] = field.split('.');
       setFormData(prev => ({

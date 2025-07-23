@@ -6,6 +6,13 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PenTool, RotateCcw, Check, X } from 'lucide-react';
 
+interface SignatureValue {
+  signature?: string;
+  signerName?: string;
+  signedDate?: string;
+  consented?: boolean;
+}
+
 interface DigitalSignatureFieldProps {
   field: {
     id: string;
@@ -15,13 +22,8 @@ interface DigitalSignatureFieldProps {
     signerNameRequired?: boolean;
     dateRequired?: boolean;
   };
-  value: {
-    signature?: string;
-    signerName?: string;
-    signedDate?: string;
-    consented?: boolean;
-  };
-  onChange: (value: any) => void;
+  value: SignatureValue;
+  onChange: (value: SignatureValue) => void;
   error?: string;
 }
 

@@ -117,7 +117,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
         variant: "destructive",
       });
     }
-  }, [maxDuration, toast]);
+  }, [maxDuration, toast, onTranscriptionComplete]);
 
   const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
@@ -154,7 +154,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
         setIsPlaying(false);
       });
     }
-  }, [audioBlob]);
+  }, [audioBlob, isPlaying]);
 
   const pausePlayback = useCallback(() => {
     if (audioRef.current) {
@@ -247,7 +247,7 @@ export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     const currentAudioBlob = audioBlob;
     if (!currentAudioBlob) return;
     await processRecordingWithBlob(currentAudioBlob);
-  }, [processRecordingWithBlob]);
+  }, [audioBlob, processRecordingWithBlob]);
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);

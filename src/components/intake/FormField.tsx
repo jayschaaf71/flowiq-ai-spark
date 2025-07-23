@@ -18,9 +18,9 @@ interface FormField {
 
 interface FormFieldProps {
   field: FormField;
-  value: any;
+  value: unknown;
   error?: string;
-  onChange: (value: any) => void;
+  onChange: (value: unknown) => void;
 }
 
 export const FormFieldComponent: React.FC<FormFieldProps> = ({ 
@@ -42,7 +42,7 @@ export const FormFieldComponent: React.FC<FormFieldProps> = ({
           <Input
             id={field.id}
             type={field.type}
-            value={value || ''}
+            value={String(value || '')}
             onChange={(e) => onChange(e.target.value)}
             placeholder={field.placeholder}
             className={error ? 'border-red-500' : ''}
@@ -60,7 +60,7 @@ export const FormFieldComponent: React.FC<FormFieldProps> = ({
           </Label>
           <Textarea
             id={field.id}
-            value={value || ''}
+            value={String(value || '')}
             onChange={(e) => onChange(e.target.value)}
             placeholder={field.placeholder}
             rows={3}
@@ -78,7 +78,7 @@ export const FormFieldComponent: React.FC<FormFieldProps> = ({
             {field.required && <span className="text-red-500 ml-1">*</span>}
           </Label>
           <Select
-            value={value || ''}
+            value={String(value || '')}
             onValueChange={onChange}
           >
             <SelectTrigger className={error ? 'border-red-500' : ''}>
@@ -123,7 +123,7 @@ export const FormFieldComponent: React.FC<FormFieldProps> = ({
             {field.required && <span className="text-red-500 ml-1">*</span>}
           </Label>
           <RadioGroup
-            value={value || ''}
+            value={String(value || '')}
             onValueChange={onChange}
             className={error ? 'border border-red-500 rounded p-2' : ''}
           >

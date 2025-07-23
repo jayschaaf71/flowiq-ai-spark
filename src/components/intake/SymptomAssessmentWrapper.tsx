@@ -4,8 +4,15 @@ import { useCurrentTenant } from '@/utils/enhancedTenantConfig';
 import { ChiropracticSymptomAssessment } from './ChiropracticSymptomAssessment';
 import { DentalSymptomAssessment } from './DentalSymptomAssessment';
 
+interface SymptomAssessmentData {
+  symptoms: string[];
+  painLevel?: number;
+  duration?: string;
+  additionalNotes?: string;
+}
+
 interface SymptomAssessmentWrapperProps {
-  onComplete: (data: any) => void;
+  onComplete: (data: SymptomAssessmentData) => void;
   onSkip?: () => void;
 }
 

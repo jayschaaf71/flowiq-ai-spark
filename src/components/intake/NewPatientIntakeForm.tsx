@@ -362,7 +362,7 @@ export const NewPatientIntakeForm = () => {
   const { submitForm } = useIntakeForms();
   const { toast } = useToast();
 
-  const handleInputChange = (section: string, field: string, value: any) => {
+  const handleInputChange = (section: string, field: string, value: unknown) => {
     setFormData(prev => ({
       ...prev,
       [section]: {

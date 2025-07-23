@@ -44,7 +44,7 @@ export const CreditCardAgreementForm = () => {
   const [showFAQ, setShowFAQ] = useState(false);
   const { toast } = useToast();
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: string, value: unknown) => {
     setFormData(prev => ({
       ...prev,
       [field]: value

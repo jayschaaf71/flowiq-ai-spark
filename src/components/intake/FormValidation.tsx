@@ -14,7 +14,7 @@ interface FormField {
   };
 }
 
-export const validateField = (field: FormField, value: any): string | null => {
+export const validateField = (field: FormField, value: unknown): string | null => {
   // Check required fields
   if (field.required && (!value || value === '' || (Array.isArray(value) && value.length === 0))) {
     return `${field.label} is required`;
@@ -25,19 +25,21 @@ export const validateField = (field: FormField, value: any): string | null => {
     return null;
   }
 
+  const stringValue = String(value);
+
   // Email validation
-  if (field.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+  if (field.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(stringValue)) {
     return 'Please enter a valid email address';
   }
 
   // Phone validation - more flexible pattern
-  if (field.type === 'phone' && !/^[\+]?[1-9][\d]{0,15}$/.test(value.replace(/[\s\-\(\)]/g, ''))) {
+  if (field.type === 'phone' && !/^[\+]?[1-9][\d]{0,15}$/.test(stringValue.replace(/[\s\-\(\)]/g, ''))) {
     return 'Please enter a valid phone number';
   }
 
   // Date validation
   if (field.type === 'date') {
-    const date = new Date(value);
+    const date = new Date(stringValue);
     if (isNaN(date.getTime())) {
       return 'Please enter a valid date';
     }
@@ -51,15 +53,15 @@ export const validateField = (field: FormField, value: any): string | null => {
   if (field.validation) {
     const { minLength, maxLength, pattern, min, max } = field.validation;
 
-    if (minLength && value.length < minLength) {
+    if (minLength && stringValue.length < minLength) {
       return `${field.label} must be at least ${minLength} characters long`;
     }
 
-    if (maxLength && value.length > maxLength) {
+    if (maxLength && stringValue.length > maxLength) {
       return `${field.label} must be no more than ${maxLength} characters long`;
     }
 
-    if (pattern && !new RegExp(pattern).test(value)) {
+    if (pattern && !new RegExp(pattern).test(stringValue)) {
       return `${field.label} format is invalid`;
     }
 
@@ -76,7 +78,7 @@ export const validateField = (field: FormField, value: any): string | null => {
   return null;
 };
 
-export const validateFields = (fields: FormField[], formData: Record<string, any>): Record<string, string> => {
+export const validateFields = (fields: FormField[], formData: Record<string, unknown>): Record<string, string> => {
   const errors: Record<string, string> = {};
   
   fields.forEach(field => {
@@ -89,7 +91,7 @@ export const validateFields = (fields: FormField[], formData: Record<string, any
   return errors;
 };
 
-export const calculateFormCompleteness = (fields: FormField[], formData: Record<string, any>): number => {
+export const calculateFormCompleteness = (fields: FormField[], formData: Record<string, unknown>): number => {
   const totalFields = fields.length;
   const completedFields = fields.filter(field => {
     const value = formData[field.id];
@@ -99,7 +101,7 @@ export const calculateFormCompleteness = (fields: FormField[], formData: Record<
   return totalFields > 0 ? Math.round((completedFields / totalFields) * 100) : 0;
 };
 
-export const getRequiredFieldsStatus = (fields: FormField[], formData: Record<string, any>) => {
+export const getRequiredFieldsStatus = (fields: FormField[], formData: Record<string, unknown>) => {
   const requiredFields = fields.filter(field => field.required);
   const completedRequired = requiredFields.filter(field => {
     const value = formData[field.id];
