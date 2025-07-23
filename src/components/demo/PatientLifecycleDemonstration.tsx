@@ -167,7 +167,7 @@ export const PatientLifecycleDemonstration = () => {
     }
   };
 
-  const StageCard = ({ stage, isActive, isCompleted }: { stage: any, isActive: boolean, isCompleted: boolean }) => {
+  const StageCard = ({ stage, isActive, isCompleted }: { stage: PatientLifecycleStage, isActive: boolean, isCompleted: boolean }) => {
     const Icon = stage.icon;
     
     return (

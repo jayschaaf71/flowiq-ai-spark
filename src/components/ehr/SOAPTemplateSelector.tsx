@@ -10,8 +10,30 @@ import { useSOAPTemplates, useCreateSOAPTemplate } from "@/hooks/useSOAPTemplate
 import { useToast } from "@/hooks/use-toast";
 import { FileText, Plus } from "lucide-react";
 
+interface SOAPTemplate {
+  id: string;
+  name: string;
+  description?: string;
+  category?: string;
+  isDefault?: boolean;
+  usage?: number;
+  specialty?: string;
+  template?: {
+    subjective: string;
+    objective: string;
+    assessment: string;
+    plan: string;
+  };
+  template_data?: {
+    subjective: string;
+    objective: string;
+    assessment: string;
+    plan: string;
+  };
+}
+
 interface SOAPTemplateProps {
-  onSelectTemplate: (template: any) => void;
+  onSelectTemplate: (template: SOAPTemplate) => void;
   specialty?: string;
 }
 

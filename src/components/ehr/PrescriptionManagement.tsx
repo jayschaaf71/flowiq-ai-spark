@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { useMedications, useCreateMedication, useUpdateMedication } from "@/hooks/useMedications";
+import { Medication } from "@/types/medical";
 
 interface PrescriptionManagementProps {
   patientId: string;
@@ -86,7 +87,7 @@ export const PrescriptionManagement = ({ patientId }: PrescriptionManagementProp
     setSelectedMedication(null);
   };
 
-  const handleEdit = (medication: any) => {
+  const handleEdit = (medication: Medication) => {
     setSelectedMedication(medication);
     setFormData({
       medication_name: medication.medication_name,

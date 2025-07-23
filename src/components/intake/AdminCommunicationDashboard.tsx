@@ -11,7 +11,7 @@ import { useIntakeSubmissions } from '@/hooks/useIntakeSubmissions';
 
 interface AdminCommunicationDashboardProps {
   submissionId?: string;
-  submission?: any;
+  submission?: FormSubmissionSummary;
   onSendCommunication?: (
     submissionId: string,
     templateId: string,

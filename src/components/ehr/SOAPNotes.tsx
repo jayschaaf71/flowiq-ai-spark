@@ -20,6 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SOAPTemplateSelector } from "./SOAPTemplateSelector";
 import { useSOAPNotes } from "@/hooks/useSOAPNotes";
 import { useUserProfile } from "@/hooks/useUserProfile";
+import { SOAPNote } from "@/types/medical";
 
 export const SOAPNotes = () => {
   const [selectedNote, setSelectedNote] = useState<string | null>(null);
@@ -181,7 +182,12 @@ export const SOAPNotes = () => {
         {/* SOAP Editor */}
         <div className="lg:col-span-2">
           {selectedNote ? (
-            <SOAPEditor note={allNotes.find(n => n.id === selectedNote)!} />
+            <SOAPEditor note={{
+              ...allNotes.find(n => n.id === selectedNote)!,
+              patientId: selectedNote,
+              createdBy: 'current-user',
+              updatedAt: new Date().toISOString()
+            } as SOAPNote} />
           ) : (
             <Card>
               <CardContent className="text-center py-12">
@@ -203,7 +209,7 @@ export const SOAPNotes = () => {
   );
 };
 
-const SOAPEditor = ({ note }: { note: any }) => {
+const SOAPEditor = ({ note }: { note: SOAPNote }) => {
   const [formData, setFormData] = useState({
     subjective: note.subjective,
     objective: note.objective,
@@ -227,7 +233,7 @@ const SOAPEditor = ({ note }: { note: any }) => {
           <div>
             <CardTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
-              SOAP Note - {note.patientName}
+              SOAP Note - {note.patientName || 'Patient'}
             </CardTitle>
             <CardDescription className="flex items-center gap-4 mt-1">
               <span className="flex items-center gap-1">
@@ -236,7 +242,7 @@ const SOAPEditor = ({ note }: { note: any }) => {
               </span>
               <span className="flex items-center gap-1">
                 <User className="h-3 w-3" />
-                {note.provider}
+                {note.provider || 'Unknown Provider'}
               </span>
               <span className="flex items-center gap-1">
                 <Clock className="h-3 w-3" />

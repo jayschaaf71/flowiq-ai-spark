@@ -134,7 +134,7 @@ export const RealTimeClaimTracker = () => {
     }
   };
 
-  const getClaimProgress = (claim: any) => {
+  const getClaimProgress = (claim: Claim) => {
     const statusOrder = ['draft', 'ai_processing', 'validation_complete', 'submitted', 'under_review', 'approved', 'paid'];
     const currentIndex = statusOrder.indexOf(claim.processing_status);
     return currentIndex >= 0 ? ((currentIndex + 1) / statusOrder.length) * 100 : 0;
