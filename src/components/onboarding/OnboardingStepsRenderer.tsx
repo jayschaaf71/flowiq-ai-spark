@@ -125,12 +125,12 @@ export const OnboardingStepsRenderer: React.FC<OnboardingStepsRendererProps> = (
       return (
         <IntegrationValidationStep
           onboardingData={{
-            specialty: onboardingData.specialty || defaultSpecialty,
-            practiceData: onboardingData.practiceData || {} as Record<string, unknown>,
-            agentConfig: onboardingData.agentConfig || {} as Record<string, unknown>,
-            ehrConfig: onboardingData.ehrConfig || {} as Record<string, unknown>,
-            paymentConfig: onboardingData.paymentConfig || {} as Record<string, unknown>,
-            templateConfig: onboardingData.templateConfig || {} as Record<string, unknown>,
+            specialty: onboardingData.specialty || 'general',
+            practiceData: { ...onboardingData.practiceData } as Record<string, unknown>,
+            agentConfig: { ...onboardingData.agentConfig } as Record<string, unknown>,
+            ehrConfig: { ...onboardingData.ehrConfig } as Record<string, unknown>,
+            paymentConfig: { ...onboardingData.paymentConfig } as Record<string, unknown>,
+            templateConfig: { ...onboardingData.templateConfig } as Record<string, unknown>,
             completedAt: new Date().toISOString()
           }}
           onValidationComplete={(results) => {
