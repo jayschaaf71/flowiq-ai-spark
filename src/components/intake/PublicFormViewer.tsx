@@ -125,21 +125,21 @@ export const PublicFormViewer: React.FC<PublicFormViewerProps> = ({
     }
   };
 
-  const validateField = (field: FormField, value: any): string | null => {
+  const validateField = (field: FormField, value: string | number | boolean | File | null): string | null => {
     if (field.required && (!value || (typeof value === 'string' && value.trim() === ''))) {
       return `${field.label} is required`;
     }
 
     if (field.type === 'email' && value) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(value)) {
+      if (!emailRegex.test(String(value))) {
         return 'Please enter a valid email address';
       }
     }
 
     if (field.type === 'phone' && value) {
       const phoneRegex = /^[+]?[1-9][\d]{0,15}$/;
-      if (!phoneRegex.test(value.replace(/[\s\-()]/g, ''))) {
+      if (!phoneRegex.test(String(value).replace(/[\s\-()]/g, ''))) {
         return 'Please enter a valid phone number';
       }
     }
@@ -147,7 +147,7 @@ export const PublicFormViewer: React.FC<PublicFormViewerProps> = ({
     return null;
   };
 
-  const handleFieldChange = (fieldId: string, value: any) => {
+  const handleFieldChange = (fieldId: string, value: string | number | boolean | File | null) => {
     setFormData(prev => ({ ...prev, [fieldId]: value }));
     
     // Clear error for this field
@@ -171,7 +171,7 @@ export const PublicFormViewer: React.FC<PublicFormViewerProps> = ({
     
     formFields.forEach((field: any) => {
       if (field && typeof field === 'object' && field.id && field.type) {
-        const error = validateField(field as FormField, formData[field.id]);
+        const error = validateField(field as FormField, formData[field.id] as string | number | boolean | File | null);
         if (error) {
           newErrors[field.id] = error;
         }

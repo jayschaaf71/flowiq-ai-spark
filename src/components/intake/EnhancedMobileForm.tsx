@@ -18,6 +18,7 @@ import {
 import { ConditionalFormField } from './ConditionalFormField';
 import { FileUploadField } from './FileUploadField';
 import { DigitalSignatureField } from './DigitalSignatureField';
+import { FormField } from '@/types/intake';
 
 interface EnhancedMobileFormProps {
   form: any;
@@ -105,21 +106,21 @@ export const EnhancedMobileForm: React.FC<EnhancedMobileFormProps> = ({
     }
   };
 
-  const validateField = (field: any, value: any) => {
-    if (field.required && (!value || value.toString().trim() === '')) {
+  const validateField = (field: FormField, value: string | number | boolean | File | null) => {
+    if (field.required && (!value || String(value).trim() === '')) {
       return `${field.label} is required`;
     }
     
     if (field.type === 'email' && value) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(value)) {
+      if (!emailRegex.test(String(value))) {
         return 'Please enter a valid email address';
       }
     }
     
     if (field.type === 'phone' && value) {
       const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
-      if (!phoneRegex.test(value.replace(/\D/g, ''))) {
+      if (!phoneRegex.test(String(value).replace(/\D/g, ''))) {
         return 'Please enter a valid phone number';
       }
     }
@@ -127,7 +128,7 @@ export const EnhancedMobileForm: React.FC<EnhancedMobileFormProps> = ({
     return null;
   };
 
-  const handleFieldChange = (value: any) => {
+  const handleFieldChange = (value: string | number | boolean | File | null) => {
     const fieldId = currentField.id;
     setFormData(prev => ({
       ...prev,
@@ -212,7 +213,10 @@ export const EnhancedMobileForm: React.FC<EnhancedMobileFormProps> = ({
           />
         );
       case 'signature':
-        return <DigitalSignatureField {...commonProps} />;
+        return <DigitalSignatureField 
+          {...commonProps} 
+          onChange={(value) => handleFieldChange(String(value))}
+        />;
       default:
         return <ConditionalFormField {...commonProps} />;
     }
