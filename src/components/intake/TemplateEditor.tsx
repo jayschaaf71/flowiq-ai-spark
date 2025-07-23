@@ -61,7 +61,7 @@ export const TemplateEditor: React.FC<TemplateEditorProps> = ({
     variables: [] as string[],
     isActive: true,
     styling: defaultStyling,
-    metadata: {} as Record<string, any>
+    metadata: {} as Record<string, unknown>
   });
 
   const [previewData, setPreviewData] = useState({

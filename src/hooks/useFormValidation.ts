@@ -18,7 +18,7 @@ export const useFormValidation = <T>({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { handleError } = useErrorHandler();
 
-  const validateField = useCallback((name: string, value: any): string | null => {
+  const validateField = useCallback((name: string, value: unknown): string | null => {
     try {
       // Validate individual field by creating a temporary object
       const tempData = { [name]: value };
@@ -33,7 +33,7 @@ export const useFormValidation = <T>({
     }
   }, [schema]);
 
-  const validateForm = useCallback((data: any): { isValid: boolean; errors: Record<string, string> } => {
+  const validateForm = useCallback((data: Record<string, unknown>): { isValid: boolean; errors: Record<string, string> } => {
     try {
       const processedData = sanitize ? sanitizeFormData(data) : data;
       schema.parse(processedData);
@@ -51,7 +51,7 @@ export const useFormValidation = <T>({
     }
   }, [schema, sanitize]);
 
-  const handleSubmit = useCallback(async (data: any) => {
+  const handleSubmit = useCallback(async (data: Record<string, unknown>) => {
     setIsSubmitting(true);
     setErrors({});
 

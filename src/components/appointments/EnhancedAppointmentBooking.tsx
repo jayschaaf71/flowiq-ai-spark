@@ -267,7 +267,10 @@ export const EnhancedAppointmentBooking: React.FC<EnhancedAppointmentBookingProp
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              handleSubmit(formData);
+            }} className="space-y-6">
               {/* Provider Selection */}
               <div className="space-y-2">
                 <Label htmlFor="provider">Provider *</Label>

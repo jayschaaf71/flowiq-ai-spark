@@ -43,12 +43,12 @@ export const sanitizeInput = (input: string): string => {
   return input
     .trim()
     .slice(0, 1000) // Limit length
-    .replace(/[<>'"`;\\]/g, ''); // Remove dangerous chars
+    .replace(/[<>'"`;]/g, ''); // Remove dangerous chars
 };
 
 // Sanitize object with string values
-export const sanitizeFormData = (data: Record<string, any>): Record<string, any> => {
-  const sanitized: Record<string, any> = {};
+export const sanitizeFormData = (data: Record<string, unknown>): Record<string, unknown> => {
+  const sanitized: Record<string, unknown> = {};
   
   for (const [key, value] of Object.entries(data)) {
     if (typeof value === 'string') {

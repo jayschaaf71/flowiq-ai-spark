@@ -139,7 +139,7 @@ async function processFollowUpTask(supabase: SupabaseClient, task: FollowUpTask)
         completionData = { twilio_sid: result.sid, status: result.status };
         break;
 
-      case 'email':
+      case 'email': {
         if (!task.patient.email) {
           throw new Error('No email address available for email');
         }
@@ -147,6 +147,7 @@ async function processFollowUpTask(supabase: SupabaseClient, task: FollowUpTask)
         result = await sendEmail(task.patient.email, subject, message);
         completionData = { email_id: result.id };
         break;
+      }
 
       case 'call':
         // For call tasks, we'll create an appointment or mark for manual follow-up

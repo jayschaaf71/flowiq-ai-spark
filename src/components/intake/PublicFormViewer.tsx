@@ -109,7 +109,7 @@ export const PublicFormViewer: React.FC<PublicFormViewerProps> = ({
       });
       
       // Initialize form data with empty values
-      const initialData: Record<string, any> = {};
+      const initialData: Record<string, unknown> = {};
       const formFields = Array.isArray(data.form_fields) ? data.form_fields : [];
       formFields.forEach((field: any) => {
         if (field && typeof field === 'object' && field.id && field.type) {

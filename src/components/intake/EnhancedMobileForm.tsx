@@ -30,7 +30,7 @@ export const EnhancedMobileForm: React.FC<EnhancedMobileFormProps> = ({
   onSubmit 
 }) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [formData, setFormData] = useState<Record<string, any>>({});
+  const [formData, setFormData] = useState<Record<string, unknown>>({});
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [autoSaveEnabled, setAutoSaveEnabled] = useState(true);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
@@ -145,7 +145,7 @@ export const EnhancedMobileForm: React.FC<EnhancedMobileFormProps> = ({
   };
 
   const handleNext = () => {
-    const error = validateField(currentField, formData[currentField.id]);
+    const error = validateField(currentField, formData[currentField.id] as string | number | boolean | File | null);
     if (error) {
       setValidationErrors(prev => ({
         ...prev,
@@ -172,7 +172,7 @@ export const EnhancedMobileForm: React.FC<EnhancedMobileFormProps> = ({
     // Validate all required fields
     const errors: Record<string, string> = {};
     fields.forEach((field: any, index: number) => {
-      const error = validateField(field, formData[field.id]);
+      const error = validateField(field, formData[field.id] as string | number | boolean | File | null);
       if (error) {
         errors[field.id] = error;
       }
