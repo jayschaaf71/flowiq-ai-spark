@@ -3,6 +3,11 @@ import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
+interface RealtimePayload {
+  new: Record<string, unknown> | null;
+  old: Record<string, unknown> | null;
+}
+
 export const useRealtime = () => {
   const queryClient = useQueryClient();
 
@@ -27,8 +32,8 @@ export const useRealtime = () => {
           schema: 'public',
           table: 'medical_history'
         },
-        (payload) => {
-          const patientId = (payload.new as any)?.patient_id || (payload.old as any)?.patient_id;
+        (payload: RealtimePayload) => {
+          const patientId = payload.new?.patient_id || payload.old?.patient_id;
           if (patientId) {
             queryClient.invalidateQueries({ queryKey: ['medical_history', patientId] });
           }
@@ -41,8 +46,8 @@ export const useRealtime = () => {
           schema: 'public',
           table: 'medications'
         },
-        (payload) => {
-          const patientId = (payload.new as any)?.patient_id || (payload.old as any)?.patient_id;
+        (payload: RealtimePayload) => {
+          const patientId = payload.new?.patient_id || payload.old?.patient_id;
           if (patientId) {
             queryClient.invalidateQueries({ queryKey: ['medications', patientId] });
           }
@@ -66,8 +71,8 @@ export const useRealtime = () => {
           schema: 'public',
           table: 'soap_notes'
         },
-        (payload) => {
-          const patientId = (payload.new as any)?.patient_id || (payload.old as any)?.patient_id;
+        (payload: RealtimePayload) => {
+          const patientId = payload.new?.patient_id || payload.old?.patient_id;
           if (patientId) {
             queryClient.invalidateQueries({ queryKey: ['soap_notes', patientId] });
           }

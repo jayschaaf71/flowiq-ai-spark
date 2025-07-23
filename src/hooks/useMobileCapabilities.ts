@@ -1,16 +1,24 @@
 
 import { useState, useEffect } from 'react';
 import { Capacitor } from '@capacitor/core';
-import { Device } from '@capacitor/device';
-import { Network } from '@capacitor/network';
+import { Device, DeviceInfo } from '@capacitor/device';
+import { Network, NetworkStatus } from '@capacitor/network';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { Keyboard } from '@capacitor/keyboard';
+
+interface NetworkListener {
+  remove(): void;
+}
+
+interface KeyboardListener {
+  remove(): void;
+}
 
 interface MobileCapabilities {
   isNative: boolean;
   platform: string;
   isOnline: boolean;
-  deviceInfo: any;
+  deviceInfo: DeviceInfo | null;
   keyboardHeight: number;
 }
 
@@ -28,8 +36,8 @@ export const useMobileCapabilities = () => {
       const isNative = Capacitor.isNativePlatform();
       const platform = Capacitor.getPlatform();
       
-      let deviceInfo = null;
-      let networkStatus = { connected: true };
+      let deviceInfo: DeviceInfo | null = null;
+      let networkStatus: NetworkStatus = { connected: true, connectionType: 'unknown' };
 
       if (isNative) {
         try {
@@ -58,7 +66,7 @@ export const useMobileCapabilities = () => {
     initializeCapabilities();
 
     // Listen for network changes
-    let networkListener: any;
+    let networkListener: NetworkListener | null = null;
     
     const setupListeners = async () => {
       networkListener = await Network.addListener('networkStatusChange', (status) => {
@@ -67,8 +75,8 @@ export const useMobileCapabilities = () => {
     };
 
     // Listen for keyboard changes on mobile
-    let keyboardShowListener: any;
-    let keyboardHideListener: any;
+    let keyboardShowListener: KeyboardListener | null = null;
+    let keyboardHideListener: KeyboardListener | null = null;
 
     if (Capacitor.isNativePlatform()) {
       setupListeners();

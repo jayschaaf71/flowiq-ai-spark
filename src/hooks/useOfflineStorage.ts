@@ -4,9 +4,25 @@ import { Capacitor } from '@capacitor/core';
 import { Preferences } from '@capacitor/preferences';
 import { useAuth } from '@/hooks/useAuth';
 
+interface AppointmentData {
+  id: string;
+  patient_id: string;
+  date: string;
+  time: string;
+  status: string;
+}
+
+interface PatientData {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email?: string;
+  phone?: string;
+}
+
 interface OfflineData {
-  appointments: any[];
-  patients: any[];
+  appointments: AppointmentData[];
+  patients: PatientData[];
   lastSync: string;
 }
 
@@ -93,11 +109,11 @@ export const useOfflineStorage = () => {
     }
   };
 
-  const cacheAppointments = async (appointments: any[]) => {
+  const cacheAppointments = async (appointments: AppointmentData[]) => {
     await saveOfflineData({ appointments });
   };
 
-  const cachePatients = async (patients: any[]) => {
+  const cachePatients = async (patients: PatientData[]) => {
     await saveOfflineData({ patients });
   };
 

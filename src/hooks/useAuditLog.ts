@@ -2,6 +2,29 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthProvider';
 
+interface AuditLogData {
+  id?: string;
+  user_id?: string;
+  table_name: string;
+  action: string;
+  record_id?: string;
+  old_values?: unknown;
+  new_values?: unknown;
+  ip_address?: unknown;
+  session_id?: string | null;
+  user_agent?: string;
+  created_at?: string;
+  tenant_id?: string;
+}
+
+interface ComplianceMetrics {
+  total_patients: number;
+  total_appointments: number;
+  total_soap_notes: number;
+  total_audit_logs: number;
+  last_audit_entry: string;
+}
+
 export const useAuditLog = () => {
   const { user } = useAuth();
 
@@ -9,23 +32,20 @@ export const useAuditLog = () => {
     tableName: string,
     action: 'INSERT' | 'UPDATE' | 'DELETE' | 'SELECT',
     recordId?: string,
-    oldValues?: any,
-    newValues?: any
+    oldValues?: unknown,
+    newValues?: unknown
   ) => {
     if (!user) return;
 
     try {
-      await supabase.from('audit_logs').insert({
-        user_id: user.id,
+      await supabase.from('audit_logs').insert([{
         table_name: tableName,
         action,
         record_id: recordId,
-        old_values: oldValues,
-        new_values: newValues,
-        ip_address: null, // Will be populated by database trigger
-        session_id: null, // Will be populated by database trigger
+        old_values: oldValues as any,
+        new_values: newValues as any,
         user_agent: navigator.userAgent
-      });
+      }]);
     } catch (error) {
       console.error('Failed to log audit event:', error);
     }
@@ -36,7 +56,7 @@ export const useAuditLog = () => {
 
 // Updated hook that accepts optional filters
 export const useAuditLogs = (tableName?: string, recordId?: string) => {
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<AuditLogData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -59,7 +79,7 @@ export const useAuditLogs = (tableName?: string, recordId?: string) => {
         const { data: logs, error } = await query;
 
         if (error) throw error;
-        setData(logs || []);
+        setData((logs as AuditLogData[]) || []);
       } catch (error) {
         console.error('Error fetching audit logs:', error);
         setData([]);
@@ -75,7 +95,7 @@ export const useAuditLogs = (tableName?: string, recordId?: string) => {
 };
 
 export const useComplianceMetrics = () => {
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<ComplianceMetrics[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -110,14 +130,14 @@ export const logAuditAction = async (
   action: string,
   tableName: string,
   recordId?: string,
-  metadata?: any
+  metadata?: unknown
 ) => {
   try {
     await supabase.from('audit_logs').insert({
       table_name: tableName,
       action,
       record_id: recordId,
-      new_values: metadata,
+      new_values: metadata as any,
       user_agent: navigator.userAgent
     });
   } catch (error) {

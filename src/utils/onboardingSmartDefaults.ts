@@ -82,7 +82,7 @@ export const smartDefaults: SmartDefaults = {
       teamConfig: {
         inviteTeam: false,
         teamMembers: [],
-        suggestedRoles: rolesBySpecialty[specialty as keyof typeof rolesBySpecialty] || []
+        members: []
       }
     };
   }

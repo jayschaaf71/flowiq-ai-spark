@@ -46,7 +46,7 @@ export const OnboardingStepsRenderer: React.FC<OnboardingStepsRendererProps> = (
     case 'practice':
       return (
         <PracticeDetails
-          practiceData={onboardingData.practiceData}
+          practiceData={onboardingData.practiceData ? { ...onboardingData.practiceData, name: onboardingData.practiceData.practiceName || '' } : undefined}
           onPracticeDetailsUpdate={(practiceData) => updateOnboardingData({ practiceData })}
         />
       );
@@ -55,7 +55,7 @@ export const OnboardingStepsRenderer: React.FC<OnboardingStepsRendererProps> = (
       return (
         <TeamConfiguration
           specialty={onboardingData.specialty || defaultSpecialty}
-          teamConfig={onboardingData.teamConfig}
+          teamConfig={onboardingData.teamConfig ? { ...onboardingData.teamConfig, members: onboardingData.teamConfig.teamMembers || [] } : undefined}
           onTeamConfigUpdate={(teamConfig) => updateOnboardingData({ teamConfig })}
         />
       );
@@ -63,7 +63,7 @@ export const OnboardingStepsRenderer: React.FC<OnboardingStepsRendererProps> = (
     case 'agents':
       return (
         <AgentConfiguration
-          agentConfig={onboardingData.agentConfig || { receptionistAgent: false, schedulingAgent: false, billingAgent: false }}
+          agentConfig={onboardingData.agentConfig || { 'appointment-iq': false, 'intake-iq': false, 'billing-iq': false }}
           onAgentConfigUpdate={(agentConfig) => updateOnboardingData({ agentConfig })}
         />
       );

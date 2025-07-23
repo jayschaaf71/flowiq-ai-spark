@@ -5,6 +5,7 @@ interface PerformanceMetrics {
   loadTime: number;
   renderTime: number;
   memoryUsage?: number;
+  [key: string]: number | undefined;
 }
 
 export const usePerformanceMonitor = (componentName: string) => {
@@ -28,11 +29,9 @@ export const usePerformanceMonitor = (componentName: string) => {
     const loadTime = endTime - startTime;
 
     // Monitor memory usage if available
-    let memoryUsage: number | undefined;
-    if ('memory' in performance) {
-      const memoryInfo = (performance as any).memory;
-      memoryUsage = memoryInfo.usedJSHeapSize / 1024 / 1024; // MB
-    }
+    const memoryUsage: number | undefined = 'memory' in performance 
+      ? (performance as Record<string, unknown> & { memory: { usedJSHeapSize: number } }).memory.usedJSHeapSize / 1024 / 1024 
+      : undefined;
 
     logPerformance({ loadTime, memoryUsage });
 
@@ -54,11 +53,11 @@ export const usePerformanceMonitor = (componentName: string) => {
       try {
         const result = await fn();
         const operationTime = performance.now() - operationStart;
-        logPerformance({ [`${operation}Time`]: operationTime } as any);
+        logPerformance({ [`${operation}Time`]: operationTime });
         return result;
       } catch (error) {
         const operationTime = performance.now() - operationStart;
-        logPerformance({ [`${operation}ErrorTime`]: operationTime } as any);
+        logPerformance({ [`${operation}ErrorTime`]: operationTime });
         throw error;
       }
     }
