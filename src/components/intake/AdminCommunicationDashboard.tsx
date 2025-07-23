@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Settings, TestTube, History, Users, CheckCircle, AlertCircle } from 'lucide-react';
 import { useIntakeSubmissions } from '@/hooks/useIntakeSubmissions';
+import { FormSubmissionSummary } from '@/types/medical';
 
 interface AdminCommunicationDashboardProps {
   submissionId?: string;

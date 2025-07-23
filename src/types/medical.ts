@@ -47,6 +47,15 @@ export interface Claim {
   processedDate?: string;
   denialReason?: string;
   claimNumber: string;
+  // Database field compatibility
+  processing_status: string;
+  claim_number: string;
+  patient_name: string;
+  total_amount: number;
+  insurance_name: string;
+  ai_confidence_score: number;
+  days_in_ar: number;
+  created_at: string;
 }
 
 // Configuration and Settings
@@ -98,10 +107,13 @@ export interface ConditionalRule {
 export interface PatientLifecycleStage {
   id: string;
   name: string;
+  title?: string; // Alias for name
   description: string;
-  icon: string;
+  icon: string | React.ComponentType<any>;
   duration: string;
   status: 'pending' | 'active' | 'completed';
+  color?: string; // UI color for demo
+  automations?: string[]; // For demo purposes
   tasks: Array<{
     id: string;
     name: string;

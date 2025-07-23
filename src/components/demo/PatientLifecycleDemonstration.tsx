@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { patientLifecycleOrchestrator } from '@/services/patientLifecycleOrchestrator';
+import { PatientLifecycleStage } from '@/types/medical';
 import { 
   User, 
   Calendar, 
@@ -28,70 +29,102 @@ export const PatientLifecycleDemonstration = () => {
   const [patientJourney, setPatientJourney] = useState<any>(null);
   const { toast } = useToast();
 
-  const lifecycleStages = [
+  const lifecycleStages: PatientLifecycleStage[] = [
     {
       id: 'registration',
+      name: 'Patient Registration',
       title: 'Patient Registration',
       description: 'New patient discovers practice and begins registration',
       icon: User,
       color: 'bg-blue-500',
-      automations: ['Online booking', 'Auto-form assignment', 'Welcome communications']
+      automations: ['Online booking', 'Auto-form assignment', 'Welcome communications'],
+      duration: '5 minutes',
+      status: 'pending',
+      tasks: []
     },
     {
       id: 'onboarding',
+      name: 'Automated Onboarding',
       title: 'Automated Onboarding',
       description: 'AI-powered intake forms and medical history collection',
       icon: ClipboardList,
       color: 'bg-green-500',
-      automations: ['Smart form routing', 'AI data extraction', 'Risk assessment']
+      automations: ['Smart form routing', 'AI data extraction', 'Risk assessment'],
+      duration: '10 minutes',
+      status: 'pending',
+      tasks: []
     },
     {
       id: 'scheduling',
+      name: 'Intelligent Scheduling',
       title: 'Intelligent Scheduling',
       description: 'AI optimizes appointment booking and sends confirmations',
       icon: Calendar,
       color: 'bg-purple-500',
-      automations: ['Calendar optimization', 'Automated reminders', 'Pre-visit prep']
+      automations: ['Calendar optimization', 'Automated reminders', 'Pre-visit prep'],
+      duration: '3 minutes',
+      status: 'pending',
+      tasks: []
     },
     {
       id: 'checkin',
+      name: 'Seamless Check-in',
       title: 'Seamless Check-in',
       description: 'Digital check-in with automated notifications',
       icon: CheckCircle,
       color: 'bg-orange-500',
-      automations: ['Digital check-in', 'Provider notifications', 'Waiting room updates']
+      automations: ['Digital check-in', 'Provider notifications', 'Waiting room updates'],
+      duration: '2 minutes',
+      status: 'pending',
+      tasks: []
     },
     {
       id: 'visit',
+      name: 'AI-Enhanced Visit',
       title: 'AI-Enhanced Visit',
       description: 'Scribe iQ records, transcribes, and documents visit',
       icon: Stethoscope,
       color: 'bg-red-500',
-      automations: ['Voice transcription', 'SOAP generation', 'Real-time documentation']
+      automations: ['Voice transcription', 'SOAP generation', 'Real-time documentation'],
+      duration: '30 minutes',
+      status: 'pending',
+      tasks: []
     },
     {
       id: 'documentation',
+      name: 'Smart Documentation',
       title: 'Smart Documentation',
       description: 'AI populates EHR and generates clinical notes',
       icon: FileText,
       color: 'bg-indigo-500',
-      automations: ['EHR integration', 'Coding suggestions', 'Quality checks']
+      automations: ['EHR integration', 'Coding suggestions', 'Quality checks'],
+      duration: '5 minutes',
+      status: 'pending',
+      tasks: []
     },
     {
       id: 'billing',
+      name: 'Automated Billing',
       title: 'Automated Billing',
       description: 'Claims generation and submission with AI optimization',
       icon: CreditCard,
       color: 'bg-yellow-500',
-      automations: ['Claims generation', 'Prior auth checks', 'Denial prevention']
+      automations: ['Claims generation', 'Prior auth checks', 'Denial prevention'],
+      duration: '8 minutes',
+      status: 'pending',
+      tasks: []
     },
     {
       id: 'followup',
+      name: 'Intelligent Follow-up',
       title: 'Intelligent Follow-up',
       description: 'Personalized post-visit care and scheduling',
       icon: MessageCircle,
       color: 'bg-pink-500',
-      automations: ['Care instructions', 'Recovery monitoring', 'Next appointment scheduling']
+      automations: ['Care instructions', 'Recovery monitoring', 'Next appointment scheduling'],
+      duration: 'ongoing',
+      status: 'pending',
+      tasks: []
     }
   ];
 

@@ -275,7 +275,10 @@ export const PrescriptionManagement = ({ patientId }: PrescriptionManagementProp
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => handleEdit(medication)}
+                  onClick={() => handleEdit({
+                    ...medication,
+                    status: (medication.status as 'active' | 'completed' | 'discontinued') || 'active'
+                  })}
                 >
                   <Edit className="h-4 w-4" />
                 </Button>

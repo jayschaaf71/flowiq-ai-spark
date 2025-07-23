@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useClaimsData } from "@/hooks/useClaimsData";
 import { useClaimsRealtime } from "@/hooks/useClaimsRealtime";
 import { useToast } from "@/hooks/use-toast";
+import { Claim } from "@/types/medical";
 import { 
   Activity,
   Clock,
@@ -299,9 +300,9 @@ export const RealTimeClaimTracker = () => {
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span>Progress</span>
-                      <span>{Math.round(getClaimProgress(claim))}%</span>
+                      <span>{Math.round(getClaimProgress(claim as any))}%</span>
                     </div>
-                    <Progress value={getClaimProgress(claim)} className="h-2" />
+                    <Progress value={getClaimProgress(claim as any)} className="h-2" />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 mt-3 text-sm text-gray-600">
