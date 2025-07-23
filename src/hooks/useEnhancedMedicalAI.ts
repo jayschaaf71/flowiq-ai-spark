@@ -96,7 +96,16 @@ export const useEnhancedMedicalAI = () => {
   /**
    * Generate enhanced SOAP notes with medical intelligence
    */
-  const generateEnhancedSOAP = useCallback(async (transcription: string, patientContext?: any) => {
+interface PatientContext {
+  patientId?: string;
+  medicalHistory?: string[];
+  allergies?: string[];
+  currentMedications?: string[];
+  age?: number;
+  gender?: string;
+}
+
+  const generateEnhancedSOAP = useCallback(async (transcription: string, patientContext?: PatientContext) => {
     if (!transcription?.trim()) {
       toast({
         title: "No transcription provided",

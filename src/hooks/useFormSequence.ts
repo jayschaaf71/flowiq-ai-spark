@@ -29,17 +29,22 @@ export const useFormSequence = () => {
     setCurrentFormIndex(0);
   };
 
-  const handleFormCompletion = (submission: any) => {
+interface FormSubmission {
+  form_data?: Record<string, unknown>;
+  formData?: Record<string, unknown>;
+}
+
+  const handleFormCompletion = (submission: FormSubmission) => {
     const currentFormId = formSequence[currentFormIndex];
     setCompletedForms(prev => [...prev, currentFormId]);
 
     // Check if this was the new patient form and extract gender
     if (currentForm?.title.toLowerCase().includes('new patient')) {
-      const gender = submission.form_data?.gender || submission.formData?.gender;
-      setPatientGender(gender);
+      const gender = (submission.form_data?.gender || submission.formData?.gender) as string;
+      setPatientGender(gender || '');
       
       // Add conditional forms based on gender
-      if (gender?.toLowerCase() === 'female') {
+      if (gender && typeof gender === 'string' && gender.toLowerCase() === 'female') {
         const updatedSequence = [...formSequence];
         if (pregnancyForm && !updatedSequence.includes(pregnancyForm.id)) {
           updatedSequence.push(pregnancyForm.id);

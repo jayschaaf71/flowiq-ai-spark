@@ -18,7 +18,7 @@ export const useErrorHandler = () => {
 
     if (error instanceof Error) {
       errorMessage = error.message || fallbackMessage || 'An unexpected error occurred';
-      errorCode = (error as any).code;
+      errorCode = 'code' in error ? (error as Record<string, unknown>).code as string : undefined;
     } else {
       errorMessage = error.message || fallbackMessage || 'An unexpected error occurred';
       errorCode = error.code;
@@ -37,13 +37,13 @@ export const useErrorHandler = () => {
     });
   }, [toast]);
 
-  const handleApiError = useCallback((error: any, operation: string) => {
-    const errorMessage = error?.message || `Failed to ${operation}`;
-    const errorCode = error?.code || 'API_ERROR';
+  const handleApiError = useCallback((error: Record<string, unknown> | Error, operation: string) => {
+    const errorMessage = (error instanceof Error ? error.message : (error?.message as string)) || `Failed to ${operation}`;
+    const errorCode = (error instanceof Error ? 'code' in error ? (error as Record<string, unknown>).code as string : undefined : error?.code as string) || 'API_ERROR';
     
     handleError({ 
       message: errorMessage, 
-      code: errorCode,
+      code: errorCode as string,
       context: operation 
     });
   }, [handleError]);

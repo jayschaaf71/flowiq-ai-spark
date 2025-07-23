@@ -3,11 +3,39 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNotificationQueue } from "@/hooks/useNotificationQueue";
 
-export const useAppointmentCreation = (user: any, profile: any) => {
+interface User {
+  id: string;
+  email?: string;
+}
+
+interface Profile {
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  phone?: string;
+}
+
+interface AppointmentData {
+  patientName?: string;
+  appointmentType?: string;
+  date: string;
+  time: string;
+  duration?: number;
+  notes?: string;
+  phone?: string;
+  email?: string;
+  providerId?: string;
+  providerName?: string;
+  practiceName?: string;
+  practiceAddress?: string;
+  practicePhone?: string;
+}
+
+export const useAppointmentCreation = (user: User, profile: Profile) => {
   const { toast } = useToast();
   const { scheduleAppointmentReminders } = useNotificationQueue();
 
-  const createAppointmentAutomatically = async (appointmentData: any) => {
+  const createAppointmentAutomatically = async (appointmentData: AppointmentData) => {
     try {
       console.log('Creating appointment automatically:', appointmentData);
       console.log('User:', user);
