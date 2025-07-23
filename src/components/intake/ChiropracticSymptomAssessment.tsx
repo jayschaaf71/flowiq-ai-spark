@@ -10,9 +10,10 @@ import {
   Clock,
   AlertCircle
 } from 'lucide-react';
+import { SymptomAssessmentData, OnCompleteCallback } from '@/types/callbacks';
 
 interface ChiropracticSymptomAssessmentProps {
-  onComplete: (data: any) => void;
+  onComplete: OnCompleteCallback<SymptomAssessmentData>;
   onSkip?: () => void;
 }
 
@@ -71,7 +72,15 @@ export const ChiropracticSymptomAssessment: React.FC<ChiropracticSymptomAssessme
   };
 
   const handleSubmit = () => {
-    onComplete(formData);
+    const symptomData: SymptomAssessmentData = {
+      symptoms: [formData.primaryComplaint, ...formData.painLocation],
+      severity: formData.painLevel,
+      duration: formData.onsetDate,
+      location: formData.painLocation.join(', '),
+      additionalNotes: formData.onsetCause,
+      ...formData // Include all form data
+    };
+    onComplete(symptomData);
   };
 
   return (

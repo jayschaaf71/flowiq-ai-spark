@@ -11,9 +11,12 @@ import { ValidationSummaryCard } from './validation/ValidationSummaryCard';
 import { ValidationActionButtons } from './validation/ValidationActionButtons';
 import { NoIntegrationsCard } from './validation/NoIntegrationsCard';
 
+import { OnValidationCompleteCallback } from '@/types/callbacks';
+import { OnboardingCompletionData } from '@/types/onboarding';
+
 interface IntegrationValidationStepProps {
-  onboardingData: any;
-  onValidationComplete: (results: any) => void;
+  onboardingData: OnboardingCompletionData;
+  onValidationComplete: OnValidationCompleteCallback;
   onSkip: () => void;
 }
 
@@ -36,7 +39,7 @@ export const IntegrationValidationStep: React.FC<IntegrationValidationStepProps>
       name: 'EHR Integration',
       description: 'Electronic Health Records connection',
       icon: Database,
-      enabled: onboardingData.ehrConfig?.enableIntegration,
+      enabled: Boolean(onboardingData.ehrConfig?.enableIntegration),
       config: onboardingData.ehrConfig
     },
     {
@@ -44,7 +47,7 @@ export const IntegrationValidationStep: React.FC<IntegrationValidationStepProps>
       name: 'Payment Processing',
       description: 'Payment gateway and billing setup',
       icon: CreditCard,
-      enabled: onboardingData.paymentConfig?.enablePayments,
+      enabled: Boolean(onboardingData.paymentConfig?.enablePayments),
       config: onboardingData.paymentConfig
     },
     {
@@ -52,7 +55,7 @@ export const IntegrationValidationStep: React.FC<IntegrationValidationStepProps>
       name: 'Template Generation',
       description: 'Specialty-specific form templates',
       icon: FileText,
-      enabled: onboardingData.templateConfig?.enableAutoGeneration,
+      enabled: Boolean(onboardingData.templateConfig?.enableAutoGeneration),
       config: onboardingData.templateConfig
     }
   ];

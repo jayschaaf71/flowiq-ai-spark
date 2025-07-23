@@ -6,17 +6,16 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { Plus, X } from 'lucide-react';
+import { MedicalHistoryData, MedicalCondition, Medication, Allergy, FormStepProps, MedicalHistoryDataCompat } from '@/types/forms';
 
-interface MedicalHistoryStepProps {
-  initialData: any;
-  onComplete: (data: any) => void;
+interface MedicalHistoryStepProps extends FormStepProps<MedicalHistoryDataCompat> {
   onSkip: () => void;
 }
 
 export const MedicalHistoryStep: React.FC<MedicalHistoryStepProps> = ({ initialData, onComplete, onSkip }) => {
-  const [medicalHistory, setMedicalHistory] = useState(initialData.medicalHistory || []);
-  const [medications, setMedications] = useState(initialData.medications || []);
-  const [allergies, setAllergies] = useState(initialData.allergies || []);
+  const [medicalHistory, setMedicalHistory] = useState<MedicalCondition[]>(initialData.medicalHistory || []);
+  const [medications, setMedications] = useState<Medication[]>(initialData.medications || []);
+  const [allergies, setAllergies] = useState<Allergy[]>(initialData.allergies || []);
 
   const addMedicalCondition = () => {
     setMedicalHistory([...medicalHistory, { condition: '', date: '', notes: '' }]);
@@ -29,7 +28,7 @@ export const MedicalHistoryStep: React.FC<MedicalHistoryStepProps> = ({ initialD
   };
 
   const removeMedicalCondition = (index: number) => {
-    setMedicalHistory(medicalHistory.filter((_: any, i: number) => i !== index));
+    setMedicalHistory(medicalHistory.filter((_, i) => i !== index));
   };
 
   const addMedication = () => {
@@ -43,7 +42,7 @@ export const MedicalHistoryStep: React.FC<MedicalHistoryStepProps> = ({ initialD
   };
 
   const removeMedication = (index: number) => {
-    setMedications(medications.filter((_: any, i: number) => i !== index));
+    setMedications(medications.filter((_, i) => i !== index));
   };
 
   const addAllergy = () => {
@@ -57,7 +56,7 @@ export const MedicalHistoryStep: React.FC<MedicalHistoryStepProps> = ({ initialD
   };
 
   const removeAllergy = (index: number) => {
-    setAllergies(allergies.filter((_: any, i: number) => i !== index));
+    setAllergies(allergies.filter((_, i) => i !== index));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -81,7 +80,7 @@ export const MedicalHistoryStep: React.FC<MedicalHistoryStepProps> = ({ initialD
             <p className="text-gray-500 text-center py-4">No medical conditions added yet</p>
           ) : (
             <div className="space-y-4">
-              {medicalHistory.map((condition: any, index: number) => (
+              {medicalHistory.map((condition, index) => (
                 <div key={index} className="border rounded-lg p-4 relative">
                   <Button
                     type="button"
@@ -140,7 +139,7 @@ export const MedicalHistoryStep: React.FC<MedicalHistoryStepProps> = ({ initialD
             <p className="text-gray-500 text-center py-4">No medications added yet</p>
           ) : (
             <div className="space-y-4">
-              {medications.map((medication: any, index: number) => (
+              {medications.map((medication, index) => (
                 <div key={index} className="border rounded-lg p-4 relative">
                   <Button
                     type="button"
@@ -198,7 +197,7 @@ export const MedicalHistoryStep: React.FC<MedicalHistoryStepProps> = ({ initialD
             <p className="text-gray-500 text-center py-4">No allergies added yet</p>
           ) : (
             <div className="space-y-4">
-              {allergies.map((allergy: any, index: number) => (
+              {allergies.map((allergy, index) => (
                 <div key={index} className="border rounded-lg p-4 relative">
                   <Button
                     type="button"

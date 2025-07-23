@@ -8,9 +8,10 @@ import {
   Calendar,
   Clock
 } from 'lucide-react';
+import { SymptomAssessmentData, OnCompleteCallback } from '@/types/callbacks';
 
 interface DentalSymptomAssessmentProps {
-  onComplete: (data: any) => void;
+  onComplete: OnCompleteCallback<SymptomAssessmentData>;
   onSkip?: () => void;
 }
 
@@ -81,7 +82,15 @@ export const DentalSymptomAssessment: React.FC<DentalSymptomAssessmentProps> = (
   };
 
   const handleSubmit = () => {
-    onComplete(formData);
+    const symptomData: SymptomAssessmentData = {
+      symptoms: [formData.primaryComplaint, ...formData.symptoms],
+      severity: formData.painLevel,
+      duration: formData.lastDentalVisit,
+      location: formData.painLocation.join(', '),
+      additionalNotes: formData.dentalHistory,
+      ...formData // Include all form data
+    };
+    onComplete(symptomData);
   };
 
   return (

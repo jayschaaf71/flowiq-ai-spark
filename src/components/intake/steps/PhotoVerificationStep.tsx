@@ -3,9 +3,10 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Camera, Upload, CheckCircle } from 'lucide-react';
+import { PhotoVerificationData, OnCompleteCallback } from '@/types/callbacks';
 
 interface PhotoVerificationStepProps {
-  onComplete: (data: any) => void;
+  onComplete: OnCompleteCallback<PhotoVerificationData>;
   onSkip: () => void;
 }
 
@@ -25,7 +26,10 @@ export const PhotoVerificationStep: React.FC<PhotoVerificationStepProps> = ({ on
   };
 
   const handleComplete = () => {
-    onComplete({ photoId: photoData });
+    onComplete({ 
+      photoUrl: photoData || '',
+      idVerified: !!photoData
+    });
   };
 
   return (

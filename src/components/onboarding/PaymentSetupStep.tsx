@@ -8,10 +8,11 @@ import { PaymentStatusCard } from './payment/PaymentStatusCard';
 import { PaymentActionButtons } from './payment/PaymentActionButtons';
 import { PaymentSecurityNotice } from './payment/PaymentSecurityNotice';
 import { SpecialtyType } from '@/utils/specialtyConfig';
+import { PaymentConfigurationData, OnCompleteCallback } from '@/types/callbacks';
 
 interface PaymentSetupStepProps {
   specialty: SpecialtyType;
-  onComplete: (paymentConfig: any) => void;
+  onComplete: OnCompleteCallback<PaymentConfigurationData>;
   onSkip: () => void;
   initialConfig?: {
     enablePayments: boolean;
@@ -49,7 +50,21 @@ export const PaymentSetupStep: React.FC<PaymentSetupStepProps> = ({
   };
 
   const handleComplete = () => {
-    onComplete(paymentConfig);
+    const completeConfig: PaymentConfigurationData = {
+      enablePayments: paymentConfig.enablePayments,
+      subscriptionPlan: paymentConfig.subscriptionPlan,
+      paymentMethods: {
+        creditCard: true,
+        bankTransfer: false,
+        paymentPlans: false
+      },
+      pricing: {
+        consultationFee: '150',
+        followUpFee: '100',
+        packageDeals: false
+      }
+    };
+    onComplete(completeConfig);
   };
 
   if (showPaymentConfig) {

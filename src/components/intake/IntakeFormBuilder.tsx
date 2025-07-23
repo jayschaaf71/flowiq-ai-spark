@@ -11,16 +11,8 @@ import { Plus, Trash2, GripVertical, Save } from 'lucide-react';
 import { useIntakeForms } from '@/hooks/useIntakeForms';
 import { useTenantConfig } from '@/utils/tenantConfig';
 import { useToast } from '@/hooks/use-toast';
+import { FormField, FormFieldsJson } from '@/types/intake';
 
-interface FormField {
-  id: string;
-  type: string;
-  label: string;
-  placeholder?: string;
-  required?: boolean;
-  options?: string[];
-  [key: string]: any; // Add index signature for Json compatibility
-}
 
 export const IntakeFormBuilder: React.FC = () => {
   const [formTitle, setFormTitle] = useState('');
@@ -45,7 +37,7 @@ export const IntakeFormBuilder: React.FC = () => {
   const addField = () => {
     const newField: FormField = {
       id: `field_${Date.now()}`,
-      type: 'text',
+      type: 'text' as const,
       label: '',
       required: false
     };
@@ -107,7 +99,7 @@ export const IntakeFormBuilder: React.FC = () => {
       await createForm({
         title: formTitle,
         description: formDescription || null,
-        form_fields: fields as any, // Type assertion to handle Json conversion
+        form_fields: fields as FormFieldsJson, // Type assertion for database compatibility
         is_active: true
       });
 
@@ -204,7 +196,7 @@ export const IntakeFormBuilder: React.FC = () => {
                       <Label>Field Type</Label>
                       <Select
                         value={field.type}
-                        onValueChange={(value) => updateField(index, { type: value })}
+                        onValueChange={(value) => updateField(index, { type: value as FormField['type'] })}
                       >
                         <SelectTrigger>
                           <SelectValue />

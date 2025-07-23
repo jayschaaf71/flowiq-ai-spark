@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { FormFieldsJson } from '@/types/intake';
 import { 
   Plus, 
   Trash2, 
@@ -94,7 +95,7 @@ export const FormBuilder: React.FC = () => {
     createForm({
       title: formTitle,
       description: formDescription,
-      form_fields: formFields,
+      form_fields: formFields as FormFieldsJson,
       is_active: true
     });
 

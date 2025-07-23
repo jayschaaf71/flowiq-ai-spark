@@ -130,8 +130,24 @@ export const PatientOnboardingWorkflow = ({ onComplete, onCancel }: PatientOnboa
       case 4:
         return (
           <MedicalHistoryStep 
-            initialData={patientData} 
-            onComplete={handleStepComplete}
+            initialData={{
+              medicalHistory: patientData.medicalHistory?.conditions?.map(condition => ({ condition, date: '', notes: '' })) || [],
+              medications: patientData.medicalHistory?.medications?.map(med => ({ name: med, dosage: '', frequency: '' })) || [],
+              allergies: patientData.medicalHistory?.allergies?.map(allergy => ({ allergen: allergy, reaction: '', severity: '' })) || []
+            }}
+            onComplete={(data) => {
+              // Convert back to PatientData format
+              const updatedPatientData = {
+                ...patientData,
+                medicalHistory: {
+                  ...patientData.medicalHistory,
+                  conditions: data.medicalHistory?.map(item => item.condition) || [],
+                  medications: data.medications?.map(item => item.name) || [],
+                  allergies: data.allergies?.map(item => item.allergen) || []
+                }
+              };
+              handleStepComplete(updatedPatientData);
+            }}
             onSkip={handleStepSkip}
           />
         );

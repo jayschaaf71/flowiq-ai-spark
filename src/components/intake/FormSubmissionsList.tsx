@@ -4,12 +4,13 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Eye, UserCheck, Mail, Phone, Calendar } from 'lucide-react';
 import { IntakeSubmission } from '@/types/intake';
+import { StaffAssignment } from '@/types/forms';
 import { SubmissionDetailModal } from './SubmissionDetailModal';
 import { StaffAssignmentManager } from './StaffAssignmentManager';
 import { PatientCommunicationManager } from './PatientCommunicationManager';
 
 interface FormSubmissionsListProps {
-  submissions: (IntakeSubmission & { currentAssignment?: any })[];
+  submissions: (IntakeSubmission & { currentAssignment?: StaffAssignment })[];
   onViewSubmission: (submission: IntakeSubmission) => void;
   showActions?: boolean;
   onAssignToStaff?: (submissionId: string, staffId: string, staffName: string) => void;

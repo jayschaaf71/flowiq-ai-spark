@@ -11,12 +11,13 @@ export interface FormField {
     max?: number;
     pattern?: string;
   };
+  [key: string]: unknown; // Database compatibility
 }
 
+// Use JSON-compatible type for database (using any for Supabase compatibility)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type FormFieldsJson = any; // Database Json compatibility
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type FormDataJson = any; // Database Json compatibility
+export type FormFieldsJson = any;
+export type FormDataJson = Record<string, unknown>; // Flexible form data structure
 
 export interface IntakeForm {
   id: string;
