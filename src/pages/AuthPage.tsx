@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Zap, ArrowLeft } from "lucide-react";
+import { Loader2, Brain, ArrowLeft, Sparkles, Mail, User, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/contexts/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -159,23 +159,25 @@ export default function AuthPage() {
     }
   };
 
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-primary/5">
       <div className="min-h-screen flex items-center justify-center p-6">
-        <div className="w-full max-w-md space-y-6">
-          <div className="text-center space-y-2">
-            <div className="flex items-center justify-center gap-3 mb-6">
-              <div className="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center">
-                <Zap className="w-8 h-8 text-white" />
+        <div className="w-full max-w-md space-y-8">
+          {/* Enhanced Header */}
+          <div className="text-center space-y-4">
+            <div className="relative inline-block">
+              <div className="w-20 h-20 gradient-primary rounded-3xl flex items-center justify-center mx-auto shadow-lg">
+                <Brain className="w-10 h-10 text-white" />
               </div>
-              <div className="text-left">
-                <h1 className="text-4xl font-bold text-gray-900">FlowIQ</h1>
-                <p className="text-xl text-primary font-medium">The AI Business Operating System</p>
-              </div>
+              <Sparkles className="w-6 h-6 text-primary absolute -top-1 -right-1 animate-pulse" />
             </div>
-            <p className="text-muted-foreground text-lg">
-              Get started with your AI-powered practice management
-            </p>
+            <div className="space-y-2">
+              <h1 className="text-4xl font-bold text-foreground tracking-tight">FlowIQ</h1>
+              <p className="text-xl font-semibold text-primary">The AI Operating System</p>
+              <p className="text-muted-foreground text-lg">for Professional Practices</p>
+            </div>
           </div>
 
           {error && (
@@ -184,135 +186,190 @@ export default function AuthPage() {
             </Alert>
           )}
 
-          <Tabs defaultValue={defaultTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
-            </TabsList>
+          <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+            <CardHeader className="text-center space-y-2">
+              <CardTitle className="text-2xl font-bold text-foreground">Welcome</CardTitle>
+              <CardDescription className="text-muted-foreground text-base">
+                Access your AI-powered practice management platform
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <Tabs defaultValue={defaultTab} className="space-y-6">
+                <TabsList className="grid w-full grid-cols-2 h-12 bg-muted/50">
+                  <TabsTrigger value="signup" className="text-sm font-medium">Sign Up</TabsTrigger>
+                  <TabsTrigger value="signin" className="text-sm font-medium">Sign In</TabsTrigger>
+                </TabsList>
 
-            <TabsContent value="signup">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Create Account</CardTitle>
-                  <CardDescription>
-                    Start your free trial with FlowIQ
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
+                <TabsContent value="signup">
                   <form onSubmit={handleSignUp} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="firstName">First Name</Label>
-                        <Input
-                          id="firstName"
-                          type="text"
-                          value={signUpData.firstName}
-                          onChange={(e) => setSignUpData(prev => ({ ...prev, firstName: e.target.value }))}
-                          required
-                        />
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-2">
+                        <Label htmlFor="firstName" className="text-sm font-medium text-foreground">First Name *</Label>
+                        <div className="relative">
+                          <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            id="firstName"
+                            type="text"
+                            placeholder="John"
+                            className="pl-10 h-11 border-2 focus:border-primary transition-colors"
+                            value={signUpData.firstName}
+                            onChange={(e) => setSignUpData(prev => ({ ...prev, firstName: e.target.value }))}
+                            required
+                          />
+                        </div>
                       </div>
-                      <div>
-                        <Label htmlFor="lastName">Last Name</Label>
+                      <div className="space-y-2">
+                        <Label htmlFor="lastName" className="text-sm font-medium text-foreground">Last Name *</Label>
                         <Input
                           id="lastName"
                           type="text"
+                          placeholder="Doe"
+                          className="h-11 border-2 focus:border-primary transition-colors"
                           value={signUpData.lastName}
                           onChange={(e) => setSignUpData(prev => ({ ...prev, lastName: e.target.value }))}
                           required
                         />
                       </div>
                     </div>
-                    <div>
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={signUpData.email}
-                        onChange={(e) => setSignUpData(prev => ({ ...prev, email: e.target.value }))}
-                        required
-                      />
+                    <div className="space-y-2">
+                      <Label htmlFor="email" className="text-sm font-medium text-foreground">Email Address *</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="your@email.com"
+                          className="pl-10 h-11 border-2 focus:border-primary transition-colors"
+                          value={signUpData.email}
+                          onChange={(e) => setSignUpData(prev => ({ ...prev, email: e.target.value }))}
+                          required
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <Label htmlFor="password">Password</Label>
-                      <Input
-                        id="password"
-                        type="password"
-                        value={signUpData.password}
-                        onChange={(e) => setSignUpData(prev => ({ ...prev, password: e.target.value }))}
-                        required
-                        minLength={6}
-                      />
+                    <div className="space-y-2">
+                      <Label htmlFor="password" className="text-sm font-medium text-foreground">Password *</Label>
+                      <div className="relative">
+                        <Input
+                          id="password"
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Create a password"
+                          className="pr-12 h-11 border-2 focus:border-primary transition-colors"
+                          value={signUpData.password}
+                          onChange={(e) => setSignUpData(prev => ({ ...prev, password: e.target.value }))}
+                          required
+                          minLength={6}
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-1 top-1/2 -translate-y-1/2 h-9 w-9 hover:bg-muted"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </Button>
+                      </div>
                     </div>
-                    <div>
-                      <Label htmlFor="confirmPassword">Confirm Password</Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="confirmPassword" className="text-sm font-medium text-foreground">Confirm Password *</Label>
                       <Input
                         id="confirmPassword"
-                        type="password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Confirm your password"
+                        className="h-11 border-2 focus:border-primary transition-colors"
                         value={signUpData.confirmPassword}
                         onChange={(e) => setSignUpData(prev => ({ ...prev, confirmPassword: e.target.value }))}
                         required
                         minLength={6}
                       />
                     </div>
-                    <Button type="submit" className="w-full" disabled={loading}>
-                      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Create Account
+                    <Button 
+                      type="submit" 
+                      className="w-full h-12 gradient-primary text-white font-semibold text-base shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-[1.02] mt-6" 
+                      disabled={loading}
+                    >
+                      {loading ? (
+                        <>
+                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                          Creating your account...
+                        </>
+                      ) : (
+                        "Start Your FlowIQ Journey"
+                      )}
                     </Button>
                   </form>
-                </CardContent>
-              </Card>
-            </TabsContent>
+                </TabsContent>
 
-            <TabsContent value="signin">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Welcome Back</CardTitle>
-                  <CardDescription>
-                    Sign in to your FlowIQ account
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleSignIn} className="space-y-4">
-                    <div>
-                      <Label htmlFor="signin-email">Email</Label>
-                      <Input
-                        id="signin-email"
-                        type="email"
-                        value={signInData.email}
-                        onChange={(e) => setSignInData(prev => ({ ...prev, email: e.target.value }))}
-                        required
-                      />
+                <TabsContent value="signin">
+                  <form onSubmit={handleSignIn} className="space-y-5">
+                    <div className="space-y-2">
+                      <Label htmlFor="signin-email" className="text-sm font-medium text-foreground">Email Address</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="signin-email"
+                          type="email"
+                          placeholder="your@email.com"
+                          className="pl-10 h-12 border-2 focus:border-primary transition-colors"
+                          value={signInData.email}
+                          onChange={(e) => setSignInData(prev => ({ ...prev, email: e.target.value }))}
+                          required
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <Label htmlFor="signin-password">Password</Label>
-                      <Input
-                        id="signin-password"
-                        type="password"
-                        value={signInData.password}
-                        onChange={(e) => setSignInData(prev => ({ ...prev, password: e.target.value }))}
-                        required
-                      />
+                    <div className="space-y-2">
+                      <Label htmlFor="signin-password" className="text-sm font-medium text-foreground">Password</Label>
+                      <div className="relative">
+                        <Input
+                          id="signin-password"
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Enter your password"
+                          className="pr-12 h-12 border-2 focus:border-primary transition-colors"
+                          value={signInData.password}
+                          onChange={(e) => setSignInData(prev => ({ ...prev, password: e.target.value }))}
+                          required
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-1 top-1/2 -translate-y-1/2 h-10 w-10 hover:bg-muted"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </Button>
+                      </div>
                     </div>
-                    <Button type="submit" className="w-full" disabled={loading}>
-                      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Sign In
+                    <Button 
+                      type="submit" 
+                      className="w-full h-12 gradient-primary text-white font-semibold text-base shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-[1.02]" 
+                      disabled={loading}
+                    >
+                      {loading ? (
+                        <>
+                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                          Signing you in...
+                        </>
+                      ) : (
+                        "Sign In to FlowIQ"
+                      )}
                     </Button>
                     
                     <div className="text-center">
                       <Button 
                         type="button" 
                         variant="link" 
-                        className="text-sm"
+                        className="text-sm text-muted-foreground hover:text-primary"
                         onClick={() => setShowForgotPassword(true)}
                       >
                         Forgot your password?
                       </Button>
                     </div>
                   </form>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
 
           {/* Forgot Password Dialog */}
           {showForgotPassword && (
@@ -373,8 +430,14 @@ export default function AuthPage() {
             </Card>
           )}
 
-          <div className="text-center text-sm text-muted-foreground">
-            By creating an account, you agree to our Terms of Service and Privacy Policy
+          {/* Professional Footer */}
+          <div className="text-center space-y-2">
+            <p className="text-sm text-muted-foreground">
+              By signing in, you agree to our Terms of Service and Privacy Policy
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Secure, HIPAA-compliant healthcare technology
+            </p>
           </div>
         </div>
       </div>
