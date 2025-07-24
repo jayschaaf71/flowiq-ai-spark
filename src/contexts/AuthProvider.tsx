@@ -115,7 +115,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } else {
       setProfile(null);
     }
-  }, [user, fetchProfile]);
+  }, [user?.id]); // Only depend on user.id, not the fetchProfile function
 
   const refreshProfile = async () => {
     if (user) {
