@@ -3814,7 +3814,7 @@ export type Database = {
           is_active: boolean
           logo_url: string | null
           name: string
-          owner_id: string
+          owner_id: string | null
           phone: string | null
           practice_type: string
           primary_color: string | null
@@ -3836,7 +3836,7 @@ export type Database = {
           is_active?: boolean
           logo_url?: string | null
           name: string
-          owner_id: string
+          owner_id?: string | null
           phone?: string | null
           practice_type: string
           primary_color?: string | null
@@ -3858,7 +3858,7 @@ export type Database = {
           is_active?: boolean
           logo_url?: string | null
           name?: string
-          owner_id?: string
+          owner_id?: string | null
           phone?: string | null
           practice_type?: string
           primary_color?: string | null
