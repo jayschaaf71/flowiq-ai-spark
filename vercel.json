@@ -1,10 +1,5 @@
 {
   "version": 2,
-  "domains": [
-    "app.flow-iq.ai",
-    "midwest-dental-sleep.flow-iq.ai",
-    "west-county-spine.flow-iq.ai"
-  ],
   "routes": [
     {
       "src": "/(.*)",
