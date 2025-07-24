@@ -17,9 +17,12 @@ export function parseTenantFromUrl(): TenantRoute | null {
   const hostname = window.location.hostname;
   const pathname = window.location.pathname;
   
-  // Production subdomain routing (e.g., midwest-dental-sleep.flowiq.com)
-  if (hostname !== 'localhost' && (hostname.includes('flowiq.com') || hostname.includes('flow-iq.ai'))) {
+  // Production subdomain routing (e.g., midwest-dental-sleep.flow-iq.ai)
+  if (hostname !== 'localhost' && !hostname.includes('lovableproject.com') && 
+      (hostname.includes('flow-iq.ai') || hostname.includes('flowiq.com'))) {
     const subdomain = hostname.split('.')[0];
+    
+    console.log('Production subdomain detected:', subdomain, 'from hostname:', hostname);
     
     // Map known subdomains to tenant info
     const tenantMap: Record<string, Omit<TenantRoute, 'isProduction'>> = {
@@ -36,10 +39,13 @@ export function parseTenantFromUrl(): TenantRoute | null {
     };
     
     if (tenantMap[subdomain]) {
+      console.log('Found tenant mapping for subdomain:', subdomain, tenantMap[subdomain]);
       return {
         ...tenantMap[subdomain],
         isProduction: true
       };
+    } else {
+      console.log('No tenant mapping found for subdomain:', subdomain);
     }
   }
   

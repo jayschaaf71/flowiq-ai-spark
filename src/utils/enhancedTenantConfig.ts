@@ -68,6 +68,30 @@ const DEFAULT_TENANTS: Record<string, TenantConfig> = {
   }
 };
 
+// Production tenant configurations for subdomains
+const PRODUCTION_TENANTS: Record<string, TenantConfig> = {
+  'midwest-dental-sleep': {
+    id: 'd52278c3-bf0d-4731-bfa9-a40f032fa305',
+    name: 'Midwest Dental Sleep Medicine Institute',
+    brand_name: 'Midwest Dental Sleep Medicine Institute',
+    brandName: 'Midwest Dental Sleep Medicine Institute',
+    specialty: 'dental-sleep-medicine',
+    primary_color: '#8b5cf6',
+    secondary_color: '#a78bfa',
+    tagline: 'Advanced Sleep Medicine Solutions'
+  },
+  'west-county-spine': {
+    id: '024e36c1-a1bc-44d0-8805-3162ba59a0c2',
+    name: 'West County Spine and Joint',
+    brand_name: 'West County Spine and Joint',
+    brandName: 'West County Spine and Joint',
+    specialty: 'chiropractic-care',
+    primary_color: '#16a34a',
+    secondary_color: '#22c55e',
+    tagline: 'Expert Chiropractic Care for Optimal Spinal Health'
+  }
+};
+
 // Helper function to get subdomain from URL
 const getCurrentSubdomain = () => {
   const hostname = window.location.hostname;
@@ -109,6 +133,14 @@ export function useEnhancedTenantConfig() {
       if (subdomain) {
         console.log('Fetching tenant by subdomain:', subdomain);
         
+        // First check if it's a known production tenant
+        if (PRODUCTION_TENANTS[subdomain]) {
+          console.log('Found production tenant config for subdomain:', subdomain);
+          setTenantConfig(PRODUCTION_TENANTS[subdomain]);
+          return;
+        }
+        
+        // Fallback to database lookup
         const { data: tenant, error } = await supabase
           .from('tenants')
           .select('*')

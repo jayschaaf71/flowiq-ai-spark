@@ -3,21 +3,45 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthProvider";
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-import { Layout } from "@/components/Layout";
-
-// Page imports
-import Index from "./pages/Index";
-import Dashboard from "./pages/Dashboard";
-import { Calendar } from "./pages/Calendar";
-import Analytics from "./pages/Analytics";
-import Settings from "./pages/Settings";
-import PlatformAdmin from "./pages/PlatformAdmin";
 import { HealthCheck } from "@/components/health/HealthCheck";
+import { TenantWrapper } from "@/components/wrappers/TenantWrapper";
+import { parseTenantFromUrl } from "@/utils/tenantRouting";
+
+// Specialty Apps
+import ChiropracticApp from "@/apps/ChiropracticApp";
+import DentalSleepApp from "@/apps/DentalSleepApp";
+import DentalApp from "@/apps/DentalApp";
+
+// Landing page for non-tenant routes
+import Index from "./pages/Index";
 
 const queryClient = new QueryClient();
+
+const TenantRouter = () => {
+  const tenantRoute = parseTenantFromUrl();
+  
+  console.log('TenantRouter: Detected tenant route:', tenantRoute);
+  
+  // If we have a production tenant (subdomain), load the appropriate app
+  if (tenantRoute?.isProduction) {
+    switch (tenantRoute.specialty) {
+      case 'dental-sleep-medicine':
+        return <DentalSleepApp />;
+      case 'chiropractic-care':
+        return <ChiropracticApp />;
+      case 'general-dentistry':
+      case 'dental-care':
+        return <DentalApp />;
+      default:
+        return <ChiropracticApp />; // Default fallback
+    }
+  }
+  
+  // For development or non-tenant routes, show landing page
+  return <Index />;
+};
 
 const App = () => {
   return (
@@ -27,26 +51,20 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <AuthProvider>
-                <Routes>
-                  {/* Public routes */}
-                  <Route path="/" element={<Index />} />
-                  <Route path="/health" element={<HealthCheck />} />
-                  
-                  {/* Main app routes with layout */}
-                  <Route path="/*" element={
-                    <ProtectedRoute>
-                      <Layout>
-                        <Routes>
-                          <Route path="/dashboard" element={<Dashboard />} />
-                          <Route path="/calendar" element={<Calendar />} />
-                          <Route path="/analytics" element={<Analytics />} />
-                          <Route path="/settings" element={<Settings />} />
-                          <Route path="/platform-admin" element={<PlatformAdmin />} />
-                        </Routes>
-                      </Layout>
-                    </ProtectedRoute>
-                  } />
-                </Routes>
+            <TenantWrapper>
+              <Routes>
+                {/* Health check route */}
+                <Route path="/health" element={<HealthCheck />} />
+                
+                {/* Specialty app routes for development */}
+                <Route path="/chiropractic/*" element={<ChiropracticApp />} />
+                <Route path="/dental-sleep/*" element={<DentalSleepApp />} />
+                <Route path="/dental/*" element={<DentalApp />} />
+                
+                {/* Main tenant routing */}
+                <Route path="/*" element={<TenantRouter />} />
+              </Routes>
+            </TenantWrapper>
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
