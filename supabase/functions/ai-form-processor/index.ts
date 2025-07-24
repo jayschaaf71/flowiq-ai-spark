@@ -163,19 +163,21 @@ function validateAndFormatData(data: any, formFields: any[]) {
           }
           break;
           
-        case 'phone':
+        case 'phone': {
           const formattedPhone = formatPhoneNumber(value);
           if (formattedPhone) {
             validated[field.name] = formattedPhone;
           }
           break;
+        }
           
-        case 'date':
+        case 'date': {
           const formattedDate = formatDate(value);
           if (formattedDate) {
             validated[field.name] = formattedDate;
           }
           break;
+        }
           
         case 'select':
           if (field.options && field.options.some((opt: any) => 
