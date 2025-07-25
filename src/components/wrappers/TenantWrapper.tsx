@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { useCurrentTenant } from '@/utils/enhancedTenantConfig';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useSpecialtyTheme } from '@/hooks/useSpecialtyTheme';
+import { parseTenantFromUrl } from '@/utils/tenantRouting';
 import { ChiropracticWrapper } from './ChiropracticWrapper';
 import { DentalWrapper } from './DentalWrapper';
 import { DentalSleepWrapper } from './DentalSleepWrapper';
@@ -19,39 +20,56 @@ export const TenantWrapper: React.FC<TenantWrapperProps> = ({ children }) => {
   const { data: userProfile } = useUserProfile();
   const { specialty, switchTheme } = useSpecialtyTheme();
 
-  // Enhanced specialty detection with route-based priority
+  // Enhanced specialty detection with production tenant priority
   const detectSpecialtyFromRoute = () => {
     const path = location.pathname;
     
-    // Route-based specialty detection for specific routes
+    // Check if we have a production tenant first - this should override route-based detection
+    const tenantRoute = parseTenantFromUrl();
+    if (tenantRoute?.isProduction) {
+      console.log('Production tenant detected in TenantWrapper:', tenantRoute.specialty);
+      // Map tenant specialty to wrapper specialty
+      switch (tenantRoute.specialty) {
+        case 'dental-sleep-medicine':
+          return 'dental-sleep';
+        case 'chiropractic-care':
+          return 'chiropractic';
+        case 'general-dentistry':
+        case 'dental-care':
+          return 'dental';
+        default:
+          return 'chiropractic';
+      }
+    }
+    
+    // Fallback to route-based specialty detection for development
     if (path.includes('/agents/dental-sleep') || path.includes('/dental-sleep')) {
       return 'dental-sleep';
     }
     if (path.includes('/dental') && !path.includes('/dental-sleep')) {
       return 'dental';
     }
-    if (path.includes('/chiropractic') || 
-        path.startsWith('/dashboard') || 
-        path.startsWith('/schedule') || 
-        path.startsWith('/calendar') ||
-        path.startsWith('/analytics') ||
-        path.startsWith('/ehr') ||
-        path.startsWith('/patient-management') ||
-        path.startsWith('/financial') ||
-        path.startsWith('/patient-experience') ||
-        path.startsWith('/ai-automation') ||
-        path.startsWith('/team') ||
-        path.startsWith('/checkin') ||
-        path.startsWith('/insights') ||
-        path.startsWith('/notifications') ||
-        path.startsWith('/help') ||
-        path.startsWith('/settings') ||
-        path.startsWith('/agents/')) {
+    if (path.includes('/chiropractic')) {
       return 'chiropractic';
     }
     
-    // If we can't determine from route, default to chiropractic for now
-    // This prevents the wrong specialty from being returned
+    // For other routes in development, try to determine from current tenant config
+    if (currentTenant?.specialty) {
+      console.log('Using tenant config specialty:', currentTenant.specialty);
+      switch (currentTenant.specialty) {
+        case 'dental-sleep-medicine':
+          return 'dental-sleep';
+        case 'chiropractic-care':
+          return 'chiropractic';
+        case 'general-dentistry':
+        case 'dental-care':
+          return 'dental';
+        default:
+          return 'chiropractic';
+      }
+    }
+    
+    // Final fallback
     return 'chiropractic';
   };
 
@@ -59,39 +77,16 @@ export const TenantWrapper: React.FC<TenantWrapperProps> = ({ children }) => {
 
   // Update theme when route changes
   useEffect(() => {
-    const path = location.pathname;
-    let targetSpecialty = null;
-    
-    if (path.includes('/agents/dental-sleep') || path.includes('/dental-sleep')) {
-      targetSpecialty = 'dental-sleep';
-    } else if (path.includes('/dental')) {
-      targetSpecialty = 'dental';
-    } else if (path.includes('/chiropractic') || 
-               path.startsWith('/dashboard') || 
-               path.startsWith('/schedule') || 
-               path.startsWith('/calendar') ||
-               path.startsWith('/analytics') ||
-               path.startsWith('/ehr') ||
-               path.startsWith('/patient-management') ||
-               path.startsWith('/financial') ||
-               path.startsWith('/patient-experience') ||
-               path.startsWith('/ai-automation') ||
-               path.startsWith('/team') ||
-               path.startsWith('/checkin') ||
-               path.startsWith('/insights') ||
-               path.startsWith('/notifications') ||
-               path.startsWith('/help') ||
-               path.startsWith('/settings') ||
-               path.startsWith('/agents/')) {
-      targetSpecialty = 'chiropractic';
-    }
+    // Use the same logic as detectSpecialtyFromRoute for theme switching
+    const targetSpecialty = currentSpecialty;
     
     if (targetSpecialty && targetSpecialty !== specialty) {
+      console.log('TenantWrapper switching theme from', specialty, 'to', targetSpecialty);
       switchTheme(targetSpecialty);
     }
     
     console.log('TenantWrapper detected specialty:', currentSpecialty, 'from route:', location.pathname, 'useSpecialtyTheme specialty:', specialty);
-  }, [location.pathname, specialty, switchTheme]);
+  }, [location.pathname, specialty, switchTheme, currentSpecialty]);
   
   return (
     <ErrorBoundary>

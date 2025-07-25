@@ -33,14 +33,14 @@ const TenantRouter = () => {
                      tenantRoute.subdomain === 'midwest-dental-sleep' ? 'Midwest Dental Sleep' : 'FlowIQ';
     document.title = brandName;
     
-    console.log('Production tenant detected, checking for redirect. Current path:', currentPath);
+    console.log('Production tenant detected, checking for redirect. Current path:', currentPath, 'tenant specialty:', tenantRoute.specialty);
     
     // For production tenants, redirect to remove the specialty prefix from URL
     // e.g. /chiropractic/dashboard -> /dashboard
     if (currentPath.startsWith('/chiropractic/')) {
       const newPath = currentPath.replace('/chiropractic', '');
       console.log('Redirecting from', currentPath, 'to', newPath || '/', 'for tenant:', tenantRoute.specialty);
-      window.location.href = newPath || '/'; // Changed from replace to href
+      window.location.replace(newPath || '/');
       return null; // Prevent rendering during redirect
     } else if (currentPath.startsWith('/dental-sleep/')) {
       const newPath = currentPath.replace('/dental-sleep', '');
@@ -54,15 +54,21 @@ const TenantRouter = () => {
       return null; // Prevent rendering during redirect
     }
     
+    console.log('No redirect needed, rendering app for specialty:', tenantRoute.specialty);
+    
     switch (tenantRoute.specialty) {
       case 'dental-sleep-medicine':
+        console.log('Rendering DentalSleepApp for production tenant');
         return <DentalSleepApp />;
       case 'chiropractic-care':
+        console.log('Rendering ChiropracticApp for production tenant');
         return <ChiropracticApp />;
       case 'general-dentistry':
       case 'dental-care':
+        console.log('Rendering DentalApp for production tenant');
         return <DentalApp />;
       default:
+        console.log('Unknown specialty, defaulting to ChiropracticApp');
         return <ChiropracticApp />; // Default fallback
     }
   }

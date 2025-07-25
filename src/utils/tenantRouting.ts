@@ -20,8 +20,17 @@ export function parseTenantFromUrl(): TenantRoute | null {
   console.log('parseTenantFromUrl: hostname:', hostname, 'pathname:', pathname);
   
   // Production subdomain routing (e.g., midwest-dental-sleep.flow-iq.ai or west-county-spine.flow-iq.ai)
-  if (hostname !== 'localhost' && !hostname.includes('lovableproject.com') && !hostname.includes('lovable.app') &&
-      (hostname.includes('flow-iq.ai') || hostname.includes('flowiq.com'))) {
+  // Also check for iframe scenarios where the hostname might be different
+  const isProductionDomain = hostname !== 'localhost' && 
+    !hostname.includes('lovableproject.com') && 
+    !hostname.includes('lovable.app') &&
+    (hostname.includes('flow-iq.ai') || hostname.includes('flowiq.com') || 
+     hostname === 'midwest-dental-sleep.flow-iq.ai' || 
+     hostname === 'west-county-spine.flow-iq.ai');
+  
+  console.log('isProductionDomain check:', isProductionDomain, 'hostname:', hostname);
+  
+  if (isProductionDomain) {
     const subdomain = hostname.split('.')[0];
     
     console.log('Production subdomain detected:', subdomain, 'from hostname:', hostname);
