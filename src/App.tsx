@@ -90,13 +90,13 @@ const App = () => {
                 <Route path="/dental-sleep/*" element={<DentalSleepApp />} />
                 <Route path="/dental/*" element={<DentalApp />} />
                 
-                {/* Main chiropractic app routes - direct routing */}
-                <Route path="/dashboard" element={<ChiropracticApp />} />
-                <Route path="/schedule" element={<ChiropracticApp />} />
-                <Route path="/calendar" element={<ChiropracticApp />} />
-                <Route path="/analytics" element={<ChiropracticApp />} />
-                <Route path="/ehr" element={<ChiropracticApp />} />
-                <Route path="/patient-management" element={<ChiropracticApp />} />
+                {/* Production tenant routes - dynamic based on tenant specialty */}
+                <Route path="/dashboard" element={<TenantRouter />} />
+                <Route path="/schedule" element={<TenantRouter />} />
+                <Route path="/calendar" element={<TenantRouter />} />
+                <Route path="/analytics" element={<TenantRouter />} />
+                <Route path="/ehr" element={<TenantRouter />} />
+                <Route path="/patient-management" element={<TenantRouter />} />
                 <Route path="/financial" element={<ChiropracticApp />} />
                 <Route path="/patient-experience" element={<ChiropracticApp />} />
                 <Route path="/ai-automation" element={<ChiropracticApp />} />
