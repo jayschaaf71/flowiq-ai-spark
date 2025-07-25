@@ -76,7 +76,25 @@ const App = () => {
                 <Route path="/dental-sleep/*" element={<DentalSleepApp />} />
                 <Route path="/dental/*" element={<DentalApp />} />
                 
-                {/* Main tenant routing */}
+                {/* Main chiropractic app routes - direct routing */}
+                <Route path="/dashboard" element={<ChiropracticApp />} />
+                <Route path="/schedule" element={<ChiropracticApp />} />
+                <Route path="/calendar" element={<ChiropracticApp />} />
+                <Route path="/analytics" element={<ChiropracticApp />} />
+                <Route path="/ehr" element={<ChiropracticApp />} />
+                <Route path="/patient-management" element={<ChiropracticApp />} />
+                <Route path="/financial" element={<ChiropracticApp />} />
+                <Route path="/patient-experience" element={<ChiropracticApp />} />
+                <Route path="/ai-automation" element={<ChiropracticApp />} />
+                <Route path="/team" element={<ChiropracticApp />} />
+                <Route path="/checkin" element={<ChiropracticApp />} />
+                <Route path="/insights" element={<ChiropracticApp />} />
+                <Route path="/notifications" element={<ChiropracticApp />} />
+                <Route path="/help" element={<ChiropracticApp />} />
+                <Route path="/settings" element={<ChiropracticApp />} />
+                <Route path="/agents/*" element={<ChiropracticApp />} />
+                
+                {/* Main tenant routing for other routes */}
                 <Route path="/*" element={<TenantRouter />} />
               </Routes>
             </TenantWrapper>
