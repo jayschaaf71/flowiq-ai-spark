@@ -54,7 +54,7 @@ export const ChiropracticDashboard = () => {
       icon: Calendar,
       color: "text-blue-600",
       bgColor: "bg-blue-50",
-      onClick: () => navigate('/schedule')
+      onClick: () => navigate('/chiropractic/schedule')
     },
     {
       title: "Active Patients",
@@ -62,7 +62,7 @@ export const ChiropracticDashboard = () => {
       icon: Users,
       color: "text-green-600",
       bgColor: "bg-green-50",
-      onClick: () => navigate('/patient-management')
+      onClick: () => navigate('/chiropractic/patient-management')
     },
     {
       title: "Pending Appointments",
@@ -70,7 +70,7 @@ export const ChiropracticDashboard = () => {
       icon: Clock,
       color: "text-orange-600",
       bgColor: "bg-orange-50",
-      onClick: () => navigate('/schedule')
+      onClick: () => navigate('/chiropractic/schedule')
     },
     {
       title: "Today's Revenue",
@@ -78,7 +78,7 @@ export const ChiropracticDashboard = () => {
       icon: DollarSign,
       color: "text-purple-600",
       bgColor: "bg-purple-50",
-      onClick: () => navigate('/financial')
+      onClick: () => navigate('/chiropractic/financial')
     }
   ];
 
@@ -119,7 +119,7 @@ export const ChiropracticDashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
             <Button 
               className="h-20 flex-col gap-2"
-              onClick={() => navigate('/schedule')}
+              onClick={() => navigate('/chiropractic/schedule')}
             >
               <Calendar className="w-5 h-5" />
               <span className="text-xs">New Appointment</span>
@@ -127,7 +127,7 @@ export const ChiropracticDashboard = () => {
             <Button 
               variant="outline" 
               className="h-20 flex-col gap-2"
-              onClick={() => navigate('/patient-management')}
+              onClick={() => navigate('/chiropractic/patient-management')}
             >
               <Users className="w-5 h-5" />
               <span className="text-xs">Add Patient</span>
@@ -135,7 +135,7 @@ export const ChiropracticDashboard = () => {
             <Button 
               variant="outline" 
               className="h-20 flex-col gap-2"
-              onClick={() => navigate('/ehr')}
+              onClick={() => navigate('/chiropractic/ehr')}
             >
               <FileText className="w-5 h-5" />
               <span className="text-xs">SOAP Notes</span>
@@ -143,7 +143,7 @@ export const ChiropracticDashboard = () => {
             <Button 
               variant="outline" 
               className="h-20 flex-col gap-2"
-              onClick={() => navigate('/ehr')}
+              onClick={() => navigate('/chiropractic/ehr')}
             >
               <Activity className="w-5 h-5" />
               <span className="text-xs">Treatment Plan</span>
@@ -151,7 +151,7 @@ export const ChiropracticDashboard = () => {
             <Button 
               variant="outline" 
               className="h-20 flex-col gap-2"
-              onClick={() => navigate('/analytics')}
+              onClick={() => navigate('/chiropractic/analytics')}
             >
               <TrendingUp className="w-5 h-5" />
               <span className="text-xs">Reports</span>
@@ -159,7 +159,7 @@ export const ChiropracticDashboard = () => {
             <Button 
               variant="outline" 
               className="h-20 flex-col gap-2"
-              onClick={() => navigate('/agents/remind')}
+              onClick={() => navigate('/chiropractic/agents/remind')}
             >
               <Bell className="w-5 h-5" />
               <span className="text-xs">Reminders</span>
@@ -216,7 +216,7 @@ export const ChiropracticDashboard = () => {
                   <Button 
                     variant="link" 
                     size="sm"
-                    onClick={() => navigate('/schedule')}
+                    onClick={() => navigate('/chiropractic/schedule')}
                   >
                     View all {todayAppointments.length} appointments
                   </Button>
