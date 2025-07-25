@@ -1,4 +1,6 @@
 
+console.log('🚀 [DIAGNOSTIC] App.tsx - Starting imports');
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,6 +10,7 @@ import { AuthProvider } from "@/contexts/AuthProvider";
 import { HealthCheck } from "@/components/health/HealthCheck";
 import { TenantWrapper } from "@/components/wrappers/TenantWrapper";
 import { parseTenantFromUrl } from "@/utils/tenantRouting";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import "@/utils/routeTestRunner"; // Enable route testing functions
 
 // Specialty Apps
@@ -18,9 +21,14 @@ import DentalApp from "@/apps/DentalApp";
 // Landing page for non-tenant routes
 import Index from "./pages/Index";
 
+console.log('✅ [DIAGNOSTIC] App.tsx - All imports completed');
+
+console.log('🚀 [DIAGNOSTIC] App.tsx - Creating QueryClient');
 const queryClient = new QueryClient();
+console.log('✅ [DIAGNOSTIC] App.tsx - QueryClient created successfully');
 
 const TenantRouter: React.FC = () => {
+  console.log('🚀 [DIAGNOSTIC] TenantRouter - Component initializing');
   const tenantRoute = parseTenantFromUrl();
   const currentPath = window.location.pathname;
   
@@ -74,15 +82,24 @@ const TenantRouter: React.FC = () => {
 };
 
 const App = () => {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AuthProvider>
-            <TenantWrapper>
-              <Routes>
+  console.log('🚀 [DIAGNOSTIC] App - Component rendering');
+  
+  try {
+    console.log('🚀 [DIAGNOSTIC] App - Starting JSX render');
+    return (
+      <ErrorBoundary 
+        onError={(error, errorInfo) => {
+          console.error('🚨 [DIAGNOSTIC] ErrorBoundary caught error:', error, errorInfo);
+        }}
+      >
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <AuthProvider>
+                <TenantWrapper>
+                  <Routes>
                 {/* Health check route */}
                 <Route path="/health" element={<HealthCheck />} />
                 
@@ -113,13 +130,20 @@ const App = () => {
                 
                 {/* Main tenant routing for other routes */}
                 <Route path="/*" element={<TenantRouter />} />
-              </Routes>
-            </TenantWrapper>
-          </AuthProvider>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
-  );
+                  </Routes>
+                </TenantWrapper>
+              </AuthProvider>
+            </BrowserRouter>
+          </TooltipProvider>
+        </QueryClientProvider>
+      </ErrorBoundary>
+    );
+  } catch (error) {
+    console.error('🚨 [DIAGNOSTIC] App - Error during render:', error);
+    return <div>App Error: {error.message}</div>;
+  }
 };
+
+console.log('✅ [DIAGNOSTIC] App.tsx - Component definition completed');
 
 export default App;
