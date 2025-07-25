@@ -15,7 +15,7 @@ interface TenantWrapperProps {
 
 export const TenantWrapper: React.FC<TenantWrapperProps> = ({ children }) => {
   const location = useLocation();
-  const { switchTheme } = useSpecialtyTheme();
+  const { switchTheme, specialty: dbSpecialty } = useSpecialtyTheme();
   
   // Phase 3: Simplified specialty detection using centralized tenant routing
   const detectCurrentSpecialty = (): SpecialtyType => {
@@ -36,7 +36,21 @@ export const TenantWrapper: React.FC<TenantWrapperProps> = ({ children }) => {
       return mappedSpecialty;
     }
     
-    // No tenant detected - default to chiropractic
+    // No tenant detected from URL - use database specialty if available
+    if (dbSpecialty && dbSpecialty !== 'chiropractic') {
+      console.log('🎨 TenantWrapper - no tenant route, using database specialty:', dbSpecialty);
+      // Map database specialty to SpecialtyType
+      const dbSpecialtyMap: Record<string, SpecialtyType> = {
+        'dental-sleep': 'dental-sleep',
+        'dental': 'dental-sleep',
+        'med-spa': 'chiropractic', // Fallback for now
+        'concierge': 'chiropractic', // Fallback for now  
+        'hrt': 'chiropractic' // Fallback for now
+      };
+      return dbSpecialtyMap[dbSpecialty] || 'chiropractic';
+    }
+    
+    // Default to chiropractic
     console.log('🎨 TenantWrapper - no tenant, defaulting to chiropractic');
     return 'chiropractic';
   };
