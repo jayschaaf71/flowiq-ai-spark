@@ -30,7 +30,23 @@ export const TenantWrapper: React.FC<TenantWrapperProps> = ({ children }) => {
     if (path.includes('/dental')) {
       return 'dental';
     }
-    if (path.includes('/chiropractic')) {
+    if (path.includes('/chiropractic') || 
+        path.startsWith('/dashboard') || 
+        path.startsWith('/schedule') || 
+        path.startsWith('/calendar') ||
+        path.startsWith('/analytics') ||
+        path.startsWith('/ehr') ||
+        path.startsWith('/patient-management') ||
+        path.startsWith('/financial') ||
+        path.startsWith('/patient-experience') ||
+        path.startsWith('/ai-automation') ||
+        path.startsWith('/team') ||
+        path.startsWith('/checkin') ||
+        path.startsWith('/insights') ||
+        path.startsWith('/notifications') ||
+        path.startsWith('/help') ||
+        path.startsWith('/settings') ||
+        path.startsWith('/agents/')) {
       return 'chiropractic';
     }
     
@@ -49,7 +65,23 @@ export const TenantWrapper: React.FC<TenantWrapperProps> = ({ children }) => {
       targetSpecialty = 'dental-sleep';
     } else if (path.includes('/dental')) {
       targetSpecialty = 'dental';
-    } else if (path.includes('/chiropractic')) {
+    } else if (path.includes('/chiropractic') || 
+               path.startsWith('/dashboard') || 
+               path.startsWith('/schedule') || 
+               path.startsWith('/calendar') ||
+               path.startsWith('/analytics') ||
+               path.startsWith('/ehr') ||
+               path.startsWith('/patient-management') ||
+               path.startsWith('/financial') ||
+               path.startsWith('/patient-experience') ||
+               path.startsWith('/ai-automation') ||
+               path.startsWith('/team') ||
+               path.startsWith('/checkin') ||
+               path.startsWith('/insights') ||
+               path.startsWith('/notifications') ||
+               path.startsWith('/help') ||
+               path.startsWith('/settings') ||
+               path.startsWith('/agents/')) {
       targetSpecialty = 'chiropractic';
     }
     
