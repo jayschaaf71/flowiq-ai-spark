@@ -40,11 +40,20 @@ import ApplicationTest from '@/pages/ApplicationTest';
 export default function ChiropracticApp() {
   useEffect(() => {
     const tenantRoute = parseTenantFromUrl();
+    console.log('ChiropracticApp: tenantRoute detected:', tenantRoute);
+    
     if (tenantRoute?.isProduction) {
       const brandName = tenantRoute.subdomain === 'west-county-spine' ? 'West County Spine' : 'FlowIQ';
       document.title = brandName;
+      console.log('ChiropracticApp: Set title to:', brandName);
     } else {
-      document.title = 'FlowIQ - Chiropractic';
+      // Check if we're on a chiropractic route in development
+      if (window.location.pathname.includes('/chiropractic')) {
+        document.title = 'FlowIQ - Chiropractic';
+      } else {
+        document.title = 'West County Spine'; // Default for west-county-spine domain
+      }
+      console.log('ChiropracticApp: Set development title to:', document.title);
     }
   }, []);
 
