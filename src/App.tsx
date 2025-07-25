@@ -41,16 +41,16 @@ const TenantRouter: React.FC = () => {
     // Render appropriate app based on specialty
     switch (tenantRoute.specialty) {
       case 'dental-sleep-medicine':
-        console.log('🦷 Rendering DentalSleepApp');
+        console.log('🦷 Rendering DentalSleepApp for path:', currentPath);
         return <DentalSleepApp />;
         
       case 'chiropractic-care':
-        console.log('🦴 Rendering ChiropracticApp');
+        console.log('🦴 Rendering ChiropracticApp for path:', currentPath);
         return <ChiropracticApp />;
         
       case 'general-dentistry':
       default:
-        console.log('🦷 Rendering DentalApp');
+        console.log('🦷 Rendering DentalApp (default) for path:', currentPath);
         return <DentalApp />;
     }
   }
