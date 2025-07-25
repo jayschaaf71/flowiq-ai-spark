@@ -31,6 +31,13 @@ export function parseTenantFromUrl(): TenantRoute | null {
      hostname.startsWith('west-county-spine.'));
   
   console.log('isProductionDomain check:', isProductionDomain, 'hostname:', hostname);
+  console.log('Domain conditions check:');
+  console.log('- Not localhost:', hostname !== 'localhost');
+  console.log('- Not lovableproject:', !hostname.includes('lovableproject.com'));
+  console.log('- Not lovable.app:', !hostname.includes('lovable.app'));
+  console.log('- Contains flow-iq.ai:', hostname.includes('flow-iq.ai'));
+  console.log('- Exact match midwest-dental-sleep:', hostname === 'midwest-dental-sleep.flow-iq.ai');
+  console.log('- Starts with midwest-dental-sleep:', hostname.startsWith('midwest-dental-sleep.'));
   
   if (isProductionDomain) {
     const subdomain = hostname.split('.')[0];

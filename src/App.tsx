@@ -22,6 +22,9 @@ const queryClient = new QueryClient();
 const TenantRouter = () => {
   const tenantRoute = parseTenantFromUrl();
   
+  console.log('TenantRouter: Current URL:', window.location.href);
+  console.log('TenantRouter: Hostname:', window.location.hostname);
+  console.log('TenantRouter: Pathname:', window.location.pathname);
   console.log('TenantRouter: Detected tenant route:', tenantRoute);
   
   // If we have a production tenant (subdomain), load the appropriate app

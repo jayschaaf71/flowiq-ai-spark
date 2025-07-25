@@ -23,13 +23,15 @@ import {
 } from "lucide-react";
 
 export const DentalSleepDashboard = () => {
+  console.log('DentalSleepDashboard: Component starting to render');
+  
   const navigate = useNavigate();
   
-  console.log('DentalSleepDashboard: Component starting to render');
+  console.log('DentalSleepDashboard: About to call useSpecialty');
   
   const { config } = useSpecialty();
   
-  console.log('DentalSleepDashboard: config loaded:', config);
+  console.log('DentalSleepDashboard: useSpecialty completed, config:', config);
 
   // Sample data based on Dental Sleep Medicine requirements
   const sleepMedicineMetrics = {
