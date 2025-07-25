@@ -49,15 +49,20 @@ export default function DentalSleepApp() {
     }
   }, []);
 
+  const tenantRoute = parseTenantFromUrl();
+  const isProduction = tenantRoute?.isProduction;
+  const pathPrefix = isProduction ? '' : '/dental-sleep';
+
   return (
     <DentalSleepWrapper>
       <Routes>
-        {/* Redirect /dental-sleep to dashboard */}
-        <Route path="/dental-sleep" element={<Navigate to="/dental-sleep/dashboard" replace />} />
-        <Route path="/dental-sleep/" element={<Navigate to="/dental-sleep/dashboard" replace />} />
+        {/* Redirect root to dashboard */}
+        <Route path="/" element={<Navigate to={`${pathPrefix}/dashboard`} replace />} />
+        <Route path="/dental-sleep" element={<Navigate to={`${pathPrefix}/dashboard`} replace />} />
+        <Route path="/dental-sleep/" element={<Navigate to={`${pathPrefix}/dashboard`} replace />} />
         
         {/* Main Dental Sleep Dashboard */}
-        <Route path="/dental-sleep/dashboard" element={
+        <Route path={`${pathPrefix}/dashboard`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <DentalSleepDashboard />
@@ -65,7 +70,7 @@ export default function DentalSleepApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/dental-sleep/calendar" element={
+        <Route path={`${pathPrefix}/calendar`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <Calendar />
@@ -74,7 +79,7 @@ export default function DentalSleepApp() {
         } />
         
         {/* Sleep Medicine Specific Features */}
-        <Route path="/dental-sleep/sleep-studies" element={
+        <Route path={`${pathPrefix}/sleep-studies`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <SleepStudyManager />
@@ -82,7 +87,7 @@ export default function DentalSleepApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/dental-sleep/dme-tracker" element={
+        <Route path={`${pathPrefix}/dme-tracker`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <DMETracker />
@@ -90,7 +95,7 @@ export default function DentalSleepApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/dental-sleep/ehr" element={
+        <Route path={`${pathPrefix}/ehr`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <DentalSleepEHR />
@@ -98,7 +103,7 @@ export default function DentalSleepApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/dental-sleep/templates" element={
+        <Route path={`${pathPrefix}/templates`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <DentalSleepTemplates />
@@ -106,7 +111,7 @@ export default function DentalSleepApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/dental-sleep/patient-portal" element={
+        <Route path={`${pathPrefix}/patient-portal`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <DentalSleepPatientPortal />
@@ -114,7 +119,7 @@ export default function DentalSleepApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/dental-sleep/insights" element={
+        <Route path={`${pathPrefix}/insights`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <DentalSleepInsights />
@@ -123,7 +128,7 @@ export default function DentalSleepApp() {
         } />
         
         {/* Shared Features */}
-        <Route path="/dental-sleep/schedule" element={
+        <Route path={`${pathPrefix}/schedule`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <ScheduleDashboard 
@@ -146,7 +151,7 @@ export default function DentalSleepApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/dental-sleep/claims" element={
+        <Route path={`${pathPrefix}/claims`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <ClaimsDashboard />
@@ -154,7 +159,7 @@ export default function DentalSleepApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/dental-sleep/patient-management" element={
+        <Route path={`${pathPrefix}/patient-management`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <PatientManagement />
@@ -162,7 +167,7 @@ export default function DentalSleepApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/dental-sleep/team" element={
+        <Route path={`${pathPrefix}/team`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <Team />
@@ -170,7 +175,7 @@ export default function DentalSleepApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/dental-sleep/help" element={
+        <Route path={`${pathPrefix}/help`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <Help />
@@ -178,7 +183,7 @@ export default function DentalSleepApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/dental-sleep/settings" element={
+        <Route path={`${pathPrefix}/settings`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <Settings />
@@ -186,7 +191,7 @@ export default function DentalSleepApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/dental-sleep/notifications" element={
+        <Route path={`${pathPrefix}/notifications`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <Notifications />
@@ -194,7 +199,7 @@ export default function DentalSleepApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/dental-sleep/provider-schedules" element={
+        <Route path={`${pathPrefix}/provider-schedules`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <ProviderSchedules />
@@ -203,7 +208,7 @@ export default function DentalSleepApp() {
         } />
         
         {/* AI Agent Routes */}
-        <Route path="/dental-sleep/agents/communication" element={
+        <Route path={`${pathPrefix}/agents/communication`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <CommunicationIQ />
@@ -212,7 +217,7 @@ export default function DentalSleepApp() {
         } />
 
         {/* Legacy routes for backwards compatibility */}
-        <Route path="/dental-sleep/agents/appointment" element={
+        <Route path={`${pathPrefix}/agents/appointment`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <CommunicationIQ />
@@ -220,7 +225,7 @@ export default function DentalSleepApp() {
           </ProtectedRoute>
         } />
 
-        <Route path="/dental-sleep/agents/intake" element={
+        <Route path={`${pathPrefix}/agents/intake`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <CommunicationIQ />
@@ -228,7 +233,7 @@ export default function DentalSleepApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/dental-sleep/agents/go-to-market" element={
+        <Route path={`${pathPrefix}/agents/go-to-market`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <GoToMarketIQ />
@@ -236,7 +241,7 @@ export default function DentalSleepApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/dental-sleep/agents/scribe" element={
+        <Route path={`${pathPrefix}/agents/scribe`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <ScribeIQ />
@@ -244,7 +249,7 @@ export default function DentalSleepApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/dental-sleep/agents/claims" element={
+        <Route path={`${pathPrefix}/agents/claims`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <ClaimsIQ />
@@ -252,7 +257,7 @@ export default function DentalSleepApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/dental-sleep/agents/payments" element={
+        <Route path={`${pathPrefix}/agents/payments`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <PaymentsIQ />
@@ -260,7 +265,7 @@ export default function DentalSleepApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/dental-sleep/agents/education" element={
+        <Route path={`${pathPrefix}/agents/education`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <EducationIQ />
@@ -268,7 +273,7 @@ export default function DentalSleepApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/dental-sleep/agents/marketing" element={
+        <Route path={`${pathPrefix}/agents/marketing`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <MarketingIQ />
@@ -276,7 +281,7 @@ export default function DentalSleepApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/dental-sleep/agents/referral" element={
+        <Route path={`${pathPrefix}/agents/referral`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <ReferralIQ />
@@ -284,7 +289,7 @@ export default function DentalSleepApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/dental-sleep/agents/auth" element={
+        <Route path={`${pathPrefix}/agents/auth`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <AuthIQ />
@@ -292,7 +297,7 @@ export default function DentalSleepApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/dental-sleep/ops" element={
+        <Route path={`${pathPrefix}/ops`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <OpsIQ />
@@ -300,7 +305,7 @@ export default function DentalSleepApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/dental-sleep/test" element={
+        <Route path={`${pathPrefix}/test`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <ApplicationTest />

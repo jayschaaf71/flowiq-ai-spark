@@ -57,14 +57,19 @@ export default function ChiropracticApp() {
     }
   }, []);
 
+  const tenantRoute = parseTenantFromUrl();
+  const isProduction = tenantRoute?.isProduction;
+  const pathPrefix = isProduction ? '' : '/chiropractic';
+
   return (
     <ChiropracticWrapper>
       <Routes>
-        {/* Redirect /chiropractic to dashboard */}
-        <Route path="/" element={<Navigate to="/chiropractic/dashboard" replace />} />
+        {/* Redirect root to dashboard */}
+        <Route path="/" element={<Navigate to={`${pathPrefix}/dashboard`} replace />} />
+        <Route path="/chiropractic" element={<Navigate to={`${pathPrefix}/dashboard`} replace />} />
         
         {/* Main Chiropractic Pages */}
-        <Route path="/dashboard" element={
+        <Route path={`${pathPrefix}/dashboard`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <Dashboard />
@@ -72,7 +77,7 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/calendar" element={
+        <Route path={`${pathPrefix}/calendar`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <Calendar />
@@ -80,7 +85,7 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/schedule" element={
+        <Route path={`${pathPrefix}/schedule`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <Schedule />
@@ -88,7 +93,7 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/analytics" element={
+        <Route path={`${pathPrefix}/analytics`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <Analytics />
@@ -96,7 +101,7 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/ehr" element={
+        <Route path={`${pathPrefix}/ehr`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <EHR />
@@ -104,7 +109,7 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/patient-management" element={
+        <Route path={`${pathPrefix}/patient-management`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <PatientManagement />
@@ -112,7 +117,7 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/financial" element={
+        <Route path={`${pathPrefix}/financial`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <FinancialManagementPage />
@@ -120,7 +125,7 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/patient-experience" element={
+        <Route path={`${pathPrefix}/patient-experience`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <PatientExperiencePage />
@@ -128,7 +133,7 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/ai-automation" element={
+        <Route path={`${pathPrefix}/ai-automation`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <AIAutomationHub />
@@ -136,7 +141,7 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/team" element={
+        <Route path={`${pathPrefix}/team`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <Team />
@@ -144,7 +149,7 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/checkin" element={
+        <Route path={`${pathPrefix}/checkin`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <CheckIn />
@@ -152,7 +157,7 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/insights" element={
+        <Route path={`${pathPrefix}/insights`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <Insights />
@@ -160,7 +165,7 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/notifications" element={
+        <Route path={`${pathPrefix}/notifications`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <Notifications />
@@ -168,7 +173,7 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/help" element={
+        <Route path={`${pathPrefix}/help`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <Help />
@@ -176,7 +181,7 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/settings" element={
+        <Route path={`${pathPrefix}/settings`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <Settings />
@@ -185,7 +190,7 @@ export default function ChiropracticApp() {
         } />
         
         {/* AI Agent Routes */}
-        <Route path="/agents/communication" element={
+        <Route path={`${pathPrefix}/agents/communication`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <CommunicationIQ />
@@ -194,7 +199,7 @@ export default function ChiropracticApp() {
         } />
 
         {/* Legacy routes for backwards compatibility */}
-        <Route path="/agents/appointment" element={
+        <Route path={`${pathPrefix}/agents/appointment`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <CommunicationIQ />
@@ -202,7 +207,7 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
 
-        <Route path="/agents/intake" element={
+        <Route path={`${pathPrefix}/agents/intake`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <CommunicationIQ />
@@ -210,7 +215,7 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/agents/go-to-market" element={
+        <Route path={`${pathPrefix}/agents/go-to-market`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <GoToMarketIQ />
@@ -218,7 +223,7 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/agents/scribe" element={
+        <Route path={`${pathPrefix}/agents/scribe`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <ScribeIQ />
@@ -226,7 +231,7 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/agents/claims" element={
+        <Route path={`${pathPrefix}/agents/claims`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <ClaimsIQ />
@@ -234,7 +239,7 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/agents/payments" element={
+        <Route path={`${pathPrefix}/agents/payments`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <PaymentsIQ />
@@ -242,7 +247,7 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/agents/inventory" element={
+        <Route path={`${pathPrefix}/agents/inventory`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <InventoryIQ />
@@ -250,7 +255,7 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/agents/insights" element={
+        <Route path={`${pathPrefix}/agents/insights`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <InsightIQ />
@@ -258,7 +263,7 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/agents/education" element={
+        <Route path={`${pathPrefix}/agents/education`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <EducationIQ />
@@ -266,7 +271,7 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/agents/marketing" element={
+        <Route path={`${pathPrefix}/agents/marketing`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <MarketingIQ />
@@ -274,7 +279,7 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/agents/referral" element={
+        <Route path={`${pathPrefix}/agents/referral`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <ReferralIQ />
@@ -282,7 +287,7 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/agents/auth" element={
+        <Route path={`${pathPrefix}/agents/auth`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <AuthIQ />
@@ -290,7 +295,7 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/agents/ops" element={
+        <Route path={`${pathPrefix}/agents/ops`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <OpsIQ />
@@ -298,7 +303,7 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
         
-        <Route path="/test" element={
+        <Route path={`${pathPrefix}/test`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <ApplicationTest />
