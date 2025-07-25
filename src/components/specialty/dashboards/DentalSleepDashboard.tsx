@@ -29,9 +29,15 @@ export const DentalSleepDashboard = () => {
   
   console.log('DentalSleepDashboard: About to call useSpecialty');
   
-  const { config } = useSpecialty();
-  
-  console.log('DentalSleepDashboard: useSpecialty completed, config:', config);
+  let config;
+  try {
+    const specialtyData = useSpecialty();
+    config = specialtyData.config;
+    console.log('DentalSleepDashboard: useSpecialty completed, config:', config);
+  } catch (error) {
+    console.error('DentalSleepDashboard: Error in useSpecialty:', error);
+    return <div>Error loading dashboard: {error.message}</div>;
+  }
 
   // Sample data based on Dental Sleep Medicine requirements
   const sleepMedicineMetrics = {
