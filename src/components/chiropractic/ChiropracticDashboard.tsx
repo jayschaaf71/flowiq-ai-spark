@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { 
   Calendar,
   Users,
@@ -28,10 +29,12 @@ export const ChiropracticDashboard = () => {
   const { appointments, loading: appointmentsLoading, error: appointmentsError } = useAppointments();
   const { data: patients, isLoading: patientsLoading, error: patientsError } = usePatients();
 
-  // Handle errors
-  if (appointmentsError || patientsError) {
-    showErrorToast("Failed to load dashboard data", "Please refresh the page or contact support");
-  }
+  // Handle errors with useEffect to prevent infinite re-renders
+  useEffect(() => {
+    if (appointmentsError || patientsError) {
+      showErrorToast("Failed to load dashboard data", "Please refresh the page or contact support");
+    }
+  }, [appointmentsError, patientsError]);
 
   // Show loading state
   if (appointmentsLoading || patientsLoading) {
