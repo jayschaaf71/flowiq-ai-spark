@@ -11,6 +11,7 @@ export const useSpecialtyTheme = () => {
   const [currentTheme, setCurrentTheme] = useState<SpecialtyTheme>(() => 
     getSpecialtyTheme('chiropractic')
   );
+  const [detectedSpecialty, setDetectedSpecialty] = useState<SpecialtyType>('chiropractic');
 
   const detectSpecialty = (): SpecialtyType => {
     const path = window.location.pathname;
@@ -88,6 +89,7 @@ export const useSpecialtyTheme = () => {
     
     // Update state
     setCurrentTheme(theme);
+    setDetectedSpecialty(specialty);
     
     console.log('🎨 Applied specialty theme:', specialty, 'Theme name:', theme.name);
     console.log('🎨 Theme variables applied:', theme.cssVariables);
@@ -98,11 +100,12 @@ export const useSpecialtyTheme = () => {
     localStorage.setItem('currentSpecialty', specialty);
     applyThemeVariables(theme);
     setCurrentTheme(theme);
+    setDetectedSpecialty(specialty);
   };
 
   return {
     currentTheme,
-    specialty: currentTheme.name as SpecialtyType,
+    specialty: detectedSpecialty,
     switchTheme,
     getBrandName: () => currentTheme.brandName
   };
