@@ -39,8 +39,8 @@ const TenantRouter = () => {
     // e.g. /chiropractic/dashboard -> /dashboard
     if (currentPath.startsWith('/chiropractic/')) {
       const newPath = currentPath.replace('/chiropractic', '');
-      console.log('Redirecting from', currentPath, 'to', newPath || '/');
-      window.location.replace(newPath || '/');
+      console.log('Redirecting from', currentPath, 'to', newPath || '/', 'for tenant:', tenantRoute.specialty);
+      window.location.href = newPath || '/'; // Changed from replace to href
       return null; // Prevent rendering during redirect
     } else if (currentPath.startsWith('/dental-sleep/')) {
       const newPath = currentPath.replace('/dental-sleep', '');
@@ -97,16 +97,16 @@ const App = () => {
                 <Route path="/analytics" element={<TenantRouter />} />
                 <Route path="/ehr" element={<TenantRouter />} />
                 <Route path="/patient-management" element={<TenantRouter />} />
-                <Route path="/financial" element={<ChiropracticApp />} />
-                <Route path="/patient-experience" element={<ChiropracticApp />} />
-                <Route path="/ai-automation" element={<ChiropracticApp />} />
-                <Route path="/team" element={<ChiropracticApp />} />
-                <Route path="/checkin" element={<ChiropracticApp />} />
-                <Route path="/insights" element={<ChiropracticApp />} />
-                <Route path="/notifications" element={<ChiropracticApp />} />
-                <Route path="/help" element={<ChiropracticApp />} />
-                <Route path="/settings" element={<ChiropracticApp />} />
-                <Route path="/agents/*" element={<ChiropracticApp />} />
+                <Route path="/financial" element={<TenantRouter />} />
+                <Route path="/patient-experience" element={<TenantRouter />} />
+                <Route path="/ai-automation" element={<TenantRouter />} />
+                <Route path="/team" element={<TenantRouter />} />
+                <Route path="/checkin" element={<TenantRouter />} />
+                <Route path="/insights" element={<TenantRouter />} />
+                <Route path="/notifications" element={<TenantRouter />} />
+                <Route path="/help" element={<TenantRouter />} />
+                <Route path="/settings" element={<TenantRouter />} />
+                <Route path="/agents/*" element={<TenantRouter />} />
                 
                 {/* Main tenant routing for other routes */}
                 <Route path="/*" element={<TenantRouter />} />
