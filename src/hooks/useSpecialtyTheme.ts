@@ -16,18 +16,18 @@ export const useSpecialtyTheme = () => {
     const path = window.location.pathname;
     console.log('🔍 detectSpecialty - checking path:', path, 'tenant:', currentTenant?.specialty);
     
-    // Priority 1: URL-based detection (matches TenantWrapper logic)
-    if (path.includes('/dental-sleep-medicine') || path.includes('/dental-sleep')) {
+    // Priority 1: URL-based detection (EXACT match with TenantWrapper)
+    if (path.includes('/dental-sleep')) {
       console.log('✅ URL detected: dental-sleep');
       return 'dental-sleep';
     }
-    if (path.includes('/chiropractic-care') || path.includes('/chiropractic')) {
+    if (path.includes('/chiropractic')) {
       console.log('✅ URL detected: chiropractic');
       return 'chiropractic';
     }
     if (path.includes('/dental')) {
-      console.log('✅ URL detected: dental (mapped to dental-sleep)');
-      return 'dental-sleep';
+      console.log('✅ URL detected: dental');
+      return 'dental';
     }
     if (path.includes('/med-spa') || path.includes('/medspa')) {
       console.log('✅ URL detected: med-spa');
@@ -42,13 +42,18 @@ export const useSpecialtyTheme = () => {
       return 'hrt';
     }
 
-    // Priority 2: For production tenants, use tenant specialty
-    if (currentTenant?.specialty && window.location.hostname !== 'localhost') {
+    // Priority 2: Enhanced tenant config specialty (with exact mapping)
+    if (currentTenant?.specialty) {
       const tenantSpecialty = currentTenant.specialty;
-      console.log('🏢 Production tenant specialty:', tenantSpecialty);
+      console.log('🏢 Tenant specialty from enhancedTenantConfig:', tenantSpecialty);
+      
+      // Map enhanced tenant config specialty names to theme names
       if (tenantSpecialty === 'dental-sleep-medicine') return 'dental-sleep';
       if (tenantSpecialty === 'chiropractic-care') return 'chiropractic';
-      if (tenantSpecialty === 'general-dentistry') return 'dental-sleep';
+      if (tenantSpecialty === 'dental-care') return 'dental';
+      if (tenantSpecialty === 'medical-spa') return 'med-spa';
+      
+      // Direct match for simple names
       return tenantSpecialty as SpecialtyType;
     }
 
@@ -59,17 +64,7 @@ export const useSpecialtyTheme = () => {
       return stored;
     }
 
-    // Priority 4: Tenant specialty (fallback)
-    if (currentTenant?.specialty) {
-      const tenantSpecialty = currentTenant.specialty;
-      console.log('🏢 Fallback tenant specialty:', tenantSpecialty);
-      if (tenantSpecialty === 'dental-sleep-medicine') return 'dental-sleep';
-      if (tenantSpecialty === 'chiropractic-care') return 'chiropractic';
-      if (tenantSpecialty === 'general-dentistry') return 'dental-sleep';
-      return tenantSpecialty as SpecialtyType;
-    }
-
-    // Priority 5: User profile specialty
+    // Priority 4: User profile specialty
     if (userProfile?.specialty) {
       const profileSpecialty = userProfile.specialty.toLowerCase().replace(/\s+/g, '-') as SpecialtyType;
       console.log('👤 User profile specialty:', profileSpecialty);

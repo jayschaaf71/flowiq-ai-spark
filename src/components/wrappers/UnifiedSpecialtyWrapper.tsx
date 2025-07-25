@@ -17,19 +17,38 @@ interface UnifiedSpecialtyWrapperProps {
 const ThemeApplier: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { currentTheme } = useSpecialtyTheme();
   const [themeApplied, setThemeApplied] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     console.log('🎨 ThemeApplier - applying theme:', currentTheme.name);
     console.log('🎨 ThemeApplier - CSS variables:', currentTheme.cssVariables);
     
-    // Small delay to ensure CSS variables are applied
-    const timer = setTimeout(() => {
+    try {
+      // Apply theme immediately, no delay needed
       setThemeApplied(true);
+      setError(null);
       console.log('✅ ThemeApplier - theme applied successfully');
-    }, 100); // Increased delay slightly
-    
-    return () => clearTimeout(timer);
+    } catch (err) {
+      console.error('❌ ThemeApplier - error applying theme:', err);
+      setError('Failed to apply theme');
+    }
   }, [currentTheme]);
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-2">Theme Error: {error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Reload Page
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (!themeApplied) {
     console.log('⏳ ThemeApplier - waiting for theme to apply...');
