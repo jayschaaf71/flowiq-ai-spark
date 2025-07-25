@@ -88,20 +88,20 @@ export const AppSidebar = () => {
     <Sidebar className="border-r">
       <SidebarHeader className="border-b p-4">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 text-white flex-shrink-0">
-            <Sparkles className="h-4 w-4" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 text-white flex-shrink-0">
+            <Sparkles className="h-5 w-5" />
           </div>
           {state === "expanded" && (
             <div className="flex flex-col min-w-0 flex-1">
               <div className="flex items-center gap-1">
-                <span className="font-bold text-lg truncate">{getBrandName()}</span>
+                <span className="font-bold text-xl truncate">{getBrandName()}</span>
               </div>
-              <p className="text-xs text-muted-foreground leading-tight truncate">
+              <p className="text-sm text-muted-foreground leading-tight truncate">
                 {tenantConfig.tagline}
               </p>
               {primaryTenant && (
-                <p className="text-xs text-primary font-medium mt-1 truncate">
-                  {primaryTenant.tenant.brand_name}
+                <p className="text-sm text-primary font-semibold mt-1 truncate">
+                  Powered by FlowIQ AI
                 </p>
               )}
             </div>
