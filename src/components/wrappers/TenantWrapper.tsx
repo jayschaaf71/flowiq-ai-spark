@@ -31,10 +31,13 @@ export const TenantWrapper: React.FC<TenantWrapperProps> = ({ children }) => {
         'general-dentistry': 'dental-sleep' // Map to dental-sleep as default dental
       };
       
-      return specialtyMap[tenantRoute.specialty] || 'chiropractic';
+      const mappedSpecialty = specialtyMap[tenantRoute.specialty] || 'chiropractic';
+      console.log('🎨 TenantWrapper - mapped specialty:', mappedSpecialty, 'from tenant specialty:', tenantRoute.specialty);
+      return mappedSpecialty;
     }
     
     // No tenant detected - default to chiropractic
+    console.log('🎨 TenantWrapper - no tenant, defaulting to chiropractic');
     return 'chiropractic';
   };
 
