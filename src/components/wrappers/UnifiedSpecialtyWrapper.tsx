@@ -19,15 +19,20 @@ const ThemeApplier: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   const [themeApplied, setThemeApplied] = useState(false);
 
   useEffect(() => {
+    console.log('🎨 ThemeApplier - applying theme:', currentTheme.name);
+    console.log('🎨 ThemeApplier - CSS variables:', currentTheme.cssVariables);
+    
     // Small delay to ensure CSS variables are applied
     const timer = setTimeout(() => {
       setThemeApplied(true);
-    }, 50);
+      console.log('✅ ThemeApplier - theme applied successfully');
+    }, 100); // Increased delay slightly
     
     return () => clearTimeout(timer);
   }, [currentTheme]);
 
   if (!themeApplied) {
+    console.log('⏳ ThemeApplier - waiting for theme to apply...');
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -35,6 +40,7 @@ const ThemeApplier: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     );
   }
 
+  console.log('🎨 ThemeApplier - rendering children with applied theme');
   return <>{children}</>;
 };
 
@@ -46,10 +52,22 @@ export const UnifiedSpecialtyWrapper: React.FC<UnifiedSpecialtyWrapperProps> = (
 }) => {
   const { currentTheme, specialty } = useSpecialtyTheme();
 
+  console.log('🔄 UnifiedSpecialtyWrapper - detected specialty:', specialty);
+  console.log('🔄 UnifiedSpecialtyWrapper - allowed specialties:', allowedSpecialties);
+  console.log('🔄 UnifiedSpecialtyWrapper - current theme:', currentTheme.name);
+
   // Check if current specialty is allowed
   const isSpecialtyAllowed = !allowedSpecialties || allowedSpecialties.includes(specialty);
 
+  console.log('🔄 UnifiedSpecialtyWrapper - is specialty allowed?', isSpecialtyAllowed);
+
   if (!isSpecialtyAllowed) {
+    console.error('❌ UnifiedSpecialtyWrapper - Specialty not allowed!', {
+      detected: specialty,
+      allowed: allowedSpecialties,
+      fallback: fallbackSpecialty
+    });
+    
     return (
       <ErrorBoundary>
         <div className="min-h-screen flex items-center justify-center bg-background p-4">
@@ -64,6 +82,8 @@ export const UnifiedSpecialtyWrapper: React.FC<UnifiedSpecialtyWrapperProps> = (
       </ErrorBoundary>
     );
   }
+
+  console.log('✅ UnifiedSpecialtyWrapper - Specialty allowed, rendering children');
 
   return (
     <ErrorBoundary>

@@ -13,45 +13,71 @@ export const useSpecialtyTheme = () => {
   );
 
   const detectSpecialty = (): SpecialtyType => {
-    console.log('detectSpecialty - checking path:', window.location.pathname, 'tenant:', currentTenant?.specialty);
+    const path = window.location.pathname;
+    console.log('🔍 detectSpecialty - checking path:', path, 'tenant:', currentTenant?.specialty);
     
-    // Priority 1: For production tenants, use tenant specialty first
+    // Priority 1: URL-based detection (matches TenantWrapper logic)
+    if (path.includes('/dental-sleep-medicine') || path.includes('/dental-sleep')) {
+      console.log('✅ URL detected: dental-sleep');
+      return 'dental-sleep';
+    }
+    if (path.includes('/chiropractic-care') || path.includes('/chiropractic')) {
+      console.log('✅ URL detected: chiropractic');
+      return 'chiropractic';
+    }
+    if (path.includes('/dental')) {
+      console.log('✅ URL detected: dental (mapped to dental-sleep)');
+      return 'dental-sleep';
+    }
+    if (path.includes('/med-spa') || path.includes('/medspa')) {
+      console.log('✅ URL detected: med-spa');
+      return 'med-spa';
+    }
+    if (path.includes('/concierge')) {
+      console.log('✅ URL detected: concierge');
+      return 'concierge';
+    }
+    if (path.includes('/hrt')) {
+      console.log('✅ URL detected: hrt');
+      return 'hrt';
+    }
+
+    // Priority 2: For production tenants, use tenant specialty
     if (currentTenant?.specialty && window.location.hostname !== 'localhost') {
       const tenantSpecialty = currentTenant.specialty;
+      console.log('🏢 Production tenant specialty:', tenantSpecialty);
       if (tenantSpecialty === 'dental-sleep-medicine') return 'dental-sleep';
       if (tenantSpecialty === 'chiropractic-care') return 'chiropractic';
-      if (tenantSpecialty === 'general-dentistry') return 'dental';
+      if (tenantSpecialty === 'general-dentistry') return 'dental-sleep';
       return tenantSpecialty as SpecialtyType;
     }
-    
-    // Priority 2: URL-based detection (for development)
-    const path = window.location.pathname;
-    if (path.includes('/dental-sleep')) return 'dental-sleep';
-    if (path.includes('/dental')) return 'dental';
-    if (path.includes('/med-spa') || path.includes('/medspa')) return 'med-spa';
-    if (path.includes('/concierge')) return 'concierge';
-    if (path.includes('/hrt')) return 'hrt';
-    if (path.includes('/chiropractic')) return 'chiropractic';
 
     // Priority 3: localStorage
     const stored = localStorage.getItem('currentSpecialty') as SpecialtyType;
-    if (stored && stored in getSpecialtyTheme) return stored;
+    if (stored) {
+      console.log('💾 localStorage specialty:', stored);
+      return stored;
+    }
 
     // Priority 4: Tenant specialty (fallback)
     if (currentTenant?.specialty) {
       const tenantSpecialty = currentTenant.specialty;
+      console.log('🏢 Fallback tenant specialty:', tenantSpecialty);
       if (tenantSpecialty === 'dental-sleep-medicine') return 'dental-sleep';
       if (tenantSpecialty === 'chiropractic-care') return 'chiropractic';
-      if (tenantSpecialty === 'general-dentistry') return 'dental';
+      if (tenantSpecialty === 'general-dentistry') return 'dental-sleep';
       return tenantSpecialty as SpecialtyType;
     }
 
     // Priority 5: User profile specialty
     if (userProfile?.specialty) {
-      return userProfile.specialty.toLowerCase().replace(/\s+/g, '-') as SpecialtyType;
+      const profileSpecialty = userProfile.specialty.toLowerCase().replace(/\s+/g, '-') as SpecialtyType;
+      console.log('👤 User profile specialty:', profileSpecialty);
+      return profileSpecialty;
     }
 
     // Default
+    console.log('⚠️ Using default specialty: chiropractic');
     return 'chiropractic';
   };
 
@@ -68,7 +94,8 @@ export const useSpecialtyTheme = () => {
     // Update state
     setCurrentTheme(theme);
     
-    console.log('Applied specialty theme:', specialty, theme);
+    console.log('🎨 Applied specialty theme:', specialty, 'Theme name:', theme.name);
+    console.log('🎨 Theme variables applied:', theme.cssVariables);
   }, [currentTenant, userProfile]);
 
   const switchTheme = (specialty: SpecialtyType) => {
