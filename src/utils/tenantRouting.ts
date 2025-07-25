@@ -26,7 +26,9 @@ export function parseTenantFromUrl(): TenantRoute | null {
     !hostname.includes('lovable.app') &&
     (hostname.includes('flow-iq.ai') || hostname.includes('flowiq.com') || 
      hostname === 'midwest-dental-sleep.flow-iq.ai' || 
-     hostname === 'west-county-spine.flow-iq.ai');
+     hostname === 'west-county-spine.flow-iq.ai' ||
+     hostname.startsWith('midwest-dental-sleep.') ||
+     hostname.startsWith('west-county-spine.'));
   
   console.log('isProductionDomain check:', isProductionDomain, 'hostname:', hostname);
   

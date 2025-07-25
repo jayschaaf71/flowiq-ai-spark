@@ -41,11 +41,15 @@ import ApplicationTest from '@/pages/ApplicationTest';
 export default function DentalSleepApp() {
   useEffect(() => {
     const tenantRoute = parseTenantFromUrl();
+    console.log('DentalSleepApp: tenantRoute detected:', tenantRoute);
+    
     if (tenantRoute?.isProduction) {
       const brandName = tenantRoute.subdomain === 'midwest-dental-sleep' ? 'Midwest Dental Sleep' : 'FlowIQ';
       document.title = brandName;
+      console.log('DentalSleepApp: Set production title to:', brandName);
     } else {
       document.title = 'FlowIQ - Dental Sleep';
+      console.log('DentalSleepApp: Set development title');
     }
   }, []);
 
