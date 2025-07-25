@@ -10,6 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Search, Filter, Calendar as CalendarIcon, X } from "lucide-react";
 import { format } from "date-fns";
 import { useProviders } from "@/hooks/useProviders";
+import { useSpecialty } from "@/contexts/SpecialtyContext";
 
 interface AppointmentFiltersProps {
   searchTerm: string;
@@ -26,6 +27,43 @@ interface AppointmentFiltersProps {
   activeFiltersCount: number;
 }
 
+// Specialty-specific appointment types
+const getAppointmentTypesBySpecialty = (specialty: string) => {
+  switch (specialty) {
+    case 'dental-sleep':
+      return [
+        'Initial Consultation',
+        'Sleep Study Review',
+        'Appliance Fitting',
+        'Titration',
+        'Follow-up',
+        'Check-up',
+        'Emergency'
+      ];
+    case 'chiropractic':
+      return [
+        'Initial Consultation',
+        'Adjustment Session',
+        'Spinal Decompression',
+        'Physical Therapy',
+        'Massage Therapy',
+        'Follow-up Visit',
+        'Emergency'
+      ];
+    default:
+      return [
+        'Consultation',
+        'Cleaning',
+        'Checkup',
+        'Root Canal',
+        'Filling',
+        'Extraction',
+        'Emergency',
+        'Follow-up'
+      ];
+  }
+};
+
 export const AppointmentFilters = ({
   searchTerm,
   onSearchChange,
@@ -41,18 +79,10 @@ export const AppointmentFilters = ({
   activeFiltersCount
 }: AppointmentFiltersProps) => {
   const { providers } = useProviders();
+  const { currentSpecialty } = useSpecialty();
   const [isDateOpen, setIsDateOpen] = useState(false);
-
-  const appointmentTypes = [
-    "Consultation",
-    "Cleaning",
-    "Checkup",
-    "Root Canal",
-    "Filling",
-    "Extraction",
-    "Emergency",
-    "Follow-up"
-  ];
+  
+  const appointmentTypes = getAppointmentTypesBySpecialty(currentSpecialty);
 
   return (
     <Card>

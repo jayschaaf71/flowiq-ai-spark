@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Search, Filter, X } from 'lucide-react';
+import { useSpecialty } from '@/contexts/SpecialtyContext';
 
 interface CalendarFiltersProps {
   searchTerm: string;
@@ -19,15 +20,38 @@ interface CalendarFiltersProps {
   activeFiltersCount: number;
 }
 
-const appointmentTypes = [
-  'Initial Consultation',
-  'Follow-up',
-  'Sleep Study Review',
-  'Appliance Fitting',
-  'Titration',
-  'Check-up',
-  'Emergency'
-];
+// Specialty-specific appointment types
+const getAppointmentTypesBySpecialty = (specialty: string) => {
+  switch (specialty) {
+    case 'dental-sleep':
+      return [
+        'Initial Consultation',
+        'Sleep Study Review',
+        'Appliance Fitting',
+        'Titration',
+        'Follow-up',
+        'Check-up',
+        'Emergency'
+      ];
+    case 'chiropractic':
+      return [
+        'Initial Consultation',
+        'Adjustment Session',
+        'Spinal Decompression',
+        'Physical Therapy',
+        'Massage Therapy',
+        'Follow-up Visit',
+        'Emergency'
+      ];
+    default:
+      return [
+        'Initial Consultation',
+        'Follow-up',
+        'Check-up',
+        'Emergency'
+      ];
+  }
+};
 
 const providers = [
   'Dr. Smith',
@@ -48,6 +72,8 @@ export const CalendarFilters = ({
   onClearFilters,
   activeFiltersCount
 }: CalendarFiltersProps) => {
+  const { currentSpecialty } = useSpecialty();
+  const appointmentTypes = getAppointmentTypesBySpecialty(currentSpecialty);
   return (
     <Card>
       <CardContent className="p-4">
