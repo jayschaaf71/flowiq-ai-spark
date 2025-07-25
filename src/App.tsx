@@ -33,17 +33,25 @@ const TenantRouter = () => {
                      tenantRoute.subdomain === 'midwest-dental-sleep' ? 'Midwest Dental Sleep' : 'FlowIQ';
     document.title = brandName;
     
+    console.log('Production tenant detected, checking for redirect. Current path:', currentPath);
+    
     // For production tenants, redirect to remove the specialty prefix from URL
     // e.g. /chiropractic/dashboard -> /dashboard
     if (currentPath.startsWith('/chiropractic/')) {
       const newPath = currentPath.replace('/chiropractic', '');
-      window.history.replaceState(null, '', newPath || '/');
+      console.log('Redirecting from', currentPath, 'to', newPath || '/');
+      window.location.replace(newPath || '/');
+      return null; // Prevent rendering during redirect
     } else if (currentPath.startsWith('/dental-sleep/')) {
       const newPath = currentPath.replace('/dental-sleep', '');
-      window.history.replaceState(null, '', newPath || '/');
+      console.log('Redirecting from', currentPath, 'to', newPath || '/');
+      window.location.replace(newPath || '/');
+      return null; // Prevent rendering during redirect
     } else if (currentPath.startsWith('/dental/')) {
       const newPath = currentPath.replace('/dental', '');
-      window.history.replaceState(null, '', newPath || '/');
+      console.log('Redirecting from', currentPath, 'to', newPath || '/');
+      window.location.replace(newPath || '/');
+      return null; // Prevent rendering during redirect
     }
     
     switch (tenantRoute.specialty) {
