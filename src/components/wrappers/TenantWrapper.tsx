@@ -25,15 +25,12 @@ export const TenantWrapper: React.FC<TenantWrapperProps> = ({ children }) => {
     
     // Route-based specialty detection for specific routes
     if (path.includes('/agents/dental-sleep') || path.includes('/dental-sleep')) {
-      switchTheme('dental-sleep');
       return 'dental-sleep';
     }
     if (path.includes('/dental')) {
-      switchTheme('dental');
       return 'dental';
     }
     if (path.includes('/chiropractic')) {
-      switchTheme('chiropractic');
       return 'chiropractic';
     }
     
@@ -43,10 +40,25 @@ export const TenantWrapper: React.FC<TenantWrapperProps> = ({ children }) => {
 
   const currentSpecialty = detectSpecialtyFromRoute();
 
-  // Update tenant config when specialty changes
+  // Update theme when route changes
   useEffect(() => {
+    const path = location.pathname;
+    let targetSpecialty = null;
+    
+    if (path.includes('/agents/dental-sleep') || path.includes('/dental-sleep')) {
+      targetSpecialty = 'dental-sleep';
+    } else if (path.includes('/dental')) {
+      targetSpecialty = 'dental';
+    } else if (path.includes('/chiropractic')) {
+      targetSpecialty = 'chiropractic';
+    }
+    
+    if (targetSpecialty && targetSpecialty !== specialty) {
+      switchTheme(targetSpecialty);
+    }
+    
     console.log('TenantWrapper detected specialty:', currentSpecialty, 'from route:', location.pathname);
-  }, [currentSpecialty, location.pathname]);
+  }, [location.pathname, specialty, switchTheme]);
   
   return (
     <ErrorBoundary>
