@@ -55,8 +55,20 @@ const TenantRouter: React.FC = () => {
     }
   }
   
-  // No tenant detected - show landing page
-  console.log('🏠 No tenant detected, showing landing page');
+  // No tenant detected - check if it's an app route or landing page route
+  const isAppRoute = (path: string) => {
+    const appPaths = ['/agents/', '/dashboard', '/schedule', '/calendar', '/analytics', '/ehr', '/patient-management', '/financial', '/patient-experience', '/ai-automation', '/team', '/checkin', '/insights', '/notifications', '/help', '/settings'];
+    return appPaths.some(appPath => path.startsWith(appPath));
+  };
+
+  if (isAppRoute(currentPath)) {
+    console.log('🎯 No tenant detected, but app route detected. Routing to ChiropracticApp for path:', currentPath);
+    document.title = 'FlowIQ - Chiropractic Care';
+    return <ChiropracticApp />;
+  }
+  
+  // Only show landing page for actual landing routes
+  console.log('🏠 No tenant detected, showing landing page for path:', currentPath);
   document.title = 'FlowIQ - AI Operating System';
   return <Index />;
 };
