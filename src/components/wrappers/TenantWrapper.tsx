@@ -42,6 +42,7 @@ export const TenantWrapper: React.FC<TenantWrapperProps> = ({ children }) => {
       // Map database specialty to SpecialtyType
       const dbSpecialtyMap: Record<string, SpecialtyType> = {
         'dental-sleep': 'dental-sleep',
+        'dental-sleep-medicine': 'dental-sleep',
         'dental': 'dental-sleep',
         'chiropractic': 'chiropractic',
         'med-spa': 'chiropractic', // Fallback for now
