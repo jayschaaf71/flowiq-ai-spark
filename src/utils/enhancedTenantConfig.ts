@@ -127,7 +127,39 @@ export function useEnhancedTenantConfig() {
       setIsLoading(true);
       
       const subdomain = getCurrentSubdomain();
-      console.log('Loading tenant config for subdomain:', subdomain, 'user:', user?.id);
+      const currentPath = window.location.pathname;
+      console.log('🚀 [DIAGNOSTIC] Loading tenant config for subdomain:', subdomain, 'user:', user?.id, 'path:', currentPath);
+      
+      // DIAGNOSTIC MODE: Route-based tenant detection (takes priority over profile)
+      const getRouteBasedTenant = (): TenantConfig | null => {
+        console.log('🔍 [DIAGNOSTIC] Checking route-based tenant detection for path:', currentPath);
+        
+        if (currentPath.includes('/chiropractic') || currentPath.includes('chiropractic-care')) {
+          console.log('✅ [DIAGNOSTIC] Route detected CHIROPRACTIC - forcing chiropractic tenant');
+          return PRODUCTION_TENANTS['west-county-spine'] || DEFAULT_TENANTS.chiropractic;
+        }
+        
+        if (currentPath.includes('/dental-sleep')) {
+          console.log('✅ [DIAGNOSTIC] Route detected DENTAL-SLEEP - forcing dental-sleep tenant');
+          return PRODUCTION_TENANTS['midwest-dental-sleep'] || DEFAULT_TENANTS['dental-sleep'];
+        }
+        
+        if (currentPath.includes('/dental')) {
+          console.log('✅ [DIAGNOSTIC] Route detected DENTAL - forcing dental tenant');
+          return DEFAULT_TENANTS.dental;
+        }
+        
+        console.log('❌ [DIAGNOSTIC] No specific route detected, proceeding with normal logic');
+        return null;
+      };
+      
+      // Priority 0: Route-based detection (NEW - highest priority)
+      const routeBasedTenant = getRouteBasedTenant();
+      if (routeBasedTenant) {
+        console.log('🎯 [DIAGNOSTIC] Using route-based tenant:', routeBasedTenant);
+        setTenantConfig(routeBasedTenant);
+        return;
+      }
       
       // Priority 1: Check for subdomain-based tenant (works for both authenticated and anonymous users)
       if (subdomain) {
@@ -171,7 +203,7 @@ export function useEnhancedTenantConfig() {
 
       // Priority 2: For authenticated users without subdomain, use their current tenant
       if (user) {
-        console.log('Fetching user tenant for authenticated user');
+        console.log('🔍 [DIAGNOSTIC] Fetching user tenant for authenticated user');
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('current_tenant_id')
@@ -179,8 +211,12 @@ export function useEnhancedTenantConfig() {
           .single();
 
         if (profileError) {
-          console.error('Error fetching profile:', profileError);
+          console.error('❌ [DIAGNOSTIC] Error fetching profile:', profileError);
         } else if (profile?.current_tenant_id) {
+          console.log('👤 [DIAGNOSTIC] User profile current_tenant_id:', profile.current_tenant_id);
+          console.log('🔍 [DIAGNOSTIC] Current path:', currentPath);
+          console.log('⚠️ [DIAGNOSTIC] WARNING: Using profile tenant but route might override this');
+          
           const { data: tenant, error: tenantError } = await supabase
             .from('tenants')
             .select('*')
@@ -188,8 +224,15 @@ export function useEnhancedTenantConfig() {
             .single();
 
           if (tenantError) {
-            console.error('Error fetching tenant:', tenantError);
+            console.error('❌ [DIAGNOSTIC] Error fetching tenant:', tenantError);
           } else if (tenant) {
+            console.log('🏢 [DIAGNOSTIC] Found tenant from profile:', {
+              id: tenant.id,
+              name: tenant.name,
+              specialty: tenant.specialty,
+              conflictsWith: currentPath.includes('/chiropractic') && tenant.specialty !== 'chiropractic-care'
+            });
+            
             const settings = tenant.settings as any;
             const config: TenantConfig = {
               id: tenant.id,
@@ -203,10 +246,12 @@ export function useEnhancedTenantConfig() {
               tagline: settings?.branding?.tagline || getTenantConfigForSpecialty(tenant.specialty).tagline
             };
             
-            console.log('Loaded tenant config from database:', config);
+            console.log('✅ [DIAGNOSTIC] Loaded tenant config from database:', config);
             setTenantConfig(config);
             return;
           }
+        } else {
+          console.log('⚠️ [DIAGNOSTIC] User has no current_tenant_id in profile');
         }
       }
 
