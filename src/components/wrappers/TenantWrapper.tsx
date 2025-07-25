@@ -37,12 +37,13 @@ export const TenantWrapper: React.FC<TenantWrapperProps> = ({ children }) => {
     }
     
     // No tenant detected from URL - use database specialty if available
-    if (dbSpecialty && dbSpecialty !== 'chiropractic') {
+    if (dbSpecialty) {
       console.log('🎨 TenantWrapper - no tenant route, using database specialty:', dbSpecialty);
       // Map database specialty to SpecialtyType
       const dbSpecialtyMap: Record<string, SpecialtyType> = {
         'dental-sleep': 'dental-sleep',
         'dental': 'dental-sleep',
+        'chiropractic': 'chiropractic',
         'med-spa': 'chiropractic', // Fallback for now
         'concierge': 'chiropractic', // Fallback for now  
         'hrt': 'chiropractic' // Fallback for now
