@@ -19,6 +19,16 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  
+  console.log('🔐 ProtectedRoute: Auth state check', {
+    path: location.pathname,
+    requiredRole,
+    hasUser: !!user,
+    hasProfile: !!profile,
+    loading,
+    userRole: profile?.role,
+    userId: user?.id
+  });
 
   // Temporarily disable redirects to test for infinite loop
   // useEffect(() => {

@@ -38,14 +38,16 @@ import ReferralIQ from '@/pages/agents/ReferralIQ';
 import ApplicationTest from '@/pages/ApplicationTest';
 
 export default function ChiropracticApp() {
+  console.log('🦴 ChiropracticApp: Rendering ChiropracticApp component');
+  
   useEffect(() => {
     const tenantRoute = parseTenantFromUrl();
-    console.log('ChiropracticApp: tenantRoute detected:', tenantRoute);
+    console.log('🦴 ChiropracticApp: tenantRoute detected:', tenantRoute);
     
     if (tenantRoute?.isProduction) {
       const brandName = tenantRoute.subdomain === 'west-county-spine' ? 'West County Spine' : 'FlowIQ';
       document.title = brandName;
-      console.log('ChiropracticApp: Set title to:', brandName);
+      console.log('🦴 ChiropracticApp: Set title to:', brandName);
     } else {
       // Check if we're on a chiropractic route in development
       if (window.location.pathname.includes('/chiropractic')) {
@@ -53,7 +55,7 @@ export default function ChiropracticApp() {
       } else {
         document.title = 'West County Spine'; // Default for west-county-spine domain
       }
-      console.log('ChiropracticApp: Set development title to:', document.title);
+      console.log('🦴 ChiropracticApp: Set development title to:', document.title);
     }
   }, []);
 
@@ -64,7 +66,17 @@ export default function ChiropracticApp() {
   // Support non-prefixed routes for fallback routing from TenantRouter
   const currentPath = window.location.pathname;
   const isNonPrefixedRoute = !currentPath.startsWith('/chiropractic') && !isProduction;
+  
+  console.log('🦴 ChiropracticApp: Route analysis:', {
+    currentPath,
+    pathPrefix,
+    isProduction,
+    isNonPrefixedRoute,
+    tenantRoute
+  });
 
+  console.log('🦴 ChiropracticApp: About to render ChiropracticWrapper with Routes');
+  
   return (
     <ChiropracticWrapper>
       <Routes>
@@ -552,6 +564,9 @@ export default function ChiropracticApp() {
             } />
           </>
         )}
+        
+        {/* Fallback redirect for unmatched routes */}
+        <Route path="*" element={<Navigate to={`${pathPrefix}/dashboard`} replace />} />
       </Routes>
     </ChiropracticWrapper>
   );

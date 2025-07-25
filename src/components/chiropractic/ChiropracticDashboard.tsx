@@ -25,9 +25,19 @@ import { showErrorToast } from "@/components/feedback/Toast";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export const ChiropracticDashboard = () => {
+  console.log('🏥 ChiropracticDashboard: Rendering ChiropracticDashboard component');
   const navigate = useNavigate();
   const { appointments, loading: appointmentsLoading, error: appointmentsError } = useAppointments();
   const { data: patients, isLoading: patientsLoading, error: patientsError } = usePatients();
+  
+  console.log('🏥 ChiropracticDashboard: Data state', {
+    appointmentsLoading,
+    patientsLoading,
+    appointmentsError,
+    patientsError,
+    appointmentsCount: appointments?.length,
+    patientsCount: patients?.length
+  });
 
   // Handle errors with useEffect to prevent infinite re-renders
   useEffect(() => {

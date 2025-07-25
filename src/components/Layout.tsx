@@ -11,6 +11,7 @@ interface LayoutProps {
 }
 
 export const Layout = ({ children }: LayoutProps) => {
+  console.log('📱 Layout: Rendering Layout component');
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-background">
