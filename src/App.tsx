@@ -97,7 +97,8 @@ const TenantRouter = () => {
     return <DentalApp />;
   }
   
-  // For non-tenant routes, show landing page
+  // For non-tenant routes, show landing page, but log first
+  console.log('TenantRouter: No tenant detected, showing landing page for path:', currentPath);
   document.title = 'FlowIQ - AI Operating System';
   return <Index />;
 };
