@@ -89,21 +89,25 @@ export const TenantWrapper: React.FC<TenantWrapperProps> = ({ children }) => {
       switchTheme(targetSpecialty);
     }
     
-    console.log('TenantWrapper detected specialty:', currentSpecialty, 'from route:', location.pathname);
+    console.log('TenantWrapper detected specialty:', currentSpecialty, 'from route:', location.pathname, 'useSpecialtyTheme specialty:', specialty);
   }, [location.pathname, specialty, switchTheme]);
   
   return (
     <ErrorBoundary>
       {(() => {
+        console.log('TenantWrapper rendering with specialty:', currentSpecialty, 'route:', location.pathname);
         switch (currentSpecialty) {
           case 'dental-sleep':
+            console.log('Rendering DentalSleepWrapper');
             return <DentalSleepWrapper>{children}</DentalSleepWrapper>;
           
           case 'dental':
+            console.log('Rendering DentalWrapper');
             return <DentalWrapper>{children}</DentalWrapper>;
           
           case 'chiropractic':
           default:
+            console.log('Rendering ChiropracticWrapper');
             return <ChiropracticWrapper>{children}</ChiropracticWrapper>;
         }
       })()}
