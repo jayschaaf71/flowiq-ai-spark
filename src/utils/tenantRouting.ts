@@ -12,39 +12,27 @@ export interface TenantRoute {
 
 /**
  * Parse the current URL to determine tenant information
+ * Phase 1: Simplified route detection with clear production vs development logic
  */
 export function parseTenantFromUrl(): TenantRoute | null {
   const hostname = window.location.hostname;
   const pathname = window.location.pathname;
   
-  console.log('parseTenantFromUrl: hostname:', hostname, 'pathname:', pathname);
+  console.log('🔍 Route Detection - hostname:', hostname, 'pathname:', pathname);
   
-  // Production subdomain routing (e.g., midwest-dental-sleep.flow-iq.ai or west-county-spine.flow-iq.ai)
-  // Also check for iframe scenarios where the hostname might be different
-  const isProductionDomain = hostname !== 'localhost' && 
-    !hostname.includes('lovableproject.com') && 
-    !hostname.includes('lovable.app') &&
-    (hostname.includes('flow-iq.ai') || hostname.includes('flowiq.com') || 
-     hostname === 'midwest-dental-sleep.flow-iq.ai' || 
-     hostname === 'west-county-spine.flow-iq.ai' ||
-     hostname.startsWith('midwest-dental-sleep.') ||
-     hostname.startsWith('west-county-spine.'));
+  // Clear production domain detection
+  const isProductionDomain = (
+    hostname.includes('flow-iq.ai') || 
+    hostname.includes('flowiq.com')
+  ) && !hostname.includes('lovableproject.com') && !hostname.includes('lovable.app');
   
-  console.log('isProductionDomain check:', isProductionDomain, 'hostname:', hostname);
-  console.log('Domain conditions check:');
-  console.log('- Not localhost:', hostname !== 'localhost');
-  console.log('- Not lovableproject:', !hostname.includes('lovableproject.com'));
-  console.log('- Not lovable.app:', !hostname.includes('lovable.app'));
-  console.log('- Contains flow-iq.ai:', hostname.includes('flow-iq.ai'));
-  console.log('- Exact match midwest-dental-sleep:', hostname === 'midwest-dental-sleep.flow-iq.ai');
-  console.log('- Starts with midwest-dental-sleep:', hostname.startsWith('midwest-dental-sleep.'));
+  console.log('🏭 Production domain check:', isProductionDomain);
   
+  // Production subdomain routing
   if (isProductionDomain) {
     const subdomain = hostname.split('.')[0];
+    console.log('🏢 Production subdomain:', subdomain);
     
-    console.log('Production subdomain detected:', subdomain, 'from hostname:', hostname);
-    
-    // Map known subdomains to tenant info
     const tenantMap: Record<string, Omit<TenantRoute, 'isProduction'>> = {
       'midwest-dental-sleep': {
         tenantId: 'd52278c3-bf0d-4731-bfa9-a40f032fa305',
@@ -59,56 +47,39 @@ export function parseTenantFromUrl(): TenantRoute | null {
     };
     
     if (tenantMap[subdomain]) {
-      console.log('Found tenant mapping for subdomain:', subdomain, tenantMap[subdomain]);
+      console.log('✅ Production tenant found:', tenantMap[subdomain]);
       return {
         ...tenantMap[subdomain],
         isProduction: true
       };
-    } else {
-      console.log('No tenant mapping found for subdomain:', subdomain);
     }
   }
   
-  // Also check for production subdomains on custom domains
-  if (hostname === 'west-county-spine.flow-iq.ai') {
-    console.log('Direct production domain match for west-county-spine');
-    return {
-      tenantId: '024e36c1-a1bc-44d0-8805-3162ba59a0c2',
-      subdomain: 'west-county-spine',
-      specialty: 'chiropractic-care',
-      isProduction: true
-    };
-  }
-  
-  if (hostname === 'midwest-dental-sleep.flow-iq.ai') {
-    console.log('Direct production domain match for midwest-dental-sleep');
-    return {
+  // Development path-based routing - clean detection
+  const pathTenantMap: Record<string, Omit<TenantRoute, 'isProduction'>> = {
+    '/dental-sleep': {
       tenantId: 'd52278c3-bf0d-4731-bfa9-a40f032fa305',
       subdomain: 'midwest-dental-sleep',
-      specialty: 'dental-sleep-medicine',
-      isProduction: true
-    };
-  }
-  
-  // Development path-based routing (e.g., /dental-sleep/*, /chiropractic/*)
-  if (pathname.startsWith('/dental-sleep')) {
-    return {
-      tenantId: 'd52278c3-bf0d-4731-bfa9-a40f032fa305',
-      subdomain: 'midwest-dental-sleep',
-      specialty: 'dental-sleep-medicine',
-      isProduction: false
-    };
-  }
-  
-  if (pathname.startsWith('/chiropractic')) {
-    return {
+      specialty: 'dental-sleep-medicine'
+    },
+    '/chiropractic': {
       tenantId: '024e36c1-a1bc-44d0-8805-3162ba59a0c2',
       subdomain: 'west-county-spine',
-      specialty: 'chiropractic-care',
-      isProduction: false
-    };
+      specialty: 'chiropractic-care'
+    }
+  };
+  
+  for (const [pathPrefix, tenantConfig] of Object.entries(pathTenantMap)) {
+    if (pathname.startsWith(pathPrefix)) {
+      console.log('✅ Development tenant found for path:', pathPrefix, tenantConfig);
+      return {
+        ...tenantConfig,
+        isProduction: false
+      };
+    }
   }
   
+  console.log('❌ No tenant detected for this route');
   return null;
 }
 
