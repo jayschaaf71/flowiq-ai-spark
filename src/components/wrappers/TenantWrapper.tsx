@@ -39,17 +39,20 @@ export const TenantWrapper: React.FC<TenantWrapperProps> = ({ children }) => {
     // No tenant detected from URL - use database specialty if available
     if (dbSpecialty) {
       console.log('🎨 TenantWrapper - no tenant route, using database specialty:', dbSpecialty);
-      // Map database specialty to SpecialtyType
+      // Map database specialty to SpecialtyType - FIXED: Use dental-sleep for dental-sleep-medicine
       const dbSpecialtyMap: Record<string, SpecialtyType> = {
         'dental-sleep': 'dental-sleep',
-        'dental-sleep-medicine': 'dental-sleep',
+        'dental-sleep-medicine': 'dental-sleep', // This is the key fix!
         'dental': 'dental-sleep',
         'chiropractic': 'chiropractic',
+        'chiropractic-care': 'chiropractic',
         'med-spa': 'chiropractic', // Fallback for now
         'concierge': 'chiropractic', // Fallback for now  
         'hrt': 'chiropractic' // Fallback for now
       };
-      return dbSpecialtyMap[dbSpecialty] || 'chiropractic';
+      const mappedSpecialty = dbSpecialtyMap[dbSpecialty] || 'chiropractic';
+      console.log('🎨 TenantWrapper - mapped db specialty:', mappedSpecialty, 'from db specialty:', dbSpecialty);
+      return mappedSpecialty;
     }
     
     // Default to chiropractic
