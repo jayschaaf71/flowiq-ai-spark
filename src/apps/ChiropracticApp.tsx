@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { ChiropracticWrapper } from '@/components/wrappers/ChiropracticWrapper';
+import { parseTenantFromUrl } from '@/utils/tenantRouting';
 
 // Chiropractic Pages
 import { Dashboard } from '@/pages/Dashboard';
@@ -37,6 +38,16 @@ import ReferralIQ from '@/pages/agents/ReferralIQ';
 import ApplicationTest from '@/pages/ApplicationTest';
 
 export default function ChiropracticApp() {
+  useEffect(() => {
+    const tenantRoute = parseTenantFromUrl();
+    if (tenantRoute?.isProduction) {
+      const brandName = tenantRoute.subdomain === 'west-county-spine' ? 'West County Spine' : 'FlowIQ';
+      document.title = brandName;
+    } else {
+      document.title = 'FlowIQ - Chiropractic';
+    }
+  }, []);
+
   return (
     <ChiropracticWrapper>
       <Routes>

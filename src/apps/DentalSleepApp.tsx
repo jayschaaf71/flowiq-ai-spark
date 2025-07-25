@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { DentalSleepWrapper } from '@/components/wrappers/DentalSleepWrapper';
+import { parseTenantFromUrl } from '@/utils/tenantRouting';
 
 // Dental Sleep specific components
 import { DentalSleepDashboard } from '@/components/specialty/dashboards/DentalSleepDashboard';
@@ -38,6 +39,16 @@ import OpsIQ from '@/pages/OpsIQ';
 import ApplicationTest from '@/pages/ApplicationTest';
 
 export default function DentalSleepApp() {
+  useEffect(() => {
+    const tenantRoute = parseTenantFromUrl();
+    if (tenantRoute?.isProduction) {
+      const brandName = tenantRoute.subdomain === 'midwest-dental-sleep' ? 'Midwest Dental Sleep' : 'FlowIQ';
+      document.title = brandName;
+    } else {
+      document.title = 'FlowIQ - Dental Sleep';
+    }
+  }, []);
+
   return (
     <DentalSleepWrapper>
       <Routes>

@@ -28,6 +28,11 @@ const TenantRouter = () => {
   if (tenantRoute?.isProduction) {
     const currentPath = window.location.pathname;
     
+    // Set document title based on tenant
+    const brandName = tenantRoute.subdomain === 'west-county-spine' ? 'West County Spine' : 
+                     tenantRoute.subdomain === 'midwest-dental-sleep' ? 'Midwest Dental Sleep' : 'FlowIQ';
+    document.title = brandName;
+    
     // For production tenants, redirect to remove the specialty prefix from URL
     // e.g. /chiropractic/dashboard -> /dashboard
     if (currentPath.startsWith('/chiropractic/')) {
@@ -55,6 +60,7 @@ const TenantRouter = () => {
   }
   
   // For development or non-tenant routes, show landing page
+  document.title = 'FlowIQ - AI Operating System';
   return <Index />;
 };
 
