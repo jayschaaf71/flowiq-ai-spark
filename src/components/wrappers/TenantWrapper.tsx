@@ -27,7 +27,7 @@ export const TenantWrapper: React.FC<TenantWrapperProps> = ({ children }) => {
     if (path.includes('/agents/dental-sleep') || path.includes('/dental-sleep')) {
       return 'dental-sleep';
     }
-    if (path.includes('/dental')) {
+    if (path.includes('/dental') && !path.includes('/dental-sleep')) {
       return 'dental';
     }
     if (path.includes('/chiropractic') || 
@@ -50,8 +50,9 @@ export const TenantWrapper: React.FC<TenantWrapperProps> = ({ children }) => {
       return 'chiropractic';
     }
     
-    // Default to current specialty from theme hook
-    return specialty;
+    // If we can't determine from route, default to chiropractic for now
+    // This prevents the wrong specialty from being returned
+    return 'chiropractic';
   };
 
   const currentSpecialty = detectSpecialtyFromRoute();
