@@ -10,9 +10,9 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthProvider";
 import { HealthCheck } from "@/components/health/HealthCheck";
 import { TenantWrapper } from "@/components/wrappers/TenantWrapper";
-import { parseTenantFromUrl, getSpecialtyRoute } from "@/utils/tenantRouting";
+import { parseTenantFromUrl } from "@/utils/tenantRouting";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { useUserProfile } from "@/hooks/useUserProfile";
+import { TenantRedirect } from "@/components/TenantRedirect";
 import "@/utils/routeTestRunner"; // Enable route testing functions
 
 // Specialty Apps
@@ -33,29 +33,8 @@ const TenantRouter: React.FC = () => {
   console.log('🚀 [DIAGNOSTIC] TenantRouter - Component initializing');
   const tenantRoute = parseTenantFromUrl();
   const currentPath = window.location.pathname;
-  const { data: userProfile } = useUserProfile();
   
   console.log('🚦 TenantRouter - tenantRoute:', tenantRoute, 'currentPath:', currentPath);
-  
-  // Check if user should be redirected based on their profile tenant
-  React.useEffect(() => {
-    if (!tenantRoute && currentPath === '/' && userProfile?.current_tenant_id) {
-      console.log('🔄 [DIAGNOSTIC] No tenant route detected on root, redirecting to profile tenant');
-      
-      // Map tenant ID to specialty route
-      const tenantSpecialtyMap: Record<string, string> = {
-        'd52278c3-bf0d-4731-bfa9-a40f032fa305': 'dental-sleep-medicine', // Midwest Dental Sleep
-        '024e36c1-a1bc-44d0-8805-3162ba59a0c2': 'chiropractic-care'       // West County Spine
-      };
-      
-      const specialty = tenantSpecialtyMap[userProfile.current_tenant_id];
-      if (specialty) {
-        const targetRoute = getSpecialtyRoute(specialty, 'dashboard');
-        console.log('🚀 [DIAGNOSTIC] Redirecting to:', targetRoute);
-        window.location.href = targetRoute;
-      }
-    }
-  }, [tenantRoute, currentPath, userProfile]);
   
   // Phase 2: Clean app-level routing without conflicting redirects
   if (tenantRoute) {
@@ -121,6 +100,7 @@ const App = () => {
             <Sonner />
             <BrowserRouter>
               <AuthProvider>
+                <TenantRedirect />
                 <TenantWrapper>
                   <Routes>
                 {/* Health check route */}
