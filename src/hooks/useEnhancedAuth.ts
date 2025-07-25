@@ -52,7 +52,7 @@ export const useEnhancedAuth = () => {
               id: profile.tenant_id || 'default',
               name: 'Default Practice',
               brand_name: 'Powered by FlowIQ AI',
-              specialty: 'Chiropractic Care'
+              specialty: 'dental-sleep'
             }
           });
         }
