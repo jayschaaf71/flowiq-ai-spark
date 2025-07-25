@@ -76,7 +76,9 @@ const App = () => {
                 
                 {/* Specialty app routes for development - only on non-production */}
                 <Route path="/chiropractic/*" element={<TenantRouter />} />
+                <Route path="/chiropractic-care/*" element={<TenantRouter />} />
                 <Route path="/dental-sleep/*" element={<TenantRouter />} />
+                <Route path="/dental-sleep-medicine/*" element={<TenantRouter />} />
                 <Route path="/dental/*" element={<TenantRouter />} />
                 
                 {/* Production tenant routes - dynamic based on tenant specialty */}

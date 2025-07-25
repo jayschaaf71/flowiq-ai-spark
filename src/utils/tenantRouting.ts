@@ -62,7 +62,17 @@ export function parseTenantFromUrl(): TenantRoute | null {
       subdomain: 'midwest-dental-sleep',
       specialty: 'dental-sleep-medicine'
     },
+    '/dental-sleep-medicine': {
+      tenantId: 'd52278c3-bf0d-4731-bfa9-a40f032fa305',
+      subdomain: 'midwest-dental-sleep',
+      specialty: 'dental-sleep-medicine'
+    },
     '/chiropractic': {
+      tenantId: '024e36c1-a1bc-44d0-8805-3162ba59a0c2',
+      subdomain: 'west-county-spine',
+      specialty: 'chiropractic-care'
+    },
+    '/chiropractic-care': {
       tenantId: '024e36c1-a1bc-44d0-8805-3162ba59a0c2',
       subdomain: 'west-county-spine',
       specialty: 'chiropractic-care'
