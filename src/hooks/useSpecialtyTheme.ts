@@ -13,7 +13,18 @@ export const useSpecialtyTheme = () => {
   );
 
   const detectSpecialty = (): SpecialtyType => {
-    // Priority 1: URL-based detection
+    console.log('detectSpecialty - checking path:', window.location.pathname, 'tenant:', currentTenant?.specialty);
+    
+    // Priority 1: For production tenants, use tenant specialty first
+    if (currentTenant?.specialty && window.location.hostname !== 'localhost') {
+      const tenantSpecialty = currentTenant.specialty;
+      if (tenantSpecialty === 'dental-sleep-medicine') return 'dental-sleep';
+      if (tenantSpecialty === 'chiropractic-care') return 'chiropractic';
+      if (tenantSpecialty === 'general-dentistry') return 'dental';
+      return tenantSpecialty as SpecialtyType;
+    }
+    
+    // Priority 2: URL-based detection (for development)
     const path = window.location.pathname;
     if (path.includes('/dental-sleep')) return 'dental-sleep';
     if (path.includes('/dental')) return 'dental';
@@ -22,14 +33,20 @@ export const useSpecialtyTheme = () => {
     if (path.includes('/hrt')) return 'hrt';
     if (path.includes('/chiropractic')) return 'chiropractic';
 
-    // Priority 2: localStorage
+    // Priority 3: localStorage
     const stored = localStorage.getItem('currentSpecialty') as SpecialtyType;
     if (stored && stored in getSpecialtyTheme) return stored;
 
-    // Priority 3: Tenant specialty
-    if (currentTenant?.specialty) return currentTenant.specialty as SpecialtyType;
+    // Priority 4: Tenant specialty (fallback)
+    if (currentTenant?.specialty) {
+      const tenantSpecialty = currentTenant.specialty;
+      if (tenantSpecialty === 'dental-sleep-medicine') return 'dental-sleep';
+      if (tenantSpecialty === 'chiropractic-care') return 'chiropractic';
+      if (tenantSpecialty === 'general-dentistry') return 'dental';
+      return tenantSpecialty as SpecialtyType;
+    }
 
-    // Priority 4: User profile specialty
+    // Priority 5: User profile specialty
     if (userProfile?.specialty) {
       return userProfile.specialty.toLowerCase().replace(/\s+/g, '-') as SpecialtyType;
     }
