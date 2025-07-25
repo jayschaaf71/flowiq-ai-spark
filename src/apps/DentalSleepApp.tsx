@@ -55,7 +55,9 @@ export default function DentalSleepApp() {
 
   const tenantRoute = parseTenantFromUrl();
   const isProduction = tenantRoute?.isProduction;
-  const pathPrefix = isProduction ? '' : '/dental-sleep';
+  // Support both dental-sleep-medicine and dental-sleep paths
+  const pathPrefix = isProduction ? '' : 
+    (window.location.pathname.includes('/dental-sleep-medicine') ? '/dental-sleep-medicine' : '/dental-sleep');
 
   return (
     <DentalSleepWrapper>

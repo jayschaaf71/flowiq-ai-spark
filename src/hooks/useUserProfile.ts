@@ -25,8 +25,9 @@ export const useUserProfile = () => {
       return data;
     },
     enabled: !!user?.id,
-    staleTime: 0, // Force fresh data every time
-    gcTime: 0, // Don't cache the data
-    refetchInterval: false, // Don't auto-refetch as it can cause issues
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes  
+    refetchInterval: false,
+    refetchOnWindowFocus: false,
   });
 };
