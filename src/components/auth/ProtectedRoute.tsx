@@ -20,41 +20,42 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
 
-  useEffect(() => {
-    // Only redirect after loading is complete and we have user data
-    if (!loading && user && profile) {
-      console.log('ProtectedRoute: User authenticated with role:', profile.role, 'at path:', location.pathname);
-      
-      // Role-based redirect logic
-      if (profile.role === 'patient') {
-        // Patients can only access patient areas
-        if (requiredRole === 'staff') {
-          console.log('Patient trying to access staff area, redirecting to patient dashboard');
-          navigate('/patient-dashboard', { replace: true });
-          return;
-        }
-        // If patient is on main dashboard, redirect to patient dashboard
-        if (location.pathname === '/dashboard') {
-          console.log('Patient on main dashboard, redirecting to patient dashboard');
-          navigate('/patient-dashboard', { replace: true });
-          return;
-        }
-      } else if (['staff', 'provider', 'practice_manager', 'practice_admin', 'platform_admin'].includes(profile.role)) {
-        // Staff can access staff areas
-        if (location.pathname === '/patient-dashboard') {
-          console.log('Staff trying to access patient dashboard, redirecting to staff dashboard');
-          navigate('/staff-dashboard', { replace: true });
-          return;
-        }
-        // If staff is on main dashboard without specific role requirement, redirect to staff dashboard
-        if (location.pathname === '/dashboard' && !requiredRole) {
-          console.log('Staff on main dashboard, redirecting to staff dashboard');
-          navigate('/staff-dashboard', { replace: true });
-          return;
-        }
-      }
-    }
-  }, [user, profile, loading, navigate, location.pathname, requiredRole]);
+  // Temporarily disable redirects to test for infinite loop
+  // useEffect(() => {
+  //   // Only redirect after loading is complete and we have user data
+  //   if (!loading && user && profile) {
+  //     console.log('ProtectedRoute: User authenticated with role:', profile.role, 'at path:', location.pathname);
+  //     
+  //     // Role-based redirect logic
+  //     if (profile.role === 'patient') {
+  //       // Patients can only access patient areas
+  //       if (requiredRole === 'staff') {
+  //         console.log('Patient trying to access staff area, redirecting to patient dashboard');
+  //         navigate('/patient-dashboard', { replace: true });
+  //         return;
+  //       }
+  //       // If patient is on main dashboard, redirect to patient dashboard
+  //       if (location.pathname === '/dashboard') {
+  //         console.log('Patient on main dashboard, redirecting to patient dashboard');
+  //         navigate('/patient-dashboard', { replace: true });
+  //         return;
+  //       }
+  //     } else if (['staff', 'provider', 'practice_manager', 'practice_admin', 'platform_admin'].includes(profile.role)) {
+  //       // Staff can access staff areas
+  //       if (location.pathname === '/patient-dashboard') {
+  //         console.log('Staff trying to access patient dashboard, redirecting to staff dashboard');
+  //         navigate('/staff-dashboard', { replace: true });
+  //         return;
+  //       }
+  //       // If staff is on main dashboard without specific role requirement, redirect to staff dashboard
+  //       if (location.pathname === '/dashboard' && !requiredRole) {
+  //         console.log('Staff on main dashboard, redirecting to staff dashboard');
+  //         navigate('/staff-dashboard', { replace: true });
+  //         return;
+  //       }
+  //     }
+  //   }
+  // }, [user, profile, loading, navigate, location.pathname, requiredRole]);
 
   // Show loading state while checking authentication
   if (loading) {
