@@ -4,6 +4,7 @@ import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/s
 import { AppSidebar } from "./AppSidebar";
 import { UserMenu } from "./auth/UserMenu";
 import { TenantSwitcher } from "./tenant/TenantSwitcher";
+import { FloatingAssistIQ } from "./FloatingAssistIQ";
 
 interface LayoutProps {
   children: ReactNode;
@@ -28,6 +29,9 @@ export const Layout = ({ children }: LayoutProps) => {
             {children}
           </main>
         </SidebarInset>
+        
+        {/* Floating Sage AI Assistant */}
+        <FloatingAssistIQ />
       </div>
     </SidebarProvider>
   );
