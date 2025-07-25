@@ -85,10 +85,10 @@ const App = () => {
                 {/* Health check route */}
                 <Route path="/health" element={<HealthCheck />} />
                 
-                {/* Specialty app routes for development */}
-                <Route path="/chiropractic/*" element={<ChiropracticApp />} />
-                <Route path="/dental-sleep/*" element={<DentalSleepApp />} />
-                <Route path="/dental/*" element={<DentalApp />} />
+                {/* Specialty app routes for development - only on non-production */}
+                <Route path="/chiropractic/*" element={<TenantRouter />} />
+                <Route path="/dental-sleep/*" element={<TenantRouter />} />
+                <Route path="/dental/*" element={<TenantRouter />} />
                 
                 {/* Production tenant routes - dynamic based on tenant specialty */}
                 <Route path="/dashboard" element={<TenantRouter />} />
