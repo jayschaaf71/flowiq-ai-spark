@@ -24,7 +24,12 @@ import {
 
 export const DentalSleepDashboard = () => {
   const navigate = useNavigate();
+  
+  console.log('DentalSleepDashboard: Component starting to render');
+  
   const { config } = useSpecialty();
+  
+  console.log('DentalSleepDashboard: config loaded:', config);
 
   // Sample data based on Dental Sleep Medicine requirements
   const sleepMedicineMetrics = {
