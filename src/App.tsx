@@ -73,7 +73,28 @@ const TenantRouter = () => {
     }
   }
   
-  // For development or non-tenant routes, show landing page
+  // For development routes, check the path and render appropriate app
+  const currentPath = window.location.pathname;
+  
+  if (currentPath.startsWith('/dental-sleep')) {
+    console.log('Development route: Rendering DentalSleepApp');
+    document.title = 'FlowIQ - Dental Sleep';
+    return <DentalSleepApp />;
+  }
+  
+  if (currentPath.startsWith('/chiropractic')) {
+    console.log('Development route: Rendering ChiropracticApp');
+    document.title = 'FlowIQ - Chiropractic';
+    return <ChiropracticApp />;
+  }
+  
+  if (currentPath.startsWith('/dental')) {
+    console.log('Development route: Rendering DentalApp');
+    document.title = 'FlowIQ - Dental';
+    return <DentalApp />;
+  }
+  
+  // For non-tenant routes, show landing page
   document.title = 'FlowIQ - AI Operating System';
   return <Index />;
 };
