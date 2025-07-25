@@ -88,8 +88,8 @@ export const AppSidebar = () => {
     <Sidebar className="border-r">
       <SidebarHeader className="border-b p-4">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 text-white flex-shrink-0">
-            <Sparkles className="h-5 w-5" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 text-white flex-shrink-0">
+            <Sparkles className="h-7 w-7" />
           </div>
           {state === "expanded" && (
             <div className="flex flex-col min-w-0 flex-1">

@@ -81,15 +81,15 @@ export const PlatformAdminSidebar = () => {
     <Sidebar className="border-r">
       <SidebarHeader className="border-b p-4">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-purple-600 to-blue-600 text-white flex-shrink-0">
-            <Sparkles className="h-4 w-4" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-purple-600 to-blue-600 text-white flex-shrink-0">
+            <Sparkles className="h-7 w-7" />
           </div>
           {state === "expanded" && (
             <div className="flex flex-col min-w-0 flex-1">
               <div className="flex items-center gap-1">
-                <span className="font-bold text-lg truncate">FlowIQ AI</span>
+                <span className="font-bold text-xl truncate">FlowIQ AI</span>
               </div>
-              <p className="text-xs text-muted-foreground leading-tight truncate">
+              <p className="text-sm text-muted-foreground leading-tight truncate">
                 Platform Administration
               </p>
             </div>

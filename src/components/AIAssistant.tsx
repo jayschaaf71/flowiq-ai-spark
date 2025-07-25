@@ -62,8 +62,8 @@ export const AIAssistant = ({ isOpen, onClose }: AIAssistantProps) => {
         <CardHeader className="border-b">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="h-8 w-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                <Sparkles className="h-4 w-4 text-white" />
+              <div className="h-10 w-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                <Sparkles className="h-6 w-6 text-white" />
               </div>
               <div>
                 <CardTitle className="text-lg">AI Assistant</CardTitle>
