@@ -73,6 +73,9 @@ export const TenantWrapper: React.FC<TenantWrapperProps> = ({ children }) => {
       case 'dental-sleep':
         return <DentalSleepWrapper>{children}</DentalSleepWrapper>;
       case 'chiropractic':
+      case 'med-spa':
+      case 'concierge':
+      case 'hrt':
       default:
         return <ChiropracticWrapper>{children}</ChiropracticWrapper>;
     }
