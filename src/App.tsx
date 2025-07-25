@@ -26,6 +26,21 @@ const TenantRouter = () => {
   
   // If we have a production tenant (subdomain), load the appropriate app
   if (tenantRoute?.isProduction) {
+    const currentPath = window.location.pathname;
+    
+    // For production tenants, redirect to remove the specialty prefix from URL
+    // e.g. /chiropractic/dashboard -> /dashboard
+    if (currentPath.startsWith('/chiropractic/')) {
+      const newPath = currentPath.replace('/chiropractic', '');
+      window.history.replaceState(null, '', newPath || '/');
+    } else if (currentPath.startsWith('/dental-sleep/')) {
+      const newPath = currentPath.replace('/dental-sleep', '');
+      window.history.replaceState(null, '', newPath || '/');
+    } else if (currentPath.startsWith('/dental/')) {
+      const newPath = currentPath.replace('/dental', '');
+      window.history.replaceState(null, '', newPath || '/');
+    }
+    
     switch (tenantRoute.specialty) {
       case 'dental-sleep-medicine':
         return <DentalSleepApp />;
