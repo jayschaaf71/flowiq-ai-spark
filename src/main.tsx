@@ -1,4 +1,5 @@
 
+alert('MAIN.TSX EXECUTING!');
 console.log('🚀 [DIAGNOSTIC] main.tsx - Starting application initialization');
 
 import { StrictMode } from "react";

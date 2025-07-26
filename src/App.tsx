@@ -1,4 +1,5 @@
 
+alert('APP.TSX EXECUTING!');
 console.log('🚀 [DIAGNOSTIC] App.tsx - Starting imports');
 
 import { Toaster } from "@/components/ui/toaster";
