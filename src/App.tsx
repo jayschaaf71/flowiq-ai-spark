@@ -34,11 +34,12 @@ const TenantRouter: React.FC = () => {
   const tenantRoute = parseTenantFromUrl();
   const currentPath = window.location.pathname;
   
-  console.log('🚦 TenantRouter - tenantRoute:', tenantRoute, 'currentPath:', currentPath);
+  console.log('🚦 [CRITICAL DEBUG] TenantRouter - tenantRoute:', JSON.stringify(tenantRoute, null, 2));
+  console.log('🚦 [CRITICAL DEBUG] TenantRouter - currentPath:', currentPath);
   
   // Phase 2: Clean app-level routing without conflicting redirects
   if (tenantRoute) {
-    console.log('🎯 Tenant detected:', tenantRoute.specialty, 'isProduction:', tenantRoute.isProduction);
+    console.log('🎯 [CRITICAL DEBUG] Tenant detected:', tenantRoute.specialty, 'isProduction:', tenantRoute.isProduction);
     
     // Set document title based on tenant
     const brandNames: Record<string, string> = {
@@ -51,7 +52,7 @@ const TenantRouter: React.FC = () => {
     // Render appropriate app based on specialty
     switch (tenantRoute.specialty) {
       case 'dental-sleep-medicine':
-        console.log('🦷 Rendering DentalSleepApp for path:', currentPath);
+        console.log('🦷 [CRITICAL DEBUG] MATCH! Rendering DentalSleepApp for specialty:', tenantRoute.specialty);
         console.log('🦷 [DEBUG] About to render DentalSleepApp component');
         return <DentalSleepApp />;
         
@@ -61,11 +62,12 @@ const TenantRouter: React.FC = () => {
         
       case 'general-dentistry':
       default:
-        console.log('🦷 Rendering DentalApp (default) for path:', currentPath);
+        console.log('🦷 [CRITICAL DEBUG] Using DentalApp fallback for specialty:', tenantRoute.specialty);
         return <DentalApp />;
     }
   }
   
+  console.log('🚨 [CRITICAL DEBUG] NO TENANT DETECTED - tenantRoute is:', tenantRoute);
   // No tenant detected - check if it's an app route or landing page route
   const isAppRoute = (path: string) => {
     const appPaths = ['/agents/', '/dashboard', '/schedule', '/calendar', '/analytics', '/ehr', '/patient-management', '/financial', '/patient-experience', '/ai-automation', '/team', '/checkin', '/insights', '/notifications', '/help', '/settings'];
