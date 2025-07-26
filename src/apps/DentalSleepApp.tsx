@@ -6,7 +6,7 @@ import { DentalSleepWrapper } from '@/components/wrappers/DentalSleepWrapper';
 import { parseTenantFromUrl } from '@/utils/tenantRouting';
 
 // Dental Sleep specific components
-import { DentalSleepDashboard } from '@/components/specialty/dashboards/DentalSleepDashboard';
+import { DentalSleepDashboard } from '@/components/dental-sleep/DentalSleepDashboard';
 import { DentalSleepTemplates } from '@/components/specialty/DentalSleepTemplates';
 import { DentalSleepEHR } from '@/components/ehr/specialty/DentalSleepEHR';
 import { DentalSleepPatientPortal } from '@/components/patient-experience/DentalSleepPatientPortal';
