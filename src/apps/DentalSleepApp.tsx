@@ -39,9 +39,11 @@ import OpsIQ from '@/pages/OpsIQ';
 import ApplicationTest from '@/pages/ApplicationTest';
 
 export default function DentalSleepApp() {
+  console.log('🦷 DentalSleepApp: Rendering DentalSleepApp component');
+  
   useEffect(() => {
     const tenantRoute = parseTenantFromUrl();
-    console.log('DentalSleepApp: tenantRoute detected:', tenantRoute);
+    console.log('🦷 DentalSleepApp: tenantRoute detected:', tenantRoute);
     
     if (tenantRoute?.isProduction) {
       const brandName = tenantRoute.subdomain === 'midwest-dental-sleep' ? 'Midwest Dental Sleep' : 'FlowIQ';
@@ -58,6 +60,13 @@ export default function DentalSleepApp() {
   // Support both dental-sleep-medicine and dental-sleep paths
   const pathPrefix = isProduction ? '' : 
     (window.location.pathname.includes('/dental-sleep-medicine') ? '/dental-sleep-medicine' : '/dental-sleep');
+  
+  console.log('🦷 DentalSleepApp: Route analysis:', {
+    currentPath: window.location.pathname,
+    pathPrefix,
+    isProduction,
+    tenantRoute
+  });
 
   return (
     <DentalSleepWrapper>
@@ -318,6 +327,9 @@ export default function DentalSleepApp() {
             </Layout>
           </ProtectedRoute>
         } />
+        
+        {/* Fallback redirect for unmatched routes */}
+        <Route path="*" element={<Navigate to={`${pathPrefix}/dashboard`} replace />} />
       </Routes>
     </DentalSleepWrapper>
   );
