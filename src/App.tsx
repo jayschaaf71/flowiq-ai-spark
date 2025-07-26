@@ -87,10 +87,10 @@ const TenantRouter: React.FC = () => {
 };
 
 const App = () => {
-  console.log('🚀 [DIAGNOSTIC] App - Component rendering');
+  console.log('🚀 [CRITICAL DEBUG] App - Component rendering START');
   
   try {
-    console.log('🚀 [DIAGNOSTIC] App - Starting JSX render');
+    console.log('🚀 [CRITICAL DEBUG] App - About to render JSX');
     return (
       <ErrorBoundary 
         onError={(error, errorInfo) => {
@@ -105,7 +105,10 @@ const App = () => {
               <AuthProvider>
                 <TenantRedirect />
                 <TenantWrapper>
-                  <Routes>
+                  {(() => {
+                    console.log('🚀 [CRITICAL DEBUG] App - About to render Routes');
+                    return (
+                      <Routes>
                 {/* Health check route */}
                 <Route path="/health" element={<HealthCheck />} />
                 
@@ -138,8 +141,15 @@ const App = () => {
                 <Route path="/components/dental-sleep/*" element={<Navigate to="/dental-sleep/dashboard" replace />} />
                 
                 {/* Main tenant routing for other routes */}
-                <Route path="/*" element={<TenantRouter />} />
-                  </Routes>
+                <Route path="/*" element={
+                  (() => {
+                    console.log('🚀 [CRITICAL DEBUG] App - Catch-all route triggered for path:', window.location.pathname);
+                    return <TenantRouter />;
+                  })()
+                } />
+                      </Routes>
+                    );
+                  })()}
                 </TenantWrapper>
               </AuthProvider>
             </BrowserRouter>
