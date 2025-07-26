@@ -131,6 +131,9 @@ const App = () => {
                 <Route path="/settings" element={<TenantRouter />} />
                 <Route path="/agents/*" element={<TenantRouter />} />
                 
+                {/* Redirect component paths to proper app routes */}
+                <Route path="/components/dental-sleep/*" element={<Navigate to="/dental-sleep/dashboard" replace />} />
+                
                 {/* Main tenant routing for other routes */}
                 <Route path="/*" element={<TenantRouter />} />
                   </Routes>
