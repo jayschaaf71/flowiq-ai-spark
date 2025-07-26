@@ -1,5 +1,4 @@
 
-alert('APP.TSX EXECUTING!');
 console.log('🚀 [DIAGNOSTIC] App.tsx - Starting imports');
 
 import { Toaster } from "@/components/ui/toaster";
@@ -17,8 +16,11 @@ import { TenantRedirect } from "@/components/TenantRedirect";
 import "@/utils/routeTestRunner"; // Enable route testing functions
 
 // Specialty Apps
+console.log('🚀 [DIAGNOSTIC] App.tsx - About to import ChiropracticApp');
 import ChiropracticApp from "@/apps/ChiropracticApp";
+console.log('🚀 [DIAGNOSTIC] App.tsx - About to import DentalSleepApp');
 import DentalSleepApp from "@/apps/DentalSleepApp";
+console.log('🚀 [DIAGNOSTIC] App.tsx - About to import DentalApp');
 import DentalApp from "@/apps/DentalApp";
 
 // Landing page for non-tenant routes
