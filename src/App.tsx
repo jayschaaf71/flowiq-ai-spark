@@ -22,7 +22,7 @@ import { Layout } from "@/components/Layout";
 
 // Specialty Apps
 import ChiropracticApp from "@/apps/ChiropracticApp";
-// import DentalSleepApp from "@/apps/DentalSleepApp";
+import { DentalSleepApp } from "@/components/dental-sleep/DentalSleepApp";
 import DentalApp from "@/apps/DentalApp";
 
 // Landing page for non-tenant routes
@@ -57,12 +57,8 @@ const TenantRouter: React.FC = () => {
     // Render appropriate app based on specialty
     switch (tenantRoute.specialty) {
       case 'dental-sleep-medicine':
-        console.log('🦷 Rendering DentalSleepDashboard with Layout for specialty:', tenantRoute.specialty);
-        return (
-          <Layout>
-            <DentalSleepDashboard />
-          </Layout>
-        );
+        console.log('🦷 Rendering DentalSleepApp for specialty:', tenantRoute.specialty);
+        return <DentalSleepApp />;
         
       case 'chiropractic-care':
         console.log('🦴 Rendering ChiropracticApp for path:', currentPath);
