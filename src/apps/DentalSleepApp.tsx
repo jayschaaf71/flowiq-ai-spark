@@ -39,6 +39,7 @@ import OpsIQ from '@/pages/OpsIQ';
 import ApplicationTest from '@/pages/ApplicationTest';
 
 export default function DentalSleepApp() {
+  console.log('🦷 [DEBUG] DentalSleepApp: Component function called - rendering starting');
   console.log('🦷 DentalSleepApp: Rendering DentalSleepApp component');
   
   useEffect(() => {
@@ -78,11 +79,16 @@ export default function DentalSleepApp() {
         
         {/* Main Dental Sleep Dashboard */}
         <Route path={`${pathPrefix}/dashboard`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <DentalSleepDashboard />
-            </Layout>
-          </ProtectedRoute>
+          (() => {
+            console.log('🦷 [DEBUG] Dashboard route matched! Rendering ProtectedRoute with path:', `${pathPrefix}/dashboard`);
+            return (
+              <ProtectedRoute requiredRole="staff">
+                <Layout>
+                  <DentalSleepDashboard />
+                </Layout>
+              </ProtectedRoute>
+            );
+          })()
         } />
         
         <Route path={`${pathPrefix}/calendar`} element={

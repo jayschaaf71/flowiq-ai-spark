@@ -52,6 +52,7 @@ const TenantRouter: React.FC = () => {
     switch (tenantRoute.specialty) {
       case 'dental-sleep-medicine':
         console.log('🦷 Rendering DentalSleepApp for path:', currentPath);
+        console.log('🦷 [DEBUG] About to render DentalSleepApp component');
         return <DentalSleepApp />;
         
       case 'chiropractic-care':
