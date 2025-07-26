@@ -1,38 +1,64 @@
 import React from 'react';
 import { useUserProfile } from '@/hooks/useUserProfile';
-import { parseTenantFromUrl, getSpecialtyRoute } from '@/utils/tenantRouting';
+import { detectSpecialty, getBrandName } from '@/utils/unifiedSpecialtyDetection';
+import { getSpecialtyRoute } from '@/utils/tenantRouting';
 
 export const TenantRedirect: React.FC = () => {
   const { data: userProfile, isLoading } = useUserProfile();
-  const tenantRoute = parseTenantFromUrl();
   const currentPath = window.location.pathname;
 
   React.useEffect(() => {
-    // Only redirect if:
-    // 1. User profile is loaded
-    // 2. No tenant route detected from URL
-    // 3. User is on root path
-    // 4. User has a current tenant
-    if (!isLoading && !tenantRoute && currentPath === '/' && userProfile?.current_tenant_id) {
-      console.log('🔄 [DIAGNOSTIC] TenantRedirect - Redirecting user to their tenant dashboard');
-      
-      // Map tenant ID to specialty route  
-      const tenantSpecialtyMap: Record<string, string> = {
-        'd52278c3-bf0d-4731-bfa9-a40f032fa305': 'dental-sleep-medicine', // Midwest Dental Sleep
-        '024e36c1-a1bc-44d0-8805-3162ba59a0c2': 'chiropractic-care'       // West County Spine
-      };
-      
-      const specialty = tenantSpecialtyMap[userProfile.current_tenant_id];
-      if (specialty) {
-        // Use direct path for dental-sleep-medicine instead of getSpecialtyRoute
-        const targetRoute = specialty === 'dental-sleep-medicine' 
-          ? '/dental-sleep-medicine/dashboard'
-          : getSpecialtyRoute(specialty, 'dashboard');
-        console.log('🚀 [DIAGNOSTIC] Redirecting to:', targetRoute);
-        window.location.href = targetRoute;
-      }
+    // Phase 5: Improved redirect logic with proper authentication handling
+    console.log('🔄 TenantRedirect - isLoading:', isLoading, 'currentPath:', currentPath, 'userProfile:', userProfile);
+    
+    // Wait for user profile to load
+    if (isLoading) {
+      console.log('⏳ TenantRedirect - Still loading user profile');
+      return;
     }
-  }, [isLoading, tenantRoute, currentPath, userProfile]);
+    
+    // Only redirect from root path to avoid infinite loops
+    if (currentPath !== '/') {
+      console.log('📍 TenantRedirect - Not on root path, skipping redirect');
+      return;
+    }
+    
+    // If user has a tenant, detect appropriate specialty and redirect
+    if (userProfile?.current_tenant_id) {
+      console.log('🔄 TenantRedirect - User has tenant, detecting specialty and redirecting');
+      
+      const detectionResult = detectSpecialty(userProfile);
+      console.log('🎯 TenantRedirect - Detection result:', detectionResult);
+      
+      // Build target route based on specialty
+      let targetRoute: string;
+      
+      if (detectionResult.specialty === 'dental-sleep') {
+        targetRoute = '/dental-sleep-medicine/dashboard';
+      } else {
+        targetRoute = getSpecialtyRoute(detectionResult.specialty === 'chiropractic' ? 'chiropractic-care' : detectionResult.specialty, 'dashboard');
+      }
+      
+      console.log('🚀 TenantRedirect - Redirecting to:', targetRoute);
+      
+      // Use replace to avoid back button issues
+      window.location.replace(targetRoute);
+    } else {
+      console.log('👤 TenantRedirect - No tenant found for user, staying on landing page');
+    }
+  }, [isLoading, currentPath, userProfile]);
 
-  return null; // This component doesn't render anything
+  // Show loading state while determining redirect
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return null; // This component doesn't render anything when not loading
 };

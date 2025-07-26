@@ -2,10 +2,10 @@
 import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useSpecialtyTheme } from '@/hooks/useSpecialtyTheme';
-import { parseTenantFromUrl } from '@/utils/tenantRouting';
+import { detectSpecialty, persistSpecialtyDetection } from '@/utils/unifiedSpecialtyDetection';
+import { useUserProfile } from '@/hooks/useUserProfile';
 import { SpecialtyType } from '@/utils/specialtyConfig';
 import { ChiropracticWrapper } from './ChiropracticWrapper';
-import { DentalWrapper } from './DentalWrapper';
 import { DentalSleepWrapper } from './DentalSleepWrapper';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
@@ -15,49 +15,21 @@ interface TenantWrapperProps {
 
 export const TenantWrapper: React.FC<TenantWrapperProps> = ({ children }) => {
   const location = useLocation();
-  const { switchTheme, specialty: dbSpecialty } = useSpecialtyTheme();
+  const { switchTheme } = useSpecialtyTheme();
+  const { data: userProfile } = useUserProfile();
   
-  // Phase 3: Simplified specialty detection using centralized tenant routing
+  // Phase 3: Use unified specialty detection system
   const detectCurrentSpecialty = (): SpecialtyType => {
-    const tenantRoute = parseTenantFromUrl();
+    console.log('🎨 TenantWrapper - detecting specialty for path:', location.pathname);
     
-    console.log('🎨 TenantWrapper - tenantRoute:', tenantRoute, 'path:', location.pathname);
+    const detectionResult = detectSpecialty(userProfile, location.pathname);
     
-    if (tenantRoute) {
-      // Map tenant specialty to wrapper specialty
-      const specialtyMap: Record<string, SpecialtyType> = {
-        'dental-sleep-medicine': 'dental-sleep',
-        'chiropractic-care': 'chiropractic',
-        'general-dentistry': 'dental-sleep' // Map to dental-sleep as default dental
-      };
-      
-      const mappedSpecialty = specialtyMap[tenantRoute.specialty] || 'chiropractic';
-      console.log('🎨 TenantWrapper - mapped specialty:', mappedSpecialty, 'from tenant specialty:', tenantRoute.specialty);
-      return mappedSpecialty;
-    }
+    console.log('🎨 TenantWrapper - unified detection result:', detectionResult);
     
-    // No tenant detected from URL - use database specialty if available
-    if (dbSpecialty) {
-      console.log('🎨 TenantWrapper - no tenant route, using database specialty:', dbSpecialty);
-      // Map database specialty to SpecialtyType - FIXED: Use dental-sleep for dental-sleep-medicine
-      const dbSpecialtyMap: Record<string, SpecialtyType> = {
-        'dental-sleep': 'dental-sleep',
-        'dental-sleep-medicine': 'dental-sleep', // This is the key fix!
-        'dental': 'dental-sleep',
-        'chiropractic': 'chiropractic',
-        'chiropractic-care': 'chiropractic',
-        'med-spa': 'chiropractic', // Fallback for now
-        'concierge': 'chiropractic', // Fallback for now  
-        'hrt': 'chiropractic' // Fallback for now
-      };
-      const mappedSpecialty = dbSpecialtyMap[dbSpecialty] || 'chiropractic';
-      console.log('🎨 TenantWrapper - mapped db specialty:', mappedSpecialty, 'from db specialty:', dbSpecialty);
-      return mappedSpecialty;
-    }
+    // Persist for consistency across components
+    persistSpecialtyDetection(detectionResult);
     
-    // Default to chiropractic
-    console.log('🎨 TenantWrapper - no tenant, defaulting to chiropractic');
-    return 'chiropractic';
+    return detectionResult.specialty;
   };
 
   const currentSpecialty = detectCurrentSpecialty();
@@ -68,19 +40,27 @@ export const TenantWrapper: React.FC<TenantWrapperProps> = ({ children }) => {
     switchTheme(currentSpecialty);
   }, [currentSpecialty, switchTheme, location.pathname]);
   
-  // Render appropriate wrapper based on specialty
+  // Phase 3: More permissive wrapper rendering with better error handling
   const renderSpecialtyWrapper = () => {
     console.log('🎨 TenantWrapper rendering wrapper for specialty:', currentSpecialty);
     
-    switch (currentSpecialty) {
-      case 'dental-sleep':
-        return <DentalSleepWrapper>{children}</DentalSleepWrapper>;
-      case 'chiropractic':
-      case 'med-spa':
-      case 'concierge':
-      case 'hrt':
-      default:
-        return <ChiropracticWrapper>{children}</ChiropracticWrapper>;
+    try {
+      switch (currentSpecialty) {
+        case 'dental-sleep':
+          return <DentalSleepWrapper>{children}</DentalSleepWrapper>;
+        case 'chiropractic':
+        case 'med-spa':
+        case 'concierge':
+        case 'hrt':
+        default:
+          // Fallback to chiropractic wrapper for any unrecognized specialties
+          console.log('🎨 Using ChiropracticWrapper as fallback for specialty:', currentSpecialty);
+          return <ChiropracticWrapper>{children}</ChiropracticWrapper>;
+      }
+    } catch (error) {
+      console.error('🚨 Error rendering specialty wrapper:', error);
+      // Ultimate fallback - render children directly with basic wrapper
+      return <ChiropracticWrapper>{children}</ChiropracticWrapper>;
     }
   };
   
