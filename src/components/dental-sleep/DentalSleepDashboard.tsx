@@ -6,7 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Moon, Users, Calendar, TrendingUp } from 'lucide-react';
 
 const DentalSleepDashboardContent: React.FC = () => {
-  const { specialty, theme, getBrandName } = useSpecialty();
+  console.log('🦷 DentalSleepDashboard rendering');
+  
+  // Fallback values in case context fails
+  const brandName = 'Dental Sleep iQ';
   
   const stats = [
     {
@@ -41,7 +44,7 @@ const DentalSleepDashboardContent: React.FC = () => {
         {/* Header */}
         <div className="flex flex-col gap-2">
           <h1 className="text-3xl font-bold text-foreground">
-            {getBrandName()} Dashboard
+            {brandName} Dashboard
           </h1>
           <p className="text-muted-foreground">
             Welcome to your dental sleep medicine practice management
