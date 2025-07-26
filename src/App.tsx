@@ -15,12 +15,12 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { TenantRedirect } from "@/components/TenantRedirect";
 import "@/utils/routeTestRunner"; // Enable route testing functions
 
+// Test component to bypass import issues
+import { SimpleTest } from "@/components/SimpleTest";
+
 // Specialty Apps
-console.log('🚀 [DIAGNOSTIC] App.tsx - About to import ChiropracticApp');
 import ChiropracticApp from "@/apps/ChiropracticApp";
-console.log('🚀 [DIAGNOSTIC] App.tsx - About to import DentalSleepApp');
-import DentalSleepApp from "@/apps/DentalSleepApp";
-console.log('🚀 [DIAGNOSTIC] App.tsx - About to import DentalApp');
+// import DentalSleepApp from "@/apps/DentalSleepApp";
 import DentalApp from "@/apps/DentalApp";
 
 // Landing page for non-tenant routes
@@ -55,9 +55,8 @@ const TenantRouter: React.FC = () => {
     // Render appropriate app based on specialty
     switch (tenantRoute.specialty) {
       case 'dental-sleep-medicine':
-        console.log('🦷 [CRITICAL DEBUG] MATCH! Rendering DentalSleepApp for specialty:', tenantRoute.specialty);
-        console.log('🦷 [DEBUG] About to render DentalSleepApp component');
-        return <DentalSleepApp />;
+        console.log('🦷 Rendering SimpleTest for specialty:', tenantRoute.specialty);
+        return <SimpleTest />;
         
       case 'chiropractic-care':
         console.log('🦴 Rendering ChiropracticApp for path:', currentPath);
