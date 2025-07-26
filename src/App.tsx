@@ -17,6 +17,7 @@ import "@/utils/routeTestRunner"; // Enable route testing functions
 
 // Test component to bypass import issues
 import { SimpleTest } from "@/components/SimpleTest";
+import { DentalSleepDashboard } from "@/components/dental-sleep/DentalSleepDashboard";
 
 // Specialty Apps
 import ChiropracticApp from "@/apps/ChiropracticApp";
@@ -55,8 +56,8 @@ const TenantRouter: React.FC = () => {
     // Render appropriate app based on specialty
     switch (tenantRoute.specialty) {
       case 'dental-sleep-medicine':
-        console.log('🦷 Rendering SimpleTest for specialty:', tenantRoute.specialty);
-        return <SimpleTest />;
+        console.log('🦷 Rendering DentalSleepDashboard for specialty:', tenantRoute.specialty);
+        return <DentalSleepDashboard />;
         
       case 'chiropractic-care':
         console.log('🦴 Rendering ChiropracticApp for path:', currentPath);
