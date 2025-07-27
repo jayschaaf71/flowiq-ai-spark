@@ -49,7 +49,7 @@ export function detectSpecialty(
 
   // Priority 2: URL path detection (HIGH)
   const urlSpecialty = detectSpecialtyFromPath(path);
-  if (urlSpecialty !== 'chiropractic') { // Only if it's not the default
+  if (urlSpecialty) { // If we detect any specialty from URL, use it
     console.log('✅ Specialty from URL path:', urlSpecialty, 'source: url_path');
     return {
       specialty: urlSpecialty,
