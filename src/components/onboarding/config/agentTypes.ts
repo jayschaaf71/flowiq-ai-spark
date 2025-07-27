@@ -1,17 +1,17 @@
 
 import { 
   CreditCard,
-  Receipt,
   MessageSquare,
   Stethoscope,
   Package,
   Shield,
   GraduationCap,
-  UserPlus,
   TrendingUp,
   Settings,
   FileText,
-  BarChart3
+  BarChart3,
+  Database,
+  DollarSign
 } from 'lucide-react';
 
 export interface AgentType {
@@ -37,46 +37,6 @@ export const agentTypes: AgentType[] = [
     category: 'Essential'
   },
   {
-    id: 'assist-iq',
-    name: 'Assist iQ',
-    description: 'AI-powered staff assistant for questions and workflow guidance',
-    icon: MessageSquare,
-    color: 'cyan',
-    features: ['Instant staff support', 'Workflow optimization tips', 'Best practice recommendations', '24/7 availability'],
-    recommended: false,
-    category: 'Support'
-  },
-  {
-    id: 'billing-iq',
-    name: 'Billing iQ',
-    description: 'Insurance verification, invoicing, and payment processing',
-    icon: CreditCard,
-    color: 'purple',
-    features: ['Real-time insurance verification', 'Automated invoicing', 'Payment plan management', 'Revenue tracking'],
-    recommended: false,
-    category: 'Financial'
-  },
-  {
-    id: 'claims-iq',
-    name: 'Claims iQ',
-    description: 'Insurance claims submission, tracking, and denial management',
-    icon: Receipt,
-    color: 'indigo',
-    features: ['Faster claim processing', 'Denial tracking & resubmission', 'Revenue optimization', 'Compliance monitoring'],
-    recommended: false,
-    category: 'Financial'
-  },
-  {
-    id: 'payments-iq',
-    name: 'Payments iQ',
-    description: 'Payment collection, processing, and automated billing workflows',
-    icon: TrendingUp,
-    color: 'emerald',
-    features: ['Automated payment collection', 'Payment plan management', 'Revenue optimization', 'Financial reporting'],
-    recommended: false,
-    category: 'Financial'
-  },
-  {
     id: 'scribe-iq',
     name: 'Scribe iQ',
     description: 'AI medical scribe for appointment notes and documentation',
@@ -89,12 +49,32 @@ export const agentTypes: AgentType[] = [
   {
     id: 'ehr-iq',
     name: 'EHR iQ',
-    description: 'Electronic health records integration and management',
-    icon: FileText,
-    color: 'slate',
-    features: ['EHR integration', 'Patient data synchronization', 'Clinical workflow automation', 'Record management'],
+    description: 'Seamless integration bridge with existing EHR and practice management systems',
+    icon: Database,
+    color: 'cyan',
+    features: ['EHR Integration', 'Data Sync', 'Appointment Bridge', 'Clinical Documentation Hub'],
     recommended: false,
     category: 'Clinical'
+  },
+  {
+    id: 'revenue-iq',
+    name: 'Revenue iQ',
+    description: 'Comprehensive payment processing, billing, and revenue management',
+    icon: DollarSign,
+    color: 'emerald',
+    features: ['Payment Processing', 'Automated Billing', 'Revenue Analytics', 'Invoice Management'],
+    recommended: false,
+    category: 'Financial'
+  },
+  {
+    id: 'insurance-iq',
+    name: 'Insurance iQ',
+    description: 'Complete insurance verification, claims processing, and authorization management',
+    icon: Shield,
+    color: 'indigo',
+    features: ['Claims Processing', 'Prior Authorization', 'Eligibility Verification', 'Denial Management'],
+    recommended: false,
+    category: 'Financial'
   },
   {
     id: 'inventory-iq',
@@ -103,6 +83,16 @@ export const agentTypes: AgentType[] = [
     icon: Package,
     color: 'amber',
     features: ['Automated reordering', 'Vendor management', 'Cost optimization', 'Stock tracking'],
+    recommended: false,
+    category: 'Operations'
+  },
+  {
+    id: 'ops-iq',
+    name: 'Ops iQ',
+    description: 'Operational workflow automation and system monitoring',
+    icon: Settings,
+    color: 'neutral',
+    features: ['Workflow automation', 'System monitoring', 'Process optimization', 'Performance tracking'],
     recommended: false,
     category: 'Operations'
   },
@@ -117,26 +107,6 @@ export const agentTypes: AgentType[] = [
     category: 'Analytics'
   },
   {
-    id: 'ops-iq',
-    name: 'Ops iQ',
-    description: 'Operational workflow automation and system monitoring',
-    icon: Settings,
-    color: 'neutral',
-    features: ['Workflow automation', 'System monitoring', 'Process optimization', 'Performance tracking'],
-    recommended: false,
-    category: 'Operations'
-  },
-  {
-    id: 'auth-iq',
-    name: 'Auth iQ',
-    description: 'Insurance authorization and prior approval management',
-    icon: Shield,
-    color: 'rose',
-    features: ['Prior authorization tracking', 'Insurance verification', 'Approval workflows', 'Compliance monitoring'],
-    recommended: false,
-    category: 'Financial'
-  },
-  {
     id: 'education-iq',
     name: 'Education iQ',
     description: 'Patient education and engagement automation',
@@ -147,22 +117,12 @@ export const agentTypes: AgentType[] = [
     category: 'Patient Experience'
   },
   {
-    id: 'go-to-market-iq',
-    name: 'Go-To-Market iQ',
-    description: 'Comprehensive marketing and sales automation for practice growth',
+    id: 'growth-iq',
+    name: 'Growth iQ',
+    description: 'Comprehensive marketing, patient acquisition, and practice growth platform',
     icon: TrendingUp,
     color: 'pink',
-    features: ['Lead generation', 'Sales automation', 'Campaign management', 'Social media', 'Review management', 'Patient acquisition'],
-    recommended: false,
-    category: 'Growth'
-  },
-  {
-    id: 'referral-iq',
-    name: 'Referral iQ',
-    description: 'Referral management and physician relationship automation',
-    icon: UserPlus,
-    color: 'teal',
-    features: ['Referral tracking', 'Physician outreach', 'Relationship management', 'Communication automation'],
+    features: ['Lead generation', 'Marketing campaigns', 'Referral tracking', 'Growth analytics'],
     recommended: false,
     category: 'Growth'
   }
