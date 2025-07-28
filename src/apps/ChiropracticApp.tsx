@@ -25,16 +25,14 @@ import { AIAutomationHub } from '@/pages/AIAutomationHub';
 // AI Agents
 import CommunicationIQ from '@/pages/agents/CommunicationIQ';
 import ScribeIQ from '@/pages/agents/ScribeIQ';
-import ClaimsIQ from '@/pages/agents/ClaimsIQ';
-import PaymentsIQ from '@/pages/agents/PaymentsIQ';
+import EHRIQ from '@/pages/agents/EHRIQ';
+import RevenueIQ from '@/pages/agents/RevenueIQ';
+import InsuranceIQ from '@/pages/agents/InsuranceIQ';
 import InventoryIQ from '@/pages/agents/InventoryIQ';
 import InsightIQ from '@/pages/agents/InsightIQ';
 import OpsIQ from '@/pages/agents/OpsIQ';
-import AuthIQ from '@/pages/agents/AuthIQ';
 import EducationIQ from '@/pages/agents/EducationIQ';
-import MarketingIQ from '@/pages/agents/MarketingIQ';
-import GoToMarketIQ from '@/pages/agents/GoToMarketIQ';
-import ReferralIQ from '@/pages/agents/ReferralIQ';
+import GrowthIQ from '@/pages/agents/GrowthIQ';
 import ApplicationTest from '@/pages/ApplicationTest';
 
 export default function ChiropracticApp() {
@@ -231,14 +229,6 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
         
-        <Route path={`${pathPrefix}/agents/go-to-market`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <GoToMarketIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
         <Route path={`${pathPrefix}/agents/scribe`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
@@ -247,18 +237,26 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
         
-        <Route path={`${pathPrefix}/agents/claims`} element={
+        <Route path={`${pathPrefix}/agents/ehr`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
-              <ClaimsIQ />
+              <EHRIQ />
             </Layout>
           </ProtectedRoute>
         } />
         
-        <Route path={`${pathPrefix}/agents/payments`} element={
+        <Route path={`${pathPrefix}/agents/revenue`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
-              <PaymentsIQ />
+              <RevenueIQ />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path={`${pathPrefix}/agents/insurance`} element={
+          <ProtectedRoute requiredRole="staff">
+            <Layout>
+              <InsuranceIQ />
             </Layout>
           </ProtectedRoute>
         } />
@@ -287,26 +285,10 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
         
-        <Route path={`${pathPrefix}/agents/marketing`} element={
+        <Route path={`${pathPrefix}/agents/growth`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
-              <MarketingIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path={`${pathPrefix}/agents/referral`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <ReferralIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path={`${pathPrefix}/agents/auth`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <AuthIQ />
+              <GrowthIQ />
             </Layout>
           </ProtectedRoute>
         } />
@@ -475,14 +457,6 @@ export default function ChiropracticApp() {
               </ProtectedRoute>
             } />
             
-            <Route path="/agents/go-to-market" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <GoToMarketIQ />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            
             <Route path="/agents/scribe" element={
               <ProtectedRoute requiredRole="staff">
                 <Layout>
@@ -491,18 +465,26 @@ export default function ChiropracticApp() {
               </ProtectedRoute>
             } />
             
-            <Route path="/agents/claims" element={
+            <Route path="/agents/ehr" element={
               <ProtectedRoute requiredRole="staff">
                 <Layout>
-                  <ClaimsIQ />
+                  <EHRIQ />
                 </Layout>
               </ProtectedRoute>
             } />
             
-            <Route path="/agents/payments" element={
+            <Route path="/agents/revenue" element={
               <ProtectedRoute requiredRole="staff">
                 <Layout>
-                  <PaymentsIQ />
+                  <RevenueIQ />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/agents/insurance" element={
+              <ProtectedRoute requiredRole="staff">
+                <Layout>
+                  <InsuranceIQ />
                 </Layout>
               </ProtectedRoute>
             } />
@@ -531,26 +513,10 @@ export default function ChiropracticApp() {
               </ProtectedRoute>
             } />
             
-            <Route path="/agents/marketing" element={
+            <Route path="/agents/growth" element={
               <ProtectedRoute requiredRole="staff">
                 <Layout>
-                  <MarketingIQ />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/agents/referral" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <ReferralIQ />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/agents/auth" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <AuthIQ />
+                  <GrowthIQ />
                 </Layout>
               </ProtectedRoute>
             } />
