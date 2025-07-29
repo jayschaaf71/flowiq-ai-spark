@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# FlowIQ Admin Users Setup Script
+# This script creates admin users for both pilot practices
+
+echo "🔐 Setting up FlowIQ Admin Users for Pilot Practices..."
+echo ""
+
+# Execute the SQL script
+echo "📝 Creating admin users in database..."
+psql "postgresql://postgres.jnpzabmqieceoqjypvve:your-password@aws-0-us-east-1.pooler.supabase.com:6543/postgres" -f scripts/create-admin-users.sql
+
+echo ""
+echo "✅ Admin users created successfully!"
+echo ""
+echo "🔑 ADMIN CREDENTIALS FOR PILOT TESTING"
+echo "======================================"
+echo ""
+echo "🏥 MIDWEST DENTAL SLEEP MEDICINE INSTITUTE"
+echo "   URL: https://flowiq-ai-spark-9rvvyhvto-flow-iq.vercel.app/dental-sleep/dashboard"
+echo "   Email: admin@midwestdental.com"
+echo "   Password: MidwestAdmin2024!"
+echo "   Role: Practice Admin"
+echo ""
+echo "🦴 WEST COUNTY SPINE AND JOINT"
+echo "   URL: https://flowiq-ai-spark-9rvvyhvto-flow-iq.vercel.app/chiropractic/dashboard"
+echo "   Email: admin@westcountyspine.com"
+echo "   Password: WestCountyAdmin2024!"
+echo "   Role: Practice Admin"
+echo ""
+echo "🧪 TEST DATA CREATED"
+echo "==================="
+echo ""
+echo "📋 Midwest Dental Sleep:"
+echo "   - 2 Providers (Dr. Sarah Johnson, Dr. Michael Chen)"
+echo "   - 2 Patients (John Smith, Sarah Wilson)"
+echo "   - 2 Appointments (Sleep Consultation, Oral Appliance Fitting)"
+echo ""
+echo "📋 West County Spine:"
+echo "   - 2 Providers (Dr. Jennifer Martinez, Dr. Robert Thompson)"
+echo "   - 2 Patients (Mike Johnson, Lisa Brown)"
+echo "   - 2 Appointments (Chiropractic Adjustment, Initial Consultation)"
+echo ""
+echo "🚀 READY FOR PILOT TESTING!"
+echo "=========================="
+echo ""
+echo "Next steps:"
+echo "1. Visit the URLs above"
+echo "2. Login with the admin credentials"
+echo "3. Test all features and functionality"
+echo "4. Report any issues found"
+echo ""
+echo "📞 Support: pilot-support@flow-iq.ai" 
