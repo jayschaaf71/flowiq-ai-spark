@@ -19,7 +19,14 @@ import {
   HelpCircle,
   Moon,
   Phone,
-  Clock
+  Clock,
+  LayoutDashboard,
+  MessageSquare,
+  Shield,
+  FileText,
+  BarChart3,
+  Target,
+  User
 } from "lucide-react";
 import { NavItem, NavGroup } from "@/services/sidebarService";
 
@@ -34,40 +41,51 @@ export const navGroups: NavGroup[] = [
 
 // Base navigation items
 const baseNavItems: NavItem[] = [
-  // Overview
-  { id: "dashboard", label: "Dashboard", path: "/dashboard", icon: Home, group: "overview", order: 10 },
-  { id: "calendar", label: "Calendar", path: "/calendar", icon: Calendar, group: "overview", order: 15 },
-  { id: "patients", label: "Patients", path: "/patient-management", icon: Users, group: "overview", order: 20 },
-  { id: "analytics", label: "Analytics", path: "/analytics", icon: TrendingUp, group: "overview", order: 25 },
-  { id: "ehr", label: "EHR", path: "/ehr", icon: Database, group: "overview", order: 30 },
-  { id: "insights", label: "Insights", path: "/insights", icon: TrendingUp, group: "overview", order: 40 },
-  { id: "notifications", label: "Notifications", path: "/notifications", icon: Bell, group: "overview", order: 50 },
-
-  // Clinical Care
-  { id: "clinical", label: "Clinical Tools", path: "/clinical", icon: Stethoscope, group: "clinical_care", order: 5, requiredRole: "staff" },
-  { id: "scribe-iq", label: "Scribe iQ", path: "/agents/scribe", icon: Stethoscope, badge: "AI", group: "clinical_care", order: 10 },
-  { id: "communication-iq", label: "Communication iQ", path: "/agents/communication", icon: Phone, badge: "AI", group: "clinical_care", order: 20 },
-
-  // Patient Journey
-  { id: "education-iq", label: "Education iQ", path: "/agents/education", icon: GraduationCap, badge: "AI", group: "patient_journey", order: 20 },
-  { id: "go-to-market-iq", label: "Go-To-Market iQ", path: "/agents/go-to-market", icon: Rocket, badge: "AI", group: "patient_journey", order: 30 },
-  { id: "referral-iq", label: "Referral iQ", path: "/agents/referral", icon: Handshake, badge: "AI", group: "patient_journey", order: 50 },
-
-  // Revenue Cycle
-  { id: "billing", label: "Billing & Revenue", path: "/billing", icon: CreditCard, group: "revenue_cycle", order: 5, requiredRole: "staff" },
-  { id: "auth-iq", label: "Auth iQ", path: "/agents/auth", icon: CheckSquare, badge: "AI", group: "revenue_cycle", order: 10 },
-  { id: "claims-iq", label: "Claims iQ", path: "/agents/claims", icon: Receipt, badge: "AI", group: "revenue_cycle", order: 20 },
-  { id: "payments-iq", label: "Payments iQ", path: "/agents/payments", icon: CreditCard, badge: "AI", group: "revenue_cycle", order: 30 },
-
+  // Dashboard
+  { id: "dashboard", label: "Dashboard", path: "/dashboard", icon: LayoutDashboard, group: "main", order: 1 },
+  
+  // Patient Management
+  { id: "patients", label: "Patients", path: "/patients", icon: Users, group: "patients", order: 10 },
+  { id: "appointments", label: "Appointments", path: "/appointments", icon: Calendar, group: "patients", order: 20 },
+  { id: "intake", label: "Intake", path: "/intake", icon: ClipboardList, group: "patients", order: 30 },
+  
+  // Communication (CONSOLIDATED)
+  { id: "communication-iq", label: "Communication iQ", path: "/agents/communication", icon: MessageSquare, badge: "AI", group: "communication", order: 10 },
+  
+  // Revenue Cycle (CONSOLIDATED)
+  { id: "revenue-iq", label: "Revenue iQ", path: "/agents/revenue", icon: TrendingUp, badge: "AI", group: "revenue_cycle", order: 10 },
+  { id: "insurance-iq", label: "Insurance iQ", path: "/agents/insurance", icon: Shield, badge: "AI", group: "revenue_cycle", order: 20 },
+  
+  // Clinical
+  { id: "scribe-iq", label: "Scribe iQ", path: "/agents/scribe", icon: Stethoscope, badge: "AI", group: "clinical", order: 10 },
+  { id: "ehr-iq", label: "EHR iQ", path: "/agents/ehr", icon: FileText, badge: "AI", group: "clinical", order: 20 },
+  
   // Operations
   { id: "inventory-iq", label: "Inventory iQ", path: "/agents/inventory", icon: Package, badge: "AI", group: "operations", order: 10 },
-  { id: "ops-iq", label: "Ops iQ", path: "/ops", icon: UserPlus, badge: "AI", group: "operations", order: 20 },
-  { id: "provider-schedules", label: "Provider Schedules", path: "/provider-schedules", icon: Clock, group: "operations", order: 30 },
-
+  { id: "ops-iq", label: "Ops iQ", path: "/agents/ops", icon: Settings, badge: "AI", group: "operations", order: 20 },
+  
+  // Analytics
+  { id: "insight-iq", label: "Insight iQ", path: "/agents/insight", icon: BarChart3, badge: "AI", group: "analytics", order: 10 },
+  
+  // Support
+  { id: "assist-iq", label: "Assist iQ", path: "/agents/assist", icon: MessageSquare, badge: "AI", group: "support", order: 10 },
+  
+  // Education & Marketing
+  { id: "education-iq", label: "Education iQ", path: "/agents/education", icon: GraduationCap, badge: "AI", group: "education", order: 10 },
+  { id: "go-to-market-iq", label: "Go-To-Market iQ", path: "/agents/go-to-market", icon: Target, badge: "AI", group: "marketing", order: 10 },
+  
   // Settings
   { id: "settings", label: "Settings", path: "/settings", icon: Settings, group: "settings", order: 10 },
-  { id: "help", label: "Sage AI", path: "/help", icon: HelpCircle, group: "settings", order: 20 }
+  { id: "profile", label: "Profile", path: "/profile", icon: User, group: "settings", order: 20 }
 ];
+
+// Remove deprecated items
+// { id: "voice-iq", label: "Voice iQ", path: "/agents/voice", icon: Phone, badge: "AI", group: "communication", order: 20 },
+// { id: "billing-iq", label: "Billing iQ", path: "/agents/billing", icon: CreditCard, badge: "AI", group: "revenue_cycle", order: 10 },
+// { id: "claims-iq", label: "Claims iQ", path: "/agents/claims", icon: Receipt, badge: "AI", group: "revenue_cycle", order: 20 },
+// { id: "payments-iq", label: "Payments iQ", path: "/agents/payments", icon: CreditCard, badge: "AI", group: "revenue_cycle", order: 30 },
+// { id: "auth-iq", label: "Auth iQ", path: "/agents/auth", icon: CheckSquare, badge: "AI", group: "revenue_cycle", order: 10 },
+// { id: "compliance-iq", label: "Compliance iQ", path: "/agents/compliance", icon: Shield, badge: "AI", group: "compliance", order: 10 },
 
 // Dental-specific items (only show in dental contexts)
 const dentalNavItems: NavItem[] = [];
@@ -101,27 +119,23 @@ export const getNavItems = (specialty: string = 'chiropractic'): NavItem[] => {
     }
     
     if (item.id === 'patients') {
-      return { ...item, path: `${specialtyPrefix}/patient-management` };
+      return { ...item, path: `${specialtyPrefix}/patients` };
     }
     
-    if (item.id === 'ehr') {
-      return { ...item, path: `${specialtyPrefix}/ehr` };
+    if (item.id === 'appointments') {
+      return { ...item, path: `${specialtyPrefix}/appointments` };
     }
     
-    if (item.id === 'insights') {
-      return { ...item, path: `${specialtyPrefix}/insights` };
+    if (item.id === 'intake') {
+      return { ...item, path: `${specialtyPrefix}/intake` };
     }
     
-    if (item.id === 'calendar') {
-      return { ...item, path: `${specialtyPrefix}/calendar` };
+    if (item.id === 'settings') {
+      return { ...item, path: `${specialtyPrefix}/settings` };
     }
     
-    if (item.id === 'notifications') {
-      return { ...item, path: `${specialtyPrefix}/notifications` };
-    }
-    
-    if (item.id === 'provider-schedules') {
-      return { ...item, path: `${specialtyPrefix}/provider-schedules` };
+    if (item.id === 'profile') {
+      return { ...item, path: `${specialtyPrefix}/profile` };
     }
     
     // Handle agent routes - prefix them with specialty
@@ -130,20 +144,24 @@ export const getNavItems = (specialty: string = 'chiropractic'): NavItem[] => {
     }
     
     // Handle other specialty-specific routes
-    if (item.id === 'sales-iq') {
-      return { ...item, path: `${specialtyPrefix}/sales-iq` };
+    if (item.id === 'go-to-market-iq') {
+      return { ...item, path: `${specialtyPrefix}/go-to-market` };
     }
     
     if (item.id === 'ops-iq') {
       return { ...item, path: `${specialtyPrefix}/ops` };
     }
     
-    if (item.id === 'settings') {
-      return { ...item, path: `${specialtyPrefix}/settings` };
+    if (item.id === 'insight-iq') {
+      return { ...item, path: `${specialtyPrefix}/insight` };
     }
     
-    if (item.id === 'help') {
-      return { ...item, path: `${specialtyPrefix}/help` };
+    if (item.id === 'assist-iq') {
+      return { ...item, path: `${specialtyPrefix}/assist` };
+    }
+    
+    if (item.id === 'education-iq') {
+      return { ...item, path: `${specialtyPrefix}/education` };
     }
     
     return item;

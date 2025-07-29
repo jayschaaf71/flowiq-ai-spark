@@ -23,7 +23,8 @@ export function parseTenantFromUrl(): TenantRoute | null {
   // Clear production domain detection
   const isProductionDomain = (
     hostname.includes('flow-iq.ai') || 
-    hostname.includes('flowiq.com')
+    hostname.includes('flowiq.com') ||
+    hostname.includes('vercel.app')
   ) && !hostname.includes('lovableproject.com') && !hostname.includes('lovable.app');
   
   console.log('🏭 Production domain check:', isProductionDomain);
@@ -55,7 +56,7 @@ export function parseTenantFromUrl(): TenantRoute | null {
     }
   }
   
-  // Development path-based routing - clean detection
+  // Development and Production path-based routing - clean detection
   const pathTenantMap: Record<string, Omit<TenantRoute, 'isProduction'>> = {
     '/dental-sleep': {
       tenantId: 'd52278c3-bf0d-4731-bfa9-a40f032fa305',
@@ -81,10 +82,10 @@ export function parseTenantFromUrl(): TenantRoute | null {
   
   for (const [pathPrefix, tenantConfig] of Object.entries(pathTenantMap)) {
     if (pathname.startsWith(pathPrefix)) {
-      console.log('✅ Development tenant found for path:', pathPrefix, tenantConfig);
+      console.log('✅ Path-based tenant found for path:', pathPrefix, tenantConfig);
       return {
         ...tenantConfig,
-        isProduction: false
+        isProduction: isProductionDomain
       };
     }
   }
@@ -128,7 +129,9 @@ export function redirectToTenantDashboard(tenantRoute: TenantRoute) {
  * Get the tenant URL for a given subdomain
  */
 export function getTenantUrl(subdomain: string, path: string = ''): string {
-  const isProduction = window.location.hostname.includes('flowiq.com') || window.location.hostname.includes('flow-iq.ai');
+  const isProduction = window.location.hostname.includes('flowiq.com') || 
+                      window.location.hostname.includes('flow-iq.ai') ||
+                      window.location.hostname.includes('vercel.app');
   
   if (isProduction) {
     const domain = window.location.hostname.includes('flowiq.com') ? 'flowiq.com' : 'flow-iq.ai';

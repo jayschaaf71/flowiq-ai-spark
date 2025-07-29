@@ -21,7 +21,10 @@ import {
   ClipboardList,
   FileText,
   Bot,
-  Mic
+  Mic,
+  Volume2,
+  Headphones,
+  MessageCircle
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -51,6 +54,7 @@ export const CommunicationIQ = () => {
   const navigate = useNavigate();
   const [selectedTab, setSelectedTab] = useState('dashboard');
   const [refreshKey, setRefreshKey] = useState(0);
+  const [activeTab, setActiveTab] = useState("dashboard");
   
   // Clear any persisting errors on mount
   React.useEffect(() => {
@@ -79,6 +83,241 @@ export const CommunicationIQ = () => {
     availableSlots: 12,
     aiAccuracy: 94
   };
+
+  // Voice AI Components
+  const VoiceAIDashboard = () => (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Volume2 className="h-5 w-5" />
+              Voice Calls Today
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-blue-600">15</div>
+            <p className="text-sm text-gray-500">+12% from yesterday</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Headphones className="h-5 w-5" />
+              AI Voice Assistant
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-green-600">94%</div>
+            <p className="text-sm text-gray-500">Accuracy rate</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MessageCircle className="h-5 w-5" />
+              Call Duration
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-purple-600">2.3 min</div>
+            <p className="text-sm text-gray-500">Average call time</p>
+          </CardContent>
+        </Card>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Voice Call Analytics</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex justify-between">
+                <span>Inbound Calls</span>
+                <span className="font-medium">12</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Outbound Calls</span>
+                <span className="font-medium">3</span>
+              </div>
+              <div className="flex justify-between">
+                <span>AI Handled</span>
+                <span className="font-medium">8</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Human Transfer</span>
+                <span className="font-medium">7</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Voice Features</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 border rounded">
+                <div>
+                  <h4 className="font-medium">AI Voice Assistant</h4>
+                  <p className="text-sm text-gray-500">Automated call handling</p>
+                </div>
+                <Badge className="bg-green-100 text-green-700">Active</Badge>
+              </div>
+              <div className="flex items-center justify-between p-3 border rounded">
+                <div>
+                  <h4 className="font-medium">Call Transcription</h4>
+                  <p className="text-sm text-gray-500">Real-time voice-to-text</p>
+                </div>
+                <Badge className="bg-green-100 text-green-700">Active</Badge>
+              </div>
+              <div className="flex items-center justify-between p-3 border rounded">
+                <div>
+                  <h4 className="font-medium">Voice Scheduling</h4>
+                  <p className="text-sm text-gray-500">Book appointments via voice</p>
+                </div>
+                <Badge className="bg-yellow-100 text-yellow-700">Setup Required</Badge>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+
+  const MultiChannelMessaging = () => (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Mail className="h-5 w-5" />
+              Emails Sent
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-blue-600">43</div>
+            <p className="text-sm text-gray-500">Today</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MessageSquare className="h-5 w-5" />
+              SMS Messages
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-green-600">67</div>
+            <p className="text-sm text-gray-500">Today</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MessageCircle className="h-5 w-5" />
+              Chat Messages
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-purple-600">23</div>
+            <p className="text-sm text-gray-500">Today</p>
+          </CardContent>
+        </Card>
+      </div>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Multi-Channel Communication</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-4 border rounded">
+              <div>
+                <h4 className="font-medium">Email Integration</h4>
+                <p className="text-sm text-gray-500">Resend/SendGrid integration</p>
+              </div>
+              <Badge className="bg-green-100 text-green-700">Active</Badge>
+            </div>
+            <div className="flex items-center justify-between p-4 border rounded">
+              <div>
+                <h4 className="font-medium">SMS Integration</h4>
+                <p className="text-sm text-gray-500">Twilio SMS service</p>
+              </div>
+              <Badge className="bg-green-100 text-green-700">Active</Badge>
+            </div>
+            <div className="flex items-center justify-between p-4 border rounded">
+              <div>
+                <h4 className="font-medium">Chat Integration</h4>
+                <p className="text-sm text-gray-500">Patient-provider chat</p>
+              </div>
+              <Badge className="bg-yellow-100 text-yellow-700">Setup Required</Badge>
+            </div>
+            <div className="flex items-center justify-between p-4 border rounded">
+              <div>
+                <h4 className="font-medium">Voice Integration</h4>
+                <p className="text-sm text-gray-500">Vapi AI voice capabilities</p>
+              </div>
+              <Badge className="bg-green-100 text-green-700">Active</Badge>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
+  const CommunicationAnalytics = () => (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Response Time</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-blue-600">2.3 min</div>
+            <p className="text-sm text-gray-500">Average response time</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Engagement Rate</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-green-600">87%</div>
+            <p className="text-sm text-gray-500">Patient engagement</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>No-Show Reduction</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-purple-600">23%</div>
+            <p className="text-sm text-gray-500">Reduction in no-shows</p>
+          </CardContent>
+        </Card>
+      </div>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Communication Performance</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-64 bg-gray-100 rounded flex items-center justify-center">
+            <p className="text-gray-500">Communication analytics chart will be displayed here</p>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
 
   // Mock data - enhanced for comprehensive communication management
   const upcomingAppointments = [

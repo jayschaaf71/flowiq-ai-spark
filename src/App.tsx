@@ -19,6 +19,8 @@ import "@/utils/routeTestRunner"; // Enable route testing functions
 import { SimpleTest } from "@/components/SimpleTest";
 import { DentalSleepDashboard } from "@/components/dental-sleep/DentalSleepDashboard";
 import { Layout } from "@/components/Layout";
+import { TenantTestPage } from "@/components/TenantTestPage";
+import { AuthPage } from "@/components/auth/AuthPage";
 
 // Specialty Apps
 import ChiropracticApp from "@/apps/ChiropracticApp";
@@ -115,6 +117,12 @@ const App = () => {
                       <Routes>
                 {/* Health check route */}
                 <Route path="/health" element={<HealthCheck />} />
+                
+                {/* Simple login route that bypasses tenant routing */}
+                <Route path="/login" element={<AuthPage />} />
+                
+                {/* Tenant test route for debugging */}
+                <Route path="/test-tenant" element={<TenantTestPage />} />
                 
                 {/* Specialty app routes for development - only on non-production */}
                 <Route path="/chiropractic/*" element={<TenantRouter />} />
