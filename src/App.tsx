@@ -153,7 +153,7 @@ const App = () => {
                 <Route path="/components/dental-sleep/*" element={<Navigate to="/dental-sleep/dashboard" replace />} />
                 
                 {/* Main tenant routing for other routes */}
-                <Route path="/*" element={
+                <Route path="*" element={
                   (() => {
                     console.log('🚀 [CRITICAL DEBUG] App - Catch-all route triggered for path:', window.location.pathname);
                     return <TenantRouter />;

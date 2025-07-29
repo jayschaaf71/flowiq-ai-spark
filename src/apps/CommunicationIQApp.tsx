@@ -36,7 +36,7 @@ const CommunicationIQApp = () => {
 
   return (
     <Routes>
-      <Route path="/*" element={<StandaloneCommunicationIQ tenantConfig={tenantConfig} />} />
+              <Route path="*" element={<StandaloneCommunicationIQ tenantConfig={tenantConfig} />} />
     </Routes>
   );
 };

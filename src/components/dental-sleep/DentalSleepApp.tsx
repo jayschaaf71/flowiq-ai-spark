@@ -316,16 +316,18 @@ export const DentalSleepApp: React.FC = () => {
         } />
 
         {/* Development: Test route without authentication */}
-        {process.env.NODE_ENV === 'development' && (
+        {/* Temporarily commented out to fix build issue */}
+        {/* {process.env.NODE_ENV === 'development' && (
           <Route path={`${pathPrefix}/test-no-auth`} element={
             <Layout>
               <DentalSleepDashboard />
             </Layout>
           </Route>
-        )}
+        )} */}
 
         {/* Development: Simple test route */}
-        {process.env.NODE_ENV === 'development' && (
+        {/* Temporarily commented out to fix build issue */}
+        {/* {process.env.NODE_ENV === 'development' && (
           <Route path={`${pathPrefix}/test-simple`} element={
             <Layout>
               <div className="p-6">
@@ -340,11 +342,11 @@ export const DentalSleepApp: React.FC = () => {
               </div>
             </Layout>
           </Route>
-        )}
+        )} */}
 
         {/* Catch-all route for non-prefixed routes */}
         {isNonPrefixedRoute && (
-          <Route path="/*" element={<Navigate to={`${pathPrefix}/dashboard`} replace />} />
+          <Route path="*" element={<Navigate to="/dental-sleep/dashboard" replace />} />
         )}
       </Routes>
     </DentalSleepWrapper>
