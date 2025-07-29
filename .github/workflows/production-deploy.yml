@@ -174,7 +174,7 @@ jobs:
     needs: [test, security-scan]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/pilot-deployment-ready' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
-    environment: staging
+    environment: ${{ (github.ref == 'refs/heads/develop' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')) && 'staging' || '' }}
     continue-on-error: true
     
     steps:
@@ -220,7 +220,7 @@ jobs:
     needs: [test, security-scan, validate-migrations]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/pilot-deployment-ready' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
-    environment: production
+    environment: ${{ (github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')) && 'production' || '' }}
     continue-on-error: true
     
     steps:

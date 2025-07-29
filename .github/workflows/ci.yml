@@ -107,7 +107,7 @@ jobs:
     needs: build-staging
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/pilot-deployment-ready'
-    environment: staging
+    environment: ${{ github.ref == 'refs/heads/develop' && 'staging' || '' }}
     continue-on-error: true
     
     steps:
@@ -145,7 +145,7 @@ jobs:
     needs: build-production
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/pilot-deployment-ready'
-    environment: production
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || '' }}
     continue-on-error: true
     
     steps:
