@@ -52,7 +52,7 @@ jobs:
   build-staging:
     needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/develop'
+    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/pilot-deployment-ready'
     
     steps:
     - name: Checkout code
@@ -79,7 +79,7 @@ jobs:
   build-production:
     needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/pilot-deployment-ready'
     
     steps:
     - name: Checkout code
@@ -106,7 +106,7 @@ jobs:
   deploy-staging:
     needs: build-staging
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/develop'
+    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/pilot-deployment-ready'
     environment: staging
     
     steps:
@@ -143,7 +143,7 @@ jobs:
   deploy-production:
     needs: build-production
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/pilot-deployment-ready'
     environment: production
     
     steps:
