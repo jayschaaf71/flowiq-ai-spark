@@ -79,6 +79,15 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       console.log('🔓 [DEV] Bypassing authentication for development testing');
       return <>{children}</>;
     }
+    
+    // Production bypass for pilot domains
+    const hostname = window.location.hostname;
+    if (hostname.includes('west-county-spine.flow-iq.ai') || 
+        hostname.includes('midwest-dental-sleep.flow-iq.ai')) {
+      console.log('🔓 [PROD] Bypassing authentication for pilot domains');
+      return <>{children}</>;
+    }
+    
     return <AuthPage />;
   }
 
