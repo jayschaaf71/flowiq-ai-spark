@@ -42,11 +42,11 @@ import ApplicationTest from '@/pages/ApplicationTest';
 
 export const DentalSleepApp: React.FC = () => {
   console.log('🦷 DentalSleepApp: Rendering DentalSleepApp component');
-  
+
   useEffect(() => {
     const tenantRoute = parseTenantFromUrl();
     console.log('🦷 DentalSleepApp: tenantRoute detected:', tenantRoute);
-    
+
     if (tenantRoute?.isProduction) {
       const brandName = tenantRoute.subdomain === 'midwest-dental-sleep' ? 'Midwest Dental Sleep Medicine' : 'FlowIQ';
       document.title = brandName;
@@ -65,11 +65,11 @@ export const DentalSleepApp: React.FC = () => {
   const tenantRoute = parseTenantFromUrl();
   const isProduction = tenantRoute?.isProduction;
   const pathPrefix = isProduction ? '' : '/dental-sleep';
-  
+
   // Support non-prefixed routes for fallback routing from TenantRouter
   const currentPath = window.location.pathname;
   const isNonPrefixedRoute = !currentPath.startsWith('/dental-sleep') && !isProduction;
-  
+
   console.log('🦷 DentalSleepApp: Route analysis:', {
     currentPath,
     pathPrefix,
@@ -79,14 +79,14 @@ export const DentalSleepApp: React.FC = () => {
   });
 
   console.log('🦷 DentalSleepApp: About to render DentalSleepWrapper with Routes');
-  
+
   return (
     <DentalSleepWrapper>
       <Routes>
         {/* Redirect root to dashboard */}
         <Route path="/" element={<Navigate to={`${pathPrefix}/dashboard`} replace />} />
         <Route path="/dental-sleep" element={<Navigate to={`${pathPrefix}/dashboard`} replace />} />
-        
+
         {/* Main Dental Sleep Pages */}
         <Route path={`${pathPrefix}/dashboard`} element={
           <ProtectedRoute requiredRole="staff">
@@ -95,7 +95,7 @@ export const DentalSleepApp: React.FC = () => {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path={`${pathPrefix}/calendar`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
@@ -103,7 +103,7 @@ export const DentalSleepApp: React.FC = () => {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path={`${pathPrefix}/schedule`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
@@ -111,7 +111,7 @@ export const DentalSleepApp: React.FC = () => {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path={`${pathPrefix}/analytics`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
@@ -119,7 +119,7 @@ export const DentalSleepApp: React.FC = () => {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path={`${pathPrefix}/ehr`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
@@ -127,7 +127,7 @@ export const DentalSleepApp: React.FC = () => {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path={`${pathPrefix}/patient-management`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
@@ -135,7 +135,7 @@ export const DentalSleepApp: React.FC = () => {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path={`${pathPrefix}/team`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
@@ -143,7 +143,7 @@ export const DentalSleepApp: React.FC = () => {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path={`${pathPrefix}/financial`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
@@ -151,7 +151,7 @@ export const DentalSleepApp: React.FC = () => {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path={`${pathPrefix}/patient-experience`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
@@ -159,7 +159,7 @@ export const DentalSleepApp: React.FC = () => {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path={`${pathPrefix}/ai-automation`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
@@ -167,7 +167,7 @@ export const DentalSleepApp: React.FC = () => {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path={`${pathPrefix}/checkin`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
@@ -175,7 +175,7 @@ export const DentalSleepApp: React.FC = () => {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path={`${pathPrefix}/insights`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
@@ -183,7 +183,7 @@ export const DentalSleepApp: React.FC = () => {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path={`${pathPrefix}/notifications`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
@@ -191,7 +191,7 @@ export const DentalSleepApp: React.FC = () => {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path={`${pathPrefix}/help`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
@@ -199,7 +199,7 @@ export const DentalSleepApp: React.FC = () => {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path={`${pathPrefix}/settings`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
@@ -207,7 +207,7 @@ export const DentalSleepApp: React.FC = () => {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         {/* Dental Sleep Specific Routes */}
         <Route path={`${pathPrefix}/sleep-studies`} element={
           <ProtectedRoute requiredRole="staff">
@@ -216,7 +216,7 @@ export const DentalSleepApp: React.FC = () => {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path={`${pathPrefix}/dme-tracking`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
@@ -224,7 +224,7 @@ export const DentalSleepApp: React.FC = () => {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         {/* AI Agents */}
         <Route path={`${pathPrefix}/agents/communication`} element={
           <ProtectedRoute requiredRole="staff">
@@ -233,7 +233,7 @@ export const DentalSleepApp: React.FC = () => {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path={`${pathPrefix}/agents/scribe`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
@@ -241,7 +241,7 @@ export const DentalSleepApp: React.FC = () => {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path={`${pathPrefix}/agents/ehr`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
@@ -249,7 +249,7 @@ export const DentalSleepApp: React.FC = () => {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path={`${pathPrefix}/agents/revenue`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
@@ -257,7 +257,7 @@ export const DentalSleepApp: React.FC = () => {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path={`${pathPrefix}/agents/insurance`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
@@ -265,7 +265,7 @@ export const DentalSleepApp: React.FC = () => {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path={`${pathPrefix}/agents/inventory`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
@@ -273,7 +273,7 @@ export const DentalSleepApp: React.FC = () => {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path={`${pathPrefix}/agents/insight`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
@@ -281,7 +281,7 @@ export const DentalSleepApp: React.FC = () => {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path={`${pathPrefix}/agents/ops`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
@@ -289,7 +289,7 @@ export const DentalSleepApp: React.FC = () => {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path={`${pathPrefix}/agents/education`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
@@ -297,7 +297,7 @@ export const DentalSleepApp: React.FC = () => {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         <Route path={`${pathPrefix}/agents/growth`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
@@ -305,7 +305,7 @@ export const DentalSleepApp: React.FC = () => {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         {/* Development/Testing Routes */}
         <Route path={`${pathPrefix}/test`} element={
           <ProtectedRoute requiredRole="staff">
@@ -314,7 +314,7 @@ export const DentalSleepApp: React.FC = () => {
             </Layout>
           </ProtectedRoute>
         } />
-        
+
         {/* Development: Test route without authentication */}
         {process.env.NODE_ENV === 'development' && (
           <Route path={`${pathPrefix}/test-no-auth`} element={
@@ -323,7 +323,7 @@ export const DentalSleepApp: React.FC = () => {
             </Layout>
           </Route>
         )}
-        
+
         {/* Development: Simple test route */}
         {process.env.NODE_ENV === 'development' && (
           <Route path={`${pathPrefix}/test-simple`} element={
@@ -341,7 +341,7 @@ export const DentalSleepApp: React.FC = () => {
             </Layout>
           </Route>
         )}
-        
+
         {/* Catch-all route for non-prefixed routes */}
         {isNonPrefixedRoute && (
           <Route path="/*" element={<Navigate to={`${pathPrefix}/dashboard`} replace />} />
@@ -349,4 +349,4 @@ export const DentalSleepApp: React.FC = () => {
       </Routes>
     </DentalSleepWrapper>
   );
-};
+}; 
