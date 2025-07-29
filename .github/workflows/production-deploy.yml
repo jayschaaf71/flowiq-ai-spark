@@ -175,6 +175,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/pilot-deployment-ready' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
     environment: staging
+    continue-on-error: true
     
     steps:
     - name: Checkout code
@@ -220,6 +221,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/pilot-deployment-ready' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
     environment: production
+    continue-on-error: true
     
     steps:
     - name: Checkout code

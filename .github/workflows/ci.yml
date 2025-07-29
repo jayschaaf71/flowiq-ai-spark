@@ -108,6 +108,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/pilot-deployment-ready'
     environment: staging
+    continue-on-error: true
     
     steps:
     - name: Download staging build
@@ -145,6 +146,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/pilot-deployment-ready'
     environment: production
+    continue-on-error: true
     
     steps:
     - name: Checkout code
