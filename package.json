@@ -9,7 +9,8 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "npm run lint && npx tsc --noEmit --skipLibCheck"
+    "test": "npx tsc --noEmit --skipLibCheck",
+    "test:full": "npm run lint && npm run test"
   },
   "dependencies": {
     "@capacitor/android": "^7.4.2",
