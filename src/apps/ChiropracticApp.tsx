@@ -36,6 +36,10 @@ import MarketingIQ from '@/pages/agents/MarketingIQ';
 import GoToMarketIQ from '@/pages/agents/GoToMarketIQ';
 import ReferralIQ from '@/pages/agents/ReferralIQ';
 import ApplicationTest from '@/pages/ApplicationTest';
+import { RevenueIQ } from '@/pages/agents/RevenueIQ';
+import { InsuranceIQ } from '@/pages/agents/InsuranceIQ';
+import AssistIQ from '@/pages/agents/AssistIQ';
+import EHRIQ from '@/pages/agents/EHRIQ';
 
 export default function ChiropracticApp() {
   console.log('🦴 ChiropracticApp: Rendering ChiropracticApp component');
@@ -206,6 +210,8 @@ export default function ChiropracticApp() {
         } />
         
         {/* AI Agent Routes */}
+        
+        {/* ENHANCED COMMUNICATION ROUTE (includes voice capabilities) */}
         <Route path={`${pathPrefix}/agents/communication`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
@@ -214,7 +220,138 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
 
-        {/* Legacy routes for backwards compatibility */}
+        {/* NEW CONSOLIDATED ROUTES */}
+        <Route path={`${pathPrefix}/agents/revenue`} element={
+          <ProtectedRoute requiredRole="staff">
+            <Layout>
+              <RevenueIQ />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path={`${pathPrefix}/agents/insurance`} element={
+          <ProtectedRoute requiredRole="staff">
+            <Layout>
+              <InsuranceIQ />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        {/* LEGACY ROUTES (REDIRECT TO CONSOLIDATED) */}
+        <Route path={`${pathPrefix}/agents/voice`} element={
+          <ProtectedRoute requiredRole="staff">
+            <Layout>
+              <CommunicationIQ />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path={`${pathPrefix}/agents/billing`} element={
+          <ProtectedRoute requiredRole="staff">
+            <Layout>
+              <RevenueIQ />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path={`${pathPrefix}/agents/payments`} element={
+          <ProtectedRoute requiredRole="staff">
+            <Layout>
+              <RevenueIQ />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path={`${pathPrefix}/agents/claims`} element={
+          <ProtectedRoute requiredRole="staff">
+            <Layout>
+              <InsuranceIQ />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path={`${pathPrefix}/agents/auth`} element={
+          <ProtectedRoute requiredRole="staff">
+            <Layout>
+              <InsuranceIQ />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path={`${pathPrefix}/agents/compliance`} element={
+          <ProtectedRoute requiredRole="staff">
+            <Layout>
+              <InsuranceIQ />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        {/* EXISTING AGENT ROUTES */}
+        <Route path={`${pathPrefix}/agents/assist`} element={
+          <ProtectedRoute requiredRole="staff">
+            <Layout>
+              <AssistIQ />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path={`${pathPrefix}/agents/scribe`} element={
+          <ProtectedRoute requiredRole="staff">
+            <Layout>
+              <ScribeIQ />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path={`${pathPrefix}/agents/ehr`} element={
+          <ProtectedRoute requiredRole="staff">
+            <Layout>
+              <EHRIQ />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path={`${pathPrefix}/agents/inventory`} element={
+          <ProtectedRoute requiredRole="staff">
+            <Layout>
+              <InventoryIQ />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path={`${pathPrefix}/agents/ops`} element={
+          <ProtectedRoute requiredRole="staff">
+            <Layout>
+              <OpsIQ />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path={`${pathPrefix}/agents/insight`} element={
+          <ProtectedRoute requiredRole="staff">
+            <Layout>
+              <InsightIQ />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path={`${pathPrefix}/agents/education`} element={
+          <ProtectedRoute requiredRole="staff">
+            <Layout>
+              <EducationIQ />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path={`${pathPrefix}/agents/go-to-market`} element={
+          <ProtectedRoute requiredRole="staff">
+            <Layout>
+              <GoToMarketIQ />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        {/* LEGACY ROUTES (REDIRECT TO CONSOLIDATED) */}
         <Route path={`${pathPrefix}/agents/appointment`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
@@ -230,88 +367,88 @@ export default function ChiropracticApp() {
             </Layout>
           </ProtectedRoute>
         } />
-        
-        <Route path={`${pathPrefix}/agents/go-to-market`} element={
+
+        <Route path={`${pathPrefix}/agents/schedule`} element={
+          <ProtectedRoute requiredRole="staff">
+            <Layout>
+              <CommunicationIQ />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path={`${pathPrefix}/agents/remind`} element={
+          <ProtectedRoute requiredRole="staff">
+            <Layout>
+              <CommunicationIQ />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path={`${pathPrefix}/agents/marketing`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <GoToMarketIQ />
             </Layout>
           </ProtectedRoute>
         } />
-        
-        <Route path={`${pathPrefix}/agents/scribe`} element={
+
+        <Route path={`${pathPrefix}/agents/sales`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
-              <ScribeIQ />
+              <GoToMarketIQ />
             </Layout>
           </ProtectedRoute>
         } />
-        
-        <Route path={`${pathPrefix}/agents/claims`} element={
+
+        <Route path={`${pathPrefix}/agents/referral`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
-              <ClaimsIQ />
+              <GoToMarketIQ />
             </Layout>
           </ProtectedRoute>
         } />
-        
-        <Route path={`${pathPrefix}/agents/payments`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <PaymentsIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path={`${pathPrefix}/agents/inventory`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <InventoryIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path={`${pathPrefix}/agents/insights`} element={
+
+        <Route path={`${pathPrefix}/agents/analytics`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <InsightIQ />
             </Layout>
           </ProtectedRoute>
         } />
-        
-        <Route path={`${pathPrefix}/agents/education`} element={
+
+        <Route path={`${pathPrefix}/agents/reporting`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
-              <EducationIQ />
+              <InsightIQ />
             </Layout>
           </ProtectedRoute>
         } />
-        
-        <Route path={`${pathPrefix}/agents/marketing`} element={
+
+        <Route path={`${pathPrefix}/agents/business-intelligence`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
-              <MarketingIQ />
+              <InsightIQ />
             </Layout>
           </ProtectedRoute>
         } />
-        
-        <Route path={`${pathPrefix}/agents/referral`} element={
+
+        <Route path={`${pathPrefix}/agents/workflow`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
-              <ReferralIQ />
+              <OpsIQ />
             </Layout>
           </ProtectedRoute>
         } />
-        
-        <Route path={`${pathPrefix}/agents/auth`} element={
+
+        <Route path={`${pathPrefix}/agents/operations`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
-              <AuthIQ />
+              <OpsIQ />
             </Layout>
           </ProtectedRoute>
         } />
-        
-        <Route path={`${pathPrefix}/agents/ops`} element={
+
+        <Route path={`${pathPrefix}/agents/process-automation`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <OpsIQ />

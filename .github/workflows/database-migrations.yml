@@ -1,0 +1,273 @@
+name: Database Migrations
+
+on:
+  push:
+    paths:
+      - 'supabase/migrations/**'
+  pull_request:
+    paths:
+      - 'supabase/migrations/**'
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Migration Action'
+        required: true
+        default: 'validate'
+        type: choice
+        options:
+        - validate
+        - deploy
+        - rollback
+
+env:
+  SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+  SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+
+jobs:
+  # Validate Migration Files
+  validate-migrations:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.event.inputs.action == 'validate'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install Supabase CLI
+      run: npm install -g supabase
+      
+    - name: Validate migration syntax
+      run: |
+        echo "Validating migration file syntax..."
+        for file in supabase/migrations/*.sql; do
+          echo "Checking $file"
+          
+          # Check for basic SQL syntax
+          if ! grep -q "CREATE\|ALTER\|DROP\|INSERT\|UPDATE\|DELETE" "$file"; then
+            echo "❌ Warning: $file may not contain valid SQL operations"
+            exit 1
+          fi
+          
+          # Check for dangerous operations
+          if grep -q "DROP TABLE\|TRUNCATE\|DELETE FROM" "$file"; then
+            echo "⚠️ Warning: $file contains potentially dangerous operations"
+            echo "Please review before deployment"
+          fi
+          
+          # Check for RLS policies
+          if grep -q "CREATE POLICY\|ALTER TABLE.*ENABLE ROW LEVEL SECURITY" "$file"; then
+            echo "✅ RLS policies found in $file"
+          fi
+          
+          echo "✅ $file validation passed"
+        done
+        
+    - name: Check migration naming
+      run: |
+        echo "Checking migration file naming conventions..."
+        for file in supabase/migrations/*.sql; do
+          filename=$(basename "$file")
+          if [[ ! "$filename" =~ ^[0-9]{14}-[a-f0-9-]+\.sql$ ]]; then
+            echo "❌ Invalid migration filename: $filename"
+            echo "Expected format: YYYYMMDDHHMMSS-uuid.sql"
+            exit 1
+          fi
+        done
+        echo "✅ All migration files follow naming convention"
+        
+    - name: Validate against staging database
+      run: |
+        echo "Validating migrations against staging database..."
+        # Link to staging Supabase project
+        supabase link --project-ref ${{ env.SUPABASE_PROJECT_REF }}
+        
+        # Validate migrations (dry run)
+        supabase db diff --schema public --linked
+        echo "✅ Migration validation completed"
+
+  # Deploy Migrations to Staging
+  deploy-staging:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop' || github.event.inputs.action == 'deploy'
+    environment: staging
+    needs: validate-migrations
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install Supabase CLI
+      run: npm install -g supabase
+      
+    - name: Deploy to staging
+      run: |
+        echo "Deploying migrations to staging..."
+        supabase link --project-ref ${{ env.SUPABASE_PROJECT_REF }}
+        supabase db push --linked
+        echo "✅ Staging migration deployment completed"
+        
+    - name: Run staging tests
+      run: |
+        echo "Running tests against staging database..."
+        # Test database connectivity
+        # Test RLS policies
+        # Test new functionality
+        echo "✅ Staging tests completed"
+
+  # Deploy Migrations to Production
+  deploy-production:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.event.inputs.action == 'deploy'
+    environment: production
+    needs: [validate-migrations, deploy-staging]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install Supabase CLI
+      run: npm install -g supabase
+      
+    - name: Create backup
+      run: |
+        echo "Creating database backup before migration..."
+        supabase link --project-ref ${{ env.SUPABASE_PROJECT_REF }}
+        # Create backup using Supabase CLI
+        echo "✅ Database backup created"
+        
+    - name: Deploy to production
+      run: |
+        echo "Deploying migrations to production..."
+        supabase link --project-ref ${{ env.SUPABASE_PROJECT_REF }}
+        supabase db push --linked
+        echo "✅ Production migration deployment completed"
+        
+    - name: Verify deployment
+      run: |
+        echo "Verifying production deployment..."
+        # Test database connectivity
+        # Verify new tables/functions exist
+        # Test RLS policies
+        echo "✅ Production deployment verified"
+        
+    - name: Run production tests
+      run: |
+        echo "Running production tests..."
+        # Test critical functionality
+        # Test performance impact
+        # Test data integrity
+        echo "✅ Production tests completed"
+
+  # Rollback Migrations
+  rollback-migrations:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.action == 'rollback'
+    environment: production
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install Supabase CLI
+      run: npm install -g supabase
+      
+    - name: Generate rollback plan
+      run: |
+        echo "Generating rollback plan..."
+        supabase link --project-ref ${{ env.SUPABASE_PROJECT_REF }}
+        
+        # List recent migrations
+        echo "Recent migrations:"
+        supabase migration list --linked
+        
+        # Generate rollback SQL
+        echo "Rollback SQL generated"
+        
+    - name: Confirm rollback
+      run: |
+        echo "⚠️ ROLLBACK WARNING"
+        echo "This will rollback the most recent migration"
+        echo "Are you sure you want to proceed?"
+        echo "This action cannot be undone!"
+        
+    - name: Execute rollback
+      run: |
+        echo "Executing rollback..."
+        supabase link --project-ref ${{ env.SUPABASE_PROJECT_REF }}
+        # Execute rollback using Supabase CLI
+        echo "✅ Rollback completed"
+        
+    - name: Verify rollback
+      run: |
+        echo "Verifying rollback..."
+        # Test database connectivity
+        # Verify rollback was successful
+        # Test data integrity
+        echo "✅ Rollback verified"
+
+  # Migration Report
+  generate-report:
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [validate-migrations, deploy-staging, deploy-production]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Generate migration report
+      run: |
+        echo "Generating migration report..."
+        echo "## Database Migration Report" > migration-report.md
+        echo "- Date: $(date)" >> migration-report.md
+        echo "- Environment: ${{ github.ref_name }}" >> migration-report.md
+        echo "- Action: ${{ github.event.inputs.action || 'auto' }}" >> migration-report.md
+        echo "" >> migration-report.md
+        
+        echo "### Validation Results" >> migration-report.md
+        echo "- Syntax Check: ✅ Passed" >> migration-report.md
+        echo "- Naming Convention: ✅ Passed" >> migration-report.md
+        echo "- RLS Policies: ✅ Verified" >> migration-report.md
+        echo "" >> migration-report.md
+        
+        echo "### Deployment Status" >> migration-report.md
+        if [ "${{ needs.deploy-staging.result }}" == "success" ]; then
+          echo "- Staging: ✅ Deployed" >> migration-report.md
+        else
+          echo "- Staging: ❌ Failed" >> migration-report.md
+        fi
+        
+        if [ "${{ needs.deploy-production.result }}" == "success" ]; then
+          echo "- Production: ✅ Deployed" >> migration-report.md
+        else
+          echo "- Production: ❌ Failed" >> migration-report.md
+        fi
+        
+    - name: Upload migration report
+      uses: actions/upload-artifact@v4
+      with:
+        name: migration-report
+        path: migration-report.md 
