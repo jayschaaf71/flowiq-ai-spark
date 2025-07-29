@@ -74,6 +74,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Show auth page if not authenticated
   if (!user) {
+    // Development bypass for testing
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔓 [DEV] Bypassing authentication for development testing');
+      return <>{children}</>;
+    }
     return <AuthPage />;
   }
 
