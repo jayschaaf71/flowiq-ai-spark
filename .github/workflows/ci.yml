@@ -205,7 +205,7 @@ jobs:
     - name: Run security scan
       run: |
         echo "🔒 Running security scan..."
-        npm audit --audit-level moderate || echo "Security vulnerabilities found"
+        npm audit --audit-level moderate || echo "Security vulnerabilities found - continuing..."
         
     - name: Check for secrets in code
       run: |
