@@ -315,6 +315,15 @@ export const DentalSleepApp: React.FC = () => {
           </ProtectedRoute>
         } />
         
+        {/* Development: Test route without authentication */}
+        {process.env.NODE_ENV === 'development' && (
+          <Route path={`${pathPrefix}/test-no-auth`} element={
+            <Layout>
+              <DentalSleepDashboard />
+            </Layout>
+          } />
+        )}
+        
         {/* Catch-all route for non-prefixed routes */}
         {isNonPrefixedRoute && (
           <Route path="/*" element={<Navigate to={`${pathPrefix}/dashboard`} replace />} />
