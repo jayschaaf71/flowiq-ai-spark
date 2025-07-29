@@ -191,7 +191,6 @@ jobs:
         fi
         
     - name: Notify deployment success
-      if: secrets.VERCEL_TOKEN != ''
       run: |
         echo "✅ Production deployment successful"
         echo "🌐 Main App: https://flowiq-ai-spark-diug6m0uf-flow-iq.vercel.app"
