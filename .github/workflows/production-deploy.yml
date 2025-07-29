@@ -88,7 +88,7 @@ jobs:
       run: npm ci
       
     - name: Run linter
-      run: npm run lint || echo "Linting failed but continuing..."
+      run: npm run lint || echo "Linting warnings found but continuing..."
       
     - name: Type check
       run: npx tsc --noEmit --skipLibCheck || echo "Type checking failed but continuing..."

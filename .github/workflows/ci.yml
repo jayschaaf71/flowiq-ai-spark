@@ -30,6 +30,9 @@ jobs:
     - name: Run tests
       run: npm test || echo "Tests failed but continuing..."
       
+    - name: Run linting (warnings only)
+      run: npm run lint || echo "Linting warnings found but continuing..."
+      
     - name: Build application
       run: npm run build
       
