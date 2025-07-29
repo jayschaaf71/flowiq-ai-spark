@@ -74,6 +74,24 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Show auth page if not authenticated
   if (!user) {
+    // Development bypass for testing
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔓 [DEV] Bypassing authentication for development testing');
+      return <>{children}</>;
+    }
+    
+    // Production bypass for pilot domains
+    const hostname = window.location.hostname;
+    console.log('🔍 [AUTH] Checking hostname for bypass:', hostname);
+    
+    if (hostname.includes('west-county-spine.flow-iq.ai') || 
+        hostname.includes('midwest-dental-sleep.flow-iq.ai') ||
+        hostname.includes('flow-iq.ai')) {
+      console.log('🔓 [PROD] Bypassing authentication for pilot domains');
+      return <>{children}</>;
+    }
+    
+    console.log('🔒 [AUTH] Authentication required for:', hostname);
     return <AuthPage />;
   }
 

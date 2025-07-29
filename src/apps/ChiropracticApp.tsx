@@ -301,6 +301,7 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
         
+        {/* Development/Testing Routes */}
         <Route path={`${pathPrefix}/test`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
@@ -308,231 +309,20 @@ export default function ChiropracticApp() {
             </Layout>
           </ProtectedRoute>
         } />
-
-        {/* Non-prefixed routes for fallback routing when no tenant detected */}
-        {isNonPrefixedRoute && (
-          <>
-            <Route path="/dashboard" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <Dashboard />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/calendar" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <Calendar />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/schedule" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <Schedule />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/analytics" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <Analytics />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/ehr" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <EHR />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/patient-management" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <PatientManagement />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/financial" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <FinancialManagementPage />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/patient-experience" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <PatientExperiencePage />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/ai-automation" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <AIAutomationHub />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/team" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <Team />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/checkin" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <CheckIn />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/insights" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <Insights />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/notifications" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <Notifications />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/help" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <Help />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/settings" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <Settings />
-                </Layout>
-              </ProtectedRoute>
-            } />
-
-            {/* Non-prefixed AI Agent Routes */}
-            <Route path="/agents/communication" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <CommunicationIQ />
-                </Layout>
-              </ProtectedRoute>
-            } />
-
-            <Route path="/agents/appointment" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <CommunicationIQ />
-                </Layout>
-              </ProtectedRoute>
-            } />
-
-            <Route path="/agents/intake" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <CommunicationIQ />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/agents/scribe" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <ScribeIQ />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/agents/ehr" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <EHRIQ />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/agents/revenue" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <RevenueIQ />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/agents/insurance" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <InsuranceIQ />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/agents/inventory" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <InventoryIQ />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/agents/insights" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <InsightIQ />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/agents/education" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <EducationIQ />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/agents/growth" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <GrowthIQ />
-                </Layout>
-              </ProtectedRoute>
-            } />
-            
-            <Route path="/agents/ops" element={
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <OpsIQ />
-                </Layout>
-              </ProtectedRoute>
-            } />
-          </>
+        
+        {/* Development: Test route without authentication */}
+        {process.env.NODE_ENV === 'development' && (
+          <Route path={`${pathPrefix}/test-no-auth`} element={
+            <Layout>
+              <Dashboard />
+            </Layout>
+          </Route>
         )}
         
-        {/* Fallback redirect for unmatched routes */}
-        <Route path="*" element={<Navigate to={`${pathPrefix}/dashboard`} replace />} />
+        {/* Catch-all route for non-prefixed routes */}
+        {isNonPrefixedRoute && (
+          <Route path="/*" element={<Navigate to={`${pathPrefix}/dashboard`} replace />} />
+        )}
       </Routes>
     </ChiropracticWrapper>
   );
