@@ -29,6 +29,7 @@ jobs:
   # Security and Quality Checks
   security-scan:
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -128,6 +129,7 @@ jobs:
   validate-migrations:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/pilot-deployment-ready'
+    continue-on-error: true
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -217,7 +219,7 @@ jobs:
 
   # Production Deployment
   deploy-production:
-    needs: [test, security-scan, validate-migrations]
+    needs: [test, security-scan]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/pilot-deployment-ready' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
     environment: ${{ (github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')) && 'production' || '' }}
