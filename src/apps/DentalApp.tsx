@@ -24,21 +24,15 @@ import { AIAutomationHub } from '@/pages/AIAutomationHub';
 // AI Agents
 import CommunicationIQ from '@/pages/agents/CommunicationIQ';
 import ScribeIQ from '@/pages/agents/ScribeIQ';
-import ClaimsIQ from '@/pages/agents/ClaimsIQ';
-import PaymentsIQ from '@/pages/agents/PaymentsIQ';
+import EHRIQ from '@/pages/agents/EHRIQ';
+import RevenueIQ from '@/pages/agents/RevenueIQ';
+import InsuranceIQ from '@/pages/agents/InsuranceIQ';
 import InventoryIQ from '@/pages/agents/InventoryIQ';
 import InsightIQ from '@/pages/agents/InsightIQ';
 import OpsIQ from '@/pages/agents/OpsIQ';
-import AuthIQ from '@/pages/agents/AuthIQ';
 import EducationIQ from '@/pages/agents/EducationIQ';
-import MarketingIQ from '@/pages/agents/MarketingIQ';
-import GoToMarketIQ from '@/pages/agents/GoToMarketIQ';
-import ReferralIQ from '@/pages/agents/ReferralIQ';
+import GrowthIQ from '@/pages/agents/GrowthIQ';
 import ApplicationTest from '@/pages/ApplicationTest';
-import { RevenueIQ } from '@/pages/agents/RevenueIQ';
-import { InsuranceIQ } from '@/pages/agents/InsuranceIQ';
-import AssistIQ from '@/pages/agents/AssistIQ';
-import EHRIQ from '@/pages/agents/EHRIQ';
 
 export default function DentalApp() {
   return (
@@ -169,8 +163,6 @@ export default function DentalApp() {
         } />
         
         {/* AI Agent Routes */}
-        
-        {/* ENHANCED COMMUNICATION ROUTE (includes voice capabilities) */}
         <Route path="/agents/communication" element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
@@ -179,138 +171,7 @@ export default function DentalApp() {
           </ProtectedRoute>
         } />
 
-        {/* NEW CONSOLIDATED ROUTES */}
-        <Route path="/agents/revenue" element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <RevenueIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        <Route path="/agents/insurance" element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <InsuranceIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        {/* LEGACY ROUTES (REDIRECT TO CONSOLIDATED) */}
-        <Route path="/agents/voice" element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <CommunicationIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        <Route path="/agents/billing" element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <RevenueIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        <Route path="/agents/payments" element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <RevenueIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        <Route path="/agents/claims" element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <InsuranceIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        <Route path="/agents/auth" element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <InsuranceIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        <Route path="/agents/compliance" element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <InsuranceIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        {/* EXISTING AGENT ROUTES */}
-        <Route path="/agents/assist" element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <AssistIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        <Route path="/agents/scribe" element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <ScribeIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        <Route path="/agents/ehr" element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <EHRIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        <Route path="/agents/inventory" element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <InventoryIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        <Route path="/agents/ops" element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <OpsIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        <Route path="/agents/insight" element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <InsightIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        <Route path="/agents/education" element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <EducationIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        <Route path="/agents/go-to-market" element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <GoToMarketIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        {/* LEGACY ROUTES (REDIRECT TO CONSOLIDATED) */}
+        {/* Legacy routes for backwards compatibility */}
         <Route path="/agents/appointment" element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
@@ -326,88 +187,72 @@ export default function DentalApp() {
             </Layout>
           </ProtectedRoute>
         } />
-
-        <Route path="/agents/schedule" element={
+        
+        <Route path="/agents/scribe" element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
-              <CommunicationIQ />
+              <ScribeIQ />
             </Layout>
           </ProtectedRoute>
         } />
-
-        <Route path="/agents/remind" element={
+        
+        <Route path="/agents/ehr" element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
-              <CommunicationIQ />
+              <EHRIQ />
             </Layout>
           </ProtectedRoute>
         } />
-
-        <Route path="/agents/marketing" element={
+        
+        <Route path="/agents/revenue" element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
-              <GoToMarketIQ />
+              <RevenueIQ />
             </Layout>
           </ProtectedRoute>
         } />
-
-        <Route path="/agents/sales" element={
+        
+        <Route path="/agents/insurance" element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
-              <GoToMarketIQ />
+              <InsuranceIQ />
             </Layout>
           </ProtectedRoute>
         } />
-
-        <Route path="/agents/referral" element={
+        
+        <Route path="/agents/inventory" element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
-              <GoToMarketIQ />
+              <InventoryIQ />
             </Layout>
           </ProtectedRoute>
         } />
-
-        <Route path="/agents/analytics" element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <InsightIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        <Route path="/agents/reporting" element={
+        
+        <Route path="/agents/insights" element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <InsightIQ />
             </Layout>
           </ProtectedRoute>
         } />
-
-        <Route path="/agents/business-intelligence" element={
+        
+        <Route path="/agents/education" element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
-              <InsightIQ />
+              <EducationIQ />
             </Layout>
           </ProtectedRoute>
         } />
-
-        <Route path="/agents/workflow" element={
+        
+        <Route path="/agents/growth" element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
-              <OpsIQ />
+              <GrowthIQ />
             </Layout>
           </ProtectedRoute>
         } />
-
-        <Route path="/agents/operations" element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <OpsIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        <Route path="/agents/process-automation" element={
+        
+        <Route path="/agents/ops" element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <OpsIQ />

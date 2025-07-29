@@ -3,6 +3,8 @@
  * Comprehensive route validation and testing utilities
  */
 
+import { parseTenantFromUrl } from '@/utils/tenantRouting';
+
 export interface RouteTest {
   path: string;
   expectedTenant: string | null;
@@ -75,9 +77,6 @@ export function validateRoute(test: RouteTest): RouteValidationResult {
       ...window.location,
       pathname: test.path
     };
-    
-    // Import parseTenantFromUrl dynamically to avoid circular imports
-    const { parseTenantFromUrl } = require('@/utils/tenantRouting');
     
     // Temporarily override window.location.pathname
     Object.defineProperty(window, 'location', {
@@ -152,7 +151,6 @@ export function runAllRouteTests(): RouteValidationResult[] {
  * Log current route detection state
  */
 export function logCurrentRouteState(): void {
-  const { parseTenantFromUrl } = require('@/utils/tenantRouting');
   const tenantRoute = parseTenantFromUrl();
   
   console.log('🔍 Current Route State:');
