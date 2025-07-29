@@ -321,7 +321,25 @@ export const DentalSleepApp: React.FC = () => {
             <Layout>
               <DentalSleepDashboard />
             </Layout>
-          } />
+          </Route>
+        )}
+        
+        {/* Development: Simple test route */}
+        {process.env.NODE_ENV === 'development' && (
+          <Route path={`${pathPrefix}/test-simple`} element={
+            <Layout>
+              <div className="p-6">
+                <h1 className="text-2xl font-bold mb-4">Simple Test Dashboard</h1>
+                <p>This is a simple test to see if the sidebar appears.</p>
+                <div className="mt-4 p-4 bg-blue-100 rounded">
+                  <h2 className="font-semibold">Debug Info:</h2>
+                  <p>URL: {window.location.href}</p>
+                  <p>Path: {window.location.pathname}</p>
+                  <p>Hostname: {window.location.hostname}</p>
+                </div>
+              </div>
+            </Layout>
+          </Route>
         )}
         
         {/* Catch-all route for non-prefixed routes */}

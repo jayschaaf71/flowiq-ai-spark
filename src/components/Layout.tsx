@@ -12,6 +12,9 @@ interface LayoutProps {
 
 export const Layout = ({ children }: LayoutProps) => {
   console.log('📱 Layout: Rendering Layout component');
+  console.log('📱 Layout: Current URL:', window.location.href);
+  console.log('📱 Layout: Current pathname:', window.location.pathname);
+  
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-background">
