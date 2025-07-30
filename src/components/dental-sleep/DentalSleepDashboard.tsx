@@ -1,176 +1,117 @@
 import React from 'react';
-import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { useSpecialty } from '@/contexts/SpecialtyContext';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Moon, Users, Calendar, TrendingUp } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
+import { Badge } from '../../components/ui/badge';
+import { Calendar, Users, TrendingUp, CheckCircle, Clock, Moon } from 'lucide-react';
 
-const DentalSleepDashboardContent: React.FC = () => {
-  console.log('🦷 DentalSleepDashboard rendering');
-  
-  // Fallback values in case context fails
-  const brandName = 'Dental Sleep iQ';
-  
-  const stats = [
-    {
-      title: "Active Sleep Studies",
-      value: "24",
-      icon: Moon,
-      trend: "+12%"
-    },
-    {
-      title: "Patients This Month",
-      value: "156",
-      icon: Users,
-      trend: "+8%"
-    },
-    {
-      title: "Upcoming Appointments",
-      value: "18",
-      icon: Calendar,
-      trend: "+15%"
-    },
-    {
-      title: "Compliance Rate",
-      value: "89%",
-      icon: TrendingUp,
-      trend: "+3%"
-    }
-  ];
+export const DentalSleepDashboard: React.FC = () => {
+  console.log('🦷 DentalSleepDashboard: Rendering DentalSleepDashboard component');
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold text-foreground">
-            {brandName} Dashboard
-          </h1>
-          <p className="text-muted-foreground">
-            Welcome to your dental sleep medicine practice management
-          </p>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((stat, index) => {
-            const Icon = stat.icon;
-            return (
-              <Card key={index}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    {stat.title}
-                  </CardTitle>
-                  <Icon className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stat.value}</div>
-                  <p className="text-xs text-muted-foreground">
-                    <span className="text-green-600">{stat.trend}</span> from last month
-                  </p>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-
-        {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Sleep Studies</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 border rounded-lg">
-                  <div>
-                    <p className="font-medium">John Smith</p>
-                    <p className="text-sm text-muted-foreground">Sleep Apnea Study</p>
-                  </div>
-                  <span className="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                    In Progress
-                  </span>
-                </div>
-                <div className="flex items-center justify-between p-4 border rounded-lg">
-                  <div>
-                    <p className="font-medium">Sarah Johnson</p>
-                    <p className="text-sm text-muted-foreground">CPAP Follow-up</p>
-                  </div>
-                  <span className="text-sm bg-green-100 text-green-800 px-2 py-1 rounded">
-                    Completed
-                  </span>
-                </div>
-                <div className="flex items-center justify-between p-4 border rounded-lg">
-                  <div>
-                    <p className="font-medium">Mike Wilson</p>
-                    <p className="text-sm text-muted-foreground">Initial Consultation</p>
-                  </div>
-                  <span className="text-sm bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
-                    Scheduled
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <button className="w-full p-4 text-left border rounded-lg hover:bg-accent transition-colors">
-                  <div className="flex items-center gap-3">
-                    <Calendar className="h-5 w-5 text-primary" />
-                    <span>Schedule New Appointment</span>
-                  </div>
-                </button>
-                <button className="w-full p-4 text-left border rounded-lg hover:bg-accent transition-colors">
-                  <div className="flex items-center gap-3">
-                    <Users className="h-5 w-5 text-primary" />
-                    <span>Add New Patient</span>
-                  </div>
-                </button>
-                <button className="w-full p-4 text-left border rounded-lg hover:bg-accent transition-colors">
-                  <div className="flex items-center gap-3">
-                    <Moon className="h-5 w-5 text-primary" />
-                    <span>Start Sleep Study</span>
-                  </div>
-                </button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold">Dental Sleep iQ Dashboard</h1>
+        <p className="text-muted-foreground">Welcome to your dental sleep medicine practice management</p>
       </div>
-    </div>
-  );
-};
 
-const DentalSleepDashboardFallback: React.FC = () => {
-  return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto">
+      {/* Key Performance Indicators */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
-          <CardContent className="p-8 text-center">
-            <Moon className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-            <h2 className="text-xl font-semibold mb-2">Dental Sleep Dashboard</h2>
-            <p className="text-muted-foreground">Loading your practice data...</p>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Sleep Studies</CardTitle>
+            <Moon className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">24</div>
+            <p className="text-xs text-green-600">+12% from last month</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Patients This Month</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">156</div>
+            <p className="text-xs text-green-600">+8% from last month</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Upcoming Appointments</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">18</div>
+            <p className="text-xs text-green-600">+15% from last month</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Compliance Rate</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">89%</div>
+            <p className="text-xs text-green-600">+3% from last month</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Recent Sleep Studies */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Recent Sleep Studies</CardTitle>
+            <CardDescription>Latest patient sleep studies and progress</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center justify-between p-3 border rounded">
+              <div>
+                <div className="font-medium">John Smith</div>
+                <div className="text-sm text-muted-foreground">Sleep Apnea Study</div>
+              </div>
+              <Badge variant="secondary" className="bg-blue-100 text-blue-800">In Progress</Badge>
+            </div>
+            <div className="flex items-center justify-between p-3 border rounded">
+              <div>
+                <div className="font-medium">Sarah Johnson</div>
+                <div className="text-sm text-muted-foreground">CPAP Follow-up</div>
+              </div>
+              <Badge variant="secondary" className="bg-green-100 text-green-800">Completed</Badge>
+            </div>
+            <div className="flex items-center justify-between p-3 border rounded">
+              <div>
+                <div className="font-medium">Mike Wilson</div>
+                <div className="text-sm text-muted-foreground">Initial Consultation</div>
+              </div>
+              <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">Scheduled</Badge>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Quick Actions */}
+        <Card className="md:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-lg">Quick Actions</CardTitle>
+            <CardDescription>Common tasks and shortcuts</CardDescription>
+          </CardHeader>
+          <CardContent className="grid grid-cols-3 gap-4">
+            <Button className="w-full">
+              <Calendar className="mr-2 h-4 w-4" />
+              Schedule New Appointment
+            </Button>
+            <Button variant="outline" className="w-full">
+              <Users className="mr-2 h-4 w-4" />
+              Add New Patient
+            </Button>
+            <Button variant="outline" className="w-full">
+              <Moon className="mr-2 h-4 w-4" />
+              Start Sleep Study
+            </Button>
           </CardContent>
         </Card>
       </div>
     </div>
-  );
-};
-
-export const DentalSleepDashboard: React.FC = () => {
-  return (
-    <ErrorBoundary 
-      fallback={<DentalSleepDashboardFallback />}
-      onError={(error) => console.error('DentalSleepDashboard error:', error)}
-    >
-      <React.Suspense fallback={<LoadingSpinner text="Loading dashboard..." />}>
-        <DentalSleepDashboardContent />
-      </React.Suspense>
-    </ErrorBoundary>
   );
 };
