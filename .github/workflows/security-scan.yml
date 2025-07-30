@@ -193,8 +193,7 @@ jobs:
     - name: Install Supabase CLI
       run: |
         echo "Installing Supabase CLI..."
-        curl -fsSL https://supabase.com/install.sh | sh
-        export PATH="$HOME/.local/bin:$PATH"
+        npm install -g @supabase/cli
         supabase --version
       
     - name: Check RLS policies
