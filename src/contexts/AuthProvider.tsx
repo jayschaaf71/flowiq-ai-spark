@@ -51,6 +51,49 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profileLoading, setProfileLoading] = useState(false);
   const { toast } = useToast();
 
+  // Development bypass - create mock user for localhost
+  const isDevelopment = process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost';
+  
+  if (isDevelopment && !user) {
+    console.log('🔓 [DEV] Creating mock user for development');
+    const mockUser = {
+      id: 'dev-user-id',
+      email: 'dev@flowiq.ai',
+      user_metadata: { first_name: 'Dev', last_name: 'User' },
+      app_metadata: {},
+      aud: 'authenticated',
+      created_at: new Date().toISOString()
+    } as User;
+    
+    const mockProfile: Profile = {
+      id: 'dev-user-id',
+      email: 'dev@flowiq.ai',
+      first_name: 'Dev',
+      last_name: 'User',
+      role: 'staff'
+    };
+    
+    const mockSession = {
+      user: mockUser,
+      access_token: 'dev-token',
+      refresh_token: 'dev-refresh'
+    } as Session;
+    
+    const value = {
+      user: mockUser,
+      profile: mockProfile,
+      session: mockSession,
+      loading: false,
+      signIn: async () => ({ error: null }),
+      signUp: async () => ({ error: null }),
+      signOut: async () => {},
+      refreshProfile: async () => {},
+      switchRole: async () => {},
+    };
+    
+    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  }
+
   const loading = authLoading || profileLoading;
 
   const fetchProfile = async (userId: string): Promise<Profile | null> => {
