@@ -30,6 +30,19 @@ export const ChiropracticDashboard = () => {
   const { appointments, loading: appointmentsLoading, error: appointmentsError } = useAppointments();
   const { data: patients, isLoading: patientsLoading, error: patientsError } = usePatients();
   
+  // Debug component to see if this component is rendering
+  const debugComponent = (
+    <div style={{ padding: '20px', backgroundColor: 'green', color: 'white', margin: '20px' }}>
+      <h1>ChiropracticDashboard Debug</h1>
+      <p>Appointments Loading: {appointmentsLoading ? 'Yes' : 'No'}</p>
+      <p>Patients Loading: {patientsLoading ? 'Yes' : 'No'}</p>
+      <p>Appointments Error: {appointmentsError ? 'Yes' : 'No'}</p>
+      <p>Patients Error: {patientsError ? 'Yes' : 'No'}</p>
+      <p>Appointments Count: {appointments?.length || 0}</p>
+      <p>Patients Count: {patients?.length || 0}</p>
+    </div>
+  );
+  
   console.log('🏥 ChiropracticDashboard: Data state', {
     appointmentsLoading,
     patientsLoading,
@@ -94,6 +107,7 @@ export const ChiropracticDashboard = () => {
 
   return (
     <div className="space-y-6">
+      {debugComponent}
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Chiropractic Practice</h1>
