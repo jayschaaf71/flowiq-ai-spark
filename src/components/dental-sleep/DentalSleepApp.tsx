@@ -306,6 +306,14 @@ export const DentalSleepApp: React.FC = () => {
           </ProtectedRoute>
         } />
 
+        <Route path={`${pathPrefix}/agents/communication`} element={
+          <ProtectedRoute requiredRole="staff">
+            <Layout>
+              <CommunicationIQ />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
         {/* Development/Testing Routes */}
         <Route path={`${pathPrefix}/test`} element={
           <ProtectedRoute requiredRole="staff">
@@ -344,10 +352,8 @@ export const DentalSleepApp: React.FC = () => {
           </Route>
         )} */}
 
-        {/* Catch-all route for non-prefixed routes */}
-        {isNonPrefixedRoute && (
-          <Route path="*" element={<Navigate to="/dental-sleep/dashboard" replace />} />
-        )}
+        {/* Catch-all route for all unmatched routes */}
+        <Route path="*" element={<Navigate to={`${pathPrefix}/dashboard`} replace />} />
       </Routes>
     </DentalSleepWrapper>
   );

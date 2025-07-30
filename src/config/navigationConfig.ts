@@ -31,12 +31,17 @@ import {
 import { NavItem, NavGroup } from "@/services/sidebarService";
 
 export const navGroups: NavGroup[] = [
-  { id: "overview", title: "Overview", order: 10 },
-  { id: "clinical_care", title: "Clinical Care", order: 20 },
-  { id: "patient_journey", title: "Patient Journey", order: 30 },
-  { id: "revenue_cycle", title: "Revenue Cycle", order: 40 },
-  { id: "operations", title: "Operations", order: 50 },
-  { id: "settings", title: "Settings", order: 60 }
+  { id: "main", title: "Overview", order: 10 },
+  { id: "patients", title: "Patient Journey", order: 20 },
+  { id: "communication", title: "Communication", order: 30 },
+  { id: "clinical", title: "Clinical Care", order: 40 },
+  { id: "revenue_cycle", title: "Revenue Cycle", order: 50 },
+  { id: "operations", title: "Operations", order: 60 },
+  { id: "analytics", title: "Analytics", order: 70 },
+  { id: "education", title: "Education", order: 80 },
+  { id: "marketing", title: "Growth", order: 90 },
+  { id: "support", title: "Support", order: 100 },
+  { id: "settings", title: "Settings", order: 110 }
 ];
 
 // Base navigation items
@@ -153,15 +158,23 @@ export const getNavItems = (specialty: string = 'chiropractic'): NavItem[] => {
     }
     
     if (item.id === 'insight-iq') {
-      return { ...item, path: `${specialtyPrefix}/insight` };
+      return { ...item, path: `${specialtyPrefix}/agents/insight` };
     }
     
     if (item.id === 'assist-iq') {
-      return { ...item, path: `${specialtyPrefix}/assist` };
+      return { ...item, path: `${specialtyPrefix}/agents/assist` };
     }
     
     if (item.id === 'education-iq') {
-      return { ...item, path: `${specialtyPrefix}/education` };
+      return { ...item, path: `${specialtyPrefix}/agents/education` };
+    }
+    
+    if (item.id === 'growth-iq') {
+      return { ...item, path: `${specialtyPrefix}/agents/growth` };
+    }
+    
+    if (item.id === 'communication-iq') {
+      return { ...item, path: `${specialtyPrefix}/agents/communication` };
     }
     
     return item;
