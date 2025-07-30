@@ -306,14 +306,6 @@ export const DentalSleepApp: React.FC = () => {
           </ProtectedRoute>
         } />
 
-        <Route path={`${pathPrefix}/agents/communication`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <CommunicationIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
         {/* Development/Testing Routes */}
         <Route path={`${pathPrefix}/test`} element={
           <ProtectedRoute requiredRole="staff">

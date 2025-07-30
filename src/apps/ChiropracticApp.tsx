@@ -41,16 +41,6 @@ import ApplicationTest from '@/pages/ApplicationTest';
 export default function ChiropracticApp() {
   console.log('🦴 ChiropracticApp: Rendering ChiropracticApp component');
 
-  // Add a simple test to see if component is rendering
-  const testRender = (
-    <div style={{ padding: '20px', backgroundColor: 'red', color: 'white' }}>
-      <h1>ChiropracticApp is rendering!</h1>
-      <p>URL: {window.location.href}</p>
-      <p>Pathname: {window.location.pathname}</p>
-      <p>Hostname: {window.location.hostname}</p>
-    </div>
-  );
-
   useEffect(() => {
     const tenantRoute = parseTenantFromUrl();
     console.log('🦴 ChiropracticApp: tenantRoute detected:', tenantRoute);
@@ -90,7 +80,6 @@ export default function ChiropracticApp() {
 
   return (
     <ChiropracticWrapper>
-      {testRender}
       <Routes>
         {/* Redirect root to dashboard */}
         <Route path="/" element={<Navigate to={`${pathPrefix}/dashboard`} replace />} />
@@ -269,7 +258,7 @@ export default function ChiropracticApp() {
           </ProtectedRoute>
         } />
 
-        <Route path={`${pathPrefix}/agents/insights`} element={
+        <Route path={`${pathPrefix}/agents/insight`} element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <InsightIQ />
@@ -297,14 +286,6 @@ export default function ChiropracticApp() {
           <ProtectedRoute requiredRole="staff">
             <Layout>
               <OpsIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        <Route path={`${pathPrefix}/agents/communication`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <CommunicationIQ />
             </Layout>
           </ProtectedRoute>
         } />

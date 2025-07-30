@@ -32,50 +32,31 @@ import { NavItem, NavGroup } from "@/services/sidebarService";
 
 export const navGroups: NavGroup[] = [
   { id: "main", title: "Overview", order: 10 },
-  { id: "patients", title: "Patient Journey", order: 20 },
-  { id: "communication", title: "Communication", order: 30 },
-  { id: "clinical", title: "Clinical Care", order: 40 },
-  { id: "revenue_cycle", title: "Revenue Cycle", order: 50 },
-  { id: "operations", title: "Operations", order: 60 },
-  { id: "analytics", title: "Analytics", order: 70 },
-  { id: "education", title: "Education", order: 80 },
-  { id: "marketing", title: "Growth", order: 90 },
-  { id: "support", title: "Support", order: 100 },
-  { id: "settings", title: "Settings", order: 110 }
+  { id: "ai_agents", title: "AI Agents", order: 20 },
+  { id: "settings", title: "Settings", order: 30 }
 ];
 
-// Base navigation items - Only show the 10 consolidated agents
+// Base navigation items - Clean, organized structure
 const baseNavItems: NavItem[] = [
-  // Dashboard
+  // Overview
   { id: "dashboard", label: "Dashboard", path: "/dashboard", icon: LayoutDashboard, group: "main", order: 1 },
+  { id: "calendar", label: "Calendar", path: "/calendar", icon: Calendar, group: "main", order: 2 },
   
-  // Communication (CONSOLIDATED)
-  { id: "communication-iq", label: "Communication iQ", path: "/agents/communication", icon: MessageSquare, badge: "AI", group: "communication", order: 10 },
-  
-  // Clinical
-  { id: "scribe-iq", label: "Scribe iQ", path: "/agents/scribe", icon: Stethoscope, badge: "AI", group: "clinical", order: 10 },
-  { id: "ehr-iq", label: "EHR iQ", path: "/agents/ehr", icon: FileText, badge: "AI", group: "clinical", order: 20 },
-  
-  // Revenue Cycle (CONSOLIDATED)
-  { id: "revenue-iq", label: "Revenue iQ", path: "/agents/revenue", icon: TrendingUp, badge: "AI", group: "revenue_cycle", order: 10 },
-  { id: "insurance-iq", label: "Insurance iQ", path: "/agents/insurance", icon: Shield, badge: "AI", group: "revenue_cycle", order: 20 },
-  
-  // Operations
-  { id: "inventory-iq", label: "Inventory iQ", path: "/agents/inventory", icon: Package, badge: "AI", group: "operations", order: 10 },
-  { id: "ops-iq", label: "Ops iQ", path: "/agents/ops", icon: Settings, badge: "AI", group: "operations", order: 20 },
-  
-  // Analytics
-  { id: "insight-iq", label: "Insight iQ", path: "/agents/insight", icon: BarChart3, badge: "AI", group: "analytics", order: 10 },
-  
-  // Education
-  { id: "education-iq", label: "Education iQ", path: "/agents/education", icon: GraduationCap, badge: "AI", group: "education", order: 10 },
-  
-  // Growth
-  { id: "growth-iq", label: "Growth iQ", path: "/agents/growth", icon: Target, badge: "AI", group: "marketing", order: 10 },
+  // AI Agents (All 10 consolidated agents)
+  { id: "communication-iq", label: "Communication iQ", path: "/agents/communication", icon: MessageSquare, badge: "AI", group: "ai_agents", order: 1 },
+  { id: "scribe-iq", label: "Scribe iQ", path: "/agents/scribe", icon: Stethoscope, badge: "AI", group: "ai_agents", order: 2 },
+  { id: "ehr-iq", label: "EHR iQ", path: "/agents/ehr", icon: FileText, badge: "AI", group: "ai_agents", order: 3 },
+  { id: "revenue-iq", label: "Revenue iQ", path: "/agents/revenue", icon: TrendingUp, badge: "AI", group: "ai_agents", order: 4 },
+  { id: "insurance-iq", label: "Insurance iQ", path: "/agents/insurance", icon: Shield, badge: "AI", group: "ai_agents", order: 5 },
+  { id: "inventory-iq", label: "Inventory iQ", path: "/agents/inventory", icon: Package, badge: "AI", group: "ai_agents", order: 6 },
+  { id: "ops-iq", label: "Ops iQ", path: "/agents/ops", icon: Settings, badge: "AI", group: "ai_agents", order: 7 },
+  { id: "insight-iq", label: "Insight iQ", path: "/agents/insight", icon: BarChart3, badge: "AI", group: "ai_agents", order: 8 },
+  { id: "education-iq", label: "Education iQ", path: "/agents/education", icon: GraduationCap, badge: "AI", group: "ai_agents", order: 9 },
+  { id: "growth-iq", label: "Growth iQ", path: "/agents/growth", icon: Target, badge: "AI", group: "ai_agents", order: 10 },
   
   // Settings
-  { id: "settings", label: "Settings", path: "/settings", icon: Settings, group: "settings", order: 10 },
-  { id: "profile", label: "Profile", path: "/profile", icon: User, group: "settings", order: 20 }
+  { id: "settings", label: "Settings", path: "/settings", icon: Settings, group: "settings", order: 1 },
+  { id: "profile", label: "Profile", path: "/profile", icon: User, group: "settings", order: 2 }
 ];
 
 // Remove deprecated items
