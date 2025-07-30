@@ -62,7 +62,8 @@ export default function ChiropracticApp() {
 
   const tenantRoute = parseTenantFromUrl();
   const isProduction = tenantRoute?.isProduction;
-  const pathPrefix = isProduction ? '' : '/chiropractic';
+  // For localhost development, don't add extra prefix
+  const pathPrefix = isProduction ? '' : (window.location.hostname === 'localhost' ? '' : '/chiropractic');
 
   // Support non-prefixed routes for fallback routing from TenantRouter
   const currentPath = window.location.pathname;
@@ -78,8 +79,20 @@ export default function ChiropracticApp() {
 
   console.log('🦴 ChiropracticApp: About to render ChiropracticWrapper with Routes');
 
+  // Debug component to see if ChiropracticApp is rendering
+  const debugComponent = (
+    <div style={{ padding: '20px', backgroundColor: 'blue', color: 'white', margin: '20px' }}>
+      <h1>ChiropracticApp Debug</h1>
+      <p>Current Path: {window.location.pathname}</p>
+      <p>Path Prefix: {pathPrefix}</p>
+      <p>Is Production: {isProduction ? 'Yes' : 'No'}</p>
+      <p>Tenant Route: {JSON.stringify(tenantRoute)}</p>
+    </div>
+  );
+
   return (
     <ChiropracticWrapper>
+      {debugComponent}
       <Routes>
         {/* Redirect root to dashboard */}
         <Route path="/" element={<Navigate to={`${pathPrefix}/dashboard`} replace />} />
