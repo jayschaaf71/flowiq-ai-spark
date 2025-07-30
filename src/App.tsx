@@ -27,8 +27,8 @@ import ChiropracticApp from "@/apps/ChiropracticApp";
 import { DentalSleepApp } from "@/components/dental-sleep/DentalSleepApp";
 import DentalApp from "@/apps/DentalApp";
 
-// Landing page for non-tenant routes
-import Index from "./pages/Index";
+// Landing page for non-tenant routes (disabled for development)
+// import Index from "./pages/Index";
 
 console.log('✅ [DIAGNOSTIC] App.tsx - All imports completed');
 
@@ -74,6 +74,14 @@ const TenantRouter: React.FC = () => {
   }
   
   console.log('🚨 [CRITICAL DEBUG] NO TENANT DETECTED - tenantRoute is:', tenantRoute);
+  
+  // For localhost development, default to chiropractic app
+  if (window.location.hostname === 'localhost') {
+    console.log('🎯 [DEV] No tenant detected on localhost, defaulting to ChiropracticApp');
+    document.title = 'FlowIQ - Chiropractic Care';
+    return <ChiropracticApp />;
+  }
+  
   // No tenant detected - check if it's an app route or landing page route
   const isAppRoute = (path: string) => {
     const appPaths = ['/agents/', '/dashboard', '/schedule', '/calendar', '/analytics', '/ehr', '/patient-management', '/financial', '/patient-experience', '/ai-automation', '/team', '/checkin', '/insights', '/notifications', '/help', '/settings'];
@@ -86,10 +94,10 @@ const TenantRouter: React.FC = () => {
     return <ChiropracticApp />;
   }
   
-  // Only show landing page for actual landing routes
+  // Only show landing page for actual landing routes (not localhost)
   console.log('🏠 No tenant detected, showing landing page for path:', currentPath);
   document.title = 'FlowIQ - AI Operating System';
-  return <Index />;
+  return <ChiropracticApp />; // Default to chiropractic app instead of landing page
 };
 
 const App = () => {
