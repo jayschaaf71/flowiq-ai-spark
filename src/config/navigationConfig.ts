@@ -44,26 +44,21 @@ export const navGroups: NavGroup[] = [
   { id: "settings", title: "Settings", order: 110 }
 ];
 
-// Base navigation items
+// Base navigation items - Only show the 10 consolidated agents
 const baseNavItems: NavItem[] = [
   // Dashboard
   { id: "dashboard", label: "Dashboard", path: "/dashboard", icon: LayoutDashboard, group: "main", order: 1 },
   
-  // Patient Management
-  { id: "patients", label: "Patients", path: "/patients", icon: Users, group: "patients", order: 10 },
-  { id: "appointments", label: "Appointments", path: "/appointments", icon: Calendar, group: "patients", order: 20 },
-  { id: "intake", label: "Intake", path: "/intake", icon: ClipboardList, group: "patients", order: 30 },
-  
   // Communication (CONSOLIDATED)
   { id: "communication-iq", label: "Communication iQ", path: "/agents/communication", icon: MessageSquare, badge: "AI", group: "communication", order: 10 },
-  
-  // Revenue Cycle (CONSOLIDATED)
-  { id: "revenue-iq", label: "Revenue iQ", path: "/agents/revenue", icon: TrendingUp, badge: "AI", group: "revenue_cycle", order: 10 },
-  { id: "insurance-iq", label: "Insurance iQ", path: "/agents/insurance", icon: Shield, badge: "AI", group: "revenue_cycle", order: 20 },
   
   // Clinical
   { id: "scribe-iq", label: "Scribe iQ", path: "/agents/scribe", icon: Stethoscope, badge: "AI", group: "clinical", order: 10 },
   { id: "ehr-iq", label: "EHR iQ", path: "/agents/ehr", icon: FileText, badge: "AI", group: "clinical", order: 20 },
+  
+  // Revenue Cycle (CONSOLIDATED)
+  { id: "revenue-iq", label: "Revenue iQ", path: "/agents/revenue", icon: TrendingUp, badge: "AI", group: "revenue_cycle", order: 10 },
+  { id: "insurance-iq", label: "Insurance iQ", path: "/agents/insurance", icon: Shield, badge: "AI", group: "revenue_cycle", order: 20 },
   
   // Operations
   { id: "inventory-iq", label: "Inventory iQ", path: "/agents/inventory", icon: Package, badge: "AI", group: "operations", order: 10 },
@@ -72,12 +67,11 @@ const baseNavItems: NavItem[] = [
   // Analytics
   { id: "insight-iq", label: "Insight iQ", path: "/agents/insight", icon: BarChart3, badge: "AI", group: "analytics", order: 10 },
   
-  // Support
-  { id: "assist-iq", label: "Assist iQ", path: "/agents/assist", icon: MessageSquare, badge: "AI", group: "support", order: 10 },
-  
-  // Education & Marketing
+  // Education
   { id: "education-iq", label: "Education iQ", path: "/agents/education", icon: GraduationCap, badge: "AI", group: "education", order: 10 },
-  { id: "go-to-market-iq", label: "Go-To-Market iQ", path: "/agents/go-to-market", icon: Target, badge: "AI", group: "marketing", order: 10 },
+  
+  // Growth
+  { id: "growth-iq", label: "Growth iQ", path: "/agents/growth", icon: Target, badge: "AI", group: "marketing", order: 10 },
   
   // Settings
   { id: "settings", label: "Settings", path: "/settings", icon: Settings, group: "settings", order: 10 },
