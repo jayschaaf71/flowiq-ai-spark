@@ -24,25 +24,25 @@ export const CommunicationIQWrapper: React.FC<CommunicationIQWrapperProps> = ({
   // Standalone mode has different auth requirements and styling
   if (isStandalone) {
     return (
-      <div className="communicationiq-standalone">
+      <div className="flowiq-connect-standalone">
         <style>{`
-          .communicationiq-standalone {
-            --primary: 214 100% 59%;
+          .flowiq-connect-standalone {
+            --primary: 142 76% 36%;
             --primary-foreground: 0 0% 98%;
-            --secondary: 214 95% 69%;
-            --secondary-foreground: 214 10% 10%;
-            --accent: 214 100% 94%;
-            --accent-foreground: 214 10% 10%;
-            --muted: 214 30% 95%;
-            --muted-foreground: 214 5% 45%;
-            --border: 214 30% 82%;
+            --secondary: 142 76% 46%;
+            --secondary-foreground: 142 10% 10%;
+            --accent: 142 76% 94%;
+            --accent-foreground: 142 10% 10%;
+            --muted: 142 30% 95%;
+            --muted-foreground: 142 5% 45%;
+            --border: 142 30% 82%;
             --card: 0 0% 100%;
-            --card-foreground: 214 10% 10%;
-            --brand-name: "${tenantConfig?.branding?.name || 'Communication IQ'}";
+            --card-foreground: 142 10% 10%;
+            --brand-name: "${tenantConfig?.branding?.name || 'FlowIQ Connect'}";
             --specialty-features: "smart-communication, ai-scheduling, customer-support, multi-channel";
           }
           
-          .communicationiq-standalone-header {
+          .flowiq-connect-standalone-header {
             background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
             color: hsl(var(--primary-foreground));
             padding: 1.5rem;
@@ -51,13 +51,13 @@ export const CommunicationIQWrapper: React.FC<CommunicationIQWrapperProps> = ({
             margin-bottom: 2rem;
           }
           
-          .communicationiq-standalone-content {
+          .flowiq-connect-standalone-content {
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 1rem;
           }
           
-          .communicationiq-specialty-badge {
+          .flowiq-connect-specialty-badge {
             background: hsl(var(--accent));
             color: hsl(var(--accent-foreground));
             padding: 0.25rem 0.75rem;
@@ -68,17 +68,17 @@ export const CommunicationIQWrapper: React.FC<CommunicationIQWrapperProps> = ({
         `}</style>
         
         {/* Standalone header */}
-        <div className="communicationiq-standalone-header">
+        <div className="flowiq-connect-standalone-header">
           <h1 className="text-3xl font-bold mb-2">
-            {tenantConfig?.branding?.name || 'Communication IQ'}
+            {tenantConfig?.branding?.name || 'FlowIQ Connect'}
           </h1>
-          <p className="opacity-90 text-lg mb-3">AI-Powered Communication System for Any Business</p>
-          <span className="communicationiq-specialty-badge">
+          <p className="opacity-90 text-lg mb-3">AI-Powered Communication System for Service Businesses</p>
+          <span className="flowiq-connect-specialty-badge">
             Smart Communication Platform
           </span>
         </div>
         
-        <div className="communicationiq-standalone-content">
+        <div className="flowiq-connect-standalone-content">
           {children}
         </div>
       </div>
@@ -89,25 +89,25 @@ export const CommunicationIQWrapper: React.FC<CommunicationIQWrapperProps> = ({
   return (
     <TenantProtectedRoute requiredRole="staff">
       <SpecialtyProvider>
-        <div className="communicationiq-integrated">
+        <div className="flowiq-connect-integrated">
           <style>{`
-            .communicationiq-integrated {
-              --primary: 214 100% 59%;
+            .flowiq-connect-integrated {
+              --primary: 142 76% 36%;
               --primary-foreground: 0 0% 98%;
-              --secondary: 214 95% 69%;
-              --secondary-foreground: 214 10% 10%;
-              --accent: 214 100% 94%;
-              --accent-foreground: 214 10% 10%;
-              --muted: 214 30% 95%;
-              --muted-foreground: 214 5% 45%;
-              --border: 214 30% 82%;
+              --secondary: 142 76% 46%;
+              --secondary-foreground: 142 10% 10%;
+              --accent: 142 76% 94%;
+              --accent-foreground: 142 10% 10%;
+              --muted: 142 30% 95%;
+              --muted-foreground: 142 5% 45%;
+              --border: 142 30% 82%;
               --card: 0 0% 100%;
-              --card-foreground: 214 10% 10%;
-              --brand-name: "Communication IQ";
+              --card-foreground: 142 10% 10%;
+              --brand-name: "FlowIQ Connect";
               --specialty-features: "smart-communication, ai-scheduling, customer-support, automation";
             }
             
-            .communicationiq-integrated-header {
+            .flowiq-connect-integrated-header {
               background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
               color: hsl(var(--primary-foreground));
               padding: 1rem;
@@ -116,7 +116,7 @@ export const CommunicationIQWrapper: React.FC<CommunicationIQWrapperProps> = ({
               text-align: center;
             }
             
-            .communicationiq-specialty-badge {
+            .flowiq-connect-specialty-badge {
               background: hsl(var(--accent));
               color: hsl(var(--accent-foreground));
               padding: 0.25rem 0.75rem;
@@ -126,11 +126,11 @@ export const CommunicationIQWrapper: React.FC<CommunicationIQWrapperProps> = ({
             }
           `}</style>
           
-          <div className="communicationiq-integrated-header">
-            <h2 className="text-xl font-semibold mb-2">Communication IQ</h2>
+          <div className="flowiq-connect-integrated-header">
+            <h2 className="text-xl font-semibold mb-2">FlowIQ Connect</h2>
             <p className="opacity-90 mb-2">AI-Powered Communication System</p>
             <div className="flex justify-center">
-              <span className="communicationiq-specialty-badge">
+              <span className="flowiq-connect-specialty-badge">
                 Smart Communication Platform
               </span>
             </div>

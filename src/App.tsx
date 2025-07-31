@@ -10,7 +10,7 @@ import { TooltipProvider } from './components/ui/tooltip';
 import { AuthProvider } from './contexts/AuthProvider';
 import { ChiropracticApp } from './apps/ChiropracticApp';
 import { DentalSleepApp } from './components/dental-sleep/DentalSleepApp';
-import CommunicationIQApp from './apps/CommunicationIQApp';
+import FlowIQConnectApp from './apps/CommunicationIQApp';
 import { HealthCheck } from './components/health/HealthCheck';
 import { MarketingHomepage } from './pages/MarketingHomepage';
 import { HealthcareLanding } from './pages/HealthcareLanding';
@@ -74,7 +74,7 @@ function App() {
               {/* Development routes */}
               <Route path="/chiropractic/*" element={<ChiropracticApp />} />
               <Route path="/dental-sleep/*" element={<DentalSleepApp />} />
-              <Route path="/communication/*" element={<CommunicationIQApp />} />
+              <Route path="/communication/*" element={<FlowIQConnectApp />} />
 
               {/* Production domain routing using unified system */}
               {isProduction && tenantRoute && (
@@ -86,7 +86,7 @@ function App() {
                     <Route path="/*" element={<ChiropracticApp />} />
                   )}
                   {tenantRoute.defaultApp === 'communication' && (
-                    <Route path="/*" element={<CommunicationIQApp />} />
+                    <Route path="/*" element={<FlowIQConnectApp />} />
                   )}
                 </>
               )}

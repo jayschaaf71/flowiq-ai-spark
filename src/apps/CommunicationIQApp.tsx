@@ -1,13 +1,13 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { CommunicationIQWrapper } from '@/components/wrappers/CommunicationIQWrapper';
-import CommunicationIQ from '@/pages/agents/CommunicationIQ';
+import FlowIQConnect from '@/pages/agents/CommunicationIQ';
 
-const CommunicationIQApp = () => {
+const FlowIQConnectApp = () => {
   const tenantConfig = {
     branding: {
-      primaryColor: '#3b82f6',
-      name: 'Communication IQ',
+      primaryColor: '#10b981',
+      name: 'FlowIQ Connect',
       logo: '/logo.png'
     },
     features: {
@@ -18,44 +18,44 @@ const CommunicationIQApp = () => {
       smartCommunication: true,
       automatedFollowUp: true,
       customerSupport: true,
-      patientIntake: true,
+      customerOnboarding: true,
       formBuilder: true,
-      voiceIntake: true,
+      voiceOnboarding: true,
       smsReminders: true,
       emailCommunication: true,
       aiAssistant: true
     },
     integrations: {
       calendar: 'google' as const,
-      ehr: 'integrated',
+      crm: 'integrated',
       sms: true,
       email: true,
       voip: true,
-      crm: true
+      serviceManagement: true
     }
   };
 
   return (
     <CommunicationIQWrapper mode="standalone" tenantConfig={tenantConfig}>
       <Routes>
-        {/* Main communication interface - comprehensive Communication IQ */}
-        <Route path="/" element={<CommunicationIQ />} />
+        {/* Main communication interface - comprehensive FlowIQ Connect */}
+        <Route path="/" element={<FlowIQConnect />} />
         
-        {/* All routes handled by Communication IQ */}
-        <Route path="/dashboard" element={<CommunicationIQ />} />
-        <Route path="/calendar" element={<CommunicationIQ />} />
-        <Route path="/booking" element={<CommunicationIQ />} />
-        <Route path="/intake" element={<CommunicationIQ />} />
-        <Route path="/forms" element={<CommunicationIQ />} />
-        <Route path="/communications" element={<CommunicationIQ />} />
-        <Route path="/voice" element={<CommunicationIQ />} />
-        <Route path="/reminders" element={<CommunicationIQ />} />
+        {/* All routes handled by FlowIQ Connect */}
+        <Route path="/dashboard" element={<FlowIQConnect />} />
+        <Route path="/calendar" element={<FlowIQConnect />} />
+        <Route path="/booking" element={<FlowIQConnect />} />
+        <Route path="/onboarding" element={<FlowIQConnect />} />
+        <Route path="/forms" element={<FlowIQConnect />} />
+        <Route path="/communications" element={<FlowIQConnect />} />
+        <Route path="/voice" element={<FlowIQConnect />} />
+        <Route path="/reminders" element={<FlowIQConnect />} />
         
         {/* Success/confirmation pages */}
-        <Route path="/confirmation/:appointmentId" element={
+        <Route path="/confirmation/:serviceId" element={
           <div className="text-center py-8">
             <h2 className="text-2xl font-bold text-green-600 mb-4">
-              ✅ Communication Confirmed!
+              ✅ Service Confirmed!
             </h2>
             <p className="text-gray-600">
               You'll receive a confirmation message shortly.
@@ -67,8 +67,8 @@ const CommunicationIQApp = () => {
         <Route path="*" element={
           <div className="text-center py-8">
             <h2 className="text-xl font-semibold mb-4">Page Not Found</h2>
-            <a href="/" className="text-blue-600 hover:underline">
-              Return to Communication Hub
+            <a href="/" className="text-green-600 hover:underline">
+              Return to Service Hub
             </a>
           </div>
         } />
@@ -77,4 +77,4 @@ const CommunicationIQApp = () => {
   );
 };
 
-export default CommunicationIQApp;
+export default FlowIQConnectApp;

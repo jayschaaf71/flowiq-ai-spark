@@ -24,7 +24,9 @@ import {
   Mic,
   Volume2,
   Headphones,
-  MessageCircle
+  MessageCircle,
+  Wrench,
+  Settings
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -50,7 +52,7 @@ import { useIntakeForms } from '@/hooks/useIntakeForms';
 // Import waitlist components
 import { WaitlistManagement } from '@/components/waitlist/WaitlistManagement';
 
-export const CommunicationIQ = () => {
+export const FlowIQConnect = () => {
   const navigate = useNavigate();
   const [selectedTab, setSelectedTab] = useState('dashboard');
   const [refreshKey, setRefreshKey] = useState(0);
@@ -58,24 +60,24 @@ export const CommunicationIQ = () => {
   
   // Clear any persisting errors on mount
   React.useEffect(() => {
-    console.log('CommunicationIQ mounted, clearing any persistent errors');
+    console.log('FlowIQ Connect mounted, clearing any persistent errors');
   }, []);
 
   // Add error handling for intake forms hook
   const { forms, submissions, loading } = useIntakeForms();
 
-  // Enhanced stats combining appointment and intake metrics
+  // Enhanced stats combining service and customer metrics
   const stats = {
-    todayAppointments: 24,
+    todayServices: 24,
     confirmationRate: 87,
-    intakeCompletion: 92,
+    onboardingCompletion: 92,
     noShowRate: 3.2,
-    appointmentsToday: 24,
+    servicesToday: 24,
     bookedThisWeek: 156,
     utilizationRate: 87,
     avgBookingTime: "2.3 minutes",
     automatedBookings: 89,
-    pendingIntakes: 8,
+    pendingOnboarding: 8,
     voiceCallsToday: 15,
     emailsSent: 43,
     smsMessages: 67,
@@ -96,7 +98,7 @@ export const CommunicationIQ = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-blue-600">15</div>
+            <div className="text-3xl font-bold text-green-600">15</div>
             <p className="text-sm text-gray-500">+12% from yesterday</p>
           </CardContent>
         </Card>
@@ -178,7 +180,7 @@ export const CommunicationIQ = () => {
               <div className="flex items-center justify-between p-3 border rounded">
                 <div>
                   <h4 className="font-medium">Voice Scheduling</h4>
-                  <p className="text-sm text-gray-500">Book appointments via voice</p>
+                  <p className="text-sm text-gray-500">Book services via voice</p>
                 </div>
                 <Badge className="bg-yellow-100 text-yellow-700">Setup Required</Badge>
               </div>
@@ -255,7 +257,7 @@ export const CommunicationIQ = () => {
             <div className="flex items-center justify-between p-4 border rounded">
               <div>
                 <h4 className="font-medium">Chat Integration</h4>
-                <p className="text-sm text-gray-500">Patient-provider chat</p>
+                <p className="text-sm text-gray-500">Customer-staff chat</p>
               </div>
               <Badge className="bg-yellow-100 text-yellow-700">Setup Required</Badge>
             </div>
@@ -291,7 +293,7 @@ export const CommunicationIQ = () => {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-green-600">87%</div>
-            <p className="text-sm text-gray-500">Patient engagement</p>
+            <p className="text-sm text-gray-500">Customer engagement</p>
           </CardContent>
         </Card>
         
@@ -319,92 +321,92 @@ export const CommunicationIQ = () => {
     </div>
   );
 
-  // Mock data - enhanced for comprehensive communication management
-  const upcomingAppointments = [
+  // Mock data - enhanced for comprehensive service business management
+  const upcomingServices = [
     {
       id: 1,
-      patient: 'Sarah Johnson',
+      customer: 'Sarah Johnson',
       time: '9:00 AM',
-      provider: 'Dr. Smith',
-      type: 'Cleaning',
+      service: 'HVAC Maintenance',
+      type: 'Regular Service',
       status: 'confirmed',
       reminderSent: true,
-      intakeCompleted: true,
+      onboardingCompleted: true,
       communicationPreference: 'SMS'
     },
     {
       id: 2,
-      patient: 'Mike Wilson',
+      customer: 'Mike Wilson',
       time: '10:30 AM',
-      provider: 'Dr. Jones',
-      type: 'Consultation',
+      service: 'Plumbing Repair',
+      type: 'Emergency Call',
       status: 'pending',
       reminderSent: false,
-      intakeCompleted: false,
+      onboardingCompleted: false,
       communicationPreference: 'Email'
     },
     {
       id: 3,
-      patient: 'Emma Davis',
+      customer: 'Emma Davis',
       time: '2:00 PM',
-      provider: 'Dr. Smith',
-      type: 'Follow-up',
+      service: 'Electrical Installation',
+      type: 'New Installation',
       status: 'confirmed',
       reminderSent: true,
-      intakeCompleted: true,
+      onboardingCompleted: true,
       communicationPreference: 'Voice'
     }
   ];
 
-  const pendingIntakes = [
+  const pendingOnboarding = [
     { 
-      patient: 'Mike Wilson', 
-      appointmentTime: '10:30 AM', 
+      customer: 'Mike Wilson', 
+      serviceTime: '10:30 AM', 
       sent: '2 hours ago',
-      formType: 'New Patient',
+      formType: 'New Customer',
       communicationMethod: 'Email + SMS'
     },
     { 
-      patient: 'Lisa Chen', 
-      appointmentTime: '3:30 PM', 
+      customer: 'Lisa Chen', 
+      serviceTime: '3:30 PM', 
       sent: '1 day ago',
-      formType: 'Medical History',
+      formType: 'Service History',
       communicationMethod: 'Voice Call'
     },
     { 
-      patient: 'Robert Brown', 
-      appointmentTime: 'Tomorrow 9:00 AM', 
+      customer: 'Robert Brown', 
+      serviceTime: 'Tomorrow 9:00 AM', 
       sent: '3 hours ago',
-      formType: 'Insurance Verification',
+      formType: 'Service Requirements',
       communicationMethod: 'Email'
     }
   ];
 
   const communicationQueue = [
     { 
-      patient: 'Jennifer Smith', 
-      type: 'Appointment Reminder', 
+      customer: 'Jennifer Smith', 
+      type: 'Service Reminder', 
       method: 'SMS', 
       status: 'scheduled',
       scheduledFor: '8:00 AM today'
     },
     { 
-      patient: 'Mark Johnson', 
-      type: 'Intake Form Follow-up', 
+      customer: 'Mark Johnson', 
+      type: 'Onboarding Follow-up', 
       method: 'Voice Call', 
       status: 'pending',
       scheduledFor: 'Now'
     },
     { 
-      patient: 'Anna Wilson', 
-      type: 'Post-visit Survey', 
+      customer: 'Anna Wilson', 
+      type: 'Post-service Survey', 
       method: 'Email', 
       status: 'sent',
       scheduledFor: 'Yesterday'
     }
   ];
 
-  const handleAppointmentBooked = useCallback(() => {
+  const handleServiceBooked = useCallback(() => {
     setRefreshKey(prev => prev + 1);
     setSelectedTab("dashboard");
   }, []);
@@ -424,8 +426,8 @@ export const CommunicationIQ = () => {
     <div className="space-y-6">
       {/* Header */}
       <PageHeader 
-        title="Communication IQ"
-        subtitle="Patient communication management - intake, forms, messaging, and follow-up"
+        title="FlowIQ Connect"
+        subtitle="Customer communication management - onboarding, forms, messaging, and follow-up"
         badge="AI Agent"
       />
 
@@ -435,10 +437,10 @@ export const CommunicationIQ = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Today's Appointments</p>
-                <p className="text-2xl font-bold">{stats.todayAppointments}</p>
+                <p className="text-sm text-muted-foreground">Today's Services</p>
+                <p className="text-2xl font-bold">{stats.todayServices}</p>
               </div>
-              <Calendar className="h-8 w-8 text-blue-600" />
+              <Calendar className="h-8 w-8 text-green-600" />
             </div>
           </CardContent>
         </Card>
@@ -484,9 +486,9 @@ export const CommunicationIQ = () => {
       <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4">
         <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-          <TabsTrigger value="booking">Today's Appointments</TabsTrigger>
+          <TabsTrigger value="booking">Today's Services</TabsTrigger>
           <TabsTrigger value="available-slots">Available Slots</TabsTrigger>
-          <TabsTrigger value="intake">Patient Intake</TabsTrigger>
+          <TabsTrigger value="intake">Customer Onboarding</TabsTrigger>
           <TabsTrigger value="forms">Form Builder</TabsTrigger>
           <TabsTrigger value="communications">Communications</TabsTrigger>
           <TabsTrigger value="reminders">Auto Reminders</TabsTrigger>
@@ -499,31 +501,31 @@ export const CommunicationIQ = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Today's Schedule</CardTitle>
-                <CardDescription>Appointments and patient preparation status</CardDescription>
+                <CardDescription>Services and customer preparation status</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {upcomingAppointments.map((appointment) => (
-                    <div key={appointment.id} className="flex items-center justify-between p-4 border rounded-lg">
+                  {upcomingServices.map((service) => (
+                    <div key={service.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex items-center gap-4">
                         <div className="text-center">
-                          <div className="font-bold text-lg">{appointment.time}</div>
-                          <div className="text-xs text-gray-500">{appointment.type}</div>
+                          <div className="font-bold text-lg">{service.time}</div>
+                          <div className="text-xs text-gray-500">{service.type}</div>
                         </div>
                         <div>
-                          <div className="font-medium">{appointment.patient}</div>
-                          <div className="text-sm text-gray-600">with {appointment.provider}</div>
-                          <div className="text-xs text-gray-500">Prefers: {appointment.communicationPreference}</div>
+                          <div className="font-medium">{service.customer}</div>
+                          <div className="text-sm text-gray-600">Service: {service.service}</div>
+                          <div className="text-xs text-gray-500">Prefers: {service.communicationPreference}</div>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Badge className={getStatusColor(appointment.status)}>
-                          {appointment.status}
+                        <Badge className={getStatusColor(service.status)}>
+                          {service.status}
                         </Badge>
-                        {appointment.intakeCompleted && (
+                        {service.onboardingCompleted && (
                           <Badge className="bg-green-100 text-green-700">
                             <UserCheck className="w-3 h-3 mr-1" />
-                            Intake Done
+                            Onboarding Done
                           </Badge>
                         )}
                       </div>
@@ -537,7 +539,7 @@ export const CommunicationIQ = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Active Communications</CardTitle>
-                <CardDescription>Scheduled and pending patient communications</CardDescription>
+                <CardDescription>Scheduled and pending customer communications</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -550,7 +552,7 @@ export const CommunicationIQ = () => {
                           {comm.method === 'Email' && <Mail className="h-5 w-5 text-purple-600" />}
                         </div>
                         <div>
-                          <div className="font-medium">{comm.patient}</div>
+                          <div className="font-medium">{comm.customer}</div>
                           <div className="text-sm text-gray-600">{comm.type}</div>
                           <div className="text-xs text-gray-500">{comm.scheduledFor}</div>
                         </div>
@@ -565,28 +567,28 @@ export const CommunicationIQ = () => {
             </Card>
           </div>
 
-          {/* Pending Intakes */}
+          {/* Pending Onboarding */}
           <Card>
             <CardHeader>
-              <CardTitle>Pending Patient Intake</CardTitle>
-              <CardDescription>Patients who need to complete intake forms or verification</CardDescription>
+              <CardTitle>Pending Customer Onboarding</CardTitle>
+              <CardDescription>Customers who need to complete onboarding forms or verification</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {pendingIntakes.map((intake, index) => (
+                {pendingOnboarding.map((onboarding, index) => (
                   <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
                     <div>
-                      <div className="font-medium">{intake.patient}</div>
-                      <div className="text-sm text-gray-600">Appointment: {intake.appointmentTime}</div>
+                      <div className="font-medium">{onboarding.customer}</div>
+                      <div className="text-sm text-gray-600">Service: {onboarding.serviceTime}</div>
                       <div className="text-xs text-gray-500">
-                        {intake.formType} via {intake.communicationMethod} • Sent: {intake.sent}
+                        {onboarding.formType} via {onboarding.communicationMethod} • Sent: {onboarding.sent}
                       </div>
                     </div>
                     <div className="flex gap-2">
                       <Button 
                         variant="outline" 
                         size="sm"
-                        onClick={() => console.log('Voice call to:', intake.patient)}
+                        onClick={() => console.log('Voice call to:', onboarding.customer)}
                       >
                         <Phone className="w-4 h-4 mr-1" />
                         Call
@@ -594,7 +596,7 @@ export const CommunicationIQ = () => {
                       <Button 
                         variant="outline" 
                         size="sm"
-                        onClick={() => console.log('Resend form to:', intake.patient)}
+                        onClick={() => console.log('Resend form to:', onboarding.customer)}
                       >
                         <Mail className="w-4 h-4 mr-1" />
                         Resend
@@ -603,7 +605,7 @@ export const CommunicationIQ = () => {
                         size="sm"
                         onClick={() => setSelectedTab('intake')}
                       >
-                        View Intake
+                        View Onboarding
                       </Button>
                     </div>
                   </div>
@@ -630,10 +632,10 @@ export const CommunicationIQ = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Mic className="h-5 w-5" />
-                  Voice Conversation Intake
+                  Voice Conversation Onboarding
                 </CardTitle>
                 <CardDescription>
-                  Allow patients to provide all their information in one conversational voice session
+                  Allow customers to provide all their information in one conversational voice session
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -651,7 +653,7 @@ export const CommunicationIQ = () => {
           <Card>
             <CardHeader>
               <CardTitle>Communication Management</CardTitle>
-              <CardDescription>Manage all patient communications across channels</CardDescription>
+              <CardDescription>Manage all customer communications across channels</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -712,7 +714,7 @@ export const CommunicationIQ = () => {
               onClick={() => setSelectedTab('booking')}
             >
               <Calendar className="h-6 w-6 mb-1" />
-              <span className="text-xs">Book Appointment</span>
+              <span className="text-xs">Book Service</span>
             </Button>
             <Button 
               variant="outline" 
@@ -720,7 +722,7 @@ export const CommunicationIQ = () => {
               onClick={() => setSelectedTab('intake')}
             >
               <ClipboardList className="h-6 w-6 mb-1" />
-              <span className="text-xs">Send Intake</span>
+              <span className="text-xs">Send Onboarding</span>
             </Button>
             <Button 
               variant="outline" 
@@ -761,4 +763,4 @@ export const CommunicationIQ = () => {
   );
 };
 
-export default CommunicationIQ;
+export default FlowIQConnect;
