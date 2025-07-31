@@ -6,7 +6,7 @@ import { SpecialtyProvider } from '../contexts/SpecialtyContext';
 import { ChiropracticDashboard } from '../components/chiropractic/ChiropracticDashboard';
 import { Calendar } from '../pages/Calendar';
 import ScribeIQ from '../pages/agents/ScribeIQ';
-import { CommunicationIQ } from '../pages/agents/CommunicationIQ';
+import FlowIQConnect from '../pages/agents/CommunicationIQ';
 import EHR from '../pages/EHR';
 import RevenueIQ from '../pages/agents/RevenueIQ';
 import InsuranceIQ from '../pages/agents/InsuranceIQ';
@@ -48,7 +48,7 @@ export const ChiropracticApp: React.FC = () => {
           <Route path="/agents/communication" element={
             <ProtectedRoute requiredRole="staff">
               <Layout>
-                <CommunicationIQ />
+                <FlowIQConnect />
               </Layout>
             </ProtectedRoute>
           } />
