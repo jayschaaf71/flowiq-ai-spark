@@ -15,6 +15,7 @@ import { HealthCheck } from './components/health/HealthCheck';
 import { MarketingHomepage } from './pages/MarketingHomepage';
 import { HealthcareLanding } from './pages/HealthcareLanding';
 import { ConnectLanding } from './pages/ConnectLanding';
+import { OnboardingFlow } from './pages/OnboardingFlow';
 import { SignupPage } from './pages/SignupPage';
 import PlatformAdmin from './pages/PlatformAdmin';
 import { getDomainConfig, isProductionDomain, parseTenantFromUrl } from './config/unifiedRouting';
@@ -66,6 +67,7 @@ function App() {
                   <Route path="/" element={<MarketingHomepage />} />
                   <Route path="/healthcare" element={<HealthcareLanding />} />
                   <Route path="/connect" element={<ConnectLanding />} />
+                  <Route path="/onboarding" element={<OnboardingFlow />} />
                   <Route path="/signup" element={<SignupPage />} />
                   <Route path="/login" element={<Navigate to="/chiropractic/login" replace />} />
                 </>
