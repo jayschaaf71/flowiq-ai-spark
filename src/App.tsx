@@ -44,6 +44,9 @@ function App() {
   
   // Determine if this is the admin domain
   const isAdminDomain = hostname === 'app.flow-iq.ai';
+  
+  // Determine if this is the connect subdomain
+  const isConnectSubdomain = hostname === 'connect.flow-iq.ai';
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -70,6 +73,17 @@ function App() {
                   <Route path="/onboarding" element={<OnboardingFlow />} />
                   <Route path="/signup" element={<SignupPage />} />
                   <Route path="/login" element={<Navigate to="/chiropractic/login" replace />} />
+                </>
+              )}
+
+              {/* Connect Subdomain Routes */}
+              {isConnectSubdomain && (
+                <>
+                  <Route path="/" element={<OnboardingFlow />} />
+                  <Route path="/onboarding" element={<OnboardingFlow />} />
+                  <Route path="/dashboard" element={<FlowIQConnectApp />} />
+                  <Route path="/communication/*" element={<FlowIQConnectApp />} />
+                  <Route path="*" element={<Navigate to="/" replace />} />
                 </>
               )}
 
