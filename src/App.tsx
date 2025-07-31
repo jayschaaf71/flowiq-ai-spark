@@ -13,6 +13,8 @@ import { DentalSleepApp } from './components/dental-sleep/DentalSleepApp';
 import CommunicationIQApp from './apps/CommunicationIQApp';
 import { HealthCheck } from './components/health/HealthCheck';
 import { MarketingHomepage } from './pages/MarketingHomepage';
+import { HealthcareLanding } from './pages/HealthcareLanding';
+import { ConnectLanding } from './pages/ConnectLanding';
 import { SignupPage } from './pages/SignupPage';
 import PlatformAdmin from './pages/PlatformAdmin';
 import { getDomainConfig, isProductionDomain, parseTenantFromUrl } from './config/unifiedRouting';
@@ -62,6 +64,8 @@ function App() {
               {isMarketingWebsite && (
                 <>
                   <Route path="/" element={<MarketingHomepage />} />
+                  <Route path="/healthcare" element={<HealthcareLanding />} />
+                  <Route path="/connect" element={<ConnectLanding />} />
                   <Route path="/signup" element={<SignupPage />} />
                   <Route path="/login" element={<Navigate to="/chiropractic/login" replace />} />
                 </>
