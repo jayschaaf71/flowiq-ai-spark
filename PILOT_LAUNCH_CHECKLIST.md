@@ -9,19 +9,20 @@
 - [x] **Pilot Configuration Created** - Feature flags and tenant settings
 
 ### 🔧 **Deployment Tasks**
-- [ ] **Deploy to Vercel**
+- [x] **Deploy to Vercel**
   ```bash
   chmod +x scripts/deploy-production.sh
   ./scripts/deploy-production.sh
   ```
-- [ ] **Configure Custom Domains**
-  - `midwest-dental-sleep.flow-iq.ai`
-  - `west-county-spine.flow-iq.ai`
-- [ ] **Set Environment Variables**
+- [x] **Configure Custom Domains**
+  - `midwest-dental-sleep.flow-iq.ai` ✅
+  - `west-county-spine.flow-iq.ai` ✅
+  - `communication-iq.flow-iq.ai` ⚠️ (DNS record needed - see scripts/setup-communicationiq-dns.md)
+- [x] **Set Environment Variables**
   - `VITE_SUPABASE_URL`
   - `VITE_SUPABASE_ANON_KEY`
   - `VITE_ENVIRONMENT=production`
-- [ ] **Run Database Migrations**
+- [x] **Run Database Migrations**
   ```sql
   -- Execute the patient notifications migration
   -- This adds the missing tables for production

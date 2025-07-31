@@ -14,6 +14,7 @@ import CommunicationIQApp from './apps/CommunicationIQApp';
 import { HealthCheck } from './components/health/HealthCheck';
 import { MarketingHomepage } from './pages/MarketingHomepage';
 import { SignupPage } from './pages/SignupPage';
+import PlatformAdmin from './pages/PlatformAdmin';
 import { getDomainConfig, isProductionDomain, parseTenantFromUrl } from './config/unifiedRouting';
 
 // Create QueryClient instance
@@ -37,6 +38,9 @@ function App() {
 
   // Determine if this is the main marketing website
   const isMarketingWebsite = hostname === 'flow-iq.ai' || hostname === 'localhost';
+  
+  // Determine if this is the admin domain
+  const isAdminDomain = hostname === 'app.flow-iq.ai';
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -48,6 +52,11 @@ function App() {
             <Routes>
               {/* Health check endpoint */}
               <Route path="/health" element={<HealthCheck />} />
+
+              {/* Admin Platform Routes */}
+              {isAdminDomain && (
+                <Route path="/platform-admin/*" element={<PlatformAdmin />} />
+              )}
 
               {/* Marketing Website Routes (main domain) */}
               {isMarketingWebsite && (
@@ -78,10 +87,12 @@ function App() {
                 </>
               )}
 
-              {/* Fallback - redirect to marketing homepage for main domain, chiropractic for others */}
+              {/* Fallback - redirect to marketing homepage for main domain, admin for admin domain, chiropractic for others */}
               <Route path="*" element={
                 isMarketingWebsite 
                   ? <Navigate to="/" replace />
+                  : isAdminDomain
+                  ? <Navigate to="/platform-admin" replace />
                   : <Navigate to="/chiropractic/dashboard" replace />
               } />
             </Routes>

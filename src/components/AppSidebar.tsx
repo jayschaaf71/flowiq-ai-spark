@@ -19,8 +19,9 @@ import {
 import { useTenantConfig } from "@/utils/enhancedTenantConfig";
 import { useEnhancedAuth } from "@/hooks/useEnhancedAuth";
 import { useSpecialty } from "@/contexts/SpecialtyContext";
-import { getNavItems, navGroups } from "@/config/navigationConfig";
+import { getNavItems, getNavGroups } from "@/config/navigationConfig";
 import { sidebarService } from "@/services/sidebarService";
+import { User } from "lucide-react";
 
 export const AppSidebar = () => {
   const location = useLocation();
@@ -37,9 +38,11 @@ export const AppSidebar = () => {
     sidebarService.getAgentStatus().then(setAgentStatus);
   }, []);
 
-  // Get specialty-specific navigation items
+  // Get specialty-specific navigation items with role-based filtering
   const currentSpecialty = localStorage.getItem('currentSpecialty') || 'chiropractic';
-  const navItems = getNavItems(currentSpecialty);
+  const userRole = user?.role || 'staff'; // Default to staff role
+  const navItems = getNavItems(currentSpecialty, userRole);
+  const navGroups = getNavGroups(userRole);
 
   // Handle deep linking
   useEffect(() => {
@@ -52,18 +55,14 @@ export const AppSidebar = () => {
     return unsubscribe;
   }, [navigate, navItems]);
   
-  // Filter navigation items based on role and licensing
+  // Filter navigation items based on licensing
   const filteredNavItems = navItems.filter(item => {
     // Check licensing
     if (item.requiredLicense && !agentStatus[item.id]) {
       return false;
     }
     
-    // Check role requirements
-    if (item.requiredRole && !hasMinimumRole(item.requiredRole)) {
-      return false;
-    }
-
+    // Role filtering is now handled in getNavItems
     return true;
   });
 
@@ -85,74 +84,83 @@ export const AppSidebar = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <Sidebar className="border-r">
-      <SidebarHeader className="border-b p-4">
+    <Sidebar className="border-r bg-gradient-to-b from-background to-background/95">
+      <SidebarHeader className="border-b p-6">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 text-white flex-shrink-0">
-            <Sparkles className="h-8 w-8" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary-accent text-primary-foreground shadow-lg">
+            <Sparkles className="h-6 w-6" />
           </div>
           {state === "expanded" && (
             <div className="flex flex-col min-w-0 flex-1">
               <div className="flex items-center gap-1">
-                <span className="font-bold text-xl truncate">{getBrandName()}</span>
+                <span className="font-bold text-lg truncate">{getBrandName()}</span>
               </div>
               <p className="text-sm text-muted-foreground leading-tight truncate">
                 {tenantConfig.tagline}
               </p>
-              {primaryTenant && (
-                <p className="text-sm text-primary font-semibold mt-1 truncate">
-                  Powered by FlowIQ AI
-                </p>
-              )}
             </div>
           )}
         </div>
       </SidebarHeader>
       
-      <SidebarContent>
-        <div className="space-y-4 p-2">
-          {groupedItems.map((group) => (
-            <SidebarGroup key={group.id}>
-              <SidebarGroupLabel className="text-xs font-medium text-muted-foreground uppercase tracking-wider px-2">
-                {group.title}
-              </SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {group.items.map((item) => (
-                    <SidebarMenuItem key={item.path}>
-                      <SidebarMenuButton asChild isActive={isActive(item.path)} className="w-full">
-                        <NavLink 
-                          to={item.path} 
-                          className="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 hover:bg-accent hover:text-accent-foreground"
-                          onClick={() => handleNavClick(item)}
-                        >
-                          <item.icon className="h-4 w-4 flex-shrink-0" />
-                          {state === "expanded" && (
-                            <>
-                              <span className="truncate font-medium">{item.label}</span>
-                              {item.badge && (
-                                <Badge 
-                                  variant={item.badge === "AI" ? "default" : "secondary"} 
-                                  className="ml-auto text-xs flex-shrink-0"
-                                >
-                                  {item.badge}
-                                </Badge>
-                              )}
-                            </>
-                          )}
-                        </NavLink>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          ))}
-        </div>
+      <SidebarContent className="px-3 py-4">
+        {groupedItems.map((group) => (
+          <SidebarGroup key={group.id} className="mb-6">
+            <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-2">
+              {group.title}
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {group.items.map((item) => (
+                  <SidebarMenuItem key={item.id} asChild>
+                    <NavLink
+                      to={item.path}
+                      onClick={() => handleNavClick(item)}
+                      className={({ isActive }) =>
+                        `group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 hover:bg-accent hover:text-accent-foreground ${
+                          isActive 
+                            ? 'bg-primary text-primary-foreground shadow-sm' 
+                            : 'text-muted-foreground'
+                        }`
+                      }
+                    >
+                      <div className="flex items-center gap-3 w-full">
+                        <item.icon className="h-4 w-4 flex-shrink-0" />
+                        <span className="truncate">{item.label}</span>
+                        {item.badge && (
+                          <Badge 
+                            variant="secondary" 
+                            className="ml-auto text-xs px-1.5 py-0.5 bg-gradient-to-r from-blue-500 to-purple-500 text-white"
+                          >
+                            {item.badge}
+                          </Badge>
+                        )}
+                      </div>
+                    </NavLink>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
       </SidebarContent>
-
-      <SidebarFooter className="border-t p-2">
-        {/* Additional management items if needed */}
+      
+      <SidebarFooter className="border-t p-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted">
+            <User className="h-4 w-4" />
+          </div>
+          {state === "expanded" && (
+            <div className="flex flex-col min-w-0 flex-1">
+              <p className="text-sm font-medium truncate">
+                {user?.name || 'User'}
+              </p>
+              <p className="text-xs text-muted-foreground truncate capitalize">
+                {userRole}
+              </p>
+            </div>
+          )}
+        </div>
       </SidebarFooter>
     </Sidebar>
   );

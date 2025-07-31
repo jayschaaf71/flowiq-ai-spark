@@ -38,6 +38,21 @@ export const PRODUCTION_DOMAINS: Record<string, DomainConfig> = {
     }
   },
   
+  // Main Admin Dashboard
+  'app.flow-iq.ai': {
+    defaultApp: 'admin',
+    specialty: 'general',
+    brandName: 'FlowIQ Admin',
+    tenantId: '00000000-0000-0000-0000-000000000000',
+    subdomain: 'app',
+    apps: {
+      admin: '/',
+      chiropractic: '/chiropractic',
+      dentalSleep: '/dental-sleep',
+      communication: '/communication'
+    }
+  },
+  
   // Midwest Dental Sleep Medicine
   'midwest-dental-sleep.flow-iq.ai': {
     defaultApp: 'dentalSleep',
@@ -59,6 +74,18 @@ export const PRODUCTION_DOMAINS: Record<string, DomainConfig> = {
     subdomain: 'west-county-spine',
     apps: {
       chiropractic: '/'
+    }
+  },
+  
+  // CommunicationIQ
+  'communication-iq.flow-iq.ai': {
+    defaultApp: 'communication',
+    specialty: 'communication',
+    brandName: 'Communication IQ',
+    tenantId: '00000000-0000-0000-0000-000000000001',
+    subdomain: 'communication-iq',
+    apps: {
+      communication: '/'
     }
   }
 };
@@ -138,6 +165,10 @@ export const getDomainConfig = (hostname: string): DomainConfig => {
     return PRODUCTION_DOMAINS['west-county-spine.flow-iq.ai'];
   }
   
+  if (cleanHostname.includes('communication-iq')) {
+    return PRODUCTION_DOMAINS['communication-iq.flow-iq.ai'];
+  }
+  
   // Default to main domain
   return PRODUCTION_DOMAINS['flow-iq.ai'];
 };
@@ -160,6 +191,12 @@ export function parseTenantFromUrl(): TenantRoute | null {
   const pathname = window.location.pathname;
   
   console.log('🔍 Unified Route Detection - hostname:', hostname, 'pathname:', pathname);
+  
+  // Don't parse tenant for admin domain
+  if (hostname === 'app.flow-iq.ai') {
+    console.log('🏢 Admin domain detected - skipping tenant parsing');
+    return null;
+  }
   
   const isProduction = isProductionDomain(hostname);
   console.log('🏭 Production domain check:', isProduction);
@@ -256,7 +293,8 @@ function getSpecialtyFromSubdomain(subdomain: string): string {
   const subdomainMap: Record<string, string> = {
     'midwest-dental-sleep': 'dental-sleep-medicine',
     'west-county-spine': 'chiropractic-care',
-    'communication': 'communication'
+    'communication': 'communication',
+    'communication-iq': 'communication'
   };
   
   return subdomainMap[subdomain] || 'chiropractic-care';
