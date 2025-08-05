@@ -23,7 +23,7 @@ export const useCalendarIntegrations = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       if (authError || !user) {
         console.log('User not authenticated, skipping fetch');
@@ -59,7 +59,7 @@ export const useCalendarIntegrations = () => {
 
       // Get OAuth URL from Supabase function
       const { data, error } = await supabase.functions.invoke('calendar-oauth', {
-        body: { 
+        body: {
           action: 'get_auth_url',
           provider,
           redirect_uri: `${window.location.origin}/oauth/callback`
@@ -78,13 +78,13 @@ export const useCalendarIntegrations = () => {
       }
 
       console.log('Redirecting to OAuth URL:', data.auth_url);
-      
+
       // Store provider in sessionStorage for callback
       sessionStorage.setItem('oauth_provider', provider);
-      
+
       // Redirect to OAuth URL
       window.location.href = data.auth_url;
-      
+
     } catch (err) {
       console.error('Error connecting calendar:', err);
       setError(err instanceof Error ? err.message : 'Unknown error');
@@ -120,12 +120,12 @@ export const useCalendarIntegrations = () => {
   };
 
   // Check if provider is connected
-  const isConnected = (provider: 'google' | 'microsoft') => {
+  const isConnected = (provider: 'google' | 'microsoft' | 'apple') => {
     return integrations.some(integration => integration.provider === provider);
   };
 
   // Get integration for provider
-  const getIntegration = (provider: 'google' | 'microsoft') => {
+  const getIntegration = (provider: 'google' | 'microsoft' | 'apple') => {
     return integrations.find(integration => integration.provider === provider);
   };
 

@@ -82,6 +82,8 @@ export default function Schedule() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [isMounted, setIsMounted] = useState(false);
+  const [waitlistCount, setWaitlistCount] = useState(0);
+  const [showWaitlistPanel, setShowWaitlistPanel] = useState(false);
 
   // Validate and ensure selectedDate is always a valid Date
   const getValidDate = (date: Date): Date => {
@@ -161,6 +163,8 @@ export default function Schedule() {
   // Set mounted state after initial render
   useEffect(() => {
     setIsMounted(true);
+    // Mock waitlist data
+    setWaitlistCount(4); // This would come from your waitlist data
   }, []);
 
   // Mock appointments data for Midwest Dental Sleep
@@ -650,7 +654,7 @@ export default function Schedule() {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setStatusFilter('all')}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
@@ -695,12 +699,23 @@ export default function Schedule() {
             </div>
           </CardContent>
         </Card>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setShowWaitlistPanel(!showWaitlistPanel)}>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Waitlist</p>
+                <p className="text-2xl font-bold">{waitlistCount}</p>
+              </div>
+              <Brain className="w-8 h-8 text-purple-600" />
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Schedule View */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Calendar Grid */}
-        <div className="lg:col-span-2">
+        <div className={showWaitlistPanel ? "lg:col-span-1" : "lg:col-span-2"}>
           <Card>
             <CardHeader>
               <CardTitle>
@@ -946,9 +961,11 @@ export default function Schedule() {
         </div>
 
         {/* Waitlist Panel */}
-        <div className="lg:col-span-1">
-          <WaitlistPanel />
-        </div>
+        {showWaitlistPanel && (
+          <div className="lg:col-span-2">
+            <WaitlistPanel />
+          </div>
+        )}
       </div>
 
       {/* Recent Appointments */}

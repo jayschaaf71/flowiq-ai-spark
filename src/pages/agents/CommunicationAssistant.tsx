@@ -63,51 +63,130 @@ const CalendarIntegrationSection = () => {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-medium">Calendar Integrations</h3>
-        <Button
-          onClick={() => connectCalendar('google')}
-          disabled={loading}
-          size="sm"
-        >
-          <Calendar className="w-4 h-4 mr-2" />
-          Connect Google
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={() => connectCalendar('google')}
+            disabled={loading}
+            size="sm"
+            variant="outline"
+          >
+            <Calendar className="w-4 h-4 mr-2" />
+            Connect Google
+          </Button>
+          <Button
+            onClick={() => connectCalendar('microsoft')}
+            disabled={loading}
+            size="sm"
+            variant="outline"
+          >
+            <Calendar className="w-4 h-4 mr-2" />
+            Connect Outlook
+          </Button>
+          <Button
+            onClick={() => connectCalendar('apple')}
+            disabled={loading}
+            size="sm"
+            variant="outline"
+          >
+            <Calendar className="w-4 h-4 mr-2" />
+            Connect Apple
+          </Button>
+        </div>
       </div>
 
       {error && (
-        <div className="text-red-600 text-sm bg-red-50 p-2 rounded">
-          {error}
+        <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg border border-red-200">
+          <div className="font-medium mb-1">Connection Error</div>
+          <div>{error}</div>
         </div>
       )}
 
       <div className="space-y-3">
-        <div className="flex items-center justify-between p-3 border rounded-lg">
+        <div className="flex items-center justify-between p-4 border rounded-lg bg-white">
           <div className="flex items-center gap-3">
-            <Calendar className="w-5 h-5 text-blue-600" />
+            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+              <Calendar className="w-5 h-5 text-blue-600" />
+            </div>
             <div>
               <div className="font-medium">Google Calendar</div>
               <div className="text-sm text-gray-600">
-                {isConnected('google') ? 'Connected' : 'Not connected'}
+                {isConnected('google') ? 'Connected and syncing' : 'Not connected'}
               </div>
             </div>
           </div>
-          <Badge variant={isConnected('google') ? 'default' : 'secondary'}>
-            {isConnected('google') ? 'Connected' : 'Not Connected'}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant={isConnected('google') ? 'default' : 'secondary'}>
+              {isConnected('google') ? 'Connected' : 'Not Connected'}
+            </Badge>
+            {isConnected('google') && (
+              <Button
+                onClick={() => disconnectCalendar(integrations.find(i => i.provider === 'google')?.id || '')}
+                size="sm"
+                variant="outline"
+                className="text-red-600 hover:text-red-700"
+              >
+                Disconnect
+              </Button>
+            )}
+          </div>
         </div>
 
-        <div className="flex items-center justify-between p-3 border rounded-lg">
+        <div className="flex items-center justify-between p-4 border rounded-lg bg-white">
           <div className="flex items-center gap-3">
-            <Calendar className="w-5 h-5 text-purple-600" />
+            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+              <Calendar className="w-5 h-5 text-purple-600" />
+            </div>
             <div>
               <div className="font-medium">Microsoft Outlook</div>
               <div className="text-sm text-gray-600">
-                {isConnected('microsoft') ? 'Connected' : 'Not connected'}
+                {isConnected('microsoft') ? 'Connected and syncing' : 'Not connected'}
               </div>
             </div>
           </div>
-          <Badge variant={isConnected('microsoft') ? 'default' : 'secondary'}>
-            {isConnected('microsoft') ? 'Connected' : 'Not Connected'}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant={isConnected('microsoft') ? 'default' : 'secondary'}>
+              {isConnected('microsoft') ? 'Connected' : 'Not Connected'}
+            </Badge>
+            {isConnected('microsoft') && (
+              <Button
+                onClick={() => disconnectCalendar(integrations.find(i => i.provider === 'microsoft')?.id || '')}
+                size="sm"
+                variant="outline"
+                className="text-red-600 hover:text-red-700"
+              >
+                Disconnect
+              </Button>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between p-4 border rounded-lg bg-white">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+              <Calendar className="w-5 h-5 text-gray-600" />
+            </div>
+            <div>
+              <div className="font-medium">Apple Calendar</div>
+              <div className="text-sm text-gray-600">
+                {isConnected('apple') ? 'Connected and syncing' : 'Not connected'}
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant={isConnected('apple') ? 'default' : 'secondary'}>
+              {isConnected('apple') ? 'Connected' : 'Not Connected'}
+            </Badge>
+            {isConnected('apple') && (
+              <Button
+                onClick={() => disconnectCalendar(integrations.find(i => i.provider === 'apple')?.id || '')}
+                size="sm"
+                variant="outline"
+                className="text-red-600 hover:text-red-700"
+              >
+                Disconnect
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </div>
