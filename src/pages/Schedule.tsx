@@ -81,6 +81,16 @@ export default function Schedule() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
+  // Validate and ensure selectedDate is always a valid Date
+  const getValidDate = (date: Date): Date => {
+    if (date instanceof Date && !isNaN(date.getTime())) {
+      return date;
+    }
+    return new Date();
+  };
+
+  const validSelectedDate = getValidDate(selectedDate);
+
   // Mock appointments data for Midwest Dental Sleep
   const [appointments, setAppointments] = useState<Appointment[]>([
     {
@@ -222,7 +232,7 @@ export default function Schedule() {
     for (let hour = 8; hour <= 17; hour++) {
       for (let minute = 0; minute < 60; minute += 30) {
         const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-        const appointment = appointments.find(apt => apt.time === time && apt.date === selectedDate.toISOString().split('T')[0]);
+        const appointment = appointments.find(apt => apt.time === time && apt.date === format(validSelectedDate, 'yyyy-MM-dd'));
         slots.push({
           time,
           available: !appointment,
@@ -237,7 +247,7 @@ export default function Schedule() {
 
   // Navigation handlers
   const handleNavigateToDate = (direction: 'prev' | 'next') => {
-    const newDate = new Date(selectedDate);
+    const newDate = new Date(validSelectedDate);
     if (viewMode === 'day') {
       if (direction === 'prev') {
         newDate.setDate(newDate.getDate() - 1);
@@ -273,7 +283,7 @@ export default function Schedule() {
       patientName: '',
       patientEmail: '',
       patientPhone: '',
-      date: format(selectedDate, 'yyyy-MM-dd'),
+      date: format(validSelectedDate, 'yyyy-MM-dd'),
       time: '',
       duration: 60,
       type: '',
@@ -390,7 +400,7 @@ export default function Schedule() {
   const handleTimeSlotClick = (time: string) => {
     setNewAppointment({
       ...newAppointment,
-      date: format(selectedDate, 'yyyy-MM-dd'),
+      date: format(validSelectedDate, 'yyyy-MM-dd'),
       time: time
     });
     setShowAddAppointment(true);
@@ -406,8 +416,8 @@ export default function Schedule() {
 
   // Get current week days
   const getWeekDays = () => {
-    const start = startOfWeek(selectedDate);
-    return eachDayOfInterval({ start, end: endOfWeek(selectedDate) });
+    const start = startOfWeek(validSelectedDate);
+    return eachDayOfInterval({ start, end: endOfWeek(validSelectedDate) });
   };
 
   const weekDays = getWeekDays();
@@ -415,17 +425,17 @@ export default function Schedule() {
   // Get appointments for the current view
   const getAppointmentsForCurrentView = () => {
     if (viewMode === 'day') {
-      return appointments.filter(apt => apt.date === format(selectedDate, 'yyyy-MM-dd'));
+      return appointments.filter(apt => apt.date === format(validSelectedDate, 'yyyy-MM-dd'));
     } else if (viewMode === 'week') {
-      const start = startOfWeek(selectedDate);
-      const end = endOfWeek(selectedDate);
+      const start = startOfWeek(validSelectedDate);
+      const end = endOfWeek(validSelectedDate);
       return appointments.filter(apt => {
         const aptDate = parseISO(apt.date);
         return aptDate >= start && aptDate <= end;
       });
     } else if (viewMode === 'month') {
-      const start = startOfMonth(selectedDate);
-      const end = endOfMonth(selectedDate);
+      const start = startOfMonth(validSelectedDate);
+      const end = endOfMonth(validSelectedDate);
       return appointments.filter(apt => {
         const aptDate = parseISO(apt.date);
         return aptDate >= start && aptDate <= end;
@@ -497,10 +507,10 @@ export default function Schedule() {
           </Button>
           <h2 className="text-xl font-semibold">
             {viewMode === 'month'
-              ? selectedDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+              ? validSelectedDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
               : viewMode === 'week'
-                ? `${format(startOfWeek(selectedDate), 'MMM d')} - ${format(endOfWeek(selectedDate), 'MMM d, yyyy')}`
-                : selectedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+                ? `${format(startOfWeek(validSelectedDate), 'MMM d')} - ${format(endOfWeek(validSelectedDate), 'MMM d, yyyy')}`
+                : validSelectedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
             }
           </h2>
           <Button
@@ -592,10 +602,10 @@ export default function Schedule() {
             <CardHeader>
               <CardTitle>
                 {viewMode === 'day' 
-                  ? `${format(selectedDate, 'EEEE, MMMM d, yyyy')} Schedule`
+                  ? `${format(validSelectedDate, 'EEEE, MMMM d, yyyy')} Schedule`
                   : viewMode === 'week'
-                  ? `${format(startOfWeek(selectedDate), 'MMM d')} - ${format(endOfWeek(selectedDate), 'MMM d, yyyy')} Schedule`
-                  : `${format(selectedDate, 'MMMM yyyy')} Schedule`
+                  ? `${format(startOfWeek(validSelectedDate), 'MMM d')} - ${format(endOfWeek(validSelectedDate), 'MMM d, yyyy')} Schedule`
+                  : `${format(validSelectedDate, 'MMMM yyyy')} Schedule`
                 }
                 {statusFilter !== 'all' && (
                   <Badge variant="secondary" className="ml-2">
@@ -630,7 +640,7 @@ export default function Schedule() {
                             </div>
                           </div>
                         ) : (
-                          <div 
+                          <div
                             className="text-gray-400 italic cursor-pointer hover:text-gray-600 transition-colors"
                             onClick={() => handleTimeSlotClick(slot.time)}
                           >
@@ -656,23 +666,23 @@ export default function Schedule() {
                       </div>
                     ))}
                   </div>
-                  
+
                   <div className="max-h-[600px] overflow-y-auto">
                     {timeSlots.map((time) => (
                       <div key={time} className="grid grid-cols-8 border-b min-h-16">
                         <div className="p-2 border-r bg-muted/30 text-sm font-medium flex items-center">
                           {format(new Date(`2000-01-01T${time}`), 'h:mm a')}
                         </div>
-                        
+
                         {weekDays.map((day) => {
                           const dayDate = format(day, 'yyyy-MM-dd');
-                          const dayAppointments = currentViewAppointments.filter(apt => 
+                          const dayAppointments = currentViewAppointments.filter(apt =>
                             apt.date === dayDate && apt.time === time
                           );
-                          
+
                           return (
-                            <div 
-                              key={day.toISOString()} 
+                            <div
+                              key={day.toISOString()}
                               className="border-r p-1 cursor-pointer hover:bg-muted/30 relative"
                               onClick={() => handleTimeSlotClick(time)}
                             >
@@ -680,11 +690,11 @@ export default function Schedule() {
                                 <div
                                   key={apt.id}
                                   className={`appointment-card p-1 rounded text-xs cursor-pointer
-                                    ${apt.status === 'confirmed' ? 'bg-green-100 border-green-300' : 
+                                    ${apt.status === 'confirmed' ? 'bg-green-100 border-green-300' :
                                       apt.status === 'pending' ? 'bg-yellow-100 border-yellow-300' :
-                                      apt.status === 'cancelled' ? 'bg-red-100 border-red-300' :
-                                      apt.status === 'completed' ? 'bg-blue-100 border-blue-300' :
-                                      'bg-gray-100 border-gray-300'} border mb-1`}
+                                        apt.status === 'cancelled' ? 'bg-red-100 border-red-300' :
+                                          apt.status === 'completed' ? 'bg-blue-100 border-blue-300' :
+                                            'bg-gray-100 border-gray-300'} border mb-1`}
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleViewAppointment(apt);
@@ -711,12 +721,12 @@ export default function Schedule() {
                         {day}
                       </div>
                     ))}
-                    
+
                     {Array.from({ length: 42 }, (_, i) => {
-                      const startOfMonthDate = startOfMonth(selectedDate);
+                      const startOfMonthDate = startOfMonth(validSelectedDate);
                       const startOfCalendar = startOfWeek(startOfMonthDate);
                       const currentDate = addDays(startOfCalendar, i);
-                      const isCurrentMonth = isSameMonth(currentDate, selectedDate);
+                      const isCurrentMonth = isSameMonth(currentDate, validSelectedDate);
                       const isToday = isSameDay(currentDate, new Date());
                       const dayDate = format(currentDate, 'yyyy-MM-dd');
                       const dayAppointments = currentViewAppointments.filter(apt => apt.date === dayDate);
@@ -799,16 +809,16 @@ export default function Schedule() {
                         {appointment.date} at {formatTime(appointment.time)}
                       </div>
                       <div className="flex gap-2 mt-2">
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           variant="outline"
                           onClick={() => handleCallPatient(appointment)}
                         >
                           <Phone className="w-3 h-3 mr-1" />
                           Call
                         </Button>
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           variant="outline"
                           onClick={() => handleMessageAppointment(appointment)}
                         >
