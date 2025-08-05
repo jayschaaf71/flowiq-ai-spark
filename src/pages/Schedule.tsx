@@ -98,31 +98,31 @@ export default function Schedule() {
       // Return safe fallback during initial render
       return date.toLocaleDateString();
     }
-    
+
     try {
       switch (format) {
         case 'yyyy-MM-dd':
           return date.toISOString().split('T')[0];
         case 'EEEE, MMMM d, yyyy':
-          return date.toLocaleDateString('en-US', { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
+          return date.toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
           });
         case 'MMMM yyyy':
-          return date.toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'long' 
+          return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long'
           });
         case 'MMM d':
-          return date.toLocaleDateString('en-US', { 
-            month: 'short', 
-            day: 'numeric' 
+          return date.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric'
           });
         case 'MMM d, yyyy':
-          return date.toLocaleDateString('en-US', { 
-            month: 'short', 
+          return date.toLocaleDateString('en-US', {
+            month: 'short',
             day: 'numeric',
             year: 'numeric'
           });
@@ -137,7 +137,7 @@ export default function Schedule() {
   // Safe week calculation without date-fns
   const getWeekDays = () => {
     if (!isMounted) return [];
-    
+
     try {
       const start = startOfWeek(validSelectedDate);
       return eachDayOfInterval({ start, end: endOfWeek(validSelectedDate) });
@@ -147,7 +147,7 @@ export default function Schedule() {
       const today = new Date(validSelectedDate);
       const startOfWeek = new Date(today);
       startOfWeek.setDate(today.getDate() - today.getDay());
-      
+
       for (let i = 0; i < 7; i++) {
         const day = new Date(startOfWeek);
         day.setDate(startOfWeek.getDate() + i);
@@ -288,6 +288,7 @@ export default function Schedule() {
   };
 
   const formatTime = (time: string) => {
+    if (typeof time !== 'string') return '';
     const [hours, minutes] = time.split(':');
     const hour = parseInt(hours);
     const ampm = hour >= 12 ? 'PM' : 'AM';
@@ -745,29 +746,32 @@ export default function Schedule() {
                   </div>
 
                   <div className="max-h-[600px] overflow-y-auto">
-                    {timeSlots.map((time) => (
-                      <div key={time} className="grid grid-cols-8 border-b min-h-16">
+                    {timeSlots.map((timeSlot) => (
+                      <div key={timeSlot.time} className="grid grid-cols-8 border-b min-h-16">
                         <div className="p-2 border-r bg-muted/30 text-sm font-medium flex items-center">
                           {(() => {
-                            const [hours, minutes] = time.split(':');
-                            const hour = parseInt(hours);
-                            const ampm = hour >= 12 ? 'PM' : 'AM';
-                            const displayHour = hour % 12 || 12;
-                            return `${displayHour}:${minutes} ${ampm}`;
+                            if (typeof timeSlot.time === 'string') {
+                              const [hours, minutes] = timeSlot.time.split(':');
+                              const hour = parseInt(hours);
+                              const ampm = hour >= 12 ? 'PM' : 'AM';
+                              const displayHour = hour % 12 || 12;
+                              return `${displayHour}:${minutes} ${ampm}`;
+                            }
+                            return '';
                           })()}
                         </div>
 
                         {weekDays.map((day) => {
                           const dayDate = formatDateSafe(day, 'yyyy-MM-dd');
                           const dayAppointments = currentViewAppointments.filter(apt =>
-                            apt.date === dayDate && apt.time === time
+                            apt.date === dayDate && apt.time === timeSlot.time
                           );
 
                           return (
                             <div
                               key={day.toISOString()}
                               className="border-r p-1 cursor-pointer hover:bg-muted/30 relative"
-                              onClick={() => handleTimeSlotClick(time)}
+                              onClick={() => handleTimeSlotClick(timeSlot.time)}
                             >
                               {dayAppointments.map((apt) => (
                                 <div
