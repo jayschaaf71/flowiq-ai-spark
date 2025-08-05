@@ -92,68 +92,79 @@ export default function Schedule() {
   const validSelectedDate = getValidDate(selectedDate);
 
   // Mock appointments data for Midwest Dental Sleep
-  const [appointments, setAppointments] = useState<Appointment[]>([
-    {
-      id: '1',
-      patientName: 'Sarah Johnson',
-      patientEmail: 'sarah.johnson@email.com',
-      patientPhone: '(555) 123-4567',
-      date: format(new Date(), 'yyyy-MM-dd'),
-      time: '09:00',
-      duration: 60,
-      type: 'Sleep Study Consultation',
-      status: 'confirmed',
-      provider: 'Dr. Gatsas',
-      room: 'Exam Room 1',
-      notes: 'CPAP follow-up appointment',
-      reminderSent: true
-    },
-    {
-      id: '2',
-      patientName: 'Michael Chen',
-      patientEmail: 'michael.chen@email.com',
-      patientPhone: '(555) 234-5678',
-      date: format(new Date(), 'yyyy-MM-dd'),
-      time: '10:30',
-      duration: 45,
-      type: 'Initial Consultation',
-      status: 'pending',
-      provider: 'Dr. Gatsas',
-      room: 'Exam Room 2',
-      notes: 'New patient with sleep apnea symptoms',
-      reminderSent: false
-    },
-    {
-      id: '3',
-      patientName: 'Emily Rodriguez',
-      patientEmail: 'emily.rodriguez@email.com',
-      patientPhone: '(555) 345-6789',
-      date: format(addDays(new Date(), 1), 'yyyy-MM-dd'),
-      time: '14:00',
-      duration: 90,
-      type: 'CPAP Fitting',
-      status: 'confirmed',
-      provider: 'Dr. Gatsas',
-      room: 'Exam Room 1',
-      notes: 'CPAP mask fitting and adjustment',
-      reminderSent: true
-    },
-    {
-      id: '4',
-      patientName: 'David Wilson',
-      patientEmail: 'david.wilson@email.com',
-      patientPhone: '(555) 456-7890',
-      date: format(addDays(new Date(), 2), 'yyyy-MM-dd'),
-      time: '11:00',
-      duration: 60,
-      type: 'Oral Appliance Fitting',
-      status: 'confirmed',
-      provider: 'Dr. Gatsas',
-      room: 'Exam Room 3',
-      notes: 'Custom oral appliance delivery',
-      reminderSent: false
-    }
-  ]);
+  const [appointments, setAppointments] = useState<Appointment[]>(() => {
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().split('T')[0];
+    const dayAfterTomorrow = new Date(today);
+    dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
+    const dayAfterTomorrowStr = dayAfterTomorrow.toISOString().split('T')[0];
+    
+    return [
+      {
+        id: '1',
+        patientName: 'Sarah Johnson',
+        patientEmail: 'sarah.johnson@email.com',
+        patientPhone: '(555) 123-4567',
+        date: todayStr,
+        time: '09:00',
+        duration: 60,
+        type: 'Sleep Study Consultation',
+        status: 'confirmed',
+        provider: 'Dr. Gatsas',
+        room: 'Exam Room 1',
+        notes: 'CPAP follow-up appointment',
+        reminderSent: true
+      },
+      {
+        id: '2',
+        patientName: 'Michael Chen',
+        patientEmail: 'michael.chen@email.com',
+        patientPhone: '(555) 234-5678',
+        date: todayStr,
+        time: '10:30',
+        duration: 45,
+        type: 'Initial Consultation',
+        status: 'pending',
+        provider: 'Dr. Gatsas',
+        room: 'Exam Room 2',
+        notes: 'New patient with sleep apnea symptoms',
+        reminderSent: false
+      },
+      {
+        id: '3',
+        patientName: 'Emily Rodriguez',
+        patientEmail: 'emily.rodriguez@email.com',
+        patientPhone: '(555) 345-6789',
+        date: tomorrowStr,
+        time: '14:00',
+        duration: 90,
+        type: 'CPAP Fitting',
+        status: 'confirmed',
+        provider: 'Dr. Gatsas',
+        room: 'Exam Room 1',
+        notes: 'CPAP mask fitting and adjustment',
+        reminderSent: true
+      },
+      {
+        id: '4',
+        patientName: 'David Wilson',
+        patientEmail: 'david.wilson@email.com',
+        patientPhone: '(555) 456-7890',
+        date: dayAfterTomorrowStr,
+        time: '11:00',
+        duration: 60,
+        type: 'Oral Appliance Fitting',
+        status: 'confirmed',
+        provider: 'Dr. Gatsas',
+        room: 'Exam Room 3',
+        notes: 'Custom oral appliance delivery',
+        reminderSent: false
+      }
+    ];
+  });
 
   const { toast } = useToast();
 
@@ -553,7 +564,7 @@ export default function Schedule() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Today's Appointments</p>
-                <p className="text-2xl font-bold">{appointments.filter(a => a.date === format(new Date(), 'yyyy-MM-dd')).length}</p>
+                <p className="text-2xl font-bold">{appointments.filter(a => a.date === new Date().toISOString().split('T')[0]).length}</p>
               </div>
               <Calendar className="w-8 h-8 text-blue-600" />
             </div>
@@ -601,11 +612,11 @@ export default function Schedule() {
           <Card>
             <CardHeader>
               <CardTitle>
-                {viewMode === 'day' 
+                {viewMode === 'day'
                   ? `${format(validSelectedDate, 'EEEE, MMMM d, yyyy')} Schedule`
                   : viewMode === 'week'
-                  ? `${format(startOfWeek(validSelectedDate), 'MMM d')} - ${format(endOfWeek(validSelectedDate), 'MMM d, yyyy')} Schedule`
-                  : `${format(validSelectedDate, 'MMMM yyyy')} Schedule`
+                    ? `${format(startOfWeek(validSelectedDate), 'MMM d')} - ${format(endOfWeek(validSelectedDate), 'MMM d, yyyy')} Schedule`
+                    : `${format(validSelectedDate, 'MMMM yyyy')} Schedule`
                 }
                 {statusFilter !== 'all' && (
                   <Badge variant="secondary" className="ml-2">
@@ -671,7 +682,13 @@ export default function Schedule() {
                     {timeSlots.map((time) => (
                       <div key={time} className="grid grid-cols-8 border-b min-h-16">
                         <div className="p-2 border-r bg-muted/30 text-sm font-medium flex items-center">
-                          {format(new Date(`2000-01-01T${time}`), 'h:mm a')}
+                          {(() => {
+                            const [hours, minutes] = time.split(':');
+                            const hour = parseInt(hours);
+                            const ampm = hour >= 12 ? 'PM' : 'AM';
+                            const displayHour = hour % 12 || 12;
+                            return `${displayHour}:${minutes} ${ampm}`;
+                          })()}
                         </div>
 
                         {weekDays.map((day) => {
@@ -730,7 +747,7 @@ export default function Schedule() {
                       const isToday = isSameDay(currentDate, new Date());
                       const dayDate = format(currentDate, 'yyyy-MM-dd');
                       const dayAppointments = currentViewAppointments.filter(apt => apt.date === dayDate);
-                      
+
                       return (
                         <div
                           key={i}
@@ -746,18 +763,18 @@ export default function Schedule() {
                             ${isToday ? 'text-blue-600 font-bold' : ''}`}>
                             {format(currentDate, 'd')}
                           </div>
-                          
+
                           {dayAppointments.length > 0 && (
                             <div className="space-y-1">
                               {dayAppointments.slice(0, 2).map((apt) => (
                                 <div
                                   key={apt.id}
                                   className={`text-xs p-1 rounded truncate cursor-pointer
-                                    ${apt.status === 'confirmed' ? 'bg-green-100 text-green-800' : 
+                                    ${apt.status === 'confirmed' ? 'bg-green-100 text-green-800' :
                                       apt.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                      apt.status === 'cancelled' ? 'bg-red-100 text-red-800' :
-                                      apt.status === 'completed' ? 'bg-blue-100 text-blue-800' :
-                                      'bg-gray-100 text-gray-800'}`}
+                                        apt.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                                          apt.status === 'completed' ? 'bg-blue-100 text-blue-800' :
+                                            'bg-gray-100 text-gray-800'}`}
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleViewAppointment(apt);
