@@ -34,10 +34,11 @@ export const PRODUCTION_DOMAINS: Record<string, DomainConfig> = {
       marketing: '/',
       chiropractic: '/chiropractic',
       dentalSleep: '/dental-sleep',
+      generalDentistry: '/general-dentistry',
       communication: '/communication'
     }
   },
-  
+
   // Main Admin Dashboard
   'app.flow-iq.ai': {
     defaultApp: 'admin',
@@ -49,23 +50,24 @@ export const PRODUCTION_DOMAINS: Record<string, DomainConfig> = {
       admin: '/',
       chiropractic: '/chiropractic',
       dentalSleep: '/dental-sleep',
+      generalDentistry: '/general-dentistry',
       communication: '/communication'
     }
   },
-  
-  // Midwest Dental Sleep Medicine
+
+  // Midwest Dental Sleep
   'midwest-dental-sleep.flow-iq.ai': {
     defaultApp: 'dentalSleep',
     specialty: 'dental-sleep-medicine',
-    brandName: 'Midwest Dental Sleep Medicine',
+    brandName: 'Midwest Dental Sleep Medicine Institute',
     tenantId: 'd52278c3-bf0d-4731-bfa9-a40f032fa305',
     subdomain: 'midwest-dental-sleep',
     apps: {
       dentalSleep: '/'
     }
   },
-  
-  // West County Spine & Joint
+
+  // West County Spine
   'west-county-spine.flow-iq.ai': {
     defaultApp: 'chiropractic',
     specialty: 'chiropractic-care',
@@ -76,14 +78,37 @@ export const PRODUCTION_DOMAINS: Record<string, DomainConfig> = {
       chiropractic: '/'
     }
   },
-  
+
+  // General Dentistry
+  'general-dentistry.flow-iq.ai': {
+    defaultApp: 'general-dentistry',
+    specialty: 'general-dentistry',
+    brandName: 'DentalIQ',
+    tenantId: '00000000-0000-0000-0000-000000000003',
+    subdomain: 'general-dentistry',
+    apps: {
+      'general-dentistry': '/'
+    }
+  },
+
   // CommunicationIQ
   'communication-iq.flow-iq.ai': {
     defaultApp: 'communication',
     specialty: 'communication',
-    brandName: 'Communication IQ',
+    brandName: 'FlowIQ Connect',
     tenantId: '00000000-0000-0000-0000-000000000001',
     subdomain: 'communication-iq',
+    apps: {
+      communication: '/'
+    }
+  },
+  // FlowIQ Connect (connect subdomain)
+  'connect.flow-iq.ai': {
+    defaultApp: 'communication',
+    specialty: 'communication',
+    brandName: 'FlowIQ Connect',
+    tenantId: '00000000-0000-0000-0000-000000000001',
+    subdomain: 'connect',
     apps: {
       communication: '/'
     }
@@ -132,6 +157,16 @@ export const DEVELOPMENT_ROUTES: Record<string, DomainConfig> = {
       chiropractic: '/chiropractic-care'
     }
   },
+  '/general-dentistry': {
+    defaultApp: 'general-dentistry',
+    specialty: 'general-dentistry',
+    brandName: 'DentalIQ',
+    tenantId: '00000000-0000-0000-0000-000000000003',
+    subdomain: 'general-dentistry',
+    apps: {
+      'general-dentistry': '/general-dentistry'
+    }
+  },
   '/communication': {
     defaultApp: 'communication',
     specialty: 'communication',
@@ -150,25 +185,42 @@ export const DEVELOPMENT_ROUTES: Record<string, DomainConfig> = {
 export const getDomainConfig = (hostname: string): DomainConfig => {
   // Remove port if present
   const cleanHostname = hostname.split(':')[0];
-  
+
+  console.log('🔍 getDomainConfig called with:', cleanHostname);
+
   // Check for exact domain match
   if (PRODUCTION_DOMAINS[cleanHostname]) {
+    console.log('✅ Exact domain match found:', cleanHostname);
     return PRODUCTION_DOMAINS[cleanHostname];
   }
-  
+
   // Check for subdomain patterns
   if (cleanHostname.includes('midwest-dental-sleep')) {
+    console.log('✅ Midwest dental subdomain detected');
     return PRODUCTION_DOMAINS['midwest-dental-sleep.flow-iq.ai'];
   }
-  
+
   if (cleanHostname.includes('west-county-spine')) {
+    console.log('✅ West county spine subdomain detected');
     return PRODUCTION_DOMAINS['west-county-spine.flow-iq.ai'];
   }
-  
+
+  if (cleanHostname.includes('general-dentistry')) {
+    console.log('✅ General dentistry subdomain detected');
+    return PRODUCTION_DOMAINS['general-dentistry.flow-iq.ai'];
+  }
+
   if (cleanHostname.includes('communication-iq')) {
+    console.log('✅ Communication IQ subdomain detected');
     return PRODUCTION_DOMAINS['communication-iq.flow-iq.ai'];
   }
-  
+
+  if (cleanHostname.includes('connect')) {
+    console.log('✅ Connect subdomain detected');
+    return PRODUCTION_DOMAINS['connect.flow-iq.ai'];
+  }
+
+  console.log('❌ No subdomain match, defaulting to main domain');
   // Default to main domain
   return PRODUCTION_DOMAINS['flow-iq.ai'];
 };
@@ -178,9 +230,14 @@ export const getDomainConfig = (hostname: string): DomainConfig => {
  */
 export const isProductionDomain = (hostname: string): boolean => {
   const cleanHostname = hostname.split(':')[0];
-  return Object.keys(PRODUCTION_DOMAINS).some(domain => 
+  console.log('🔍 isProductionDomain checking:', cleanHostname);
+
+  const isProduction = Object.keys(PRODUCTION_DOMAINS).some(domain =>
     cleanHostname === domain || cleanHostname.includes(domain.split('.')[0])
   );
+
+  console.log('🏭 Production domain result:', isProduction);
+  return isProduction;
 };
 
 /**
@@ -189,23 +246,23 @@ export const isProductionDomain = (hostname: string): boolean => {
 export function parseTenantFromUrl(): TenantRoute | null {
   const hostname = window.location.hostname;
   const pathname = window.location.pathname;
-  
+
   console.log('🔍 Unified Route Detection - hostname:', hostname, 'pathname:', pathname);
-  
+
   // Don't parse tenant for admin domain
   if (hostname === 'app.flow-iq.ai') {
     console.log('🏢 Admin domain detected - skipping tenant parsing');
     return null;
   }
-  
+
   const isProduction = isProductionDomain(hostname);
   console.log('🏭 Production domain check:', isProduction);
-  
+
   // Production subdomain routing
   if (isProduction) {
     const subdomain = hostname.split('.')[0];
     console.log('🏢 Production subdomain:', subdomain);
-    
+
     const domainConfig = getDomainConfig(hostname);
     if (domainConfig) {
       console.log('✅ Production tenant found:', domainConfig);
@@ -219,7 +276,7 @@ export function parseTenantFromUrl(): TenantRoute | null {
       };
     }
   }
-  
+
   // Development path-based routing
   for (const [pathPrefix, config] of Object.entries(DEVELOPMENT_ROUTES)) {
     if (pathname.startsWith(pathPrefix)) {
@@ -234,7 +291,7 @@ export function parseTenantFromUrl(): TenantRoute | null {
       };
     }
   }
-  
+
   console.log('❌ No tenant detected for this route');
   return null;
 }
@@ -258,7 +315,7 @@ export function getSpecialtyRoute(specialty: string, route: string = ''): string
     'dermatology': '/dermatology',
     'urgent-care': '/urgent-care'
   };
-  
+
   const baseRoute = specialtyRoutes[specialty] || '/chiropractic';
   return route ? `${baseRoute}/${route}` : baseRoute;
 }
@@ -276,7 +333,7 @@ export function redirectToTenantDashboard(tenantRoute: TenantRoute) {
  */
 export function getTenantUrl(subdomain: string, path: string = ''): string {
   const isProduction = isProductionDomain(window.location.hostname);
-  
+
   if (isProduction) {
     const domain = window.location.hostname.includes('flowiq.com') ? 'flowiq.com' : 'flow-iq.ai';
     return `https://${subdomain}.${domain}${path}`;
@@ -293,9 +350,10 @@ function getSpecialtyFromSubdomain(subdomain: string): string {
   const subdomainMap: Record<string, string> = {
     'midwest-dental-sleep': 'dental-sleep-medicine',
     'west-county-spine': 'chiropractic-care',
+    'general-dentistry': 'general-dentistry',
     'communication': 'communication',
     'communication-iq': 'communication'
   };
-  
+
   return subdomainMap[subdomain] || 'chiropractic-care';
 } 

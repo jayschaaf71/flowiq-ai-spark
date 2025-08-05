@@ -1,10 +1,11 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { Layout } from '../components/Layout';
+import { ModernLayout } from '../components/layout/ModernLayout';
 import { ProtectedRoute } from '../components/auth/ProtectedRoute';
 import { SpecialtyProvider } from '../contexts/SpecialtyContext';
 import { ChiropracticDashboard } from '../components/chiropractic/ChiropracticDashboard';
 import { Calendar } from '../pages/Calendar';
+import { ClinicalAssistant } from '../pages/agents/ClinicalAssistant';
 import ScribeIQ from '../pages/agents/ScribeIQ';
 import FlowIQConnect from '../pages/agents/CommunicationIQ';
 import EHR from '../pages/EHR';
@@ -16,9 +17,12 @@ import InsightIQ from '../pages/agents/InsightIQ';
 import EducationIQ from '../pages/agents/EducationIQ';
 import GrowthIQ from '../pages/agents/GrowthIQ';
 import Settings from '../pages/Settings';
+import { useHealthcareSageAI } from '@/hooks/useHealthcareSageAI';
 
 export const ChiropracticApp: React.FC = () => {
+  const healthcareSage = useHealthcareSageAI();
   console.log('🏥 ChiropracticApp: Rendering standalone ChiropracticApp');
+  console.log('🏥 ChiropracticApp: Current pathname:', window.location.pathname);
 
   return (
     <SpecialtyProvider>
@@ -30,107 +34,148 @@ export const ChiropracticApp: React.FC = () => {
           {/* Main Chiropractic Pages */}
           <Route path="/dashboard" element={
             <ProtectedRoute requiredRole="staff">
-              <Layout>
+              <ModernLayout>
                 <ChiropracticDashboard />
-              </Layout>
+              </ModernLayout>
             </ProtectedRoute>
           } />
 
           <Route path="/calendar" element={
             <ProtectedRoute requiredRole="staff">
-              <Layout>
+              <ModernLayout>
                 <Calendar />
-              </Layout>
+              </ModernLayout>
             </ProtectedRoute>
           } />
 
-          {/* AI Agents */}
+          {/* AI Assistants */}
+          <Route path="/ai/clinical" element={
+            <ProtectedRoute requiredRole="staff">
+              <ModernLayout>
+                <ClinicalAssistant />
+              </ModernLayout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/ai/communication" element={
+            <ProtectedRoute requiredRole="staff">
+              <ModernLayout>
+                <FlowIQConnect />
+              </ModernLayout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/ai/revenue" element={
+            <ProtectedRoute requiredRole="staff">
+              <ModernLayout>
+                <RevenueIQ />
+              </ModernLayout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/ai/operations" element={
+            <ProtectedRoute requiredRole="staff">
+              <ModernLayout>
+                <OpsIQ />
+              </ModernLayout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/ai/growth" element={
+            <ProtectedRoute requiredRole="staff">
+              <ModernLayout>
+                <GrowthIQ />
+              </ModernLayout>
+            </ProtectedRoute>
+          } />
+
+          {/* Legacy AI Agents */}
           <Route path="/agents/communication" element={
             <ProtectedRoute requiredRole="staff">
-              <Layout>
+              <ModernLayout>
                 <FlowIQConnect />
-              </Layout>
+              </ModernLayout>
             </ProtectedRoute>
           } />
 
           <Route path="/agents/scribe" element={
             <ProtectedRoute requiredRole="staff">
-              <Layout>
+              <ModernLayout>
                 <ScribeIQ />
-              </Layout>
+              </ModernLayout>
             </ProtectedRoute>
           } />
 
           <Route path="/agents/ehr" element={
             <ProtectedRoute requiredRole="staff">
-              <Layout>
+              <ModernLayout>
                 <EHR />
-              </Layout>
+              </ModernLayout>
             </ProtectedRoute>
           } />
 
           <Route path="/agents/revenue" element={
             <ProtectedRoute requiredRole="staff">
-              <Layout>
+              <ModernLayout>
                 <RevenueIQ />
-              </Layout>
+              </ModernLayout>
             </ProtectedRoute>
           } />
 
           <Route path="/agents/insurance" element={
             <ProtectedRoute requiredRole="staff">
-              <Layout>
+              <ModernLayout>
                 <InsuranceIQ />
-              </Layout>
+              </ModernLayout>
             </ProtectedRoute>
           } />
 
           <Route path="/agents/inventory" element={
             <ProtectedRoute requiredRole="staff">
-              <Layout>
+              <ModernLayout>
                 <InventoryIQ />
-              </Layout>
+              </ModernLayout>
             </ProtectedRoute>
           } />
 
           <Route path="/agents/ops" element={
             <ProtectedRoute requiredRole="staff">
-              <Layout>
+              <ModernLayout>
                 <OpsIQ />
-              </Layout>
+              </ModernLayout>
             </ProtectedRoute>
           } />
 
           <Route path="/agents/insight" element={
             <ProtectedRoute requiredRole="staff">
-              <Layout>
+              <ModernLayout>
                 <InsightIQ />
-              </Layout>
+              </ModernLayout>
             </ProtectedRoute>
           } />
 
           <Route path="/agents/education" element={
             <ProtectedRoute requiredRole="staff">
-              <Layout>
+              <ModernLayout>
                 <EducationIQ />
-              </Layout>
+              </ModernLayout>
             </ProtectedRoute>
           } />
 
           <Route path="/agents/growth" element={
             <ProtectedRoute requiredRole="staff">
-              <Layout>
+              <ModernLayout>
                 <GrowthIQ />
-              </Layout>
+              </ModernLayout>
             </ProtectedRoute>
           } />
 
           {/* Settings */}
           <Route path="/settings" element={
             <ProtectedRoute requiredRole="staff">
-              <Layout>
+              <ModernLayout>
                 <Settings />
-              </Layout>
+              </ModernLayout>
             </ProtectedRoute>
           } />
 

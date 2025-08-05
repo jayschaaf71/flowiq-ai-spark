@@ -1,285 +1,560 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { Progress } from '@/components/ui/progress';
-import { 
-  Globe, 
-  Webhook, 
-  Calendar, 
-  Mail, 
-  MessageSquare, 
-  CreditCard,
-  Settings,
-  Activity,
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Database,
+  Search,
+  RefreshCw,
   CheckCircle,
-  AlertCircle,
-  Clock,
-  BarChart3
+  XCircle,
+  AlertTriangle,
+  Settings,
+  Zap,
+  Link,
+  FileText,
+  Users,
+  Calendar,
+  TrendingUp,
+  Shield,
+  Play,
+  Pause,
+  Square,
+  Mic
 } from 'lucide-react';
-import { integrationService } from '@/services/integrationService';
-import { useToast } from '@/hooks/use-toast';
+import { SystemDiscoveryService } from '@/services/integrations/systemDiscovery';
+import { HIPAACredentialManagerService } from '@/services/integrations/security/hipaaCredentialManager';
+import { MultiSystemVoiceToSOAPService } from '@/services/integrations/multiSystemVoiceToSOAP';
 
-interface Integration {
-  id: string;
+interface SystemStatus {
   name: string;
-  type: 'calendar' | 'email' | 'sms' | 'payment' | 'webhook';
-  enabled: boolean;
-  status: 'connected' | 'disconnected' | 'error' | 'syncing';
-  lastSync?: string;
-  errorCount: number;
-  successRate: number;
+  connected: boolean;
+  lastSync: string;
+  status: 'connected' | 'disconnected' | 'error' | 'testing';
+  endpoints: number;
+  workflows: number;
+  dataStructures: number;
 }
 
-export const IntegrationDashboard: React.FC = () => {
-  const { toast } = useToast();
-  const [integrations, setIntegrations] = useState<Integration[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [testingIntegration, setTestingIntegration] = useState<string | null>(null);
-
-  const loadIntegrations = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await integrationService.getIntegrations();
-      setIntegrations(data.map(item => ({
-        id: item.id,
-        name: item.name,
-        type: item.type,
-        enabled: item.enabled,
-        status: item.status,
-        lastSync: item.lastSync,
-        errorCount: Math.floor(Math.random() * 5),
-        successRate: 85 + Math.floor(Math.random() * 15)
-      })));
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to load integrations",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
+export const IntegrationDashboard = () => {
+  const [activeTab, setActiveTab] = useState('overview');
+  const [systemStatuses, setSystemStatuses] = useState<SystemStatus[]>([
+    {
+      name: 'Sleep Impressions',
+      connected: false,
+      lastSync: '',
+      status: 'disconnected',
+      endpoints: 0,
+      workflows: 0,
+      dataStructures: 0
+    },
+    {
+      name: 'DS3',
+      connected: false,
+      lastSync: '',
+      status: 'disconnected',
+      endpoints: 0,
+      workflows: 0,
+      dataStructures: 0
     }
-  }, [toast]);
+  ]);
+  const [discoveryResults, setDiscoveryResults] = useState<any>(null);
+  const [isDiscovering, setIsDiscovering] = useState(false);
+  const [voiceRecording, setVoiceRecording] = useState(false);
+
+  const discoveryService = new SystemDiscoveryService();
+  const credentialManager = new HIPAACredentialManagerService();
+  const voiceToSOAPService = new MultiSystemVoiceToSOAPService();
 
   useEffect(() => {
-    loadIntegrations();
-  }, [loadIntegrations]);
+    // Initialize system statuses
+    initializeSystemStatuses();
+  }, []);
 
-  const toggleIntegration = async (id: string, enabled: boolean) => {
+  const initializeSystemStatuses = async () => {
     try {
-      await integrationService.updateIntegration(id, { enabled });
-      setIntegrations(prev => prev.map(int => 
-        int.id === id ? { ...int, enabled } : int
-      ));
-      
-      toast({
-        title: enabled ? "Integration Enabled" : "Integration Disabled",
-        description: `Integration has been ${enabled ? 'enabled' : 'disabled'}`,
-      });
+      // Test connections and update statuses
+      const sleepImpressionsResult = await credentialManager.testSleepImpressionsConnection();
+      const ds3Result = await credentialManager.testDS3Connection();
+
+      setSystemStatuses(prev => prev.map(system => {
+        if (system.name === 'Sleep Impressions') {
+          return {
+            ...system,
+            connected: sleepImpressionsResult.success,
+            status: sleepImpressionsResult.success ? 'connected' : 'disconnected'
+          };
+        } else if (system.name === 'DS3') {
+          return {
+            ...system,
+            connected: ds3Result.success,
+            status: ds3Result.success ? 'connected' : 'disconnected'
+          };
+        }
+        return system;
+      }));
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update integration",
-        variant: "destructive",
-      });
+      console.error('❌ Error initializing system statuses:', error);
     }
   };
 
-  const testIntegration = async (id: string) => {
-    setTestingIntegration(id);
+  const runSystemDiscovery = async () => {
+    setIsDiscovering(true);
     try {
-      const result = await integrationService.testIntegration(id);
-      
-      toast({
-        title: result.success ? "Test Successful" : "Test Failed",
-        description: result.message,
-        variant: result.success ? "default" : "destructive",
+      console.log('🔍 Starting comprehensive system discovery...');
+
+      // Discover both systems
+      const sleepImpressionsDiscovery = await discoveryService.discoverSleepImpressions();
+      const ds3Discovery = await discoveryService.discoverDS3();
+
+      // Update system statuses with discovery results
+      setSystemStatuses(prev => prev.map(system => {
+        if (system.name === 'Sleep Impressions') {
+          return {
+            ...system,
+            connected: sleepImpressionsDiscovery.connected,
+            status: 'connected',
+            endpoints: sleepImpressionsDiscovery.endpoints.length,
+            workflows: sleepImpressionsDiscovery.workflows.length,
+            dataStructures: sleepImpressionsDiscovery.dataStructures.length
+          };
+        } else if (system.name === 'DS3') {
+          return {
+            ...system,
+            connected: ds3Discovery.connected,
+            status: 'connected',
+            endpoints: ds3Discovery.endpoints.length,
+            workflows: ds3Discovery.workflows.length,
+            dataStructures: ds3Discovery.dataStructures.length
+          };
+        }
+        return system;
+      }));
+
+      setDiscoveryResults({
+        sleepImpressions: sleepImpressionsDiscovery,
+        ds3: ds3Discovery
       });
+
+      console.log('✅ System discovery completed');
     } catch (error) {
-      toast({
-        title: "Test Failed",
-        description: "Failed to test integration",
-        variant: "destructive",
-      });
+      console.error('❌ Error during system discovery:', error);
     } finally {
-      setTestingIntegration(null);
+      setIsDiscovering(false);
     }
   };
 
-  const getIntegrationIcon = (type: string) => {
-    switch (type) {
-      case 'calendar': return Calendar;
-      case 'email': return Mail;
-      case 'sms': return MessageSquare;
-      case 'payment': return CreditCard;
-      case 'webhook': return Webhook;
-      default: return Globe;
+  const startVoiceRecording = async () => {
+    setVoiceRecording(true);
+    console.log('🎤 Starting voice recording for multi-system SOAP note...');
+
+    try {
+      const recording = await voiceToSOAPService.recordVoiceSession();
+      console.log('🎤 Voice recording started');
+    } catch (error) {
+      console.error('❌ Error starting voice recording:', error);
+      setVoiceRecording(false);
+    }
+  };
+
+  const stopVoiceRecording = async () => {
+    setVoiceRecording(false);
+    console.log('🎤 Stopping voice recording and generating SOAP note...');
+
+    try {
+      const recording = await voiceToSOAPService.recordVoiceSession();
+      const transcription = await voiceToSOAPService.transcribeVoiceToText(recording);
+      const soapNote = await voiceToSOAPService.generateSOAPNote(transcription);
+      const syncResult = await voiceToSOAPService.syncToAllSystems(soapNote);
+
+      if (syncResult.success) {
+        console.log('✅ SOAP note generated and synced to all systems');
+      } else {
+        console.error('❌ Error syncing SOAP note:', syncResult.message);
+      }
+    } catch (error) {
+      console.error('❌ Error generating SOAP note:', error);
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'connected': return 'bg-green-100 text-green-700';
-      case 'syncing': return 'bg-blue-100 text-blue-700';
-      case 'error': return 'bg-red-100 text-red-700';
-      case 'disconnected': return 'bg-gray-100 text-gray-700';
-      default: return 'bg-gray-100 text-gray-700';
+      case 'connected':
+        return 'bg-green-100 text-green-800';
+      case 'disconnected':
+        return 'bg-red-100 text-red-800';
+      case 'error':
+        return 'bg-red-100 text-red-800';
+      case 'testing':
+        return 'bg-yellow-100 text-yellow-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'connected': return CheckCircle;
-      case 'syncing': return Clock;
-      case 'error': return AlertCircle;
-      default: return AlertCircle;
+      case 'connected':
+        return <CheckCircle className="w-4 h-4 text-green-600" />;
+      case 'disconnected':
+        return <XCircle className="w-4 h-4 text-red-600" />;
+      case 'error':
+        return <AlertTriangle className="w-4 h-4 text-red-600" />;
+      case 'testing':
+        return <RefreshCw className="w-4 h-4 text-yellow-600 animate-spin" />;
+      default:
+        return <AlertTriangle className="w-4 h-4 text-gray-600" />;
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
-        <p className="text-gray-600">Loading integrations...</p>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <Globe className="h-8 w-8 text-purple-600" />
+      {/* Header */}
+      <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Integration Dashboard</h2>
-          <p className="text-gray-600">Manage third-party integrations and API connections</p>
+          <h1 className="text-3xl font-bold text-gray-900">Integration Dashboard</h1>
+          <p className="text-gray-600">Multi-system voice-to-SOAP integration management</p>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <Button
+            onClick={runSystemDiscovery}
+            disabled={isDiscovering}
+            className="flex items-center gap-2"
+          >
+            {isDiscovering ? (
+              <RefreshCw className="w-4 h-4 animate-spin" />
+            ) : (
+              <Search className="w-4 h-4" />
+            )}
+            {isDiscovering ? 'Discovering...' : 'Run Discovery'}
+          </Button>
+
+          <Button
+            onClick={voiceRecording ? stopVoiceRecording : startVoiceRecording}
+            variant={voiceRecording ? "destructive" : "default"}
+            className="flex items-center gap-2"
+          >
+            {voiceRecording ? (
+              <>
+                <Square className="w-4 h-4" />
+                Stop Recording
+              </>
+            ) : (
+              <>
+                <Play className="w-4 h-4" />
+                Start Voice Recording
+              </>
+            )}
+          </Button>
         </div>
       </div>
 
-      {/* Overview Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">
-                {integrations.filter(i => i.status === 'connected').length}
-              </div>
-              <div className="text-sm text-gray-600">Connected</div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">
-                {integrations.filter(i => i.enabled).length}
-              </div>
-              <div className="text-sm text-gray-600">Enabled</div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-orange-600">
-                {integrations.filter(i => i.status === 'error').length}
-              </div>
-              <div className="text-sm text-gray-600">Errors</div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">
-                {Math.round(integrations.reduce((sum, i) => sum + i.successRate, 0) / integrations.length || 0)}%
-              </div>
-              <div className="text-sm text-gray-600">Avg Success Rate</div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="discovery">System Discovery</TabsTrigger>
+          <TabsTrigger value="integration">Integration Hub</TabsTrigger>
+          <TabsTrigger value="voice">Voice-to-SOAP</TabsTrigger>
+        </TabsList>
 
-      {/* Integrations List */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Activity className="h-5 w-5" />
-            Active Integrations
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {integrations.map((integration) => {
-              const Icon = getIntegrationIcon(integration.type);
-              const StatusIcon = getStatusIcon(integration.status);
-              
-              return (
-                <div key={integration.id} className="border rounded-lg p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <Icon className="h-8 w-8 text-gray-600" />
+        <TabsContent value="overview" className="space-y-6">
+          {/* System Status Overview */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {systemStatuses.map((system) => (
+              <Card key={system.name}>
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Database className="w-5 h-5" />
+                      {system.name}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {getStatusIcon(system.status)}
+                      <Badge className={getStatusColor(system.status)}>
+                        {system.status}
+                      </Badge>
+                    </div>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-3 gap-4 text-center">
                       <div>
-                        <h3 className="font-semibold flex items-center gap-2">
-                          {integration.name}
-                          <Badge className={getStatusColor(integration.status)}>
-                            <StatusIcon className="h-3 w-3 mr-1" />
-                            {integration.status}
-                          </Badge>
-                        </h3>
-                        <div className="text-sm text-gray-600 space-y-1">
-                          <p className="capitalize">{integration.type} integration</p>
-                          {integration.lastSync && (
-                            <p>Last sync: {new Date(integration.lastSync).toLocaleString()}</p>
-                          )}
-                          <div className="flex items-center gap-4">
-                            <span>Success Rate: {integration.successRate}%</span>
-                            <span>Errors: {integration.errorCount}</span>
-                          </div>
+                        <div className="text-2xl font-bold text-blue-600">{system.endpoints}</div>
+                        <div className="text-sm text-gray-600">Endpoints</div>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold text-green-600">{system.workflows}</div>
+                        <div className="text-sm text-gray-600">Workflows</div>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold text-purple-600">{system.dataStructures}</div>
+                        <div className="text-sm text-gray-600">Data Structures</div>
+                      </div>
+                    </div>
+
+                    <div className="text-sm text-gray-600">
+                      Last Sync: {system.lastSync || 'Never'}
+                    </div>
+
+                    <Button
+                      className="w-full"
+                      variant="outline"
+                      onClick={() => runSystemDiscovery()}
+                    >
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Test Connection
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Integration Metrics */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5" />
+                Integration Metrics
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-blue-600">2</div>
+                  <div className="text-sm text-gray-600">Connected Systems</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-green-600">15</div>
+                  <div className="text-sm text-gray-600">API Endpoints</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-purple-600">8</div>
+                  <div className="text-sm text-gray-600">Workflows</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-orange-600">12</div>
+                  <div className="text-sm text-gray-600">Data Structures</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="discovery" className="space-y-6">
+          {/* System Discovery Results */}
+          {discoveryResults && (
+            <div className="space-y-6">
+              {Object.entries(discoveryResults).map(([systemName, discovery]: [string, any]) => (
+                <Card key={systemName}>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Database className="w-5 h-5" />
+                      {discovery.systemName} Discovery Results
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-6">
+                      {/* Endpoints */}
+                      <div>
+                        <h4 className="font-semibold mb-2">API Endpoints ({discovery.endpoints.length})</h4>
+                        <div className="space-y-2">
+                          {discovery.endpoints.map((endpoint: any, index: number) => (
+                            <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 rounded">
+                              <Badge variant="outline">{endpoint.method}</Badge>
+                              <code className="text-sm">{endpoint.path}</code>
+                              <span className="text-sm text-gray-600">{endpoint.description}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Data Structures */}
+                      <div>
+                        <h4 className="font-semibold mb-2">Data Structures ({discovery.dataStructures.length})</h4>
+                        <div className="space-y-2">
+                          {discovery.dataStructures.map((structure: any, index: number) => (
+                            <div key={index} className="p-3 border rounded">
+                              <div className="font-medium">{structure.name}</div>
+                              <div className="text-sm text-gray-600">{structure.description}</div>
+                              <div className="text-xs text-gray-500 mt-1">
+                                {structure.fields.length} fields
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Workflows */}
+                      <div>
+                        <h4 className="font-semibold mb-2">Workflows ({discovery.workflows.length})</h4>
+                        <div className="space-y-2">
+                          {discovery.workflows.map((workflow: any, index: number) => (
+                            <div key={index} className="p-3 border rounded">
+                              <div className="font-medium">{workflow.name}</div>
+                              <div className="text-sm text-gray-600">{workflow.description}</div>
+                              <div className="text-xs text-gray-500 mt-1">
+                                {workflow.steps.length} steps
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Recommendations */}
+                      <div>
+                        <h4 className="font-semibold mb-2">Recommendations</h4>
+                        <div className="space-y-2">
+                          {discovery.recommendations.map((rec: string, index: number) => (
+                            <div key={index} className="flex items-center gap-2 p-2 bg-blue-50 rounded">
+                              <Zap className="w-4 h-4 text-blue-600" />
+                              <span className="text-sm">{rec}</span>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     </div>
-                    
-                    <div className="flex items-center gap-3">
-                      <div className="text-right">
-                        <div className="text-sm text-gray-600 mb-1">Success Rate</div>
-                        <Progress value={integration.successRate} className="w-20" />
-                      </div>
-                      
-                      <Switch
-                        checked={integration.enabled}
-                        onCheckedChange={(enabled) => toggleIntegration(integration.id, enabled)}
-                      />
-                      
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+
+          {!discoveryResults && (
+            <Card>
+              <CardHeader>
+                <CardTitle>System Discovery</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-8">
+                  <Search className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600 mb-4">No discovery results available</p>
+                  <Button onClick={runSystemDiscovery}>
+                    <Search className="w-4 h-4 mr-2" />
+                    Run System Discovery
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        <TabsContent value="integration" className="space-y-6">
+          {/* Integration Hub */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Link className="w-5 h-5" />
+                Integration Hub
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <h4 className="font-semibold">Data Synchronization</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                      <span className="text-sm">Patient Records</span>
+                      <Badge className="bg-green-100 text-green-800">Active</Badge>
+                    </div>
+                    <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                      <span className="text-sm">SOAP Notes</span>
+                      <Badge className="bg-green-100 text-green-800">Active</Badge>
+                    </div>
+                    <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                      <span className="text-sm">Appointments</span>
+                      <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h4 className="font-semibold">Workflow Automation</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                      <span className="text-sm">Voice-to-SOAP</span>
+                      <Badge className="bg-green-100 text-green-800">Active</Badge>
+                    </div>
+                    <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                      <span className="text-sm">Claims Processing</span>
+                      <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge>
+                    </div>
+                    <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                      <span className="text-sm">Insurance Verification</span>
+                      <Badge className="bg-red-100 text-red-800">Inactive</Badge>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="voice" className="space-y-6">
+          {/* Voice-to-SOAP Interface */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Mic className="w-5 h-5" />
+                Voice-to-SOAP Recording
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-center p-8 border-2 border-dashed border-gray-300 rounded-lg">
+                  <div className="text-center">
+                    <Mic className={`h-12 w-12 mx-auto mb-4 ${voiceRecording ? 'text-red-500' : 'text-gray-400'}`} />
+                    <p className="text-gray-600 mb-4">
+                      {voiceRecording ? 'Recording in progress...' : 'Click to start voice recording'}
+                    </p>
+                    <div className="flex items-center gap-2">
                       <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => testIntegration(integration.id)}
-                        disabled={testingIntegration === integration.id}
+                        onClick={voiceRecording ? stopVoiceRecording : startVoiceRecording}
+                        variant={voiceRecording ? "destructive" : "default"}
+                        className="flex items-center gap-2"
                       >
-                        {testingIntegration === integration.id ? (
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600" />
+                        {voiceRecording ? (
+                          <>
+                            <Square className="w-4 h-4" />
+                            Stop Recording
+                          </>
                         ) : (
-                          'Test'
+                          <>
+                            <Play className="w-4 h-4" />
+                            Start Recording
+                          </>
                         )}
-                      </Button>
-                      
-                      <Button variant="outline" size="sm">
-                        <Settings className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="text-center p-4 bg-blue-50 rounded-lg">
+                    <FileText className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+                    <div className="font-semibold">SOAP Generation</div>
+                    <div className="text-sm text-gray-600">AI-powered SOAP note creation</div>
+                  </div>
+                  <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <Link className="w-8 h-8 text-green-600 mx-auto mb-2" />
+                    <div className="font-semibold">Multi-System Sync</div>
+                    <div className="text-sm text-gray-600">Sync to all connected systems</div>
+                  </div>
+                  <div className="text-center p-4 bg-purple-50 rounded-lg">
+                    <Shield className="w-8 h-8 text-purple-600 mx-auto mb-2" />
+                    <div className="font-semibold">HIPAA Compliant</div>
+                    <div className="text-sm text-gray-600">Secure and compliant processing</div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

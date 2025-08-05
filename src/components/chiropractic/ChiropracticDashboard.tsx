@@ -3,9 +3,11 @@ import { useAppointments } from '../../hooks/useAppointments';
 import { usePatients } from '../../hooks/usePatients';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
+import { useSpecialty } from '@/contexts/SpecialtyContext';
 import { Calendar, Users, Clock, DollarSign, FileText, Activity, BarChart3, Bell } from 'lucide-react';
 
 export const ChiropracticDashboard: React.FC = () => {
+  const { tenantConfig, getBrandName } = useSpecialty();
   const { appointments, loading: appointmentsLoading, error: appointmentsError } = useAppointments();
   const { data: patients, isLoading: patientsLoading, error: patientsError } = usePatients();
 
@@ -20,8 +22,9 @@ export const ChiropracticDashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
+
       <div>
-        <h1 className="text-3xl font-bold">Chiropractic Practice</h1>
+        <h1 className="text-3xl font-bold">{tenantConfig?.brand_name || getBrandName()}</h1>
         <p className="text-muted-foreground">Welcome to your practice management dashboard</p>
       </div>
 
@@ -119,9 +122,8 @@ export const ChiropracticDashboard: React.FC = () => {
                       <div className="font-medium">{appointment.patient_name}</div>
                       <div className="text-sm text-muted-foreground">{appointment.time} - {appointment.type}</div>
                     </div>
-                    <div className={`px-2 py-1 rounded text-xs ${
-                      appointment.status === 'confirmed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                    }`}>
+                    <div className={`px-2 py-1 rounded text-xs ${appointment.status === 'confirmed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                      }`}>
                       {appointment.status}
                     </div>
                   </div>

@@ -418,10 +418,8 @@ export default function Schedule() {
   };
 
   const handleEditAppointment = (appointment: Appointment) => {
-    console.log('handleEditAppointment called with:', appointment);
     setSelectedAppointment(appointment);
     setShowEditAppointment(true);
-    console.log('showEditAppointment set to true');
   };
 
   const handleUpdateAppointment = () => {
@@ -1106,7 +1104,6 @@ export default function Schedule() {
 
       {/* Edit Appointment Modal */}
       <Dialog open={showEditAppointment} onOpenChange={setShowEditAppointment}>
-        {console.log('Edit modal render - showEditAppointment:', showEditAppointment)}
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Edit Appointment</DialogTitle>

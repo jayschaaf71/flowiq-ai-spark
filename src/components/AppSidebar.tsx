@@ -54,14 +54,14 @@ export const AppSidebar = () => {
     });
     return unsubscribe;
   }, [navigate, navItems]);
-  
+
   // Filter navigation items based on licensing
   const filteredNavItems = navItems.filter(item => {
     // Check licensing
     if (item.requiredLicense && !agentStatus[item.id]) {
       return false;
     }
-    
+
     // Role filtering is now handled in getNavItems
     return true;
   });
@@ -84,7 +84,7 @@ export const AppSidebar = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <Sidebar className="border-r bg-gradient-to-b from-background to-background/95">
+    <div className="border-r bg-gradient-to-b from-background to-background/95 w-64 fixed left-0 top-0 h-full z-10">
       <SidebarHeader className="border-b p-6">
         <div className="flex items-center gap-3 min-w-0">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary-accent text-primary-foreground shadow-lg">
@@ -93,16 +93,16 @@ export const AppSidebar = () => {
           {state === "expanded" && (
             <div className="flex flex-col min-w-0 flex-1">
               <div className="flex items-center gap-1">
-                <span className="font-bold text-lg truncate">{getBrandName()}</span>
+                <span className="font-bold text-lg truncate">{tenantConfig?.brand_name || getBrandName()}</span>
               </div>
               <p className="text-sm text-muted-foreground leading-tight truncate">
-                {tenantConfig.tagline}
+                {tenantConfig?.tagline || 'Expert Healthcare Management'}
               </p>
             </div>
           )}
         </div>
       </SidebarHeader>
-      
+
       <SidebarContent className="px-3 py-4">
         {groupedItems.map((group) => (
           <SidebarGroup key={group.id} className="mb-6">
@@ -117,10 +117,9 @@ export const AppSidebar = () => {
                       to={item.path}
                       onClick={() => handleNavClick(item)}
                       className={({ isActive }) =>
-                        `group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 hover:bg-accent hover:text-accent-foreground ${
-                          isActive 
-                            ? 'bg-primary text-primary-foreground shadow-sm' 
-                            : 'text-muted-foreground'
+                        `group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 hover:bg-accent hover:text-accent-foreground ${isActive
+                          ? 'bg-primary text-primary-foreground shadow-sm'
+                          : 'text-muted-foreground'
                         }`
                       }
                     >
@@ -128,8 +127,8 @@ export const AppSidebar = () => {
                         <item.icon className="h-4 w-4 flex-shrink-0" />
                         <span className="truncate">{item.label}</span>
                         {item.badge && (
-                          <Badge 
-                            variant="secondary" 
+                          <Badge
+                            variant="secondary"
                             className="ml-auto text-xs px-1.5 py-0.5 bg-gradient-to-r from-blue-500 to-purple-500 text-white"
                           >
                             {item.badge}
@@ -144,7 +143,7 @@ export const AppSidebar = () => {
           </SidebarGroup>
         ))}
       </SidebarContent>
-      
+
       <SidebarFooter className="border-t p-4">
         <div className="flex items-center gap-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted">
@@ -162,6 +161,6 @@ export const AppSidebar = () => {
           )}
         </div>
       </SidebarFooter>
-    </Sidebar>
+    </div>
   );
 };

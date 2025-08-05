@@ -13,7 +13,8 @@ const MICROSOFT_CLIENT_ID = Deno.env.get('MICROSOFT_OAUTH_CLIENT_ID');
 const MICROSOFT_CLIENT_SECRET = Deno.env.get('MICROSOFT_OAUTH_CLIENT_SECRET');
 
 const BASE_URL = Deno.env.get('SUPABASE_URL');
-const REDIRECT_URI = `${BASE_URL}/functions/v1/calendar-oauth`;
+// Use the Supabase function URL for OAuth redirects - this should match what's registered in Google/Microsoft OAuth apps
+const REDIRECT_URI = 'https://jnpzabmqieceoqjypvve.supabase.co/functions/v1/calendar-oauth';
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -26,24 +27,27 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const url = new URL(req.url);
-    
+
     // Handle POST requests from frontend
     if (req.method === 'POST') {
       const { action, provider } = await req.json();
-      
+
       if (action === 'auth' && provider) {
         return handleAuthRequest(provider);
       }
     }
-    
+
     // Handle GET requests (OAuth callbacks)
     if (req.method === 'GET') {
-      const provider = url.searchParams.get('provider');
       const code = url.searchParams.get('code');
       const state = url.searchParams.get('state');
-      
-      if (code && provider) {
-        return handleOAuthCallback(supabase, provider, code, state);
+
+      if (code) {
+        // Try to determine provider from the request or try both
+        const provider = url.searchParams.get('provider') || await determineProvider(code);
+        if (provider) {
+          return handleOAuthCallback(supabase, provider, code, state);
+        }
       }
     }
 
@@ -61,28 +65,28 @@ serve(async (req) => {
 function handleAuthRequest(provider: string) {
   let authUrl: string;
   const state = crypto.randomUUID();
-  
+
   switch (provider) {
     case 'google':
       authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
         `client_id=${GOOGLE_CLIENT_ID}&` +
-        `redirect_uri=${encodeURIComponent(REDIRECT_URI + '?provider=google')}&` +
+        `redirect_uri=${encodeURIComponent(REDIRECT_URI)}&` +
         `scope=${encodeURIComponent('https://www.googleapis.com/auth/calendar')}&` +
         `response_type=code&` +
         `access_type=offline&` +
         `prompt=consent&` +
         `state=${state}`;
       break;
-      
+
     case 'microsoft':
       authUrl = `https://login.microsoftonline.com/common/oauth2/v2.0/authorize?` +
         `client_id=${MICROSOFT_CLIENT_ID}&` +
         `response_type=code&` +
-        `redirect_uri=${encodeURIComponent(REDIRECT_URI + '?provider=microsoft')}&` +
+        `redirect_uri=${encodeURIComponent(REDIRECT_URI)}&` +
         `scope=${encodeURIComponent('https://graph.microsoft.com/calendars.readwrite')}&` +
         `state=${state}`;
       break;
-      
+
     default:
       return new Response('Unsupported provider', { status: 400, headers: corsHeaders });
   }
@@ -92,10 +96,30 @@ function handleAuthRequest(provider: string) {
   });
 }
 
+async function determineProvider(code: string): Promise<string | null> {
+  // Try Google first
+  try {
+    await exchangeGoogleCode(code);
+    return 'google';
+  } catch (error) {
+    console.log('Not a Google code, trying Microsoft...');
+  }
+
+  // Try Microsoft
+  try {
+    await exchangeMicrosoftCode(code);
+    return 'microsoft';
+  } catch (error) {
+    console.log('Not a Microsoft code either');
+  }
+
+  return null;
+}
+
 async function handleOAuthCallback(supabase: any, provider: string, code: string, state: string) {
   try {
     let tokenData: any;
-    
+
     switch (provider) {
       case 'google':
         tokenData = await exchangeGoogleCode(code);
@@ -109,10 +133,10 @@ async function handleOAuthCallback(supabase: any, provider: string, code: string
 
     // Get user info from the token
     const userInfo = await getUserInfo(provider, tokenData.access_token);
-    
+
     // Get calendar list
     const calendars = await getCalendarList(provider, tokenData.access_token);
-    
+
     // Store integration in database
     const { data: integration, error } = await supabase
       .from('calendar_integrations')
@@ -158,7 +182,7 @@ async function handleOAuthCallback(supabase: any, provider: string, code: string
 
   } catch (error) {
     console.error('OAuth callback error:', error);
-    
+
     // Return HTML that posts error message to parent window
     const html = `
       <!DOCTYPE html>
@@ -224,7 +248,7 @@ async function exchangeMicrosoftCode(code: string) {
 
 async function getUserInfo(provider: string, accessToken: string) {
   let apiUrl: string;
-  
+
   switch (provider) {
     case 'google':
       apiUrl = 'https://www.googleapis.com/oauth2/v2/userinfo';
@@ -249,7 +273,7 @@ async function getUserInfo(provider: string, accessToken: string) {
 
 async function getCalendarList(provider: string, accessToken: string) {
   let apiUrl: string;
-  
+
   switch (provider) {
     case 'google':
       apiUrl = 'https://www.googleapis.com/calendar/v3/users/me/calendarList';
@@ -270,7 +294,7 @@ async function getCalendarList(provider: string, accessToken: string) {
   }
 
   const data = await response.json();
-  
+
   // Normalize the response format
   if (provider === 'google') {
     return data.items?.map((cal: any) => ({
@@ -285,6 +309,6 @@ async function getCalendarList(provider: string, accessToken: string) {
       description: cal.description
     })) || [];
   }
-  
+
   return [];
 }

@@ -1,9 +1,9 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { Layout } from '../../components/Layout';
+import { ModernLayout } from '../../components/layout/ModernLayout';
 import { ProtectedRoute } from '../../components/auth/ProtectedRoute';
 import { SpecialtyProvider } from '../../contexts/SpecialtyContext';
-import { DentalSleepDashboard } from './DentalSleepDashboard';
+import { DentalSleepDashboard } from '../../components/dental-sleep/DentalSleepDashboard';
 import { Calendar } from '../../pages/Calendar';
 import ScribeIQ from '../../pages/agents/ScribeIQ';
 import FlowIQConnect from '../../pages/agents/CommunicationIQ';
@@ -16,9 +16,12 @@ import InsightIQ from '../../pages/agents/InsightIQ';
 import EducationIQ from '../../pages/agents/EducationIQ';
 import GrowthIQ from '../../pages/agents/GrowthIQ';
 import Settings from '../../pages/Settings';
+import { useHealthcareSageAI } from '@/hooks/useHealthcareSageAI';
 
 export const DentalSleepApp: React.FC = () => {
+  const healthcareSage = useHealthcareSageAI();
   console.log('🦷 DentalSleepApp: Rendering standalone DentalSleepApp');
+  console.log('🦷 DentalSleepApp: Current pathname:', window.location.pathname);
 
   return (
     <SpecialtyProvider>
@@ -30,107 +33,107 @@ export const DentalSleepApp: React.FC = () => {
           {/* Main Dental Sleep Pages */}
           <Route path="/dashboard" element={
             <ProtectedRoute requiredRole="staff">
-              <Layout>
+              <ModernLayout>
                 <DentalSleepDashboard />
-              </Layout>
+              </ModernLayout>
             </ProtectedRoute>
           } />
 
           <Route path="/calendar" element={
             <ProtectedRoute requiredRole="staff">
-              <Layout>
+              <ModernLayout>
                 <Calendar />
-              </Layout>
+              </ModernLayout>
             </ProtectedRoute>
           } />
 
           {/* AI Agents */}
           <Route path="/agents/communication" element={
             <ProtectedRoute requiredRole="staff">
-              <Layout>
+              <ModernLayout>
                 <FlowIQConnect />
-              </Layout>
+              </ModernLayout>
             </ProtectedRoute>
           } />
 
           <Route path="/agents/scribe" element={
             <ProtectedRoute requiredRole="staff">
-              <Layout>
+              <ModernLayout>
                 <ScribeIQ />
-              </Layout>
+              </ModernLayout>
             </ProtectedRoute>
           } />
 
           <Route path="/agents/ehr" element={
             <ProtectedRoute requiredRole="staff">
-              <Layout>
+              <ModernLayout>
                 <EHR />
-              </Layout>
+              </ModernLayout>
             </ProtectedRoute>
           } />
 
           <Route path="/agents/revenue" element={
             <ProtectedRoute requiredRole="staff">
-              <Layout>
+              <ModernLayout>
                 <RevenueIQ />
-              </Layout>
+              </ModernLayout>
             </ProtectedRoute>
           } />
 
           <Route path="/agents/insurance" element={
             <ProtectedRoute requiredRole="staff">
-              <Layout>
+              <ModernLayout>
                 <InsuranceIQ />
-              </Layout>
+              </ModernLayout>
             </ProtectedRoute>
           } />
 
           <Route path="/agents/inventory" element={
             <ProtectedRoute requiredRole="staff">
-              <Layout>
+              <ModernLayout>
                 <InventoryIQ />
-              </Layout>
+              </ModernLayout>
             </ProtectedRoute>
           } />
 
           <Route path="/agents/ops" element={
             <ProtectedRoute requiredRole="staff">
-              <Layout>
+              <ModernLayout>
                 <OpsIQ />
-              </Layout>
+              </ModernLayout>
             </ProtectedRoute>
           } />
 
           <Route path="/agents/insight" element={
             <ProtectedRoute requiredRole="staff">
-              <Layout>
+              <ModernLayout>
                 <InsightIQ />
-              </Layout>
+              </ModernLayout>
             </ProtectedRoute>
           } />
 
           <Route path="/agents/education" element={
             <ProtectedRoute requiredRole="staff">
-              <Layout>
+              <ModernLayout>
                 <EducationIQ />
-              </Layout>
+              </ModernLayout>
             </ProtectedRoute>
           } />
 
           <Route path="/agents/growth" element={
             <ProtectedRoute requiredRole="staff">
-              <Layout>
+              <ModernLayout>
                 <GrowthIQ />
-              </Layout>
+              </ModernLayout>
             </ProtectedRoute>
           } />
 
           {/* Settings */}
           <Route path="/settings" element={
             <ProtectedRoute requiredRole="staff">
-              <Layout>
+              <ModernLayout>
                 <Settings />
-              </Layout>
+              </ModernLayout>
             </ProtectedRoute>
           } />
 

@@ -3,13 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { 
-  Calendar, 
-  Users, 
-  TrendingUp, 
-  AlertTriangle, 
-  CheckCircle, 
-  Clock, 
+import { useSpecialty } from '@/contexts/SpecialtyContext';
+import {
+  Calendar,
+  Users,
+  TrendingUp,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
   DollarSign,
   FileText,
   Shield,
@@ -63,6 +64,7 @@ interface DashboardMetrics {
 }
 
 export const DentalSleepDashboard = () => {
+  const { tenantConfig, getBrandName } = useSpecialty();
   const [metrics, setMetrics] = useState<DashboardMetrics>({
     totalAppointments: 0,
     confirmedAppointments: 0,
@@ -191,27 +193,27 @@ export const DentalSleepDashboard = () => {
   };
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 w-full max-w-none min-w-0">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between w-full">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600">Midwest Dental Sleep Medicine Institute</p>
+          <p className="text-gray-600">{tenantConfig?.brand_name || getBrandName()}</p>
         </div>
         <div className="flex items-center gap-4">
           <Badge variant="outline" className="text-sm">
-            {new Date().toLocaleDateString('en-US', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
+            {new Date().toLocaleDateString('en-US', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
             })}
           </Badge>
         </div>
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
         <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-blue-700">Today's Appointments</CardTitle>
@@ -263,15 +265,15 @@ export const DentalSleepDashboard = () => {
       </div>
 
       {/* Today's Appointments with Status Indicators */}
-      <Card>
+      <Card className="w-full">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
             Today's Appointments
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
+        <CardContent className="w-full">
+          <div className="space-y-3 w-full">
             {todayAppointments.map((appointment) => (
               <div key={appointment.id} className="flex items-center justify-between p-4 rounded-lg border bg-white hover:bg-gray-50 transition-colors">
                 <div className="flex items-center gap-4">
