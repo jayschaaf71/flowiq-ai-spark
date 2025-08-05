@@ -19,10 +19,10 @@ import { AIWaitlistManager } from "./AIWaitlistManager";
 
 export const ScheduleSettings = () => {
   const { toast } = useToast();
-  
+
   const [editingMember, setEditingMember] = useState(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  
+
   const [settings, setSettings] = useState({
     workingHours: {
       monday: { start: "09:00", end: "17:00", enabled: true },
@@ -107,7 +107,7 @@ export const ScheduleSettings = () => {
 
   const handleUpdateStaffSchedule = (staffId: string, workingHours: any, procedureSchedules?: any[]) => {
     console.log("Updating staff schedule:", { staffId, workingHours, procedureSchedules });
-    
+
     toast({
       title: "Schedule Updated",
       description: "Staff member schedule has been updated successfully.",
@@ -175,28 +175,28 @@ export const ScheduleSettings = () => {
         </TabsContent>
 
         <TabsContent value="hours" className="space-y-4">
-          <WorkingHoursTab 
+          <WorkingHoursTab
             settings={settings.workingHours}
             onWorkingHoursChange={handleWorkingHoursChange}
           />
         </TabsContent>
 
         <TabsContent value="appointments" className="space-y-4">
-          <AppointmentConfigTab 
+          <AppointmentConfigTab
             settings={settings.appointments}
             onSettingsChange={handleAppointmentSettingsChange}
           />
         </TabsContent>
 
         <TabsContent value="notifications" className="space-y-4">
-          <NotificationSettingsTab 
+          <NotificationSettingsTab
             settings={settings.notifications}
             onSettingsChange={handleNotificationSettingsChange}
           />
         </TabsContent>
 
         <TabsContent value="ai" className="space-y-4">
-          <AISettingsTab 
+          <AISettingsTab
             settings={settings.aiSettings}
             onSettingsChange={handleAISettingsChange}
           />
@@ -231,7 +231,7 @@ export const ScheduleSettings = () => {
         </TabsContent>
       </Tabs>
 
-      <EditTeamMemberDialog 
+      <EditTeamMemberDialog
         member={editingMember}
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}

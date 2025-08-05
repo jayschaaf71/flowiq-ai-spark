@@ -48,6 +48,72 @@ import {
 // Import calendar integration hook
 import { useCalendarIntegrations } from '@/hooks/useCalendarIntegrations';
 
+// Calendar Integration Component
+const CalendarIntegrationSection = () => {
+  const {
+    integrations,
+    loading,
+    error,
+    connectCalendar,
+    disconnectCalendar,
+    isConnected
+  } = useCalendarIntegrations();
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-medium">Calendar Integrations</h3>
+        <Button
+          onClick={() => connectCalendar('google')}
+          disabled={loading}
+          size="sm"
+        >
+          <Calendar className="w-4 h-4 mr-2" />
+          Connect Google
+        </Button>
+      </div>
+
+      {error && (
+        <div className="text-red-600 text-sm bg-red-50 p-2 rounded">
+          {error}
+        </div>
+      )}
+
+      <div className="space-y-3">
+        <div className="flex items-center justify-between p-3 border rounded-lg">
+          <div className="flex items-center gap-3">
+            <Calendar className="w-5 h-5 text-blue-600" />
+            <div>
+              <div className="font-medium">Google Calendar</div>
+              <div className="text-sm text-gray-600">
+                {isConnected('google') ? 'Connected' : 'Not connected'}
+              </div>
+            </div>
+          </div>
+          <Badge variant={isConnected('google') ? 'default' : 'secondary'}>
+            {isConnected('google') ? 'Connected' : 'Not Connected'}
+          </Badge>
+        </div>
+
+        <div className="flex items-center justify-between p-3 border rounded-lg">
+          <div className="flex items-center gap-3">
+            <Calendar className="w-5 h-5 text-purple-600" />
+            <div>
+              <div className="font-medium">Microsoft Outlook</div>
+              <div className="text-sm text-gray-600">
+                {isConnected('microsoft') ? 'Connected' : 'Not connected'}
+              </div>
+            </div>
+          </div>
+          <Badge variant={isConnected('microsoft') ? 'default' : 'secondary'}>
+            {isConnected('microsoft') ? 'Connected' : 'Not Connected'}
+          </Badge>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 interface Message {
   id: string;
@@ -439,7 +505,7 @@ export const CommunicationAssistant = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <CalendarIntegration />
+                <CalendarIntegrationSection />
               </CardContent>
             </Card>
 

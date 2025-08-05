@@ -13,6 +13,7 @@ import { IntegrationDashboard } from '@/components/integrations/IntegrationDashb
 import Settings from '@/pages/Settings';
 import Patients from '@/pages/Patients';
 import Schedule from '@/pages/Schedule';
+import { ScheduleSettings } from '@/components/schedule/ScheduleSettings';
 
 // Profile Component
 const Profile = () => {
@@ -95,6 +96,7 @@ export const DentalSleepApp: React.FC = () => {
 
         {/* Settings */}
         <Route path="/settings" element={<Settings />} />
+        <Route path="/schedule-settings" element={<ScheduleSettings />} />
         <Route path="/profile" element={<Profile />} />
 
         {/* Legacy Routes for Backward Compatibility */}

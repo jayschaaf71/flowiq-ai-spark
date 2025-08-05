@@ -579,13 +579,22 @@ export default function Schedule() {
           <h1 className="text-3xl font-bold text-gray-900">Schedule</h1>
           <p className="text-gray-600">Manage appointments and scheduling for Midwest Dental Sleep</p>
         </div>
-        <Button
-          className="bg-purple-600 hover:bg-purple-700"
-          onClick={handleAddAppointment}
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          New Appointment
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            onClick={() => window.location.href = '/schedule-settings'}
+          >
+            <Settings className="w-4 h-4 mr-2" />
+            Settings
+          </Button>
+          <Button
+            className="bg-purple-600 hover:bg-purple-700"
+            onClick={handleAddAppointment}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            New Appointment
+          </Button>
+        </div>
       </div>
 
       {/* Calendar Navigation */}
