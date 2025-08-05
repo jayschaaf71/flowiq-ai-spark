@@ -80,6 +80,7 @@ export default function Schedule() {
   const [messageText, setMessageText] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [isMounted, setIsMounted] = useState(false);
 
   // Validate and ensure selectedDate is always a valid Date
   const getValidDate = (date: Date): Date => {
@@ -91,6 +92,76 @@ export default function Schedule() {
 
   const validSelectedDate = getValidDate(selectedDate);
 
+  // Safe date formatting without date-fns
+  const formatDateSafe = (date: Date, format: string): string => {
+    if (!isMounted) {
+      // Return safe fallback during initial render
+      return date.toLocaleDateString();
+    }
+    
+    try {
+      switch (format) {
+        case 'yyyy-MM-dd':
+          return date.toISOString().split('T')[0];
+        case 'EEEE, MMMM d, yyyy':
+          return date.toLocaleDateString('en-US', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+          });
+        case 'MMMM yyyy':
+          return date.toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'long' 
+          });
+        case 'MMM d':
+          return date.toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: 'numeric' 
+          });
+        case 'MMM d, yyyy':
+          return date.toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: 'numeric',
+            year: 'numeric'
+          });
+        default:
+          return date.toLocaleDateString();
+      }
+    } catch (error) {
+      return date.toLocaleDateString();
+    }
+  };
+
+  // Safe week calculation without date-fns
+  const getWeekDays = () => {
+    if (!isMounted) return [];
+    
+    try {
+      const start = startOfWeek(validSelectedDate);
+      return eachDayOfInterval({ start, end: endOfWeek(validSelectedDate) });
+    } catch (error) {
+      // Fallback to simple week calculation
+      const days = [];
+      const today = new Date(validSelectedDate);
+      const startOfWeek = new Date(today);
+      startOfWeek.setDate(today.getDate() - today.getDay());
+      
+      for (let i = 0; i < 7; i++) {
+        const day = new Date(startOfWeek);
+        day.setDate(startOfWeek.getDate() + i);
+        days.push(day);
+      }
+      return days;
+    }
+  };
+
+  // Set mounted state after initial render
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   // Mock appointments data for Midwest Dental Sleep
   const [appointments, setAppointments] = useState<Appointment[]>(() => {
     const today = new Date();
@@ -101,7 +172,7 @@ export default function Schedule() {
     const dayAfterTomorrow = new Date(today);
     dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
     const dayAfterTomorrowStr = dayAfterTomorrow.toISOString().split('T')[0];
-    
+
     return [
       {
         id: '1',
@@ -243,7 +314,7 @@ export default function Schedule() {
     for (let hour = 8; hour <= 17; hour++) {
       for (let minute = 0; minute < 60; minute += 30) {
         const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-        const appointment = appointments.find(apt => apt.time === time && apt.date === format(validSelectedDate, 'yyyy-MM-dd'));
+        const appointment = appointments.find(apt => apt.time === time && apt.date === formatDateSafe(validSelectedDate, 'yyyy-MM-dd'));
         slots.push({
           time,
           available: !appointment,
@@ -294,7 +365,7 @@ export default function Schedule() {
       patientName: '',
       patientEmail: '',
       patientPhone: '',
-      date: format(validSelectedDate, 'yyyy-MM-dd'),
+      date: formatDateSafe(validSelectedDate, 'yyyy-MM-dd'),
       time: '',
       duration: 60,
       type: '',
@@ -411,7 +482,7 @@ export default function Schedule() {
   const handleTimeSlotClick = (time: string) => {
     setNewAppointment({
       ...newAppointment,
-      date: format(validSelectedDate, 'yyyy-MM-dd'),
+      date: formatDateSafe(validSelectedDate, 'yyyy-MM-dd'),
       time: time
     });
     setShowAddAppointment(true);
@@ -426,17 +497,12 @@ export default function Schedule() {
   });
 
   // Get current week days
-  const getWeekDays = () => {
-    const start = startOfWeek(validSelectedDate);
-    return eachDayOfInterval({ start, end: endOfWeek(validSelectedDate) });
-  };
-
   const weekDays = getWeekDays();
 
   // Get appointments for the current view
   const getAppointmentsForCurrentView = () => {
     if (viewMode === 'day') {
-      return appointments.filter(apt => apt.date === format(validSelectedDate, 'yyyy-MM-dd'));
+      return appointments.filter(apt => apt.date === formatDateSafe(validSelectedDate, 'yyyy-MM-dd'));
     } else if (viewMode === 'week') {
       const start = startOfWeek(validSelectedDate);
       const end = endOfWeek(validSelectedDate);
@@ -520,7 +586,7 @@ export default function Schedule() {
             {viewMode === 'month'
               ? validSelectedDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
               : viewMode === 'week'
-                ? `${format(startOfWeek(validSelectedDate), 'MMM d')} - ${format(endOfWeek(validSelectedDate), 'MMM d, yyyy')}`
+                ? `${formatDateSafe(startOfWeek(validSelectedDate), 'MMM d')} - ${formatDateSafe(endOfWeek(validSelectedDate), 'MMM d, yyyy')}`
                 : validSelectedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
             }
           </h2>
@@ -613,10 +679,10 @@ export default function Schedule() {
             <CardHeader>
               <CardTitle>
                 {viewMode === 'day'
-                  ? `${format(validSelectedDate, 'EEEE, MMMM d, yyyy')} Schedule`
+                  ? `${formatDateSafe(validSelectedDate, 'EEEE, MMMM d, yyyy')} Schedule`
                   : viewMode === 'week'
-                    ? `${format(startOfWeek(validSelectedDate), 'MMM d')} - ${format(endOfWeek(validSelectedDate), 'MMM d, yyyy')} Schedule`
-                    : `${format(validSelectedDate, 'MMMM yyyy')} Schedule`
+                    ? `${formatDateSafe(startOfWeek(validSelectedDate), 'MMM d')} - ${formatDateSafe(endOfWeek(validSelectedDate), 'MMM d, yyyy')} Schedule`
+                    : `${formatDateSafe(validSelectedDate, 'MMMM yyyy')} Schedule`
                 }
                 {statusFilter !== 'all' && (
                   <Badge variant="secondary" className="ml-2">
@@ -670,9 +736,9 @@ export default function Schedule() {
                     <div className="p-3 border-r bg-muted/50 font-medium">Time</div>
                     {weekDays.map((day) => (
                       <div key={day.toISOString()} className="p-3 border-r text-center">
-                        <div className="font-medium">{format(day, 'EEE')}</div>
+                        <div className="font-medium">{formatDateSafe(day, 'EEE')}</div>
                         <div className={`text-sm ${isSameDay(day, new Date()) ? 'text-primary font-bold' : 'text-muted-foreground'}`}>
-                          {format(day, 'MMM d')}
+                          {formatDateSafe(day, 'MMM d')}
                         </div>
                       </div>
                     ))}
@@ -692,7 +758,7 @@ export default function Schedule() {
                         </div>
 
                         {weekDays.map((day) => {
-                          const dayDate = format(day, 'yyyy-MM-dd');
+                          const dayDate = formatDateSafe(day, 'yyyy-MM-dd');
                           const dayAppointments = currentViewAppointments.filter(apt =>
                             apt.date === dayDate && apt.time === time
                           );
@@ -745,7 +811,7 @@ export default function Schedule() {
                       const currentDate = addDays(startOfCalendar, i);
                       const isCurrentMonth = isSameMonth(currentDate, validSelectedDate);
                       const isToday = isSameDay(currentDate, new Date());
-                      const dayDate = format(currentDate, 'yyyy-MM-dd');
+                      const dayDate = formatDateSafe(currentDate, 'yyyy-MM-dd');
                       const dayAppointments = currentViewAppointments.filter(apt => apt.date === dayDate);
 
                       return (
@@ -761,7 +827,7 @@ export default function Schedule() {
                         >
                           <div className={`text-sm font-medium mb-1 
                             ${isToday ? 'text-blue-600 font-bold' : ''}`}>
-                            {format(currentDate, 'd')}
+                            {formatDateSafe(currentDate, 'd')}
                           </div>
 
                           {dayAppointments.length > 0 && (
