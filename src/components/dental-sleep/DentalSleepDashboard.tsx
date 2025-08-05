@@ -1,362 +1,405 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { Calendar, Clock, User, Phone, MessageSquare, AlertTriangle, CheckCircle, XCircle, Eye, Edit, PhoneCall, RefreshCw, Settings } from 'lucide-react';
+import { format, isToday, isYesterday, parseISO } from 'date-fns';
 import { useSpecialty } from '@/contexts/SpecialtyContext';
-import {
-  Calendar,
-  Users,
-  TrendingUp,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  DollarSign,
-  FileText,
-  Shield,
-  Activity,
-  Target,
-  MessageSquare,
-  Settings,
-  Stethoscope,
-  Package,
-  Moon,
-  Receipt,
-  CreditCard,
-  AlertCircle,
-  CheckSquare,
-  XCircle,
-  Clock as ClockIcon
-} from 'lucide-react';
 
-interface Appointment {
+// Types
+interface Patient {
   id: string;
-  patientName: string;
+  name: string;
+  phone: string;
+  email: string;
+  appointmentType: 'new-patient' | 'follow-up' | 'delivery';
   time: string;
-  status: 'confirmed' | 'scheduled' | 'pending' | 'cancelled';
-  type: string;
-  duration: number;
+  status: 'confirmed' | 'unconfirmed' | 'cancelled';
+  notes?: string;
 }
 
-interface Claim {
+interface ActionItem {
   id: string;
-  patientName: string;
-  serviceDate: string;
-  amount: number;
-  status: 'complete-not-submitted' | 'submitted-not-paid' | 'paid' | 'denied' | 'pending';
-  insurance: string;
-  daysSinceService: number;
+  title: string;
+  priority: 'high' | 'medium' | 'low';
+  type: 'claim' | 'appointment' | 'follow-up' | 'admin';
+  description: string;
+  dueDate: string;
+  completed: boolean;
 }
 
-interface DashboardMetrics {
-  totalAppointments: number;
-  confirmedAppointments: number;
-  pendingAppointments: number;
-  cancelledAppointments: number;
-  totalClaims: number;
-  completeNotSubmitted: number;
-  submittedNotPaid: number;
-  paidClaims: number;
-  deniedClaims: number;
-  revenueToday: number;
-  revenueWeek: number;
-  revenueMonth: number;
+interface QuickStat {
+  label: string;
+  value: number;
+  change: number;
+  icon: React.ReactNode;
+  color: string;
 }
 
 export const DentalSleepDashboard = () => {
   const { tenantConfig, getBrandName } = useSpecialty();
-  const [metrics, setMetrics] = useState<DashboardMetrics>({
-    totalAppointments: 0,
-    confirmedAppointments: 0,
-    pendingAppointments: 0,
-    cancelledAppointments: 0,
-    totalClaims: 0,
-    completeNotSubmitted: 0,
-    submittedNotPaid: 0,
-    paidClaims: 0,
-    deniedClaims: 0,
-    revenueToday: 0,
-    revenueWeek: 0,
-    revenueMonth: 0
-  });
-
-  const [todayAppointments, setTodayAppointments] = useState<Appointment[]>([]);
-  const [pendingClaims, setPendingClaims] = useState<Claim[]>([]);
+  const [todayPatients, setTodayPatients] = useState<Patient[]>([]);
+  const [yesterdayIncomplete, setYesterdayIncomplete] = useState<Patient[]>([]);
+  const [actionItems, setActionItems] = useState<ActionItem[]>([]);
+  const [quickStats, setQuickStats] = useState<QuickStat[]>([]);
 
   // Mock data - replace with real API calls
   useEffect(() => {
-    // Simulate loading data
-    const mockAppointments: Appointment[] = [
-      { id: '1', patientName: 'Sarah Johnson', time: '9:00 AM', status: 'confirmed', type: 'Sleep Study Review', duration: 60 },
-      { id: '2', patientName: 'Michael Chen', time: '10:30 AM', status: 'scheduled', type: 'CPAP Fitting', duration: 45 },
-      { id: '3', patientName: 'Lisa Rodriguez', time: '2:00 PM', status: 'pending', type: 'Follow-up', duration: 30 },
-      { id: '4', patientName: 'David Thompson', time: '3:30 PM', status: 'confirmed', type: 'Initial Consultation', duration: 90 },
-      { id: '5', patientName: 'Emma Wilson', time: '5:00 PM', status: 'scheduled', type: 'DME Delivery', duration: 30 }
-    ];
+    // Today's patients
+    setTodayPatients([
+      {
+        id: '1',
+        name: 'Sarah Johnson',
+        phone: '(555) 123-4567',
+        email: 'sarah.johnson@email.com',
+        appointmentType: 'new-patient',
+        time: '09:00',
+        status: 'confirmed',
+        notes: 'Sleep study consultation'
+      },
+      {
+        id: '2',
+        name: 'Michael Chen',
+        phone: '(555) 234-5678',
+        email: 'michael.chen@email.com',
+        appointmentType: 'follow-up',
+        time: '10:30',
+        status: 'unconfirmed',
+        notes: 'Follow-up on CPAP therapy'
+      },
+      {
+        id: '3',
+        name: 'Lisa Rodriguez',
+        phone: '(555) 345-6789',
+        email: 'lisa.rodriguez@email.com',
+        appointmentType: 'delivery',
+        time: '14:00',
+        status: 'confirmed',
+        notes: 'CPAP device delivery'
+      }
+    ]);
 
-    const mockClaims: Claim[] = [
-      { id: '1', patientName: 'Sarah Johnson', serviceDate: '2024-01-14', amount: 2500, status: 'complete-not-submitted', insurance: 'Blue Cross', daysSinceService: 1 },
-      { id: '2', patientName: 'Michael Chen', serviceDate: '2024-01-13', amount: 1800, status: 'submitted-not-paid', insurance: 'Aetna', daysSinceService: 2 },
-      { id: '3', patientName: 'Lisa Rodriguez', serviceDate: '2024-01-12', amount: 3200, status: 'paid', insurance: 'Cigna', daysSinceService: 3 },
-      { id: '4', patientName: 'David Thompson', serviceDate: '2024-01-11', amount: 1500, status: 'denied', insurance: 'UnitedHealth', daysSinceService: 4 },
-      { id: '5', patientName: 'Emma Wilson', serviceDate: '2024-01-10', amount: 2100, status: 'submitted-not-paid', insurance: 'Blue Cross', daysSinceService: 5 }
-    ];
+    // Yesterday's incomplete cases
+    setYesterdayIncomplete([
+      {
+        id: '4',
+        name: 'Robert Wilson',
+        phone: '(555) 456-7890',
+        email: 'robert.wilson@email.com',
+        appointmentType: 'new-patient',
+        time: '09:00',
+        status: 'confirmed',
+        notes: 'Sleep study results pending'
+      }
+    ]);
 
-    setTodayAppointments(mockAppointments);
-    setPendingClaims(mockClaims);
+    // Action items
+    setActionItems([
+      {
+        id: '1',
+        title: 'Process Sarah Johnson Claims',
+        priority: 'high',
+        type: 'claim',
+        description: 'Submit sleep study claims for yesterday\'s appointment',
+        dueDate: '2024-01-15',
+        completed: false
+      },
+      {
+        id: '2',
+        title: 'Follow up with Michael Chen',
+        priority: 'medium',
+        type: 'follow-up',
+        description: 'Confirm appointment for tomorrow',
+        dueDate: '2024-01-15',
+        completed: false
+      },
+      {
+        id: '3',
+        title: 'Review Lisa Rodriguez CPAP Settings',
+        priority: 'low',
+        type: 'admin',
+        description: 'Adjust CPAP pressure settings based on sleep study',
+        dueDate: '2024-01-16',
+        completed: false
+      }
+    ]);
 
-    // Calculate metrics
-    const confirmed = mockAppointments.filter(a => a.status === 'confirmed').length;
-    const scheduled = mockAppointments.filter(a => a.status === 'scheduled').length;
-    const pending = mockAppointments.filter(a => a.status === 'pending').length;
-    const cancelled = mockAppointments.filter(a => a.status === 'cancelled').length;
-
-    const completeNotSubmitted = mockClaims.filter(c => c.status === 'complete-not-submitted').length;
-    const submittedNotPaid = mockClaims.filter(c => c.status === 'submitted-not-paid').length;
-    const paid = mockClaims.filter(c => c.status === 'paid').length;
-    const denied = mockClaims.filter(c => c.status === 'denied').length;
-
-    setMetrics({
-      totalAppointments: mockAppointments.length,
-      confirmedAppointments: confirmed,
-      pendingAppointments: pending,
-      cancelledAppointments: cancelled,
-      totalClaims: mockClaims.length,
-      completeNotSubmitted,
-      submittedNotPaid,
-      paidClaims: paid,
-      deniedClaims: denied,
-      revenueToday: 4500,
-      revenueWeek: 18500,
-      revenueMonth: 72000
-    });
+    // Quick stats
+    setQuickStats([
+      {
+        label: 'Today\'s Appointments',
+        value: 3,
+        change: 1,
+        icon: <Calendar className="w-4 h-4" />,
+        color: 'text-blue-600'
+      },
+      {
+        label: 'Pending Claims',
+        value: 12,
+        change: -2,
+        icon: <AlertTriangle className="w-4 h-4" />,
+        color: 'text-orange-600'
+      },
+      {
+        label: 'Yesterday Incomplete',
+        value: 1,
+        change: 0,
+        icon: <XCircle className="w-4 h-4" />,
+        color: 'text-red-600'
+      },
+      {
+        label: 'Action Items',
+        value: 3,
+        change: 1,
+        icon: <CheckCircle className="w-4 h-4" />,
+        color: 'text-green-600'
+      }
+    ]);
   }, []);
 
-  const getAppointmentStatusColor = (status: string) => {
+  const handleCallPatient = (patient: Patient) => {
+    // Implement call functionality
+    console.log('Calling:', patient.name, patient.phone);
+  };
+
+  const handleMessagePatient = (patient: Patient) => {
+    // Implement message functionality
+    console.log('Messaging:', patient.name, patient.email);
+  };
+
+  const handleViewPatientDetails = (patient: Patient) => {
+    // Navigate to patient details
+    console.log('Viewing details for:', patient.name);
+  };
+
+  const handleCompleteActionItem = (actionItem: ActionItem) => {
+    setActionItems(prev =>
+      prev.map(item =>
+        item.id === actionItem.id
+          ? { ...item, completed: !item.completed }
+          : item
+      )
+    );
+  };
+
+  const getStatusIcon = (status: string) => {
     switch (status) {
       case 'confirmed':
-        return 'bg-green-500 text-white';
-      case 'scheduled':
-        return 'bg-yellow-500 text-white';
-      case 'pending':
-        return 'bg-orange-500 text-white';
+        return <CheckCircle className="w-4 h-4 text-green-600" />;
+      case 'unconfirmed':
+        return <AlertTriangle className="w-4 h-4 text-orange-600" />;
       case 'cancelled':
-        return 'bg-red-500 text-white';
+        return <XCircle className="w-4 h-4 text-red-600" />;
       default:
-        return 'bg-gray-500 text-white';
+        return null;
     }
   };
 
-  const getAppointmentStatusIcon = (status: string) => {
-    switch (status) {
-      case 'confirmed':
-        return <CheckCircle className="h-4 w-4" />;
-      case 'scheduled':
-        return <Clock className="h-4 w-4" />;
-      case 'pending':
-        return <AlertTriangle className="h-4 w-4" />;
-      case 'cancelled':
-        return <XCircle className="h-4 w-4" />;
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high':
+        return 'bg-red-100 text-red-800';
+      case 'medium':
+        return 'bg-orange-100 text-orange-800';
+      case 'low':
+        return 'bg-green-100 text-green-800';
       default:
-        return <ClockIcon className="h-4 w-4" />;
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const getClaimStatusColor = (status: string) => {
-    switch (status) {
-      case 'complete-not-submitted':
-        return 'bg-red-500 text-white';
-      case 'submitted-not-paid':
-        return 'bg-yellow-500 text-white';
-      case 'paid':
-        return 'bg-green-500 text-white';
-      case 'denied':
-        return 'bg-red-600 text-white';
+  const getAppointmentTypeColor = (type: string) => {
+    switch (type) {
+      case 'new-patient':
+        return 'bg-blue-100 text-blue-800';
+      case 'follow-up':
+        return 'bg-green-100 text-green-800';
+      case 'delivery':
+        return 'bg-purple-100 text-purple-800';
       default:
-        return 'bg-gray-500 text-white';
-    }
-  };
-
-  const getClaimStatusText = (status: string) => {
-    switch (status) {
-      case 'complete-not-submitted':
-        return 'Complete - Not Submitted';
-      case 'submitted-not-paid':
-        return 'Submitted - Not Paid';
-      case 'paid':
-        return 'Paid';
-      case 'denied':
-        return 'Denied';
-      default:
-        return 'Pending';
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
   return (
-    <div className="space-y-6 w-full max-w-none min-w-0">
+    <div className="space-y-6 p-6">
       {/* Header */}
-      <div className="flex items-center justify-between w-full">
+      <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600">{tenantConfig?.brand_name || getBrandName()}</p>
+          <h1 className="text-3xl font-bold text-gray-900">Morning Dashboard</h1>
+          <p className="text-gray-600">Good morning, Dr. Gatsas. Here's your practice overview for today.</p>
         </div>
-        <div className="flex items-center gap-4">
-          <Badge variant="outline" className="text-sm">
-            {new Date().toLocaleDateString('en-US', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            })}
-          </Badge>
+        <div className="flex space-x-2">
+          <Button variant="outline">
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Refresh
+          </Button>
+          <Button>
+            <Settings className="w-4 h-4 mr-2" />
+            Settings
+          </Button>
         </div>
       </div>
 
-      {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-blue-700">Today's Appointments</CardTitle>
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {quickStats.map((stat, index) => (
+          <Card key={index} className="hover:shadow-md transition-shadow">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">{stat.label}</p>
+                  <p className="text-2xl font-bold">{stat.value}</p>
+                  <p className={`text-sm ${stat.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {stat.change >= 0 ? '+' : ''}{stat.change} from yesterday
+                  </p>
+                </div>
+                <div className={stat.color}>
+                  {stat.icon}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Today's Patient Schedule */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Calendar className="w-5 h-5 mr-2" />
+              Today's Patient Schedule
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-900">{metrics.totalAppointments}</div>
-            <div className="flex items-center gap-2 mt-2">
-              <div className="flex items-center gap-1">
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                <span className="text-xs text-blue-700">{metrics.confirmedAppointments} Confirmed</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                <span className="text-xs text-blue-700">{metrics.pendingAppointments} Pending</span>
-              </div>
+            <div className="space-y-3">
+              {todayPatients.map((patient) => (
+                <div key={patient.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex-shrink-0">
+                      {getStatusIcon(patient.status)}
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-gray-900">{patient.name}</h3>
+                      <p className="text-sm text-gray-600">{patient.email}</p>
+                      <div className="flex items-center space-x-2 mt-1">
+                        <Badge variant="outline" className={getAppointmentTypeColor(patient.appointmentType)}>
+                          {patient.appointmentType.replace('-', ' ')}
+                        </Badge>
+                        <span className="text-sm text-gray-500">
+                          <Clock className="w-3 h-3 inline mr-1" />
+                          {patient.time}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleCallPatient(patient)}
+                    >
+                      <Phone className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleMessagePatient(patient)}
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleViewPatientDetails(patient)}
+                    >
+                      <Eye className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-green-700">Revenue Today</CardTitle>
+        {/* Yesterday's Incomplete Cases */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <XCircle className="w-5 h-5 mr-2 text-red-600" />
+              Yesterday's Incomplete Cases
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-900">${metrics.revenueToday.toLocaleString()}</div>
-            <div className="text-xs text-green-700 mt-2">+12% from yesterday</div>
+            <div className="space-y-3">
+              {yesterdayIncomplete.map((patient) => (
+                <div key={patient.id} className="p-4 border rounded-lg bg-red-50 border-red-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-medium text-gray-900">{patient.name}</h3>
+                      <p className="text-sm text-gray-600">{patient.notes}</p>
+                      <Badge variant="outline" className="mt-1 bg-red-100 text-red-800">
+                        Incomplete
+                      </Badge>
+                    </div>
+                    <Button size="sm" variant="outline">
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+              {yesterdayIncomplete.length === 0 && (
+                <p className="text-gray-500 text-center py-4">All yesterday's cases are complete!</p>
+              )}
+            </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-orange-700">Claims Pending</CardTitle>
+        {/* Action Items Queue */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <CheckCircle className="w-5 h-5 mr-2 text-green-600" />
+              Action Items Queue
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-900">{metrics.completeNotSubmitted + metrics.submittedNotPaid}</div>
-            <div className="text-xs text-orange-700 mt-2">{metrics.completeNotSubmitted} need submission</div>
+            <div className="space-y-3">
+              {actionItems.map((item) => (
+                <div key={item.id} className={`p-4 border rounded-lg ${item.completed ? 'bg-green-50 border-green-200' : 'bg-white border-gray-200'}`}>
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <Badge className={getPriorityColor(item.priority)}>
+                          {item.priority}
+                        </Badge>
+                        <Badge variant="outline">
+                          {item.type}
+                        </Badge>
+                      </div>
+                      <h3 className={`font-medium ${item.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                        {item.title}
+                      </h3>
+                      <p className={`text-sm ${item.completed ? 'text-gray-400' : 'text-gray-600'}`}>
+                        {item.description}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">Due: {item.dueDate}</p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant={item.completed ? "outline" : "default"}
+                      onClick={() => handleCompleteActionItem(item)}
+                    >
+                      {item.completed ? 'Undo' : 'Complete'}
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
-
-        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-purple-700">Monthly Revenue</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-purple-900">${metrics.revenueMonth.toLocaleString()}</div>
-            <div className="text-xs text-purple-700 mt-2">+8% from last month</div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Today's Appointments with Status Indicators */}
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calendar className="h-5 w-5" />
-            Today's Appointments
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="w-full">
-          <div className="space-y-3 w-full">
-            {todayAppointments.map((appointment) => (
-              <div key={appointment.id} className="flex items-center justify-between p-4 rounded-lg border bg-white hover:bg-gray-50 transition-colors">
-                <div className="flex items-center gap-4">
-                  <div className={`p-2 rounded-full ${getAppointmentStatusColor(appointment.status)}`}>
-                    {getAppointmentStatusIcon(appointment.status)}
-                  </div>
-                  <div>
-                    <div className="font-medium text-gray-900">{appointment.patientName}</div>
-                    <div className="text-sm text-gray-600">{appointment.type}</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
-                    <div className="font-medium text-gray-900">{appointment.time}</div>
-                    <div className="text-sm text-gray-600">{appointment.duration} min</div>
-                  </div>
-                  <Badge className={getAppointmentStatusColor(appointment.status)}>
-                    {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
-                  </Badge>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Claims Status - Critical for Revenue */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Receipt className="h-5 w-5" />
-            Claims Status - Revenue Critical
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {pendingClaims.map((claim) => (
-              <div key={claim.id} className="flex items-center justify-between p-4 rounded-lg border bg-white hover:bg-gray-50 transition-colors">
-                <div className="flex items-center gap-4">
-                  <div className={`p-2 rounded-full ${getClaimStatusColor(claim.status)}`}>
-                    {claim.status === 'complete-not-submitted' && <AlertCircle className="h-4 w-4" />}
-                    {claim.status === 'submitted-not-paid' && <Clock className="h-4 w-4" />}
-                    {claim.status === 'paid' && <CheckCircle className="h-4 w-4" />}
-                    {claim.status === 'denied' && <XCircle className="h-4 w-4" />}
-                  </div>
-                  <div>
-                    <div className="font-medium text-gray-900">{claim.patientName}</div>
-                    <div className="text-sm text-gray-600">{claim.insurance} • {claim.serviceDate}</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
-                    <div className="font-medium text-gray-900">${claim.amount.toLocaleString()}</div>
-                    <div className="text-sm text-gray-600">{claim.daysSinceService} days ago</div>
-                  </div>
-                  <Badge className={getClaimStatusColor(claim.status)}>
-                    {getClaimStatusText(claim.status)}
-                  </Badge>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Button className="h-20 flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700">
-          <Stethoscope className="h-6 w-6" />
-          <span className="text-sm">Clinical Assistant</span>
-        </Button>
-        <Button className="h-20 flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700">
-          <MessageSquare className="h-6 w-6" />
-          <span className="text-sm">Communication</span>
-        </Button>
-        <Button className="h-20 flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700">
-          <TrendingUp className="h-6 w-6" />
-          <span className="text-sm">Revenue Assistant</span>
-        </Button>
-        <Button className="h-20 flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700">
-          <Settings className="h-6 w-6" />
-          <span className="text-sm">Operations</span>
-        </Button>
       </div>
     </div>
   );

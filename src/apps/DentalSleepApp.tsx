@@ -2,7 +2,6 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { ModernLayout } from '@/components/layout/ModernLayout';
 import { DentalSleepDashboard } from '@/components/dental-sleep/DentalSleepDashboard';
-import MorningDashboard from '@/components/dental-sleep/MorningDashboard';
 import { SleepStudyManager } from '@/components/dental-sleep/SleepStudyManager';
 import { DMETracker } from '@/components/dental-sleep/DMETracker';
 import { ClinicalAssistant } from '@/pages/agents/ClinicalAssistant';
@@ -67,7 +66,6 @@ export const DentalSleepApp: React.FC = () => {
       <Routes>
         {/* Main Navigation */}
         <Route path="/dashboard" element={<DentalSleepDashboard />} />
-        <Route path="/morning-dashboard" element={<MorningDashboard />} />
         <Route path="/patients" element={<Patients />} />
         <Route path="/schedule" element={<Schedule />} />
 

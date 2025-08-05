@@ -94,7 +94,6 @@ export const ModernSidebar: React.FC = () => {
 
     const mainNavItems: NavItem[] = [
         { label: 'Dashboard', path: '/dashboard', icon: Home },
-        { label: 'Morning Dashboard', path: '/morning-dashboard', icon: Home },
         { label: 'Patients', path: '/patients', icon: Users },
         { label: 'Schedule', path: '/schedule', icon: Calendar },
         { label: 'Integrations', path: '/integrations', icon: Link },
