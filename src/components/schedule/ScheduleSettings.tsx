@@ -14,6 +14,8 @@ import { NotificationSettingsTab } from "./settings/NotificationSettingsTab";
 import { AISettingsTab } from "./settings/AISettingsTab";
 import { StaffManagementTab } from "./settings/StaffManagementTab";
 import { StaffScheduleTab } from "./settings/StaffScheduleTab";
+import { EnhancedProviderManagement } from "./settings/EnhancedProviderManagement";
+import { AIWaitlistManager } from "./AIWaitlistManager";
 
 export const ScheduleSettings = () => {
   const { toast } = useToast();
@@ -125,7 +127,7 @@ export const ScheduleSettings = () => {
       </div>
 
       <Tabs defaultValue="general" className="w-full space-y-6">
-        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 gap-1">
+        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-10 gap-1">
           <TabsTrigger value="general" className="text-xs">
             <Settings className="w-4 h-4 mr-1" />
             General
@@ -146,6 +148,10 @@ export const ScheduleSettings = () => {
             <Brain className="w-4 h-4 mr-1" />
             AI Settings
           </TabsTrigger>
+          <TabsTrigger value="enhanced-providers" className="text-xs">
+            <Users className="w-4 h-4 mr-1" />
+            Providers
+          </TabsTrigger>
           <TabsTrigger value="providers" className="text-xs">
             <Users className="w-4 h-4 mr-1" />
             Staff
@@ -157,6 +163,10 @@ export const ScheduleSettings = () => {
           <TabsTrigger value="staff-schedules" className="text-xs">
             <Calendar className="w-4 h-4 mr-1" />
             Schedules
+          </TabsTrigger>
+          <TabsTrigger value="ai-waitlist" className="text-xs">
+            <Brain className="w-4 h-4 mr-1" />
+            AI Waitlist
           </TabsTrigger>
         </TabsList>
 
@@ -192,6 +202,10 @@ export const ScheduleSettings = () => {
           />
         </TabsContent>
 
+        <TabsContent value="enhanced-providers" className="space-y-4">
+          <EnhancedProviderManagement />
+        </TabsContent>
+
         <TabsContent value="providers" className="space-y-4">
           <StaffManagementTab onEditMember={handleEditMember} />
         </TabsContent>
@@ -202,6 +216,10 @@ export const ScheduleSettings = () => {
 
         <TabsContent value="staff-schedules" className="space-y-4">
           <StaffScheduleTab onUpdateStaffSchedule={handleUpdateStaffSchedule} />
+        </TabsContent>
+
+        <TabsContent value="ai-waitlist" className="space-y-4">
+          <AIWaitlistManager />
         </TabsContent>
 
         <TabsContent value="compliance" className="space-y-4">

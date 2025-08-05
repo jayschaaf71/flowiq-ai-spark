@@ -1,215 +1,171 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 export const OAuthCallback = () => {
-    const navigate = useNavigate();
+  const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
+  const [message, setMessage] = useState('Processing OAuth callback...');
 
-    useEffect(() => {
-        const handleOAuthCallback = async () => {
-            console.log('🔍 OAuthCallback: Page loaded!');
-            console.log('🔍 OAuthCallback: URL:', window.location.href);
-            console.log('🔍 OAuthCallback: Search params:', window.location.search);
+  useEffect(() => {
+    const handleOAuthCallback = async () => {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const error = urlParams.get('error');
+        const state = urlParams.get('state');
 
-            const urlParams = new URLSearchParams(window.location.search);
-            const code = urlParams.get('code');
-            const state = urlParams.get('state');
-            const error = urlParams.get('error');
+        console.log('OAuth callback received:', { code, error, state });
 
-            console.log('🔍 OAuthCallback: Code:', code);
-            console.log('🔍 OAuthCallback: State:', state);
-            console.log('🔍 OAuthCallback: Error:', error);
+        if (error) {
+          console.error('OAuth error:', error);
+          setStatus('error');
+          setMessage(`OAuth error: ${error}`);
+          setTimeout(() => {
+            window.location.href = '/assistants/communication';
+          }, 3000);
+          return;
+        }
 
-            if (error) {
-                console.error('OAuth error:', error);
-                // Post error message to parent window
-                if (window.opener) {
-                    window.opener.postMessage({
-                        type: 'calendar-oauth-error',
-                        error: error
-                    }, window.location.origin);
-                }
-                window.close();
-                return;
-            }
+        if (!code) {
+          console.error('No authorization code received');
+          setStatus('error');
+          setMessage('No authorization code received');
+          setTimeout(() => {
+            window.location.href = '/assistants/communication';
+          }, 3000);
+          return;
+        }
 
-            // If no code, send a test success message to see if the popup communication works
-            if (!code) {
-                console.log('🔍 OAuthCallback: No code found, sending test success message');
-                if (window.opener) {
-                    const testMessage = {
-                        type: 'calendar-oauth-success',
-                        provider: 'google',
-                        code: 'test-code',
-                        integration: {
-                            id: 'test-integration',
-                            provider: 'google',
-                            provider_account_id: 'test-account',
-                            calendar_name: 'Google Calendar (Test)',
-                            is_primary: false,
-                            sync_enabled: true,
-                            sync_direction: 'bidirectional',
-                            last_sync_at: new Date().toISOString()
-                        }
-                    };
-                    console.log('🔍 OAuthCallback: Sending test message:', testMessage);
-                    window.opener.postMessage(testMessage, window.location.origin);
-                    setTimeout(() => {
-                        console.log('🔍 OAuthCallback: Closing popup after test');
-                        window.close();
-                    }, 2000);
-                }
-                return;
-            }
+        // Get provider from sessionStorage
+        const provider = sessionStorage.getItem('oauth_provider') as 'google' | 'microsoft';
+        if (!provider) {
+          console.error('No provider found in sessionStorage');
+          setStatus('error');
+          setMessage('No provider information found');
+          setTimeout(() => {
+            window.location.href = '/assistants/communication';
+          }, 3000);
+          return;
+        }
 
-            if (code) {
-                try {
-                    console.log('OAuth callback received code:', code);
+        console.log('Processing OAuth for provider:', provider);
 
-                    // Determine provider from URL or state
-                    const provider = window.location.pathname.includes('google') ? 'google' : 'microsoft';
-                    console.log('Determined provider:', provider);
+        // Exchange code for tokens using Supabase function
+        const { data, error: tokenError } = await supabase.functions.invoke('calendar-oauth', {
+          body: {
+            action: 'exchange_code',
+            provider,
+            code,
+            redirect_uri: `${window.location.origin}/oauth/callback`
+          }
+        });
 
-                    // Create the integration record in the database
-                    console.log('Getting current user...');
-                    const { data: { user }, error: authError } = await supabase.auth.getUser();
+        if (tokenError) {
+          console.error('Token exchange error:', tokenError);
+          setStatus('error');
+          setMessage(`Failed to exchange code: ${tokenError.message}`);
+          setTimeout(() => {
+            window.location.href = '/assistants/communication';
+          }, 3000);
+          return;
+        }
 
-                    if (authError) {
-                        console.error('Auth error:', authError);
-                        throw new Error(`Authentication failed: ${authError.message}`);
-                    }
+        console.log('Token exchange successful:', data);
 
-                    if (!user) {
-                        console.error('No user found');
-                        // Fallback: Create integration without user_id (will be updated by main app)
-                        console.log('Creating integration without user_id as fallback...');
-                        const { data: integration, error: dbError } = await supabase
-                            .from('calendar_integrations')
-                            .insert({
-                                provider: provider,
-                                provider_account_id: `oauth_${provider}_${Date.now()}`,
-                                calendar_name: `${provider === 'google' ? 'Google' : 'Microsoft'} Calendar`,
-                                is_primary: false,
-                                sync_enabled: true,
-                                sync_direction: 'bidirectional',
-                                last_sync_at: new Date().toISOString()
-                            })
-                            .select()
-                            .single();
+        // Get current user
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        if (authError || !user) {
+          console.error('User not authenticated');
+          setStatus('error');
+          setMessage('User not authenticated');
+          setTimeout(() => {
+            window.location.href = '/assistants/communication';
+          }, 3000);
+          return;
+        }
 
-                        if (dbError) {
-                            console.error('Database error details:', dbError);
-                            console.error('Database error code:', dbError.code);
-                            console.error('Database error message:', dbError.message);
-                            console.error('Database error details:', dbError.details);
-                            throw new Error(`Failed to create integration: ${dbError.message}`);
-                        }
+        // Create integration record
+        const { data: integration, error: dbError } = await supabase
+          .from('calendar_integrations')
+          .insert({
+            user_id: user.id,
+            provider: provider,
+            provider_account_id: `oauth_${provider}_${Date.now()}`,
+            calendar_name: `${provider === 'google' ? 'Google' : 'Microsoft'} Calendar`,
+            is_primary: false,
+            sync_enabled: true,
+            sync_direction: 'bidirectional',
+            last_sync_at: new Date().toISOString()
+          })
+          .select()
+          .single();
 
-                        console.log('Integration created successfully (fallback):', integration);
+        if (dbError) {
+          console.error('Database error:', dbError);
+          setStatus('error');
+          setMessage(`Failed to save integration: ${dbError.message}`);
+          setTimeout(() => {
+            window.location.href = '/assistants/communication';
+          }, 3000);
+          return;
+        }
 
-                        // Success - post message to parent window
-                        if (window.opener) {
-                            console.log('Sending success message to parent window');
-                            const successMessage = {
-                                type: 'calendar-oauth-success',
-                                provider,
-                                code,
-                                integration
-                            };
-                            console.log('Success message content:', successMessage);
-                            window.opener.postMessage(successMessage, window.location.origin);
-                            console.log('Success message sent, closing popup in 1 second...');
-                            setTimeout(() => {
-                                console.log('Closing popup window');
-                                window.close();
-                            }, 1000);
-                        } else {
-                            console.log('No opener found, redirecting to app');
-                            window.location.href = '/assistants/communication';
-                        }
-                        return;
-                    }
+        console.log('Integration created successfully:', integration);
 
-                    console.log('User authenticated:', user.id);
+        // Clear sessionStorage
+        sessionStorage.removeItem('oauth_provider');
 
-                    console.log('Creating integration record...');
-                    const { data: integration, error: dbError } = await supabase
-                        .from('calendar_integrations')
-                        .insert({
-                            user_id: user.id,
-                            provider: provider,
-                            provider_account_id: `oauth_${provider}_${Date.now()}`,
-                            calendar_name: `${provider === 'google' ? 'Google' : 'Microsoft'} Calendar`,
-                            is_primary: false,
-                            sync_enabled: true,
-                            sync_direction: 'bidirectional',
-                            last_sync_at: new Date().toISOString()
-                        })
-                        .select()
-                        .single();
+        // Success - redirect back to communication assistant
+        setStatus('success');
+        setMessage(`${provider === 'google' ? 'Google' : 'Microsoft'} calendar connected successfully!`);
+        
+        setTimeout(() => {
+          window.location.href = '/assistants/communication';
+        }, 2000);
 
-                    if (dbError) {
-                        console.error('Database error details:', dbError);
-                        console.error('Database error code:', dbError.code);
-                        console.error('Database error message:', dbError.message);
-                        console.error('Database error details:', dbError.details);
-                        throw new Error(`Failed to create integration: ${dbError.message}`);
-                    }
+      } catch (err) {
+        console.error('OAuth callback error:', err);
+        setStatus('error');
+        setMessage(`Unexpected error: ${err instanceof Error ? err.message : 'Unknown error'}`);
+        setTimeout(() => {
+          window.location.href = '/assistants/communication';
+        }, 3000);
+      }
+    };
 
-                    console.log('Integration created successfully:', integration);
+    handleOAuthCallback();
+  }, []);
 
-                    // Success - post message to parent window
-                    if (window.opener) {
-                        console.log('Sending success message to parent window');
-                        const successMessage = {
-                            type: 'calendar-oauth-success',
-                            provider,
-                            code,
-                            integration
-                        };
-                        console.log('Success message content:', successMessage);
-                        window.opener.postMessage(successMessage, window.location.origin);
-                        console.log('Success message sent, closing popup in 1 second...');
-                        setTimeout(() => {
-                            console.log('Closing popup window');
-                            window.close();
-                        }, 1000);
-                    } else {
-                        // If no opener, redirect back to the app
-                        console.log('No opener found, redirecting to app');
-                        window.location.href = '/assistants/communication';
-                    }
-                } catch (error) {
-                    console.error('OAuth callback error:', error);
-                    if (window.opener) {
-                        window.opener.postMessage({
-                            type: 'calendar-oauth-error',
-                            error: error.message
-                        }, window.location.origin);
-                    }
-                    window.close();
-                }
-            } else {
-                // No code provided
-                if (window.opener) {
-                    window.opener.postMessage({
-                        type: 'calendar-oauth-error',
-                        error: 'No authorization code provided'
-                    }, window.location.origin);
-                }
-                window.close();
-            }
-        };
-
-        handleOAuthCallback();
-    }, [navigate]);
-
-    return (
-        <div className="flex items-center justify-center min-h-screen">
-            <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                <p className="text-gray-600">Processing OAuth callback...</p>
-            </div>
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
+        <div className="text-center">
+          {status === 'processing' && (
+            <>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">Processing OAuth</h2>
+              <p className="text-gray-600">{message}</p>
+            </>
+          )}
+          
+          {status === 'success' && (
+            <>
+              <div className="text-green-500 text-4xl mb-4">✓</div>
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">Success!</h2>
+              <p className="text-gray-600">{message}</p>
+              <p className="text-sm text-gray-500 mt-2">Redirecting back to app...</p>
+            </>
+          )}
+          
+          {status === 'error' && (
+            <>
+              <div className="text-red-500 text-4xl mb-4">✗</div>
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">Error</h2>
+              <p className="text-gray-600">{message}</p>
+              <p className="text-sm text-gray-500 mt-2">Redirecting back to app...</p>
+            </>
+          )}
         </div>
-    );
+      </div>
+    </div>
+  );
 }; 

@@ -45,11 +45,8 @@ import {
   Award
 } from 'lucide-react';
 
-// Import existing comprehensive components
-import { FlowIQConnect } from '@/pages/agents/CommunicationIQ';
-import { VoiceCallManager } from '@/components/communications/VoiceCallManager';
-import { CalendarIntegration } from '@/components/ehr/CalendarIntegration';
-import { VoiceIntegration } from '@/components/ai/VoiceIntegration';
+// Import calendar integration hook
+import { useCalendarIntegrations } from '@/hooks/useCalendarIntegrations';
 
 
 interface Message {
@@ -395,7 +392,15 @@ export const CommunicationAssistant = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <VoiceCallManager />
+                <div className="text-center py-8">
+                  <Phone className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+                  <h3 className="text-lg font-medium mb-2">Voice Call Manager</h3>
+                  <p className="text-gray-600 mb-4">Manage voice calls and phone integrations</p>
+                  <Button>
+                    <Phone className="w-4 h-4 mr-2" />
+                    Configure Voice
+                  </Button>
+                </div>
               </CardContent>
             </Card>
 
@@ -408,10 +413,15 @@ export const CommunicationAssistant = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <VoiceIntegration
-                  onTranscript={(text) => console.log('Transcript:', text)}
-                  onSpeak={(text) => console.log('Speaking:', text)}
-                />
+                <div className="text-center py-8">
+                  <Mic className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+                  <h3 className="text-lg font-medium mb-2">AI Voice Integration</h3>
+                  <p className="text-gray-600 mb-4">Voice-to-text and AI voice capabilities</p>
+                  <Button>
+                    <Mic className="w-4 h-4 mr-2" />
+                    Configure Voice AI
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>
