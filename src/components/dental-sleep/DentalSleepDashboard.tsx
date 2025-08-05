@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, User, Phone, MessageSquare, AlertTriangle, CheckCircle, XCircle, Eye, Edit, PhoneCall, RefreshCw, Settings } from 'lucide-react';
+import { Calendar, Clock, User, Phone, MessageSquare, AlertTriangle, CheckCircle, XCircle, Eye, Edit, PhoneCall, RefreshCw, Settings, ExternalLink } from 'lucide-react';
 import { format, isToday, isYesterday, parseISO } from 'date-fns';
 import { useSpecialty } from '@/contexts/SpecialtyContext';
+import { useToast } from '@/hooks/use-toast';
 
 // Types
 interface Patient {
@@ -22,10 +23,13 @@ interface ActionItem {
   id: string;
   title: string;
   priority: 'high' | 'medium' | 'low';
-  type: 'claim' | 'appointment' | 'follow-up' | 'admin';
+  type: 'claim' | 'appointment' | 'follow-up' | 'admin' | 'clinical';
   description: string;
   dueDate: string;
   completed: boolean;
+  patientName?: string;
+  amount?: number;
+  insurance?: string;
 }
 
 interface QuickStat {
@@ -38,6 +42,7 @@ interface QuickStat {
 
 export const DentalSleepDashboard = () => {
   const { tenantConfig, getBrandName } = useSpecialty();
+  const { toast } = useToast();
   const [todayPatients, setTodayPatients] = useState<Patient[]>([]);
   const [yesterdayIncomplete, setYesterdayIncomplete] = useState<Patient[]>([]);
   const [actionItems, setActionItems] = useState<ActionItem[]>([]);
@@ -90,10 +95,20 @@ export const DentalSleepDashboard = () => {
         time: '09:00',
         status: 'confirmed',
         notes: 'Sleep study results pending'
+      },
+      {
+        id: '5',
+        name: 'Jennifer Davis',
+        phone: '(555) 567-8901',
+        email: 'jennifer.davis@email.com',
+        appointmentType: 'follow-up',
+        time: '11:00',
+        status: 'confirmed',
+        notes: 'CPAP compliance review needed'
       }
     ]);
 
-    // Action items
+    // Action items - from various systems
     setActionItems([
       {
         id: '1',
@@ -102,7 +117,10 @@ export const DentalSleepDashboard = () => {
         type: 'claim',
         description: 'Submit sleep study claims for yesterday\'s appointment',
         dueDate: '2024-01-15',
-        completed: false
+        completed: false,
+        patientName: 'Sarah Johnson',
+        amount: 2500,
+        insurance: 'Blue Cross'
       },
       {
         id: '2',
@@ -111,16 +129,39 @@ export const DentalSleepDashboard = () => {
         type: 'follow-up',
         description: 'Confirm appointment for tomorrow',
         dueDate: '2024-01-15',
-        completed: false
+        completed: false,
+        patientName: 'Michael Chen'
       },
       {
         id: '3',
         title: 'Review Lisa Rodriguez CPAP Settings',
         priority: 'low',
-        type: 'admin',
+        type: 'clinical',
         description: 'Adjust CPAP pressure settings based on sleep study',
         dueDate: '2024-01-16',
-        completed: false
+        completed: false,
+        patientName: 'Lisa Rodriguez'
+      },
+      {
+        id: '4',
+        title: 'Complete Robert Wilson SOAP Note',
+        priority: 'high',
+        type: 'clinical',
+        description: 'Document yesterday\'s sleep study consultation',
+        dueDate: '2024-01-15',
+        completed: false,
+        patientName: 'Robert Wilson'
+      },
+      {
+        id: '5',
+        title: 'Verify Jennifer Davis Insurance',
+        priority: 'medium',
+        type: 'admin',
+        description: 'Check coverage for CPAP device replacement',
+        dueDate: '2024-01-16',
+        completed: false,
+        patientName: 'Jennifer Davis',
+        insurance: 'Aetna'
       }
     ]);
 
@@ -142,15 +183,15 @@ export const DentalSleepDashboard = () => {
       },
       {
         label: 'Yesterday Incomplete',
-        value: 1,
-        change: 0,
+        value: 2,
+        change: 1,
         icon: <XCircle className="w-4 h-4" />,
         color: 'text-red-600'
       },
       {
         label: 'Action Items',
-        value: 3,
-        change: 1,
+        value: 5,
+        change: 2,
         icon: <CheckCircle className="w-4 h-4" />,
         color: 'text-green-600'
       }
@@ -159,16 +200,28 @@ export const DentalSleepDashboard = () => {
 
   const handleCallPatient = (patient: Patient) => {
     // Implement call functionality
+    toast({
+      title: "Calling Patient",
+      description: `Initiating call to ${patient.name} at ${patient.phone}`,
+    });
     console.log('Calling:', patient.name, patient.phone);
   };
 
   const handleMessagePatient = (patient: Patient) => {
     // Implement message functionality
+    toast({
+      title: "Messaging Patient",
+      description: `Opening message to ${patient.name} at ${patient.email}`,
+    });
     console.log('Messaging:', patient.name, patient.email);
   };
 
   const handleViewPatientDetails = (patient: Patient) => {
     // Navigate to patient details
+    toast({
+      title: "Viewing Patient Details",
+      description: `Opening detailed view for ${patient.name}`,
+    });
     console.log('Viewing details for:', patient.name);
   };
 
@@ -180,6 +233,38 @@ export const DentalSleepDashboard = () => {
           : item
       )
     );
+    
+    toast({
+      title: actionItem.completed ? "Action Item Reopened" : "Action Item Completed",
+      description: actionItem.completed 
+        ? `${actionItem.title} has been reopened`
+        : `${actionItem.title} has been marked as complete`,
+    });
+  };
+
+  const handleEditIncompleteCase = (patient: Patient) => {
+    toast({
+      title: "Editing Incomplete Case",
+      description: `Opening case details for ${patient.name}`,
+    });
+    console.log('Editing incomplete case for:', patient.name);
+  };
+
+  const handleRefreshDashboard = () => {
+    toast({
+      title: "Refreshing Dashboard",
+      description: "Updating all data from systems...",
+    });
+    // In real implementation, this would refresh data from all systems
+    console.log('Refreshing dashboard data');
+  };
+
+  const handleOpenSettings = () => {
+    toast({
+      title: "Opening Settings",
+      description: "Navigating to dashboard settings",
+    });
+    console.log('Opening dashboard settings');
   };
 
   const getStatusIcon = (status: string) => {
@@ -221,6 +306,23 @@ export const DentalSleepDashboard = () => {
     }
   };
 
+  const getActionItemIcon = (type: string) => {
+    switch (type) {
+      case 'claim':
+        return <ExternalLink className="w-4 h-4" />;
+      case 'appointment':
+        return <Calendar className="w-4 h-4" />;
+      case 'follow-up':
+        return <Phone className="w-4 h-4" />;
+      case 'clinical':
+        return <User className="w-4 h-4" />;
+      case 'admin':
+        return <Settings className="w-4 h-4" />;
+      default:
+        return <CheckCircle className="w-4 h-4" />;
+    }
+  };
+
   return (
     <div className="space-y-6 p-6">
       {/* Header */}
@@ -230,11 +332,11 @@ export const DentalSleepDashboard = () => {
           <p className="text-gray-600">Good morning, Dr. Gatsas. Here's your practice overview for today.</p>
         </div>
         <div className="flex space-x-2">
-          <Button variant="outline">
+          <Button variant="outline" onClick={handleRefreshDashboard}>
             <RefreshCw className="w-4 h-4 mr-2" />
             Refresh
           </Button>
-          <Button>
+          <Button onClick={handleOpenSettings}>
             <Settings className="w-4 h-4 mr-2" />
             Settings
           </Button>
@@ -263,59 +365,61 @@ export const DentalSleepDashboard = () => {
         ))}
       </div>
 
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Three Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Today's Patient Schedule */}
-        <Card className="lg:col-span-2">
+        <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
               <Calendar className="w-5 h-5 mr-2" />
-              Today's Patient Schedule
+              Today's Schedule
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               {todayPatients.map((patient) => (
-                <div key={patient.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
-                  <div className="flex items-center space-x-4">
-                    <div className="flex-shrink-0">
+                <div key={patient.id} className="p-3 border rounded-lg hover:bg-gray-50">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-2">
                       {getStatusIcon(patient.status)}
-                    </div>
-                    <div>
                       <h3 className="font-medium text-gray-900">{patient.name}</h3>
-                      <p className="text-sm text-gray-600">{patient.email}</p>
-                      <div className="flex items-center space-x-2 mt-1">
-                        <Badge variant="outline" className={getAppointmentTypeColor(patient.appointmentType)}>
-                          {patient.appointmentType.replace('-', ' ')}
-                        </Badge>
-                        <span className="text-sm text-gray-500">
-                          <Clock className="w-3 h-3 inline mr-1" />
-                          {patient.time}
-                        </span>
-                      </div>
                     </div>
+                    <span className="text-sm text-gray-500">
+                      <Clock className="w-3 h-3 inline mr-1" />
+                      {patient.time}
+                    </span>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <Badge variant="outline" className={getAppointmentTypeColor(patient.appointmentType)}>
+                      {patient.appointmentType.replace('-', ' ')}
+                    </Badge>
+                    <span className="text-xs text-gray-600">{patient.email}</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => handleCallPatient(patient)}
+                      className="flex-1"
                     >
-                      <Phone className="w-4 h-4" />
+                      <Phone className="w-3 h-3 mr-1" />
+                      Call
                     </Button>
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => handleMessagePatient(patient)}
+                      className="flex-1"
                     >
-                      <MessageSquare className="w-4 h-4" />
+                      <MessageSquare className="w-3 h-3 mr-1" />
+                      Message
                     </Button>
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => handleViewPatientDetails(patient)}
                     >
-                      <Eye className="w-4 h-4" />
+                      <Eye className="w-3 h-3" />
                     </Button>
                   </div>
                 </div>
@@ -329,25 +433,29 @@ export const DentalSleepDashboard = () => {
           <CardHeader>
             <CardTitle className="flex items-center">
               <XCircle className="w-5 h-5 mr-2 text-red-600" />
-              Yesterday's Incomplete Cases
+              Yesterday Incomplete
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               {yesterdayIncomplete.map((patient) => (
-                <div key={patient.id} className="p-4 border rounded-lg bg-red-50 border-red-200">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-medium text-gray-900">{patient.name}</h3>
-                      <p className="text-sm text-gray-600">{patient.notes}</p>
-                      <Badge variant="outline" className="mt-1 bg-red-100 text-red-800">
-                        Incomplete
-                      </Badge>
-                    </div>
-                    <Button size="sm" variant="outline">
-                      <Edit className="w-4 h-4" />
-                    </Button>
+                <div key={patient.id} className="p-3 border rounded-lg bg-red-50 border-red-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-medium text-gray-900">{patient.name}</h3>
+                    <Badge variant="outline" className="bg-red-100 text-red-800">
+                      Incomplete
+                    </Badge>
                   </div>
+                  <p className="text-sm text-gray-600 mb-2">{patient.notes}</p>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    onClick={() => handleEditIncompleteCase(patient)}
+                    className="w-full"
+                  >
+                    <Edit className="w-3 h-3 mr-1" />
+                    Complete Case
+                  </Button>
                 </div>
               ))}
               {yesterdayIncomplete.length === 0 && (
@@ -362,31 +470,38 @@ export const DentalSleepDashboard = () => {
           <CardHeader>
             <CardTitle className="flex items-center">
               <CheckCircle className="w-5 h-5 mr-2 text-green-600" />
-              Action Items Queue
+              Action Items
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               {actionItems.map((item) => (
-                <div key={item.id} className={`p-4 border rounded-lg ${item.completed ? 'bg-green-50 border-green-200' : 'bg-white border-gray-200'}`}>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <Badge className={getPriorityColor(item.priority)}>
-                          {item.priority}
-                        </Badge>
-                        <Badge variant="outline">
-                          {item.type}
-                        </Badge>
-                      </div>
-                      <h3 className={`font-medium ${item.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
-                        {item.title}
-                      </h3>
-                      <p className={`text-sm ${item.completed ? 'text-gray-400' : 'text-gray-600'}`}>
-                        {item.description}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1">Due: {item.dueDate}</p>
+                <div key={item.id} className={`p-3 border rounded-lg ${item.completed ? 'bg-green-50 border-green-200' : 'bg-white border-gray-200'}`}>
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center space-x-2">
+                      {getActionItemIcon(item.type)}
+                      <Badge className={getPriorityColor(item.priority)}>
+                        {item.priority}
+                      </Badge>
                     </div>
+                    <Badge variant="outline" className="text-xs">
+                      {item.type}
+                    </Badge>
+                  </div>
+                  <h3 className={`font-medium text-sm ${item.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                    {item.title}
+                  </h3>
+                  <p className={`text-xs ${item.completed ? 'text-gray-400' : 'text-gray-600'} mb-2`}>
+                    {item.description}
+                  </p>
+                  {item.patientName && (
+                    <p className="text-xs text-gray-500 mb-1">Patient: {item.patientName}</p>
+                  )}
+                  {item.amount && (
+                    <p className="text-xs text-gray-500 mb-1">Amount: ${item.amount}</p>
+                  )}
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs text-gray-500">Due: {item.dueDate}</p>
                     <Button
                       size="sm"
                       variant={item.completed ? "outline" : "default"}

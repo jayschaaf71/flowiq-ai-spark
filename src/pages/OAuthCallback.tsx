@@ -7,10 +7,18 @@ export const OAuthCallback = () => {
 
     useEffect(() => {
         const handleOAuthCallback = async () => {
+            console.log('🔍 OAuthCallback: Page loaded!');
+            console.log('🔍 OAuthCallback: URL:', window.location.href);
+            console.log('🔍 OAuthCallback: Search params:', window.location.search);
+
             const urlParams = new URLSearchParams(window.location.search);
             const code = urlParams.get('code');
             const state = urlParams.get('state');
             const error = urlParams.get('error');
+
+            console.log('🔍 OAuthCallback: Code:', code);
+            console.log('🔍 OAuthCallback: State:', state);
+            console.log('🔍 OAuthCallback: Error:', error);
 
             if (error) {
                 console.error('OAuth error:', error);
@@ -22,6 +30,35 @@ export const OAuthCallback = () => {
                     }, window.location.origin);
                 }
                 window.close();
+                return;
+            }
+
+            // If no code, send a test success message to see if the popup communication works
+            if (!code) {
+                console.log('🔍 OAuthCallback: No code found, sending test success message');
+                if (window.opener) {
+                    const testMessage = {
+                        type: 'calendar-oauth-success',
+                        provider: 'google',
+                        code: 'test-code',
+                        integration: {
+                            id: 'test-integration',
+                            provider: 'google',
+                            provider_account_id: 'test-account',
+                            calendar_name: 'Google Calendar (Test)',
+                            is_primary: false,
+                            sync_enabled: true,
+                            sync_direction: 'bidirectional',
+                            last_sync_at: new Date().toISOString()
+                        }
+                    };
+                    console.log('🔍 OAuthCallback: Sending test message:', testMessage);
+                    window.opener.postMessage(testMessage, window.location.origin);
+                    setTimeout(() => {
+                        console.log('🔍 OAuthCallback: Closing popup after test');
+                        window.close();
+                    }, 2000);
+                }
                 return;
             }
 

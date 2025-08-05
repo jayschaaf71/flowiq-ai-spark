@@ -141,9 +141,6 @@ export const useCalendarIntegrations = () => {
 
   const connectCalendar = async (provider: 'google' | 'microsoft') => {
     try {
-      console.log(`🔍 Starting OAuth for ${provider}...`);
-
-      let authUrl = '';
       // Try multiple redirect URIs to handle different configurations
       const REDIRECT_URIS = [
         'https://midwest-dental-sleep.flow-iq.ai/oauth/callback',
@@ -154,6 +151,12 @@ export const useCalendarIntegrations = () => {
 
       // Use the first redirect URI for now - we can update this based on your Google OAuth app configuration
       const REDIRECT_URI = REDIRECT_URIS[0];
+
+      console.log(`🔍 Starting OAuth for ${provider}...`);
+      console.log(`🔍 Redirect URI: ${REDIRECT_URI}`);
+      console.log(`🔍 Current window location: ${window.location.origin}`);
+
+      let authUrl = ''; // Declare authUrl variable
 
       if (provider === 'google') {
         const GOOGLE_CLIENT_ID = '428165981991-qqji21nori4avrc4mg3i08lc38fvhssl.apps.googleusercontent.com';
