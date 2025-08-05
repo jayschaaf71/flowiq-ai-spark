@@ -422,6 +422,21 @@ export default function Schedule() {
     setShowEditAppointment(true);
   };
 
+  const handleUpdateAppointment = () => {
+    if (selectedAppointment) {
+      const updatedAppointments = appointments.map(apt =>
+        apt.id === selectedAppointment.id ? selectedAppointment : apt
+      );
+      setAppointments(updatedAppointments);
+      toast({
+        title: "Appointment Updated",
+        description: `Appointment for ${selectedAppointment.patientName} has been updated.`,
+      });
+      setShowEditAppointment(false);
+      setSelectedAppointment(null);
+    }
+  };
+
   const handleViewAppointment = (appointment: Appointment) => {
     setSelectedAppointment(appointment);
     setShowAppointmentDetails(true);
@@ -1082,6 +1097,130 @@ export default function Schedule() {
             </Button>
             <Button onClick={handleCreateAppointment}>
               Create Appointment
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Appointment Modal */}
+      <Dialog open={showEditAppointment} onOpenChange={setShowEditAppointment}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Appointment</DialogTitle>
+          </DialogHeader>
+          {selectedAppointment && (
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="editPatientName" className="text-right">
+                  Patient Name
+                </Label>
+                <Input
+                  id="editPatientName"
+                  value={selectedAppointment.patientName}
+                  onChange={(e) => setSelectedAppointment({ ...selectedAppointment, patientName: e.target.value })}
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="editPatientEmail" className="text-right">
+                  Email
+                </Label>
+                <Input
+                  id="editPatientEmail"
+                  type="email"
+                  value={selectedAppointment.patientEmail}
+                  onChange={(e) => setSelectedAppointment({ ...selectedAppointment, patientEmail: e.target.value })}
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="editPatientPhone" className="text-right">
+                  Phone
+                </Label>
+                <Input
+                  id="editPatientPhone"
+                  value={selectedAppointment.patientPhone}
+                  onChange={(e) => setSelectedAppointment({ ...selectedAppointment, patientPhone: e.target.value })}
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="editDate" className="text-right">
+                  Date
+                </Label>
+                <Input
+                  id="editDate"
+                  type="date"
+                  value={selectedAppointment.date}
+                  onChange={(e) => setSelectedAppointment({ ...selectedAppointment, date: e.target.value })}
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="editTime" className="text-right">
+                  Time
+                </Label>
+                <Input
+                  id="editTime"
+                  type="time"
+                  value={selectedAppointment.time}
+                  onChange={(e) => setSelectedAppointment({ ...selectedAppointment, time: e.target.value })}
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="editType" className="text-right">
+                  Type
+                </Label>
+                <Select value={selectedAppointment.type} onValueChange={(value) => setSelectedAppointment({ ...selectedAppointment, type: value })}>
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select appointment type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {appointmentTypes.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="editStatus" className="text-right">
+                  Status
+                </Label>
+                <Select value={selectedAppointment.status} onValueChange={(value) => setSelectedAppointment({ ...selectedAppointment, status: value as any })}>
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="confirmed">Confirmed</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                    <SelectItem value="no-show">No Show</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="editNotes" className="text-right">
+                  Notes
+                </Label>
+                <Textarea
+                  id="editNotes"
+                  value={selectedAppointment.notes}
+                  onChange={(e) => setSelectedAppointment({ ...selectedAppointment, notes: e.target.value })}
+                  className="col-span-3"
+                />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowEditAppointment(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleUpdateAppointment}>
+              Update Appointment
             </Button>
           </DialogFooter>
         </DialogContent>
