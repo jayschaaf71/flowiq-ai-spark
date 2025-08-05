@@ -45,6 +45,7 @@ import {
   Moon,
   Activity
 } from 'lucide-react';
+import { WaitlistPanel } from '@/components/schedule/WaitlistPanel';
 
 interface Appointment {
   id: string;
@@ -942,6 +943,11 @@ export default function Schedule() {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Waitlist Panel */}
+        <div className="lg:col-span-1">
+          <WaitlistPanel />
         </div>
       </div>
 

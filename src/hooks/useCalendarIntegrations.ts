@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface CalendarIntegration {
   id: string;
-  provider: 'google' | 'microsoft';
+  provider: 'google' | 'microsoft' | 'apple';
   provider_account_id: string;
   calendar_name: string;
   is_primary: boolean;
@@ -52,7 +52,7 @@ export const useCalendarIntegrations = () => {
   };
 
   // Connect to calendar provider
-  const connectCalendar = async (provider: 'google' | 'microsoft') => {
+  const connectCalendar = async (provider: 'google' | 'microsoft' | 'apple') => {
     try {
       setLoading(true);
       setError(null);

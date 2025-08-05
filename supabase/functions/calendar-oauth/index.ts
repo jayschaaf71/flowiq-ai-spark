@@ -44,7 +44,7 @@ async function handleGetAuthUrl(provider: string, redirect_uri: string) {
   if (provider === 'google') {
     const GOOGLE_CLIENT_ID = Deno.env.get('GOOGLE_CLIENT_ID')
     if (!GOOGLE_CLIENT_ID) {
-      throw new Error('GOOGLE_CLIENT_ID not configured')
+      throw new Error('GOOGLE_CLIENT_ID environment variable not configured. Please set it in your Supabase project settings.')
     }
     
     authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
@@ -58,7 +58,7 @@ async function handleGetAuthUrl(provider: string, redirect_uri: string) {
   } else if (provider === 'microsoft') {
     const MICROSOFT_CLIENT_ID = Deno.env.get('MICROSOFT_CLIENT_ID')
     if (!MICROSOFT_CLIENT_ID) {
-      throw new Error('MICROSOFT_CLIENT_ID not configured')
+      throw new Error('MICROSOFT_CLIENT_ID environment variable not configured. Please set it in your Supabase project settings.')
     }
     
     authUrl = `https://login.microsoftonline.com/common/oauth2/v2.0/authorize?` +
@@ -69,8 +69,21 @@ async function handleGetAuthUrl(provider: string, redirect_uri: string) {
       `response_mode=query&` +
       `prompt=consent`
       
+  } else if (provider === 'apple') {
+    const APPLE_CLIENT_ID = Deno.env.get('APPLE_CLIENT_ID')
+    if (!APPLE_CLIENT_ID) {
+      throw new Error('APPLE_CLIENT_ID environment variable not configured. Please set it in your Supabase project settings.')
+    }
+    
+    authUrl = `https://appleid.apple.com/auth/authorize?` +
+      `client_id=${APPLE_CLIENT_ID}&` +
+      `redirect_uri=${encodeURIComponent(redirect_uri)}&` +
+      `response_type=code&` +
+      `scope=${encodeURIComponent('email name')}&` +
+      `response_mode=query`
+      
   } else {
-    throw new Error(`Unsupported provider: ${provider}`)
+    throw new Error(`Unsupported provider: ${provider}. Supported providers are: google, microsoft, apple`)
   }
 
   console.log('Generated auth URL:', authUrl)
@@ -93,7 +106,7 @@ async function handleExchangeCode(provider: string, code: string, redirect_uri: 
     const GOOGLE_CLIENT_SECRET = Deno.env.get('GOOGLE_CLIENT_SECRET')
     
     if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
-      throw new Error('Google OAuth credentials not configured')
+      throw new Error('Google OAuth credentials not configured. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in your Supabase project settings.')
     }
     
     const tokenUrl = 'https://oauth2.googleapis.com/token'
@@ -118,13 +131,38 @@ async function handleExchangeCode(provider: string, code: string, redirect_uri: 
     const MICROSOFT_CLIENT_SECRET = Deno.env.get('MICROSOFT_CLIENT_SECRET')
     
     if (!MICROSOFT_CLIENT_ID || !MICROSOFT_CLIENT_SECRET) {
-      throw new Error('Microsoft OAuth credentials not configured')
+      throw new Error('Microsoft OAuth credentials not configured. Please set MICROSOFT_CLIENT_ID and MICROSOFT_CLIENT_SECRET in your Supabase project settings.')
     }
     
     const tokenUrl = 'https://login.microsoftonline.com/common/oauth2/v2.0/token'
     const tokenData = new URLSearchParams({
       client_id: MICROSOFT_CLIENT_ID,
       client_secret: MICROSOFT_CLIENT_SECRET,
+      code: code,
+      grant_type: 'authorization_code',
+      redirect_uri: redirect_uri
+    })
+    
+    tokenResponse = await fetch(tokenUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: tokenData
+    })
+    
+  } else if (provider === 'apple') {
+    const APPLE_CLIENT_ID = Deno.env.get('APPLE_CLIENT_ID')
+    const APPLE_CLIENT_SECRET = Deno.env.get('APPLE_CLIENT_SECRET')
+    
+    if (!APPLE_CLIENT_ID || !APPLE_CLIENT_SECRET) {
+      throw new Error('Apple OAuth credentials not configured. Please set APPLE_CLIENT_ID and APPLE_CLIENT_SECRET in your Supabase project settings.')
+    }
+    
+    const tokenUrl = 'https://appleid.apple.com/auth/token'
+    const tokenData = new URLSearchParams({
+      client_id: APPLE_CLIENT_ID,
+      client_secret: APPLE_CLIENT_SECRET,
       code: code,
       grant_type: 'authorization_code',
       redirect_uri: redirect_uri
