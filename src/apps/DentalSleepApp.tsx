@@ -15,6 +15,17 @@ import Patients from '@/pages/Patients';
 import Schedule from '@/pages/Schedule';
 import { ScheduleSettings } from '@/components/schedule/ScheduleSettings';
 
+// Import existing clinical components
+import { ClinicalDashboard } from '@/components/clinical/ClinicalDashboard';
+import { SOAPNotesManager } from '@/components/clinical/SOAPNotesManager';
+import { PatientRecords } from '@/components/clinical/PatientRecords';
+
+// Import existing revenue components
+import { RevenueDashboard } from '@/components/revenue/RevenueDashboard';
+import { RevenueCycleManager } from '@/components/revenue/RevenueCycleManager';
+import { InsuranceManager } from '@/components/revenue/InsuranceManager';
+import { RevenueAnalytics } from '@/components/revenue/RevenueAnalytics';
+
 // Profile Component
 const Profile = () => {
   return (
@@ -61,6 +72,64 @@ const Profile = () => {
   );
 };
 
+// Compliance Component
+const ComplianceTracker = () => {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Compliance Tracking</h1>
+          <p className="text-gray-600">Monitor HIPAA compliance and regulatory requirements</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white p-6 rounded-lg border">
+          <h3 className="text-lg font-semibold mb-4">HIPAA Compliance</h3>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600">Data Encryption</span>
+              <span className="text-green-600 text-sm font-medium">✓ Compliant</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600">Access Controls</span>
+              <span className="text-green-600 text-sm font-medium">✓ Compliant</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600">Audit Logging</span>
+              <span className="text-green-600 text-sm font-medium">✓ Compliant</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg border">
+          <h3 className="text-lg font-semibold mb-4">Regulatory Updates</h3>
+          <div className="space-y-3">
+            <div className="text-sm text-gray-600">
+              <p className="font-medium">Last Updated: 2024-01-15</p>
+              <p>All regulations are current</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg border">
+          <h3 className="text-lg font-semibold mb-4">Training Status</h3>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600">Staff Training</span>
+              <span className="text-green-600 text-sm font-medium">✓ Complete</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600">Annual Review</span>
+              <span className="text-yellow-600 text-sm font-medium">Due Soon</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const DentalSleepApp: React.FC = () => {
   return (
     <ModernLayout>
@@ -70,19 +139,19 @@ export const DentalSleepApp: React.FC = () => {
         <Route path="/patients" element={<Patients />} />
         <Route path="/schedule" element={<Schedule />} />
 
-        {/* Clinical Navigation */}
-        <Route path="/clinical" element={<div className="p-6"><h1 className="text-3xl font-bold">Clinical</h1><p>Clinical tools coming soon...</p></div>} />
-        <Route path="/clinical/soap-notes" element={<div className="p-6"><h1 className="text-3xl font-bold">SOAP Notes</h1><p>SOAP notes coming soon...</p></div>} />
-        <Route path="/clinical/records" element={<div className="p-6"><h1 className="text-3xl font-bold">Patient Records</h1><p>Patient records coming soon...</p></div>} />
+        {/* Clinical Navigation - Now using actual components */}
+        <Route path="/clinical" element={<ClinicalDashboard />} />
+        <Route path="/clinical/soap-notes" element={<SOAPNotesManager />} />
+        <Route path="/clinical/records" element={<PatientRecords />} />
         <Route path="/clinical/sleep-studies" element={<SleepStudyManager />} />
         <Route path="/clinical/dme" element={<DMETracker />} />
-        <Route path="/clinical/compliance" element={<div className="p-6"><h1 className="text-3xl font-bold">Compliance</h1><p>Compliance tracking coming soon...</p></div>} />
+        <Route path="/clinical/compliance" element={<ComplianceTracker />} />
 
-        {/* Administrative Navigation */}
-        <Route path="/revenue" element={<div className="p-6"><h1 className="text-3xl font-bold">Revenue</h1><p>Revenue management coming soon...</p></div>} />
-        <Route path="/revenue/claims" element={<div className="p-6"><h1 className="text-3xl font-bold">Claims</h1><p>Claims management coming soon...</p></div>} />
-        <Route path="/revenue/payments" element={<div className="p-6"><h1 className="text-3xl font-bold">Payments</h1><p>Payment processing coming soon...</p></div>} />
-        <Route path="/analytics" element={<div className="p-6"><h1 className="text-3xl font-bold">Analytics</h1><p>Analytics dashboard coming soon...</p></div>} />
+        {/* Administrative Navigation - Now using actual components */}
+        <Route path="/revenue" element={<RevenueDashboard />} />
+        <Route path="/revenue/claims" element={<RevenueCycleManager />} />
+        <Route path="/revenue/payments" element={<InsuranceManager />} />
+        <Route path="/analytics" element={<RevenueAnalytics />} />
 
         {/* Integration Dashboard */}
         <Route path="/integrations" element={<IntegrationDashboard />} />

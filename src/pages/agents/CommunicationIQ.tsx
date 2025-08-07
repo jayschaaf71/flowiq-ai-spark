@@ -3,19 +3,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-// import { CustomerDatabase } from '@/components/customers/CustomerDatabase';
-// import { ServiceHistory } from '@/components/customers/ServiceHistory';
-// import { CommunicationManager } from '@/components/communications/CommunicationManager';
-// import { VoiceCallManager } from '@/components/communications/VoiceCallManager';
-// import { InvoiceManager } from '@/components/billing/InvoiceManager';
-// import { PaymentProcessor } from '@/components/billing/PaymentProcessor';
-// import { AnalyticsDashboard } from '@/components/analytics/AnalyticsDashboard';
-// import { BusinessConfiguration } from '@/components/settings/BusinessConfiguration';
-// import { ServiceTypeConfig } from '@/components/settings/ServiceTypeConfig';
-// import { PhoneNumberSetup } from '@/components/settings/PhoneNumberSetup';
-// import { AIIntegrationsHub } from '@/components/ai/AIIntegrationsHub';
-// import { CalendarView } from '@/components/schedule/CalendarView';
-// import { AvailableSlots } from '@/components/schedule/AvailableSlots';
+import { CustomerDatabase } from '@/components/customers/CustomerDatabase';
+import { ServiceHistory } from '@/components/customers/ServiceHistory';
+import { CommunicationManager } from '@/components/communications/CommunicationManager';
+import { VoiceCallManager } from '@/components/communications/VoiceCallManager';
+import { InvoiceManager } from '@/components/billing/InvoiceManager';
+import { PaymentProcessor } from '@/components/billing/PaymentProcessor';
+import { AnalyticsDashboard } from '@/components/analytics/AnalyticsDashboard';
+import { BusinessConfiguration } from '@/components/settings/BusinessConfiguration';
+import { ServiceTypeConfig } from '@/components/settings/ServiceTypeConfig';
+import { PhoneNumberSetup } from '@/components/settings/PhoneNumberSetup';
+import { AIIntegrationsHub } from '@/components/ai/AIIntegrationsHub';
+import { CalendarView } from '@/components/schedule/CalendarView';
+import { AvailableSlots } from '@/components/schedule/AvailableSlots';
 import { getThemeColorClasses } from '@/utils/themeUtils';
 import {
   Calendar,
@@ -32,7 +32,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 // import { useConnectSageAI } from '@/hooks/useConnectSageAI';
 
-export const FlowIQConnect = () => {
+export const CommunicationIQ = () => {
   const [selectedTab, setSelectedTab] = useState('schedule');
   // const connectSage = useConnectSageAI();
   const themeColors = getThemeColorClasses();
@@ -222,8 +222,7 @@ export const FlowIQConnect = () => {
                       </div>
                     </CardHeader>
                     <CardContent className="p-6">
-                      {/* CalendarView component was removed, so this will be empty or a placeholder */}
-                      <p>Calendar View Placeholder</p>
+                      <CalendarView />
                     </CardContent>
                   </Card>
                 </div>
@@ -399,8 +398,7 @@ export const FlowIQConnect = () => {
                     <CardDescription className="text-sky-600">Manage appointment availability</CardDescription>
                   </CardHeader>
                   <CardContent className="p-4">
-                    {/* AvailableSlots component was removed, so this will be empty or a placeholder */}
-                    <p>Available Slots Placeholder</p>
+                    <AvailableSlots />
                   </CardContent>
                 </Card>
 
@@ -527,37 +525,127 @@ export const FlowIQConnect = () => {
 
             {/* CUSTOMERS TAB */}
             <TabsContent value="customers" className="space-y-6">
-              {/* CustomerDatabase and ServiceHistory components were removed, so this will be empty or a placeholder */}
-              <p>Customers Placeholder</p>
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <Card className="shadow-lg border-0">
+                  <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
+                    <CardTitle className="text-lg font-semibold text-blue-800">👥 Customer Database</CardTitle>
+                    <CardDescription className="text-blue-600">Manage customer information</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <CustomerDatabase />
+                  </CardContent>
+                </Card>
+
+                <Card className="shadow-lg border-0">
+                  <CardHeader className="bg-gradient-to-r from-cyan-50 to-teal-50 border-b">
+                    <CardTitle className="text-lg font-semibold text-cyan-800">📋 Service History</CardTitle>
+                    <CardDescription className="text-cyan-600">View customer service history</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <ServiceHistory />
+                  </CardContent>
+                </Card>
+              </div>
             </TabsContent>
 
             {/* COMMUNICATIONS TAB */}
             <TabsContent value="communications" className="space-y-6">
-              {/* CommunicationManager and VoiceCallManager components were removed, so this will be empty or a placeholder */}
-              <p>Communications Placeholder</p>
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <Card className="shadow-lg border-0">
+                  <CardHeader className="bg-gradient-to-r from-purple-50 to-violet-50 border-b">
+                    <CardTitle className="text-lg font-semibold text-purple-800">💬 Communication Manager</CardTitle>
+                    <CardDescription className="text-purple-600">Manage all customer communications</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <CommunicationManager />
+                  </CardContent>
+                </Card>
+
+                <Card className="shadow-lg border-0">
+                  <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b">
+                    <CardTitle className="text-lg font-semibold text-green-800">📞 Voice Call Manager</CardTitle>
+                    <CardDescription className="text-green-600">Handle voice calls and recordings</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <VoiceCallManager />
+                  </CardContent>
+                </Card>
+              </div>
             </TabsContent>
 
             {/* BILLING TAB */}
             <TabsContent value="billing" className="space-y-6">
-              {/* InvoiceManager and PaymentProcessor components were removed, so this will be empty or a placeholder */}
-              <p>Billing Placeholder</p>
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <Card className="shadow-lg border-0">
+                  <CardHeader className="bg-gradient-to-r from-emerald-50 to-green-50 border-b">
+                    <CardTitle className="text-lg font-semibold text-emerald-800">💳 Invoice Manager</CardTitle>
+                    <CardDescription className="text-emerald-600">Manage invoices and billing</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <InvoiceManager />
+                  </CardContent>
+                </Card>
+
+                <Card className="shadow-lg border-0">
+                  <CardHeader className="bg-gradient-to-r from-amber-50 to-orange-50 border-b">
+                    <CardTitle className="text-lg font-semibold text-amber-800">💳 Payment Processor</CardTitle>
+                    <CardDescription className="text-amber-600">Process payments and transactions</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <PaymentProcessor />
+                  </CardContent>
+                </Card>
+              </div>
             </TabsContent>
 
             {/* ANALYTICS TAB */}
             <TabsContent value="analytics" className="space-y-6">
-              {/* AnalyticsDashboard component was removed, so this will be empty or a placeholder */}
-              <p>Analytics Placeholder</p>
+              <Card className="shadow-lg border-0">
+                <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 border-b">
+                  <CardTitle className="text-lg font-semibold text-orange-800">📊 Analytics Dashboard</CardTitle>
+                  <CardDescription className="text-orange-600">View business analytics and insights</CardDescription>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <AnalyticsDashboard />
+                </CardContent>
+              </Card>
             </TabsContent>
 
             {/* SETTINGS TAB */}
             <TabsContent value="settings" className="space-y-6">
-              {/* ServiceTypeConfig and PhoneNumberSetup components were removed, so this will be empty or a placeholder */}
-              <p>Settings Placeholder</p>
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <Card className="shadow-lg border-0">
+                  <CardHeader className="bg-gradient-to-r from-slate-50 to-gray-50 border-b">
+                    <CardTitle className="text-lg font-semibold text-slate-800">⚙️ Service Type Config</CardTitle>
+                    <CardDescription className="text-slate-600">Configure service types and settings</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <ServiceTypeConfig />
+                  </CardContent>
+                </Card>
+
+                <Card className="shadow-lg border-0">
+                  <CardHeader className="bg-gradient-to-r from-slate-50 to-gray-50 border-b">
+                    <CardTitle className="text-lg font-semibold text-slate-800">📞 Phone Number Setup</CardTitle>
+                    <CardDescription className="text-slate-600">Configure phone numbers and settings</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <PhoneNumberSetup />
+                  </CardContent>
+                </Card>
+              </div>
 
               {/* Business Configuration - Full Width */}
               <div className="mt-8">
-                {/* BusinessConfiguration component was removed, so this will be empty or a placeholder */}
-                <p>Business Configuration Placeholder</p>
+                <Card className="shadow-lg border-0">
+                  <CardHeader className="bg-gradient-to-r from-slate-50 to-gray-50 border-b">
+                    <CardTitle className="text-lg font-semibold text-slate-800">🏢 Business Configuration</CardTitle>
+                    <CardDescription className="text-slate-600">Configure business settings and preferences</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <BusinessConfiguration />
+                  </CardContent>
+                </Card>
               </div>
             </TabsContent>
           </Tabs>
@@ -568,4 +656,4 @@ export const FlowIQConnect = () => {
   );
 };
 
-export default FlowIQConnect;
+export default CommunicationIQ;

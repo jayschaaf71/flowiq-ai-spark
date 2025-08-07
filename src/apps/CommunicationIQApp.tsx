@@ -1,7 +1,7 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { ModernLayout } from '@/components/layout/ModernLayout';
-import FlowIQConnect from '@/pages/agents/CommunicationIQ';
+import CommunicationIQ from '@/pages/agents/CommunicationIQ';
 import { ClinicalAssistant } from '@/pages/agents/ClinicalAssistant';
 import { CommunicationAssistant } from '@/pages/agents/CommunicationAssistant';
 import { RevenueAssistant } from '@/pages/agents/RevenueAssistant';
@@ -14,20 +14,20 @@ const FlowIQConnectApp = () => {
   return (
     <ModernLayout>
       <Routes>
-        {/* Main communication interface - comprehensive FlowIQ Connect */}
-        <Route path="/" element={<FlowIQConnect />} />
+        {/* Main communication interface - comprehensive Communication IQ */}
+        <Route path="/" element={<CommunicationIQ />} />
 
         {/* Main navigation routes */}
-        <Route path="/dashboard" element={<FlowIQConnect />} />
-        <Route path="/patients" element={<FlowIQConnect />} />
-        <Route path="/schedule" element={<FlowIQConnect />} />
-        <Route path="/calendar" element={<FlowIQConnect />} />
-        <Route path="/booking" element={<FlowIQConnect />} />
-        <Route path="/onboarding" element={<FlowIQConnect />} />
-        <Route path="/forms" element={<FlowIQConnect />} />
-        <Route path="/communications" element={<FlowIQConnect />} />
-        <Route path="/voice" element={<FlowIQConnect />} />
-        <Route path="/reminders" element={<FlowIQConnect />} />
+        <Route path="/dashboard" element={<CommunicationIQ />} />
+        <Route path="/patients" element={<CommunicationIQ />} />
+        <Route path="/schedule" element={<CommunicationIQ />} />
+        <Route path="/calendar" element={<CommunicationIQ />} />
+        <Route path="/booking" element={<CommunicationIQ />} />
+        <Route path="/onboarding" element={<CommunicationIQ />} />
+        <Route path="/forms" element={<CommunicationIQ />} />
+        <Route path="/communications" element={<CommunicationIQ />} />
+        <Route path="/voice" element={<CommunicationIQ />} />
+        <Route path="/reminders" element={<CommunicationIQ />} />
 
         {/* AI Assistant routes */}
         <Route path="/assistants/clinical" element={<ClinicalAssistant />} />

@@ -55,7 +55,7 @@ export const OAuthCallback = () => {
             action: 'exchange_code',
             provider,
             code,
-            redirect_uri: `${window.location.origin}/oauth/callback`
+            redirect_uri: `${window.location.origin}/oauth-callback`
           }
         });
 
@@ -117,9 +117,15 @@ export const OAuthCallback = () => {
         // Success - redirect back to communication assistant
         setStatus('success');
         setMessage(`${provider === 'google' ? 'Google' : 'Microsoft'} calendar connected successfully!`);
-        
+
         setTimeout(() => {
-          window.location.href = '/assistants/communication';
+          // For Midwest Dental Sleep domain, redirect to root and then navigate to Communication Assistant
+          const hostname = window.location.hostname;
+          if (hostname === 'midwest-dental-sleep.flow-iq.ai') {
+            window.location.href = '/assistants/communication?tab=scheduling';
+          } else {
+            window.location.href = '/assistants/communication?tab=scheduling';
+          }
         }, 2000);
 
       } catch (err) {
@@ -146,7 +152,7 @@ export const OAuthCallback = () => {
               <p className="text-gray-600">{message}</p>
             </>
           )}
-          
+
           {status === 'success' && (
             <>
               <div className="text-green-500 text-4xl mb-4">✓</div>
@@ -155,7 +161,7 @@ export const OAuthCallback = () => {
               <p className="text-sm text-gray-500 mt-2">Redirecting back to app...</p>
             </>
           )}
-          
+
           {status === 'error' && (
             <>
               <div className="text-red-500 text-4xl mb-4">✗</div>

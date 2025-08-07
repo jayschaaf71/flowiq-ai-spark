@@ -43,7 +43,8 @@ import {
   Calendar as CalendarIcon,
   Clock as ClockIcon,
   Moon,
-  Activity
+  Activity,
+  Brain
 } from 'lucide-react';
 import { WaitlistPanel } from '@/components/schedule/WaitlistPanel';
 
@@ -655,7 +656,7 @@ export default function Schedule() {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setStatusFilter('all')}>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => { setStatusFilter('all'); setShowWaitlistPanel(false); }}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -666,7 +667,7 @@ export default function Schedule() {
             </div>
           </CardContent>
         </Card>
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setStatusFilter('confirmed')}>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => { setStatusFilter('confirmed'); setShowWaitlistPanel(false); }}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -677,7 +678,7 @@ export default function Schedule() {
             </div>
           </CardContent>
         </Card>
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setStatusFilter('pending')}>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => { setStatusFilter('pending'); setShowWaitlistPanel(false); }}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -688,7 +689,7 @@ export default function Schedule() {
             </div>
           </CardContent>
         </Card>
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setStatusFilter('completed')}>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => { setStatusFilter('completed'); setShowWaitlistPanel(false); }}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -714,257 +715,259 @@ export default function Schedule() {
 
       {/* Schedule View */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Calendar Grid */}
-        <div className={showWaitlistPanel ? "lg:col-span-1" : "lg:col-span-2"}>
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                {viewMode === 'day'
-                  ? `${formatDateSafe(validSelectedDate, 'EEEE, MMMM d, yyyy')} Schedule`
-                  : viewMode === 'week'
-                    ? `${formatDateSafe(startOfWeek(validSelectedDate), 'MMM d')} - ${formatDateSafe(endOfWeek(validSelectedDate), 'MMM d, yyyy')} Schedule`
-                    : `${formatDateSafe(validSelectedDate, 'MMMM yyyy')} Schedule`
-                }
-                {statusFilter !== 'all' && (
-                  <Badge variant="secondary" className="ml-2">
-                    {statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)} only
-                  </Badge>
-                )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {viewMode === 'day' && (
-                <div className="space-y-2">
-                  {currentTimeSlots.map((slot) => (
-                    <div key={slot.time} className="flex items-center gap-4 p-3 border rounded-lg hover:bg-gray-50 transition-colors">
-                      <div className="w-20 text-sm font-medium text-gray-600">
-                        {formatTime(slot.time)}
+        {showWaitlistPanel ? (
+          // If waitlist is shown, it takes all 3 columns
+          <div className="lg:col-span-3">
+            <WaitlistPanel />
+          </div>
+        ) : (
+          <>
+            {/* Calendar Grid - takes 2 columns */}
+            <div className="lg:col-span-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>
+                    {viewMode === 'day'
+                      ? `${formatDateSafe(validSelectedDate, 'EEEE, MMMM d, yyyy')} Schedule`
+                      : viewMode === 'week'
+                        ? `${formatDateSafe(startOfWeek(validSelectedDate), 'MMM d')} - ${formatDateSafe(endOfWeek(validSelectedDate), 'MMM d, yyyy')} Schedule`
+                        : `${formatDateSafe(validSelectedDate, 'MMMM yyyy')} Schedule`
+                    }
+                    {statusFilter !== 'all' && (
+                      <Badge variant="secondary" className="ml-2">
+                        {statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)} only
+                      </Badge>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {viewMode === 'day' && (
+                    <div className="space-y-2">
+                      {currentTimeSlots.map((slot) => (
+                        <div key={slot.time} className="flex items-center gap-4 p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                          <div className="w-20 text-sm font-medium text-gray-600">
+                            {formatTime(slot.time)}
+                          </div>
+                          <div className="flex-1">
+                            {slot.appointment ? (
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <div className="font-medium">{slot.appointment.patientName}</div>
+                                  <div className="text-sm text-gray-600">{slot.appointment.type}</div>
+                                  <div className="text-xs text-gray-500">{slot.appointment.provider} • {slot.appointment.room}</div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Badge className={getStatusColor(slot.appointment.status)}>
+                                    {slot.appointment.status}
+                                  </Badge>
+                                  <Button size="sm" variant="outline" onClick={() => handleViewAppointment(slot.appointment!)}>
+                                    <MoreHorizontal className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div
+                                className="text-gray-400 italic cursor-pointer hover:text-gray-600 transition-colors"
+                                onClick={() => handleTimeSlotClick(slot.time)}
+                              >
+                                Click to schedule appointment
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {viewMode === 'week' && (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-8 border-b">
+                        <div className="p-3 border-r bg-muted/50 font-medium">Time</div>
+                        {weekDays.map((day) => (
+                          <div key={day.toISOString()} className="p-3 border-r text-center">
+                            <div className="font-medium">{formatDateSafe(day, 'EEE')}</div>
+                            <div className={`text-sm ${isSameDay(day, new Date()) ? 'text-primary font-bold' : 'text-muted-foreground'}`}>
+                              {formatDateSafe(day, 'MMM d')}
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                      <div className="flex-1">
-                        {slot.appointment ? (
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <div className="font-medium">{slot.appointment.patientName}</div>
-                              <div className="text-sm text-gray-600">{slot.appointment.type}</div>
-                              <div className="text-xs text-gray-500">{slot.appointment.provider} • {slot.appointment.room}</div>
+
+                      <div className="max-h-[600px] overflow-y-auto">
+                        {timeSlots.map((timeSlot) => (
+                          <div key={timeSlot.time} className="grid grid-cols-8 border-b min-h-16">
+                            <div className="p-2 border-r bg-muted/30 text-sm font-medium flex items-center">
+                              {(() => {
+                                if (typeof timeSlot.time === 'string') {
+                                  const [hours, minutes] = timeSlot.time.split(':');
+                                  const hour = parseInt(hours);
+                                  const ampm = hour >= 12 ? 'PM' : 'AM';
+                                  const displayHour = hour % 12 || 12;
+                                  return `${displayHour}:${minutes} ${ampm}`;
+                                }
+                                return '';
+                              })()}
                             </div>
-                            <div className="flex items-center gap-2">
-                              <Badge className={getStatusColor(slot.appointment.status)}>
-                                {slot.appointment.status}
-                              </Badge>
-                              <Button size="sm" variant="outline" onClick={() => handleViewAppointment(slot.appointment!)}>
-                                <MoreHorizontal className="w-4 h-4" />
-                              </Button>
-                            </div>
+
+                            {weekDays.map((day) => {
+                              const dayDate = formatDateSafe(day, 'yyyy-MM-dd');
+                              const dayAppointments = currentViewAppointments.filter(apt =>
+                                apt.date === dayDate && apt.time === timeSlot.time
+                              );
+
+                              return (
+                                <div
+                                  key={day.toISOString()}
+                                  className="border-r p-1 cursor-pointer hover:bg-muted/30 relative"
+                                  onClick={() => handleTimeSlotClick(timeSlot.time)}
+                                >
+                                  {dayAppointments.map((apt) => (
+                                    <div
+                                      key={apt.id}
+                                      className={`appointment-card p-1 rounded text-xs cursor-pointer
+                                        ${apt.status === 'confirmed' ? 'bg-green-100 border-green-300' :
+                                          apt.status === 'pending' ? 'bg-yellow-100 border-yellow-300' :
+                                            apt.status === 'cancelled' ? 'bg-red-100 border-red-300' :
+                                              apt.status === 'completed' ? 'bg-blue-100 border-blue-300' :
+                                                'bg-gray-100 border-gray-300'} border mb-1`}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleViewAppointment(apt);
+                                      }}
+                                    >
+                                      <div className="font-medium truncate">{apt.patient_name || apt.patientName}</div>
+                                      <div className="text-muted-foreground truncate">{apt.appointment_type || apt.type}</div>
+                                    </div>
+                                  ))}
+                                </div>
+                              );
+                            })}
                           </div>
-                        ) : (
-                          <div
-                            className="text-gray-400 italic cursor-pointer hover:text-gray-600 transition-colors"
-                            onClick={() => handleTimeSlotClick(slot.time)}
-                          >
-                            Click to schedule appointment
-                          </div>
-                        )}
+                        ))}
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
+                  )}
 
-              {viewMode === 'week' && (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-8 border-b">
-                    <div className="p-3 border-r bg-muted/50 font-medium">Time</div>
-                    {weekDays.map((day) => (
-                      <div key={day.toISOString()} className="p-3 border-r text-center">
-                        <div className="font-medium">{formatDateSafe(day, 'EEE')}</div>
-                        <div className={`text-sm ${isSameDay(day, new Date()) ? 'text-primary font-bold' : 'text-muted-foreground'}`}>
-                          {formatDateSafe(day, 'MMM d')}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  {viewMode === 'month' && (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-7">
+                        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                          <div key={day} className="p-3 border-r border-b bg-muted/30 font-medium text-center">
+                            {day}
+                          </div>
+                        ))}
 
-                  <div className="max-h-[600px] overflow-y-auto">
-                    {timeSlots.map((timeSlot) => (
-                      <div key={timeSlot.time} className="grid grid-cols-8 border-b min-h-16">
-                        <div className="p-2 border-r bg-muted/30 text-sm font-medium flex items-center">
-                          {(() => {
-                            if (typeof timeSlot.time === 'string') {
-                              const [hours, minutes] = timeSlot.time.split(':');
-                              const hour = parseInt(hours);
-                              const ampm = hour >= 12 ? 'PM' : 'AM';
-                              const displayHour = hour % 12 || 12;
-                              return `${displayHour}:${minutes} ${ampm}`;
-                            }
-                            return '';
-                          })()}
-                        </div>
-
-                        {weekDays.map((day) => {
-                          const dayDate = formatDateSafe(day, 'yyyy-MM-dd');
-                          const dayAppointments = currentViewAppointments.filter(apt =>
-                            apt.date === dayDate && apt.time === timeSlot.time
-                          );
+                        {Array.from({ length: 42 }, (_, i) => {
+                          const startOfMonthDate = startOfMonth(validSelectedDate);
+                          const startOfCalendar = startOfWeek(startOfMonthDate);
+                          const currentDate = addDays(startOfCalendar, i);
+                          const isCurrentMonth = isSameMonth(currentDate, validSelectedDate);
+                          const isToday = isSameDay(currentDate, new Date());
+                          const dayDate = formatDateSafe(currentDate, 'yyyy-MM-dd');
+                          const dayAppointments = currentViewAppointments.filter(apt => apt.date === dayDate);
 
                           return (
                             <div
-                              key={day.toISOString()}
-                              className="border-r p-1 cursor-pointer hover:bg-muted/30 relative"
-                              onClick={() => handleTimeSlotClick(timeSlot.time)}
+                              key={i}
+                              className={`min-h-20 border-r border-b p-1 cursor-pointer hover:bg-muted/30
+                                ${!isCurrentMonth ? 'bg-muted/20 text-muted-foreground' : ''}
+                                ${isToday ? 'bg-blue-50 border-blue-200' : ''}`}
+                              onClick={() => {
+                                setSelectedDate(currentDate);
+                                setViewMode('day');
+                              }}
                             >
-                              {dayAppointments.map((apt) => (
-                                <div
-                                  key={apt.id}
-                                  className={`appointment-card p-1 rounded text-xs cursor-pointer
-                                    ${apt.status === 'confirmed' ? 'bg-green-100 border-green-300' :
-                                      apt.status === 'pending' ? 'bg-yellow-100 border-yellow-300' :
-                                        apt.status === 'cancelled' ? 'bg-red-100 border-red-300' :
-                                          apt.status === 'completed' ? 'bg-blue-100 border-blue-300' :
-                                            'bg-gray-100 border-gray-300'} border mb-1`}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleViewAppointment(apt);
-                                  }}
-                                >
-                                  <div className="font-medium truncate">{apt.patient_name || apt.patientName}</div>
-                                  <div className="text-muted-foreground truncate">{apt.appointment_type || apt.type}</div>
+                              <div className={`text-sm font-medium mb-1 
+                                ${isToday ? 'text-blue-600 font-bold' : ''}`}>
+                                {formatDateSafe(currentDate, 'd')}
+                              </div>
+
+                              {dayAppointments.length > 0 && (
+                                <div className="space-y-1">
+                                  {dayAppointments.slice(0, 2).map((apt) => (
+                                    <div
+                                      key={apt.id}
+                                      className={`text-xs p-1 rounded truncate cursor-pointer
+                                        ${apt.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                                          apt.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                            apt.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                                              apt.status === 'completed' ? 'bg-blue-100 text-blue-800' :
+                                                'bg-gray-100 text-gray-800'}`}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleViewAppointment(apt);
+                                      }}
+                                    >
+                                      {apt.patient_name || apt.patientName}
+                                    </div>
+                                  ))}
+                                  {dayAppointments.length > 2 && (
+                                    <div className="text-xs text-muted-foreground">
+                                      +{dayAppointments.length - 2} more
+                                    </div>
+                                  )}
                                 </div>
-                              ))}
+                              )}
                             </div>
                           );
                         })}
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {viewMode === 'month' && (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-7">
-                    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-                      <div key={day} className="p-3 border-r border-b bg-muted/30 font-medium text-center">
-                        {day}
-                      </div>
-                    ))}
-
-                    {Array.from({ length: 42 }, (_, i) => {
-                      const startOfMonthDate = startOfMonth(validSelectedDate);
-                      const startOfCalendar = startOfWeek(startOfMonthDate);
-                      const currentDate = addDays(startOfCalendar, i);
-                      const isCurrentMonth = isSameMonth(currentDate, validSelectedDate);
-                      const isToday = isSameDay(currentDate, new Date());
-                      const dayDate = formatDateSafe(currentDate, 'yyyy-MM-dd');
-                      const dayAppointments = currentViewAppointments.filter(apt => apt.date === dayDate);
-
-                      return (
-                        <div
-                          key={i}
-                          className={`min-h-20 border-r border-b p-1 cursor-pointer hover:bg-muted/30
-                            ${!isCurrentMonth ? 'bg-muted/20 text-muted-foreground' : ''}
-                            ${isToday ? 'bg-blue-50 border-blue-200' : ''}`}
-                          onClick={() => {
-                            setSelectedDate(currentDate);
-                            setViewMode('day');
-                          }}
-                        >
-                          <div className={`text-sm font-medium mb-1 
-                            ${isToday ? 'text-blue-600 font-bold' : ''}`}>
-                            {formatDateSafe(currentDate, 'd')}
-                          </div>
-
-                          {dayAppointments.length > 0 && (
-                            <div className="space-y-1">
-                              {dayAppointments.slice(0, 2).map((apt) => (
-                                <div
-                                  key={apt.id}
-                                  className={`text-xs p-1 rounded truncate cursor-pointer
-                                    ${apt.status === 'confirmed' ? 'bg-green-100 text-green-800' :
-                                      apt.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                        apt.status === 'cancelled' ? 'bg-red-100 text-red-800' :
-                                          apt.status === 'completed' ? 'bg-blue-100 text-blue-800' :
-                                            'bg-gray-100 text-gray-800'}`}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleViewAppointment(apt);
-                                  }}
-                                >
-                                  {apt.patient_name || apt.patientName}
-                                </div>
-                              ))}
-                              {dayAppointments.length > 2 && (
-                                <div className="text-xs text-muted-foreground">
-                                  +{dayAppointments.length - 2} more
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Upcoming Appointments */}
-        <div>
-          <Card>
-            <CardHeader>
-              <CardTitle>Upcoming Appointments</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {displayAppointments
-                  .filter(apt => apt.status === 'confirmed' || apt.status === 'pending')
-                  .slice(0, 5)
-                  .map((appointment) => (
-                    <div key={appointment.id} className="p-3 border rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="font-medium">{appointment.patientName}</div>
-                        <Badge className={getStatusColor(appointment.status)}>
-                          {appointment.status}
-                        </Badge>
-                      </div>
-                      <div className="text-sm text-gray-600 mb-2">
-                        {appointment.type} • {appointment.provider}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {appointment.date} at {formatTime(appointment.time)}
-                      </div>
-                      <div className="flex gap-2 mt-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleCallPatient(appointment)}
-                        >
-                          <Phone className="w-3 h-3 mr-1" />
-                          Call
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleMessageAppointment(appointment)}
-                        >
-                          <MessageSquare className="w-3 h-3 mr-1" />
-                          Message
-                        </Button>
-                      </div>
                     </div>
-                  ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
 
-        {/* Waitlist Panel */}
-        {showWaitlistPanel && (
-          <div className="lg:col-span-2">
-            <WaitlistPanel />
-          </div>
+            {/* Upcoming Appointments */}
+            <div className="lg:col-span-1">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Upcoming Appointments</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {displayAppointments
+                      .filter(apt => apt.status === 'confirmed' || apt.status === 'pending')
+                      .slice(0, 5)
+                      .map((appointment) => (
+                        <div key={appointment.id} className="p-3 border rounded-lg">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="font-medium">{appointment.patientName}</div>
+                            <Badge className={getStatusColor(appointment.status)}>
+                              {appointment.status}
+                            </Badge>
+                          </div>
+                          <div className="text-sm text-gray-600 mb-2">
+                            {appointment.type} • {appointment.provider}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {appointment.date} at {formatTime(appointment.time)}
+                          </div>
+                          <div className="flex gap-2 mt-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleCallPatient(appointment)}
+                            >
+                              <Phone className="w-3 h-3 mr-1" />
+                              Call
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleMessageAppointment(appointment)}
+                            >
+                              <MessageSquare className="w-3 h-3 mr-1" />
+                              Message
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </>
         )}
       </div>
 

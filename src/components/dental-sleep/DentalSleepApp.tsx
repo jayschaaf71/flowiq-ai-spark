@@ -6,7 +6,7 @@ import { SpecialtyProvider } from '../../contexts/SpecialtyContext';
 import { DentalSleepDashboard } from '../../components/dental-sleep/DentalSleepDashboard';
 import { Calendar } from '../../pages/Calendar';
 import ScribeIQ from '../../pages/agents/ScribeIQ';
-import FlowIQConnect from '../../pages/agents/CommunicationIQ';
+import CommunicationIQ from '../../pages/agents/CommunicationIQ';
 import EHR from '../../pages/EHR';
 import RevenueIQ from '../../pages/agents/RevenueIQ';
 import InsuranceIQ from '../../pages/agents/InsuranceIQ';
@@ -51,7 +51,7 @@ export const DentalSleepApp: React.FC = () => {
           <Route path="/agents/communication" element={
             <ProtectedRoute requiredRole="staff">
               <ModernLayout>
-                <FlowIQConnect />
+                <CommunicationIQ />
               </ModernLayout>
             </ProtectedRoute>
           } />

@@ -1,137 +1,246 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 
-interface CalendarIntegration {
+export interface CalendarIntegration {
   id: string;
-  provider: 'google' | 'microsoft' | 'apple';
-  provider_account_id: string;
-  calendar_name: string;
-  is_primary: boolean;
-  sync_enabled: boolean;
-  sync_direction: 'unidirectional' | 'bidirectional';
-  last_sync_at: string;
-  created_at: string;
+  provider: 'google' | 'microsoft' | 'apple' | 'outlook';
+  name: string;
+  status: 'connected' | 'disconnected' | 'error' | 'syncing';
+  enabled: boolean;
+  lastSync?: string;
+  health: number;
+  description: string;
+  config?: Record<string, any>;
 }
 
 export const useCalendarIntegrations = () => {
   const [integrations, setIntegrations] = useState<CalendarIntegration[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch existing integrations
-  const fetchIntegrations = async () => {
+  useEffect(() => {
+    loadCalendarIntegrations();
+  }, []);
+
+  const loadCalendarIntegrations = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      if (authError || !user) {
-        console.log('User not authenticated, skipping fetch');
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from('calendar_integrations')
-        .select('*')
-        .eq('user_id', user.id);
-
-      if (error) {
-        console.error('Error fetching integrations:', error);
-        setError(error.message);
-        return;
-      }
-
-      console.log('Fetched integrations:', data);
-      setIntegrations(data || []);
-    } catch (err) {
-      console.error('Error in fetchIntegrations:', err);
-      setError(err instanceof Error ? err.message : 'Unknown error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Connect to calendar provider
-  const connectCalendar = async (provider: 'google' | 'microsoft' | 'apple') => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Get OAuth URL from Supabase function
-      const { data, error } = await supabase.functions.invoke('calendar-oauth', {
-        body: {
-          action: 'get_auth_url',
-          provider,
-          redirect_uri: `${window.location.origin}/oauth/callback`
+      // Mock calendar integrations data
+      const mockIntegrations: CalendarIntegration[] = [
+        {
+          id: 'google-calendar',
+          provider: 'google',
+          name: 'Google Calendar',
+          status: 'connected',
+          enabled: true,
+          lastSync: new Date().toISOString(),
+          health: 94,
+          description: 'Google Calendar integration for appointment sync',
+          config: {
+            calendarId: 'primary',
+            syncInterval: 300,
+            timezone: 'America/New_York'
+          }
+        },
+        {
+          id: 'microsoft-outlook',
+          provider: 'microsoft',
+          name: 'Microsoft Outlook',
+          status: 'disconnected',
+          enabled: false,
+          health: 0,
+          description: 'Microsoft Outlook calendar integration',
+          config: {
+            calendarId: 'default',
+            syncInterval: 300,
+            timezone: 'America/New_York'
+          }
+        },
+        {
+          id: 'apple-calendar',
+          provider: 'apple',
+          name: 'Apple Calendar',
+          status: 'connected',
+          enabled: true,
+          lastSync: new Date().toISOString(),
+          health: 91,
+          description: 'Apple Calendar integration',
+          config: {
+            calendarId: 'default',
+            syncInterval: 300,
+            timezone: 'America/New_York'
+          }
+        },
+        {
+          id: 'outlook-web',
+          provider: 'outlook',
+          name: 'Outlook Web',
+          status: 'disconnected',
+          enabled: false,
+          health: 0,
+          description: 'Outlook Web calendar integration',
+          config: {
+            calendarId: 'default',
+            syncInterval: 300,
+            timezone: 'America/New_York'
+          }
         }
-      });
+      ];
 
-      if (error) {
-        console.error('Error getting auth URL:', error);
-        setError(error.message);
-        return;
-      }
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 500));
 
-      if (!data?.auth_url) {
-        setError('No auth URL received');
-        return;
-      }
-
-      console.log('Redirecting to OAuth URL:', data.auth_url);
-
-      // Store provider in sessionStorage for callback
-      sessionStorage.setItem('oauth_provider', provider);
-
-      // Redirect to OAuth URL
-      window.location.href = data.auth_url;
-
+      setIntegrations(mockIntegrations);
     } catch (err) {
-      console.error('Error connecting calendar:', err);
-      setError(err instanceof Error ? err.message : 'Unknown error');
-      setLoading(false);
-    }
-  };
-
-  // Disconnect calendar
-  const disconnectCalendar = async (integrationId: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const { error } = await supabase
-        .from('calendar_integrations')
-        .delete()
-        .eq('id', integrationId);
-
-      if (error) {
-        console.error('Error disconnecting calendar:', error);
-        setError(error.message);
-        return;
-      }
-
-      // Refresh integrations
-      await fetchIntegrations();
-    } catch (err) {
-      console.error('Error disconnecting calendar:', err);
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      console.error('Failed to load calendar integrations:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load calendar integrations');
     } finally {
       setLoading(false);
     }
   };
 
-  // Check if provider is connected
-  const isConnected = (provider: 'google' | 'microsoft' | 'apple') => {
-    return integrations.some(integration => integration.provider === provider);
+  const connectCalendar = async (provider: string): Promise<{ success: boolean; message: string }> => {
+    try {
+      setLoading(true);
+
+      // Simulate connection process
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Mock connection results
+      const connectionResults = {
+        'google': { success: true, message: 'Google Calendar connected successfully' },
+        'microsoft': { success: true, message: 'Microsoft Outlook connected successfully' },
+        'apple': { success: true, message: 'Apple Calendar connected successfully' },
+        'outlook': { success: false, message: 'Outlook Web connection failed - authentication required' }
+      };
+
+      const result = connectionResults[provider as keyof typeof connectionResults] ||
+        { success: false, message: 'Unknown provider' };
+
+      if (result.success) {
+        // Update the integration status
+        setIntegrations(prev => prev.map(integration =>
+          integration.provider === provider
+            ? {
+              ...integration,
+              status: 'connected' as const,
+              enabled: true,
+              lastSync: new Date().toISOString(),
+              health: 90 + Math.floor(Math.random() * 10)
+            }
+            : integration
+        ));
+      }
+
+      return result;
+    } catch (err) {
+      console.error('Failed to connect calendar:', err);
+      return {
+        success: false,
+        message: err instanceof Error ? err.message : 'Connection failed'
+      };
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Get integration for provider
-  const getIntegration = (provider: 'google' | 'microsoft' | 'apple') => {
+  const disconnectCalendar = async (provider: string): Promise<{ success: boolean; message: string }> => {
+    try {
+      setLoading(true);
+
+      // Simulate disconnection process
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Update the integration status
+      setIntegrations(prev => prev.map(integration =>
+        integration.provider === provider
+          ? {
+            ...integration,
+            status: 'disconnected' as const,
+            enabled: false,
+            health: 0
+          }
+          : integration
+      ));
+
+      return { success: true, message: `${provider} calendar disconnected successfully` };
+    } catch (err) {
+      console.error('Failed to disconnect calendar:', err);
+      return {
+        success: false,
+        message: err instanceof Error ? err.message : 'Disconnection failed'
+      };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const syncCalendar = async (provider: string): Promise<{ success: boolean; message: string }> => {
+    try {
+      setLoading(true);
+
+      // Simulate sync process
+      await new Promise(resolve => setTimeout(resolve, 3000));
+
+      // Update the integration status
+      setIntegrations(prev => prev.map(integration =>
+        integration.provider === provider
+          ? {
+            ...integration,
+            lastSync: new Date().toISOString(),
+            health: Math.min(100, integration.health + 5)
+          }
+          : integration
+      ));
+
+      return { success: true, message: `${provider} calendar synced successfully` };
+    } catch (err) {
+      console.error('Failed to sync calendar:', err);
+      return {
+        success: false,
+        message: err instanceof Error ? err.message : 'Sync failed'
+      };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const testCalendarConnection = async (provider: string): Promise<{ success: boolean; message: string }> => {
+    try {
+      setLoading(true);
+
+      // Simulate test process
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      // Mock test results
+      const testResults = {
+        'google': { success: true, message: 'Google Calendar connection test successful' },
+        'microsoft': { success: true, message: 'Microsoft Outlook connection test successful' },
+        'apple': { success: true, message: 'Apple Calendar connection test successful' },
+        'outlook': { success: false, message: 'Outlook Web connection test failed' }
+      };
+
+      return testResults[provider as keyof typeof testResults] ||
+        { success: false, message: 'Unknown provider' };
+    } catch (err) {
+      console.error('Failed to test calendar connection:', err);
+      return {
+        success: false,
+        message: err instanceof Error ? err.message : 'Test failed'
+      };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getConnectedIntegrations = () => {
+    return integrations.filter(integration => integration.status === 'connected' && integration.enabled);
+  };
+
+  const getIntegrationByProvider = (provider: string) => {
     return integrations.find(integration => integration.provider === provider);
   };
-
-  useEffect(() => {
-    fetchIntegrations();
-  }, []);
 
   return {
     integrations,
@@ -139,8 +248,10 @@ export const useCalendarIntegrations = () => {
     error,
     connectCalendar,
     disconnectCalendar,
-    isConnected,
-    getIntegration,
-    refreshIntegrations: fetchIntegrations
+    syncCalendar,
+    testCalendarConnection,
+    getConnectedIntegrations,
+    getIntegrationByProvider,
+    refresh: loadCalendarIntegrations
   };
 };

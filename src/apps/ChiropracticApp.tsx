@@ -7,7 +7,7 @@ import { ChiropracticDashboard } from '../components/chiropractic/ChiropracticDa
 import { Calendar } from '../pages/Calendar';
 import { ClinicalAssistant } from '../pages/agents/ClinicalAssistant';
 import ScribeIQ from '../pages/agents/ScribeIQ';
-import FlowIQConnect from '../pages/agents/CommunicationIQ';
+import CommunicationIQ from '../pages/agents/CommunicationIQ';
 import EHR from '../pages/EHR';
 import RevenueIQ from '../pages/agents/RevenueIQ';
 import InsuranceIQ from '../pages/agents/InsuranceIQ';
@@ -18,6 +18,21 @@ import EducationIQ from '../pages/agents/EducationIQ';
 import GrowthIQ from '../pages/agents/GrowthIQ';
 import Settings from '../pages/Settings';
 import { useHealthcareSageAI } from '@/hooks/useHealthcareSageAI';
+
+// Import existing clinical components
+import { ClinicalDashboard } from '@/components/clinical/ClinicalDashboard';
+import { SOAPNotesManager } from '@/components/clinical/SOAPNotesManager';
+import { PatientRecords } from '@/components/clinical/PatientRecords';
+
+// Import existing revenue components
+import { RevenueDashboard } from '@/components/revenue/RevenueDashboard';
+import { RevenueCycleManager } from '@/components/revenue/RevenueCycleManager';
+import { InsuranceManager } from '@/components/revenue/InsuranceManager';
+import { RevenueAnalytics } from '@/components/revenue/RevenueAnalytics';
+
+// Import patient and schedule pages
+import Patients from '@/pages/Patients';
+import Schedule from '@/pages/Schedule';
 
 export const ChiropracticApp: React.FC = () => {
   const healthcareSage = useHealthcareSageAI();
@@ -48,6 +63,80 @@ export const ChiropracticApp: React.FC = () => {
             </ProtectedRoute>
           } />
 
+          <Route path="/patients" element={
+            <ProtectedRoute requiredRole="staff">
+              <ModernLayout>
+                <Patients />
+              </ModernLayout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/schedule" element={
+            <ProtectedRoute requiredRole="staff">
+              <ModernLayout>
+                <Schedule />
+              </ModernLayout>
+            </ProtectedRoute>
+          } />
+
+          {/* Clinical Navigation */}
+          <Route path="/clinical" element={
+            <ProtectedRoute requiredRole="clinical">
+              <ModernLayout>
+                <ClinicalDashboard />
+              </ModernLayout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/clinical/soap-notes" element={
+            <ProtectedRoute requiredRole="clinical">
+              <ModernLayout>
+                <SOAPNotesManager />
+              </ModernLayout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/clinical/records" element={
+            <ProtectedRoute requiredRole="clinical">
+              <ModernLayout>
+                <PatientRecords />
+              </ModernLayout>
+            </ProtectedRoute>
+          } />
+
+          {/* Administrative Navigation */}
+          <Route path="/revenue" element={
+            <ProtectedRoute requiredRole="admin">
+              <ModernLayout>
+                <RevenueDashboard />
+              </ModernLayout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/revenue/claims" element={
+            <ProtectedRoute requiredRole="admin">
+              <ModernLayout>
+                <RevenueCycleManager />
+              </ModernLayout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/revenue/payments" element={
+            <ProtectedRoute requiredRole="admin">
+              <ModernLayout>
+                <InsuranceManager />
+              </ModernLayout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/analytics" element={
+            <ProtectedRoute requiredRole="manager">
+              <ModernLayout>
+                <RevenueAnalytics />
+              </ModernLayout>
+            </ProtectedRoute>
+          } />
+
           {/* AI Assistants */}
           <Route path="/ai/clinical" element={
             <ProtectedRoute requiredRole="staff">
@@ -60,7 +149,7 @@ export const ChiropracticApp: React.FC = () => {
           <Route path="/ai/communication" element={
             <ProtectedRoute requiredRole="staff">
               <ModernLayout>
-                <FlowIQConnect />
+                <CommunicationIQ />
               </ModernLayout>
             </ProtectedRoute>
           } />
@@ -93,7 +182,7 @@ export const ChiropracticApp: React.FC = () => {
           <Route path="/agents/communication" element={
             <ProtectedRoute requiredRole="staff">
               <ModernLayout>
-                <FlowIQConnect />
+                <CommunicationIQ />
               </ModernLayout>
             </ProtectedRoute>
           } />
