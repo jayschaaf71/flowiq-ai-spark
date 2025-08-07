@@ -1,13 +1,14 @@
 
-import { ReactNode, useState } from "react";
+import { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Bell, FileText, Calendar, AlertTriangle, Settings, LogOut, User, Zap, MessageSquare, Phone, CreditCard } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { Settings, LogOut, User, Zap } from "lucide-react";
+
 import { useNavigate } from "react-router-dom";
 import { useSpecialtyTheme } from "@/hooks/useSpecialtyTheme";
+import { NotificationCenter } from "@/components/ui/NotificationCenter";
 
 interface PageHeaderProps {
   title: string;
@@ -17,7 +18,6 @@ interface PageHeaderProps {
 }
 
 export const PageHeader = ({ title, subtitle, badge, children }: PageHeaderProps) => {
-  const [notificationOpen, setNotificationOpen] = useState(false);
   const navigate = useNavigate();
   const { currentTheme } = useSpecialtyTheme();
 
@@ -95,49 +95,7 @@ export const PageHeader = ({ title, subtitle, badge, children }: PageHeaderProps
   console.log('🔧 PageHeader: primaryColor:', primaryColor);
   console.log('🔧 PageHeader: secondaryColor:', secondaryColor);
 
-  // Business-appropriate notifications for service companies
-  const notifications = [
-    {
-      id: 1,
-      title: "New Service Booked",
-      message: "Sarah Johnson scheduled HVAC maintenance for tomorrow",
-      icon: Calendar,
-      time: "2 min ago",
-      type: "booking"
-    },
-    {
-      id: 2,
-      title: "Payment Received",
-      message: "Invoice #INV-001 paid by Mike Wilson",
-      icon: CreditCard,
-      time: "5 min ago",
-      type: "payment"
-    },
-    {
-      id: 3,
-      title: "Customer Follow-up",
-      message: "Emma Davis needs rescheduling for electrical work",
-      icon: MessageSquare,
-      time: "1 hour ago",
-      type: "communication"
-    },
-    {
-      id: 4,
-      title: "AI Assistant Active",
-      message: "Voice AI handled 3 calls in the last hour",
-      icon: Zap,
-      time: "2 hours ago",
-      type: "ai"
-    }
-  ];
 
-  const handleNotificationClick = (notification: any) => {
-    setNotificationOpen(false);
-    toast({
-      title: notification.title,
-      description: notification.message,
-    });
-  };
 
   const handleProfileSettings = () => {
     // Navigate to the correct settings page based on the current domain
@@ -150,22 +108,11 @@ export const PageHeader = ({ title, subtitle, badge, children }: PageHeaderProps
   };
 
   const handleSignOut = () => {
-    toast({
-      title: "Signed Out",
-      description: "You have been successfully signed out.",
-    });
     // Add actual logout logic here
+    console.log('Signing out...');
   };
 
-  const getNotificationIcon = (type: string) => {
-    switch (type) {
-      case 'booking': return 'text-blue-600';
-      case 'payment': return 'text-green-600';
-      case 'communication': return 'text-purple-600';
-      case 'ai': return 'text-orange-600';
-      default: return 'text-gray-600';
-    }
-  };
+
 
   return (
     <div className="relative">
@@ -209,72 +156,8 @@ export const PageHeader = ({ title, subtitle, badge, children }: PageHeaderProps
             <div className="flex items-center gap-3">
               {children}
 
-              {/* Notifications */}
-              <Popover open={notificationOpen} onOpenChange={setNotificationOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="relative hover:bg-white/20 transition-all duration-200 rounded-lg text-white hover:text-white border border-white/30 hover:border-white/50"
-                    onClick={() => setNotificationOpen(!notificationOpen)}
-                  >
-                    <Bell className="h-5 w-5" />
-                    <Badge
-                      variant="destructive"
-                      className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs font-medium bg-red-500 border-2 border-white"
-                    >
-                      {notifications.length}
-                    </Badge>
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-96 p-0" align="end">
-                  <div className="bg-white rounded-xl shadow-xl border border-slate-200">
-                    <div className="p-4 border-b border-slate-100">
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-semibold text-slate-900">Notifications</h3>
-                        <Badge variant="secondary" className="bg-green-100 text-green-700">
-                          {notifications.length} new
-                        </Badge>
-                      </div>
-                    </div>
-                    <div className="max-h-80 overflow-y-auto">
-                      {notifications.map((notification) => {
-                        const IconComponent = notification.icon;
-                        return (
-                          <div
-                            key={notification.id}
-                            className="p-4 border-b border-slate-100 last:border-0 hover:bg-slate-50 cursor-pointer transition-colors"
-                            onClick={() => handleNotificationClick(notification)}
-                          >
-                            <div className="flex items-start gap-3">
-                              <div className={`w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center`}>
-                                <IconComponent className={`w-4 h-4 ${getNotificationIcon(notification.type)}`} />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="font-medium text-slate-900 text-sm leading-tight">{notification.title}</p>
-                                <p className="text-slate-600 text-sm mt-1 leading-relaxed">{notification.message}</p>
-                                <p className="text-slate-400 text-xs mt-2">{notification.time}</p>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                    <div className="p-3 border-t border-slate-100 bg-slate-50">
-                      <Button
-                        variant="ghost"
-                        className="w-full text-sm text-slate-600 hover:text-slate-900"
-                        onClick={() => {
-                          setNotificationOpen(false);
-                          navigate('/dashboard?tab=notifications');
-                        }}
-                      >
-                        View All Notifications
-                      </Button>
-                    </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
+              {/* Real-time Insurance Notifications */}
+              <NotificationCenter />
 
               {/* User Profile */}
               <Popover>
