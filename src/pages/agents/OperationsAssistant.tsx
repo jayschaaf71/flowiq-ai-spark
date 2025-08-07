@@ -62,8 +62,7 @@ import {
   RotateCw,
   ArrowUp,
   ArrowDown,
-  Minus,
-  Plus as PlusIcon
+  Minus
 } from 'lucide-react';
 
 // Import existing comprehensive components
@@ -313,8 +312,174 @@ export const OperationsAssistant = () => {
           <TabsTrigger value="performance">Performance</TabsTrigger>
         </TabsList>
 
+<<<<<<< HEAD
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-6">
+=======
+        {/* Inventory Management Tab */}
+        <TabsContent value="inventory" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Inventory List */}
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Package className="h-5 w-5" />
+                  Inventory Status
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {inventoryItems.map((item) => (
+                    <div key={item.id} className="flex items-center justify-between p-4 rounded-lg border bg-white hover:bg-gray-50 transition-colors">
+                      <div className="flex items-center gap-4">
+                                                  <div className={`p-2 rounded-full ${getInventoryStatusColor(item.status)}`}>
+                            <Package className="h-4 w-4" />
+                          </div>
+                        <div>
+                          <div className="font-medium text-gray-900">{item.name}</div>
+                          <div className="text-sm text-gray-600">{item.category} • {item.supplier}</div>
+                          <div className="text-xs text-gray-500 mt-1">Last updated: {item.lastUpdated}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="text-right">
+                          <div className="font-medium text-gray-900">{item.quantity}</div>
+                          <div className="text-sm text-gray-600">Min: {item.minQuantity}</div>
+                        </div>
+                        <Badge className={getInventoryStatusColor(item.status)}>
+                          {item.status.replace('-', ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Inventory Analytics */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5" />
+                  Inventory Analytics
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                    <div>
+                      <div className="font-medium text-green-900">In Stock</div>
+                      <div className="text-sm text-green-700">Well stocked items</div>
+                    </div>
+                    <div className="text-2xl font-bold text-green-900">15</div>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                    <div>
+                      <div className="font-medium text-yellow-900">Low Stock</div>
+                      <div className="text-sm text-yellow-700">Needs reorder</div>
+                    </div>
+                    <div className="text-2xl font-bold text-yellow-900">3</div>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                    <div>
+                      <div className="font-medium text-red-900">Out of Stock</div>
+                      <div className="text-sm text-red-700">Critical items</div>
+                    </div>
+                    <div className="text-2xl font-bold text-red-900">1</div>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                    <div>
+                      <div className="font-medium text-blue-900">On Order</div>
+                      <div className="text-sm text-blue-700">Pending delivery</div>
+                    </div>
+                    <div className="text-2xl font-bold text-blue-900">2</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Workflow Automation Tab */}
+        <TabsContent value="workflows" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Workflow List */}
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Workflow className="h-5 w-5" />
+                  Active Workflows
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {workflows.map((workflow) => (
+                    <div key={workflow.id} className="flex items-center justify-between p-4 rounded-lg border bg-white hover:bg-gray-50 transition-colors">
+                      <div className="flex items-center gap-4">
+                                                  <div className={`p-2 rounded-full ${getWorkflowStatusColor(workflow.status)}`}>
+                            <Activity className="h-4 w-4" />
+                          </div>
+                        <div>
+                          <div className="font-medium text-gray-900">{workflow.name}</div>
+                          <div className="text-sm text-gray-600">{workflow.type}</div>
+                          <div className="text-xs text-gray-500 mt-1">Last run: {workflow.lastRun}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="text-right">
+                          <div className="font-medium text-gray-900">{workflow.progress}%</div>
+                          <div className="text-sm text-gray-600">Efficiency: {workflow.efficiency}%</div>
+                        </div>
+                        <Badge className={getWorkflowStatusColor(workflow.status)}>
+                          {workflow.status.charAt(0).toUpperCase() + workflow.status.slice(1)}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Workflow Performance */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Gauge className="h-5 w-5" />
+                  Performance Metrics
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                    <div>
+                      <div className="font-medium text-green-900">Success Rate</div>
+                      <div className="text-sm text-green-700">Workflow completion</div>
+                    </div>
+                    <div className="text-2xl font-bold text-green-900">94%</div>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                    <div>
+                      <div className="font-medium text-blue-900">Time Saved</div>
+                      <div className="text-sm text-blue-700">Daily automation</div>
+                    </div>
+                    <div className="text-2xl font-bold text-blue-900">6.2h</div>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                    <div>
+                      <div className="font-medium text-purple-900">Error Rate</div>
+                      <div className="text-sm text-purple-700">Failed workflows</div>
+                    </div>
+                    <div className="text-2xl font-bold text-purple-900">2.1%</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Smart Automations Tab */}
+        <TabsContent value="automations" className="space-y-6">
+>>>>>>> main
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <SystemHealthCheck />
             <TenantPerformanceMetrics />
