@@ -5,6 +5,7 @@ import { RevenueCycleManager } from '@/components/revenue/RevenueCycleManager';
 import { InsuranceManager } from '@/components/revenue/InsuranceManager';
 import { RevenueAnalytics } from '@/components/revenue/RevenueAnalytics';
 import { AutomatedInsuranceAgent } from '@/components/revenue/AutomatedInsuranceAgent';
+import { NotificationCenter } from '@/components/ui/NotificationCenter';
 
 export const RevenueAssistant = () => {
   const [activeTab, setActiveTab] = useState('automated-agent');
@@ -16,6 +17,9 @@ export const RevenueAssistant = () => {
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Revenue Assistant</h1>
           <p className="text-gray-600">Streamlined revenue management and financial optimization</p>
+        </div>
+        <div className="flex items-center gap-4">
+          <NotificationCenter />
         </div>
       </div>
 

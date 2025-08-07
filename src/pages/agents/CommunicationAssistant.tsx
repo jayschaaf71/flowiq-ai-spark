@@ -57,6 +57,7 @@ import {
 import { useCalendarIntegrations } from '@/hooks/useCalendarIntegrations';
 import { VoiceCallManager } from '@/components/communications/VoiceCallManager';
 import { AIVoiceIntegration } from '@/components/communications/AIVoiceIntegration';
+import { NotificationCenter } from '@/components/ui/NotificationCenter';
 
 // Calendar Integration Component
 const CalendarIntegrationSection = () => {
@@ -514,7 +515,8 @@ export const CommunicationAssistant = () => {
           <h1 className="text-3xl font-bold text-gray-900">Communication Assistant</h1>
           <p className="text-gray-600">AI-powered multi-channel communication and patient engagement</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
+          <NotificationCenter />
           <Badge className="bg-purple-100 text-purple-800">
             AI Assistant
           </Badge>
