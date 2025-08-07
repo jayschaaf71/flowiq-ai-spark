@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
+import { NotificationCenter } from '@/components/ui/NotificationCenter';
 import { 
   Target, 
   BarChart3, 
@@ -286,6 +287,7 @@ export const GrowthAssistant = () => {
           <p className="text-gray-600">AI-powered growth analytics, patient education, and marketing automation</p>
         </div>
         <div className="flex items-center gap-4">
+          <NotificationCenter />
           <Badge variant="outline" className="text-sm bg-gradient-to-r from-purple-500 to-pink-500 text-white">
             AI Assistant
           </Badge>

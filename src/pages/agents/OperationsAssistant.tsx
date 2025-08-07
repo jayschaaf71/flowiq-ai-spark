@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
+import { NotificationCenter } from '@/components/ui/NotificationCenter';
 import { 
   Settings, 
   Package, 
@@ -192,7 +193,8 @@ export const OperationsAssistant = () => {
           <h1 className="text-3xl font-bold">Operations Assistant</h1>
           <p className="text-muted-foreground">Manage practice operations, inventory, and automations</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
+          <NotificationCenter />
           <Button variant="outline" size="sm">
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
