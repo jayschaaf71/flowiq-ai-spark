@@ -26,10 +26,7 @@ import {
   Workflow,
   Gauge,
   Target,
-  BarChart3,
-  Settings as SettingsIcon,
-  Package as PackageIcon,
-  Activity as ActivityIcon
+  BarChart3
 } from 'lucide-react';
 
 interface InventoryItem {
@@ -317,9 +314,9 @@ export const OperationsAssistant = () => {
                   {inventoryItems.map((item) => (
                     <div key={item.id} className="flex items-center justify-between p-4 rounded-lg border bg-white hover:bg-gray-50 transition-colors">
                       <div className="flex items-center gap-4">
-                        <div className={`p-2 rounded-full ${getInventoryStatusColor(item.status)}`}>
-                          <PackageIcon className="h-4 w-4" />
-                        </div>
+                                                  <div className={`p-2 rounded-full ${getInventoryStatusColor(item.status)}`}>
+                            <Package className="h-4 w-4" />
+                          </div>
                         <div>
                           <div className="font-medium text-gray-900">{item.name}</div>
                           <div className="text-sm text-gray-600">{item.category} • {item.supplier}</div>
@@ -401,9 +398,9 @@ export const OperationsAssistant = () => {
                   {workflows.map((workflow) => (
                     <div key={workflow.id} className="flex items-center justify-between p-4 rounded-lg border bg-white hover:bg-gray-50 transition-colors">
                       <div className="flex items-center gap-4">
-                        <div className={`p-2 rounded-full ${getWorkflowStatusColor(workflow.status)}`}>
-                          <ActivityIcon className="h-4 w-4" />
-                        </div>
+                                                  <div className={`p-2 rounded-full ${getWorkflowStatusColor(workflow.status)}`}>
+                            <Activity className="h-4 w-4" />
+                          </div>
                         <div>
                           <div className="font-medium text-gray-900">{workflow.name}</div>
                           <div className="text-sm text-gray-600">{workflow.type}</div>
