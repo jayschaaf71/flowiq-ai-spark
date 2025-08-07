@@ -8,9 +8,19 @@ interface ModernLayoutProps {
 
 export const ModernLayout: React.FC<ModernLayoutProps> = ({ children }) => {
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
       <ModernSidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
+      {/* Main Content Area - positioned to start after sidebar */}
+      <div 
+        className="flex flex-col min-h-screen"
+        style={{ 
+          marginLeft: '320px', // Account for fixed sidebar width
+          width: 'calc(100vw - 320px)',
+          maxWidth: 'none',
+          minWidth: '0',
+          overflowX: 'hidden'
+        }}
+      >
         {/* Header */}
         <header className="bg-white shadow-sm border-b border-gray-200">
           <div className="flex items-center justify-between px-6 py-4">
