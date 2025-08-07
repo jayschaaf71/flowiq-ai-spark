@@ -13,6 +13,7 @@ import { PlatformInfrastructure } from '@/components/admin/PlatformInfrastructur
 import { PlatformDatabase } from '@/components/admin/PlatformDatabase';
 import { PlatformAlerts } from '@/components/admin/PlatformAlerts';
 import { PlatformSettings } from '@/components/admin/PlatformSettings';
+import { PlatformIntegrationManagement } from '@/components/admin/PlatformIntegrationManagement';
 import { CostAnalyticsDashboard } from '@/components/admin/CostAnalyticsDashboard';
 import { FinancialReportingDashboard } from '@/components/admin/FinancialReportingDashboard';
 import { TenantDetails } from '@/components/admin/TenantDetails';
@@ -103,6 +104,7 @@ const PlatformAdmin = () => {
                 <Route path="database" element={<PlatformDatabase />} />
                 <Route path="alerts" element={<PlatformAlerts />} />
                 <Route path="settings" element={<PlatformSettings />} />
+                <Route path="integrations" element={<PlatformIntegrationManagement />} />
                 <Route path="debug" element={<InlineDebug />} />
                 <Route path="test" element={<TestComponent />} />
                 <Route path="direct" element={<DirectDebug />} />

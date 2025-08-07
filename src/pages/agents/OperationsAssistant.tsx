@@ -62,235 +62,266 @@ interface Automation {
 }
 
 export const OperationsAssistant = () => {
-  const [selectedTab, setSelectedTab] = useState('inventory');
+  const [activeTab, setActiveTab] = useState('overview');
 
   // Mock data
   const inventoryItems: InventoryItem[] = [
     {
       id: '1',
-      name: 'CPAP Masks',
-      category: 'DME Equipment',
-      quantity: 45,
-      minQuantity: 20,
+      name: 'Surgical Masks',
+      category: 'PPE',
+      quantity: 500,
+      minQuantity: 100,
       status: 'in-stock',
-      lastUpdated: '2024-01-15 10:30 AM',
-      supplier: 'DME Supply Co.'
+      lastUpdated: '2024-01-15',
+      supplier: 'MedSupply Co.'
     },
     {
       id: '2',
-      name: 'Sleep Study Sensors',
-      category: 'Diagnostic Equipment',
-      quantity: 8,
-      minQuantity: 15,
+      name: 'Disposable Gloves',
+      category: 'PPE',
+      quantity: 50,
+      minQuantity: 200,
       status: 'low-stock',
-      lastUpdated: '2024-01-15 09:15 AM',
-      supplier: 'MedTech Solutions'
+      lastUpdated: '2024-01-14',
+      supplier: 'SafetyFirst Inc.'
     },
     {
       id: '3',
-      name: 'Oral Appliances',
-      category: 'DME Equipment',
+      name: 'Antibacterial Wipes',
+      category: 'Cleaning',
       quantity: 0,
-      minQuantity: 10,
-      status: 'out-of-stock',
-      lastUpdated: '2024-01-15 08:45 AM',
-      supplier: 'Dental Sleep Lab'
-    },
-    {
-      id: '4',
-      name: 'Patient Forms',
-      category: 'Office Supplies',
-      quantity: 200,
       minQuantity: 50,
-      status: 'in-stock',
-      lastUpdated: '2024-01-15 08:30 AM',
-      supplier: 'Office Depot'
+      status: 'out-of-stock',
+      lastUpdated: '2024-01-10',
+      supplier: 'CleanPro Solutions'
     }
   ];
 
   const workflows: Workflow[] = [
     {
       id: '1',
-      name: 'Patient Intake Automation',
-      type: 'Patient Onboarding',
+      name: 'Patient Check-in',
+      type: 'Automation',
       status: 'active',
       progress: 85,
-      lastRun: '2024-01-15 10:00 AM',
-      nextRun: '2024-01-15 11:00 AM',
+      lastRun: '2024-01-15 09:30',
+      nextRun: '2024-01-15 10:00',
       efficiency: 92
     },
     {
       id: '2',
-      name: 'Appointment Reminder System',
+      name: 'Appointment Reminders',
       type: 'Communication',
       status: 'active',
-      progress: 100,
-      lastRun: '2024-01-15 09:30 AM',
-      nextRun: '2024-01-15 10:30 AM',
-      efficiency: 98
-    },
-    {
-      id: '3',
-      name: 'Insurance Verification',
-      type: 'Claims Processing',
-      status: 'paused',
       progress: 60,
-      lastRun: '2024-01-15 08:00 AM',
-      nextRun: '2024-01-15 12:00 PM',
-      efficiency: 87
+      lastRun: '2024-01-15 08:00',
+      nextRun: '2024-01-15 12:00',
+      efficiency: 88
     }
   ];
 
   const automations: Automation[] = [
     {
       id: '1',
-      name: 'Auto-Scheduling',
-      description: 'Automatically schedule follow-up appointments',
+      name: 'Auto Check-in',
+      description: 'Automatically check in patients based on appointment time',
       status: 'enabled',
-      lastTriggered: '2024-01-15 10:15 AM',
+      lastTriggered: '2024-01-15 09:30',
       successRate: 95,
-      timeSaved: 2.5
+      timeSaved: 15
     },
     {
       id: '2',
       name: 'Inventory Alerts',
-      description: 'Send alerts when inventory is low',
+      description: 'Send alerts when inventory items are running low',
       status: 'enabled',
-      lastTriggered: '2024-01-15 09:45 AM',
+      lastTriggered: '2024-01-15 08:15',
       successRate: 100,
-      timeSaved: 1.8
-    },
-    {
-      id: '3',
-      name: 'Payment Processing',
-      description: 'Automated payment collection',
-      status: 'enabled',
-      lastTriggered: '2024-01-15 10:00 AM',
-      successRate: 88,
-      timeSaved: 3.2
+      timeSaved: 30
     }
   ];
 
   const getInventoryStatusColor = (status: string) => {
     switch (status) {
       case 'in-stock':
-        return 'bg-green-100 text-green-600';
+        return 'bg-green-100 text-green-800';
       case 'low-stock':
-        return 'bg-yellow-100 text-yellow-600';
+        return 'bg-yellow-100 text-yellow-800';
       case 'out-of-stock':
-        return 'bg-red-100 text-red-600';
+        return 'bg-red-100 text-red-800';
       case 'ordered':
-        return 'bg-blue-100 text-blue-600';
+        return 'bg-blue-100 text-blue-800';
       default:
-        return 'bg-gray-100 text-gray-600';
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getWorkflowStatusColor = (status: string) => {
     switch (status) {
       case 'active':
-        return 'bg-green-100 text-green-600';
+        return 'bg-green-100 text-green-800';
       case 'paused':
-        return 'bg-yellow-100 text-yellow-600';
+        return 'bg-yellow-100 text-yellow-800';
       case 'completed':
-        return 'bg-blue-100 text-blue-600';
+        return 'bg-blue-100 text-blue-800';
       case 'failed':
-        return 'bg-red-100 text-red-600';
+        return 'bg-red-100 text-red-800';
       default:
-        return 'bg-gray-100 text-gray-600';
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getAutomationStatusColor = (status: string) => {
     switch (status) {
       case 'enabled':
-        return 'bg-green-100 text-green-600';
+        return 'bg-green-100 text-green-800';
       case 'disabled':
-        return 'bg-gray-100 text-gray-600';
+        return 'bg-gray-100 text-gray-800';
       case 'error':
-        return 'bg-red-100 text-red-600';
+        return 'bg-red-100 text-red-800';
       default:
-        return 'bg-gray-100 text-gray-600';
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
   return (
-    <div className="space-y-6 p-6">
-      {/* Header */}
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Operations Assistant</h1>
-          <p className="text-gray-600">AI-powered operations management and automation</p>
+          <h1 className="text-3xl font-bold">Operations Assistant</h1>
+          <p className="text-muted-foreground">Manage practice operations, inventory, and automations</p>
         </div>
-        <div className="flex items-center gap-4">
-          <Badge variant="outline" className="text-sm bg-gradient-to-r from-blue-500 to-purple-500 text-white">
-            AI Assistant
-          </Badge>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+          <Button size="sm">
+            <Settings className="h-4 w-4 mr-2" />
+            Settings
+          </Button>
         </div>
       </div>
 
-      {/* Operations Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-blue-700">Active Workflows</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-900">12</div>
-            <div className="text-xs text-blue-700 mt-2">+3 this week</div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-green-700">Automation Efficiency</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-900">94%</div>
-            <div className="text-xs text-green-700 mt-2">+2% this month</div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-purple-700">Time Saved</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-purple-900">18.5h</div>
-            <div className="text-xs text-purple-700 mt-2">This week</div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-orange-700">Inventory Items</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-900">156</div>
-            <div className="text-xs text-orange-700 mt-2">3 need reorder</div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="inventory" className="flex items-center gap-2">
-            <Package className="h-4 w-4" />
-            Inventory
-          </TabsTrigger>
-          <TabsTrigger value="workflows" className="flex items-center gap-2">
-            <Workflow className="h-4 w-4" />
-            Workflows
-          </TabsTrigger>
-          <TabsTrigger value="automations" className="flex items-center gap-2">
-            <Zap className="h-4 w-4" />
-            Automations
-          </TabsTrigger>
-          <TabsTrigger value="analytics" className="flex items-center gap-2">
-            <BarChart3 className="h-4 w-4" />
-            Analytics
-          </TabsTrigger>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="inventory">Inventory</TabsTrigger>
+          <TabsTrigger value="workflows">Workflows</TabsTrigger>
+          <TabsTrigger value="automations">Automations</TabsTrigger>
         </TabsList>
+
+        {/* Overview Tab */}
+        <TabsContent value="overview" className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Patients</CardTitle>
+                <User className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">1,234</div>
+                <p className="text-xs text-muted-foreground">
+                  +12% from last month
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Today's Appointments</CardTitle>
+                <Clock className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">45</div>
+                <p className="text-xs text-muted-foreground">
+                  8 completed, 37 remaining
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Inventory Alerts</CardTitle>
+                <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">3</div>
+                <p className="text-xs text-muted-foreground">
+                  2 low stock, 1 out of stock
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Automation Success</CardTitle>
+                <Zap className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">94%</div>
+                <p className="text-xs text-muted-foreground">
+                  +2.1% from last week
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Activity</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                    <span className="text-sm">Patient John Doe checked in</span>
+                    <span className="text-xs text-muted-foreground ml-auto">2 min ago</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="h-2 w-2 rounded-full bg-blue-500"></div>
+                    <span className="text-sm">Appointment reminder sent</span>
+                    <span className="text-xs text-muted-foreground ml-auto">5 min ago</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="h-2 w-2 rounded-full bg-yellow-500"></div>
+                    <span className="text-sm">Low stock alert: Disposable gloves</span>
+                    <span className="text-xs text-muted-foreground ml-auto">10 min ago</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Performance Metrics</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Patient Wait Time</span>
+                    <span className="text-sm text-green-600">-15%</span>
+                  </div>
+                  <Progress value={85} className="h-2" />
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Automation Success</span>
+                    <span className="text-sm text-green-600">+2.1%</span>
+                  </div>
+                  <Progress value={94} className="h-2" />
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Time Savings</span>
+                    <span className="text-sm text-green-600">+25%</span>
+                  </div>
+                  <Progress value={75} className="h-2" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
 
         {/* Inventory Tab */}
         <TabsContent value="inventory" className="space-y-6">
@@ -300,7 +331,7 @@ export const OperationsAssistant = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Package className="h-5 w-5" />
-                  Inventory Status
+                  Inventory Items
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -408,7 +439,6 @@ export const OperationsAssistant = () => {
                         </div>
                         <div className="w-20">
                           <Progress value={workflow.progress} className="h-2" />
-                          <div className="text-xs text-gray-500 mt-1">{workflow.progress}%</div>
                         </div>
                         <Badge className={getWorkflowStatusColor(workflow.status)}>
                           {workflow.status.charAt(0).toUpperCase() + workflow.status.slice(1)}
@@ -440,9 +470,9 @@ export const OperationsAssistant = () => {
                   <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
                     <div>
                       <div className="font-medium text-blue-900">Completed</div>
-                      <div className="text-sm text-blue-700">Today</div>
+                      <div className="text-sm text-blue-700">Today's completed</div>
                     </div>
-                    <div className="text-2xl font-bold text-blue-900">24</div>
+                    <div className="text-2xl font-bold text-blue-900">12</div>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
                     <div>
@@ -454,7 +484,7 @@ export const OperationsAssistant = () => {
                   <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
                     <div>
                       <div className="font-medium text-red-900">Failed</div>
-                      <div className="text-sm text-red-700">Errors</div>
+                      <div className="text-sm text-red-700">Errors today</div>
                     </div>
                     <div className="text-2xl font-bold text-red-900">1</div>
                   </div>
@@ -472,7 +502,7 @@ export const OperationsAssistant = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Zap className="h-5 w-5" />
-                  Smart Automations
+                  Active Automations
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -495,7 +525,7 @@ export const OperationsAssistant = () => {
                           <div className="text-sm text-gray-600">Success Rate</div>
                         </div>
                         <div className="text-right">
-                          <div className="font-medium text-gray-900">{automation.timeSaved}h</div>
+                          <div className="font-medium text-gray-900">{automation.timeSaved}min</div>
                           <div className="text-sm text-gray-600">Time Saved</div>
                         </div>
                         <Badge className={getAutomationStatusColor(automation.status)}>
@@ -520,88 +550,31 @@ export const OperationsAssistant = () => {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
                     <div>
-                      <div className="font-medium text-green-900">Success Rate</div>
-                      <div className="text-sm text-green-700">Workflow completion</div>
+                      <div className="font-medium text-green-900">Enabled</div>
+                      <div className="text-sm text-green-700">Active automations</div>
                     </div>
-                    <div className="text-2xl font-bold text-green-900">94%</div>
+                    <div className="text-2xl font-bold text-green-900">6</div>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
                     <div>
                       <div className="font-medium text-blue-900">Time Saved</div>
-                      <div className="text-sm text-blue-700">Daily automation</div>
+                      <div className="text-sm text-blue-700">Today's savings</div>
                     </div>
-                    <div className="text-2xl font-bold text-blue-900">6.2h</div>
+                    <div className="text-2xl font-bold text-blue-900">2.5h</div>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
                     <div>
-                      <div className="font-medium text-purple-900">Error Rate</div>
-                      <div className="text-sm text-purple-700">Failed workflows</div>
+                      <div className="font-medium text-purple-900">Success Rate</div>
+                      <div className="text-sm text-purple-700">Overall average</div>
                     </div>
-                    <div className="text-2xl font-bold text-purple-900">2.1%</div>
+                    <div className="text-2xl font-bold text-purple-900">94%</div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        {/* Analytics Tab */}
-        <TabsContent value="analytics" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5" />
-                  Performance Trends
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Workflow Efficiency</span>
-                    <span className="text-sm text-green-600">+5.2%</span>
-                  </div>
-                  <Progress value={85} className="h-2" />
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Automation Success</span>
-                    <span className="text-sm text-green-600">+2.1%</span>
-                  </div>
-                  <Progress value={94} className="h-2" />
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Time Savings</span>
-                    <span className="text-sm text-green-600">+12.5%</span>
-                  </div>
-                  <Progress value={78} className="h-2" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Activity className="h-5 w-5" />
-                  System Health
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Uptime</span>
-                    <Badge className="bg-green-100 text-green-700">99.9%</Badge>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Response Time</span>
-                    <span className="text-sm text-gray-600">~150ms</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Error Rate</span>
-                    <span className="text-sm text-green-600">0.1%</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Active Users</span>
-                    <span className="text-sm text-gray-600">24</span>
+                  <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
+                    <div>
+                      <div className="font-medium text-orange-900">Triggers</div>
+                      <div className="text-sm text-orange-700">Today's triggers</div>
+                    </div>
+                    <div className="text-2xl font-bold text-orange-900">45</div>
                   </div>
                 </div>
               </CardContent>
