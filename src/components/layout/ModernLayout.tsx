@@ -10,9 +10,9 @@ export const ModernLayout: React.FC<ModernLayoutProps> = ({ children }) => {
     <div className="min-h-screen bg-gray-50">
       <ModernSidebar />
       {/* Main Content Area - positioned to start after sidebar */}
-      <main 
+      <main
         className="min-h-screen"
-        style={{ 
+        style={{
           marginLeft: '320px', // Account for fixed sidebar width
           width: 'calc(100vw - 320px)',
           maxWidth: 'none',
