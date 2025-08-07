@@ -4,9 +4,10 @@ import { RevenueDashboard } from '@/components/revenue/RevenueDashboard';
 import { RevenueCycleManager } from '@/components/revenue/RevenueCycleManager';
 import { InsuranceManager } from '@/components/revenue/InsuranceManager';
 import { RevenueAnalytics } from '@/components/revenue/RevenueAnalytics';
+import { AutomatedInsuranceAgent } from '@/components/revenue/AutomatedInsuranceAgent';
 
 export const RevenueAssistant = () => {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState('automated-agent');
 
   return (
     <div className="space-y-6">
@@ -20,7 +21,10 @@ export const RevenueAssistant = () => {
 
       {/* Main Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="automated-agent" className="flex items-center gap-2">
+            🤖 Automated Agent
+          </TabsTrigger>
           <TabsTrigger value="dashboard" className="flex items-center gap-2">
             📊 Dashboard
           </TabsTrigger>
@@ -34,6 +38,11 @@ export const RevenueAssistant = () => {
             📈 Analytics
           </TabsTrigger>
         </TabsList>
+
+        {/* Automated Insurance Agent Tab - NEW PRIMARY TAB */}
+        <TabsContent value="automated-agent" className="space-y-6">
+          <AutomatedInsuranceAgent />
+        </TabsContent>
 
         {/* Dashboard Tab */}
         <TabsContent value="dashboard" className="space-y-6">
