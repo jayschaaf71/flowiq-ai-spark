@@ -9,8 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { UnifiedCommunicationService } from '@/services/unifiedCommunicationService';
-import { UnifiedCommunicationDemo } from '@/components/communication/UnifiedCommunicationDemo';
+
 import {
   MessageSquare,
   Calendar,
@@ -578,7 +577,6 @@ export const CommunicationAssistant = () => {
           <TabsTrigger value="voice-video">Voice & Video</TabsTrigger>
           <TabsTrigger value="scheduling">Scheduling</TabsTrigger>
           <TabsTrigger value="patient-engagement">Patient Engagement</TabsTrigger>
-          <TabsTrigger value="integrations">Unified Hub</TabsTrigger>
         </TabsList>
 
         {/* Messaging Hub Tab */}
@@ -841,10 +839,6 @@ export const CommunicationAssistant = () => {
           </div>
         </TabsContent>
 
-        {/* Unified Communications Hub Tab */}
-        <TabsContent value="integrations" className="space-y-6">
-          <UnifiedCommunicationDemo />
-        </TabsContent>
       </Tabs>
 
       {/* Send New Message Dialog */}
