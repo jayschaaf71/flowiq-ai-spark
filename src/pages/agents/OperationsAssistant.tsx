@@ -3,320 +3,296 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Settings,
-  Database,
-  BarChart3,
-  TrendingUp,
+import { Progress } from '@/components/ui/progress';
+import { 
+  Settings, 
+  Package, 
+  Activity, 
+  TrendingUp, 
   AlertTriangle,
   CheckCircle,
   Clock,
   XCircle,
+  Database,
   Download,
   Upload,
   Search,
   Filter,
-  Calendar,
-  PieChart,
-  Activity,
-  Users,
-  Shield,
+  User,
   RefreshCw,
-  Eye,
-  Edit,
-  Trash2,
-  Plus,
-  Send,
-  Receipt,
-  Zap,
-  Calculator,
-  Target,
-  Award,
-  Cog,
-  Wrench,
-  Truck,
-  Package,
-  AlertCircle,
-  Bell,
-  FileText,
-  Monitor,
-  Smartphone,
-  Tablet,
-  Server,
-  Cloud,
-  Lock,
-  Key,
-  UserCheck,
-  Building,
-  MapPin,
-  Phone,
-  Mail,
-  Globe,
-  Wifi,
-  WifiOff,
-  CheckSquare,
-  Square,
   Play,
-  Pause,
-  RotateCcw,
-  RotateCw,
-  ArrowUp,
-  ArrowDown,
-  Minus
+  Square,
+  Zap,
+  Workflow,
+  Gauge,
+  Target,
+  BarChart3
 } from 'lucide-react';
 
-// Import existing comprehensive components
-import { OpsIQ } from '@/pages/agents/OpsIQ';
-import { SystemHealthCheck } from '@/components/production/SystemHealthCheck';
-import { TenantPerformanceMetrics } from '@/components/tenant/TenantPerformanceMetrics';
-import InventoryIQ from '@/pages/agents/InventoryIQ';
-import InsightIQ from '@/pages/agents/InsightIQ';
-import EducationIQ from '@/pages/agents/EducationIQ';
-import GrowthIQ from '@/pages/agents/GrowthIQ';
-import { PlatformSecurity } from '@/components/admin/PlatformSecurity';
-
-interface System {
-  id: string;
-  name: string;
-  type: 'database' | 'api' | 'service' | 'integration';
-  status: 'online' | 'offline' | 'degraded' | 'maintenance';
-  uptime: number;
-  lastCheck: string;
-  responseTime: number;
-}
-
-interface Inventory {
+interface InventoryItem {
   id: string;
   name: string;
   category: string;
   quantity: number;
   minQuantity: number;
-  status: 'in-stock' | 'low-stock' | 'out-of-stock' | 'on-order';
+  status: 'in-stock' | 'low-stock' | 'out-of-stock' | 'ordered';
   lastUpdated: string;
+  supplier: string;
 }
 
-interface Performance {
-  metric: string;
-  value: number;
-  unit: string;
-  trend: 'up' | 'down' | 'stable';
-  change: number;
+interface Workflow {
+  id: string;
+  name: string;
+  type: string;
+  status: 'active' | 'paused' | 'completed' | 'failed';
+  progress: number;
+  lastRun: string;
+  nextRun: string;
+  efficiency: number;
+}
+
+interface Automation {
+  id: string;
+  name: string;
+  description: string;
+  status: 'enabled' | 'disabled' | 'error';
+  lastTriggered: string;
+  successRate: number;
+  timeSaved: number;
 }
 
 export const OperationsAssistant = () => {
-  const [selectedTab, setSelectedTab] = useState('overview');
+  const [selectedTab, setSelectedTab] = useState('inventory');
 
   // Mock data
-  const systems: System[] = [
-    {
-      id: '1',
-      name: 'Main Database',
-      type: 'database',
-      status: 'online',
-      uptime: 99.9,
-      lastCheck: '2024-01-15 10:30 AM',
-      responseTime: 45
-    },
-    {
-      id: '2',
-      name: 'Payment API',
-      type: 'api',
-      status: 'online',
-      uptime: 99.8,
-      lastCheck: '2024-01-15 10:30 AM',
-      responseTime: 120
-    },
-    {
-      id: '3',
-      name: 'Email Service',
-      type: 'service',
-      status: 'degraded',
-      uptime: 95.2,
-      lastCheck: '2024-01-15 10:30 AM',
-      responseTime: 800
-    },
-    {
-      id: '4',
-      name: 'Insurance Integration',
-      type: 'integration',
-      status: 'offline',
-      uptime: 0,
-      lastCheck: '2024-01-15 10:30 AM',
-      responseTime: 0
-    }
-  ];
-
-  const inventory: Inventory[] = [
+  const inventoryItems: InventoryItem[] = [
     {
       id: '1',
       name: 'CPAP Masks',
-      category: 'Sleep Medicine',
+      category: 'DME Equipment',
       quantity: 45,
       minQuantity: 20,
       status: 'in-stock',
-      lastUpdated: '2024-01-15'
+      lastUpdated: '2024-01-15 10:30 AM',
+      supplier: 'DME Supply Co.'
     },
     {
       id: '2',
-      name: 'Oral Appliances',
-      category: 'Sleep Medicine',
-      quantity: 12,
+      name: 'Sleep Study Sensors',
+      category: 'Diagnostic Equipment',
+      quantity: 8,
       minQuantity: 15,
       status: 'low-stock',
-      lastUpdated: '2024-01-15'
+      lastUpdated: '2024-01-15 09:15 AM',
+      supplier: 'MedTech Solutions'
     },
     {
       id: '3',
-      name: 'Sleep Study Equipment',
-      category: 'Diagnostic',
+      name: 'Oral Appliances',
+      category: 'DME Equipment',
       quantity: 0,
-      minQuantity: 5,
+      minQuantity: 10,
       status: 'out-of-stock',
-      lastUpdated: '2024-01-14'
+      lastUpdated: '2024-01-15 08:45 AM',
+      supplier: 'Dental Sleep Lab'
+    },
+    {
+      id: '4',
+      name: 'Patient Forms',
+      category: 'Office Supplies',
+      quantity: 200,
+      minQuantity: 50,
+      status: 'in-stock',
+      lastUpdated: '2024-01-15 08:30 AM',
+      supplier: 'Office Depot'
     }
   ];
 
-  const performance: Performance[] = [
+  const workflows: Workflow[] = [
     {
-      metric: 'System Uptime',
-      value: 99.7,
-      unit: '%',
-      trend: 'up',
-      change: 0.2
+      id: '1',
+      name: 'Patient Intake Automation',
+      type: 'Patient Onboarding',
+      status: 'active',
+      progress: 85,
+      lastRun: '2024-01-15 10:00 AM',
+      nextRun: '2024-01-15 11:00 AM',
+      efficiency: 92
     },
     {
-      metric: 'Response Time',
-      value: 245,
-      unit: 'ms',
-      trend: 'down',
-      change: -15
+      id: '2',
+      name: 'Appointment Reminder System',
+      type: 'Communication',
+      status: 'active',
+      progress: 100,
+      lastRun: '2024-01-15 09:30 AM',
+      nextRun: '2024-01-15 10:30 AM',
+      efficiency: 98
     },
     {
-      metric: 'Active Users',
-      value: 127,
-      unit: '',
-      trend: 'up',
-      change: 12
-    },
-    {
-      metric: 'Data Processing',
-      value: 1.2,
-      unit: 'GB/s',
-      trend: 'stable',
-      change: 0
+      id: '3',
+      name: 'Insurance Verification',
+      type: 'Claims Processing',
+      status: 'paused',
+      progress: 60,
+      lastRun: '2024-01-15 08:00 AM',
+      nextRun: '2024-01-15 12:00 PM',
+      efficiency: 87
     }
   ];
 
-  const getSystemStatusColor = (status: string) => {
-    switch (status) {
-      case 'online': return 'bg-green-100 text-green-800';
-      case 'offline': return 'bg-red-100 text-red-800';
-      case 'degraded': return 'bg-yellow-100 text-yellow-800';
-      case 'maintenance': return 'bg-blue-100 text-blue-800';
-      default: return 'bg-gray-100 text-gray-800';
+  const automations: Automation[] = [
+    {
+      id: '1',
+      name: 'Auto-Scheduling',
+      description: 'Automatically schedule follow-up appointments',
+      status: 'enabled',
+      lastTriggered: '2024-01-15 10:15 AM',
+      successRate: 95,
+      timeSaved: 2.5
+    },
+    {
+      id: '2',
+      name: 'Inventory Alerts',
+      description: 'Send alerts when inventory is low',
+      status: 'enabled',
+      lastTriggered: '2024-01-15 09:45 AM',
+      successRate: 100,
+      timeSaved: 1.8
+    },
+    {
+      id: '3',
+      name: 'Payment Processing',
+      description: 'Automated payment collection',
+      status: 'enabled',
+      lastTriggered: '2024-01-15 10:00 AM',
+      successRate: 88,
+      timeSaved: 3.2
     }
-  };
+  ];
 
   const getInventoryStatusColor = (status: string) => {
     switch (status) {
-      case 'in-stock': return 'bg-green-100 text-green-800';
-      case 'low-stock': return 'bg-yellow-100 text-yellow-800';
-      case 'out-of-stock': return 'bg-red-100 text-red-800';
-      case 'on-order': return 'bg-blue-100 text-blue-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'in-stock':
+        return 'bg-green-100 text-green-600';
+      case 'low-stock':
+        return 'bg-yellow-100 text-yellow-600';
+      case 'out-of-stock':
+        return 'bg-red-100 text-red-600';
+      case 'ordered':
+        return 'bg-blue-100 text-blue-600';
+      default:
+        return 'bg-gray-100 text-gray-600';
     }
   };
 
-  const getTrendIcon = (trend: string) => {
-    switch (trend) {
-      case 'up': return <ArrowUp className="w-4 h-4 text-green-600" />;
-      case 'down': return <ArrowDown className="w-4 h-4 text-red-600" />;
-      case 'stable': return <Minus className="w-4 h-4 text-gray-600" />;
-      default: return <Minus className="w-4 h-4 text-gray-600" />;
+  const getWorkflowStatusColor = (status: string) => {
+    switch (status) {
+      case 'active':
+        return 'bg-green-100 text-green-600';
+      case 'paused':
+        return 'bg-yellow-100 text-yellow-600';
+      case 'completed':
+        return 'bg-blue-100 text-blue-600';
+      case 'failed':
+        return 'bg-red-100 text-red-600';
+      default:
+        return 'bg-gray-100 text-gray-600';
+    }
+  };
+
+  const getAutomationStatusColor = (status: string) => {
+    switch (status) {
+      case 'enabled':
+        return 'bg-green-100 text-green-600';
+      case 'disabled':
+        return 'bg-gray-100 text-gray-600';
+      case 'error':
+        return 'bg-red-100 text-red-600';
+      default:
+        return 'bg-gray-100 text-gray-600';
     }
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Operations Assistant</h1>
-          <p className="text-gray-600">AI-powered operations management and system optimization</p>
+          <p className="text-gray-600">AI-powered operations management and automation</p>
         </div>
-        <div className="flex items-center gap-2">
-          <Badge className="bg-blue-100 text-blue-800">
+        <div className="flex items-center gap-4">
+          <Badge variant="outline" className="text-sm bg-gradient-to-r from-blue-500 to-purple-500 text-white">
             AI Assistant
           </Badge>
         </div>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">System Uptime</p>
-                <p className="text-2xl font-bold">99.7%</p>
-              </div>
-              <CheckCircle className="w-8 h-8 text-green-600" />
-            </div>
+      {/* Operations Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-blue-700">Active Workflows</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-900">12</div>
+            <div className="text-xs text-blue-700 mt-2">+3 this week</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Active Systems</p>
-                <p className="text-2xl font-bold">{systems.filter(s => s.status === 'online').length}</p>
-              </div>
-              <Server className="w-8 h-8 text-blue-600" />
-            </div>
+
+        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-green-700">Automation Efficiency</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-900">94%</div>
+            <div className="text-xs text-green-700 mt-2">+2% this month</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Inventory Items</p>
-                <p className="text-2xl font-bold">{inventory.length}</p>
-              </div>
-              <Package className="w-8 h-8 text-purple-600" />
-            </div>
+
+        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-purple-700">Time Saved</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-purple-900">18.5h</div>
+            <div className="text-xs text-purple-700 mt-2">This week</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Performance</p>
-                <p className="text-2xl font-bold">245ms</p>
-              </div>
-              <Activity className="w-8 h-8 text-orange-600" />
-            </div>
+
+        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-orange-700">Inventory Items</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-orange-900">156</div>
+            <div className="text-xs text-orange-700 mt-2">3 need reorder</div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Main Tabs */}
       <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-8">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="operations">Operations</TabsTrigger>
-          <TabsTrigger value="inventory">Inventory</TabsTrigger>
-          <TabsTrigger value="insights">Insights</TabsTrigger>
-          <TabsTrigger value="education">Education</TabsTrigger>
-          <TabsTrigger value="growth">Growth</TabsTrigger>
-          <TabsTrigger value="security">Security</TabsTrigger>
-          <TabsTrigger value="performance">Performance</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="inventory" className="flex items-center gap-2">
+            <Package className="h-4 w-4" />
+            Inventory
+          </TabsTrigger>
+          <TabsTrigger value="workflows" className="flex items-center gap-2">
+            <Workflow className="h-4 w-4" />
+            Workflows
+          </TabsTrigger>
+          <TabsTrigger value="automations" className="flex items-center gap-2">
+            <Zap className="h-4 w-4" />
+            Automations
+          </TabsTrigger>
+          <TabsTrigger value="analytics" className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" />
+            Analytics
+          </TabsTrigger>
         </TabsList>
 
-<<<<<<< HEAD
-        {/* Overview Tab */}
-        <TabsContent value="overview" className="space-y-6">
-=======
-        {/* Inventory Management Tab */}
+        {/* Inventory Tab */}
         <TabsContent value="inventory" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Inventory List */}
@@ -332,9 +308,9 @@ export const OperationsAssistant = () => {
                   {inventoryItems.map((item) => (
                     <div key={item.id} className="flex items-center justify-between p-4 rounded-lg border bg-white hover:bg-gray-50 transition-colors">
                       <div className="flex items-center gap-4">
-                                                  <div className={`p-2 rounded-full ${getInventoryStatusColor(item.status)}`}>
-                            <Package className="h-4 w-4" />
-                          </div>
+                        <div className={`p-2 rounded-full ${getInventoryStatusColor(item.status)}`}>
+                          <Package className="h-4 w-4" />
+                        </div>
                         <div>
                           <div className="font-medium text-gray-900">{item.name}</div>
                           <div className="text-sm text-gray-600">{item.category} • {item.supplier}</div>
@@ -400,7 +376,7 @@ export const OperationsAssistant = () => {
           </div>
         </TabsContent>
 
-        {/* Workflow Automation Tab */}
+        {/* Workflows Tab */}
         <TabsContent value="workflows" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Workflow List */}
@@ -416,9 +392,9 @@ export const OperationsAssistant = () => {
                   {workflows.map((workflow) => (
                     <div key={workflow.id} className="flex items-center justify-between p-4 rounded-lg border bg-white hover:bg-gray-50 transition-colors">
                       <div className="flex items-center gap-4">
-                                                  <div className={`p-2 rounded-full ${getWorkflowStatusColor(workflow.status)}`}>
-                            <Activity className="h-4 w-4" />
-                          </div>
+                        <div className={`p-2 rounded-full ${getWorkflowStatusColor(workflow.status)}`}>
+                          <Activity className="h-4 w-4" />
+                        </div>
                         <div>
                           <div className="font-medium text-gray-900">{workflow.name}</div>
                           <div className="text-sm text-gray-600">{workflow.type}</div>
@@ -427,8 +403,12 @@ export const OperationsAssistant = () => {
                       </div>
                       <div className="flex items-center gap-4">
                         <div className="text-right">
-                          <div className="font-medium text-gray-900">{workflow.progress}%</div>
-                          <div className="text-sm text-gray-600">Efficiency: {workflow.efficiency}%</div>
+                          <div className="font-medium text-gray-900">{workflow.efficiency}%</div>
+                          <div className="text-sm text-gray-600">Efficiency</div>
+                        </div>
+                        <div className="w-20">
+                          <Progress value={workflow.progress} className="h-2" />
+                          <div className="text-xs text-gray-500 mt-1">{workflow.progress}%</div>
                         </div>
                         <Badge className={getWorkflowStatusColor(workflow.status)}>
                           {workflow.status.charAt(0).toUpperCase() + workflow.status.slice(1)}
@@ -440,12 +420,100 @@ export const OperationsAssistant = () => {
               </CardContent>
             </Card>
 
-            {/* Workflow Performance */}
+            {/* Workflow Analytics */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Gauge className="h-5 w-5" />
-                  Performance Metrics
+                  <BarChart3 className="h-5 w-5" />
+                  Workflow Analytics
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                    <div>
+                      <div className="font-medium text-green-900">Active</div>
+                      <div className="text-sm text-green-700">Running workflows</div>
+                    </div>
+                    <div className="text-2xl font-bold text-green-900">8</div>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                    <div>
+                      <div className="font-medium text-blue-900">Completed</div>
+                      <div className="text-sm text-blue-700">Today</div>
+                    </div>
+                    <div className="text-2xl font-bold text-blue-900">24</div>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                    <div>
+                      <div className="font-medium text-yellow-900">Paused</div>
+                      <div className="text-sm text-yellow-700">On hold</div>
+                    </div>
+                    <div className="text-2xl font-bold text-yellow-900">2</div>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                    <div>
+                      <div className="font-medium text-red-900">Failed</div>
+                      <div className="text-sm text-red-700">Errors</div>
+                    </div>
+                    <div className="text-2xl font-bold text-red-900">1</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Automations Tab */}
+        <TabsContent value="automations" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Automation List */}
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Zap className="h-5 w-5" />
+                  Smart Automations
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {automations.map((automation) => (
+                    <div key={automation.id} className="flex items-center justify-between p-4 rounded-lg border bg-white hover:bg-gray-50 transition-colors">
+                      <div className="flex items-center gap-4">
+                        <div className={`p-2 rounded-full ${getAutomationStatusColor(automation.status)}`}>
+                          <Zap className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <div className="font-medium text-gray-900">{automation.name}</div>
+                          <div className="text-sm text-gray-600">{automation.description}</div>
+                          <div className="text-xs text-gray-500 mt-1">Last triggered: {automation.lastTriggered}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="text-right">
+                          <div className="font-medium text-gray-900">{automation.successRate}%</div>
+                          <div className="text-sm text-gray-600">Success Rate</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-medium text-gray-900">{automation.timeSaved}h</div>
+                          <div className="text-sm text-gray-600">Time Saved</div>
+                        </div>
+                        <Badge className={getAutomationStatusColor(automation.status)}>
+                          {automation.status.charAt(0).toUpperCase() + automation.status.slice(1)}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Automation Analytics */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5" />
+                  Automation Analytics
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -477,75 +545,68 @@ export const OperationsAssistant = () => {
           </div>
         </TabsContent>
 
-        {/* Smart Automations Tab */}
-        <TabsContent value="automations" className="space-y-6">
->>>>>>> main
+        {/* Analytics Tab */}
+        <TabsContent value="analytics" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <SystemHealthCheck />
-            <TenantPerformanceMetrics />
-          </div>
-        </TabsContent>
-
-        {/* Operations Tab */}
-        <TabsContent value="operations" className="space-y-6">
-          <OpsIQ />
-        </TabsContent>
-
-        {/* Inventory Tab */}
-        <TabsContent value="inventory" className="space-y-6">
-          <InventoryIQ />
-        </TabsContent>
-
-        {/* Insights Tab */}
-        <TabsContent value="insights" className="space-y-6">
-          <InsightIQ />
-        </TabsContent>
-
-        {/* Education Tab */}
-        <TabsContent value="education" className="space-y-6">
-          <EducationIQ />
-        </TabsContent>
-
-        {/* Growth Tab */}
-        <TabsContent value="growth" className="space-y-6">
-          <GrowthIQ />
-        </TabsContent>
-
-        {/* Security Tab */}
-        <TabsContent value="security" className="space-y-6">
-          <PlatformSecurity />
-        </TabsContent>
-
-        {/* Performance Tab */}
-        <TabsContent value="performance" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="w-5 h-5" />
-                Performance Metrics
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {performance.map((metric) => (
-                  <div key={metric.metric} className="border rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="font-medium">{metric.metric}</div>
-                      {getTrendIcon(metric.trend)}
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="text-2xl font-bold">
-                        {metric.value}{metric.unit}
-                      </div>
-                      <div className={`text-sm ${metric.change > 0 ? 'text-green-600' : metric.change < 0 ? 'text-red-600' : 'text-gray-600'}`}>
-                        {metric.change > 0 ? '+' : ''}{metric.change}{metric.unit}
-                      </div>
-                    </div>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5" />
+                  Performance Trends
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Workflow Efficiency</span>
+                    <span className="text-sm text-green-600">+5.2%</span>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                  <Progress value={85} className="h-2" />
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Automation Success</span>
+                    <span className="text-sm text-green-600">+2.1%</span>
+                  </div>
+                  <Progress value={94} className="h-2" />
+                  
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Time Savings</span>
+                    <span className="text-sm text-green-600">+12.5%</span>
+                  </div>
+                  <Progress value={78} className="h-2" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="h-5 w-5" />
+                  System Health
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Uptime</span>
+                    <Badge className="bg-green-100 text-green-700">99.9%</Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Response Time</span>
+                    <span className="text-sm text-gray-600">~150ms</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Error Rate</span>
+                    <span className="text-sm text-green-600">0.1%</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Active Users</span>
+                    <span className="text-sm text-gray-600">24</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
