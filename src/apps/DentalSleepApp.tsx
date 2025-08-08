@@ -1,333 +1,189 @@
-import React, { useEffect } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { Layout } from '@/components/Layout';
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import { DentalSleepWrapper } from '@/components/wrappers/DentalSleepWrapper';
-import { parseTenantFromUrl } from '@/utils/tenantRouting';
-
-// Dental Sleep specific components
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
+import { ModernLayout } from '@/components/layout/ModernLayout';
 import { DentalSleepDashboard } from '@/components/dental-sleep/DentalSleepDashboard';
-import { DentalSleepTemplates } from '@/components/specialty/DentalSleepTemplates';
-import { DentalSleepEHR } from '@/components/ehr/specialty/DentalSleepEHR';
-import { DentalSleepPatientPortal } from '@/components/patient-experience/DentalSleepPatientPortal';
 import { SleepStudyManager } from '@/components/dental-sleep/SleepStudyManager';
 import { DMETracker } from '@/components/dental-sleep/DMETracker';
-
-// Shared components
-import { Calendar } from '@/pages/Calendar';
-import { ClaimsDashboard } from '@/components/claims/ClaimsDashboard';
-import { ScheduleDashboard } from '@/components/schedule/ScheduleDashboard';
-import PatientManagement from '@/pages/PatientManagement';
-import Team from '@/pages/Team';
-import Help from '@/pages/Help';
+import { ClinicalAssistant } from '@/pages/agents/ClinicalAssistant';
+import { RevenueAssistant } from '@/pages/agents/RevenueAssistant';
+import { CommunicationAssistant } from '@/pages/agents/CommunicationAssistant';
+import { OperationsAssistant } from '@/pages/agents/OperationsAssistant';
+import { GrowthAssistant } from '@/pages/agents/GrowthAssistant';
+import { IntegrationDashboard } from '@/components/integrations/IntegrationDashboard';
 import Settings from '@/pages/Settings';
-import Notifications from '@/pages/Notifications';
-import ProviderSchedules from '@/pages/ProviderSchedules';
-import DentalSleepInsights from '@/components/specialty/insights/DentalSleepInsights';
+import Patients from '@/pages/Patients';
+import Schedule from '@/pages/Schedule';
+import { ScheduleSettings } from '@/components/schedule/ScheduleSettings';
 
-// AI Agents that apply to dental sleep
-import CommunicationIQ from '@/pages/agents/CommunicationIQ';
-import ScribeIQ from '@/pages/agents/ScribeIQ';
-import EHRIQ from '@/pages/agents/EHRIQ';
-import RevenueIQ from '@/pages/agents/RevenueIQ';
-import InsuranceIQ from '@/pages/agents/InsuranceIQ';
-import InventoryIQ from '@/pages/agents/InventoryIQ';
-import EducationIQ from '@/pages/agents/EducationIQ';
-import GrowthIQ from '@/pages/agents/GrowthIQ';
-import OpsIQ from '@/pages/OpsIQ';
-import ApplicationTest from '@/pages/ApplicationTest';
+// Import existing clinical components
+import { ClinicalDashboard } from '@/components/clinical/ClinicalDashboard';
+import { SOAPNotesManager } from '@/components/clinical/SOAPNotesManager';
+import { PatientRecords } from '@/components/clinical/PatientRecords';
 
-export default function DentalSleepApp() {
-  console.log('🦷 [DEBUG] DentalSleepApp: Component function called - rendering starting');
-  console.log('🦷 DentalSleepApp: Rendering DentalSleepApp component');
-  
-  useEffect(() => {
-    const tenantRoute = parseTenantFromUrl();
-    console.log('🦷 DentalSleepApp: tenantRoute detected:', tenantRoute);
-    
-    if (tenantRoute?.isProduction) {
-      const brandName = tenantRoute.subdomain === 'midwest-dental-sleep' ? 'Midwest Dental Sleep' : 'FlowIQ';
-      document.title = brandName;
-      console.log('DentalSleepApp: Set production title to:', brandName);
-    } else {
-      document.title = 'FlowIQ - Dental Sleep';
-      console.log('DentalSleepApp: Set development title');
-    }
-  }, []);
+// Import existing revenue components
+import { RevenueDashboard } from '@/components/revenue/RevenueDashboard';
+import { RevenueCycleManager } from '@/components/revenue/RevenueCycleManager';
+import { InsuranceManager } from '@/components/revenue/InsuranceManager';
+import { RevenueAnalytics } from '@/components/revenue/RevenueAnalytics';
 
-  const tenantRoute = parseTenantFromUrl();
-  const isProduction = tenantRoute?.isProduction;
-  // Support both dental-sleep-medicine and dental-sleep paths
-  const pathPrefix = isProduction ? '' : 
-    (window.location.pathname.includes('/dental-sleep-medicine') ? '/dental-sleep-medicine' : '/dental-sleep');
-  
-  console.log('🦷 DentalSleepApp: Route analysis:', {
-    currentPath: window.location.pathname,
-    pathPrefix,
-    isProduction,
-    tenantRoute
-  });
-
+// Profile Component
+const Profile = () => {
   return (
-    <DentalSleepWrapper>
-      <Routes>
-        {/* Redirect root to dashboard */}
-        <Route path="/" element={<Navigate to={`${pathPrefix}/dashboard`} replace />} />
-        <Route path="/dental-sleep" element={<Navigate to={`${pathPrefix}/dashboard`} replace />} />
-        <Route path="/dental-sleep/" element={<Navigate to={`${pathPrefix}/dashboard`} replace />} />
-        
-        {/* Main Dental Sleep Dashboard */}
-        <Route path={`${pathPrefix}/dashboard`} element={
-          (() => {
-            console.log('🦷 [DEBUG] Dashboard route matched! Rendering ProtectedRoute with path:', `${pathPrefix}/dashboard`);
-            return (
-              <ProtectedRoute requiredRole="staff">
-                <Layout>
-                  <DentalSleepDashboard />
-                </Layout>
-              </ProtectedRoute>
-            );
-          })()
-        } />
-        
-        <Route path={`${pathPrefix}/calendar`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <Calendar />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        {/* Sleep Medicine Specific Features */}
-        <Route path={`${pathPrefix}/sleep-studies`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <SleepStudyManager />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path={`${pathPrefix}/dme-tracker`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <DMETracker />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path={`${pathPrefix}/ehr`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <DentalSleepEHR />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path={`${pathPrefix}/templates`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <DentalSleepTemplates />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path={`${pathPrefix}/patient-portal`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <DentalSleepPatientPortal />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path={`${pathPrefix}/insights`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <DentalSleepInsights />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        {/* Shared Features */}
-        <Route path={`${pathPrefix}/schedule`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <ScheduleDashboard 
-                recentActivity={[
-                  { time: "2 hours ago", action: "Sleep consultation scheduled for John Smith", type: "appointment" },
-                  { time: "4 hours ago", action: "DME authorization approved for Sarah Johnson", type: "authorization" },
-                  { time: "Yesterday", action: "Follow-up call completed with Mike Wilson", type: "follow-up" },
-                  { time: "Yesterday", action: "Sleep study results reviewed for Emma Davis", type: "study" },
-                  { time: "2 days ago", action: "CPAP delivery confirmed for Robert Brown", type: "delivery" }
-                ]} 
-                upcomingTasks={[
-                  { task: "Review sleep study results for 3 patients", priority: "high", eta: "Today 2:00 PM" },
-                  { task: "Follow-up call with pending DME patients", priority: "medium", eta: "Tomorrow 10:00 AM" },
-                  { task: "Submit insurance authorizations batch", priority: "medium", eta: "Tomorrow 3:00 PM" },
-                  { task: "Schedule compliance check appointments", priority: "low", eta: "This week" },
-                  { task: "Update patient education materials", priority: "low", eta: "Next week" }
-                ]} 
-              />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path={`${pathPrefix}/claims`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <ClaimsDashboard />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path={`${pathPrefix}/patient-management`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <PatientManagement />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path={`${pathPrefix}/team`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <Team />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path={`${pathPrefix}/help`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <Help />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path={`${pathPrefix}/settings`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <Settings />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path={`${pathPrefix}/notifications`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <Notifications />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path={`${pathPrefix}/provider-schedules`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <ProviderSchedules />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        {/* AI Agent Routes */}
-        <Route path={`${pathPrefix}/agents/communication`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <CommunicationIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Profile</h1>
+          <p className="text-gray-600">Manage your account settings and preferences</p>
+        </div>
+      </div>
 
-        {/* Legacy routes for backwards compatibility */}
-        <Route path={`${pathPrefix}/agents/appointment`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <CommunicationIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white p-6 rounded-lg border">
+          <h2 className="text-xl font-semibold mb-4">Personal Information</h2>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Name</label>
+              <input type="text" className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" defaultValue="Staff Member" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Email</label>
+              <input type="email" className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" defaultValue="staff@midwestdental.com" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Role</label>
+              <input type="text" className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" defaultValue="Staff Member" disabled />
+            </div>
+          </div>
+        </div>
 
-        <Route path={`${pathPrefix}/agents/intake`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <CommunicationIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path={`${pathPrefix}/agents/scribe`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <ScribeIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path={`${pathPrefix}/agents/ehr`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <EHRIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path={`${pathPrefix}/agents/revenue`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <RevenueIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path={`${pathPrefix}/agents/insurance`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <InsuranceIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path={`${pathPrefix}/agents/inventory`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <InventoryIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path={`${pathPrefix}/agents/education`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <EducationIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path={`${pathPrefix}/agents/growth`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <GrowthIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path={`${pathPrefix}/ops`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <OpsIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path={`${pathPrefix}/test`} element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <ApplicationTest />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        {/* Fallback redirect for unmatched routes */}
-        <Route path="*" element={<Navigate to={`${pathPrefix}/dashboard`} replace />} />
-      </Routes>
-    </DentalSleepWrapper>
+        <div className="bg-white p-6 rounded-lg border">
+          <h2 className="text-xl font-semibold mb-4">Security</h2>
+          <div className="space-y-4">
+            <button className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+              Change Password
+            </button>
+            <button className="w-full bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700">
+              Enable Two-Factor Authentication
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
-}
+};
+
+// Compliance Component
+const ComplianceTracker = () => {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Compliance Tracking</h1>
+          <p className="text-gray-600">Monitor HIPAA compliance and regulatory requirements</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white p-6 rounded-lg border">
+          <h3 className="text-lg font-semibold mb-4">HIPAA Compliance</h3>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600">Data Encryption</span>
+              <span className="text-green-600 text-sm font-medium">✓ Compliant</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600">Access Controls</span>
+              <span className="text-green-600 text-sm font-medium">✓ Compliant</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600">Audit Logging</span>
+              <span className="text-green-600 text-sm font-medium">✓ Compliant</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg border">
+          <h3 className="text-lg font-semibold mb-4">Regulatory Updates</h3>
+          <div className="space-y-3">
+            <div className="text-sm text-gray-600">
+              <p className="font-medium">Last Updated: 2024-01-15</p>
+              <p>All regulations are current</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg border">
+          <h3 className="text-lg font-semibold mb-4">Training Status</h3>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600">Staff Training</span>
+              <span className="text-green-600 text-sm font-medium">✓ Complete</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600">Annual Review</span>
+              <span className="text-yellow-600 text-sm font-medium">Due Soon</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const DentalSleepApp: React.FC = () => {
+  return (
+    <ModernLayout>
+      <Routes>
+        {/* Main Navigation */}
+        <Route path="/dashboard" element={<DentalSleepDashboard />} />
+        <Route path="/patients" element={<Patients />} />
+        <Route path="/schedule" element={<Schedule />} />
+
+        {/* Clinical Navigation - Now using actual components */}
+        <Route path="/clinical" element={<ClinicalDashboard />} />
+        <Route path="/clinical/soap-notes" element={<SOAPNotesManager />} />
+        <Route path="/clinical/records" element={<PatientRecords />} />
+        <Route path="/clinical/sleep-studies" element={<SleepStudyManager />} />
+        <Route path="/clinical/dme" element={<DMETracker />} />
+        <Route path="/clinical/compliance" element={<ComplianceTracker />} />
+
+        {/* Administrative Navigation - Now using actual components */}
+        <Route path="/revenue" element={<RevenueDashboard />} />
+        <Route path="/revenue/claims" element={<RevenueCycleManager />} />
+        <Route path="/revenue/payments" element={<InsuranceManager />} />
+        <Route path="/analytics" element={<RevenueAnalytics />} />
+
+        {/* Integration Dashboard */}
+        <Route path="/integrations" element={<IntegrationDashboard />} />
+
+        {/* Consolidated AI Assistants */}
+        <Route path="/assistants/clinical" element={<ClinicalAssistant />} />
+        <Route path="/assistants/communication" element={<CommunicationAssistant />} />
+        <Route path="/assistants/revenue" element={<RevenueAssistant />} />
+        <Route path="/assistants/operations" element={<OperationsAssistant />} />
+        <Route path="/assistants/growth" element={<GrowthAssistant />} />
+
+        {/* Settings */}
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/schedule-settings" element={<ScheduleSettings />} />
+        <Route path="/profile" element={<Profile />} />
+
+        {/* Legacy Routes for Backward Compatibility */}
+        <Route path="/agents/communication" element={<CommunicationAssistant />} />
+        <Route path="/agents/scribe" element={<ClinicalAssistant />} />
+        <Route path="/agents/ehr" element={<ClinicalAssistant />} />
+        <Route path="/agents/revenue" element={<RevenueAssistant />} />
+        <Route path="/agents/insurance" element={<RevenueAssistant />} />
+        <Route path="/agents/inventory" element={<OperationsAssistant />} />
+        <Route path="/agents/marketing" element={<GrowthAssistant />} />
+        <Route path="/agents/analytics" element={<GrowthAssistant />} />
+        <Route path="/agents/operations" element={<OperationsAssistant />} />
+        <Route path="/agents/clinical" element={<ClinicalAssistant />} />
+
+        {/* Default route */}
+        <Route path="/" element={<DentalSleepDashboard />} />
+        <Route path="*" element={<DentalSleepDashboard />} />
+      </Routes>
+    </ModernLayout>
+  );
+};

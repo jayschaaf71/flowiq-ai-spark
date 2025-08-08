@@ -34,6 +34,11 @@ const ThemeApplier: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     }
   }, [currentTheme]);
 
+  // Apply theme immediately on mount
+  useEffect(() => {
+    setThemeApplied(true);
+  }, []);
+
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center">

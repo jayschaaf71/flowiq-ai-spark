@@ -9,15 +9,16 @@ export const PRODUCTION_CONFIG = {
     main: 'https://flowiq-ai-spark-m1i9kpmjs-flow-iq.vercel.app',
     midwestDental: 'https://midwest-dental-sleep.flow-iq.ai',
     westCountySpine: 'https://west-county-spine.flow-iq.ai',
+    generalDentistry: 'https://general-dentistry.flow-iq.ai',
     api: 'https://api.flow-iq.ai'
   },
-  
+
   // Supabase Configuration
   supabase: {
     url: 'https://jnpzabmqieceoqjypvve.supabase.co',
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpucHphYm1xaWVjZW9xanlwdnZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg3MTQ4NzIsImV4cCI6MjA2NDI5MDg3Mn0.RSZZj9ijOESttwNopqROh1pXqi7y4Q4TDW4_6eqcBFU'
   },
-  
+
   // Tenant Configuration
   tenants: {
     'midwest-dental-sleep': {
@@ -43,9 +44,25 @@ export const PRODUCTION_CONFIG = {
         spinalAdjustments: true,
         painTracking: true
       }
+    },
+    'general-dentistry': {
+      id: '00000000-0000-0000-0000-000000000003',
+      name: 'General Dentistry Practice',
+      specialty: 'general-dentistry',
+      domain: 'general-dentistry.flow-iq.ai',
+      features: {
+        sleepStudies: false,
+        dmeTracking: false,
+        spinalAdjustments: false,
+        painTracking: false,
+        dentalCare: true,
+        preventiveCare: true,
+        restorativeCare: true,
+        cosmeticCare: true
+      }
     }
   },
-  
+
   // Feature Flags for Production
   features: {
     // Core Features
@@ -54,28 +71,28 @@ export const PRODUCTION_CONFIG = {
     ehr: true,
     billing: true,
     analytics: true,
-    
+
     // AI Features
     aiScribe: true,
     aiClaims: true,
     aiScheduling: true,
     aiIntake: true,
-    
+
     // Communication
     emailNotifications: true,
     smsNotifications: false, // Disabled for pilot
     patientPortal: true,
     messaging: false, // Disabled for pilot
-    
+
     // Security
     twoFactorAuth: false, // Disabled for pilot
     auditLogging: true,
     complianceReporting: true,
-    
+
     // Mobile
     mobileApp: false // Disabled for pilot
   },
-  
+
   // Monitoring Configuration
   monitoring: {
     errorTracking: true,
@@ -83,7 +100,7 @@ export const PRODUCTION_CONFIG = {
     userAnalytics: true,
     healthChecks: true
   },
-  
+
   // Support Configuration
   support: {
     email: 'production-support@flow-iq.ai',

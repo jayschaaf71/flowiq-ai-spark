@@ -4,9 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { User, Shield, Mail, MoreVertical, Trash2, Loader2, AlertCircle, Send, X } from 'lucide-react';
+import { User, Shield, Mail, MoreVertical, Trash2, Loader2, AlertCircle, Send, X, MessageSquare, Settings } from 'lucide-react';
 import { UserInviteDialog } from './UserInviteDialog';
-import { usePlatformUsers, type PlatformUser } from '@/hooks/usePlatformUsers';
+import { useRealPlatformMetrics } from '@/hooks/useRealPlatformMetrics';
 
 const getRoleDisplayName = (role: string) => {
   const roleMap: Record<string, string> = {
@@ -32,32 +32,55 @@ const getStatusVariant = (status: string) => {
 };
 
 export const PlatformUsers = () => {
-  const { 
-    users, 
-    isLoading, 
-    error, 
-    removeUser, 
-    isRemoving,
-    resendInvite,
-    isResendingInvite,
-    cancelInvite,
-    isCancellingInvite
-  } = usePlatformUsers();
-  
-  const [userToDelete, setUserToDelete] = useState<PlatformUser | null>(null);
+  const { users, loading, error } = useRealPlatformMetrics();
+  const [userToDelete, setUserToDelete] = useState<any>(null);
+  const [userToMessage, setUserToMessage] = useState<any>(null);
+  const [userToManage, setUserToManage] = useState<any>(null);
 
-  const handleRemoveUser = (user: PlatformUser) => {
+  console.log('🔧 [PlatformUsers] Component rendered', { users, loading, error });
+
+  const handleRemoveUser = (user: any) => {
     setUserToDelete(user);
   };
 
   const confirmRemoveUser = () => {
     if (userToDelete) {
-      removeUser(userToDelete.id);
+      console.log('🔧 [PlatformUsers] Removing user:', userToDelete);
+      // In a real implementation, this would call an API to remove the user
+      alert(`Removing user ${userToDelete.first_name} ${userToDelete.last_name}... (This would call an API in production)`);
       setUserToDelete(null);
     }
   };
 
-  if (isLoading) {
+  const handleSendMessage = (user: any) => {
+    console.log('🔧 [PlatformUsers] Sending message to user:', user);
+    setUserToMessage(user);
+  };
+
+  const confirmSendMessage = () => {
+    if (userToMessage) {
+      console.log('🔧 [PlatformUsers] Sending message to:', userToMessage);
+      // In a real implementation, this would open a message dialog or send an email
+      alert(`Sending message to ${userToMessage.first_name} ${userToMessage.last_name}... (This would open a message dialog in production)`);
+      setUserToMessage(null);
+    }
+  };
+
+  const handleManagePermissions = (user: any) => {
+    console.log('🔧 [PlatformUsers] Managing permissions for user:', user);
+    setUserToManage(user);
+  };
+
+  const confirmManagePermissions = () => {
+    if (userToManage) {
+      console.log('🔧 [PlatformUsers] Managing permissions for:', userToManage);
+      // In a real implementation, this would open a permissions management dialog
+      alert(`Managing permissions for ${userToManage.first_name} ${userToManage.last_name}... (This would open a permissions dialog in production)`);
+      setUserToManage(null);
+    }
+  };
+
+  if (loading) {
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
@@ -109,115 +132,100 @@ export const PlatformUsers = () => {
         <UserInviteDialog />
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>All Platform Users</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {users.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              No users found.
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {users.map((user, index) => (
-                <div key={`${user.id}-${user.status}-${index}`} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center space-x-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                      <User className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="font-medium">
-                        {user.full_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'No Name'}
-                      </p>
-                      <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                        <Mail className="h-3 w-3" />
-                        <span>{user.email || 'No email'}</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        {user.tenant_name || 'No tenant assigned'}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Badge variant={getRoleVariant(user.role) as "default" | "secondary" | "outline"}>
-                      <Shield className="h-3 w-3 mr-1" />
-                      {getRoleDisplayName(user.role)}
-                    </Badge>
-                    <Badge variant={getStatusVariant(user.status) as "default" | "secondary" | "destructive"}>
-                      {user.status}
-                    </Badge>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          disabled={isRemoving}
-                        >
-                          {isRemoving ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <MoreVertical className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        {user.status === 'pending' && (
-                          <>
-                            <DropdownMenuItem 
-                              onClick={() => resendInvite(user.id)}
-                              disabled={isResendingInvite}
-                            >
-                              <Send className="h-4 w-4 mr-2" />
-                              Re-send Invite
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => cancelInvite(user.id)}
-                              disabled={isCancellingInvite}
-                              className="text-destructive"
-                            >
-                              <X className="h-4 w-4 mr-2" />
-                              Cancel Invitation
-                            </DropdownMenuItem>
-                          </>
-                        )}
-                        {user.status !== 'pending' && (
-                          <DropdownMenuItem 
-                            onClick={() => handleRemoveUser(user)} 
-                            className="text-destructive"
-                            disabled={user.role === 'platform_admin'}
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Remove User
-                          </DropdownMenuItem>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
+      <div className="grid gap-6">
+        {users?.map((user) => (
+          <Card key={user.id} className="hover:shadow-md transition-shadow">
+            <CardContent className="flex items-center justify-between p-6">
+              <div className="flex items-center space-x-4">
+                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <User className="h-5 w-5 text-primary" />
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                <div>
+                  <h3 className="font-semibold">{user.first_name} {user.last_name}</h3>
+                  <p className="text-sm text-muted-foreground">{user.email}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-4">
+                <Badge variant={getRoleVariant(user.role)}>
+                  {getRoleDisplayName(user.role)}
+                </Badge>
+                
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => handleSendMessage(user)}>
+                      <Mail className="h-4 w-4 mr-2" />
+                      Send Message
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleManagePermissions(user)}>
+                      <Shield className="h-4 w-4 mr-2" />
+                      Manage Permissions
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      className="text-destructive"
+                      onClick={() => handleRemoveUser(user)}
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Remove User
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </CardContent>
+          </Card>
+        )) || []}
+      </div>
 
+      {/* Remove User Dialog */}
       <AlertDialog open={!!userToDelete} onOpenChange={() => setUserToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Remove User</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to remove {userToDelete?.full_name || `${userToDelete?.first_name || ''} ${userToDelete?.last_name || ''}`.trim() || 'this user'} from the platform? 
-              This action cannot be undone and will revoke their access to all tenants.
+              Are you sure you want to remove {userToDelete?.first_name} {userToDelete?.last_name}? 
+              This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={confirmRemoveUser}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Remove User
-            </AlertDialogAction>
+            <AlertDialogAction onClick={confirmRemoveUser}>Remove</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Send Message Dialog */}
+      <AlertDialog open={!!userToMessage} onOpenChange={() => setUserToMessage(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Send Message</AlertDialogTitle>
+            <AlertDialogDescription>
+              Send a message to {userToMessage?.first_name} {userToMessage?.last_name} ({userToMessage?.email})?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmSendMessage}>Send Message</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Manage Permissions Dialog */}
+      <AlertDialog open={!!userToManage} onOpenChange={() => setUserToManage(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Manage Permissions</AlertDialogTitle>
+            <AlertDialogDescription>
+              Manage permissions for {userToManage?.first_name} {userToManage?.last_name}?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmManagePermissions}>Manage</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

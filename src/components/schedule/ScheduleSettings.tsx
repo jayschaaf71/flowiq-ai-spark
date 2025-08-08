@@ -14,13 +14,15 @@ import { NotificationSettingsTab } from "./settings/NotificationSettingsTab";
 import { AISettingsTab } from "./settings/AISettingsTab";
 import { StaffManagementTab } from "./settings/StaffManagementTab";
 import { StaffScheduleTab } from "./settings/StaffScheduleTab";
+import { EnhancedProviderManagement } from "./settings/EnhancedProviderManagement";
+import { AIWaitlistManager } from "./AIWaitlistManager";
 
 export const ScheduleSettings = () => {
   const { toast } = useToast();
-  
+
   const [editingMember, setEditingMember] = useState(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  
+
   const [settings, setSettings] = useState({
     workingHours: {
       monday: { start: "09:00", end: "17:00", enabled: true },
@@ -105,7 +107,7 @@ export const ScheduleSettings = () => {
 
   const handleUpdateStaffSchedule = (staffId: string, workingHours: any, procedureSchedules?: any[]) => {
     console.log("Updating staff schedule:", { staffId, workingHours, procedureSchedules });
-    
+
     toast({
       title: "Schedule Updated",
       description: "Staff member schedule has been updated successfully.",
@@ -125,7 +127,7 @@ export const ScheduleSettings = () => {
       </div>
 
       <Tabs defaultValue="general" className="w-full space-y-6">
-        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 gap-1">
+        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-10 gap-1">
           <TabsTrigger value="general" className="text-xs">
             <Settings className="w-4 h-4 mr-1" />
             General
@@ -146,6 +148,10 @@ export const ScheduleSettings = () => {
             <Brain className="w-4 h-4 mr-1" />
             AI Settings
           </TabsTrigger>
+          <TabsTrigger value="enhanced-providers" className="text-xs">
+            <Users className="w-4 h-4 mr-1" />
+            Providers
+          </TabsTrigger>
           <TabsTrigger value="providers" className="text-xs">
             <Users className="w-4 h-4 mr-1" />
             Staff
@@ -158,6 +164,10 @@ export const ScheduleSettings = () => {
             <Calendar className="w-4 h-4 mr-1" />
             Schedules
           </TabsTrigger>
+          <TabsTrigger value="ai-waitlist" className="text-xs">
+            <Brain className="w-4 h-4 mr-1" />
+            AI Waitlist
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="general" className="space-y-4">
@@ -165,31 +175,35 @@ export const ScheduleSettings = () => {
         </TabsContent>
 
         <TabsContent value="hours" className="space-y-4">
-          <WorkingHoursTab 
+          <WorkingHoursTab
             settings={settings.workingHours}
             onWorkingHoursChange={handleWorkingHoursChange}
           />
         </TabsContent>
 
         <TabsContent value="appointments" className="space-y-4">
-          <AppointmentConfigTab 
+          <AppointmentConfigTab
             settings={settings.appointments}
             onSettingsChange={handleAppointmentSettingsChange}
           />
         </TabsContent>
 
         <TabsContent value="notifications" className="space-y-4">
-          <NotificationSettingsTab 
+          <NotificationSettingsTab
             settings={settings.notifications}
             onSettingsChange={handleNotificationSettingsChange}
           />
         </TabsContent>
 
         <TabsContent value="ai" className="space-y-4">
-          <AISettingsTab 
+          <AISettingsTab
             settings={settings.aiSettings}
             onSettingsChange={handleAISettingsChange}
           />
+        </TabsContent>
+
+        <TabsContent value="enhanced-providers" className="space-y-4">
+          <EnhancedProviderManagement />
         </TabsContent>
 
         <TabsContent value="providers" className="space-y-4">
@@ -204,6 +218,10 @@ export const ScheduleSettings = () => {
           <StaffScheduleTab onUpdateStaffSchedule={handleUpdateStaffSchedule} />
         </TabsContent>
 
+        <TabsContent value="ai-waitlist" className="space-y-4">
+          <AIWaitlistManager />
+        </TabsContent>
+
         <TabsContent value="compliance" className="space-y-4">
           <AdvancedComplianceDashboard />
         </TabsContent>
@@ -213,7 +231,7 @@ export const ScheduleSettings = () => {
         </TabsContent>
       </Tabs>
 
-      <EditTeamMemberDialog 
+      <EditTeamMemberDialog
         member={editingMember}
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}

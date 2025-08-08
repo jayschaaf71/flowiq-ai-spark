@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Settings, Bell, Shield, Users, Database, Mail } from 'lucide-react';
 import { useTenantManagement, Tenant } from '@/hooks/useTenantManagement';
+import { TenantIntegrationManagement } from './TenantIntegrationManagement';
 
 interface TenantSettingsManagerProps {
   tenant: Tenant;
@@ -271,89 +272,7 @@ export const TenantSettingsManager: React.FC<TenantSettingsManagerProps> = ({
         </TabsContent>
 
         <TabsContent value="integrations">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Database className="w-5 h-5" />
-                Integration Settings
-              </CardTitle>
-              <CardDescription>Configure third-party integrations</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label>Calendar Sync</Label>
-                    <p className="text-sm text-gray-600">Sync with Google Calendar or Outlook</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Select defaultValue="none">
-                      <SelectTrigger className="w-32">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">Disabled</SelectItem>
-                        <SelectItem value="google">Google</SelectItem>
-                        <SelectItem value="outlook">Outlook</SelectItem>
-                        <SelectItem value="both">Both</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Switch
-                      checked={settings.calendar_sync}
-                      onCheckedChange={(checked) => handleToggle('calendar_sync', checked)}
-                    />
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label>Billing Integration</Label>
-                    <p className="text-sm text-gray-600">Connect with billing software</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Select defaultValue="none">
-                      <SelectTrigger className="w-32">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">None</SelectItem>
-                        <SelectItem value="quickbooks">QuickBooks</SelectItem>
-                        <SelectItem value="stripe">Stripe</SelectItem>
-                        <SelectItem value="square">Square</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Switch
-                      checked={settings.billing_integration}
-                      onCheckedChange={(checked) => handleToggle('billing_integration', checked)}
-                    />
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label>Insurance Verification</Label>
-                    <p className="text-sm text-gray-600">Automated insurance verification</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge className="bg-green-100 text-green-700">Active</Badge>
-                    <Switch
-                      checked={settings.insurance_verification}
-                      onCheckedChange={(checked) => handleToggle('insurance_verification', checked)}
-                    />
-                  </div>
-                </div>
-                
-                {settings.insurance_verification && (
-                  <div className="ml-6 mt-2 p-3 bg-blue-50 rounded border-l-4 border-blue-400">
-                    <p className="text-sm text-blue-800">
-                      Real-time verification with major insurance providers including:
-                      Aetna, Blue Cross Blue Shield, Cigna, UnitedHealth, and more.
-                    </p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          <TenantIntegrationManagement />
         </TabsContent>
 
         <TabsContent value="limits">

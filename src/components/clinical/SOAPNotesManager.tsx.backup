@@ -1,0 +1,418 @@
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+    FileText,
+    Mic,
+    Play,
+    Pause,
+    Square,
+    CheckCircle,
+    Clock,
+    AlertTriangle,
+    RefreshCw,
+    CheckCircle2,
+    XCircle,
+    Download,
+    Upload,
+    Search,
+    Filter,
+    Brain,
+    Save,
+    Edit,
+    Eye
+} from 'lucide-react';
+
+interface SOAPNote {
+    id: string;
+    patientName: string;
+    date: string;
+    status: 'draft' | 'completed' | 'reviewed' | 'syncing' | 'synced' | 'error';
+    type: string;
+    duration: number;
+    transcription: string;
+    subjective: string;
+    objective: string;
+    assessment: string;
+    plan: string;
+    syncStatus?: {
+        sleepImpressions: 'pending' | 'synced' | 'error';
+        ds3: 'pending' | 'synced' | 'error';
+        flowIQ: 'synced';
+    };
+}
+
+export const SOAPNotesManager = () => {
+    const [isRecording, setIsRecording] = useState(false);
+    const [currentTranscription, setCurrentTranscription] = useState('');
+    const [selectedTab, setSelectedTab] = useState('voice-recording');
+    const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('all');
+    const [selectedNote, setSelectedNote] = useState<SOAPNote | null>(null);
+    const [isGenerating, setIsGenerating] = useState(false);
+
+    // Mock data
+    const soapNotes: SOAPNote[] = [
+        {
+            id: '1',
+            patientName: 'Sarah Johnson',
+            date: '2024-01-15',
+            status: 'synced',
+            type: 'Sleep Study Review',
+            duration: 45,
+            transcription: 'Patient reports improved sleep quality with CPAP therapy. AHI reduced from 25 to 3. Compliance rate at 85%.',
+            subjective: 'Patient reports improved sleep quality with CPAP therapy. AHI reduced from 25 to 3. Compliance rate at 85%.',
+            objective: 'Vital signs stable. CPAP compliance data shows 85% usage. AHI reduced from 25 to 3.',
+            assessment: 'Obstructive Sleep Apnea - Well controlled with CPAP therapy',
+            plan: 'Continue CPAP therapy. Follow-up in 3 months. Monitor compliance.',
+            syncStatus: {
+                sleepImpressions: 'synced',
+                ds3: 'synced',
+                flowIQ: 'synced'
+            }
+        },
+        {
+            id: '2',
+            patientName: 'Michael Chen',
+            date: '2024-01-14',
+            status: 'syncing',
+            type: 'CPAP Fitting',
+            duration: 30,
+            transcription: 'Initial CPAP fitting completed. Patient tolerated well. Mask fitting optimal. Instructions provided.',
+            subjective: 'Initial CPAP fitting completed. Patient tolerated well.',
+            objective: 'Mask fitting optimal. Patient demonstrated proper use.',
+            assessment: 'CPAP therapy initiated successfully',
+            plan: 'Continue CPAP therapy. Follow-up in 1 week for compliance check.',
+            syncStatus: {
+                sleepImpressions: 'pending',
+                ds3: 'synced',
+                flowIQ: 'synced'
+            }
+        },
+        {
+            id: '3',
+            patientName: 'Lisa Rodriguez',
+            date: '2024-01-13',
+            status: 'error',
+            type: 'Follow-up',
+            duration: 20,
+            transcription: 'Follow-up visit. Patient reports mild discomfort with mask. Adjusted settings and provided new cushion.',
+            subjective: 'Patient reports mild discomfort with mask.',
+            objective: 'Adjusted CPAP settings. Provided new cushion.',
+            assessment: 'CPAP mask discomfort - resolved with adjustments',
+            plan: 'Continue with new settings. Contact if discomfort persists.',
+            syncStatus: {
+                sleepImpressions: 'error',
+                ds3: 'synced',
+                flowIQ: 'synced'
+            }
+        }
+    ];
+
+    const handleStartRecording = async () => {
+        setIsRecording(true);
+        console.log('🎤 Starting voice recording for SOAP note generation...');
+        // Implementation would integrate with voice recording service
+    };
+
+    const handleStopRecording = async () => {
+        setIsRecording(false);
+        setIsGenerating(true);
+        console.log('🎤 Stopping voice recording and generating SOAP note...');
+
+        // Simulate AI processing
+        setTimeout(() => {
+            setCurrentTranscription('Patient reports improved sleep quality with CPAP therapy. AHI reduced from 25 to 3. Compliance rate at 85%.');
+            setIsGenerating(false);
+        }, 2000);
+    };
+
+    const handleGenerateSOAP = async () => {
+        if (!currentTranscription.trim()) return;
+
+        setIsGenerating(true);
+        // Implementation would call AI SOAP generation service
+        setTimeout(() => {
+            setIsGenerating(false);
+            setSelectedTab('soap-notes');
+        }, 1500);
+    };
+
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case 'completed':
+            case 'synced':
+                return 'bg-green-100 text-green-800';
+            case 'draft':
+            case 'pending':
+            case 'syncing':
+                return 'bg-yellow-100 text-yellow-800';
+            case 'error':
+                return 'bg-red-100 text-red-800';
+            default:
+                return 'bg-gray-100 text-gray-800';
+        }
+    };
+
+    const getSyncStatusIcon = (status: 'pending' | 'synced' | 'error') => {
+        switch (status) {
+            case 'synced':
+                return <CheckCircle2 className="w-4 h-4 text-green-600" />;
+            case 'pending':
+                return <RefreshCw className="w-4 h-4 text-yellow-600 animate-spin" />;
+            case 'error':
+                return <XCircle className="w-4 h-4 text-red-600" />;
+        }
+    };
+
+    const filteredNotes = soapNotes.filter(note => {
+        const matchesSearch = note.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            note.type.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesStatus = statusFilter === 'all' || note.status === statusFilter;
+        return matchesSearch && matchesStatus;
+    });
+
+    return (
+        <div className="space-y-6">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900">SOAP Notes Manager</h1>
+                    <p className="text-gray-600">AI-powered voice-to-SOAP note generation with multi-system sync</p>
+                </div>
+                <div className="flex gap-2">
+                    <Button variant="outline">
+                        <Upload className="w-4 h-4 mr-2" />
+                        Import
+                    </Button>
+                    <Button>
+                        <FileText className="w-4 h-4 mr-2" />
+                        New Note
+                    </Button>
+                </div>
+            </div>
+
+            <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
+                <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="voice-recording">Voice Recording</TabsTrigger>
+                    <TabsTrigger value="soap-notes">SOAP Notes</TabsTrigger>
+                    <TabsTrigger value="templates">Templates</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="voice-recording" className="space-y-6">
+                    {/* Voice Recording Interface */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Mic className="w-5 h-5 text-blue-600" />
+                                Voice-to-SOAP Recording
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-4">
+                                {/* Recording Controls */}
+                                <div className="flex items-center gap-4">
+                                    <Button
+                                        onClick={isRecording ? handleStopRecording : handleStartRecording}
+                                        variant={isRecording ? "destructive" : "default"}
+                                        className="flex items-center gap-2"
+                                        disabled={isGenerating}
+                                    >
+                                        {isRecording ? (
+                                            <>
+                                                <Square className="w-4 h-4" />
+                                                Stop Recording
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Mic className="w-4 h-4" />
+                                                Start Recording
+                                            </>
+                                        )}
+                                    </Button>
+
+                                    {isRecording && (
+                                        <div className="flex items-center gap-2 text-red-600">
+                                            <div className="w-2 h-2 bg-red-600 rounded-full animate-pulse" />
+                                            Recording...
+                                        </div>
+                                    )}
+
+                                    {isGenerating && (
+                                        <div className="flex items-center gap-2 text-blue-600">
+                                            <RefreshCw className="w-4 h-4 animate-spin" />
+                                            Generating SOAP note...
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Transcription Display */}
+                                {currentTranscription && (
+                                    <div className="space-y-4">
+                                        <div className="p-4 bg-gray-50 rounded-lg">
+                                            <h4 className="font-semibold mb-2">Transcription:</h4>
+                                            <p className="text-gray-700">{currentTranscription}</p>
+                                        </div>
+
+                                        <Button
+                                            onClick={handleGenerateSOAP}
+                                            disabled={isGenerating}
+                                            className="flex items-center gap-2"
+                                        >
+                                            <Brain className="w-4 h-4" />
+                                            Generate SOAP Note
+                                        </Button>
+                                    </div>
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+
+                <TabsContent value="soap-notes" className="space-y-6">
+                    {/* Search and Filters */}
+                    <div className="flex gap-4">
+                        <div className="flex-1">
+                            <div className="relative">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                                <Input
+                                    placeholder="Search SOAP notes..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="pl-10"
+                                />
+                            </div>
+                        </div>
+                        <select
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                            className="px-3 py-2 border rounded-md"
+                        >
+                            <option value="all">All Status</option>
+                            <option value="draft">Draft</option>
+                            <option value="completed">Completed</option>
+                            <option value="synced">Synced</option>
+                            <option value="error">Error</option>
+                        </select>
+                    </div>
+
+                    {/* SOAP Notes List */}
+                    <div className="space-y-4">
+                        {filteredNotes.map((note) => (
+                            <Card key={note.id} className="cursor-pointer hover:shadow-md transition-shadow">
+                                <CardContent className="p-4">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div>
+                                            <h4 className="font-semibold">{note.patientName}</h4>
+                                            <p className="text-sm text-gray-600">{note.date} - {note.type}</p>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Badge className={getStatusColor(note.status)}>
+                                                {note.status}
+                                            </Badge>
+                                            <Button variant="ghost" size="sm">
+                                                <Eye className="w-4 h-4" />
+                                            </Button>
+                                            <Button variant="ghost" size="sm">
+                                                <Edit className="w-4 h-4" />
+                                            </Button>
+                                        </div>
+                                    </div>
+
+                                    <p className="text-gray-700 mb-3 line-clamp-2">{note.subjective}</p>
+
+                                    {/* Sync Status */}
+                                    {note.syncStatus && (
+                                        <div className="flex items-center gap-4 text-sm">
+                                            <span className="text-gray-600">Sync Status:</span>
+                                            <div className="flex items-center gap-2">
+                                                {getSyncStatusIcon(note.syncStatus.flowIQ)}
+                                                <span>FlowIQ</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                {getSyncStatusIcon(note.syncStatus.sleepImpressions)}
+                                                <span>Sleep Impressions</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                {getSyncStatusIcon(note.syncStatus.ds3)}
+                                                <span>DS3</span>
+                                            </div>
+                                        </div>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                </TabsContent>
+
+                <TabsContent value="templates" className="space-y-6">
+                    {/* SOAP Templates */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <FileText className="w-5 h-5 text-green-600" />
+                                SOAP Note Templates
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <Card className="cursor-pointer hover:shadow-md transition-shadow">
+                                    <CardContent className="p-4">
+                                        <h4 className="font-semibold mb-2">Sleep Study Review</h4>
+                                        <p className="text-sm text-gray-600 mb-3">
+                                            Template for sleep study follow-up appointments
+                                        </p>
+                                        <Button variant="outline" size="sm">
+                                            Use Template
+                                        </Button>
+                                    </CardContent>
+                                </Card>
+
+                                <Card className="cursor-pointer hover:shadow-md transition-shadow">
+                                    <CardContent className="p-4">
+                                        <h4 className="font-semibold mb-2">CPAP Fitting</h4>
+                                        <p className="text-sm text-gray-600 mb-3">
+                                            Template for CPAP device fitting appointments
+                                        </p>
+                                        <Button variant="outline" size="sm">
+                                            Use Template
+                                        </Button>
+                                    </CardContent>
+                                </Card>
+
+                                <Card className="cursor-pointer hover:shadow-md transition-shadow">
+                                    <CardContent className="p-4">
+                                        <h4 className="font-semibold mb-2">Follow-up Visit</h4>
+                                        <p className="text-sm text-gray-600 mb-3">
+                                            Template for routine follow-up appointments
+                                        </p>
+                                        <Button variant="outline" size="sm">
+                                            Use Template
+                                        </Button>
+                                    </CardContent>
+                                </Card>
+
+                                <Card className="cursor-pointer hover:shadow-md transition-shadow">
+                                    <CardContent className="p-4">
+                                        <h4 className="font-semibold mb-2">Initial Consultation</h4>
+                                        <p className="text-sm text-gray-600 mb-3">
+                                            Template for new patient consultations
+                                        </p>
+                                        <Button variant="outline" size="sm">
+                                            Use Template
+                                        </Button>
+                                    </CardContent>
+                                </Card>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+            </Tabs>
+        </div>
+    );
+}; 

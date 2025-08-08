@@ -62,6 +62,7 @@ const adminNavItems = [
     group: "configuration",
     items: [
       { path: "/platform-admin/settings", icon: Settings, label: "Settings" },
+      { path: "/platform-admin/integrations", icon: Database, label: "Integrations" },
     ]
   }
 ];

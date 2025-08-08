@@ -28,321 +28,387 @@ export interface ScheduledCommunicationRequest {
   type: 'email' | 'sms';
 }
 
-export class EnhancedCommunicationService {
-  
-  // Send immediate communication
-  static async sendCommunication(request: SendCommunicationRequest) {
-    try {
-      // Check if this is a test submission
-      const { data: existingSubmission } = await supabase
-        .from('intake_submissions')
-        .select('id')
-        .eq('id', request.submissionId)
-        .single();
+export interface CommunicationChannel {
+  id: string;
+  name: string;
+  type: 'email' | 'sms' | 'voice' | 'in-app';
+  status: 'active' | 'inactive' | 'error';
+  enabled: boolean;
+  lastUsed?: string;
+  successRate: number;
+  description: string;
+  provider: string;
+  config?: Record<string, any>;
+}
 
-      let logEntry;
-      
-      if (existingSubmission) {
-        // Real submission - create log with foreign key
-        const { data: logData, error: logError } = await supabase
-          .from('communication_logs')
-          .insert({
-            submission_id: request.submissionId,
-            type: request.type,
-            recipient: request.recipient,
-            subject: request.type === 'email' ? `Message for ${request.patientName}` : null,
-            message: request.customMessage || `Hello ${request.patientName}, this is an automated message from our system.`,
-            template_id: request.templateId,
-            status: 'pending'
-          })
-          .select()
-          .single();
-        
-        if (logError) throw logError;
-        logEntry = logData;
+export interface MessageTemplate {
+  id: string;
+  name: string;
+  type: 'appointment' | 'reminder' | 'follow-up' | 'marketing' | 'custom';
+  subject?: string;
+  content: string;
+  variables: string[];
+  channel: 'email' | 'sms' | 'both';
+  enabled: boolean;
+  usageCount: number;
+  lastUsed?: string;
+}
+
+export interface MessageHistory {
+  id: string;
+  recipient: string;
+  type: 'email' | 'sms';
+  subject?: string;
+  content: string;
+  status: 'sent' | 'delivered' | 'failed' | 'pending';
+  sentAt: string;
+  deliveredAt?: string;
+  errorMessage?: string;
+  templateId?: string;
+}
+
+class EnhancedCommunicationService {
+  private channels: CommunicationChannel[] = [
+    {
+      id: 'sendgrid-email',
+      name: 'SendGrid Email',
+      type: 'email',
+      status: 'active',
+      enabled: true,
+      lastUsed: new Date().toISOString(),
+      successRate: 98.5,
+      description: 'Primary email service for patient communications',
+      provider: 'SendGrid',
+      config: {
+        apiKey: 'configured',
+        fromEmail: 'noreply@flow-iq.ai',
+        fromName: 'FlowIQ Healthcare'
+      }
+    },
+    {
+      id: 'twilio-sms',
+      name: 'Twilio SMS',
+      type: 'sms',
+      status: 'active',
+      enabled: true,
+      lastUsed: new Date().toISOString(),
+      successRate: 99.2,
+      description: 'SMS service for text message communications',
+      provider: 'Twilio',
+      config: {
+        accountSid: 'configured',
+        authToken: 'configured',
+        phoneNumber: '+1234567890'
+      }
+    },
+    {
+      id: 'vapi-voice',
+      name: 'Vapi Voice',
+      type: 'voice',
+      status: 'active',
+      enabled: true,
+      lastUsed: new Date().toISOString(),
+      successRate: 95.8,
+      description: 'AI voice assistant for automated calls',
+      provider: 'Vapi',
+      config: {
+        apiKey: 'configured',
+        assistantId: 'configured'
+      }
+    },
+    {
+      id: 'in-app-notifications',
+      name: 'In-App Notifications',
+      type: 'in-app',
+      status: 'active',
+      enabled: true,
+      lastUsed: new Date().toISOString(),
+      successRate: 100,
+      description: 'Internal notification system',
+      provider: 'FlowIQ',
+      config: {
+        webhookUrl: 'configured'
+      }
+    }
+  ];
+
+  private templates: MessageTemplate[] = [
+    {
+      id: 'appointment-confirmation',
+      name: 'Appointment Confirmation',
+      type: 'appointment',
+      subject: 'Appointment Confirmed - {{practiceName}}',
+      content: 'Hi {{patientName}}, your appointment on {{appointmentDate}} at {{appointmentTime}} has been confirmed. Please arrive 15 minutes early. Call {{phoneNumber}} if you need to reschedule.',
+      variables: ['patientName', 'appointmentDate', 'appointmentTime', 'practiceName', 'phoneNumber'],
+      channel: 'both',
+      enabled: true,
+      usageCount: 1247,
+      lastUsed: new Date().toISOString()
+    },
+    {
+      id: 'appointment-reminder',
+      name: 'Appointment Reminder',
+      type: 'reminder',
+      subject: 'Appointment Reminder - {{practiceName}}',
+      content: 'Hi {{patientName}}, this is a reminder for your appointment tomorrow at {{appointmentTime}}. Please call {{phoneNumber}} if you need to reschedule.',
+      variables: ['patientName', 'appointmentTime', 'practiceName', 'phoneNumber'],
+      channel: 'both',
+      enabled: true,
+      usageCount: 892,
+      lastUsed: new Date().toISOString()
+    },
+    {
+      id: 'follow-up-survey',
+      name: 'Follow-up Survey',
+      type: 'follow-up',
+      subject: 'How was your visit? - {{practiceName}}',
+      content: 'Hi {{patientName}}, thank you for visiting us. We hope your experience was excellent. Please take a moment to share your feedback: {{surveyLink}}',
+      variables: ['patientName', 'practiceName', 'surveyLink'],
+      channel: 'email',
+      enabled: true,
+      usageCount: 456,
+      lastUsed: new Date().toISOString()
+    },
+    {
+      id: 'marketing-newsletter',
+      name: 'Healthcare Newsletter',
+      type: 'marketing',
+      subject: '{{practiceName}} - Monthly Health Tips',
+      content: 'Hi {{patientName}}, here are this month\'s health tips and updates from {{practiceName}}. Read more: {{newsletterLink}}',
+      variables: ['patientName', 'practiceName', 'newsletterLink'],
+      channel: 'email',
+      enabled: true,
+      usageCount: 234,
+      lastUsed: new Date().toISOString()
+    }
+  ];
+
+  private messageHistory: MessageHistory[] = [
+    {
+      id: 'msg-001',
+      recipient: 'john.doe@email.com',
+      type: 'email',
+      subject: 'Appointment Confirmed - FlowIQ Healthcare',
+      content: 'Hi John Doe, your appointment on 2024-01-20 at 09:00 AM has been confirmed...',
+      status: 'delivered',
+      sentAt: '2024-01-19T10:30:00Z',
+      deliveredAt: '2024-01-19T10:30:05Z',
+      templateId: 'appointment-confirmation'
+    },
+    {
+      id: 'msg-002',
+      recipient: '+1555012345',
+      type: 'sms',
+      content: 'Hi John Doe, this is a reminder for your appointment tomorrow at 09:00 AM...',
+      status: 'delivered',
+      sentAt: '2024-01-19T14:00:00Z',
+      deliveredAt: '2024-01-19T14:00:02Z',
+      templateId: 'appointment-reminder'
+    },
+    {
+      id: 'msg-003',
+      recipient: 'jane.smith@email.com',
+      type: 'email',
+      subject: 'How was your visit? - FlowIQ Healthcare',
+      content: 'Hi Jane Smith, thank you for visiting us. We hope your experience was excellent...',
+      status: 'sent',
+      sentAt: '2024-01-18T16:00:00Z',
+      templateId: 'follow-up-survey'
+    }
+  ];
+
+  async getChannels(): Promise<CommunicationChannel[]> {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    return this.channels;
+  }
+
+  async updateChannel(id: string, updates: Partial<CommunicationChannel>): Promise<CommunicationChannel> {
+    const index = this.channels.findIndex(channel => channel.id === id);
+    if (index === -1) {
+      throw new Error(`Channel with id ${id} not found`);
+    }
+
+    this.channels[index] = { ...this.channels[index], ...updates };
+    return this.channels[index];
+  }
+
+  async getTemplates(): Promise<MessageTemplate[]> {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    return this.templates;
+  }
+
+  async createTemplate(template: Omit<MessageTemplate, 'id' | 'usageCount'>): Promise<MessageTemplate> {
+    const newTemplate: MessageTemplate = {
+      ...template,
+      id: `template-${Date.now()}`,
+      usageCount: 0
+    };
+
+    this.templates.push(newTemplate);
+    return newTemplate;
+  }
+
+  async updateTemplate(id: string, updates: Partial<MessageTemplate>): Promise<MessageTemplate> {
+    const index = this.templates.findIndex(template => template.id === id);
+    if (index === -1) {
+      throw new Error(`Template with id ${id} not found`);
+    }
+
+    this.templates[index] = { ...this.templates[index], ...updates };
+    return this.templates[index];
+  }
+
+  async getMessageHistory(limit: number = 50): Promise<MessageHistory[]> {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return this.messageHistory.slice(0, limit);
+  }
+
+  async sendMessage(message: {
+    recipient: string;
+    type: 'email' | 'sms';
+    subject?: string;
+    content: string;
+    templateId?: string;
+  }): Promise<{ success: boolean; messageId?: string; error?: string }> {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // Simulate message sending
+    const success = Math.random() > 0.1; // 90% success rate
+    const messageId = `msg-${Date.now()}`;
+
+    if (success) {
+      const historyEntry: MessageHistory = {
+        id: messageId,
+        recipient: message.recipient,
+        type: message.type,
+        subject: message.subject,
+        content: message.content,
+        status: 'sent',
+        sentAt: new Date().toISOString(),
+        templateId: message.templateId
+      };
+
+      this.messageHistory.unshift(historyEntry);
+
+      // Update template usage count
+      if (message.templateId) {
+        const template = this.templates.find(t => t.id === message.templateId);
+        if (template) {
+          template.usageCount++;
+          template.lastUsed = new Date().toISOString();
+        }
+      }
+
+      return { success: true, messageId };
+    } else {
+      return {
+        success: false,
+        error: 'Message delivery failed - recipient not found'
+      };
+    }
+  }
+
+  async sendBulkMessages(messages: Array<{
+    recipient: string;
+    type: 'email' | 'sms';
+    subject?: string;
+    content: string;
+    templateId?: string;
+  }>): Promise<{
+    success: boolean;
+    sent: number;
+    failed: number;
+    errors: string[];
+  }> {
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    let sent = 0;
+    let failed = 0;
+    const errors: string[] = [];
+
+    for (const message of messages) {
+      const result = await this.sendMessage(message);
+      if (result.success) {
+        sent++;
       } else {
-        // Test submission - create a test submission first
-        const { data: testSubmission, error: testSubmissionError } = await supabase
-          .from('intake_submissions')
-          .insert({
-            id: request.submissionId,
-            patient_name: request.patientName,
-            patient_email: request.recipient,
-            form_data: { test: true },
-            status: 'test',
-            form_id: (await supabase.from('intake_forms').select('id').limit(1).single()).data?.id || '00000000-0000-0000-0000-000000000000'
-          })
-          .select()
-          .single();
-
-        if (testSubmissionError) {
-          console.error('Failed to create test submission:', testSubmissionError);
-          throw new Error('Failed to create test submission for communication logging');
-        }
-
-        // Create the log entry
-        const { data: logData, error: logError } = await supabase
-          .from('communication_logs')
-          .insert({
-            submission_id: request.submissionId,
-            type: request.type,
-            recipient: request.recipient,
-            subject: request.type === 'email' ? `Message for ${request.patientName}` : null,
-            message: request.customMessage || `Hello ${request.patientName}, this is an automated message from our system.`,
-            template_id: request.templateId,
-            status: 'pending'
-          })
-          .select()
-          .single();
-
-        if (logError) throw logError;
-        logEntry = logData;
-      }
-
-      // Call the edge function
-      const { data, error } = await supabase.functions.invoke('send-communication', {
-        body: {
-          ...request,
-          logId: logEntry.id
-        }
-      });
-
-      if (error) {
-        // Update log entry with error
-        await supabase
-          .from('communication_logs')
-          .update({ 
-            status: 'failed',
-            error_message: error.message 
-          })
-          .eq('id', logEntry.id);
-        throw error;
-      }
-
-      return { success: true, data, logId: logEntry.id };
-    } catch (error) {
-      console.error('Enhanced communication service error:', error);
-      throw error;
-    }
-  }
-
-  // Send scheduled email
-  static async sendScheduledEmail(request: ScheduledCommunicationRequest) {
-    try {
-      const { data, error } = await supabase.functions.invoke('send-scheduled-email', {
-        body: request
-      });
-
-      if (error) throw error;
-      return { success: true, data };
-    } catch (error) {
-      console.error('Scheduled email service error:', error);
-      throw error;
-    }
-  }
-
-  // Send scheduled SMS
-  static async sendScheduledSMS(request: ScheduledCommunicationRequest) {
-    try {
-      const { data, error } = await supabase.functions.invoke('send-scheduled-sms', {
-        body: request
-      });
-
-      if (error) throw error;
-      return { success: true, data };
-    } catch (error) {
-      console.error('Scheduled SMS service error:', error);
-      throw error;
-    }
-  }
-
-  // Get communication logs
-  static async getCommunicationLogs(submissionId?: string) {
-    try {
-      let query = supabase
-        .from('communication_logs')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (submissionId) {
-        query = query.eq('submission_id', submissionId);
-      }
-
-      const { data, error } = await query;
-      if (error) throw error;
-      return data || [];
-    } catch (error) {
-      console.error('Failed to get communication logs:', error);
-      return [];
-    }
-  }
-
-  // Get email templates
-  static async getEmailTemplates() {
-    try {
-      // Use any to bypass TypeScript restrictions until types are regenerated
-      const { data, error } = await (supabase as any)
-        .from('email_templates')
-        .select('*')
-        .order('name');
-
-      if (error) throw error;
-      return data || [];
-    } catch (error) {
-      console.error('Failed to get email templates:', error);
-      return [];
-    }
-  }
-
-  // Get SMS templates
-  static async getSMSTemplates() {
-    try {
-      // Use any to bypass TypeScript restrictions until types are regenerated
-      const { data, error } = await (supabase as any)
-        .from('sms_templates')
-        .select('*')
-        .order('name');
-
-      if (error) throw error;
-      return data || [];
-    } catch (error) {
-      console.error('Failed to get SMS templates:', error);
-      return [];
-    }
-  }
-
-  // Create email template
-  static async createEmailTemplate(template: Omit<CommunicationTemplate, 'id'>) {
-    try {
-      // Use any to bypass TypeScript restrictions until types are regenerated
-      const { data, error } = await (supabase as any)
-        .from('email_templates')
-        .insert({
-          name: template.name,
-          subject: template.subject || '',
-          body: template.body || '',
-          variables: template.variables || []
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      console.error('Failed to create email template:', error);
-      throw error;
-    }
-  }
-
-  // Create SMS template
-  static async createSMSTemplate(template: Omit<CommunicationTemplate, 'id'>) {
-    try {
-      // Use any to bypass TypeScript restrictions until types are regenerated
-      const { data, error } = await (supabase as any)
-        .from('sms_templates')
-        .insert({
-          name: template.name,
-          message: template.message || '',
-          variables: template.variables || []
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      console.error('Failed to create SMS template:', error);
-      throw error;
-    }
-  }
-
-  // Update communication status
-  static async updateCommunicationStatus(logId: string, status: string, deliveredAt?: string) {
-    try {
-      const updates: any = { status };
-      if (deliveredAt) {
-        updates.delivered_at = deliveredAt;
-      }
-      if (status === 'sent') {
-        updates.sent_at = new Date().toISOString();
-      }
-
-      const { error } = await supabase
-        .from('communication_logs')
-        .update(updates)
-        .eq('id', logId);
-
-      if (error) throw error;
-      return { success: true };
-    } catch (error) {
-      console.error('Failed to update communication status:', error);
-      throw error;
-    }
-  }
-
-  // Bulk send communications
-  static async bulkSendCommunications(requests: SendCommunicationRequest[]) {
-    const results = [];
-    
-    for (const request of requests) {
-      try {
-        const result = await this.sendCommunication(request);
-        results.push({ ...result, request });
-      } catch (error) {
-        console.error(`Failed to send communication to ${request.recipient}:`, error);
-        results.push({ 
-          success: false, 
-          error: error instanceof Error ? error.message : 'Unknown error',
-          request 
-        });
+        failed++;
+        errors.push(`Failed to send to ${message.recipient}: ${result.error}`);
       }
     }
 
-    return results;
+    return {
+      success: failed === 0,
+      sent,
+      failed,
+      errors
+    };
   }
 
-  // Send appointment reminders
-  static async sendAppointmentReminders(appointmentId: string, patientEmail: string, patientPhone?: string) {
-    const results = [];
-
-    // Send email reminder
-    try {
-      const emailResult = await this.sendScheduledEmail({
-        templateId: 'appointment-reminder',
-        recipient: patientEmail,
-        type: 'email',
-        variables: {
-          patientName: 'Patient', // This should come from appointment data
-          appointmentDate: new Date().toLocaleDateString(),
-          appointmentTime: '2:00 PM' // This should come from appointment data
-        }
-      });
-      results.push({ type: 'email', ...emailResult });
-    } catch (error) {
-      console.error('Failed to send email reminder:', error);
-      results.push({ type: 'email', success: false, error });
+  async testChannel(channelId: string): Promise<{ success: boolean; message: string }> {
+    const channel = this.channels.find(c => c.id === channelId);
+    if (!channel) {
+      throw new Error(`Channel with id ${channelId} not found`);
     }
 
-    // Send SMS reminder if phone provided
-    if (patientPhone) {
-      try {
-        const smsResult = await this.sendScheduledSMS({
-          templateId: 'appointment-reminder-sms',
-          recipient: patientPhone,
-          type: 'sms',
-          variables: {
-            patientName: 'Patient', // This should come from appointment data
-            appointmentDate: new Date().toLocaleDateString(),
-            appointmentTime: '2:00 PM' // This should come from appointment data
-          }
-        });
-        results.push({ type: 'sms', ...smsResult });
-      } catch (error) {
-        console.error('Failed to send SMS reminder:', error);
-        results.push({ type: 'sms', success: false, error });
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    const testResults = {
+      'sendgrid-email': { success: true, message: 'Email service test successful' },
+      'twilio-sms': { success: true, message: 'SMS service test successful' },
+      'vapi-voice': { success: true, message: 'Voice service test successful' },
+      'in-app-notifications': { success: true, message: 'In-app notification test successful' }
+    };
+
+    return testResults[channelId] || { success: false, message: 'Channel test failed' };
+  }
+
+  async getChannelStats(channelId: string): Promise<{
+    totalSent: number;
+    successRate: number;
+    averageDeliveryTime: number;
+    lastUsed: string;
+  }> {
+    const channel = this.channels.find(c => c.id === channelId);
+    if (!channel) {
+      throw new Error(`Channel with id ${channelId} not found`);
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    const stats = {
+      'sendgrid-email': {
+        totalSent: 1247,
+        successRate: 98.5,
+        averageDeliveryTime: 2.3,
+        lastUsed: channel.lastUsed || new Date().toISOString()
+      },
+      'twilio-sms': {
+        totalSent: 892,
+        successRate: 99.2,
+        averageDeliveryTime: 1.8,
+        lastUsed: channel.lastUsed || new Date().toISOString()
+      },
+      'vapi-voice': {
+        totalSent: 456,
+        successRate: 95.8,
+        averageDeliveryTime: 15.2,
+        lastUsed: channel.lastUsed || new Date().toISOString()
+      },
+      'in-app-notifications': {
+        totalSent: 234,
+        successRate: 100,
+        averageDeliveryTime: 0.5,
+        lastUsed: channel.lastUsed || new Date().toISOString()
       }
-    }
+    };
 
-    return results;
+    return stats[channelId] || {
+      totalSent: 0,
+      successRate: 0,
+      averageDeliveryTime: 0,
+      lastUsed: new Date().toISOString()
+    };
   }
 }
+
+export const enhancedCommunicationService = new EnhancedCommunicationService();

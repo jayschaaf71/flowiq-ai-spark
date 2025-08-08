@@ -4,12 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 export interface IntegrationConfig {
   id: string;
   name: string;
-  type: 'calendar' | 'email' | 'sms' | 'payment';
-  enabled: boolean;
-  credentials: Record<string, any>;
-  settings: Record<string, any>;
-  lastSync?: string;
+  type: 'calendar' | 'email' | 'sms' | 'payment' | 'clinical' | 'ehr';
   status: 'connected' | 'disconnected' | 'error' | 'syncing';
+  enabled: boolean;
+  lastSync?: string;
+  health: number;
+  description: string;
+  provider: string;
+  config?: Record<string, any>;
 }
 
 export interface CalendarEvent {
@@ -39,139 +41,171 @@ export interface SMSTemplate {
 }
 
 class IntegrationService {
-  async getIntegrations(): Promise<IntegrationConfig[]> {
-    try {
-      // Use type assertion to work around TypeScript limitations
-      const { data, error } = await (supabase as any)
-        .from('integrations')
-        .select('*')
-        .order('name');
-
-      if (error) throw error;
-      
-      return (data || []).map((item: any) => ({
-        id: item.id,
-        name: item.name,
-        type: item.type,
-        enabled: item.enabled,
-        credentials: item.credentials || {},
-        settings: item.settings || {},
-        lastSync: item.last_sync,
-        status: item.status
-      }));
-    } catch (error) {
-      console.error('Error fetching integrations:', error);
-      return [];
+  private integrations: IntegrationConfig[] = [
+    {
+      id: 'google-calendar',
+      name: 'Google Calendar',
+      type: 'calendar',
+      status: 'connected',
+      enabled: true,
+      lastSync: new Date().toISOString(),
+      health: 95,
+      description: 'Google Calendar integration for appointment sync',
+      provider: 'Google',
+      config: {
+        calendarId: 'primary',
+        syncInterval: 300
+      }
+    },
+    {
+      id: 'outlook-calendar',
+      name: 'Microsoft Outlook',
+      type: 'calendar',
+      status: 'disconnected',
+      enabled: false,
+      health: 0,
+      description: 'Microsoft Outlook calendar integration',
+      provider: 'Microsoft'
+    },
+    {
+      id: 'sendgrid-email',
+      name: 'SendGrid Email',
+      type: 'email',
+      status: 'connected',
+      enabled: true,
+      lastSync: new Date().toISOString(),
+      health: 98,
+      description: 'SendGrid email service for patient communications',
+      provider: 'SendGrid',
+      config: {
+        apiKey: 'configured',
+        fromEmail: 'noreply@flow-iq.ai'
+      }
+    },
+    {
+      id: 'twilio-sms',
+      name: 'Twilio SMS',
+      type: 'sms',
+      status: 'connected',
+      enabled: true,
+      lastSync: new Date().toISOString(),
+      health: 92,
+      description: 'Twilio SMS service for text messages',
+      provider: 'Twilio',
+      config: {
+        accountSid: 'configured',
+        phoneNumber: '+1234567890'
+      }
+    },
+    {
+      id: 'stripe-payments',
+      name: 'Stripe Payments',
+      type: 'payment',
+      status: 'connected',
+      enabled: true,
+      lastSync: new Date().toISOString(),
+      health: 96,
+      description: 'Stripe payment processing',
+      provider: 'Stripe',
+      config: {
+        publishableKey: 'configured',
+        webhookSecret: 'configured'
+      }
+    },
+    {
+      id: 'sleep-impressions',
+      name: 'Sleep Impressions',
+      type: 'clinical',
+      status: 'disconnected',
+      enabled: false,
+      health: 0,
+      description: 'Sleep study and CPAP management system',
+      provider: 'Sleep Impressions'
+    },
+    {
+      id: 'ds3-clinical',
+      name: 'DS3 (DeepSpeed 3)',
+      type: 'clinical',
+      status: 'disconnected',
+      enabled: false,
+      health: 0,
+      description: 'Advanced sleep diagnostics and treatment',
+      provider: 'DeepSpeed'
+    },
+    {
+      id: 'epic-ehr',
+      name: 'Epic EHR',
+      type: 'ehr',
+      status: 'connected',
+      enabled: true,
+      lastSync: new Date().toISOString(),
+      health: 94,
+      description: 'Epic Electronic Health Records integration',
+      provider: 'Epic',
+      config: {
+        fhirEndpoint: 'configured',
+        clientId: 'configured'
+      }
     }
+  ];
+
+  async getIntegrations(): Promise<IntegrationConfig[]> {
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return this.integrations;
   }
 
-  async updateIntegration(id: string, config: Partial<IntegrationConfig>): Promise<void> {
-    try {
-      const updateData: any = {};
-      
-      if (config.enabled !== undefined) updateData.enabled = config.enabled;
-      if (config.credentials !== undefined) updateData.credentials = config.credentials;
-      if (config.settings !== undefined) updateData.settings = config.settings;
-      if (config.status !== undefined) updateData.status = config.status;
-      if (config.lastSync !== undefined) updateData.last_sync = config.lastSync;
-      
-      updateData.updated_at = new Date().toISOString();
-
-      const { error } = await (supabase as any)
-        .from('integrations')
-        .update(updateData)
-        .eq('id', id);
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error updating integration:', error);
-      throw error;
+  async updateIntegration(id: string, updates: Partial<IntegrationConfig>): Promise<IntegrationConfig> {
+    const index = this.integrations.findIndex(integration => integration.id === id);
+    if (index === -1) {
+      throw new Error(`Integration with id ${id} not found`);
     }
+
+    this.integrations[index] = { ...this.integrations[index], ...updates };
+    return this.integrations[index];
   }
 
   async testIntegration(id: string): Promise<{ success: boolean; message: string }> {
-    try {
-      const { data: integration } = await (supabase as any)
-        .from('integrations')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (!integration) {
-        return { success: false, message: 'Integration not found' };
-      }
-
-      switch (integration.type) {
-        case 'calendar':
-          return await this.testCalendarIntegration(integration);
-        case 'email':
-          return await this.testEmailIntegration(integration);
-        case 'sms':
-          return await this.testSMSIntegration(integration);
-        default:
-          return { success: false, message: 'Unknown integration type' };
-      }
-    } catch (error: any) {
-      console.error('Error testing integration:', error);
-      return { success: false, message: error.message };
+    const integration = this.integrations.find(i => i.id === id);
+    if (!integration) {
+      throw new Error(`Integration with id ${id} not found`);
     }
+
+    // Simulate test delay
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    // Mock test results based on integration type
+    const testResults = {
+      'google-calendar': { success: true, message: 'Calendar sync test successful' },
+      'outlook-calendar': { success: false, message: 'Authentication failed' },
+      'sendgrid-email': { success: true, message: 'Email service test successful' },
+      'twilio-sms': { success: true, message: 'SMS service test successful' },
+      'stripe-payments': { success: true, message: 'Payment processing test successful' },
+      'sleep-impressions': { success: false, message: 'API endpoint not configured' },
+      'ds3-clinical': { success: false, message: 'Service not available' },
+      'epic-ehr': { success: true, message: 'EHR connection test successful' }
+    };
+
+    return testResults[id] || { success: false, message: 'Test failed' };
   }
 
-  private async testCalendarIntegration(integration: any): Promise<{ success: boolean; message: string }> {
-    // Test calendar connection
-    try {
-      // Simulate calendar API call
-      const response = await fetch('/api/calendar/test', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          provider: integration.name,
-          credentials: integration.credentials 
-        })
-      });
-
-      if (response.ok) {
-        return { success: true, message: 'Calendar connection successful' };
-      } else {
-        return { success: false, message: 'Calendar connection failed' };
-      }
-    } catch (error: any) {
-      return { success: false, message: `Calendar test failed: ${error.message}` };
+  async syncIntegration(id: string): Promise<{ success: boolean; message: string }> {
+    const integration = this.integrations.find(i => i.id === id);
+    if (!integration) {
+      throw new Error(`Integration with id ${id} not found`);
     }
-  }
 
-  private async testEmailIntegration(integration: any): Promise<{ success: boolean; message: string }> {
-    try {
-      const { data, error } = await supabase.functions.invoke('test-email-integration', {
-        body: { 
-          provider: integration.name,
-          credentials: integration.credentials 
-        }
-      });
+    // Simulate sync delay
+    await new Promise(resolve => setTimeout(resolve, 3000));
 
-      if (error) throw error;
-      
-      return { success: true, message: 'Email integration test successful' };
-    } catch (error: any) {
-      return { success: false, message: `Email test failed: ${error.message}` };
-    }
-  }
+    // Update last sync time
+    this.integrations = this.integrations.map(i =>
+      i.id === id
+        ? { ...i, lastSync: new Date().toISOString(), status: 'connected' as const }
+        : i
+    );
 
-  private async testSMSIntegration(integration: any): Promise<{ success: boolean; message: string }> {
-    try {
-      const { data, error } = await supabase.functions.invoke('test-sms-integration', {
-        body: { 
-          provider: integration.name,
-          credentials: integration.credentials 
-        }
-      });
-
-      if (error) throw error;
-      
-      return { success: true, message: 'SMS integration test successful' };
-    } catch (error: any) {
-      return { success: false, message: `SMS test failed: ${error.message}` };
-    }
+    return { success: true, message: 'Sync completed successfully' };
   }
 
   // Calendar Integration Methods

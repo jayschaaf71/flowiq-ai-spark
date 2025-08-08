@@ -1,4 +1,3 @@
-
 import React, { Component, ReactNode } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -38,34 +37,24 @@ export class OnboardingErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="container mx-auto mt-10 p-6">
-          <Card className="max-w-md mx-auto">
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+          <Card className="w-full max-w-md">
             <CardHeader className="text-center">
               <div className="flex justify-center mb-4">
-                <AlertTriangle className="w-12 h-12 text-red-500" />
+                <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-red-100 text-red-600">
+                  <AlertTriangle className="h-8 w-8" />
+                </div>
               </div>
-              <CardTitle className="text-red-900">Oops! Something went wrong</CardTitle>
+              <CardTitle className="text-xl font-bold">Something went wrong</CardTitle>
             </CardHeader>
-            <CardContent className="text-center space-y-4">
-              <p className="text-gray-600">
-                We encountered an issue during your onboarding setup. Don't worry - your progress has been saved.
+            <CardContent className="text-center">
+              <p className="text-gray-600 mb-4">
+                We encountered an error while setting up your account. This is usually temporary.
               </p>
-              <div className="space-y-2">
-                <Button onClick={this.handleRetry} className="w-full">
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  Try Again
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => window.location.reload()} 
-                  className="w-full"
-                >
-                  Refresh Page
-                </Button>
-              </div>
-              <p className="text-xs text-gray-500">
-                If the problem persists, please contact support.
-              </p>
+              <Button onClick={this.handleRetry} className="w-full">
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Try Again
+              </Button>
             </CardContent>
           </Card>
         </div>
@@ -74,4 +63,4 @@ export class OnboardingErrorBoundary extends Component<Props, State> {
 
     return this.props.children;
   }
-}
+} 

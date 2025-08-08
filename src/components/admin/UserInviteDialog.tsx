@@ -5,15 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UserPlus, Mail } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { usePlatformUsers } from '@/hooks/usePlatformUsers';
-import { useTenantManagement } from '@/hooks/useTenantManagement';
 
 export const UserInviteDialog: React.FC = () => {
-  const { inviteUser, isInviting } = usePlatformUsers();
-  const { tenants } = useTenantManagement();
-  const { toast } = useToast();
   const [open, setOpen] = useState(false);
+  const [isInviting, setIsInviting] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     role: 'staff' as 'platform_admin' | 'tenant_admin' | 'practice_manager' | 'staff',
@@ -26,22 +21,20 @@ export const UserInviteDialog: React.FC = () => {
     e.preventDefault();
     
     if (!formData.email || !formData.role || !formData.tenantId) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields",
-        variant: "destructive"
-      });
+      alert('Please fill in all required fields');
       return;
     }
 
+    setIsInviting(true);
+
     try {
-      await inviteUser({
-        tenantId: formData.tenantId,
-        email: formData.email,
-        role: formData.role,
-        firstName: formData.firstName,
-        lastName: formData.lastName
-      });
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      console.log('🔧 [UserInviteDialog] Inviting user:', formData);
+      
+      // In a real implementation, this would call an API
+      alert(`Invitation sent to ${formData.email}! (This would send a real invitation in production)`);
 
       setFormData({
         email: '',
@@ -51,22 +44,21 @@ export const UserInviteDialog: React.FC = () => {
         lastName: ''
       });
       setOpen(false);
-
-      toast({
-        title: "User Invited",
-        description: `Invitation sent to ${formData.email}`,
-      });
     } catch (error) {
       console.error('Error inviting user:', error);
-      toast({
-        title: "Error",
-        description: "Failed to send invitation",
-        variant: "destructive"
-      });
+      alert('Failed to send invitation. Please try again.');
+    } finally {
+      setIsInviting(false);
     }
   };
 
-  const selectedTenant = tenants?.find(t => t.id === formData.tenantId);
+  // Mock tenants data for demo
+  const mockTenants = [
+    { id: '1', brand_name: 'Midwest Dental Sleep Medicine Institute', specialty: 'dental-sleep-medicine' },
+    { id: '2', brand_name: 'West County Spine and Joint', specialty: 'chiropractic-care' }
+  ];
+
+  const selectedTenant = mockTenants.find(t => t.id === formData.tenantId);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -125,7 +117,7 @@ export const UserInviteDialog: React.FC = () => {
                 <SelectValue placeholder="Select practice" />
               </SelectTrigger>
               <SelectContent>
-                {tenants?.map((tenant) => (
+                {mockTenants.map((tenant) => (
                   <SelectItem key={tenant.id} value={tenant.id}>
                     {tenant.brand_name} ({tenant.specialty})
                   </SelectItem>

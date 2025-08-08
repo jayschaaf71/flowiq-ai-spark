@@ -70,17 +70,28 @@ export class SidebarService {
   async getAgentStatus(): Promise<Record<string, boolean>> {
     // TODO: Replace with actual API call to /agent-status
     return {
+      // Consolidated Agents (10 total)
+      'communication-iq': true,
       'scribe-iq': true,
+      'ehr-iq': true,
+      'revenue-iq': true,
+      'insurance-iq': true,
+      'inventory-iq': true,
+      'ops-iq': true,
+      'insight-iq': true,
+      'education-iq': true,
+      'growth-iq': true,
+      
+      // Legacy agents (for backward compatibility)
       'appointment-iq': true,
       'intake-iq': true,
-      'education-iq': true,
       'marketing-iq': true,
       'referral-iq': true,
       'auth-iq': true,
       'claims-iq': true,
       'payments-iq': true,
-      'inventory-iq': true,
-      'ops-iq': true
+      'billing-iq': true,
+      'go-to-market-iq': true
     };
   }
 }

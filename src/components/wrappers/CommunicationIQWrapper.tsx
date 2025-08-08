@@ -14,72 +14,54 @@ interface CommunicationIQWrapperProps {
   };
 }
 
-export const CommunicationIQWrapper: React.FC<CommunicationIQWrapperProps> = ({ 
-  children, 
+export const CommunicationIQWrapper: React.FC<CommunicationIQWrapperProps> = ({
+  children,
   mode = 'integrated',
-  tenantConfig 
+  tenantConfig
 }) => {
   const isStandalone = mode === 'standalone';
-  
+
+  // Always wrap with SpecialtyProvider to avoid context errors
+  const wrappedChildren = (
+    <SpecialtyProvider>
+      {children}
+    </SpecialtyProvider>
+  );
+
   // Standalone mode has different auth requirements and styling
   if (isStandalone) {
     return (
-      <div className="communicationiq-standalone">
+      <div className="flowiq-connect-standalone">
         <style>{`
-          .communicationiq-standalone {
-            --primary: 214 100% 59%;
+          .flowiq-connect-standalone {
+            --primary: 142 76% 36%;
             --primary-foreground: 0 0% 98%;
-            --secondary: 214 95% 69%;
-            --secondary-foreground: 214 10% 10%;
-            --accent: 214 100% 94%;
-            --accent-foreground: 214 10% 10%;
-            --muted: 214 30% 95%;
-            --muted-foreground: 214 5% 45%;
-            --border: 214 30% 82%;
+            --secondary: 142 76% 46%;
+            --secondary-foreground: 142 10% 10%;
+            --accent: 142 76% 94%;
+            --accent-foreground: 142 10% 10%;
+            --muted: 142 30% 95%;
+            --muted-foreground: 142 5% 45%;
+            --border: 142 30% 82%;
             --card: 0 0% 100%;
-            --card-foreground: 214 10% 10%;
-            --brand-name: "${tenantConfig?.branding?.name || 'Communication IQ'}";
+            --card-foreground: 142 10% 10%;
+            --brand-name: "${tenantConfig?.branding?.name || 'FlowIQ Connect'}";
             --specialty-features: "smart-communication, ai-scheduling, customer-support, multi-channel";
           }
           
-          .communicationiq-standalone-header {
-            background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
-            color: hsl(var(--primary-foreground));
-            padding: 1.5rem;
-            text-align: center;
-            border-radius: 0.5rem;
-            margin-bottom: 2rem;
-          }
-          
-          .communicationiq-standalone-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1rem;
-          }
-          
-          .communicationiq-specialty-badge {
-            background: hsl(var(--accent));
-            color: hsl(var(--accent-foreground));
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.875rem;
-            font-weight: 500;
+          .flowiq-connect-standalone-content {
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
           }
         `}</style>
-        
-        {/* Standalone header */}
-        <div className="communicationiq-standalone-header">
-          <h1 className="text-3xl font-bold mb-2">
-            {tenantConfig?.branding?.name || 'Communication IQ'}
-          </h1>
-          <p className="opacity-90 text-lg mb-3">AI-Powered Communication System for Any Business</p>
-          <span className="communicationiq-specialty-badge">
-            Smart Communication Platform
-          </span>
-        </div>
-        
-        <div className="communicationiq-standalone-content">
-          {children}
+
+        <div className="flowiq-connect-standalone-content">
+          {wrappedChildren}
         </div>
       </div>
     );
@@ -88,57 +70,27 @@ export const CommunicationIQWrapper: React.FC<CommunicationIQWrapperProps> = ({
   // Integrated mode uses tenant protection and specialty context
   return (
     <TenantProtectedRoute requiredRole="staff">
-      <SpecialtyProvider>
-        <div className="communicationiq-integrated">
-          <style>{`
-            .communicationiq-integrated {
-              --primary: 214 100% 59%;
-              --primary-foreground: 0 0% 98%;
-              --secondary: 214 95% 69%;
-              --secondary-foreground: 214 10% 10%;
-              --accent: 214 100% 94%;
-              --accent-foreground: 214 10% 10%;
-              --muted: 214 30% 95%;
-              --muted-foreground: 214 5% 45%;
-              --border: 214 30% 82%;
-              --card: 0 0% 100%;
-              --card-foreground: 214 10% 10%;
-              --brand-name: "Communication IQ";
-              --specialty-features: "smart-communication, ai-scheduling, customer-support, automation";
-            }
-            
-            .communicationiq-integrated-header {
-              background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
-              color: hsl(var(--primary-foreground));
-              padding: 1rem;
-              border-radius: 0.5rem;
-              margin-bottom: 1.5rem;
-              text-align: center;
-            }
-            
-            .communicationiq-specialty-badge {
-              background: hsl(var(--accent));
-              color: hsl(var(--accent-foreground));
-              padding: 0.25rem 0.75rem;
-              border-radius: 9999px;
-              font-size: 0.875rem;
-              font-weight: 500;
-            }
-          `}</style>
-          
-          <div className="communicationiq-integrated-header">
-            <h2 className="text-xl font-semibold mb-2">Communication IQ</h2>
-            <p className="opacity-90 mb-2">AI-Powered Communication System</p>
-            <div className="flex justify-center">
-              <span className="communicationiq-specialty-badge">
-                Smart Communication Platform
-              </span>
-            </div>
-          </div>
-          
-          {children}
-        </div>
-      </SpecialtyProvider>
+      <div className="flowiq-connect-integrated">
+        <style>{`
+          .flowiq-connect-integrated {
+            --primary: 142 76% 36%;
+            --primary-foreground: 0 0% 98%;
+            --secondary: 142 76% 46%;
+            --secondary-foreground: 142 10% 10%;
+            --accent: 142 76% 94%;
+            --accent-foreground: 142 10% 10%;
+            --muted: 142 30% 95%;
+            --muted-foreground: 142 5% 45%;
+            --border: 142 30% 82%;
+            --card: 0 0% 100%;
+            --card-foreground: 142 10% 10%;
+            --brand-name: "FlowIQ Connect";
+            --specialty-features: "smart-communication, ai-scheduling, customer-support, automation";
+          }
+        `}</style>
+
+        {wrappedChildren}
+      </div>
     </TenantProtectedRoute>
   );
 };

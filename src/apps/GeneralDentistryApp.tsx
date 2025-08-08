@@ -1,9 +1,9 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { Layout } from '@/components/Layout';
+import { ModernLayout } from '@/components/layout/ModernLayout';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { SpecialtyWrapper } from '@/components/wrappers/SpecialtyWrapper';
-import { Dashboard } from '@/pages/Dashboard';
+import { DentalDashboard } from '@/components/specialty/dashboards/DentalDashboard';
 import Schedule from '@/pages/Schedule';
 import PatientManagement from '@/pages/PatientManagement';
 import Team from '@/pages/Team';
@@ -11,32 +11,32 @@ import Settings from '@/pages/Settings';
 
 const GeneralDentistryApp = () => {
   return (
-    <SpecialtyWrapper specialty="general_dentistry">
+    <SpecialtyWrapper specialty="general-dentistry">
       <Routes>
-        <Route path="/" element={<Navigate to="/general-dentistry/dashboard" replace />} />
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={
           <ProtectedRoute requiredRole="staff">
-            <Layout><Dashboard /></Layout>
+            <ModernLayout><DentalDashboard /></ModernLayout>
           </ProtectedRoute>
         } />
         <Route path="/schedule" element={
           <ProtectedRoute requiredRole="staff">
-            <Layout><Schedule /></Layout>
+            <ModernLayout><Schedule /></ModernLayout>
           </ProtectedRoute>
         } />
         <Route path="/patients" element={
           <ProtectedRoute requiredRole="staff">
-            <Layout><PatientManagement /></Layout>
+            <ModernLayout><PatientManagement /></ModernLayout>
           </ProtectedRoute>
         } />
         <Route path="/team" element={
           <ProtectedRoute requiredRole="staff">
-            <Layout><Team /></Layout>
+            <ModernLayout><Team /></ModernLayout>
           </ProtectedRoute>
         } />
         <Route path="/settings" element={
           <ProtectedRoute requiredRole="staff">
-            <Layout><Settings /></Layout>
+            <ModernLayout><Settings /></ModernLayout>
           </ProtectedRoute>
         } />
       </Routes>

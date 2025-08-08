@@ -15,30 +15,30 @@ const corsHeaders = {
 function processBase64Chunks(base64String: string, chunkSize = 32768) {
   const chunks: Uint8Array[] = [];
   let position = 0;
-  
+
   while (position < base64String.length) {
     const chunk = base64String.slice(position, position + chunkSize);
     const binaryChunk = atob(chunk);
     const bytes = new Uint8Array(binaryChunk.length);
-    
+
     for (let i = 0; i < binaryChunk.length; i++) {
       bytes[i] = binaryChunk.charCodeAt(i);
     }
-    
+
     chunks.push(bytes);
     position += chunkSize;
   }
-  
+
   // Combine all chunks into a single Uint8Array
   const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
   const result = new Uint8Array(totalLength);
   let offset = 0;
-  
+
   for (const chunk of chunks) {
     result.set(chunk, offset);
     offset += chunk.length;
   }
-  
+
   return result;
 }
 
@@ -90,10 +90,21 @@ serve(async (req) => {
   }
 
   try {
-    const { audioData, language = 'en' } = await req.json();
+    console.log('=== AI VOICE TRANSCRIPTION EDGE FUNCTION START ===');
+    const requestBody = await req.json();
+    console.log('Received request body keys:', Object.keys(requestBody));
+    console.log('Request body size:', JSON.stringify(requestBody).length);
+
+    // Handle both 'audio' and 'audioData' parameter names
+    const audioData = requestBody.audio || requestBody.audioData;
+    const language = requestBody.language || 'en';
+
+    console.log('Audio data present:', !!audioData);
+    console.log('Audio data length:', audioData?.length || 0);
+    console.log('Language:', language);
 
     if (!audioData) {
-      throw new Error('Audio data is required');
+      throw new Error('Audio data is required (audio or audioData parameter)');
     }
 
     if (!openAIApiKey) {
@@ -101,82 +112,127 @@ serve(async (req) => {
     }
 
     console.log('Processing audio data...');
-    
+    console.log('Audio data length:', audioData.length);
+
     // Convert base64 to audio file using chunked processing
+    console.log('Converting base64 to audio buffer...');
     const audioBuffer = processBase64Chunks(audioData);
-    
+
     console.log(`Converted audio buffer size: ${audioBuffer.length} bytes`);
 
-    // Create form data for OpenAI Whisper API
-    const formData = new FormData();
-    const audioBlob = new Blob([audioBuffer], { type: 'audio/webm' });
-    formData.append('file', audioBlob, 'audio.webm');
-    formData.append('model', 'whisper-1');
-    formData.append('language', language);
+    // Try different audio formats
+    const audioFormats = [
+      { type: 'audio/webm', extension: 'webm' },
+      { type: 'audio/mp4', extension: 'm4a' },
+      { type: 'audio/wav', extension: 'wav' },
+      { type: 'audio/mpeg', extension: 'mp3' }
+    ];
 
-    console.log('Sending request to OpenAI Whisper API...');
+    let transcriptionResult = null;
+    let lastError = null;
 
-    // Call OpenAI Whisper API
-    const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-      },
-      body: formData,
-    });
+    for (const format of audioFormats) {
+      try {
+        console.log(`Trying format: ${format.type}`);
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('OpenAI API error:', errorText);
-      throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`);
+        // Create form data for OpenAI Whisper API
+        const formData = new FormData();
+        const audioBlob = new Blob([audioBuffer], { type: format.type });
+        console.log(`Created audio blob for ${format.type}, size: ${audioBlob.size} bytes`);
+
+        formData.append('file', audioBlob, `audio.${format.extension}`);
+        formData.append('model', 'whisper-1');
+        formData.append('language', language);
+
+        console.log(`Sending request to OpenAI Whisper API with ${format.type}...`);
+
+        // Call OpenAI Whisper API
+        const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${openAIApiKey}`,
+          },
+          body: formData,
+        });
+
+        console.log(`OpenAI response status: ${response.status} ${response.statusText}`);
+
+        if (response.ok) {
+          const result = await response.json();
+          console.log('Transcription successful with format:', format.type);
+          console.log('Transcription result:', result);
+          transcriptionResult = result;
+          break;
+        } else {
+          const errorText = await response.text();
+          console.error(`OpenAI API error with ${format.type}:`, errorText);
+          lastError = `Format ${format.type} failed: ${response.status} ${response.statusText}`;
+        }
+      } catch (formatError) {
+        console.error(`Error with format ${format.type}:`, formatError);
+        lastError = formatError.message;
+      }
     }
 
-    const result = await response.json();
+    if (!transcriptionResult) {
+      console.error('All audio formats failed. Last error:', lastError);
+      throw new Error(`All audio formats failed. Last error: ${lastError}`);
+    }
+
     console.log('Transcription successful');
+    console.log('Raw transcription text:', transcriptionResult.text);
 
     // Anonymize PII before storing/returning
-    const { anonymized, keyMap } = anonymizeTranscription(result.text);
-    
+    const { anonymized, keyMap } = anonymizeTranscription(transcriptionResult.text);
+    console.log('Anonymized transcription:', anonymized);
+
     // Store the anonymized version in database
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
-    
+
     // Log the transcription request
     await supabase.from('voice_call_transcriptions').insert({
       original_text: anonymized, // Store anonymized version
-      confidence_score: result.confidence || 0.9,
+      confidence_score: transcriptionResult.confidence || 0.9,
       language: language,
       created_at: new Date().toISOString(),
     });
 
     // Return the restored (de-anonymized) text to the client
     const restoredText = restoreTranscription(anonymized, keyMap);
+    console.log('Final restored text:', restoredText);
+
+    const response = {
+      transcription: restoredText, // Changed from 'text' to 'transcription' to match hook expectations
+      language: language,
+      confidence: transcriptionResult.confidence || 0.9
+    };
+
+    console.log('=== AI VOICE TRANSCRIPTION EDGE FUNCTION COMPLETE ===');
+    console.log('Returning response:', response);
 
     return new Response(
-      JSON.stringify({ 
-        text: restoredText,
-        language: language,
-        confidence: result.confidence || 0.9
-      }),
-      { 
-        headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json' 
-        } 
+      JSON.stringify(response),
+      {
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
       }
     );
 
   } catch (error) {
+    console.error('=== AI VOICE TRANSCRIPTION EDGE FUNCTION ERROR ===');
     console.error('Error processing transcription:', error);
     return new Response(
-      JSON.stringify({ 
-        error: error.message || 'Failed to process transcription' 
+      JSON.stringify({
+        error: error.message || 'Failed to process transcription'
       }),
-      { 
+      {
         status: 500,
-        headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json' 
-        } 
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        }
       }
     );
   }

@@ -39,8 +39,11 @@ jobs:
         cache: 'npm'
         
     - name: Install Supabase CLI
-      run: npm install -g supabase
-      
+      run: |
+        echo "Installing Supabase CLI..."
+        npm install -g @supabase/cli
+        supabase --version
+        
     - name: Validate migration syntax
       run: |
         echo "Validating migration file syntax..."
@@ -108,8 +111,11 @@ jobs:
         cache: 'npm'
         
     - name: Install Supabase CLI
-      run: npm install -g supabase
-      
+      run: |
+        echo "Installing Supabase CLI..."
+        npm install -g @supabase/cli
+        supabase --version
+        
     - name: Deploy to staging
       run: |
         echo "Deploying migrations to staging..."
@@ -143,8 +149,11 @@ jobs:
         cache: 'npm'
         
     - name: Install Supabase CLI
-      run: npm install -g supabase
-      
+      run: |
+        echo "Installing Supabase CLI..."
+        npm install -g @supabase/cli
+        supabase --version
+        
     - name: Create backup
       run: |
         echo "Creating database backup before migration..."
@@ -192,8 +201,11 @@ jobs:
         cache: 'npm'
         
     - name: Install Supabase CLI
-      run: npm install -g supabase
-      
+      run: |
+        echo "Installing Supabase CLI..."
+        npm install -g @supabase/cli
+        supabase --version
+        
     - name: Generate rollback plan
       run: |
         echo "Generating rollback plan..."

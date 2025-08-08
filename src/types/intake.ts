@@ -15,7 +15,6 @@ export interface FormField {
 }
 
 // Use JSON-compatible type for database (using any for Supabase compatibility)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type FormFieldsJson = any;
 export type FormDataJson = Record<string, unknown>; // Flexible form data structure
 

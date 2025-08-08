@@ -31,6 +31,7 @@ Add these CNAME records to your flow-iq.ai domain:
 app.flow-iq.ai                 → cname.vercel-dns.com
 midwest-dental-sleep.flow-iq.ai → cname.vercel-dns.com
 west-county-spine.flow-iq.ai   → cname.vercel-dns.com
+communication-iq.flow-iq.ai    → cname.vercel-dns.com
 ```
 
 ### 4. Environment Variables
@@ -48,6 +49,7 @@ VITE_ENVIRONMENT=production
 - `app.flow-iq.ai` - Main admin dashboard
 - `midwest-dental-sleep.flow-iq.ai` - Midwest Dental Sleep Medicine Institute
 - `west-county-spine.flow-iq.ai` - West County Spine and Joint
+- `communication-iq.flow-iq.ai` - Communication IQ Platform
 
 ### Tenant Detection
 The application automatically detects tenants based on subdomain and routes to appropriate configurations.
