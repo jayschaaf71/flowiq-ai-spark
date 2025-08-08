@@ -6,16 +6,10 @@ import { SpecialtyProvider } from '../contexts/SpecialtyContext';
 import { ChiropracticDashboard } from '../components/chiropractic/ChiropracticDashboard';
 import { Calendar } from '../pages/Calendar';
 import { ClinicalAssistant } from '../pages/agents/ClinicalAssistant';
-import ScribeIQ from '../pages/agents/ScribeIQ';
-import CommunicationIQ from '../pages/agents/CommunicationIQ';
-import EHR from '../pages/EHR';
-import RevenueIQ from '../pages/agents/RevenueIQ';
-import InsuranceIQ from '../pages/agents/InsuranceIQ';
-import InventoryIQ from '../pages/agents/InventoryIQ';
-import OpsIQ from '../pages/agents/OpsIQ';
-import InsightIQ from '../pages/agents/InsightIQ';
-import EducationIQ from '../pages/agents/EducationIQ';
-import GrowthIQ from '../pages/agents/GrowthIQ';
+import { CommunicationAssistant } from '../pages/agents/CommunicationAssistant';
+import { RevenueAssistant } from '../pages/agents/RevenueAssistant';
+import { OperationsAssistant } from '../pages/agents/OperationsAssistant';
+import { GrowthAssistant } from '../pages/agents/GrowthAssistant';
 import Settings from '../pages/Settings';
 import { useHealthcareSageAI } from '@/hooks/useHealthcareSageAI';
 
@@ -178,27 +172,19 @@ export const ChiropracticApp: React.FC = () => {
             </ProtectedRoute>
           } />
 
-          {/* Legacy AI Agents */}
+          {/* AI Assistants */}
           <Route path="/agents/communication" element={
             <ProtectedRoute requiredRole="staff">
               <ModernLayout>
-                <CommunicationIQ />
+                <CommunicationAssistant />
               </ModernLayout>
             </ProtectedRoute>
           } />
 
-          <Route path="/agents/scribe" element={
+          <Route path="/agents/clinical" element={
             <ProtectedRoute requiredRole="staff">
               <ModernLayout>
-                <ScribeIQ />
-              </ModernLayout>
-            </ProtectedRoute>
-          } />
-
-          <Route path="/agents/ehr" element={
-            <ProtectedRoute requiredRole="staff">
-              <ModernLayout>
-                <EHR />
+                <ClinicalAssistant />
               </ModernLayout>
             </ProtectedRoute>
           } />
@@ -206,47 +192,15 @@ export const ChiropracticApp: React.FC = () => {
           <Route path="/agents/revenue" element={
             <ProtectedRoute requiredRole="staff">
               <ModernLayout>
-                <RevenueIQ />
+                <RevenueAssistant />
               </ModernLayout>
             </ProtectedRoute>
           } />
 
-          <Route path="/agents/insurance" element={
+          <Route path="/agents/operations" element={
             <ProtectedRoute requiredRole="staff">
               <ModernLayout>
-                <InsuranceIQ />
-              </ModernLayout>
-            </ProtectedRoute>
-          } />
-
-          <Route path="/agents/inventory" element={
-            <ProtectedRoute requiredRole="staff">
-              <ModernLayout>
-                <InventoryIQ />
-              </ModernLayout>
-            </ProtectedRoute>
-          } />
-
-          <Route path="/agents/ops" element={
-            <ProtectedRoute requiredRole="staff">
-              <ModernLayout>
-                <OpsIQ />
-              </ModernLayout>
-            </ProtectedRoute>
-          } />
-
-          <Route path="/agents/insight" element={
-            <ProtectedRoute requiredRole="staff">
-              <ModernLayout>
-                <InsightIQ />
-              </ModernLayout>
-            </ProtectedRoute>
-          } />
-
-          <Route path="/agents/education" element={
-            <ProtectedRoute requiredRole="staff">
-              <ModernLayout>
-                <EducationIQ />
+                <OperationsAssistant />
               </ModernLayout>
             </ProtectedRoute>
           } />
@@ -254,7 +208,7 @@ export const ChiropracticApp: React.FC = () => {
           <Route path="/agents/growth" element={
             <ProtectedRoute requiredRole="staff">
               <ModernLayout>
-                <GrowthIQ />
+                <GrowthAssistant />
               </ModernLayout>
             </ProtectedRoute>
           } />
