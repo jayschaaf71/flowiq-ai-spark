@@ -1,0 +1,6 @@
+Patient ID,Visit Date,Stage,Notes
+P001,2025-01-15,Delivery,CPAP device delivered
+P002,2025-01-15,Consultation,Initial consultation
+P003,2025-01-14,Delivery,Sleep study equipment
+P004,2025-01-14,Follow-up,30-day follow-up
+P005,2025-01-13,Delivery,CPAP replacement
