@@ -1,50 +1,13 @@
 {
-  "version": 2,
-  "builds": [
+  "crons": [
     {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
+      "path": "/api/etl/sleepimpressions",
+      "schedule": "0 */6 * * *"
     }
   ],
-  "routes": [
-    {
-      "src": "/health",
-      "dest": "/health"
-    },
-    {
-      "src": "/assets/(.*)",
-      "dest": "/assets/$1"
-    },
-    {
-      "src": "/favicon.svg",
-      "dest": "/favicon.svg"
-    },
-    {
-      "src": "/placeholder.svg",
-      "dest": "/placeholder.svg"
-    },
-    {
-      "src": "/robots.txt",
-      "dest": "/robots.txt"
-    },
-    {
-      "src": "/chiropractic/(.*)",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/dental-sleep/(.*)",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
+  "functions": {
+    "src/pages/api/etl/sleepimpressions.ts": {
+      "maxDuration": 300
     }
-  ],
-
-  "env": {
-    "VITE_ENVIRONMENT": "production"
   }
 }
