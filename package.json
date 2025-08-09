@@ -80,7 +80,8 @@
     "vaul": "^0.9.3",
     "zod": "^3.23.8",
     "ssh2-sftp-client": "^10.0.3",
-    "papaparse": "^5.4.1"
+    "papaparse": "^5.4.1",
+    "@vercel/node": "^3.0.21"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
