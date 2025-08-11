@@ -33,7 +33,7 @@
 1. **Platform Admin Dashboard** (`src/components/admin/PlatformTenants.tsx`)
    - Status: In Progress
    - Branch: `etl-automation-setup`
-   - Last Commit: `25d4429 - Add Sleep Impressions integration with FlowIQ dashboard and services`
+   - Last Commit: `7808ce6 - Add ETL workflow to GitHub Actions`
    - Uncommitted Changes:        2 files
    - Next: Complete tenant management features
 
