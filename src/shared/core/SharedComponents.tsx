@@ -7,16 +7,12 @@ import React from 'react';
 import { Layout } from '@/components/Layout';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
-// Shared AI Agents
-export { default as CommunicationIQ } from '@/pages/agents/CommunicationIQ';
-export { default as ScribeIQ } from '@/pages/agents/ScribeIQ';
-export { default as InsuranceIQ } from '@/pages/agents/InsuranceIQ';
-export { default as RevenueIQ } from '@/pages/agents/RevenueIQ';
-export { default as InventoryIQ } from '@/pages/agents/InventoryIQ';
-export { default as EducationIQ } from '@/pages/agents/EducationIQ';
-export { default as GrowthIQ } from '@/pages/agents/GrowthIQ';
-export { default as OpsIQ } from '@/pages/agents/OpsIQ';
-export { default as InsightIQ } from '@/pages/agents/InsightIQ';
+// Shared AI Assistants
+export { CommunicationAssistant } from '@/pages/agents/CommunicationAssistant';
+export { ClinicalAssistant } from '@/pages/agents/ClinicalAssistant';
+export { RevenueAssistant } from '@/pages/agents/RevenueAssistant';
+export { OperationsAssistant } from '@/pages/agents/OperationsAssistant';
+export { GrowthAssistant } from '@/pages/agents/GrowthAssistant';
 
 // Shared Pages
 export { Calendar } from '@/pages/Calendar';

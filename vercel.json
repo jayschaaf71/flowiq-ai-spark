@@ -9,5 +9,19 @@
     "src/pages/api/etl/sleepimpressions.ts": {
       "maxDuration": 300
     }
+<<<<<<< HEAD
   }
+=======
+  ],
+
+  "env": {
+    "VITE_ENVIRONMENT": "production"
+  },
+  "crons": [
+    {
+      "path": "/api/etl/sleepimpressions",
+      "schedule": "0 3 * * *"
+    }
+  ]
+>>>>>>> main
 }
