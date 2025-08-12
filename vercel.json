@@ -1,41 +1,27 @@
 {
-  "version": 2,
-  "rewrites": [
+  "crons": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "path": "/api/etl/sleepimpressions",
+      "schedule": "0 */6 * * *"
     }
   ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        },
-        {
-          "key": "Referrer-Policy",
-          "value": "strict-origin-when-cross-origin"
-        },
-        {
-          "key": "Strict-Transport-Security",
-          "value": "max-age=63072000; includeSubDomains; preload"
-        }
-      ]
+  "functions": {
+    "src/pages/api/etl/sleepimpressions.ts": {
+      "maxDuration": 300
     }
-  ],
-  "env": {
-    "VITE_SUPABASE_URL": "https://jnpzabmqieceoqjypvve.supabase.co",
-    "VITE_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpucHphYm1xaWVjZW9xanlwdnZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg3MTQ4NzIsImV4cCI6MjA2NDI5MDg3Mn0.RSZZj9ijOESttwNopqROh1pXqi7y4Q4TDW4_6eqcBFU",
-    "VITE_ENVIRONMENT": "production"
+<<<<<<< HEAD
   }
+=======
+  ],
+
+  "env": {
+    "VITE_ENVIRONMENT": "production"
+  },
+  "crons": [
+    {
+      "path": "/api/etl/sleepimpressions",
+      "schedule": "0 3 * * *"
+    }
+  ]
+>>>>>>> main
 }

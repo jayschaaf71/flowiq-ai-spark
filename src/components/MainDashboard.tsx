@@ -7,8 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/useAuth';
 import { useTenantConfig } from '@/utils/enhancedTenantConfig';
 import { TenantSwitcher } from '@/components/tenant/TenantSwitcher';
-import { 
-  Stethoscope, 
+import {
+  Stethoscope,
   Brain,
   Users,
   BarChart3,
@@ -130,7 +130,7 @@ const MainDashboard = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Header with Tenant Switcher */}
       <div className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="w-full px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg">
@@ -143,8 +143,8 @@ const MainDashboard = () => {
             </div>
             <div className="flex items-center gap-3">
               <TenantSwitcher />
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={() => navigate('/platform-admin')}
               >
@@ -159,7 +159,7 @@ const MainDashboard = () => {
       {/* Hero Section */}
       <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700">
         <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative max-w-7xl mx-auto px-6 py-16">
+        <div className="relative w-full px-6 py-16">
           <div className="text-center">
             <div className="flex justify-center mb-6">
               <div className="p-3 bg-white/10 rounded-full backdrop-blur-sm">
@@ -190,7 +190,7 @@ const MainDashboard = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-12">
+      <div className="w-full px-6 py-12">
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {quickStats.map((stat, index) => {
@@ -231,13 +231,13 @@ const MainDashboard = () => {
                 Access specialized workflows designed for your practice
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {specialties.map((specialty) => {
                 const Icon = specialty.icon;
                 return (
-                  <Card 
-                    key={specialty.id} 
+                  <Card
+                    key={specialty.id}
                     className="group hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer border-0 bg-white/80 backdrop-blur-sm overflow-hidden"
                     onClick={() => navigate(specialty.path)}
                   >
@@ -247,7 +247,7 @@ const MainDashboard = () => {
                         <Icon className="h-8 w-8 text-white" />
                       </div>
                     </div>
-                    
+
                     <CardHeader className="pb-4">
                       <CardTitle className="text-xl group-hover:text-primary transition-colors">
                         {specialty.name}
@@ -256,7 +256,7 @@ const MainDashboard = () => {
                         {specialty.description}
                       </CardDescription>
                     </CardHeader>
-                    
+
                     <CardContent className="space-y-4">
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
@@ -268,7 +268,7 @@ const MainDashboard = () => {
                           <p className="font-semibold text-emerald-600">{specialty.satisfaction}</p>
                         </div>
                       </div>
-                      
+
                       <div className="space-y-2">
                         <p className="text-sm font-medium text-muted-foreground">Key Features:</p>
                         <div className="flex flex-wrap gap-2">
@@ -279,7 +279,7 @@ const MainDashboard = () => {
                           ))}
                         </div>
                       </div>
-                      
+
                       <Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                         Access Dashboard
                         <ArrowRight className="ml-2 h-4 w-4" />
@@ -298,7 +298,7 @@ const MainDashboard = () => {
                 Intelligent automation for every aspect of your practice
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {aiAgents.map((agent, index) => {
                 const Icon = agent.icon;
@@ -341,9 +341,9 @@ const MainDashboard = () => {
                 Extended functionality and specialized applications
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Card 
+              <Card
                 className="hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer border-2 border-dashed border-blue-300 bg-gradient-to-br from-blue-50 to-purple-50"
                 onClick={() => navigate('/communication-iq')}
               >
@@ -378,7 +378,7 @@ const MainDashboard = () => {
                 </CardContent>
               </Card>
 
-              <Card 
+              <Card
                 className="hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer"
                 onClick={() => navigate('/dental-sleep/test')}
               >
@@ -433,13 +433,13 @@ const MainDashboard = () => {
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={() => navigate('/platform-admin')}
                   >
                     Platform Settings
                   </Button>
-                  <Button 
+                  <Button
                     onClick={() => {
                       const specialty = tenantConfig?.tenantConfig?.specialty || 'chiropractic';
                       navigate(`/${specialty}/dashboard`);

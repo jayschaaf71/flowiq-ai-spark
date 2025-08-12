@@ -4,10 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { 
-  Calendar, 
-  CheckCircle, 
-  AlertCircle, 
+import {
+  Calendar,
+  CheckCircle,
+  AlertCircle,
   RefreshCw,
   ExternalLink,
   Settings,
@@ -28,6 +28,7 @@ interface CalendarService {
 
 export const CalendarIntegration = () => {
   const [syncing, setSyncing] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const {
     integrations,
     loading,
@@ -39,8 +40,25 @@ export const CalendarIntegration = () => {
   } = useCalendarIntegrations();
 
   useEffect(() => {
-    fetchIntegrations();
+    fetchIntegrations().catch(err => {
+      console.error('Failed to fetch integrations:', err);
+      setError('Failed to load calendar integrations');
+    });
   }, [fetchIntegrations]);
+
+  // Debug logging
+  useEffect(() => {
+    console.log('CalendarIntegration: integrations updated:', integrations);
+    console.log('CalendarIntegration: Google connected:', integrations.some(int => int.provider === 'google'));
+    console.log('CalendarIntegration: Microsoft connected:', integrations.some(int => int.provider === 'microsoft'));
+  }, [integrations]);
+
+  // Update connected status when integrations change
+  const googleConnected = integrations.some(int => int.provider === 'google');
+  const microsoftConnected = integrations.some(int => int.provider === 'microsoft');
+
+  console.log('CalendarIntegration: Rendering with Google connected:', googleConnected);
+  console.log('CalendarIntegration: Rendering with Microsoft connected:', microsoftConnected);
 
   // Map integrations to calendar services format
   const calendarServices: CalendarService[] = [
@@ -48,7 +66,7 @@ export const CalendarIntegration = () => {
       id: "google",
       name: "Google Calendar",
       icon: "🗓️",
-      connected: integrations.some(int => int.provider === 'google' && int.sync_enabled),
+      connected: googleConnected,
       lastSync: integrations.find(int => int.provider === 'google')?.last_sync_at || "",
       syncEnabled: integrations.find(int => int.provider === 'google')?.sync_enabled || false,
       appointmentCount: integrations.filter(int => int.provider === 'google').length
@@ -56,8 +74,8 @@ export const CalendarIntegration = () => {
     {
       id: "microsoft",
       name: "Microsoft Outlook",
-      icon: "📅",
-      connected: integrations.some(int => int.provider === 'microsoft' && int.sync_enabled),
+      icon: "��",
+      connected: microsoftConnected,
       lastSync: integrations.find(int => int.provider === 'microsoft')?.last_sync_at || "",
       syncEnabled: integrations.find(int => int.provider === 'microsoft')?.sync_enabled || false,
       appointmentCount: integrations.filter(int => int.provider === 'microsoft').length
@@ -66,17 +84,24 @@ export const CalendarIntegration = () => {
 
   const handleConnect = async (serviceId: string) => {
     try {
+      setError(null);
       if (serviceId === 'google' || serviceId === 'microsoft') {
-        await connectCalendar(serviceId);
+        console.log(`Starting connection to ${serviceId}...`);
+        await connectCalendar(serviceId as 'google' | 'microsoft');
         toast.success(`Successfully connected to ${serviceId === 'google' ? 'Google Calendar' : 'Microsoft Outlook'}`);
-        // Refresh integrations after successful connection
-        fetchIntegrations();
+        // Refresh integrations after successful connection with a delay
+        setTimeout(() => {
+          console.log('Refreshing integrations after successful connection...');
+          fetchIntegrations();
+        }, 1000);
       } else {
         toast.error('This calendar provider is not yet supported');
       }
     } catch (error) {
-      console.error('Failed to connect calendar:', error);
-      toast.error('Failed to connect calendar. Please try again.');
+      console.error('Failed to connect calendar - full error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      setError(`Failed to connect ${serviceId === 'google' ? 'Google Calendar' : 'Microsoft Outlook'}. Error: ${errorMessage}`);
+      toast.error(`Failed to connect calendar: ${errorMessage}`);
     }
   };
 
@@ -128,6 +153,17 @@ export const CalendarIntegration = () => {
 
   return (
     <div className="space-y-6">
+      {error && (
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 text-red-800">
+              <AlertCircle className="h-4 w-4" />
+              <span className="text-sm font-medium">{error}</span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <div>
         <h3 className="text-lg font-semibold">Calendar Integration</h3>
         <p className="text-sm text-muted-foreground">
@@ -179,7 +215,7 @@ export const CalendarIntegration = () => {
                           onCheckedChange={(checked) => toggleSync(service.id, checked)}
                         />
                       </div>
-                      
+
                       <Button
                         variant="outline"
                         size="sm"
@@ -195,7 +231,7 @@ export const CalendarIntegration = () => {
                         )}
                         Sync Now
                       </Button>
-                      
+
                       <Button
                         variant="outline"
                         size="sm"
@@ -205,7 +241,7 @@ export const CalendarIntegration = () => {
                       </Button>
                     </>
                   )}
-                  
+
                   {!service.connected && (
                     <Button onClick={() => handleConnect(service.id)}>
                       <ExternalLink className="h-4 w-4 mr-2" />
@@ -239,7 +275,7 @@ export const CalendarIntegration = () => {
             </div>
             <Switch defaultChecked />
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div>
               <h4 className="font-medium">Include patient names</h4>
@@ -249,7 +285,7 @@ export const CalendarIntegration = () => {
             </div>
             <Switch />
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div>
               <h4 className="font-medium">Real-time sync</h4>

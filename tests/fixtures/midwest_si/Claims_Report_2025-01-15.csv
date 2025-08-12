@@ -1,0 +1,6 @@
+Claim #,Claim Status,Claim Submitted,Paid Amount
+CLM001,Paid,2025-01-10,1500.00
+CLM002,Denied,2025-01-11,0.00
+CLM003,Pending,2025-01-12,0.00
+CLM004,Paid,2025-01-13,1200.00
+CLM005,Denied,2025-01-14,0.00
