@@ -26,72 +26,71 @@ import {
   FileText,
   BarChart3,
   Target,
-  User
+  User,
+  Activity,
+  DollarSign,
+  Building,
+  Server,
+  AlertTriangle,
+  Database as DatabaseIcon,
+  Settings as SettingsIcon,
+  Target as TargetIcon,
+  TrendingUp as TrendingUpIcon,
+  MessageSquare as MessageSquareIcon,
+  Stethoscope as StethoscopeIcon,
+  Settings as SettingsIcon2
 } from "lucide-react";
 import { NavItem, NavGroup } from "@/services/sidebarService";
 
+// New workflow-based navigation groups
 export const navGroups: NavGroup[] = [
-  { id: "overview", title: "Overview", order: 10 },
-  { id: "clinical_care", title: "Clinical Care", order: 20 },
-  { id: "patient_journey", title: "Patient Journey", order: 30 },
-  { id: "revenue_cycle", title: "Revenue Cycle", order: 40 },
-  { id: "operations", title: "Operations", order: 50 },
-  { id: "settings", title: "Settings", order: 60 }
+  { id: "main", title: "Main", order: 10 },
+  { id: "clinical", title: "Clinical", order: 20 },
+  { id: "administrative", title: "Administrative", order: 30 },
+  { id: "ai_assistants", title: "AI Assistants", order: 40 },
+  { id: "settings", title: "Settings", order: 50 }
 ];
 
-// Base navigation items
+// Role-based navigation items with workflow organization
 const baseNavItems: NavItem[] = [
-  // Dashboard
+  // Main Navigation (All Roles)
   { id: "dashboard", label: "Dashboard", path: "/dashboard", icon: LayoutDashboard, group: "main", order: 1 },
+  { id: "patients", label: "Patients", path: "/patients", icon: Users, group: "main", order: 2 },
+  { id: "schedule", label: "Schedule", path: "/schedule", icon: Calendar, group: "main", order: 3 },
   
-  // Patient Management
-  { id: "patients", label: "Patients", path: "/patients", icon: Users, group: "patients", order: 10 },
-  { id: "appointments", label: "Appointments", path: "/appointments", icon: Calendar, group: "patients", order: 20 },
-  { id: "intake", label: "Intake", path: "/intake", icon: ClipboardList, group: "patients", order: 30 },
+  // Clinical Navigation (Clinical Staff Only)
+  { id: "clinical", label: "Clinical", path: "/clinical", icon: Stethoscope, group: "clinical", order: 1, requiredRole: "clinical" },
+  { id: "soap-notes", label: "SOAP Notes", path: "/clinical/soap-notes", icon: FileText, group: "clinical", order: 2, requiredRole: "clinical" },
+  { id: "patient-records", label: "Patient Records", path: "/clinical/records", icon: ClipboardList, group: "clinical", order: 3, requiredRole: "clinical" },
   
-  // Communication (CONSOLIDATED)
-  { id: "communication-iq", label: "Communication iQ", path: "/agents/communication", icon: MessageSquare, badge: "AI", group: "communication", order: 10 },
+  // Administrative Navigation (Admin Staff Only)
+  { id: "revenue", label: "Revenue", path: "/revenue", icon: TrendingUp, group: "administrative", order: 1, requiredRole: "admin" },
+  { id: "claims", label: "Claims", path: "/revenue/claims", icon: Receipt, group: "administrative", order: 2, requiredRole: "admin" },
+  { id: "payments", label: "Payments", path: "/revenue/payments", icon: CreditCard, group: "administrative", order: 3, requiredRole: "admin" },
+  { id: "analytics", label: "Analytics", path: "/analytics", icon: BarChart3, group: "administrative", order: 4, requiredRole: "manager" },
   
-  // Revenue Cycle (CONSOLIDATED)
-  { id: "revenue-iq", label: "Revenue iQ", path: "/agents/revenue", icon: TrendingUp, badge: "AI", group: "revenue_cycle", order: 10 },
-  { id: "insurance-iq", label: "Insurance iQ", path: "/agents/insurance", icon: Shield, badge: "AI", group: "revenue_cycle", order: 20 },
+  // Consolidated AI Assistants (All Roles)
+  { id: "clinical-assistant", label: "Clinical Assistant", path: "/assistants/clinical", icon: Stethoscope, badge: "AI", group: "ai_assistants", order: 1 },
+  { id: "communication-assistant", label: "Communication Assistant", path: "/assistants/communication", icon: MessageSquare, badge: "AI", group: "ai_assistants", order: 2 },
+  { id: "revenue-assistant", label: "Revenue Assistant", path: "/assistants/revenue", icon: TrendingUp, badge: "AI", group: "ai_assistants", order: 3 },
+  { id: "operations-assistant", label: "Operations Assistant", path: "/assistants/operations", icon: Settings, badge: "AI", group: "ai_assistants", order: 4 },
+  { id: "growth-assistant", label: "Growth Assistant", path: "/assistants/growth", icon: Target, badge: "AI", group: "ai_assistants", order: 5 },
   
-  // Clinical
-  { id: "scribe-iq", label: "Scribe iQ", path: "/agents/scribe", icon: Stethoscope, badge: "AI", group: "clinical", order: 10 },
-  { id: "ehr-iq", label: "EHR iQ", path: "/agents/ehr", icon: FileText, badge: "AI", group: "clinical", order: 20 },
-  
-  // Operations
-  { id: "inventory-iq", label: "Inventory iQ", path: "/agents/inventory", icon: Package, badge: "AI", group: "operations", order: 10 },
-  { id: "ops-iq", label: "Ops iQ", path: "/agents/ops", icon: Settings, badge: "AI", group: "operations", order: 20 },
-  
-  // Analytics
-  { id: "insight-iq", label: "Insight iQ", path: "/agents/insight", icon: BarChart3, badge: "AI", group: "analytics", order: 10 },
-  
-  // Support
-  { id: "assist-iq", label: "Assist iQ", path: "/agents/assist", icon: MessageSquare, badge: "AI", group: "support", order: 10 },
-  
-  // Education & Marketing
-  { id: "education-iq", label: "Education iQ", path: "/agents/education", icon: GraduationCap, badge: "AI", group: "education", order: 10 },
-  { id: "go-to-market-iq", label: "Go-To-Market iQ", path: "/agents/go-to-market", icon: Target, badge: "AI", group: "marketing", order: 10 },
-  
-  // Settings
-  { id: "settings", label: "Settings", path: "/settings", icon: Settings, group: "settings", order: 10 },
-  { id: "profile", label: "Profile", path: "/profile", icon: User, group: "settings", order: 20 }
+  // Settings (All Roles)
+  { id: "settings", label: "Settings", path: "/settings", icon: Settings, group: "settings", order: 1 },
+  { id: "profile", label: "Profile", path: "/profile", icon: User, group: "settings", order: 2 }
 ];
 
-// Remove deprecated items
-// { id: "voice-iq", label: "Voice iQ", path: "/agents/voice", icon: Phone, badge: "AI", group: "communication", order: 20 },
-// { id: "billing-iq", label: "Billing iQ", path: "/agents/billing", icon: CreditCard, badge: "AI", group: "revenue_cycle", order: 10 },
-// { id: "claims-iq", label: "Claims iQ", path: "/agents/claims", icon: Receipt, badge: "AI", group: "revenue_cycle", order: 20 },
-// { id: "payments-iq", label: "Payments iQ", path: "/agents/payments", icon: CreditCard, badge: "AI", group: "revenue_cycle", order: 30 },
-// { id: "auth-iq", label: "Auth iQ", path: "/agents/auth", icon: CheckSquare, badge: "AI", group: "revenue_cycle", order: 10 },
-// { id: "compliance-iq", label: "Compliance iQ", path: "/agents/compliance", icon: Shield, badge: "AI", group: "compliance", order: 10 },
+// Specialty-specific navigation items
+const dentalSleepNavItems: NavItem[] = [
+  // Dental Sleep specific items
+  { id: "sleep-studies", label: "Sleep Studies", path: "/clinical/sleep-studies", icon: Moon, group: "clinical", order: 4, requiredRole: "clinical" },
+  { id: "dme-tracking", label: "DME Tracking", path: "/clinical/dme", icon: Package, group: "clinical", order: 5, requiredRole: "clinical" },
+  { id: "compliance", label: "Compliance", path: "/clinical/compliance", icon: Shield, group: "clinical", order: 6, requiredRole: "clinical" }
+];
 
-// Dental-specific items (only show in dental contexts)
-const dentalNavItems: NavItem[] = [];
-
-// Function to get filtered navigation items based on specialty
-export const getNavItems = (specialty: string = 'chiropractic'): NavItem[] => {
+// Function to get filtered navigation items based on specialty and role
+export const getNavItems = (specialty: string = 'chiropractic', userRole: string = 'staff'): NavItem[] => {
   const currentSpecialty = specialty || localStorage.getItem('currentSpecialty') || 'chiropractic';
   
   // Get the specialty prefix for routes
@@ -111,74 +110,37 @@ export const getNavItems = (specialty: string = 'chiropractic'): NavItem[] => {
   }
   
   // Create specialty-specific base items with proper routes
-  const specialtyNavItems = baseNavItems.map(item => {
-
+  let specialtyNavItems = baseNavItems.map(item => {
     // Handle specialty-specific routes
     if (item.id === 'dashboard') {
       return { ...item, path: `${specialtyPrefix}/dashboard` };
     }
     
-    if (item.id === 'patients') {
-      return { ...item, path: `${specialtyPrefix}/patients` };
-    }
-    
-    if (item.id === 'appointments') {
-      return { ...item, path: `${specialtyPrefix}/appointments` };
-    }
-    
-    if (item.id === 'intake') {
-      return { ...item, path: `${specialtyPrefix}/intake` };
-    }
-    
-    if (item.id === 'settings') {
-      return { ...item, path: `${specialtyPrefix}/settings` };
-    }
-    
-    if (item.id === 'profile') {
-      return { ...item, path: `${specialtyPrefix}/profile` };
-    }
-    
-    // Handle agent routes - prefix them with specialty
-    if (item.path.startsWith('/agents/')) {
-      return { ...item, path: `${specialtyPrefix}${item.path}` };
-    }
-    
-    // Handle other specialty-specific routes
-    if (item.id === 'go-to-market-iq') {
-      return { ...item, path: `${specialtyPrefix}/go-to-market` };
-    }
-    
-    if (item.id === 'ops-iq') {
-      return { ...item, path: `${specialtyPrefix}/ops` };
-    }
-    
-    if (item.id === 'insight-iq') {
-      return { ...item, path: `${specialtyPrefix}/insight` };
-    }
-    
-    if (item.id === 'assist-iq') {
-      return { ...item, path: `${specialtyPrefix}/assist` };
-    }
-    
-    if (item.id === 'education-iq') {
-      return { ...item, path: `${specialtyPrefix}/education` };
-    }
-    
-    return item;
+    // Add specialty prefix to all other routes
+    return { ...item, path: `${specialtyPrefix}${item.path}` };
   });
-
-  if (currentSpecialty === 'dental-sleep-medicine' || currentSpecialty === 'dental-sleep' || currentSpecialty === 'dental') {
-    // Apply specialty prefix to dental-specific items too
-    const specialtyDentalItems = dentalNavItems.map(item => ({
+  
+  // Add specialty-specific items
+  if (currentSpecialty === 'dental-sleep-medicine' || currentSpecialty === 'dental-sleep') {
+    specialtyNavItems = [...specialtyNavItems, ...dentalSleepNavItems.map(item => ({
       ...item,
       path: `${specialtyPrefix}${item.path}`
-    }));
-    return [...specialtyNavItems, ...specialtyDentalItems];
+    }))];
   }
   
-  // For chiropractic and all other specialties, return specialty-specific items
-  return specialtyNavItems;
+  // Filter based on user role
+  return specialtyNavItems.filter(item => {
+    if (item.requiredRole && userRole !== item.requiredRole) {
+      return false;
+    }
+    return true;
+  });
 };
 
-// Export default for backward compatibility
-export const navItems: NavItem[] = baseNavItems;
+// Function to get navigation groups filtered by user role
+export const getNavGroups = (userRole: string = 'staff'): NavGroup[] => {
+  return navGroups.filter(group => {
+    // Show all groups for now, but we could filter based on role if needed
+    return true;
+  });
+};

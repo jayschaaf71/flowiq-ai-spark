@@ -19,7 +19,8 @@ import {
   Clock,
   TrendingUp,
   Settings,
-  Loader
+  Loader,
+  Building
 } from 'lucide-react';
 import { RealTimePerformanceMonitor } from './RealTimePerformanceMonitor';
 import { TenantResourceOptimization } from './TenantResourceOptimization';
@@ -29,20 +30,27 @@ import { APIRateLimitingDashboard } from './APIRateLimitingDashboard';
 import { AutomatedBackupManager } from './AutomatedBackupManager';
 import { UserRoleTester } from '@/components/testing/UserRoleTester';
 import { TestUserManager } from './TestUserManager';
-import { usePlatformMetrics } from '@/hooks/usePlatformMetrics';
+import { useRealPlatformMetrics } from '@/hooks/useRealPlatformMetrics';
 
 export const PlatformAdminDashboard: React.FC = () => {
+  console.log('🔧 [PlatformAdminDashboard] Component rendered');
+  
   const { 
     metrics, 
     alerts, 
+    tenants,
+    users,
     loading, 
     error, 
     insertSampleMetrics 
-  } = usePlatformMetrics();
+  } = useRealPlatformMetrics();
+  
+  console.log('🔧 [PlatformAdminDashboard] Metrics state:', { metrics, loading, error });
   
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
 
+  // Show loading state
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -54,6 +62,7 @@ export const PlatformAdminDashboard: React.FC = () => {
     );
   }
 
+  // Show error state
   if (error) {
     return (
       <Alert className="border-destructive bg-destructive/10">
@@ -72,249 +81,147 @@ export const PlatformAdminDashboard: React.FC = () => {
     );
   }
 
-  if (!metrics) {
-    return (
-      <Alert>
-        <AlertTriangle className="h-4 w-4" />
-        <AlertDescription>
-          <strong>No platform data available.</strong> 
-          <Button 
-            variant="link" 
-            className="p-0 h-auto ml-2" 
-            onClick={insertSampleMetrics}
-          >
-            Initialize Sample Data
-          </Button>
-        </AlertDescription>
-      </Alert>
-    );
-  }
-
+  // Main dashboard with real data
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Platform Administration</h1>
           <p className="text-muted-foreground">Enterprise-level system monitoring and management</p>
         </div>
-        <div className="flex items-center gap-2">
-              <Badge variant={metrics.criticalAlerts > 0 ? 'destructive' : 'success'}>
-                {metrics.criticalAlerts} Critical Alerts
-              </Badge>
-          <Badge variant="outline">
-            {metrics.systemUptime}% Uptime
-          </Badge>
-        </div>
       </div>
-
-      {/* Critical Alerts */}
-      {metrics.criticalAlerts > 0 && (
-        <Alert className="border-destructive bg-destructive/10">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            {metrics.criticalAlerts} critical system alerts require immediate attention. 
-            <Button variant="link" className="p-0 h-auto ml-2" onClick={() => setActiveTab('security')}>
-              View Details
-            </Button>
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {/* High-Level Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card 
           className="cursor-pointer hover:bg-accent/50 transition-colors"
           onClick={() => navigate('/platform-admin/tenants')}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Tenants</CardTitle>
+            <Building className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{metrics?.totalTenants || 0}</div>
+            <p className="text-xs text-muted-foreground">
+              {metrics?.activeTenants || 0} active tenants
+            </p>
+          </CardContent>
+        </Card>
+        
+        <Card 
+          className="cursor-pointer hover:bg-accent/50 transition-colors"
+          onClick={() => navigate('/platform-admin/users')}
+        >
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Users</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{metrics.totalTenants}</div>
+            <div className="text-2xl font-bold">{metrics?.totalUsers || 0}</div>
             <p className="text-xs text-muted-foreground">
-              {metrics.activeTenants} active ({((metrics.activeTenants/metrics.totalTenants)*100).toFixed(1)}%)
+              {users?.filter(u => u.role === 'platform_admin').length || 0} platform admins
             </p>
           </CardContent>
         </Card>
-
-        <Card 
-          className="cursor-pointer hover:bg-accent/50 transition-colors"
-          onClick={() => setActiveTab('performance')}
-        >
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">System Performance</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics.averageResponseTime}ms</div>
-            <Progress value={100 - (metrics.averageResponseTime / 10)} className="mt-2" />
-            <p className="text-xs text-muted-foreground mt-1">
-              Average response time
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card 
-          className="cursor-pointer hover:bg-accent/50 transition-colors"
-          onClick={() => navigate('/platform-admin/analytics')}
-        >
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">${(metrics.totalRevenue/1000).toFixed(0)}k</div>
-            <p className="text-xs text-success flex items-center">
-              <TrendingUp className="h-3 w-3 mr-1" />
-              +12.3% from last month
-            </p>
-          </CardContent>
-        </Card>
-
+        
         <Card 
           className="cursor-pointer hover:bg-accent/50 transition-colors"
           onClick={() => navigate('/platform-admin/infrastructure')}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Resource Usage</CardTitle>
-            <Server className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">System Health</CardTitle>
+            <Shield className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{metrics.resourceUtilization}%</div>
-            <Progress value={metrics.resourceUtilization} className="mt-2" />
-            <p className="text-xs text-muted-foreground mt-1">
-              Across all services
-            </p>
+            <div className="text-2xl font-bold">{metrics?.systemUptime || 0}%</div>
+            <p className="text-xs text-muted-foreground">All systems operational</p>
+          </CardContent>
+        </Card>
+        
+        <Card 
+          className="cursor-pointer hover:bg-accent/50 transition-colors"
+          onClick={() => navigate('/platform-admin/costs')}
+        >
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">${metrics?.totalRevenue || 0}</div>
+            <p className="text-xs text-muted-foreground">Total platform revenue</p>
           </CardContent>
         </Card>
       </div>
-
-      {/* Main Dashboard */}
-      <div className="bg-card border border-border rounded-xl shadow-sm p-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <div className="flex justify-center">
-            <TabsList className="grid w-full max-w-6xl grid-cols-9">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="performance">Performance</TabsTrigger>
-              <TabsTrigger value="optimization">Optimization</TabsTrigger>
-              <TabsTrigger value="security">Security</TabsTrigger>
-              <TabsTrigger value="admin">Admin Hierarchy</TabsTrigger>
-              <TabsTrigger value="api">API Monitoring</TabsTrigger>
-              <TabsTrigger value="backups">Backups</TabsTrigger>
-              <TabsTrigger value="testing">User Testing</TabsTrigger>
-              <TabsTrigger value="test-users">Test Users</TabsTrigger>
-            </TabsList>
-          </div>
-
-        <TabsContent value="overview" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>System Health Overview</CardTitle>
-                <CardDescription>Real-time system status and alerts</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Database className="h-4 w-4" />
-                      <span>Database Performance</span>
-                    </div>
-                    <Badge variant="success">Optimal</Badge>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Network className="h-4 w-4" />
-                      <span>Network Latency</span>
-                    </div>
-                    <Badge variant="success">&lt; 50ms</Badge>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Zap className="h-4 w-4" />
-                      <span>API Response</span>
-                    </div>
-                    <Badge variant="warning">Elevated</Badge>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Shield className="h-4 w-4" />
-                      <span>Security Status</span>
-                    </div>
-                    <Badge variant="success">Secure</Badge>
-                  </div>
+      
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+            <CardDescription>Latest platform events and updates</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {tenants?.slice(0, 3).map((tenant, index) => (
+                <div key={tenant.id} className="flex items-center gap-3">
+                  <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                  <span className="text-sm">Tenant: {tenant.name}</span>
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
-                <CardDescription>Latest platform events and changes</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-start gap-3">
-                    <div className="h-2 w-2 bg-success rounded-full mt-2"></div>
-                    <div className="text-sm">
-                      <p className="font-medium">New tenant onboarded</p>
-                      <p className="text-muted-foreground">Sunrise Dental Care - 5 minutes ago</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="h-2 w-2 bg-warning rounded-full mt-2"></div>
-                    <div className="text-sm">
-                      <p className="font-medium">Performance alert resolved</p>
-                      <p className="text-muted-foreground">Database optimization complete - 15 minutes ago</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="h-2 w-2 bg-primary rounded-full mt-2"></div>
-                    <div className="text-sm">
-                      <p className="font-medium">System update deployed</p>
-                      <p className="text-muted-foreground">Version 2.1.4 - 2 hours ago</p>
-                    </div>
-                  </div>
+              ))}
+              {alerts?.slice(0, 2).map((alert, index) => (
+                <div key={alert.id} className="flex items-center gap-3">
+                  <div className={`h-2 w-2 rounded-full ${
+                    alert.severity === 'critical' ? 'bg-red-500' : 
+                    alert.severity === 'high' ? 'bg-orange-500' : 'bg-yellow-500'
+                  }`}></div>
+                  <span className="text-sm">{alert.message}</span>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="performance">
-          <RealTimePerformanceMonitor />
-        </TabsContent>
-
-        <TabsContent value="optimization">
-          <TenantResourceOptimization />
-        </TabsContent>
-
-        <TabsContent value="security">
-          <SecurityIncidentResponse />
-        </TabsContent>
-
-        <TabsContent value="admin">
-          <MultiLevelAdminHierarchy />
-        </TabsContent>
-
-        <TabsContent value="api">
-          <APIRateLimitingDashboard />
-        </TabsContent>
-
-        <TabsContent value="backups">
-          <AutomatedBackupManager />
-        </TabsContent>
-
-        <TabsContent value="testing">
-          <UserRoleTester />
-        </TabsContent>
-
-        <TabsContent value="test-users">
-          <TestUserManager />
-        </TabsContent>
-      </Tabs>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+            <CardDescription>Common administrative tasks</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <Button 
+                className="w-full justify-start" 
+                variant="outline"
+                onClick={() => navigate('/platform-admin/users')}
+              >
+                <Users className="mr-2 h-4 w-4" />
+                Manage Users
+              </Button>
+              <Button 
+                className="w-full justify-start" 
+                variant="outline"
+                onClick={() => navigate('/platform-admin/tenants')}
+              >
+                <Building className="mr-2 h-4 w-4" />
+                View Tenants
+              </Button>
+              <Button 
+                className="w-full justify-start" 
+                variant="outline"
+                onClick={() => navigate('/platform-admin/security')}
+              >
+                <Shield className="mr-2 h-4 w-4" />
+                Security Settings
+              </Button>
+              <Button 
+                className="w-full justify-start" 
+                variant="outline"
+                onClick={() => navigate('/platform-admin/settings')}
+              >
+                <Settings className="mr-2 h-4 w-4" />
+                System Settings
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

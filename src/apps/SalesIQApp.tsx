@@ -8,7 +8,7 @@ const SalesIQApp = () => {
     <Layout>
       <Routes>
         <Route path="/" element={<SalesIQDashboard />} />
-        <Route path="/*" element={<SalesIQDashboard />} />
+        <Route path="*" element={<SalesIQDashboard />} />
       </Routes>
     </Layout>
   );

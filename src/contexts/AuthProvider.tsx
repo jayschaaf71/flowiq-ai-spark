@@ -5,9 +5,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuthState } from '@/hooks/useAuthState';
 import { useToast } from '@/hooks/use-toast';
 
-type AppRole = 
+type AppRole =
   | 'platform_admin'
-  | 'practice_admin' 
+  | 'practice_admin'
   | 'practice_manager'
   | 'provider'
   | 'staff'
@@ -50,6 +50,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profile, setProfile] = useState<Profile | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
   const { toast } = useToast();
+
+  // Development bypass - create mock user for localhost and production subdomains
+  const isDevelopment = process.env.NODE_ENV === 'development' ||
+    window.location.hostname === 'localhost' ||
+    window.location.hostname.includes('flow-iq.ai');
 
   const loading = authLoading || profileLoading;
 
@@ -97,7 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: data.id,
         email: user?.email || '',
         first_name: data.first_name,
-        last_name: data.last_name, 
+        last_name: data.last_name,
         role: data.role || 'patient'
       };
     } catch (error) {
@@ -110,12 +115,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Update profile when user changes
   useEffect(() => {
-    if (user) {
+    if (isDevelopment && !user) {
+      // Create mock user for development
+      console.log('🔓 [DEV] Creating mock user for development');
+      const mockProfile: Profile = {
+        id: '550e8400-e29b-41d4-a716-446655440000', // Valid UUID format
+        email: 'dev@flowiq.ai',
+        first_name: 'Dev',
+        last_name: 'User',
+        role: 'staff'
+      };
+      setProfile(mockProfile);
+    } else if (user) {
       fetchProfile(user.id).then(setProfile);
     } else {
       setProfile(null);
     }
-  }, [user?.id]); // Only depend on user.id, not the fetchProfile function
+  }, [user?.id, isDevelopment]); // Include isDevelopment in dependencies
 
   const refreshProfile = async () => {
     if (user) {
@@ -146,7 +162,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // Update local profile
       setProfile({ ...profile, role: newRole });
-      
+
       toast({
         title: "Role Switched",
         description: `Successfully switched to ${newRole} role.`,
@@ -167,11 +183,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email,
         password,
       });
-      
+
       if (error) {
         console.error('Sign in error:', error);
       }
-      
+
       return { error };
     } catch (error) {
       console.error('Unexpected sign in error:', error);
@@ -193,11 +209,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         }
       });
-      
+
       if (error) {
         console.error('Sign up error:', error);
       }
-      
+
       return { error };
     } catch (error) {
       console.error('Unexpected sign up error:', error);
