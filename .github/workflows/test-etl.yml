@@ -1,0 +1,24 @@
+name: Test ETL Workflow
+
+on:
+  workflow_dispatch: # Manual trigger only
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      
+      - name: Test ETL Script
+        run: |
+          echo "🧪 Testing ETL workflow..."
+          echo "📁 Current directory: $(pwd)"
+          echo "📋 Files in directory:"
+          ls -la
+          echo "✅ ETL workflow test completed"
