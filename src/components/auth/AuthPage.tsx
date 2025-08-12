@@ -17,10 +17,22 @@ export const AuthPage = () => {
     e.preventDefault();
     setIsLoading(true);
     
+    console.log('🔐 [AUTH] Attempting login with:', { email, password });
+    
     try {
-      await signIn(email, password);
+      const result = await signIn(email, password);
+      console.log('🔐 [AUTH] Sign in result:', result);
+      
+      if (result.error) {
+        console.error('🔐 [AUTH] Sign in error:', result.error);
+        // Show error to user
+        alert(`Login failed: ${result.error.message || 'Unknown error'}`);
+      } else {
+        console.log('🔐 [AUTH] Sign in successful');
+      }
     } catch (error) {
-      console.error('Sign in error:', error);
+      console.error('🔐 [AUTH] Unexpected error:', error);
+      alert(`Unexpected error: ${error}`);
     } finally {
       setIsLoading(false);
     }
@@ -28,9 +40,11 @@ export const AuthPage = () => {
 
   // Test credentials for pilot domains
   const isPilotDomain = window.location.hostname.includes('flow-iq.ai');
+  const isAdminDomain = window.location.hostname === 'app.flow-iq.ai';
+  
   const testCredentials = isPilotDomain ? {
-    email: 'admin@flowiq.ai',
-    password: 'test123'
+    email: isAdminDomain ? 'jayschaaf71@gmail.com' : 'admin@flowiq.ai',
+    password: isAdminDomain ? 'YourPasswordHere' : 'test123'
   } : null;
 
   return (

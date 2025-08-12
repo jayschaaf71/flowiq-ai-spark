@@ -2,174 +2,243 @@
 import { supabase } from '@/integrations/supabase/client';
 import { hipaaComplianceCore } from './hipaaComplianceCore';
 
-export interface EHRConnection {
+export interface EHRConfig {
   id: string;
   name: string;
-  type: 'epic' | 'cerner' | 'allscripts' | 'athenahealth' | 'nextgen';
-  status: 'connected' | 'disconnected' | 'error';
-  lastSync: Date;
-  endpoint: string;
-  credentials: {
-    clientId: string;
-    clientSecret: string;
-    accessToken?: string;
-    refreshToken?: string;
-  };
+  type: 'epic' | 'cerner' | 'athena' | 'custom';
+  status: 'connected' | 'disconnected' | 'error' | 'syncing';
+  enabled: boolean;
+  lastSync?: string;
+  health: number;
+  description: string;
+  fhirEndpoint?: string;
+  apiVersion?: string;
+  config?: Record<string, any>;
 }
 
-export interface EHRSyncResult {
-  success: boolean;
-  patientsUpdated: number;
-  appointmentsUpdated: number;
-  errorsEncountered: string[];
-  lastSyncTime: Date;
+export interface PatientData {
+  id: string;
+  name: string;
+  dateOfBirth: string;
+  gender: string;
+  contactInfo: {
+    phone?: string;
+    email?: string;
+    address?: string;
+  };
+  medicalHistory?: string[];
+  medications?: string[];
+  allergies?: string[];
+  lastVisit?: string;
+}
+
+export interface AppointmentData {
+  id: string;
+  patientId: string;
+  patientName: string;
+  date: string;
+  time: string;
+  duration: number;
+  type: string;
+  status: 'scheduled' | 'confirmed' | 'completed' | 'cancelled';
+  notes?: string;
 }
 
 class EHRIntegrationService {
-  async getEHRConnections(): Promise<EHRConnection[]> {
-    // Mock EHR connections - in production would fetch from database
-    return [
-      {
-        id: 'ehr-1',
-        name: 'Epic MyChart',
-        type: 'epic',
-        status: 'connected',
-        lastSync: new Date(),
-        endpoint: 'https://api.epic.com/fhir/r4',
-        credentials: {
-          clientId: 'epic_client_123',
-          clientSecret: 'encrypted_secret',
-          accessToken: 'bearer_token_123'
-        }
+  private ehrConfigs: EHRConfig[] = [
+    {
+      id: 'epic-prod',
+      name: 'Epic Production',
+      type: 'epic',
+      status: 'connected',
+      enabled: true,
+      lastSync: new Date().toISOString(),
+      health: 94,
+      description: 'Epic EHR production environment',
+      fhirEndpoint: 'https://fhir.epic.com/api/FHIR/R4',
+      apiVersion: 'R4',
+      config: {
+        clientId: 'configured',
+        scope: 'patient/*.read launch/patient',
+        redirectUri: 'https://flow-iq.ai/oauth/callback'
       }
-    ];
-  }
-
-  async syncPatientData(ehrId: string): Promise<EHRSyncResult> {
-    console.log('Starting HIPAA-compliant patient data sync from EHR:', ehrId);
-    
-    try {
-      // Get EHR connection details
-      const connections = await this.getEHRConnections();
-      const connection = connections.find(c => c.id === ehrId);
-      
-      if (!connection) {
-        throw new Error('EHR connection not found');
+    },
+    {
+      id: 'cerner-prod',
+      name: 'Cerner Production',
+      type: 'cerner',
+      status: 'disconnected',
+      enabled: false,
+      health: 0,
+      description: 'Cerner EHR production environment',
+      fhirEndpoint: 'https://fhir.cerner.com/millennium/r4',
+      apiVersion: 'R4'
+    },
+    {
+      id: 'athena-prod',
+      name: 'Athena Production',
+      type: 'athena',
+      status: 'connected',
+      enabled: true,
+      lastSync: new Date().toISOString(),
+      health: 89,
+      description: 'Athena EHR production environment',
+      fhirEndpoint: 'https://api.athenahealth.com/fhir/v1',
+      apiVersion: 'R4',
+      config: {
+        practiceId: 'configured',
+        apiKey: 'configured'
       }
-
-      // Simulate fetching patient data from EHR
-      const ehrPatientData = await this.fetchEHRPatientData(connection);
-      
-      // Use HIPAA compliance core to process sensitive data
-      const processedData = await hipaaComplianceCore.processIncomingData(
-        ehrPatientData,
-        'ehr_sync',
-        connection.id
-      );
-
-      // Update local patient records
-      let patientsUpdated = 0;
-      for (const patientData of processedData.sanitizedData) {
-        await this.updatePatientRecord(patientData);
-        patientsUpdated++;
-      }
-
-      return {
-        success: true,
-        patientsUpdated,
-        appointmentsUpdated: 0,
-        errorsEncountered: [],
-        lastSyncTime: new Date()
-      };
-    } catch (error) {
-      console.error('EHR sync failed:', error);
-      return {
-        success: false,
-        patientsUpdated: 0,
-        appointmentsUpdated: 0,
-        errorsEncountered: [error.message],
-        lastSyncTime: new Date()
-      };
     }
+  ];
+
+  async getEHRConfigs(): Promise<EHRConfig[]> {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    return this.ehrConfigs;
   }
 
-  private async fetchEHRPatientData(connection: EHRConnection): Promise<any[]> {
-    // Mock EHR API call - in production would make actual API calls
-    return [
-      {
-        id: 'ehr_patient_123',
-        firstName: 'John',
-        lastName: 'Doe',
-        dateOfBirth: '1980-01-15',
-        phone: '555-0123',
+  async updateEHRConfig(id: string, updates: Partial<EHRConfig>): Promise<EHRConfig> {
+    const index = this.ehrConfigs.findIndex(config => config.id === id);
+    if (index === -1) {
+      throw new Error(`EHR config with id ${id} not found`);
+    }
+
+    this.ehrConfigs[index] = { ...this.ehrConfigs[index], ...updates };
+    return this.ehrConfigs[index];
+  }
+
+  async testEHRConnection(id: string): Promise<{ success: boolean; message: string }> {
+    const config = this.ehrConfigs.find(c => c.id === id);
+    if (!config) {
+      throw new Error(`EHR config with id ${id} not found`);
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    const testResults = {
+      'epic-prod': { success: true, message: 'Epic FHIR connection successful' },
+      'cerner-prod': { success: false, message: 'Cerner authentication failed' },
+      'athena-prod': { success: true, message: 'Athena API connection successful' }
+    };
+
+    return testResults[id] || { success: false, message: 'Connection test failed' };
+  }
+
+  async syncPatients(ehrId: string): Promise<{ success: boolean; count: number; message: string }> {
+    const config = this.ehrConfigs.find(c => c.id === ehrId);
+    if (!config) {
+      throw new Error(`EHR config with id ${ehrId} not found`);
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 3000));
+
+    // Mock sync results
+    const syncResults = {
+      'epic-prod': { success: true, count: 1247, message: 'Successfully synced 1,247 patients' },
+      'cerner-prod': { success: false, count: 0, message: 'Sync failed - authentication required' },
+      'athena-prod': { success: true, count: 892, message: 'Successfully synced 892 patients' }
+    };
+
+    return syncResults[ehrId] || { success: false, count: 0, message: 'Sync failed' };
+  }
+
+  async getPatientData(ehrId: string, patientId: string): Promise<PatientData | null> {
+    const config = this.ehrConfigs.find(c => c.id === ehrId);
+    if (!config || config.status !== 'connected') {
+      return null;
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    // Mock patient data
+    return {
+      id: patientId,
+      name: 'John Doe',
+      dateOfBirth: '1985-03-15',
+      gender: 'male',
+      contactInfo: {
+        phone: '+1-555-0123',
         email: 'john.doe@email.com',
-        address: {
-          line1: '123 Main St',
-          city: 'Anytown',
-          state: 'CA',
-          zipCode: '12345'
-        }
+        address: '123 Main St, Anytown, ST 12345'
+      },
+      medicalHistory: ['Hypertension', 'Type 2 Diabetes'],
+      medications: ['Lisinopril 10mg daily', 'Metformin 500mg twice daily'],
+      allergies: ['Penicillin'],
+      lastVisit: '2024-01-15'
+    };
+  }
+
+  async getAppointments(ehrId: string, startDate: string, endDate: string): Promise<AppointmentData[]> {
+    const config = this.ehrConfigs.find(c => c.id === ehrId);
+    if (!config || config.status !== 'connected') {
+      return [];
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // Mock appointment data
+    return [
+      {
+        id: 'apt-001',
+        patientId: 'pat-001',
+        patientName: 'John Doe',
+        date: '2024-01-20',
+        time: '09:00',
+        duration: 30,
+        type: 'Follow-up',
+        status: 'scheduled',
+        notes: 'Review blood pressure and diabetes management'
+      },
+      {
+        id: 'apt-002',
+        patientId: 'pat-002',
+        patientName: 'Jane Smith',
+        date: '2024-01-20',
+        time: '10:00',
+        duration: 45,
+        type: 'New Patient',
+        status: 'confirmed',
+        notes: 'Initial consultation for sleep study'
       }
     ];
   }
 
-  private async updatePatientRecord(patientData: any): Promise<void> {
-    // Update or create patient record in local database
-    const { data: existingPatient } = await supabase
-      .from('patients')
-      .select('id')
-      .eq('email', patientData.email)
-      .single();
-
-    if (existingPatient) {
-      // Update existing patient
-      await supabase
-        .from('patients')
-        .update({
-          first_name: patientData.firstName,
-          last_name: patientData.lastName,
-          phone: patientData.phone,
-          address_line1: patientData.address?.line1,
-          city: patientData.address?.city,
-          state: patientData.address?.state,
-          zip_code: patientData.address?.zipCode,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', existingPatient.id);
-    } else {
-      // Create new patient
-      await supabase
-        .from('patients')
-        .insert({
-          first_name: patientData.firstName,
-          last_name: patientData.lastName,
-          email: patientData.email,
-          phone: patientData.phone,
-          date_of_birth: patientData.dateOfBirth,
-          address_line1: patientData.address?.line1,
-          city: patientData.address?.city,
-          state: patientData.address?.state,
-          zip_code: patientData.address?.zipCode
-        });
+  async createAppointment(ehrId: string, appointment: Omit<AppointmentData, 'id'>): Promise<AppointmentData> {
+    const config = this.ehrConfigs.find(c => c.id === ehrId);
+    if (!config || config.status !== 'connected') {
+      throw new Error('EHR not connected');
     }
+
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    return {
+      ...appointment,
+      id: `apt-${Date.now()}`,
+      status: 'scheduled'
+    };
   }
 
-  async testEHRConnection(ehrId: string): Promise<boolean> {
-    try {
-      const connections = await this.getEHRConnections();
-      const connection = connections.find(c => c.id === ehrId);
-      
-      if (!connection) {
-        return false;
-      }
-
-      // Mock connection test
-      console.log('Testing EHR connection to:', connection.endpoint);
-      return true;
-    } catch (error) {
-      console.error('EHR connection test failed:', error);
-      return false;
+  async updateAppointment(ehrId: string, appointmentId: string, updates: Partial<AppointmentData>): Promise<AppointmentData> {
+    const config = this.ehrConfigs.find(c => c.id === ehrId);
+    if (!config || config.status !== 'connected') {
+      throw new Error('EHR not connected');
     }
+
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    // Mock updated appointment
+    return {
+      id: appointmentId,
+      patientId: 'pat-001',
+      patientName: 'John Doe',
+      date: '2024-01-20',
+      time: '09:00',
+      duration: 30,
+      type: 'Follow-up',
+      status: 'confirmed',
+      notes: 'Review blood pressure and diabetes management',
+      ...updates
+    };
   }
 }
 

@@ -22,16 +22,11 @@ import { PatientExperiencePage } from '@/pages/PatientExperiencePage';
 import { AIAutomationHub } from '@/pages/AIAutomationHub';
 
 // AI Agents
-import CommunicationIQ from '@/pages/agents/CommunicationIQ';
-import ScribeIQ from '@/pages/agents/ScribeIQ';
-import EHRIQ from '@/pages/agents/EHRIQ';
-import RevenueIQ from '@/pages/agents/RevenueIQ';
-import InsuranceIQ from '@/pages/agents/InsuranceIQ';
-import InventoryIQ from '@/pages/agents/InventoryIQ';
-import InsightIQ from '@/pages/agents/InsightIQ';
-import OpsIQ from '@/pages/agents/OpsIQ';
-import EducationIQ from '@/pages/agents/EducationIQ';
-import GrowthIQ from '@/pages/agents/GrowthIQ';
+import { CommunicationAssistant } from '@/pages/agents/CommunicationAssistant';
+import { ClinicalAssistant } from '@/pages/agents/ClinicalAssistant';
+import { RevenueAssistant } from '@/pages/agents/RevenueAssistant';
+import { OperationsAssistant } from '@/pages/agents/OperationsAssistant';
+import { GrowthAssistant } from '@/pages/agents/GrowthAssistant';
 import ApplicationTest from '@/pages/ApplicationTest';
 
 export default function DentalApp() {
@@ -171,35 +166,19 @@ export default function DentalApp() {
           </ProtectedRoute>
         } />
 
-        {/* Legacy routes for backwards compatibility */}
-        <Route path="/agents/appointment" element={
+        {/* AI Assistant routes */}
+        <Route path="/agents/communication" element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
-              <CommunicationIQ />
+              <CommunicationAssistant />
             </Layout>
           </ProtectedRoute>
         } />
 
-        <Route path="/agents/intake" element={
+        <Route path="/agents/clinical" element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
-              <CommunicationIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/agents/scribe" element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <ScribeIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/agents/ehr" element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <EHRIQ />
+              <ClinicalAssistant />
             </Layout>
           </ProtectedRoute>
         } />
@@ -207,39 +186,15 @@ export default function DentalApp() {
         <Route path="/agents/revenue" element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
-              <RevenueIQ />
+              <RevenueAssistant />
             </Layout>
           </ProtectedRoute>
         } />
         
-        <Route path="/agents/insurance" element={
+        <Route path="/agents/operations" element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
-              <InsuranceIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/agents/inventory" element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <InventoryIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/agents/insights" element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <InsightIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/agents/education" element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <EducationIQ />
+              <OperationsAssistant />
             </Layout>
           </ProtectedRoute>
         } />
@@ -247,15 +202,7 @@ export default function DentalApp() {
         <Route path="/agents/growth" element={
           <ProtectedRoute requiredRole="staff">
             <Layout>
-              <GrowthIQ />
-            </Layout>
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/agents/ops" element={
-          <ProtectedRoute requiredRole="staff">
-            <Layout>
-              <OpsIQ />
+              <GrowthAssistant />
             </Layout>
           </ProtectedRoute>
         } />
