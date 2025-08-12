@@ -21,7 +21,8 @@ import {
   TrendingUp,
   Settings,
   FileText,
-  BarChart3
+  BarChart3,
+  Target
 } from "lucide-react";
 import { SetupData } from "@/pages/PracticeSetup";
 
@@ -31,13 +32,20 @@ interface AgentSelectionStepProps {
 }
 
 const availableAgents = [
-  // Essential Agents
+  // Essential Agents (CONSOLIDATED)
   {
     id: 'communication-iq',
     name: 'Communication iQ',
-    description: 'Complete patient communication platform including scheduling, intake, follow-up, and appointment management',
+    description: 'Complete patient communication platform including scheduling, intake, follow-up, voice assistants, and appointment management',
     icon: MessageSquare,
-    benefits: ['Multi-channel messaging', 'Smart scheduling', 'Digital intake', 'Automated follow-ups', 'Appointment management', 'No-show reduction'],
+    benefits: [
+      'Multi-channel messaging (email, SMS, chat, voice)',
+      'AI voice assistants and call automation',
+      'Smart scheduling and appointment management',
+      'Digital intake and automated follow-ups',
+      'Voice transcription and conversational AI',
+      'No-show reduction and communication optimization'
+    ],
     recommended: true,
     category: 'Essential'
   },
@@ -71,41 +79,39 @@ const availableAgents = [
     category: 'Clinical'
   },
 
-  // Financial & Revenue Cycle
+  // Financial & Revenue Cycle (CONSOLIDATED)
   {
-    id: 'billing-iq',
-    name: 'Billing iQ',
-    description: 'Automated billing and revenue cycle management',
-    icon: CreditCard,
-    benefits: ['Automated invoicing', 'Insurance verification', 'Payment processing', 'Revenue optimization'],
-    recommended: false,
-    category: 'Financial'
-  },
-  {
-    id: 'claims-iq',
-    name: 'Claims iQ',
-    description: 'Insurance claims processing and denial management',
-    icon: Receipt,
-    benefits: ['Automated claim submission', 'Denial tracking', 'Resubmission workflows', 'Revenue recovery'],
-    recommended: false,
-    category: 'Financial'
-  },
-  {
-    id: 'payments-iq',
-    name: 'Payments iQ',
-    description: 'Payment collection and processing automation',
+    id: 'revenue-iq',
+    name: 'Revenue iQ',
+    description: 'Complete revenue cycle management including billing, payments, and financial analytics',
     icon: TrendingUp,
-    benefits: ['Payment plan management', 'Automated collections', 'Online payment processing', 'Financial reporting'],
-    recommended: false,
+    benefits: [
+      'Automated billing and invoicing',
+      'Payment processing and collections',
+      'Revenue analytics and forecasting',
+      'Payment plan management',
+      'Financial reporting and insights',
+      'Subscription billing management'
+    ],
+    recommended: true,
     category: 'Financial'
   },
   {
-    id: 'auth-iq',
-    name: 'Auth iQ',
-    description: 'Insurance authorization and prior approval management',
+    id: 'insurance-iq',
+    name: 'Insurance iQ',
+    description: 'Comprehensive insurance operations including claims, authorization, eligibility, and compliance',
     icon: Shield,
-    benefits: ['Prior authorization tracking', 'Insurance verification', 'Approval workflows', 'Compliance monitoring'],
-    recommended: false,
+    benefits: [
+      'Automated claims processing',
+      'Prior authorization management',
+      'Real-time eligibility verification',
+      'Denial tracking and appeals',
+      'Insurance analytics and optimization',
+      'Payer integration and compliance',
+      'Regulatory compliance monitoring',
+      'Audit trail management'
+    ],
+    recommended: true,
     category: 'Financial'
   },
 
@@ -113,18 +119,18 @@ const availableAgents = [
   {
     id: 'inventory-iq',
     name: 'Inventory iQ',
-    description: 'Smart inventory management with automated ordering',
+    description: 'Smart inventory management and supply chain optimization',
     icon: Package,
-    benefits: ['Automated reordering', 'Vendor management', 'Cost optimization', 'Stock level monitoring'],
+    benefits: ['Automated reordering', 'Stock level monitoring', 'Cost optimization', 'Supplier management'],
     recommended: false,
     category: 'Operations'
   },
   {
     id: 'ops-iq',
     name: 'Ops iQ',
-    description: 'Operational workflow automation and system monitoring',
+    description: 'Operations management and workflow automation',
     icon: Settings,
-    benefits: ['Workflow automation', 'System monitoring', 'Process optimization', 'Performance tracking'],
+    benefits: ['Process automation', 'Workflow optimization', 'Resource management', 'Performance tracking'],
     recommended: false,
     category: 'Operations'
   },
@@ -133,42 +139,31 @@ const availableAgents = [
   {
     id: 'insight-iq',
     name: 'Insight iQ',
-    description: 'Business intelligence and practice analytics',
+    description: 'Advanced analytics and business intelligence',
     icon: BarChart3,
     benefits: ['Performance analytics', 'Predictive insights', 'Custom reporting', 'Data visualization'],
     recommended: false,
     category: 'Analytics'
   },
 
-  // Patient Experience & Education
+  // Education & Marketing
   {
     id: 'education-iq',
     name: 'Education iQ',
-    description: 'Patient education and engagement automation',
+    description: 'Patient education and engagement platform',
     icon: GraduationCap,
-    benefits: ['Automated patient education', 'Engagement tracking', 'Custom content delivery', 'Health literacy improvement'],
+    benefits: ['Interactive learning', 'Content personalization', 'Progress tracking', 'Engagement analytics'],
     recommended: false,
-    category: 'Patient Experience'
+    category: 'Education'
   },
-
-  // Growth & Marketing
   {
     id: 'go-to-market-iq',
     name: 'Go-To-Market iQ',
-    description: 'Comprehensive marketing and sales automation for practice growth',
-    icon: TrendingUp,
-    benefits: ['Lead generation', 'Sales automation', 'Campaign management', 'Social media', 'Review management', 'Patient acquisition'],
+    description: 'Marketing automation and patient acquisition',
+    icon: Target,
+    benefits: ['Campaign automation', 'Lead generation', 'Patient acquisition', 'Marketing analytics'],
     recommended: false,
-    category: 'Growth'
-  },
-  {
-    id: 'referral-iq',
-    name: 'Referral iQ',
-    description: 'Referral management and physician relationship automation',
-    icon: UserPlus,
-    benefits: ['Referral tracking', 'Physician outreach', 'Relationship management', 'Communication automation'],
-    recommended: false,
-    category: 'Growth'
+    category: 'Marketing'
   }
 ];
 

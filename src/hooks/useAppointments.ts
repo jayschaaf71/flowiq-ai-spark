@@ -12,6 +12,38 @@ export const useAppointments = () => {
     queryKey: ['appointments'],
     queryFn: async () => {
       console.log('Fetching appointments...');
+      
+      // Development mock data
+      if (window.location.hostname === 'localhost') {
+        console.log('Using mock appointments data for development');
+        return [
+          {
+            id: '1',
+            patient_name: 'John Doe',
+            date: new Date().toISOString().split('T')[0],
+            time: '09:00',
+            status: 'confirmed',
+            type: 'consultation'
+          },
+          {
+            id: '2',
+            patient_name: 'Jane Smith',
+            date: new Date().toISOString().split('T')[0],
+            time: '10:30',
+            status: 'pending',
+            type: 'treatment'
+          },
+          {
+            id: '3',
+            patient_name: 'Mike Johnson',
+            date: new Date().toISOString().split('T')[0],
+            time: '14:00',
+            status: 'confirmed',
+            type: 'follow-up'
+          }
+        ];
+      }
+      
       const { data, error } = await supabase
         .from('appointments')
         .select('*')

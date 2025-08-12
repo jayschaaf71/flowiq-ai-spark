@@ -89,31 +89,64 @@ const PRODUCTION_TENANTS: Record<string, TenantConfig> = {
     primary_color: '#16a34a',
     secondary_color: '#22c55e',
     tagline: 'Expert Chiropractic Care for Optimal Spinal Health'
+  },
+  'connect': {
+    id: '00000000-0000-0000-0000-000000000001',
+    name: 'FlowIQ Connect',
+    brand_name: 'FlowIQ Connect',
+    brandName: 'FlowIQ Connect',
+    specialty: 'communication',
+    primary_color: '#0ea5e9',
+    secondary_color: '#38bdf8',
+    tagline: 'Smart Business Communication & Scheduling'
+  },
+  'general-dentistry': {
+    id: '00000000-0000-0000-0000-000000000003',
+    name: 'Dental IQ',
+    brand_name: 'Dental IQ',
+    brandName: 'Dental IQ',
+    specialty: 'general-dentistry',
+    primary_color: '#0ea5e9',
+    secondary_color: '#38bdf8',
+    tagline: 'Comprehensive Dental Care Excellence'
   }
 };
 
 // Helper function to get subdomain from URL
 const getCurrentSubdomain = () => {
   const hostname = window.location.hostname;
-  
+
   // For localhost development
   if (hostname.includes('localhost') || hostname.includes('127.0.0.1')) {
     return null;
   }
-  
+
   // For Lovable development (UUID hostnames) - check this FIRST
   if (hostname.includes('lovableproject.com')) {
     console.log('Skipping tenant lookup for Lovable development hostname:', hostname);
     return null; // Skip tenant lookup for development
   }
-  
+
+  // For production domains like tenant.domain.com
+  if (hostname.includes('midwest-dental-sleep.flow-iq.ai')) {
+    return 'midwest-dental-sleep';
+  }
+
+  if (hostname.includes('west-county-spine.flow-iq.ai')) {
+    return 'west-county-spine';
+  }
+
+  if (hostname.includes('connect.flow-iq.ai')) {
+    return 'connect';
+  }
+
   const parts = hostname.split('.');
-  
+
   // For production domains like tenant.domain.com
   if (parts.length >= 3) {
     return parts[0];
   }
-  
+
   return null;
 };
 
@@ -125,34 +158,34 @@ export function useEnhancedTenantConfig() {
   const loadTenantConfig = async () => {
     try {
       setIsLoading(true);
-      
+
       const subdomain = getCurrentSubdomain();
       const currentPath = window.location.pathname;
       console.log('🚀 [DIAGNOSTIC] Loading tenant config for subdomain:', subdomain, 'user:', user?.id, 'path:', currentPath);
-      
+
       // DIAGNOSTIC MODE: Route-based tenant detection (takes priority over profile)
       const getRouteBasedTenant = (): TenantConfig | null => {
         console.log('🔍 [DIAGNOSTIC] Checking route-based tenant detection for path:', currentPath);
-        
+
         if (currentPath.includes('/chiropractic') || currentPath.includes('chiropractic-care')) {
           console.log('✅ [DIAGNOSTIC] Route detected CHIROPRACTIC - forcing chiropractic tenant');
           return PRODUCTION_TENANTS['west-county-spine'] || DEFAULT_TENANTS.chiropractic;
         }
-        
+
         if (currentPath.includes('/dental-sleep')) {
           console.log('✅ [DIAGNOSTIC] Route detected DENTAL-SLEEP - forcing dental-sleep tenant');
           return PRODUCTION_TENANTS['midwest-dental-sleep'] || DEFAULT_TENANTS['dental-sleep'];
         }
-        
+
         if (currentPath.includes('/dental')) {
           console.log('✅ [DIAGNOSTIC] Route detected DENTAL - forcing dental tenant');
           return DEFAULT_TENANTS.dental;
         }
-        
+
         console.log('❌ [DIAGNOSTIC] No specific route detected, proceeding with normal logic');
         return null;
       };
-      
+
       // Priority 0: Route-based detection (NEW - highest priority)
       const routeBasedTenant = getRouteBasedTenant();
       if (routeBasedTenant) {
@@ -160,18 +193,18 @@ export function useEnhancedTenantConfig() {
         setTenantConfig(routeBasedTenant);
         return;
       }
-      
+
       // Priority 1: Check for subdomain-based tenant (works for both authenticated and anonymous users)
       if (subdomain) {
         console.log('Fetching tenant by subdomain:', subdomain);
-        
+
         // First check if it's a known production tenant
         if (PRODUCTION_TENANTS[subdomain]) {
           console.log('Found production tenant config for subdomain:', subdomain);
           setTenantConfig(PRODUCTION_TENANTS[subdomain]);
           return;
         }
-        
+
         // Fallback to database lookup
         const { data: tenant, error } = await supabase
           .from('tenants')
@@ -195,7 +228,7 @@ export function useEnhancedTenantConfig() {
             logo_url: tenant.logo_url,
             tagline: settings?.branding?.tagline || getTenantConfigForSpecialty(tenant.specialty).tagline
           };
-          
+
           setTenantConfig(config);
           return;
         }
@@ -216,7 +249,7 @@ export function useEnhancedTenantConfig() {
           console.log('👤 [DIAGNOSTIC] User profile current_tenant_id:', profile.current_tenant_id);
           console.log('🔍 [DIAGNOSTIC] Current path:', currentPath);
           console.log('⚠️ [DIAGNOSTIC] WARNING: Using profile tenant but route might override this');
-          
+
           const { data: tenant, error: tenantError } = await supabase
             .from('tenants')
             .select('*')
@@ -232,7 +265,7 @@ export function useEnhancedTenantConfig() {
               specialty: tenant.specialty,
               conflictsWith: currentPath.includes('/chiropractic') && tenant.specialty !== 'chiropractic-care'
             });
-            
+
             const settings = tenant.settings as any;
             const config: TenantConfig = {
               id: tenant.id,
@@ -245,7 +278,7 @@ export function useEnhancedTenantConfig() {
               logo_url: tenant.logo_url,
               tagline: settings?.branding?.tagline || getTenantConfigForSpecialty(tenant.specialty).tagline
             };
-            
+
             console.log('✅ [DIAGNOSTIC] Loaded tenant config from database:', config);
             setTenantConfig(config);
             return;
@@ -259,7 +292,7 @@ export function useEnhancedTenantConfig() {
       if (!user) {
         const path = window.location.pathname;
         let defaultConfig = DEFAULT_TENANTS.chiropractic;
-        
+
         if (path.includes('/chiropractic')) {
           defaultConfig = DEFAULT_TENANTS.chiropractic;
         } else if (path.includes('/dental-sleep') || path.includes('dental-sleep')) {
@@ -269,7 +302,7 @@ export function useEnhancedTenantConfig() {
         } else if (path.includes('/med-spa') || path.includes('/medspa')) {
           defaultConfig = DEFAULT_TENANTS['med-spa'];
         }
-        
+
         setTenantConfig(defaultConfig);
         return;
       }
@@ -288,7 +321,7 @@ export function useEnhancedTenantConfig() {
   const updateTenantConfig = async (updates: Partial<TenantConfig>) => {
     try {
       console.log('Mock updating tenant config:', updates);
-      
+
       if (tenantConfig) {
         const updatedConfig = { ...tenantConfig, ...updates };
         setTenantConfig(updatedConfig);
@@ -315,9 +348,9 @@ export function useEnhancedTenantConfig() {
         loadTenantConfig();
       }
     };
-    
+
     window.addEventListener('storage', handleStorageChange);
-    
+
     return () => {
       window.removeEventListener('storage', handleStorageChange);
     };
@@ -343,7 +376,7 @@ export const enhancedTenantConfigService = {
     console.log('Mock fetching tenant config for:', tenantId);
     return DEFAULT_TENANTS.general;
   },
-  
+
   async updateTenantConfig(tenantId: string, updates: Partial<TenantConfig>): Promise<TenantConfig | null> {
     console.log('Mock updating tenant config:', tenantId, updates);
     return { ...DEFAULT_TENANTS.general, ...updates };

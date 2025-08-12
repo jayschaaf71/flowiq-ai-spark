@@ -1,39 +1,38 @@
 
-import { ReactNode } from "react";
-import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "./AppSidebar";
-import { UserMenu } from "./auth/UserMenu";
-import { TenantSwitcher } from "./tenant/TenantSwitcher";
-import { FloatingAssistIQ } from "./FloatingAssistIQ";
+import React from 'react';
+import { PageHeader } from './PageHeader';
+import { AppSidebar } from './AppSidebar';
+import { SageAI } from './ai/SageAI';
+import { Sidebar, SidebarContent, SidebarTrigger } from '@/components/ui/sidebar';
 
 interface LayoutProps {
-  children: ReactNode;
+  children: React.ReactNode;
+  showHeader?: boolean;
+  showSageAI?: boolean;
 }
 
-export const Layout = ({ children }: LayoutProps) => {
-  console.log('📱 Layout: Rendering Layout component');
+export const Layout: React.FC<LayoutProps> = ({
+  children,
+  showHeader = true,
+  showSageAI = true
+}) => {
+  console.log('🔧 Layout: Rendering with children:', typeof children);
+  console.log('🔧 Layout: Children content:', children);
+
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-background">
-        <AppSidebar />
-        <SidebarInset className="flex-1">
-          <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="flex items-center gap-2 px-4">
-              <SidebarTrigger className="-ml-1" />
-            </div>
-            <div className="flex flex-1 items-center justify-end gap-3 px-4">
-              <TenantSwitcher />
-              <UserMenu />
-            </div>
-          </header>
-          <main className="flex-1 p-6 overflow-auto">
-            {children}
-          </main>
-        </SidebarInset>
-        
-        {/* Floating Sage AI Assistant */}
-        <FloatingAssistIQ />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50 flex">
+      <AppSidebar />
+
+      {/* Main Content Area - flex to fill remaining space */}
+      <div className="flex-1 min-h-screen flex flex-col">
+        {showHeader && <PageHeader />}
+        <main className="flex-1 p-6 w-full">
+          {children}
+        </main>
       </div>
-    </SidebarProvider>
+
+      {/* Floating Sage AI Assistant */}
+      {showSageAI && <SageAI mode="floating" />}
+    </div>
   );
 };

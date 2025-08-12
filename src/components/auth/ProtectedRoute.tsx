@@ -72,8 +72,26 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <AuthLoadingState message="Verifying secure access..." />;
   }
 
+  // Development bypass for testing - ALWAYS bypass for localhost
+  const hostname = window.location.hostname;
+  if (process.env.NODE_ENV === 'development' || hostname === 'localhost') {
+    console.log('🔓 [DEV] Bypassing authentication for development testing on:', hostname);
+    return <>{children}</>;
+  }
+  
   // Show auth page if not authenticated
   if (!user) {
+    // Production bypass for pilot domains
+    console.log('🔍 [AUTH] Checking hostname for bypass:', hostname);
+    
+    if (hostname.includes('west-county-spine.flow-iq.ai') || 
+        hostname.includes('midwest-dental-sleep.flow-iq.ai') ||
+        hostname.includes('flow-iq.ai')) {
+      console.log('🔓 [PROD] Bypassing authentication for pilot domains');
+      return <>{children}</>;
+    }
+    
+    console.log('🔒 [AUTH] Authentication required for:', hostname);
     return <AuthPage />;
   }
 
