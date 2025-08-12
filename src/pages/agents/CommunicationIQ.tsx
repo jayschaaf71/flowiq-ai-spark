@@ -1,762 +1,657 @@
-import React, { useState, useCallback } from 'react';
-import { PageHeader } from '@/components/PageHeader';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
-  Calendar,
-  Clock,
-  MessageSquare,
-  Users,
-  CheckCircle,
-  AlertTriangle,
-  Phone,
-  Mail,
-  ArrowRight,
-  Bell,
-  UserCheck,
-  TrendingUp,
-  Activity,
-  ClipboardList,
-  FileText,
-  Bot,
-  Mic,
-  Volume2,
-  Headphones,
-  MessageCircle
-} from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-
-// Import scheduling components from ScheduleIQProduction
-import { ScheduleStats } from '@/components/schedule/ScheduleStats';
-import { AppointmentManager } from '@/components/schedule/AppointmentManager';
-import { TodaysAppointments } from '@/components/schedule/TodaysAppointments';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { CustomerDatabase } from '@/components/customers/CustomerDatabase';
+import { ServiceHistory } from '@/components/customers/ServiceHistory';
+import { CommunicationManager } from '@/components/communications/CommunicationManager';
+import { VoiceCallManager } from '@/components/communications/VoiceCallManager';
+import { InvoiceManager } from '@/components/billing/InvoiceManager';
+import { PaymentProcessor } from '@/components/billing/PaymentProcessor';
+import { AnalyticsDashboard } from '@/components/analytics/AnalyticsDashboard';
+import { BusinessConfiguration } from '@/components/settings/BusinessConfiguration';
+import { ServiceTypeConfig } from '@/components/settings/ServiceTypeConfig';
+import { PhoneNumberSetup } from '@/components/settings/PhoneNumberSetup';
+import { AIIntegrationsHub } from '@/components/ai/AIIntegrationsHub';
 import { CalendarView } from '@/components/schedule/CalendarView';
-import { AutomatedReminders } from '@/components/schedule/AutomatedReminders';
 import { AvailableSlots } from '@/components/schedule/AvailableSlots';
-
-// Import intake components from IntakeIQ
-import { IntakeDashboard } from '@/components/intake/IntakeDashboard';
-import { FormBuilder } from '@/components/intake/FormBuilder';
-import { FormSubmissionsList } from '@/components/intake/FormSubmissionsList';
-import { ConversationalVoiceIntake } from '@/components/intake/ConversationalVoiceIntake';
-import { MobileVoiceIntake } from '@/components/intake/MobileVoiceIntake';
-import { StaffIntakeDashboard } from '@/components/intake/StaffIntakeDashboard';
-
-// Import hooks
-import { useIntakeForms } from '@/hooks/useIntakeForms';
-
-// Import waitlist components
-import { WaitlistManagement } from '@/components/waitlist/WaitlistManagement';
+import { getThemeColorClasses } from '@/utils/themeUtils';
+import {
+  Calendar,
+  Users,
+  MessageSquare,
+  CreditCard,
+  BarChart3,
+  Settings,
+  Clock,
+  UserCheck,
+  Bell,
+  Zap
+} from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+// import { useConnectSageAI } from '@/hooks/useConnectSageAI';
 
 export const CommunicationIQ = () => {
-  const navigate = useNavigate();
-  const [selectedTab, setSelectedTab] = useState('dashboard');
-  const [refreshKey, setRefreshKey] = useState(0);
-  const [activeTab, setActiveTab] = useState("dashboard");
-  
-  // Clear any persisting errors on mount
-  React.useEffect(() => {
-    console.log('CommunicationIQ mounted, clearing any persistent errors');
-  }, []);
+  const [selectedTab, setSelectedTab] = useState('schedule');
+  // const connectSage = useConnectSageAI();
+  const themeColors = getThemeColorClasses();
+  const { toast } = useToast();
 
-  // Add error handling for intake forms hook
-  const { forms, submissions, loading } = useIntakeForms();
-
-  // Enhanced stats combining appointment and intake metrics
-  const stats = {
-    todayAppointments: 24,
-    confirmationRate: 87,
-    intakeCompletion: 92,
-    noShowRate: 3.2,
-    appointmentsToday: 24,
-    bookedThisWeek: 156,
-    utilizationRate: 87,
-    avgBookingTime: "2.3 minutes",
-    automatedBookings: 89,
-    pendingIntakes: 8,
-    voiceCallsToday: 15,
-    emailsSent: 43,
-    smsMessages: 67,
-    scheduleUtilization: 87,
-    availableSlots: 12,
-    aiAccuracy: 94
-  };
-
-  // Voice AI Components
-  const VoiceAIDashboard = () => (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Volume2 className="h-5 w-5" />
-              Voice Calls Today
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-blue-600">15</div>
-            <p className="text-sm text-gray-500">+12% from yesterday</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Headphones className="h-5 w-5" />
-              AI Voice Assistant
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-green-600">94%</div>
-            <p className="text-sm text-gray-500">Accuracy rate</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MessageCircle className="h-5 w-5" />
-              Call Duration
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-purple-600">2.3 min</div>
-            <p className="text-sm text-gray-500">Average call time</p>
-          </CardContent>
-        </Card>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Voice Call Analytics</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between">
-                <span>Inbound Calls</span>
-                <span className="font-medium">12</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Outbound Calls</span>
-                <span className="font-medium">3</span>
-              </div>
-              <div className="flex justify-between">
-                <span>AI Handled</span>
-                <span className="font-medium">8</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Human Transfer</span>
-                <span className="font-medium">7</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>Voice Features</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 border rounded">
-                <div>
-                  <h4 className="font-medium">AI Voice Assistant</h4>
-                  <p className="text-sm text-gray-500">Automated call handling</p>
-                </div>
-                <Badge className="bg-green-100 text-green-700">Active</Badge>
-              </div>
-              <div className="flex items-center justify-between p-3 border rounded">
-                <div>
-                  <h4 className="font-medium">Call Transcription</h4>
-                  <p className="text-sm text-gray-500">Real-time voice-to-text</p>
-                </div>
-                <Badge className="bg-green-100 text-green-700">Active</Badge>
-              </div>
-              <div className="flex items-center justify-between p-3 border rounded">
-                <div>
-                  <h4 className="font-medium">Voice Scheduling</h4>
-                  <p className="text-sm text-gray-500">Book appointments via voice</p>
-                </div>
-                <Badge className="bg-yellow-100 text-yellow-700">Setup Required</Badge>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
-
-  const MultiChannelMessaging = () => (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Mail className="h-5 w-5" />
-              Emails Sent
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-blue-600">43</div>
-            <p className="text-sm text-gray-500">Today</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MessageSquare className="h-5 w-5" />
-              SMS Messages
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-green-600">67</div>
-            <p className="text-sm text-gray-500">Today</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MessageCircle className="h-5 w-5" />
-              Chat Messages
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-purple-600">23</div>
-            <p className="text-sm text-gray-500">Today</p>
-          </CardContent>
-        </Card>
-      </div>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Multi-Channel Communication</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 border rounded">
-              <div>
-                <h4 className="font-medium">Email Integration</h4>
-                <p className="text-sm text-gray-500">Resend/SendGrid integration</p>
-              </div>
-              <Badge className="bg-green-100 text-green-700">Active</Badge>
-            </div>
-            <div className="flex items-center justify-between p-4 border rounded">
-              <div>
-                <h4 className="font-medium">SMS Integration</h4>
-                <p className="text-sm text-gray-500">Twilio SMS service</p>
-              </div>
-              <Badge className="bg-green-100 text-green-700">Active</Badge>
-            </div>
-            <div className="flex items-center justify-between p-4 border rounded">
-              <div>
-                <h4 className="font-medium">Chat Integration</h4>
-                <p className="text-sm text-gray-500">Patient-provider chat</p>
-              </div>
-              <Badge className="bg-yellow-100 text-yellow-700">Setup Required</Badge>
-            </div>
-            <div className="flex items-center justify-between p-4 border rounded">
-              <div>
-                <h4 className="font-medium">Voice Integration</h4>
-                <p className="text-sm text-gray-500">Vapi AI voice capabilities</p>
-              </div>
-              <Badge className="bg-green-100 text-green-700">Active</Badge>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-
-  const CommunicationAnalytics = () => (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Response Time</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-blue-600">2.3 min</div>
-            <p className="text-sm text-gray-500">Average response time</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>Engagement Rate</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-green-600">87%</div>
-            <p className="text-sm text-gray-500">Patient engagement</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>No-Show Reduction</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-purple-600">23%</div>
-            <p className="text-sm text-gray-500">Reduction in no-shows</p>
-          </CardContent>
-        </Card>
-      </div>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Communication Performance</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-64 bg-gray-100 rounded flex items-center justify-center">
-            <p className="text-gray-500">Communication analytics chart will be displayed here</p>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-
-  // Mock data - enhanced for comprehensive communication management
-  const upcomingAppointments = [
+  // Mock data for upcoming services
+  const upcomingServices = [
     {
       id: 1,
-      patient: 'Sarah Johnson',
       time: '9:00 AM',
-      provider: 'Dr. Smith',
-      type: 'Cleaning',
+      type: 'HVAC',
+      customer: 'Sarah Johnson',
+      service: 'Maintenance',
+      technician: 'Dr. Smith',
+      estimatedDuration: '1 hour',
       status: 'confirmed',
-      reminderSent: true,
-      intakeCompleted: true,
-      communicationPreference: 'SMS'
+      customerOnboarded: true
     },
     {
       id: 2,
-      patient: 'Mike Wilson',
-      time: '10:30 AM',
-      provider: 'Dr. Jones',
-      type: 'Consultation',
+      time: '2:30 PM',
+      type: 'Plumbing',
+      customer: 'Mike Wilson',
+      service: 'Repair',
+      technician: 'Dr. Jones',
+      estimatedDuration: '2 hours',
       status: 'pending',
-      reminderSent: false,
-      intakeCompleted: false,
-      communicationPreference: 'Email'
+      customerOnboarded: false
     },
     {
       id: 3,
-      patient: 'Emma Davis',
-      time: '2:00 PM',
-      provider: 'Dr. Smith',
-      type: 'Follow-up',
+      time: '4:00 PM',
+      type: 'Electrical',
+      customer: 'Emma Davis',
+      service: 'Installation',
+      technician: 'Dr. Wilson',
+      estimatedDuration: '3 hours',
       status: 'confirmed',
-      reminderSent: true,
-      intakeCompleted: true,
-      communicationPreference: 'Voice'
+      customerOnboarded: true
     }
   ];
 
-  const pendingIntakes = [
-    { 
-      patient: 'Mike Wilson', 
-      appointmentTime: '10:30 AM', 
-      sent: '2 hours ago',
-      formType: 'New Patient',
-      communicationMethod: 'Email + SMS'
-    },
-    { 
-      patient: 'Lisa Chen', 
-      appointmentTime: '3:30 PM', 
-      sent: '1 day ago',
-      formType: 'Medical History',
-      communicationMethod: 'Voice Call'
-    },
-    { 
-      patient: 'Robert Brown', 
-      appointmentTime: 'Tomorrow 9:00 AM', 
-      sent: '3 hours ago',
-      formType: 'Insurance Verification',
-      communicationMethod: 'Email'
-    }
-  ];
-
-  const communicationQueue = [
-    { 
-      patient: 'Jennifer Smith', 
-      type: 'Appointment Reminder', 
-      method: 'SMS', 
-      status: 'scheduled',
-      scheduledFor: '8:00 AM today'
-    },
-    { 
-      patient: 'Mark Johnson', 
-      type: 'Intake Form Follow-up', 
-      method: 'Voice Call', 
-      status: 'pending',
-      scheduledFor: 'Now'
-    },
-    { 
-      patient: 'Anna Wilson', 
-      type: 'Post-visit Survey', 
-      method: 'Email', 
-      status: 'sent',
-      scheduledFor: 'Yesterday'
-    }
-  ];
-
-  const handleAppointmentBooked = useCallback(() => {
-    setRefreshKey(prev => prev + 1);
-    setSelectedTab("dashboard");
-  }, []);
+  // Mock stats
+  const stats = {
+    todayServices: 24,
+    availableSlots: 12,
+    voiceCalls: 15,
+    satisfactionRate: 94
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'confirmed': return 'bg-green-100 text-green-700';
-      case 'pending': return 'bg-yellow-100 text-yellow-700';
-      case 'cancelled': return 'bg-red-100 text-red-700';
-      case 'sent': return 'bg-blue-100 text-blue-700';
-      case 'scheduled': return 'bg-purple-100 text-purple-700';
+      case 'confirmed': return `bg-green-100 text-green-700`;
+      case 'pending': return `bg-yellow-100 text-yellow-700`;
+      case 'completed': return `${themeColors.lightBg} ${themeColors.primary}`;
       default: return 'bg-gray-100 text-gray-700';
     }
   };
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <PageHeader 
-        title="Communication IQ"
-        subtitle="Patient communication management - intake, forms, messaging, and follow-up"
-        badge="AI Agent"
-      />
 
-      {/* Enhanced Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelectedTab('booking')}>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Today's Appointments</p>
-                <p className="text-2xl font-bold">{stats.todayAppointments}</p>
+      {/* Enhanced Key Metrics - Scheduling Focus */}
+      <div className="w-full px-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <Card className={`${themeColors.lightBg} ${themeColors.lightBorder} shadow-lg hover:shadow-xl transition-shadow`}>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`text-sm font-medium ${themeColors.primary}`}>Today's Services</p>
+                  <p className={`text-3xl font-bold ${themeColors.primary}`}>{stats.todayServices}</p>
+                  <p className={`text-xs ${themeColors.primary} mt-1`}>Scheduled appointments</p>
+                </div>
+                <Calendar className={`h-8 w-8 ${themeColors.primary}`} />
               </div>
-              <Calendar className="h-8 w-8 text-blue-600" />
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelectedTab('booking')}>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Schedule Utilization</p>
-                <p className="text-2xl font-bold">{stats.scheduleUtilization}%</p>
+          <Card className={`${themeColors.lightBg} ${themeColors.lightBorder} shadow-lg hover:shadow-xl transition-shadow`}>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`text-sm font-medium ${themeColors.secondary}`}>Available Slots</p>
+                  <p className={`text-3xl font-bold ${themeColors.secondary}`}>{stats.availableSlots}</p>
+                  <p className={`text-xs ${themeColors.secondary} mt-1`}>Open for booking</p>
+                </div>
+                <Clock className={`h-8 w-8 ${themeColors.secondary}`} />
               </div>
-              <Clock className="h-8 w-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelectedTab('available-slots')}>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Available Slots</p>
-                <p className="text-2xl font-bold">{stats.availableSlots}</p>
+          <Card className="bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200 shadow-lg hover:shadow-xl transition-shadow">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-purple-600">Voice Calls</p>
+                  <p className="text-3xl font-bold text-purple-700">{stats.voiceCalls}</p>
+                  <p className="text-xs text-purple-600 mt-1">Handled today</p>
+                </div>
+                <MessageSquare className="h-8 w-8 text-purple-600" />
               </div>
-              <Users className="h-8 w-8 text-purple-600" />
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelectedTab('booking')}>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">AI Accuracy</p>
-                <p className="text-2xl font-bold">{stats.aiAccuracy}%</p>
+          <Card className="bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200 shadow-lg hover:shadow-xl transition-shadow">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-orange-600">Satisfaction</p>
+                  <p className="text-3xl font-bold text-orange-700">{stats.satisfactionRate}%</p>
+                  <p className="text-xs text-orange-600 mt-1">Customer rating</p>
+                </div>
+                <UserCheck className="h-8 w-8 text-orange-600" />
               </div>
-              <TrendingUp className="h-8 w-8 text-orange-600" />
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Content Tabs - Reorganized */}
+        <div className="mt-8">
+          <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
+            <TabsList className="grid w-full grid-cols-6 bg-white shadow-lg border border-slate-200 rounded-xl p-1">
+              <TabsTrigger value="schedule" className={`data-[state=active]:bg-gradient-to-r data-[state=active]:${themeColors.primaryGradient} data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-200`}>
+                📅 Schedule
+              </TabsTrigger>
+              <TabsTrigger value="customers" className={`data-[state=active]:bg-gradient-to-r data-[state=active]:${themeColors.primaryGradient} data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-200`}>
+                👥 Customers
+              </TabsTrigger>
+              <TabsTrigger value="communications" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-violet-600 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-200">
+                💬 Communications
+              </TabsTrigger>
+              <TabsTrigger value="billing" className={`data-[state=active]:bg-gradient-to-r data-[state=active]:${themeColors.primaryGradient} data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-200`}>
+                💳 Billing
+              </TabsTrigger>
+              <TabsTrigger value="analytics" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-amber-600 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-200">
+                📊 Analytics
+              </TabsTrigger>
+              <TabsTrigger value="settings" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-slate-500 data-[state=active]:to-gray-600 data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all duration-200">
+                ⚙️ Settings
+              </TabsTrigger>
+            </TabsList>
+
+            {/* SCHEDULE TAB - Primary Focus */}
+            <TabsContent value="schedule" className="space-y-6">
+              {/* Main Calendar Section - Prominent and Central */}
+              <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                {/* Large Calendar View - Primary Focus */}
+                <div className="xl:col-span-2">
+                  <Card className="shadow-lg border-0">
+                    <CardHeader className={`${themeColors.lightBg} ${themeColors.lightBorder} border-b`}>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <CardTitle className={`text-2xl font-bold ${themeColors.primary}`}>📅 Calendar View</CardTitle>
+                          <CardDescription className={`${themeColors.primary}`}>Manage appointments and availability</CardDescription>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className={`${themeColors.lightBorder} ${themeColors.primary} ${themeColors.hoverBg}`}
+                            onClick={() => {
+                              toast({
+                                title: "Today's View",
+                                description: "Switching to today's calendar view",
+                              });
+                            }}
+                          >
+                            <Calendar className="w-4 h-4 mr-2" />
+                            Today
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className={`${themeColors.lightBorder} ${themeColors.primary} ${themeColors.hoverBg}`}
+                            onClick={() => {
+                              toast({
+                                title: "Calendar Settings",
+                                description: "Opening calendar configuration settings",
+                              });
+                              setSelectedTab('settings');
+                            }}
+                          >
+                            <Settings className="w-4 h-4 mr-2" />
+                            Settings
+                          </Button>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="p-6">
+                      <CalendarView />
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Quick Actions Sidebar */}
+                <div className="space-y-6">
+                  {/* Today's Schedule - Compact */}
+                  <Card className="shadow-md border-0">
+                    <CardHeader className={`${themeColors.lightBg} ${themeColors.lightBorder} border-b`}>
+                      <CardTitle className={`text-lg font-semibold ${themeColors.secondary}`}>📋 Today's Schedule</CardTitle>
+                      <CardDescription className={`${themeColors.secondary}`}>Upcoming appointments</CardDescription>
+                    </CardHeader>
+                    <CardContent className="p-4">
+                      <div className="space-y-3">
+                        {upcomingServices.slice(0, 3).map((service) => (
+                          <div key={service.id} className={`flex items-center gap-3 p-3 ${themeColors.lightBg} rounded-lg ${themeColors.lightBorder}`}>
+                            <div className="text-center min-w-[60px]">
+                              <div className={`font-bold ${themeColors.secondary}`}>{service.time}</div>
+                              <div className={`text-xs ${themeColors.secondary}`}>{service.type}</div>
+                            </div>
+                            <div className="flex-1">
+                              <div className={`font-medium ${themeColors.secondary}`}>{service.customer}</div>
+                              <div className={`text-sm ${themeColors.secondary}`}>{service.service}</div>
+                              <div className={`text-xs ${themeColors.secondary}`}>Tech: {service.technician}</div>
+                            </div>
+                            <div className="flex flex-col items-end gap-1">
+                              <Badge className={`${getStatusColor(service.status)} text-xs`}>
+                                {service.status}
+                              </Badge>
+                              {service.customerOnboarded && (
+                                <Badge className="bg-green-100 text-green-700 text-xs">
+                                  <UserCheck className="w-3 h-3 mr-1" />
+                                  Ready
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className={`w-full ${themeColors.lightBorder} ${themeColors.secondary} ${themeColors.hoverBg}`}
+                          onClick={() => {
+                            toast({
+                              title: "View All Appointments",
+                              description: "Opening full schedule view",
+                            });
+                            // Could navigate to a detailed schedule view
+                          }}
+                        >
+                          View All ({upcomingServices.length})
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Quick Actions */}
+                  <Card className="shadow-md border-0">
+                    <CardHeader className="bg-gradient-to-r from-purple-50 to-violet-50 border-b">
+                      <CardTitle className="text-lg font-semibold text-purple-800">⚡ Quick Actions</CardTitle>
+                      <CardDescription className="text-purple-600">Common scheduling tasks</CardDescription>
+                    </CardHeader>
+                    <CardContent className="p-4">
+                      <div className="grid grid-cols-2 gap-3">
+                        <Button
+                          variant="outline"
+                          className="h-16 flex-col hover:bg-green-50 hover:border-green-200 transition-colors border-purple-200"
+                          onClick={() => {
+                            toast({
+                              title: "Book Service",
+                              description: "Opening service booking interface...",
+                            });
+                            // Could open a booking modal or navigate to booking page
+                          }}
+                        >
+                          <Calendar className="h-5 w-5 mb-1 text-green-600" />
+                          <span className="text-xs font-medium">Book Service</span>
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="h-16 flex-col hover:bg-blue-50 hover:border-blue-200 transition-colors border-purple-200"
+                          onClick={() => {
+                            toast({
+                              title: "View Calendar",
+                              description: "Opening calendar interface...",
+                            });
+                            // Could open a full-screen calendar view
+                          }}
+                        >
+                          <Clock className="h-5 w-5 mb-1 text-blue-600" />
+                          <span className="text-xs font-medium">View Calendar</span>
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="h-16 flex-col hover:bg-purple-50 hover:border-purple-200 transition-colors border-purple-200"
+                          onClick={() => {
+                            toast({
+                              title: "Manage Slots",
+                              description: "Opening slot management interface...",
+                            });
+                            // Could open slot management modal
+                          }}
+                        >
+                          <Settings className="h-5 w-5 mb-1 text-purple-600" />
+                          <span className="text-xs font-medium">Manage Slots</span>
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="h-16 flex-col hover:bg-orange-50 hover:border-orange-200 transition-colors border-purple-200"
+                          onClick={() => {
+                            toast({
+                              title: "Send Reminders",
+                              description: "Opening reminder management...",
+                            });
+                            setSelectedTab('communications');
+                          }}
+                        >
+                          <Bell className="h-5 w-5 mb-1 text-orange-600" />
+                          <span className="text-xs font-medium">Send Reminders</span>
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Available Slots Summary */}
+                  <Card className="shadow-md border-0">
+                    <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 border-b">
+                      <CardTitle className="text-lg font-semibold text-orange-800">📊 Availability</CardTitle>
+                      <CardDescription className="text-orange-600">Quick availability overview</CardDescription>
+                    </CardHeader>
+                    <CardContent className="p-4">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
+                          <div>
+                            <div className="font-medium text-orange-800">Available Slots</div>
+                            <div className="text-sm text-orange-600">Next 7 days</div>
+                          </div>
+                          <div className="text-2xl font-bold text-orange-700">{stats.availableSlots}</div>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                          <div>
+                            <div className="font-medium text-green-800">Today's Services</div>
+                            <div className="text-sm text-green-600">Scheduled</div>
+                          </div>
+                          <div className="text-2xl font-bold text-green-700">{stats.todayServices}</div>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full border-orange-200 text-orange-700 hover:bg-orange-50"
+                          onClick={() => {
+                            toast({
+                              title: "Detailed Availability",
+                              description: "Opening detailed availability view",
+                            });
+                            // Could expand the available slots section or open a modal
+                          }}
+                        >
+                          View Detailed Availability
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+
+              {/* Secondary Tools - Below Calendar */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Available Slots Management */}
+                <Card className="shadow-md border-0">
+                  <CardHeader className="bg-gradient-to-r from-sky-50 to-blue-50 border-b">
+                    <CardTitle className="text-lg font-semibold text-sky-800">🕒 Available Slots</CardTitle>
+                    <CardDescription className="text-sky-600">Manage appointment availability</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-4">
+                    <AvailableSlots />
+                  </CardContent>
+                </Card>
+
+                {/* Automated Reminders */}
+                <Card className="shadow-md border-0">
+                  <CardHeader className="bg-gradient-to-r from-emerald-50 to-green-50 border-b">
+                    <CardTitle className="text-lg font-semibold text-emerald-800">🔔 Automated Reminders</CardTitle>
+                    <CardDescription className="text-emerald-600">Configure appointment reminders</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-lg">
+                        <div>
+                          <div className="font-medium text-emerald-800">24 Hour Reminder</div>
+                          <div className="text-sm text-emerald-600">SMS & Email</div>
+                        </div>
+                        <Badge className="bg-green-100 text-green-700">Enabled</Badge>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-lg">
+                        <div>
+                          <div className="font-medium text-emerald-800">2 Hour Reminder</div>
+                          <div className="text-sm text-emerald-600">SMS only</div>
+                        </div>
+                        <Badge className="bg-green-100 text-green-700">Enabled</Badge>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-lg">
+                        <div>
+                          <div className="font-medium text-emerald-800">1 Week Reminder</div>
+                          <div className="text-sm text-emerald-600">Email only</div>
+                        </div>
+                        <Badge className="bg-gray-100 text-gray-700">Disabled</Badge>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+                        onClick={() => {
+                          toast({
+                            title: "Reminder Settings",
+                            description: "Opening reminder configuration",
+                          });
+                          setSelectedTab('settings');
+                        }}
+                      >
+                        Configure Reminders
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Calendar Settings */}
+                <Card className="shadow-md border-0">
+                  <CardHeader className="bg-gradient-to-r from-purple-50 to-violet-50 border-b">
+                    <CardTitle className="text-lg font-semibold text-purple-800">⚙️ Calendar Settings</CardTitle>
+                    <CardDescription className="text-purple-600">Configure calendar preferences</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                        <div>
+                          <div className="font-medium text-purple-800">Business Hours</div>
+                          <div className="text-sm text-purple-600">8:00 AM - 6:00 PM</div>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-purple-200 text-purple-700"
+                          onClick={() => {
+                            toast({
+                              title: "Edit Business Hours",
+                              description: "Opening business hours configuration",
+                            });
+                            setSelectedTab('settings');
+                          }}
+                        >
+                          Edit
+                        </Button>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                        <div>
+                          <div className="font-medium text-purple-800">Appointment Duration</div>
+                          <div className="text-sm text-purple-600">30 minutes default</div>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-purple-200 text-purple-700"
+                          onClick={() => {
+                            toast({
+                              title: "Edit Appointment Duration",
+                              description: "Opening duration configuration",
+                            });
+                            setSelectedTab('settings');
+                          }}
+                        >
+                          Edit
+                        </Button>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                        <div>
+                          <div className="font-medium text-purple-800">Buffer Time</div>
+                          <div className="text-sm text-purple-600">15 minutes between</div>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-purple-200 text-purple-700"
+                          onClick={() => {
+                            toast({
+                              title: "Edit Buffer Time",
+                              description: "Opening buffer time configuration",
+                            });
+                            setSelectedTab('settings');
+                          }}
+                        >
+                          Edit
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* CUSTOMERS TAB */}
+            <TabsContent value="customers" className="space-y-6">
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <Card className="shadow-lg border-0">
+                  <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
+                    <CardTitle className="text-lg font-semibold text-blue-800">👥 Customer Database</CardTitle>
+                    <CardDescription className="text-blue-600">Manage customer information</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <CustomerDatabase />
+                  </CardContent>
+                </Card>
+
+                <Card className="shadow-lg border-0">
+                  <CardHeader className="bg-gradient-to-r from-cyan-50 to-teal-50 border-b">
+                    <CardTitle className="text-lg font-semibold text-cyan-800">📋 Service History</CardTitle>
+                    <CardDescription className="text-cyan-600">View customer service history</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <ServiceHistory />
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* COMMUNICATIONS TAB */}
+            <TabsContent value="communications" className="space-y-6">
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <Card className="shadow-lg border-0">
+                  <CardHeader className="bg-gradient-to-r from-purple-50 to-violet-50 border-b">
+                    <CardTitle className="text-lg font-semibold text-purple-800">💬 Communication Manager</CardTitle>
+                    <CardDescription className="text-purple-600">Manage all customer communications</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <CommunicationManager />
+                  </CardContent>
+                </Card>
+
+                <Card className="shadow-lg border-0">
+                  <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b">
+                    <CardTitle className="text-lg font-semibold text-green-800">📞 Voice Call Manager</CardTitle>
+                    <CardDescription className="text-green-600">Handle voice calls and recordings</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <VoiceCallManager />
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* BILLING TAB */}
+            <TabsContent value="billing" className="space-y-6">
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <Card className="shadow-lg border-0">
+                  <CardHeader className="bg-gradient-to-r from-emerald-50 to-green-50 border-b">
+                    <CardTitle className="text-lg font-semibold text-emerald-800">💳 Invoice Manager</CardTitle>
+                    <CardDescription className="text-emerald-600">Manage invoices and billing</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <InvoiceManager />
+                  </CardContent>
+                </Card>
+
+                <Card className="shadow-lg border-0">
+                  <CardHeader className="bg-gradient-to-r from-amber-50 to-orange-50 border-b">
+                    <CardTitle className="text-lg font-semibold text-amber-800">💳 Payment Processor</CardTitle>
+                    <CardDescription className="text-amber-600">Process payments and transactions</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <PaymentProcessor />
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* ANALYTICS TAB */}
+            <TabsContent value="analytics" className="space-y-6">
+              <Card className="shadow-lg border-0">
+                <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 border-b">
+                  <CardTitle className="text-lg font-semibold text-orange-800">📊 Analytics Dashboard</CardTitle>
+                  <CardDescription className="text-orange-600">View business analytics and insights</CardDescription>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <AnalyticsDashboard />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* SETTINGS TAB */}
+            <TabsContent value="settings" className="space-y-6">
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <Card className="shadow-lg border-0">
+                  <CardHeader className="bg-gradient-to-r from-slate-50 to-gray-50 border-b">
+                    <CardTitle className="text-lg font-semibold text-slate-800">⚙️ Service Type Config</CardTitle>
+                    <CardDescription className="text-slate-600">Configure service types and settings</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <ServiceTypeConfig />
+                  </CardContent>
+                </Card>
+
+                <Card className="shadow-lg border-0">
+                  <CardHeader className="bg-gradient-to-r from-slate-50 to-gray-50 border-b">
+                    <CardTitle className="text-lg font-semibold text-slate-800">📞 Phone Number Setup</CardTitle>
+                    <CardDescription className="text-slate-600">Configure phone numbers and settings</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <PhoneNumberSetup />
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Business Configuration - Full Width */}
+              <div className="mt-8">
+                <Card className="shadow-lg border-0">
+                  <CardHeader className="bg-gradient-to-r from-slate-50 to-gray-50 border-b">
+                    <CardTitle className="text-lg font-semibold text-slate-800">🏢 Business Configuration</CardTitle>
+                    <CardDescription className="text-slate-600">Configure business settings and preferences</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <BusinessConfiguration />
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
 
-      {/* Main Content Tabs */}
-      <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-8">
-          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-          <TabsTrigger value="booking">Today's Appointments</TabsTrigger>
-          <TabsTrigger value="available-slots">Available Slots</TabsTrigger>
-          <TabsTrigger value="intake">Patient Intake</TabsTrigger>
-          <TabsTrigger value="forms">Form Builder</TabsTrigger>
-          <TabsTrigger value="communications">Communications</TabsTrigger>
-          <TabsTrigger value="reminders">Auto Reminders</TabsTrigger>
-          <TabsTrigger value="waitlist">Waiting List</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="dashboard" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Today's Schedule */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Today's Schedule</CardTitle>
-                <CardDescription>Appointments and patient preparation status</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {upcomingAppointments.map((appointment) => (
-                    <div key={appointment.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center gap-4">
-                        <div className="text-center">
-                          <div className="font-bold text-lg">{appointment.time}</div>
-                          <div className="text-xs text-gray-500">{appointment.type}</div>
-                        </div>
-                        <div>
-                          <div className="font-medium">{appointment.patient}</div>
-                          <div className="text-sm text-gray-600">with {appointment.provider}</div>
-                          <div className="text-xs text-gray-500">Prefers: {appointment.communicationPreference}</div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge className={getStatusColor(appointment.status)}>
-                          {appointment.status}
-                        </Badge>
-                        {appointment.intakeCompleted && (
-                          <Badge className="bg-green-100 text-green-700">
-                            <UserCheck className="w-3 h-3 mr-1" />
-                            Intake Done
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Communication Queue */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Active Communications</CardTitle>
-                <CardDescription>Scheduled and pending patient communications</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {communicationQueue.map((comm, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center gap-4">
-                        <div className="text-center">
-                          {comm.method === 'SMS' && <MessageSquare className="h-5 w-5 text-blue-600" />}
-                          {comm.method === 'Voice Call' && <Phone className="h-5 w-5 text-green-600" />}
-                          {comm.method === 'Email' && <Mail className="h-5 w-5 text-purple-600" />}
-                        </div>
-                        <div>
-                          <div className="font-medium">{comm.patient}</div>
-                          <div className="text-sm text-gray-600">{comm.type}</div>
-                          <div className="text-xs text-gray-500">{comm.scheduledFor}</div>
-                        </div>
-                      </div>
-                      <Badge className={getStatusColor(comm.status)}>
-                        {comm.status}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Pending Intakes */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Pending Patient Intake</CardTitle>
-              <CardDescription>Patients who need to complete intake forms or verification</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {pendingIntakes.map((intake, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
-                      <div className="font-medium">{intake.patient}</div>
-                      <div className="text-sm text-gray-600">Appointment: {intake.appointmentTime}</div>
-                      <div className="text-xs text-gray-500">
-                        {intake.formType} via {intake.communicationMethod} • Sent: {intake.sent}
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => console.log('Voice call to:', intake.patient)}
-                      >
-                        <Phone className="w-4 h-4 mr-1" />
-                        Call
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => console.log('Resend form to:', intake.patient)}
-                      >
-                        <Mail className="w-4 h-4 mr-1" />
-                        Resend
-                      </Button>
-                      <Button 
-                        size="sm"
-                        onClick={() => setSelectedTab('intake')}
-                      >
-                        View Intake
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="booking" className="space-y-4">
-          <TodaysAppointments />
-        </TabsContent>
-
-        <TabsContent value="available-slots" className="space-y-4">
-          <AvailableSlots />
-        </TabsContent>
-
-        <TabsContent value="intake" className="space-y-4">
-          <div className="grid gap-6">
-            <IntakeDashboard />
-            
-            {/* Voice Conversation Interface */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Mic className="h-5 w-5" />
-                  Voice Conversation Intake
-                </CardTitle>
-                <CardDescription>
-                  Allow patients to provide all their information in one conversational voice session
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ConversationalVoiceIntake />
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="forms" className="space-y-4">
-          <FormBuilder />
-        </TabsContent>
-
-        <TabsContent value="communications" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Communication Management</CardTitle>
-              <CardDescription>Manage all patient communications across channels</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="p-4">
-                  <div className="flex items-center gap-3 mb-3">
-                    <MessageSquare className="h-6 w-6 text-blue-600" />
-                    <h3 className="font-semibold">SMS Messages</h3>
-                  </div>
-                  <p className="text-2xl font-bold text-blue-600">{stats.smsMessages}</p>
-                  <p className="text-sm text-gray-600">sent today</p>
-                </Card>
-                
-                <Card className="p-4">
-                  <div className="flex items-center gap-3 mb-3">
-                    <Mail className="h-6 w-6 text-purple-600" />
-                    <h3 className="font-semibold">Email Messages</h3>
-                  </div>
-                  <p className="text-2xl font-bold text-purple-600">{stats.emailsSent}</p>
-                  <p className="text-sm text-gray-600">sent today</p>
-                </Card>
-                
-                <Card className="p-4">
-                  <div className="flex items-center gap-3 mb-3">
-                    <Phone className="h-6 w-6 text-green-600" />
-                    <h3 className="font-semibold">Voice Calls</h3>
-                  </div>
-                  <p className="text-2xl font-bold text-green-600">{stats.voiceCallsToday}</p>
-                  <p className="text-sm text-gray-600">calls today</p>
-                </Card>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <StaffIntakeDashboard />
-        </TabsContent>
-
-
-        <TabsContent value="reminders" className="space-y-4">
-          <AutomatedReminders />
-        </TabsContent>
-
-        <TabsContent value="waitlist" className="space-y-4">
-          <WaitlistManagement />
-        </TabsContent>
-      </Tabs>
-
-      {/* Enhanced Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>Common communication and scheduling tasks</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-            <Button 
-              variant="outline" 
-              className="h-16 flex-col"
-              onClick={() => setSelectedTab('booking')}
-            >
-              <Calendar className="h-6 w-6 mb-1" />
-              <span className="text-xs">Book Appointment</span>
-            </Button>
-            <Button 
-              variant="outline" 
-              className="h-16 flex-col"
-              onClick={() => setSelectedTab('intake')}
-            >
-              <ClipboardList className="h-6 w-6 mb-1" />
-              <span className="text-xs">Send Intake</span>
-            </Button>
-            <Button 
-              variant="outline" 
-              className="h-16 flex-col"
-              onClick={() => setSelectedTab('communications')}
-            >
-              <Phone className="h-6 w-6 mb-1" />
-              <span className="text-xs">Voice Call</span>
-            </Button>
-            <Button 
-              variant="outline" 
-              className="h-16 flex-col"
-              onClick={() => setSelectedTab('reminders')}
-            >
-              <Bell className="h-6 w-6 mb-1" />
-              <span className="text-xs">Send Reminder</span>
-            </Button>
-            <Button 
-              variant="outline" 
-              className="h-16 flex-col"
-              onClick={() => setSelectedTab('forms')}
-            >
-              <FileText className="h-6 w-6 mb-1" />
-              <span className="text-xs">Create Form</span>
-            </Button>
-            <Button 
-              variant="outline" 
-              className="h-16 flex-col"
-              onClick={() => setSelectedTab('waitlist')}
-            >
-              <Users className="h-6 w-6 mb-1" />
-              <span className="text-xs">Waitlist</span>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };

@@ -1,292 +1,344 @@
-import { PageHeader } from "@/components/PageHeader";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TwoFactorAuth } from "@/components/auth/TwoFactorAuth";
-import { TeamManagement } from "@/components/settings/TeamManagement";
-import { ProviderNotificationPreferences } from "@/components/provider/ProviderNotificationPreferences";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import {
+  Shield,
+  Database,
+  Key,
+  Eye,
+  EyeOff,
+  CheckCircle,
+  AlertCircle,
+  RefreshCw,
+  Lock,
+  Settings as SettingsIcon
+} from 'lucide-react';
+import { HIPAACredentialManagerService } from '@/services/integrations/security/hipaaCredentialManager';
 import { useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
 
-const Settings = () => {
-  const { toast } = useToast();
-  // In a real app, you'd get this from auth context
-  const providerId = 'current-provider-id'; // This should come from auth context
-  
-  // State for form persistence
-  const [practiceInfo, setPracticeInfo] = useState({
-    name: "Midwest Dental Sleep Medicine Institute",
-    phone: "",
-    email: "",
-    website: "",
-    address: "",
-    city: "",
-    state: "",
-    zipCode: ""
+export default function Settings() {
+  const [activeTab, setActiveTab] = useState('general');
+  const [showPasswords, setShowPasswords] = useState(false);
+  const [credentials, setCredentials] = useState({
+    sleepImpressions: {
+      username: '',
+      password: '',
+      endpoint: ''
+    },
+    ds3: {
+      username: '',
+      password: '',
+      endpoint: ''
+    }
+  });
+  const [connectionStatus, setConnectionStatus] = useState({
+    sleepImpressions: { connected: false, testing: false },
+    ds3: { connected: false, testing: false }
   });
 
-  const handleSavePracticeInfo = () => {
-    toast({
-      title: "Practice information saved",
-      description: "Your practice details have been updated successfully.",
-    });
+  const credentialManager = new HIPAACredentialManagerService();
+
+  const handleCredentialChange = (system: 'sleepImpressions' | 'ds3', field: string, value: string) => {
+    setCredentials(prev => ({
+      ...prev,
+      [system]: {
+        ...prev[system],
+        [field]: value
+      }
+    }));
+  };
+
+  const handleSaveCredentials = async () => {
+    try {
+      await credentialManager.storeCredentialsSecurely(credentials);
+      console.log('✅ Credentials saved securely');
+    } catch (error) {
+      console.error('❌ Error saving credentials:', error);
+    }
+  };
+
+  const testConnection = async (system: 'sleepImpressions' | 'ds3') => {
+    setConnectionStatus(prev => ({
+      ...prev,
+      [system]: { ...prev[system], testing: true }
+    }));
+
+    try {
+      const result = system === 'sleepImpressions'
+        ? await credentialManager.testSleepImpressionsConnection()
+        : await credentialManager.testDS3Connection();
+
+      setConnectionStatus(prev => ({
+        ...prev,
+        [system]: {
+          connected: result.success,
+          testing: false
+        }
+      }));
+    } catch (error) {
+      console.error(`❌ Error testing ${system} connection:`, error);
+      setConnectionStatus(prev => ({
+        ...prev,
+        [system]: { connected: false, testing: false }
+      }));
+    }
   };
 
   return (
     <div className="space-y-6">
-      <PageHeader 
-        title="Settings"
-        subtitle="Configure your FlowIQ preferences and manage your practice"
-      />
-      
-      <Tabs defaultValue="general" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
+        <p className="text-gray-600">Manage your account settings and integrations</p>
+      </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="general">General</TabsTrigger>
-          <TabsTrigger value="team">Team Management</TabsTrigger>
-          <TabsTrigger value="notifications">Notifications</TabsTrigger>
+          <TabsTrigger value="integrations">Integrations</TabsTrigger>
           <TabsTrigger value="security">Security</TabsTrigger>
-          <TabsTrigger value="billing">Billing</TabsTrigger>
+          <TabsTrigger value="notifications">Notifications</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="general" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Practice Information</CardTitle>
-                <CardDescription>Basic practice configuration</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Practice Name</label>
-                  <input 
-                    className="w-full p-2 border rounded" 
-                    value={practiceInfo.name}
-                    onChange={(e) => setPracticeInfo(prev => ({...prev, name: e.target.value}))}
+          {/* General Settings */}
+          <Card>
+            <CardHeader>
+              <CardTitle>General Settings</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="practice-name">Practice Name</Label>
+                  <Input
+                    id="practice-name"
+                    placeholder="Your Practice Name"
+                    defaultValue="Midwest Dental Sleep"
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Time Zone</label>
-                  <select className="w-full p-2 border rounded">
-                    <option>Eastern Time (EST)</option>
-                    <option selected>Central Time (CST)</option>
-                    <option>Mountain Time (MST)</option>
-                    <option>Pacific Time (PST)</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Practice Type</label>
-                  <div className="w-full p-2 border rounded bg-muted">
-                    <span className="text-sm text-muted-foreground">Dental Sleep Medicine Practice</span>
-                  </div>
-                </div>
-                <Button onClick={handleSavePracticeInfo} className="w-full mt-4">
-                  Save Practice Information
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Contact Information</CardTitle>
-                <CardDescription>Practice contact details</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Phone Number</label>
-                  <input 
-                    className="w-full p-2 border rounded" 
-                    placeholder="(555) 123-4567"
-                    value={practiceInfo.phone}
-                    onChange={(e) => setPracticeInfo(prev => ({...prev, phone: e.target.value}))}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Email Address</label>
-                  <input 
-                    className="w-full p-2 border rounded" 
-                    placeholder="contact@practice.com"
-                    value={practiceInfo.email}
-                    onChange={(e) => setPracticeInfo(prev => ({...prev, email: e.target.value}))}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Website</label>
-                  <input 
-                    className="w-full p-2 border rounded" 
+                <div>
+                  <Label htmlFor="practice-url">Practice URL</Label>
+                  <Input
+                    id="practice-url"
                     placeholder="https://practice.com"
-                    value={practiceInfo.website}
-                    onChange={(e) => setPracticeInfo(prev => ({...prev, website: e.target.value}))}
                   />
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="timezone">Timezone</Label>
+                  <Input
+                    id="timezone"
+                    placeholder="America/Chicago"
+                    defaultValue="America/Chicago"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="language">Language</Label>
+                  <Input
+                    id="language"
+                    placeholder="English"
+                    defaultValue="English"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Address</CardTitle>
-                <CardDescription>Practice location</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Street Address</label>
-                  <input 
-                    className="w-full p-2 border rounded" 
-                    placeholder="123 Medical Drive"
-                    value={practiceInfo.address}
-                    onChange={(e) => setPracticeInfo(prev => ({...prev, address: e.target.value}))}
-                  />
+        <TabsContent value="integrations" className="space-y-6">
+          {/* Integration Credentials */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Database className="w-5 h-5" />
+                Third-Party Integrations
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Sleep Impressions Integration */}
+              <div className="border rounded-lg p-4">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="font-semibold">Sleep Impressions</h3>
+                    <p className="text-sm text-gray-600">Dental sleep medicine management system</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge className={connectionStatus.sleepImpressions.connected ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+                      {connectionStatus.sleepImpressions.connected ? 'Connected' : 'Disconnected'}
+                    </Badge>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => testConnection('sleepImpressions')}
+                      disabled={connectionStatus.sleepImpressions.testing}
+                    >
+                      {connectionStatus.sleepImpressions.testing ? (
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <CheckCircle className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </div>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">City</label>
-                    <input 
-                      className="w-full p-2 border rounded" 
-                      placeholder="City"
-                      value={practiceInfo.city}
-                      onChange={(e) => setPracticeInfo(prev => ({...prev, city: e.target.value}))}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="si-username">Username</Label>
+                    <Input
+                      id="si-username"
+                      type="text"
+                      placeholder="Sleep Impressions username"
+                      value={credentials.sleepImpressions.username}
+                      onChange={(e) => handleCredentialChange('sleepImpressions', 'username', e.target.value)}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">State</label>
-                    <input 
-                      className="w-full p-2 border rounded" 
-                      placeholder="State"
-                      value={practiceInfo.state}
-                      onChange={(e) => setPracticeInfo(prev => ({...prev, state: e.target.value}))}
-                    />
+                  <div>
+                    <Label htmlFor="si-password">Password</Label>
+                    <div className="relative">
+                      <Input
+                        id="si-password"
+                        type={showPasswords ? 'text' : 'password'}
+                        placeholder="Sleep Impressions password"
+                        value={credentials.sleepImpressions.password}
+                        onChange={(e) => handleCredentialChange('sleepImpressions', 'password', e.target.value)}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3"
+                        onClick={() => setShowPasswords(!showPasswords)}
+                      >
+                        {showPasswords ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </Button>
+                    </div>
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">ZIP Code</label>
-                  <input 
-                    className="w-full p-2 border rounded" 
-                    placeholder="12345"
-                    value={practiceInfo.zipCode}
-                    onChange={(e) => setPracticeInfo(prev => ({...prev, zipCode: e.target.value}))}
+
+                <div className="mt-4">
+                  <Label htmlFor="si-endpoint">API Endpoint</Label>
+                  <Input
+                    id="si-endpoint"
+                    type="text"
+                    placeholder="https://api.sleepimpressions.com"
+                    value={credentials.sleepImpressions.endpoint}
+                    onChange={(e) => handleCredentialChange('sleepImpressions', 'endpoint', e.target.value)}
                   />
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+
+              {/* DS3 Integration */}
+              <div className="border rounded-lg p-4">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="font-semibold">DS3 (DeepSpeed 3)</h3>
+                    <p className="text-sm text-gray-600">Dental practice management system</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge className={connectionStatus.ds3.connected ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+                      {connectionStatus.ds3.connected ? 'Connected' : 'Disconnected'}
+                    </Badge>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => testConnection('ds3')}
+                      disabled={connectionStatus.ds3.testing}
+                    >
+                      {connectionStatus.ds3.testing ? (
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <CheckCircle className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="ds3-username">Username</Label>
+                    <Input
+                      id="ds3-username"
+                      type="text"
+                      placeholder="DS3 username"
+                      value={credentials.ds3.username}
+                      onChange={(e) => handleCredentialChange('ds3', 'username', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="ds3-password">Password</Label>
+                    <div className="relative">
+                      <Input
+                        id="ds3-password"
+                        type={showPasswords ? 'text' : 'password'}
+                        placeholder="DS3 password"
+                        value={credentials.ds3.password}
+                        onChange={(e) => handleCredentialChange('ds3', 'password', e.target.value)}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3"
+                        onClick={() => setShowPasswords(!showPasswords)}
+                      >
+                        {showPasswords ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4">
+                  <Label htmlFor="ds3-endpoint">API Endpoint</Label>
+                  <Input
+                    id="ds3-endpoint"
+                    type="text"
+                    placeholder="https://api.ds3.com"
+                    value={credentials.ds3.endpoint}
+                    onChange={(e) => handleCredentialChange('ds3', 'endpoint', e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* Save Credentials Button */}
+              <div className="flex items-center justify-between pt-4 border-t">
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Lock className="w-4 h-4" />
+                  <span>Credentials are encrypted and stored securely</span>
+                </div>
+                <Button onClick={handleSaveCredentials}>
+                  <Shield className="w-4 h-4 mr-2" />
+                  Save Credentials
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
-        
-        <TabsContent value="team">
-          <TeamManagement />
-        </TabsContent>
-        
-        <TabsContent value="notifications">
-          <ProviderNotificationPreferences providerId={providerId} />
-        </TabsContent>
-        
+
         <TabsContent value="security" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Security Settings</CardTitle>
-                <CardDescription>Configure security and privacy options</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Two-Factor Authentication</span>
-                  <Badge className="bg-green-100 text-green-700">Enabled</Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Session Timeout</span>
-                  <span className="text-sm text-muted-foreground">30 minutes</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Login Notifications</span>
-                  <input type="checkbox" defaultChecked />
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Password Expiry</span>
-                  <span className="text-sm text-muted-foreground">90 days</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>HIPAA Compliance</CardTitle>
-                <CardDescription>Healthcare privacy and security settings</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Audit Logging</span>
-                  <Badge className="bg-green-100 text-green-700">Active</Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Data Encryption</span>
-                  <Badge className="bg-green-100 text-green-700">AES-256</Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Access Control</span>
-                  <Badge className="bg-green-100 text-green-700">Role-Based</Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Data Backup</span>
-                  <Badge className="bg-green-100 text-green-700">Daily</Badge>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          
-          <TwoFactorAuth />
+          <Card>
+            <CardHeader>
+              <CardTitle>Security Settings</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>Security settings will be implemented here...</p>
+            </CardContent>
+          </Card>
         </TabsContent>
-        
-        <TabsContent value="billing" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Billing Information</CardTitle>
-                <CardDescription>Practice billing and payment settings</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Tax ID (EIN)</label>
-                  <input className="w-full p-2 border rounded" placeholder="XX-XXXXXXX" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">NPI Number</label>
-                  <input className="w-full p-2 border rounded" placeholder="1234567890" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Billing Contact Email</label>
-                  <input className="w-full p-2 border rounded" placeholder="billing@practice.com" />
-                </div>
-              </CardContent>
-            </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Payment Methods</CardTitle>
-                <CardDescription>Accepted payment methods</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Credit Cards</span>
-                  <input type="checkbox" defaultChecked />
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">ACH/Bank Transfer</span>
-                  <input type="checkbox" defaultChecked />
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Cash Payments</span>
-                  <input type="checkbox" defaultChecked />
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Insurance Claims</span>
-                  <input type="checkbox" defaultChecked />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+        <TabsContent value="notifications" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Notification Preferences</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>Notification preferences will be implemented here...</p>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
   );
-};
-
-export default Settings;
+}

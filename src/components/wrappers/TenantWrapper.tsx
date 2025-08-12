@@ -17,18 +17,18 @@ export const TenantWrapper: React.FC<TenantWrapperProps> = ({ children }) => {
   const location = useLocation();
   const { switchTheme } = useSpecialtyTheme();
   const { data: userProfile } = useUserProfile();
-  
+
   // Phase 3: Use unified specialty detection system
   const detectCurrentSpecialty = (): SpecialtyType => {
     console.log('🎨 TenantWrapper - detecting specialty for path:', location.pathname);
-    
+
     const detectionResult = detectSpecialty(userProfile, location.pathname);
-    
+
     console.log('🎨 TenantWrapper - unified detection result:', detectionResult);
-    
+
     // Persist for consistency across components
     persistSpecialtyDetection(detectionResult);
-    
+
     return detectionResult.specialty;
   };
 
@@ -39,14 +39,20 @@ export const TenantWrapper: React.FC<TenantWrapperProps> = ({ children }) => {
     console.log('🎨 TenantWrapper switching theme to:', currentSpecialty);
     switchTheme(currentSpecialty);
   }, [currentSpecialty, switchTheme, location.pathname]);
-  
+
   // Phase 3: More permissive wrapper rendering with better error handling
   const renderSpecialtyWrapper = () => {
     console.log('🎨 TenantWrapper rendering wrapper for specialty:', currentSpecialty);
-    
+
     try {
       switch (currentSpecialty) {
         case 'dental-sleep':
+          return <DentalSleepWrapper>{children}</DentalSleepWrapper>;
+        case 'general-dentistry':
+          // Use DentalSleepWrapper for general dentistry (same theme structure)
+          return <DentalSleepWrapper>{children}</DentalSleepWrapper>;
+        case 'communication':
+          // Use DentalSleepWrapper for communication (blue theme)
           return <DentalSleepWrapper>{children}</DentalSleepWrapper>;
         case 'chiropractic':
         case 'med-spa':
@@ -63,7 +69,7 @@ export const TenantWrapper: React.FC<TenantWrapperProps> = ({ children }) => {
       return <ChiropracticWrapper>{children}</ChiropracticWrapper>;
     }
   };
-  
+
   return (
     <ErrorBoundary>
       {renderSpecialtyWrapper()}

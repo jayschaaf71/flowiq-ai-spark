@@ -1,180 +1,209 @@
 
 console.log('🚀 [DIAGNOSTIC] App.tsx - Starting imports');
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import React from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthProvider";
-import { HealthCheck } from "@/components/health/HealthCheck";
-import { TenantWrapper } from "@/components/wrappers/TenantWrapper";
-import { parseTenantFromUrl } from "@/utils/tenantRouting";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { TenantRedirect } from "@/components/TenantRedirect";
-import "@/utils/routeTestRunner"; // Enable route testing functions
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from './components/ui/toaster';
+import { Toaster as Sonner } from './components/ui/sonner';
+import { TooltipProvider } from './components/ui/tooltip';
+import { SidebarProvider } from './components/ui/sidebar';
+import { AuthProvider } from './contexts/AuthProvider';
+import { SpecialtyProvider } from './contexts/SpecialtyContext';
+import { ApplicationProvider } from './contexts/ApplicationContext';
+import { SageAIProvider } from './contexts/SageAIContext';
+import { ChiropracticApp } from './apps/ChiropracticApp';
+import { DentalSleepApp } from './apps/DentalSleepApp';
+import FlowIQConnectApp from './apps/CommunicationIQApp';
+import { HealthCheck } from './components/health/HealthCheck';
+import { MarketingHomepage } from './pages/MarketingHomepage';
+import { HealthcareLanding } from './pages/HealthcareLanding';
+import { ConnectLanding } from './pages/ConnectLanding';
+import { OnboardingFlow } from './pages/OnboardingFlow';
+import { SignupPage } from './pages/SignupPage';
+import PlatformAdmin from './pages/PlatformAdmin';
+import { OAuthCallback } from './pages/OAuthCallback';
+import { getDomainConfig, isProductionDomain, parseTenantFromUrl } from './config/unifiedRouting';
+import GeneralDentistryApp from './apps/GeneralDentistryApp';
 
-// Test component to bypass import issues
-import { SimpleTest } from "@/components/SimpleTest";
-import { DentalSleepDashboard } from "@/components/dental-sleep/DentalSleepDashboard";
-import { Layout } from "@/components/Layout";
-import { TenantTestPage } from "@/components/TenantTestPage";
-import { AuthPage } from "@/components/auth/AuthPage";
-
-// Specialty Apps
-import ChiropracticApp from "@/apps/ChiropracticApp";
-import { DentalSleepApp } from "@/components/dental-sleep/DentalSleepApp";
-import DentalApp from "@/apps/DentalApp";
-
-// Landing page for non-tenant routes
-import Index from "./pages/Index";
-
-console.log('✅ [DIAGNOSTIC] App.tsx - All imports completed');
-
-console.log('🚀 [DIAGNOSTIC] App.tsx - Creating QueryClient');
+// Create QueryClient instance
 const queryClient = new QueryClient();
-console.log('✅ [DIAGNOSTIC] App.tsx - QueryClient created successfully');
 
-const TenantRouter: React.FC = () => {
-  console.log('🚀 [DIAGNOSTIC] TenantRouter - Component initializing');
+function App() {
+  console.log('🚀 App: Rendering main App component');
+
+  // Get domain configuration using unified routing
+  const hostname = window.location.hostname;
+  const domainConfig = getDomainConfig(hostname);
+  const isProduction = isProductionDomain(hostname);
   const tenantRoute = parseTenantFromUrl();
-  const currentPath = window.location.pathname;
-  
-  console.log('🚦 [CRITICAL DEBUG] TenantRouter - tenantRoute:', JSON.stringify(tenantRoute, null, 2));
-  console.log('🚦 [CRITICAL DEBUG] TenantRouter - currentPath:', currentPath);
-  
-  // Phase 2: Clean app-level routing without conflicting redirects
-  if (tenantRoute) {
-    console.log('🎯 [CRITICAL DEBUG] Tenant detected:', tenantRoute.specialty, 'isProduction:', tenantRoute.isProduction);
-    
-    // Set document title based on tenant
-    const brandNames: Record<string, string> = {
-      'dental-sleep-medicine': 'Midwest Dental Sleep Medicine - FlowIQ',
-      'chiropractic-care': 'West County Spine Care - FlowIQ',
-      'general-dentistry': 'FlowIQ - Dental Practice'
-    };
-    document.title = brandNames[tenantRoute.specialty] || 'FlowIQ';
-    
-    // Render appropriate app based on specialty
-    switch (tenantRoute.specialty) {
-      case 'dental-sleep-medicine':
-        console.log('🦷 Rendering DentalSleepApp for specialty:', tenantRoute.specialty);
-        return <DentalSleepApp />;
-        
-      case 'chiropractic-care':
-        console.log('🦴 Rendering ChiropracticApp for path:', currentPath);
-        return <ChiropracticApp />;
-        
-      case 'general-dentistry':
-      default:
-        console.log('🦷 [CRITICAL DEBUG] Using DentalApp fallback for specialty:', tenantRoute.specialty);
-        return <DentalApp />;
-    }
-  }
-  
-  console.log('🚨 [CRITICAL DEBUG] NO TENANT DETECTED - tenantRoute is:', tenantRoute);
-  // No tenant detected - check if it's an app route or landing page route
-  const isAppRoute = (path: string) => {
-    const appPaths = ['/agents/', '/dashboard', '/schedule', '/calendar', '/analytics', '/ehr', '/patient-management', '/financial', '/patient-experience', '/ai-automation', '/team', '/checkin', '/insights', '/notifications', '/help', '/settings'];
-    return appPaths.some(appPath => path.startsWith(appPath));
-  };
 
-  if (isAppRoute(currentPath)) {
-    console.log('🎯 No tenant detected, but app route detected. Routing to ChiropracticApp for path:', currentPath);
-    document.title = 'FlowIQ - Chiropractic Care';
-    return <ChiropracticApp />;
-  }
-  
-  // Only show landing page for actual landing routes
-  console.log('🏠 No tenant detected, showing landing page for path:', currentPath);
-  document.title = 'FlowIQ - AI Operating System';
-  return <Index />;
-};
+  console.log('🌐 Unified routing config:', {
+    hostname,
+    domainConfig,
+    isProduction,
+    tenantRoute
+  });
 
-const App = () => {
-  console.log('🚀 [CRITICAL DEBUG] App - Component rendering START');
-  
-  try {
-    console.log('🚀 [CRITICAL DEBUG] App - About to render JSX');
-    return (
-      <ErrorBoundary 
-        onError={(error, errorInfo) => {
-          console.error('🚨 [DIAGNOSTIC] ErrorBoundary caught error:', error, errorInfo);
-        }}
-      >
-        <QueryClientProvider client={queryClient}>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <AuthProvider>
-                <TenantRedirect />
-                <TenantWrapper>
-                  {(() => {
-                    console.log('🚀 [CRITICAL DEBUG] App - About to render Routes');
-                    return (
-                      <Routes>
-                {/* Health check route */}
-                <Route path="/health" element={<HealthCheck />} />
-                
-                {/* Simple login route that bypasses tenant routing */}
-                <Route path="/login" element={<AuthPage />} />
-                
-                {/* Tenant test route for debugging */}
-                <Route path="/test-tenant" element={<TenantTestPage />} />
-                
-                {/* Specialty app routes for development - only on non-production */}
-                <Route path="/chiropractic/*" element={<TenantRouter />} />
-                <Route path="/chiropractic-care/*" element={<TenantRouter />} />
-                <Route path="/dental-sleep/*" element={<TenantRouter />} />
-                <Route path="/dental-sleep-medicine/*" element={<TenantRouter />} />
-                <Route path="/dental/*" element={<TenantRouter />} />
-                
-                {/* Production tenant routes - dynamic based on tenant specialty */}
-                <Route path="/dashboard" element={<TenantRouter />} />
-                <Route path="/schedule" element={<TenantRouter />} />
-                <Route path="/calendar" element={<TenantRouter />} />
-                <Route path="/analytics" element={<TenantRouter />} />
-                <Route path="/ehr" element={<TenantRouter />} />
-                <Route path="/patient-management" element={<TenantRouter />} />
-                <Route path="/financial" element={<TenantRouter />} />
-                <Route path="/patient-experience" element={<TenantRouter />} />
-                <Route path="/ai-automation" element={<TenantRouter />} />
-                <Route path="/team" element={<TenantRouter />} />
-                <Route path="/checkin" element={<TenantRouter />} />
-                <Route path="/insights" element={<TenantRouter />} />
-                <Route path="/notifications" element={<TenantRouter />} />
-                <Route path="/help" element={<TenantRouter />} />
-                <Route path="/settings" element={<TenantRouter />} />
-                <Route path="/agents/*" element={<TenantRouter />} />
-                
-                {/* Redirect component paths to proper app routes */}
-                <Route path="/components/dental-sleep/*" element={<Navigate to="/dental-sleep/dashboard" replace />} />
-                
-                {/* Main tenant routing for other routes */}
-                <Route path="/*" element={
-                  (() => {
-                    console.log('🚀 [CRITICAL DEBUG] App - Catch-all route triggered for path:', window.location.pathname);
-                    return <TenantRouter />;
-                  })()
-                } />
-                      </Routes>
-                    );
-                  })()}
-                </TenantWrapper>
-              </AuthProvider>
-            </BrowserRouter>
-          </TooltipProvider>
-        </QueryClientProvider>
-      </ErrorBoundary>
-    );
-  } catch (error) {
-    console.error('🚨 [DIAGNOSTIC] App - Error during render:', error);
-    return <div>App Error: {error.message}</div>;
-  }
-};
+  // Determine if this is the main marketing website
+  const isMarketingWebsite = hostname === 'flow-iq.ai' || hostname === 'localhost';
 
-console.log('✅ [DIAGNOSTIC] App.tsx - Component definition completed');
+  // Determine if this is the admin domain
+  const isAdminDomain = hostname === 'app.flow-iq.ai';
+
+  // Determine if this is the connect subdomain
+  const isConnectSubdomain = hostname === 'connect.flow-iq.ai';
+
+  // Check if this is a production tenant subdomain
+  const isProductionTenant = isProduction && domainConfig && domainConfig.subdomain !== 'main' && domainConfig.subdomain !== 'app';
+
+  console.log('🔍 Domain detection:', {
+    hostname,
+    isMarketingWebsite,
+    isAdminDomain,
+    isConnectSubdomain,
+    isProductionTenant,
+    domainConfig,
+    pathname: window.location.pathname
+  });
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <SidebarProvider>
+          <AuthProvider>
+            <SpecialtyProvider>
+              <ApplicationProvider>
+                <SageAIProvider>
+                  <Router>
+                    <div className="app-debug-info" style={{ display: 'none' }}>
+                      <p>Hostname: {hostname}</p>
+                      <p>Is Marketing: {isMarketingWebsite.toString()}</p>
+                      <p>Is Admin: {isAdminDomain.toString()}</p>
+                      <p>Is Connect: {isConnectSubdomain.toString()}</p>
+                      <p>Is Production Tenant: {isProductionTenant.toString()}</p>
+                      <p>Domain Config: {JSON.stringify(domainConfig)}</p>
+                    </div>
+                    <Routes>
+                      {/* Health check endpoint */}
+                      <Route path="/health" element={<HealthCheck />} />
+
+                      {/* Admin Platform Routes */}
+                      {isAdminDomain && (
+                        <Route path="/platform-admin/*" element={<PlatformAdmin />} />
+                      )}
+
+                      {/* Marketing Website Routes (main domain) */}
+                      {isMarketingWebsite && (
+                        <>
+                          <Route path="/" element={<MarketingHomepage />} />
+                          <Route path="/healthcare" element={<HealthcareLanding />} />
+                          <Route path="/connect" element={<ConnectLanding />} />
+                          <Route path="/onboarding" element={<OnboardingFlow />} />
+                          <Route path="/signup" element={<SignupPage />} />
+                          <Route path="/login" element={<Navigate to="/chiropractic/login" replace />} />
+                        </>
+                      )}
+
+                      {/* Connect Subdomain Routes */}
+                      {isConnectSubdomain && (
+                        <>
+                          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                          <Route path="/onboarding" element={<OnboardingFlow />} />
+                          <Route path="/dashboard" element={<FlowIQConnectApp />} />
+                          <Route path="/communication/*" element={<FlowIQConnectApp />} />
+                          <Route path="/*" element={<FlowIQConnectApp />} />
+                          <Route path="/test" element={
+                            <div className="p-8 text-center">
+                              <h1 className="text-2xl font-bold text-green-600 mb-4">✅ Connect Subdomain Working!</h1>
+                              <p className="text-gray-600 mb-4">Hostname: {hostname}</p>
+                              <p className="text-gray-600 mb-4">Pathname: {window.location.pathname}</p>
+                              <a href="/dashboard" className="text-blue-600 hover:underline">Go to Dashboard</a>
+                            </div>
+                          } />
+                        </>
+                      )}
+
+                      {/* Production Tenant Subdomain Routes */}
+                      {isProductionTenant && (
+                        <>
+                          {/* Chiropractic App for West County Spine */}
+                          {domainConfig?.specialty === 'chiropractic-care' && (
+                            <>
+                              <Route path="/" element={<ChiropracticApp />} />
+                              <Route path="/*" element={<ChiropracticApp />} />
+                            </>
+                          )}
+
+                          {/* Dental Sleep App for Midwest Dental */}
+                          {domainConfig?.specialty === 'dental-sleep-medicine' && (
+                            <>
+                              <Route path="/" element={<DentalSleepApp />} />
+                              <Route path="/*" element={<DentalSleepApp />} />
+                            </>
+                          )}
+
+                          {/* General Dentistry App */}
+                          {domainConfig?.specialty === 'general-dentistry' && (
+                            <>
+                              <Route path="/" element={<GeneralDentistryApp />} />
+                              <Route path="/*" element={<GeneralDentistryApp />} />
+                            </>
+                          )}
+
+                          {/* OAuth Callback */}
+                          <Route path="/oauth-callback" element={<OAuthCallback />} />
+                        </>
+                      )}
+
+                      {/* Healthcare Application Routes (Development) */}
+                      {!isMarketingWebsite && !isAdminDomain && !isConnectSubdomain && !isProductionTenant && (
+                        <>
+                          {/* Chiropractic App */}
+                          <Route path="/chiropractic/*" element={<ChiropracticApp />} />
+
+                          {/* Dental Sleep App */}
+                          <Route path="/dental-sleep/*" element={<DentalSleepApp />} />
+
+                          {/* General Dentistry App */}
+                          <Route path="/general-dentistry/*" element={<GeneralDentistryApp />} />
+
+                          {/* Default redirect for healthcare domain */}
+                          <Route path="/" element={<Navigate to="/chiropractic" replace />} />
+                        </>
+                      )}
+
+                      {/* Fallback route for debugging */}
+                      <Route path="*" element={
+                        <div className="p-8 text-center">
+                          <h1 className="text-2xl font-bold text-red-600 mb-4">⚠️ Route Not Found</h1>
+                          <p className="text-gray-600 mb-4">Hostname: {hostname}</p>
+                          <p className="text-gray-600 mb-4">Pathname: {window.location.pathname}</p>
+                          <p className="text-gray-600 mb-4">Is Marketing: {isMarketingWebsite.toString()}</p>
+                          <p className="text-gray-600 mb-4">Is Admin: {isAdminDomain.toString()}</p>
+                          <p className="text-gray-600 mb-4">Is Connect: {isConnectSubdomain.toString()}</p>
+                          <p className="text-gray-600 mb-4">Is Production Tenant: {isProductionTenant.toString()}</p>
+                          <p className="text-gray-600 mb-4">Domain Config: {JSON.stringify(domainConfig)}</p>
+                          <div className="mt-4">
+                            <a href="/dashboard" className="text-blue-600 hover:underline mr-4">Try Dashboard</a>
+                            <a href="/chiropractic" className="text-blue-600 hover:underline mr-4">Try Chiropractic</a>
+                            <a href="/dental-sleep" className="text-blue-600 hover:underline mr-4">Try Dental Sleep</a>
+                            <a href="/general-dentistry" className="text-blue-600 hover:underline">Try General Dentistry</a>
+                          </div>
+                        </div>
+                      } />
+                    </Routes>
+                  </Router>
+                </SageAIProvider>
+              </ApplicationProvider>
+            </SpecialtyProvider>
+          </AuthProvider>
+        </SidebarProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+}
 
 export default App;

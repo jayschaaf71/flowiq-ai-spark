@@ -10,6 +10,53 @@ export const usePatients = (searchTerm?: string) => {
   return useQuery({
     queryKey: ['patients', searchTerm],
     queryFn: async () => {
+      // Development mock data
+      if (window.location.hostname === 'localhost') {
+        console.log('Using mock patients data for development');
+        return [
+          {
+            id: '1',
+            first_name: 'John',
+            last_name: 'Doe',
+            email: 'john.doe@email.com',
+            phone: '555-0101',
+            is_active: true,
+            specialty: 'chiropractic',
+            created_at: new Date().toISOString()
+          },
+          {
+            id: '2',
+            first_name: 'Jane',
+            last_name: 'Smith',
+            email: 'jane.smith@email.com',
+            phone: '555-0102',
+            is_active: true,
+            specialty: 'chiropractic',
+            created_at: new Date().toISOString()
+          },
+          {
+            id: '3',
+            first_name: 'Mike',
+            last_name: 'Johnson',
+            email: 'mike.johnson@email.com',
+            phone: '555-0103',
+            is_active: true,
+            specialty: 'chiropractic',
+            created_at: new Date().toISOString()
+          },
+          {
+            id: '4',
+            first_name: 'Sarah',
+            last_name: 'Wilson',
+            email: 'sarah.wilson@email.com',
+            phone: '555-0104',
+            is_active: false,
+            specialty: 'chiropractic',
+            created_at: new Date().toISOString()
+          }
+        ];
+      }
+      
       // HIPAA COMPLIANCE: Ensure user is authenticated before accessing patient data
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
