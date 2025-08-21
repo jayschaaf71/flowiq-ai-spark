@@ -6,7 +6,7 @@
     }
   ],
   "functions": {
-    "src/pages/api/etl/sleepimpressions.ts": {
+    "api/etl/sleepimpressions.js": {
       "maxDuration": 300
     }
   },
