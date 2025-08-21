@@ -1,0 +1,13 @@
+{
+  "crons": [
+    {
+      "path": "/api/etl/sleepimpressions",
+      "schedule": "0 */6 * * *"
+    }
+  ],
+  "functions": {
+    "api/etl/sleepimpressions.js": {
+      "maxDuration": 300
+    }
+  }
+}

@@ -1,0 +1,22 @@
+# Archive directories
+*-archive-*
+flowiq-ai-spark-archive-*
+../flowiq-ai-spark-archive-*
+
+# Build outputs
+dist/
+build/
+.next/
+
+# Dependencies
+node_modules/
+
+# Supabase functions (they have their own linting)
+supabase/functions/
+
+# Generated files
+*.generated.*
+*.min.js
+
+# Test files
+tests/fixtures/
