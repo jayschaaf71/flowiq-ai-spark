@@ -5,11 +5,6 @@
       "schedule": "0 */6 * * *"
     }
   ],
-  "functions": {
-    "api/etl/sleepimpressions.js": {
-      "maxDuration": 300
-    }
-  },
   "env": {
     "VITE_ENVIRONMENT": "production"
   }
