@@ -134,8 +134,14 @@ jobs:
     continue-on-error: true
     
     steps:
-    - uses: actions/checkout@v4
-    
+
+    - name: Download staging build
+      uses: actions/download-artifact@v5
+      with:
+        name: staging-build
+        path: dist/
+        
+
     - name: Deploy to Vercel (Staging)
       uses: amondnet/vercel-action@v25
       with:
@@ -157,8 +163,16 @@ jobs:
     continue-on-error: true
     
     steps:
-    - uses: actions/checkout@v4
-    
+
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Download production build
+      uses: actions/download-artifact@v5
+      with:
+        name: production-build
+        path: dist/
+
     - name: Deploy to Vercel (Production)
       uses: amondnet/vercel-action@v25
       with:
